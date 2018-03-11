@@ -178,11 +178,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void deleteAll() {
 		Timber.v("deleteAll");
+		prefs.clearLastRecordFile();
+		loadLastRecord(null);
 	}
 
 	@Override
 	public void loadLastRecord(final Context context) {
-		view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(0));
 		final String lastFile = prefs.getLastRecordedFile();
 		if (lastFile != null && !lastFile.isEmpty()) {
 			view.showProgress();
@@ -215,6 +216,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					}
 				}
 			}.start();
+		} else {
+			view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(0));
+			view.showSoundFile(null);
 		}
 	}
 

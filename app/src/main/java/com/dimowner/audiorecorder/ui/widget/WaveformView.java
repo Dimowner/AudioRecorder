@@ -63,15 +63,15 @@ public class WaveformView extends View {
 		waveformPaint = new Paint();
 		waveformPaint.setStyle(Paint.Style.FILL);
 		waveformPaint.setAntiAlias(true);
-		waveformPaint.setColor(context.getResources().getColor(R.color.grey_800));
+		waveformPaint.setColor(context.getResources().getColor(R.color.md_grey_900));
 
 		playProgressPaint = new Paint();
 		playProgressPaint.setAntiAlias(false);
 		playProgressPaint.setStrokeWidth(AndroidUtils.dpToPx(2));
-		playProgressPaint.setColor(context.getResources().getColor(R.color.grey_100));
+		playProgressPaint.setColor(context.getResources().getColor(R.color.md_grey_100));
 
 		gridPaint = new Paint();
-		gridPaint.setColor(context.getResources().getColor(R.color.grey_600));
+		gridPaint.setColor(context.getResources().getColor(R.color.white));
 		gridPaint.setStrokeWidth(AndroidUtils.dpToPx(1));
 		gridPaint.setTextAlign(Paint.Align.CENTER);
 		gridPaint.setTextSize(context.getResources().getDimension(R.dimen.text_small));
@@ -101,9 +101,9 @@ public class WaveformView extends View {
 	public void setSelected(boolean selected) {
 		super.setSelected(selected);
 		if (selected) {
-			waveformPaint.setColor(getContext().getResources().getColor(R.color.muted_track_selected));
+			waveformPaint.setColor(getContext().getResources().getColor(R.color.md_grey_500));
 		} else {
-			waveformPaint.setColor(getContext().getResources().getColor(R.color.muted_track));
+			waveformPaint.setColor(getContext().getResources().getColor(R.color.md_grey_700));
 		}
 	}
 

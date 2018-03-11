@@ -55,4 +55,10 @@ public class Prefs {
 		editor.putString(PREF_KEY_LAST_RECORDED_FILE, str);
 		editor.apply();
 	}
+
+	public void clearLastRecordFile() {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.remove(PREF_KEY_LAST_RECORDED_FILE);
+		editor.apply();
+	}
 }

@@ -52,7 +52,7 @@ public class GridView extends View {
 
 	private void init(Context context) {
 		paint = new Paint();
-		paint.setColor(context.getResources().getColor(R.color.grey_600));
+		paint.setColor(context.getResources().getColor(R.color.white));
 		paint.setStrokeWidth(AndroidUtils.dpToPx(1));
 		paint.setTextAlign(Paint.Align.CENTER);
 		paint.setTextSize(context.getResources().getDimension(R.dimen.text_small));

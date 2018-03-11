@@ -33,7 +33,7 @@ public class TimeUtils {
     public static String formatTimeIntervalMinSecMills(long mills) {
         long min = mills/(60 * 1000);
         long sec = (mills/1000)%60;
-        long m = (mills/100)%10;
-        return String.format(Locale.getDefault(), "%02d:%02d:%01d", min, sec, m);
+        long m = (mills/10)%100;
+        return String.format(Locale.getDefault(), "%02d:%02d:%02d", min, sec, m);
     }
 }

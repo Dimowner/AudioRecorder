@@ -43,10 +43,9 @@
 			android:layout_height="wrap_content"
 			android:gravity="center_horizontal"
 			android:padding="@dimen/spacing_normal"
-			android:textSize="@dimen/text_large"
+			android:textSize="48sp"
 			android:textStyle="bold"
-			android:textColor="@color/text_primary_light"
-			android:background="@color/grey_600"
+			android:textColor="@color/white"
 			tools:text="Duration: 00:00"/>
 
 	<LinearLayout
@@ -55,7 +54,6 @@
 			android:layout_height="wrap_content"
 			android:orientation="horizontal"
 			android:gravity="center_horizontal"
-			android:background="@color/grey_600"
 			>
 
 		<ImageButton
@@ -103,7 +101,6 @@
 				android:layout_height="@dimen/bottom_pnl_btn_size"
 				android:layout_margin="@dimen/spacing_small"
 				android:layout_gravity="center_horizontal"
-				android:background="@color/grey_600"
 				android:visibility="gone"/>
 	</LinearLayout>
 

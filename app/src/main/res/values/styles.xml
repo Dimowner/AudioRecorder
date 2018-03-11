@@ -22,12 +22,36 @@
 		<item name="android:windowNoTitle">true</item>
 		<item name="android:windowActionBarOverlay">true</item>
 
-		<item name="android:windowBackground">@color/grey_50</item>
+		<item name="android:windowBackground">@drawable/gradient_blue</item>
 
 	</style>
 
 	<style name="AppTheme.BrandedLaunch" parent="AppTheme">
 		<item name="android:windowBackground">@drawable/branded_logo</item>
+	</style>
+
+	<style name="AppTheme.Brown" parent="AppTheme">
+		<item name="android:windowBackground">@drawable/gradient_brown</item>
+	</style>
+
+	<style name="AppTheme.DeepOrange" parent="AppTheme">
+		<item name="android:windowBackground">@drawable/gradient_deep_orange</item>
+	</style>
+
+	<style name="AppTheme.Pink" parent="AppTheme">
+		<item name="android:windowBackground">@drawable/gradient_pink</item>
+	</style>
+
+	<style name="AppTheme.Purple" parent="AppTheme">
+		<item name="android:windowBackground">@drawable/gradient_purple</item>
+	</style>
+
+	<style name="AppTheme.Red" parent="AppTheme">
+		<item name="android:windowBackground">@drawable/gradient_red</item>
+	</style>
+
+	<style name="AppTheme.Teal" parent="AppTheme">
+		<item name="android:windowBackground">@drawable/gradient_teal</item>
 	</style>
 
 </resources>

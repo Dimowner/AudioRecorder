@@ -23,7 +23,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,9 +38,13 @@ import com.dimowner.audiorecorder.ui.widget.WaveformView;
 import com.dimowner.audiorecorder.audio.SoundFile;
 import com.dimowner.audiorecorder.util.AppStartTracker;
 
+import java.util.Random;
+
 import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View {
+
+//	TODO: make waveform look like in soundcloud app.
 
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
 
@@ -61,7 +64,8 @@ public class MainActivity extends Activity implements MainContract.View {
 	protected void onCreate(Bundle savedInstanceState) {
 		tracker = ARApplication.getAppStartTracker(getApplicationContext());
 		tracker.activityOnCreate();
-		setTheme(R.style.AppTheme);
+//		setTheme(R.style.AppTheme_Blue);
+		applyColoredTheme(new Random().nextInt(7));
 		super.onCreate(savedInstanceState);
 		tracker.activityContentViewBefore();
 		setContentView(R.layout.activity_main);
@@ -122,7 +126,7 @@ public class MainActivity extends Activity implements MainContract.View {
 
 		presenter.loadLastRecord(getApplicationContext());
 		tracker.activityOnResume();
-		Timber.v(tracker.getResults());
+//		Timber.v(tracker.getResults());
 	}
 
 	@Override
@@ -197,7 +201,8 @@ public class MainActivity extends Activity implements MainContract.View {
 
 	@Override
 	public void showDuration(String duration) {
-		txtDuration.setText(getString(R.string.duration, duration));
+//		txtDuration.setText(getString(R.string.duration, duration));
+		txtDuration.setText(duration);
 	}
 
 	private boolean checkRrecordPermission() {
@@ -215,6 +220,33 @@ public class MainActivity extends Activity implements MainContract.View {
 		if (requestCode == REQ_CODE_RECORD_AUDIO && grantResults.length > 0
 					&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 			presenter.recordingClicked();
+		}
+	}
+
+	private void applyColoredTheme(int r) {
+		Timber.v("applyColoredTheme r = %d", r);
+		switch (r) {
+			case 0:
+				setTheme(R.style.AppTheme);
+				break;
+			case 1:
+				setTheme(R.style.AppTheme_Brown);
+				break;
+			case 2:
+				setTheme(R.style.AppTheme_DeepOrange);
+				break;
+			case 3:
+				setTheme(R.style.AppTheme_Pink);
+				break;
+			case 4:
+				setTheme(R.style.AppTheme_Purple);
+				break;
+			case 5:
+				setTheme(R.style.AppTheme_Red);
+				break;
+			case 6:
+				setTheme(R.style.AppTheme_Teal);
+				break;
 		}
 	}
 }
