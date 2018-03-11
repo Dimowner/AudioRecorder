@@ -1,0 +1,22 @@
+<resources>
+
+    <dimen name="spacing_huge">72dp</dimen>
+    <dimen name="spacing_double">32dp</dimen>
+    <dimen name="spacing_normal">16dp</dimen>
+    <dimen name="spacing_small">8dp</dimen>
+    <dimen name="spacing_tiny">4dp</dimen>
+
+    <dimen name="text_smallest">10sp</dimen>
+    <dimen name="text_small">12sp</dimen>
+    <dimen name="text_normal">14sp</dimen>
+    <dimen name="text_medium">16sp</dimen>
+    <dimen name="text_xmedium">18sp</dimen>
+    <dimen name="text_large">20sp</dimen>
+    <dimen name="text_xlarge">24sp</dimen>
+
+    <dimen name="divider_height">1dp</dimen>
+    <dimen name="scrubber_dot_size">8dp</dimen>
+
+    <dimen name="bottom_pnl_btn_size">72dp</dimen>
+
+</resources>

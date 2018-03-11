@@ -1,0 +1,38 @@
+apply plugin: 'com.android.application'
+
+def versionMajor = 0
+def versionMinor = 1
+def versionPatch = 0
+
+android {
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
+    defaultConfig {
+        applicationId "com.dimowner.audiorecorder"
+        minSdkVersion 16
+        targetSdkVersion 27
+        versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
+        versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    dependencies {
+        //Timber
+        compile 'com.jakewharton.timber:timber:4.6.0'
+    }
+}
+

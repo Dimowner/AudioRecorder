@@ -1,0 +1,18 @@
+<resources>
+	<string name="app_name">Audio Recorder</string>
+
+	<string name="btn_ok">OK</string>
+	<string name="btn_cancel">Cancel</string>
+	<string name="btn_logout">Logout</string>
+	<string name="btn_search">Search</string>
+	<string name="btn_random">Random</string>
+	<string name="btn_close">Close</string>
+
+	<string name="error_unknown">Unexpected error</string>
+	<string name="error_cant_read_files">Can\'t read and write files</string>
+	<string name="error_cant_create_file">Can\'t create file</string>
+	<string name="error_invalid_output_file">Invalid output file</string>
+
+	<string name="duration">Duration: %s</string>
+
+</resources>

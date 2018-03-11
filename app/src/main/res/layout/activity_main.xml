@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:tools="http://schemas.android.com/tools"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical"
+		tools:context="com.dimowner.audiorecorder.ui.MainActivity">
+
+	<HorizontalScrollView
+			android:id="@+id/tracks_scroll"
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1"
+			android:clipChildren="false"
+			android:clipToPadding="false"
+			android:fillViewport="true">
+
+		<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:clipChildren="false"
+				android:clipToPadding="false"
+				android:orientation="vertical">
+
+			<com.dimowner.audiorecorder.ui.widget.GridView
+					android:id="@+id/timeline"
+					android:layout_width="match_parent"
+					android:layout_height="40dp"/>
+
+			<com.dimowner.audiorecorder.ui.widget.WaveformView
+					android:id="@+id/record"
+					android:layout_width="wrap_content"
+					android:layout_height="100dp"
+					/>
+
+		</LinearLayout>
+	</HorizontalScrollView>
+
+	<TextView
+			android:id="@+id/txt_duration"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_horizontal"
+			android:padding="@dimen/spacing_normal"
+			android:textSize="@dimen/text_large"
+			android:textStyle="bold"
+			android:textColor="@color/text_primary_light"
+			android:background="@color/grey_600"
+			tools:text="Duration: 00:00"/>
+
+	<LinearLayout
+			android:id="@+id/control_panel"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:gravity="center_horizontal"
+			android:background="@color/grey_600"
+			>
+
+		<ImageButton
+				android:id="@+id/btn_clear"
+				android:layout_width="@dimen/bottom_pnl_btn_size"
+				android:layout_height="@dimen/bottom_pnl_btn_size"
+				android:layout_margin="@dimen/spacing_small"
+				android:adjustViewBounds="true"
+				android:clickable="true"
+				android:contentDescription="@null"
+				android:scaleType="center"
+				android:src="@drawable/delete_forever"
+				android:background="@drawable/button_selector"
+				android:focusable="true"/>
+
+		<ImageButton
+				android:id="@+id/btn_play"
+				android:layout_width="@dimen/bottom_pnl_btn_size"
+				android:layout_height="@dimen/bottom_pnl_btn_size"
+				android:layout_margin="@dimen/spacing_small"
+				android:adjustViewBounds="true"
+				android:clickable="true"
+				android:contentDescription="@null"
+				android:background="@drawable/button_selector"
+				android:scaleType="center"
+				android:src="@drawable/play"
+				android:focusable="true"/>
+
+		<ImageButton
+				android:id="@+id/btn_record"
+				android:layout_width="@dimen/bottom_pnl_btn_size"
+				android:layout_height="@dimen/bottom_pnl_btn_size"
+				android:layout_margin="@dimen/spacing_small"
+				android:adjustViewBounds="true"
+				android:clickable="true"
+				android:contentDescription="@null"
+				android:scaleType="centerInside"
+				android:background="@drawable/button_selector"
+				android:src="@drawable/record"
+				android:focusable="true"/>
+
+		<ProgressBar
+				android:id="@+id/progress"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/bottom_pnl_btn_size"
+				android:layout_margin="@dimen/spacing_small"
+				android:layout_gravity="center_horizontal"
+				android:background="@color/grey_600"
+				android:visibility="gone"/>
+	</LinearLayout>
+
+</LinearLayout>
