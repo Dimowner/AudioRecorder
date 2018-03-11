@@ -1,4 +1,4 @@
-# Good Weather
+# Audio Recorder
 <p>Audio Recorder application</p>
 <p>This application shows how small can be Android app. Apk file about ~100kb size</p>
 
