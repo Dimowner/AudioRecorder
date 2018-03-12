@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2017 Dmitriy Ponomarenko
+  ~ Copyright 2018 Dmitriy Ponomarenko
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,20 +15,7 @@
   ~ limitations under the License.
   -->
 
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-	<item>
-		<shape android:shape="rectangle">
-			<gradient
-					android:endColor="@color/md_blue_700"
-					android:gradientRadius="800"
-					android:startColor="@color/md_blue_500"
-					android:type="radial"/>
-		</shape>
-	</item>
-	<item>
-		<bitmap
-				android:gravity="center"
-				android:src="@drawable/audio_recorder_loadscreen"
-				android:tileMode="disabled"/>
-	</item>
-</layer-list>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/icon_background"/>
+    <foreground android:drawable="@mipmap/audio_recorder_adaptive_logo_min" />
+</adaptive-icon>

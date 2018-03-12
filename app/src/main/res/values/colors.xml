@@ -18,6 +18,8 @@
 
 	<color name="white">#eaeaea</color>
 
+	<color name="icon_background">#f3f5f7</color>
+
 	<!--reds-->
 	<color name="md_red_500">#e51c23</color>
 	<color name="md_red_700">#d01716</color>
