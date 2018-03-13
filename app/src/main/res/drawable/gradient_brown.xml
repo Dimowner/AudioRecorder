@@ -19,7 +19,7 @@
 
 	<gradient
 			android:endColor="@color/md_brown_700"
-			android:gradientRadius="900"
+			android:gradientRadius="@dimen/gradient_radius"
 			android:startColor="@color/md_brown_500"
 			android:type="radial"/>
 </shape>

@@ -20,7 +20,7 @@
 		<shape android:shape="rectangle">
 			<gradient
 					android:endColor="@color/md_blue_700"
-					android:gradientRadius="800"
+					android:gradientRadius="@dimen/gradient_radius"
 					android:startColor="@color/md_blue_500"
 					android:type="radial"/>
 		</shape>
@@ -28,7 +28,7 @@
 	<item>
 		<bitmap
 				android:gravity="center"
-				android:src="@drawable/audio_recorder_loadscreen"
+				android:src="@drawable/logo_record_rec"
 				android:tileMode="disabled"/>
 	</item>
 </layer-list>

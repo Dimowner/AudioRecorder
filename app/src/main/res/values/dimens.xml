@@ -19,4 +19,6 @@
 
     <dimen name="bottom_pnl_btn_size">72dp</dimen>
 
+    <dimen name="gradient_radius">300dp</dimen>
+
 </resources>
