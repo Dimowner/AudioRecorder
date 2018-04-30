@@ -26,10 +26,6 @@
 
 	</style>
 
-	<style name="AppTheme.BrandedLaunch" parent="AppTheme">
-		<item name="android:windowBackground">@color/md_blue_700</item>
-	</style>
-
 	<style name="AppTheme.Brown" parent="AppTheme">
 		<item name="android:windowBackground">@drawable/gradient_brown</item>
 	</style>

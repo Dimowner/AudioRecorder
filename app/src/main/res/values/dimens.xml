@@ -13,6 +13,7 @@
     <dimen name="text_xmedium">18sp</dimen>
     <dimen name="text_large">20sp</dimen>
     <dimen name="text_xlarge">24sp</dimen>
+    <dimen name="text_largest">48sp</dimen>
 
     <dimen name="divider_height">1dp</dimen>
     <dimen name="scrubber_dot_size">8dp</dimen>
@@ -20,5 +21,7 @@
     <dimen name="bottom_pnl_btn_size">72dp</dimen>
 
     <dimen name="gradient_radius">300dp</dimen>
+    <dimen name="grid_view_height">40dp</dimen>
+    <dimen name="waveform_height">100dp</dimen>
 
 </resources>

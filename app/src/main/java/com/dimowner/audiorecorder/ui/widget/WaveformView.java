@@ -54,6 +54,9 @@ public class WaveformView extends View {
 	 */
 	private boolean isMeasured = false;
 
+	public WaveformView(Context context) {
+		super(context);
+	}
 
 	public WaveformView(Context context, AttributeSet attrs) {
 		super(context, attrs);
