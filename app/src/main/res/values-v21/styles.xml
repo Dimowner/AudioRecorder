@@ -16,7 +16,7 @@
 
 <resources>
 
-	<style name="AppTheme" parent="android:ThemeOverlay.Material">
+	<style name="AppTheme" parent="@android:style/Theme.Material">
 		<item name="android:colorPrimary">@color/md_blue_700</item>
 		<item name="android:colorPrimaryDark">@color/md_blue_700</item>
 		<item name="android:colorAccent">@color/colorAccent</item>
@@ -28,10 +28,6 @@
 		<item name="android:windowBackground">@drawable/gradient_blue</item>
 
 		<item name="android:navigationBarColor">@color/md_blue_700</item>
-	</style>
-
-	<style name="AppTheme.BrandedLaunch" parent="AppTheme">
-		<item name="android:windowBackground">@drawable/branded_logo</item>
 	</style>
 
 	<style name="AppTheme.Brown" parent="AppTheme">

@@ -64,7 +64,6 @@ public class MainActivity extends Activity implements MainContract.View {
 	protected void onCreate(Bundle savedInstanceState) {
 		tracker = ARApplication.getAppStartTracker(getApplicationContext());
 		tracker.activityOnCreate();
-//		setTheme(R.style.AppTheme_Blue);
 		applyColoredTheme(new Random().nextInt(7));
 		super.onCreate(savedInstanceState);
 		tracker.activityContentViewBefore();
