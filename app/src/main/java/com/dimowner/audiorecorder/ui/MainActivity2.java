@@ -26,7 +26,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -125,11 +124,13 @@ public class MainActivity2 extends Activity implements MainContract.View {
 		LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT,
 				LinearLayout.LayoutParams.MATCH_PARENT);
+		root.setLayoutParams(llp);
 
 		HorizontalScrollView horizontalScroll = new HorizontalScrollView(ctx);
 		LinearLayout.LayoutParams hsLP = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT,
 				LinearLayout.LayoutParams.MATCH_PARENT, 1.0f);
+		horizontalScroll.setLayoutParams(hsLP);
 
 		horizontalScroll.setClipChildren(false);
 		horizontalScroll.setClipToPadding(false);
@@ -140,6 +141,8 @@ public class MainActivity2 extends Activity implements MainContract.View {
 		LinearLayout.LayoutParams studioLP = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.WRAP_CONTENT,
 				LinearLayout.LayoutParams.MATCH_PARENT);
+		studioLayout.setLayoutParams(studioLP);
+
 		studioLayout.setGravity(Gravity.CENTER_HORIZONTAL);
 		studioLayout.setClipChildren(false);
 		studioLayout.setClipToPadding(false);
@@ -148,27 +151,21 @@ public class MainActivity2 extends Activity implements MainContract.View {
 		LinearLayout.LayoutParams gridLP = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT,
 				(int)res.getDimension(R.dimen.grid_view_height));
+		gridView.setLayoutParams(gridLP);
 
 		waveformView = new WaveformView(ctx);
 		LinearLayout.LayoutParams waveLP = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT,
 				(int)res.getDimension(R.dimen.waveform_height));
-
+		waveformView.setLayoutParams(waveLP);
 
 		// Creating a new TextView
 		txtDuration = new TextView(ctx);
-		txtDuration.setTextColor(res.getColor(R.color.white));
+		txtDuration.setTextColor(res.getColor(R.color.text_primary_light));
 		txtDuration.setTypeface(null, Typeface.BOLD);
 		txtDuration.setTextSize(res.getDimension(R.dimen.text_xlarge));
 		txtDuration.setText("00:00:00");
 		txtDuration.setGravity(Gravity.CENTER_HORIZONTAL);
-		int padd = (int)res.getDimension(R.dimen.spacing_normal);
-		txtDuration.setPadding(padd, padd, padd, padd);
-
-		// Defining the layout parameters of the TextView
-		LinearLayout.LayoutParams textLP = new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT);
 
 		//Control panel layout init
 		LinearLayout controlPanel = new LinearLayout(ctx);
@@ -177,6 +174,7 @@ public class MainActivity2 extends Activity implements MainContract.View {
 				LinearLayout.LayoutParams.MATCH_PARENT,
 				LinearLayout.LayoutParams.WRAP_CONTENT);
 		controlPanel.setGravity(Gravity.CENTER_HORIZONTAL);
+		controlPanel.setLayoutParams(cplp);
 
 		//Buttons init
 		// Defining the layout parameters of the Button
@@ -191,46 +189,46 @@ public class MainActivity2 extends Activity implements MainContract.View {
 		btnPlay.setClickable(true);
 		btnPlay.setFocusable(true);
 		btnPlay.setScaleType(ImageView.ScaleType.CENTER);
-		btnPlay.setImageResource(R.drawable.button_selector);
-		btnPlay.setBackgroundResource(R.drawable.play);
+		btnPlay.setImageResource(R.drawable.play);
+		btnPlay.setBackgroundResource(R.drawable.button_selector);
+		btnPlay.setLayoutParams(btnLP);
 
 		btnRecord = new ImageButton(ctx);
 		btnRecord.setAdjustViewBounds(true);
 		btnRecord.setClickable(true);
 		btnRecord.setFocusable(true);
 		btnRecord.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-		btnRecord.setImageResource(R.drawable.button_selector);
-		btnRecord.setBackgroundResource(R.drawable.record);
+		btnRecord.setImageResource(R.drawable.record);
+		btnRecord.setBackgroundResource(R.drawable.button_selector);
+		btnRecord.setLayoutParams(btnLP);
 
 		btnClear = new ImageButton(ctx);
 		btnClear.setAdjustViewBounds(true);
 		btnClear.setClickable(true);
 		btnClear.setFocusable(true);
 		btnClear.setScaleType(ImageView.ScaleType.CENTER);
-		btnClear.setImageResource(R.drawable.button_selector);
-		btnClear.setBackground(res.getDrawable(R.drawable.delete_forever));
+		btnClear.setImageResource(R.drawable.delete_forever);
+		btnClear.setBackgroundResource(R.drawable.button_selector);
+		btnClear.setLayoutParams(btnLP);
 
 		progressBar = new ProgressBar(ctx);
 		LinearLayout.LayoutParams progressLP = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT,
 				(int)res.getDimension(R.dimen.bottom_pnl_btn_size));
 		progressBar.setVisibility(View.GONE);
+		progressBar.setLayoutParams(progressLP);
 
+		studioLayout.addView(gridView);
+		studioLayout.addView(waveformView);
+		horizontalScroll.addView(studioLayout);
+		root.addView(horizontalScroll);
+		root.addView(txtDuration);
+		controlPanel.addView(btnClear);
+		controlPanel.addView(btnPlay);
+		controlPanel.addView(btnRecord);
+		controlPanel.addView(progressBar);
+		root.addView(controlPanel);
 
-		studioLayout.addView(gridView, gridLP);
-//		studioLayout.addView(waveformView, waveLP);
-		horizontalScroll.addView(studioLayout, studioLP);
-		root.addView(horizontalScroll, hsLP);
-		root.addView(txtDuration, textLP);
-		controlPanel.addView(btnClear, btnLP);
-		controlPanel.addView(btnPlay, btnLP);
-		controlPanel.addView(btnRecord, btnLP);
-		controlPanel.addView(progressBar, progressLP);
-		root.addView(controlPanel, cplp);
-
-		root.setLayoutParams(llp);
-		// Setting the LinearLayout as our content view
-//		setContentView(linearLayout, llp);
 		return root;
 	}
 

@@ -45,7 +45,7 @@
 			android:padding="@dimen/spacing_normal"
 			android:textSize="48sp"
 			android:textStyle="bold"
-			android:textColor="@color/white"
+			android:textColor="@color/text_primary_light"
 			tools:text="Duration: 00:00"/>
 
 	<LinearLayout
