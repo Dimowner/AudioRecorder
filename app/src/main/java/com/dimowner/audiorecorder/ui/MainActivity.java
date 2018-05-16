@@ -23,7 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
+//import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,7 +56,7 @@ public class MainActivity extends Activity implements MainContract.View {
 	private ImageButton btnRecord;
 	private ImageButton btnClear;
 
-	private ProgressBar progressBar;
+//	private ProgressBar progressBar;
 
 	private MainPresenter presenter;
 
@@ -76,7 +76,7 @@ public class MainActivity extends Activity implements MainContract.View {
 		btnRecord = findViewById(R.id.btn_record);
 		btnClear = findViewById(R.id.btn_clear);
 
-		progressBar = findViewById(R.id.progress);
+//		progressBar = findViewById(R.id.progress);
 
 		try {
 			//Presenter initialization
@@ -126,6 +126,7 @@ public class MainActivity extends Activity implements MainContract.View {
 		presenter.loadLastRecord(getApplicationContext());
 		tracker.activityOnResume();
 //		Timber.v(tracker.getResults());
+		Toast.makeText(getApplicationContext(), tracker.getStartTime(), Toast.LENGTH_LONG).show();
 	}
 
 	@Override
@@ -141,7 +142,7 @@ public class MainActivity extends Activity implements MainContract.View {
 		btnClear.setVisibility(View.GONE);
 		btnPlay.setVisibility(View.GONE);
 		btnRecord.setVisibility(View.GONE);
-		progressBar.setVisibility(View.VISIBLE);
+//		progressBar.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -149,7 +150,7 @@ public class MainActivity extends Activity implements MainContract.View {
 		btnClear.setVisibility(View.VISIBLE);
 		btnPlay.setVisibility(View.VISIBLE);
 		btnRecord.setVisibility(View.VISIBLE);
-		progressBar.setVisibility(View.GONE);
+//		progressBar.setVisibility(View.GONE);
 	}
 
 	@Override

@@ -95,13 +95,13 @@
 				android:src="@drawable/record"
 				android:focusable="true"/>
 
-		<ProgressBar
-				android:id="@+id/progress"
-				android:layout_width="match_parent"
-				android:layout_height="@dimen/bottom_pnl_btn_size"
-				android:layout_margin="@dimen/spacing_small"
-				android:layout_gravity="center_horizontal"
-				android:visibility="gone"/>
+		<!--<ProgressBar-->
+				<!--android:id="@+id/progress"-->
+				<!--android:layout_width="match_parent"-->
+				<!--android:layout_height="@dimen/bottom_pnl_btn_size"-->
+				<!--android:layout_margin="@dimen/spacing_small"-->
+				<!--android:layout_gravity="center_horizontal"-->
+				<!--android:visibility="gone"/>-->
 	</LinearLayout>
 
 </LinearLayout>

@@ -63,7 +63,7 @@ public class MainActivity2 extends Activity implements MainContract.View {
 	private ImageButton btnPlay;
 	private ImageButton btnRecord;
 	private ImageButton btnClear;
-	private ProgressBar progressBar;
+//	private ProgressBar progressBar;
 
 	private MainPresenter presenter;
 
@@ -211,12 +211,12 @@ public class MainActivity2 extends Activity implements MainContract.View {
 		btnClear.setBackgroundResource(R.drawable.button_selector);
 		btnClear.setLayoutParams(btnLP);
 
-		progressBar = new ProgressBar(ctx);
+//		progressBar = new ProgressBar(ctx);
 		LinearLayout.LayoutParams progressLP = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT,
 				(int)res.getDimension(R.dimen.bottom_pnl_btn_size));
-		progressBar.setVisibility(View.GONE);
-		progressBar.setLayoutParams(progressLP);
+//		progressBar.setVisibility(View.GONE);
+//		progressBar.setLayoutParams(progressLP);
 
 		studioLayout.addView(gridView);
 		studioLayout.addView(waveformView);
@@ -226,7 +226,7 @@ public class MainActivity2 extends Activity implements MainContract.View {
 		controlPanel.addView(btnClear);
 		controlPanel.addView(btnPlay);
 		controlPanel.addView(btnRecord);
-		controlPanel.addView(progressBar);
+//		controlPanel.addView(progressBar);
 		root.addView(controlPanel);
 
 		return root;
@@ -245,6 +245,7 @@ public class MainActivity2 extends Activity implements MainContract.View {
 		presenter.loadLastRecord(getApplicationContext());
 		tracker.activityOnResume();
 //		Timber.v(tracker.getResults());
+		Toast.makeText(getApplicationContext(), tracker.getStartTime(), Toast.LENGTH_LONG).show();
 	}
 
 	@Override
@@ -260,7 +261,7 @@ public class MainActivity2 extends Activity implements MainContract.View {
 		btnClear.setVisibility(View.GONE);
 		btnPlay.setVisibility(View.GONE);
 		btnRecord.setVisibility(View.GONE);
-		progressBar.setVisibility(View.VISIBLE);
+//		progressBar.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -268,7 +269,7 @@ public class MainActivity2 extends Activity implements MainContract.View {
 		btnClear.setVisibility(View.VISIBLE);
 		btnPlay.setVisibility(View.VISIBLE);
 		btnRecord.setVisibility(View.VISIBLE);
-		progressBar.setVisibility(View.GONE);
+//		progressBar.setVisibility(View.GONE);
 	}
 
 	@Override

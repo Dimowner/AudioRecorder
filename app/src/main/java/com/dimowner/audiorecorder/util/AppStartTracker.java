@@ -16,9 +16,7 @@
 
 package com.dimowner.audiorecorder.util;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 import timber.log.Timber;
 
@@ -29,73 +27,72 @@ import timber.log.Timber;
  */
 public class AppStartTracker {
 
-	private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault());
+//	private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault());
 
 	private StartTimes startTimes = new StartTimes();
 
 	public void appOnCreate() {
 		long time = System.currentTimeMillis();
 		startTimes.setAppOnCreate(time);
-		Timber.v("diff =  0, time = %s, formatted: %s - appOnCreate", time, timeFormat.format(new Date(time)));
+		Timber.v("diff =  0, time = %s - appOnCreate", time);
 	}
 
 	public void activityOnCreate() {
 		long time = System.currentTimeMillis();
 		startTimes.setActivityOnCreate(time);
-		Timber.v("diff = %s, time = %s, formatted: %s - activityOnCreate",
+		Timber.v("diff = %s, time = %s - activityOnCreate",
 				(time - startTimes.getAppOnCreate()),
-				time,
-				timeFormat.format(new Date(time)));
+				time);
 	}
 
 	public void activityContentViewBefore() {
 		long time = System.currentTimeMillis();
 		startTimes.setActivityContentViewBefore(time);
-		Timber.v("diff = %s, time = %s, formatted: %s - activityContentViewBefore",
+		Timber.v("diff = %s, time = %s - activityContentViewBefore",
 				(time - startTimes.getAppOnCreate()),
-				time,
-				timeFormat.format(new Date(time)));
+				time);
 	}
 
 	public void activityContentViewAfter() {
 		long time = System.currentTimeMillis();
 		startTimes.setActivityContentViewAfter(time);
-		Timber.v("diff = %s, time = %s, formatted: %s - activityContentViewAfter",
+		Timber.v("diff = %s, time = %s - activityContentViewAfter",
 				(time - startTimes.getAppOnCreate()),
-				time,
-				timeFormat.format(new Date(time)));
+				time);
 	}
 
 
 	public void activityOnCreateEnd() {
 		long time = System.currentTimeMillis();
 		startTimes.setActivityOnCreateEnd(time);
-		Timber.v("diff = %s, time = %s, formatted: %s - activityOnCreateEnd ",
+		Timber.v("diff = %s, time = %s - activityOnCreateEnd ",
 				(time - startTimes.getAppOnCreate()),
-				time,
-				timeFormat.format(new Date(time)));
+				time);
 	}
 
 	public void activityOnStart() {
 		long time = System.currentTimeMillis();
 		startTimes.setActivityOnStart(time);
-		Timber.v("diff = %s, time = %s, formatted: %s - activityOnStart ",
+		Timber.v("diff = %s, time = %s, - activityOnStart ",
 				(time - startTimes.getAppOnCreate()),
-				time,
-				timeFormat.format(new Date(time)));
+				time);
 	}
 
 	public void activityOnResume() {
 		long time = System.currentTimeMillis();
 		startTimes.setActivityOnResume(time);
-		Timber.v("diff = %s, time = %s, formatted: %s - activityOnResume",
+		Timber.v("diff = %s, time = %s - activityOnResume",
 				(time - startTimes.getAppOnCreate()),
-				time,
-				timeFormat.format(new Date(time)));
+				time);
+//				timeFormat.format(new Date(time)));
 	}
 
 	public String getResults() {
 		return startTimes.toString();
+	}
+
+	public String getStartTime() {
+		return (startTimes.getActivityOnResume() - startTimes.getAppOnCreate()) + " mills";
 	}
 
 	public class StartTimes {
@@ -175,13 +172,13 @@ public class AppStartTracker {
 					"\n diff = " + (activityOnStart - appOnCreate) + ", time = " + activityOnStart + " activityOnStart" +
 					"\n diff = " + (activityOnResume - appOnCreate) + ", time = " + activityOnResume + " activityOnResume" +
 
-					",\n formatted: " + timeFormat.format(new Date(appOnCreate)) + " appOnCreate" +
-					",\n formatted: " + timeFormat.format(new Date(activityOnCreate)) + " activityOnCreate" +
-					",\n formatted: " + timeFormat.format(new Date(activityContentViewBefore)) + " activityContentViewBefore" +
-					",\n formatted: " + timeFormat.format(new Date(activityContentViewAfter)) + " activityContentViewAfter" +
-					",\n formatted: " + timeFormat.format(new Date(activityOnCreateEnd)) + " activityOnCreateEnd" +
-					",\n formatted: " + timeFormat.format(new Date(activityOnStart)) + " activityOnStart" +
-					",\n formatted: " + timeFormat.format(new Date(activityOnResume)) + " activityOnResume" +
+//					",\n formatted: " + timeFormat.format(new Date(appOnCreate)) + " appOnCreate" +
+//					",\n formatted: " + timeFormat.format(new Date(activityOnCreate)) + " activityOnCreate" +
+//					",\n formatted: " + timeFormat.format(new Date(activityContentViewBefore)) + " activityContentViewBefore" +
+//					",\n formatted: " + timeFormat.format(new Date(activityContentViewAfter)) + " activityContentViewAfter" +
+//					",\n formatted: " + timeFormat.format(new Date(activityOnCreateEnd)) + " activityOnCreateEnd" +
+//					",\n formatted: " + timeFormat.format(new Date(activityOnStart)) + " activityOnStart" +
+//					",\n formatted: " + timeFormat.format(new Date(activityOnResume)) + " activityOnResume" +
 					'}';
 		}
 	}
