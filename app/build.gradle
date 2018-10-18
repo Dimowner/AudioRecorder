@@ -5,12 +5,12 @@ def versionMinor = 1
 def versionPatch = 4
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "com.dimowner.audiorecorder"
         minSdkVersion 16
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
     }
@@ -32,7 +32,7 @@ android {
 
     dependencies {
         //Timber
-        compile 'com.jakewharton.timber:timber:4.6.0'
+        implementation 'com.jakewharton.timber:timber:4.6.0'
     }
 }
 
