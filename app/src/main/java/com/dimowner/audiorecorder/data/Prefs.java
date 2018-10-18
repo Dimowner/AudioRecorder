@@ -23,7 +23,7 @@ import timber.log.Timber;
 
 public class Prefs {
 
-	private static final String PREF_NAME = "com.dimowner.multitrackrecorder.data.Prefs";
+	private static final String PREF_NAME = "com.dimowner.audiorecorder.data.Prefs";
 
 	private static final String PREF_KEY_IS_FIRST_RUN = "is_first_run";
 	private static final String PREF_KEY_LAST_RECORDED_FILE = "last_recorded_file";

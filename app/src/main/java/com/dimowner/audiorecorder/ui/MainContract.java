@@ -31,11 +31,15 @@ public interface MainContract {
 
 		void showPlayStart();
 
+		void showPlayPause();
+
 		void showPlayStop();
 
 		void showSoundFile(SoundFile soundFile);
 
 		void showDuration(String duration);
+
+		void onPlayProgress(int px);
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {

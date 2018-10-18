@@ -245,7 +245,10 @@ public class MainActivity2 extends Activity implements MainContract.View {
 		presenter.loadLastRecord(getApplicationContext());
 		tracker.activityOnResume();
 //		Timber.v(tracker.getResults());
-		Toast.makeText(getApplicationContext(), tracker.getStartTime(), Toast.LENGTH_LONG).show();
+		if (!tracker.isRun()) {
+			Toast.makeText(getApplicationContext(), tracker.getStartTime(), Toast.LENGTH_LONG).show();
+		}
+		tracker.setRun();
 	}
 
 	@Override
@@ -304,6 +307,16 @@ public class MainActivity2 extends Activity implements MainContract.View {
 	}
 
 	@Override
+	public void showPlayPause() {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				btnPlay.setImageResource(R.drawable.play);
+			}
+		});
+	}
+
+	@Override
 	public void showPlayStop() {
 		runOnUiThread(new Runnable() {
 			@Override
@@ -321,6 +334,11 @@ public class MainActivity2 extends Activity implements MainContract.View {
 	@Override
 	public void showDuration(String duration) {
 		txtDuration.setText(duration);
+	}
+
+	@Override
+	public void onPlayProgress(int px) {
+
 	}
 
 	private boolean checkRrecordPermission() {

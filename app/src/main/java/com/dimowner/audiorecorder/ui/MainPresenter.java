@@ -103,29 +103,20 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 			@Override
 			public void onPlayProgress(long mills) {
-//				runOnUiThread(() -> {
-//					if (!sessionViewModel.isRecording()) {
-//						if (trackAdapter.isAnyTrackSelected()) {
-//							trackAdapter.setProgressOnSelectedTrack(mills);
-//						} else {
-//							playbackView.setPlayPosition(AndroidUtils.convertMillsToPx(mills));
-//							playbackView.invalidate();
-//						}
-//						//Screen scrolling when playback
-//						int scrollX = AndroidUtils.convertMillsToPx(mills);
-//						int scrollStart = screenWidth + currentHorizontalScrollX;
-//						if (scrollX > scrollStart) {
-//							scrollTracksToPosition(scrollX - screenWidth, 0);
-//						}
-//					}
-//					txtPlaybackProgress.setText(String.valueOf(TimeUtils.formatTimeIntervalMinSecMills(mills)));
-//				});
+				Timber.v("onPlayProgress: " + mills);
+				view.onPlayProgress(AndroidUtils.convertMillsToPx(mills));
 			}
 
 			@Override
 			public void onStopPlay() {
 				view.showPlayStop();
 				Timber.d("onStopPlay");
+			}
+
+			@Override
+			public void onPausePlay() {
+				view.showPlayPause();
+				Timber.d("onPausePlay");
 			}
 
 			@Override

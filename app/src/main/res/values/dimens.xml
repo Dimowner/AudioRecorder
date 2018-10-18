@@ -16,7 +16,6 @@
     <dimen name="text_largest">48sp</dimen>
 
     <dimen name="divider_height">1dp</dimen>
-    <dimen name="scrubber_dot_size">8dp</dimen>
 
     <dimen name="bottom_pnl_btn_size">72dp</dimen>
 

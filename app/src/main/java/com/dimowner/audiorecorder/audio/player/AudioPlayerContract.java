@@ -23,6 +23,7 @@ public interface AudioPlayerContract {
 		void onStartPlay();
 		void onPlayProgress(long mills);
 		void onStopPlay();
+		void onPausePlay();
 		void onSeek(long mills);
 		void onError(Throwable throwable);
 	}
@@ -32,6 +33,7 @@ public interface AudioPlayerContract {
 		void clearData();
 		void playOrPause();
 		void seek(int pixels);
+		void pause();
 		void stop();
 	}
 }

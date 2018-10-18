@@ -34,6 +34,7 @@ import com.dimowner.audiorecorder.data.FileRepositoryImpl;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.exception.ErrorParser;
 import com.dimowner.audiorecorder.exception.FileRepositoryInitializationFailed;
+import com.dimowner.audiorecorder.ui.widget.ScrubberView;
 import com.dimowner.audiorecorder.ui.widget.WaveformView;
 import com.dimowner.audiorecorder.audio.SoundFile;
 import com.dimowner.audiorecorder.util.AppStartTracker;
@@ -55,6 +56,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ImageButton btnPlay;
 	private ImageButton btnRecord;
 	private ImageButton btnClear;
+	private ScrubberView scrubberView;
 
 //	private ProgressBar progressBar;
 
@@ -75,6 +77,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnPlay = findViewById(R.id.btn_play);
 		btnRecord = findViewById(R.id.btn_record);
 		btnClear = findViewById(R.id.btn_clear);
+
+		scrubberView = findViewById(R.id.scrubber);
 
 //		progressBar = findViewById(R.id.progress);
 
@@ -130,7 +134,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				presenter.playClicked();
 				break;
 			case R.id.btn_record:
-				if (checkRrecordPermission()) {
+				if (checkRecordPermission()) {
 					presenter.recordingClicked();
 				}
 				break;
@@ -188,11 +192,22 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
+	public void showPlayPause() {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				btnPlay.setImageResource(R.drawable.play);
+			}
+		});
+	}
+
+	@Override
 	public void showPlayStop() {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				btnPlay.setImageResource(R.drawable.play);
+				scrubberView.setCurrentPosition(-1);
 			}
 		});
 	}
@@ -208,7 +223,18 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtDuration.setText(duration);
 	}
 
-	private boolean checkRrecordPermission() {
+	@Override
+	public void onPlayProgress(final int px) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Timber.v("onPlayProgress: " + px);
+				scrubberView.setCurrentPosition(px);
+			}
+		});
+	}
+
+	private boolean checkRecordPermission() {
 		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
 				requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_CODE_RECORD_AUDIO);
