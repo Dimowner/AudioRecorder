@@ -42,7 +42,7 @@ import java.util.Random;
 
 import timber.log.Timber;
 
-public class MainActivity extends Activity implements MainContract.View {
+public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
 //	TODO: make waveform look like in soundcloud app.
 
@@ -85,26 +85,9 @@ public class MainActivity extends Activity implements MainContract.View {
 			presenter = new MainPresenter(prefs, fileRepository);
 			presenter.bindView(this);
 
-			btnRecord.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (checkRrecordPermission()) {
-						presenter.recordingClicked();
-					}
-				}
-			});
-			btnPlay.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					presenter.playClicked();
-				}
-			});
-			btnClear.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					presenter.deleteAll();
-				}
-			});
+			btnPlay.setOnClickListener(this);
+			btnRecord.setOnClickListener(this);
+			btnClear.setOnClickListener(this);
 		} catch (FileRepositoryInitializationFailed e) {
 			Timber.e(e);
 			showError(ErrorParser.parseException(e));
@@ -126,7 +109,10 @@ public class MainActivity extends Activity implements MainContract.View {
 		presenter.loadLastRecord(getApplicationContext());
 		tracker.activityOnResume();
 //		Timber.v(tracker.getResults());
-		Toast.makeText(getApplicationContext(), tracker.getStartTime(), Toast.LENGTH_LONG).show();
+		if (!tracker.isRun()) {
+			Toast.makeText(getApplicationContext(), tracker.getStartTime(), Toast.LENGTH_LONG).show();
+		}
+		tracker.setRun();
 	}
 
 	@Override
@@ -134,6 +120,23 @@ public class MainActivity extends Activity implements MainContract.View {
 		super.onDestroy();
 		if (presenter != null) {
 			presenter.unbindView();
+		}
+	}
+
+	@Override
+	public void onClick(View view) {
+		switch (view.getId()) {
+			case R.id.btn_play:
+				presenter.playClicked();
+				break;
+			case R.id.btn_record:
+				if (checkRrecordPermission()) {
+					presenter.recordingClicked();
+				}
+				break;
+			case R.id.btn_clear:
+				presenter.deleteAll();
+				break;
 		}
 	}
 

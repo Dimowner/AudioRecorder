@@ -16,8 +16,6 @@
 
 package com.dimowner.audiorecorder.util;
 
-import java.util.Date;
-
 import timber.log.Timber;
 
 /**
@@ -30,61 +28,75 @@ public class AppStartTracker {
 //	private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault());
 
 	private StartTimes startTimes = new StartTimes();
+	private boolean isRun = false;
 
 	public void appOnCreate() {
-		long time = System.currentTimeMillis();
-		startTimes.setAppOnCreate(time);
-		Timber.v("diff =  0, time = %s - appOnCreate", time);
+		if (!isRun) {
+			long time = System.currentTimeMillis();
+			startTimes.setAppOnCreate(time);
+			Timber.v("diff =  0, time = %s - appOnCreate", time);
+		}
 	}
 
 	public void activityOnCreate() {
-		long time = System.currentTimeMillis();
-		startTimes.setActivityOnCreate(time);
-		Timber.v("diff = %s, time = %s - activityOnCreate",
-				(time - startTimes.getAppOnCreate()),
-				time);
+		if (!isRun) {
+			long time = System.currentTimeMillis();
+			startTimes.setActivityOnCreate(time);
+			Timber.v("diff = %s, time = %s - activityOnCreate",
+					(time - startTimes.getAppOnCreate()),
+					time);
+		}
 	}
 
 	public void activityContentViewBefore() {
-		long time = System.currentTimeMillis();
-		startTimes.setActivityContentViewBefore(time);
-		Timber.v("diff = %s, time = %s - activityContentViewBefore",
-				(time - startTimes.getAppOnCreate()),
-				time);
+		if (!isRun) {
+			long time = System.currentTimeMillis();
+			startTimes.setActivityContentViewBefore(time);
+			Timber.v("diff = %s, time = %s - activityContentViewBefore",
+					(time - startTimes.getAppOnCreate()),
+					time);
+		}
 	}
 
 	public void activityContentViewAfter() {
-		long time = System.currentTimeMillis();
-		startTimes.setActivityContentViewAfter(time);
-		Timber.v("diff = %s, time = %s - activityContentViewAfter",
-				(time - startTimes.getAppOnCreate()),
-				time);
+		if (!isRun) {
+			long time = System.currentTimeMillis();
+			startTimes.setActivityContentViewAfter(time);
+			Timber.v("diff = %s, time = %s - activityContentViewAfter",
+					(time - startTimes.getAppOnCreate()),
+					time);
+		}
 	}
 
-
 	public void activityOnCreateEnd() {
-		long time = System.currentTimeMillis();
-		startTimes.setActivityOnCreateEnd(time);
-		Timber.v("diff = %s, time = %s - activityOnCreateEnd ",
-				(time - startTimes.getAppOnCreate()),
-				time);
+		if (!isRun) {
+			long time = System.currentTimeMillis();
+			startTimes.setActivityOnCreateEnd(time);
+			Timber.v("diff = %s, time = %s - activityOnCreateEnd ",
+					(time - startTimes.getAppOnCreate()),
+					time);
+		}
 	}
 
 	public void activityOnStart() {
-		long time = System.currentTimeMillis();
-		startTimes.setActivityOnStart(time);
-		Timber.v("diff = %s, time = %s, - activityOnStart ",
-				(time - startTimes.getAppOnCreate()),
-				time);
+		if (!isRun) {
+			long time = System.currentTimeMillis();
+			startTimes.setActivityOnStart(time);
+			Timber.v("diff = %s, time = %s, - activityOnStart ",
+					(time - startTimes.getAppOnCreate()),
+					time);
+		}
 	}
 
 	public void activityOnResume() {
-		long time = System.currentTimeMillis();
-		startTimes.setActivityOnResume(time);
-		Timber.v("diff = %s, time = %s - activityOnResume",
-				(time - startTimes.getAppOnCreate()),
-				time);
+		if (!isRun) {
+			long time = System.currentTimeMillis();
+			startTimes.setActivityOnResume(time);
+			Timber.v("diff = %s, time = %s - activityOnResume",
+					(time - startTimes.getAppOnCreate()),
+					time);
 //				timeFormat.format(new Date(time)));
+		}
 	}
 
 	public String getResults() {
@@ -93,6 +105,14 @@ public class AppStartTracker {
 
 	public String getStartTime() {
 		return (startTimes.getActivityOnResume() - startTimes.getAppOnCreate()) + " mills";
+	}
+
+	public boolean isRun() {
+		return isRun;
+	}
+
+	public void setRun() {
+		isRun = true;
 	}
 
 	public class StartTimes {
