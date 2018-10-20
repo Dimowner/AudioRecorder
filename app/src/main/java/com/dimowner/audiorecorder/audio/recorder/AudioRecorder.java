@@ -22,6 +22,8 @@ import com.dimowner.audiorecorder.exception.InvalidOutputFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import timber.log.Timber;
 
@@ -29,6 +31,7 @@ import static com.dimowner.audiorecorder.AppConstants.RECORD_AUDIO_CHANNELS_COUN
 import static com.dimowner.audiorecorder.AppConstants.RECORD_ENCODING_BITRATE;
 import static com.dimowner.audiorecorder.AppConstants.RECORD_MAX_DURATION;
 import static com.dimowner.audiorecorder.AppConstants.RECORD_SAMPLE_RATE;
+import static com.dimowner.audiorecorder.AppConstants.VISUALIZATION_INTERVAL;
 
 public class AudioRecorder implements AudioRecorderContract.UserActions {
 
@@ -37,6 +40,8 @@ public class AudioRecorder implements AudioRecorderContract.UserActions {
 
     private boolean isPrepared = false;
     private boolean isRecording = false;
+    private Timer timerProgress;
+    private long progress = 0;
 
     private AudioRecorderContract.RecorderActions actionsListener;
 
@@ -96,9 +101,9 @@ public class AudioRecorder implements AudioRecorderContract.UserActions {
     public void stopRecording() {
         Timber.v("stopRecording");
         if (isRecording) {
+            stopRecordingTimer();
             recorder.stop();
             recorder.release();
-            stopRecordingTimer();
             if (actionsListener != null) {
                 actionsListener.onStopRecord(recordFile);
             }
@@ -112,27 +117,22 @@ public class AudioRecorder implements AudioRecorderContract.UserActions {
     }
 
     private void startRecordingTimer() {
-//        TODO: waiting for implementation
-//        final int[] time = new int[]{0};
-//        if (recordDisposable != null && !recordDisposable.isDisposed()) recordDisposable.dispose();
-//
-//        Flowable<Long> timerFlowable = Flowable.interval(RECORDING_VISUALIZATION_INTERVAL_MILLS, TimeUnit.MILLISECONDS)
-//                .subscribeOn(Schedulers.computation())
-//                .observeOn(AndroidSchedulers.mainThread());
-//
-//        recordDisposable = timerFlowable.subscribe(aLong -> {
-//            if (recorder != null) {
-//                time[0] += RECORDING_VISUALIZATION_INTERVAL_MILLS;
-//                if (actionsListener != null) {
-//                    actionsListener.onRecordProgress(time[0], recorder.getMaxAmplitude());
-//                }
-//            }
-//        });
+        timerProgress = new Timer();
+        timerProgress.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (actionsListener != null && recorder != null) {
+                    actionsListener.onRecordProgress(progress, recorder.getMaxAmplitude());
+                    progress += VISUALIZATION_INTERVAL;
+                }
+            }
+        }, 0, VISUALIZATION_INTERVAL);
     }
 
     private void stopRecordingTimer() {
-//        TODO: waiting for implementation
-//        recordDisposable.dispose();
+        timerProgress.cancel();
+        timerProgress.purge();
+        progress = 0;
     }
 
     public boolean isRecording() {

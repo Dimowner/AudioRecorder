@@ -30,7 +30,6 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -89,7 +88,7 @@ public class MainActivity2 extends Activity implements MainContract.View {
 			btnRecord.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					if (checkRrecordPermission()) {
+					if (checkRecordPermission()) {
 						presenter.recordingClicked();
 					}
 				}
@@ -337,11 +336,11 @@ public class MainActivity2 extends Activity implements MainContract.View {
 	}
 
 	@Override
-	public void onPlayProgress(int px) {
+	public void onPlayProgress(long mills, int px) {
 
 	}
 
-	private boolean checkRrecordPermission() {
+	private boolean checkRecordPermission() {
 		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
 				requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_CODE_RECORD_AUDIO);

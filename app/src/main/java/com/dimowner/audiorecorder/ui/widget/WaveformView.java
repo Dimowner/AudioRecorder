@@ -283,6 +283,9 @@ public class WaveformView extends View {
 		// Compute the heights
 		double[] heights = new double[numFrames];
 		double range = maxGain - minGain;
+		if (range <= 0) {
+			range = 1;
+		}
 		for (int i = 0; i < numFrames; i++) {
 			double value = (smoothedGains[i] * scaleFactor - minGain) / range;
 			if (value < 0.0)

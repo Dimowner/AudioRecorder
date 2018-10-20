@@ -45,6 +45,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private final AudioPlayer audioPlayer;
 	private final FileRepository fileRepository;
 	private final Prefs prefs;
+	private long songDuration = 0;
 
 
 	public MainPresenter(final Prefs prefs, final FileRepository fileRepository) {
@@ -66,6 +67,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			@Override
 			public void onRecordProgress(long mills, int amplitude) {
 				Timber.v("onRecordProgress time = %d, apm = %d", mills, amplitude);
+				view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(mills));
 			}
 
 			@Override
@@ -104,13 +106,14 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			@Override
 			public void onPlayProgress(long mills) {
 				Timber.v("onPlayProgress: " + mills);
-				view.onPlayProgress(AndroidUtils.convertMillsToPx(mills));
+				view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills));
 			}
 
 			@Override
 			public void onStopPlay() {
 				view.showPlayStop();
 				Timber.d("onStopPlay");
+				view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration));
 			}
 
 			@Override
@@ -183,15 +186,16 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				public void run() {
 					try {
 						final SoundFile soundFile = SoundFile.create(lastFile);
-						final int duration = readRecordingTrackDuration(context, lastFile);
-						Timber.v("Duration = " + duration);
+//						final int duration = readRecordingTrackDuration(context, lastFile);
+						songDuration = readRecordingTrackDuration(context, lastFile);
+						Timber.v("Duration = " + songDuration);
 
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override
 							public void run() {
 								audioPlayer.setData(lastFile);
 								view.showSoundFile(soundFile);
-								view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(duration));
+								view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration));
 								view.hideProgress();
 							}
 						});

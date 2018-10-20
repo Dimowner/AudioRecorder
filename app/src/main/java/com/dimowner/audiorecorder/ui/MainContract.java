@@ -39,7 +39,7 @@ public interface MainContract {
 
 		void showDuration(String duration);
 
-		void onPlayProgress(int px);
+		void onPlayProgress(long mills, int px);
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {

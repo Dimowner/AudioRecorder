@@ -38,6 +38,7 @@ import com.dimowner.audiorecorder.ui.widget.ScrubberView;
 import com.dimowner.audiorecorder.ui.widget.WaveformView;
 import com.dimowner.audiorecorder.audio.SoundFile;
 import com.dimowner.audiorecorder.util.AppStartTracker;
+import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.util.Random;
 
@@ -224,12 +225,13 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void onPlayProgress(final int px) {
+	public void onPlayProgress(final long mills, final int px) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				Timber.v("onPlayProgress: " + px);
 				scrubberView.setCurrentPosition(px);
+				txtDuration.setText(TimeUtils.formatTimeIntervalMinSecMills(mills));
 			}
 		});
 	}

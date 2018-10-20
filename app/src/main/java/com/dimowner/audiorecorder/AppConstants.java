@@ -17,7 +17,7 @@
 package com.dimowner.audiorecorder;
 
 /**
- * AppConstants that may be used in multiple class.
+ * AppConstants that may be used in multiple classes.
  */
 public class AppConstants {
 
@@ -31,4 +31,7 @@ public class AppConstants {
     public final static int RECORD_AUDIO_CHANNELS_COUNT = 2;
     public final static int RECORD_MAX_DURATION = 300000; // 5 min
     public final static int RECORDS_AVAILABLE_COUNT = 10;
+    public final static int VISUALIZATION_INTERVAL = 25;
+
+
 }

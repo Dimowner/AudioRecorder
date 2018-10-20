@@ -18,6 +18,8 @@ package com.dimowner.audiorecorder.audio.player;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import java.io.IOException;
 import java.util.Timer;
@@ -98,7 +100,7 @@ public class AudioPlayer implements AudioPlayerContract.UserActions {
                                 actionsListener.onPlayProgress(mediaPlayer.getCurrentPosition());
                             }
                         }
-                    }, 0, 50);
+                    }, 0, AppConstants.VISUALIZATION_INTERVAL);
                 } catch (IOException e) {
                     Timber.e(e);
                     actionsListener.onError(e);
