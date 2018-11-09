@@ -33,16 +33,11 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
 		setContentView(R.layout.activity_settings);
 
 		ImageButton btnBack = findViewById(R.id.btn_back);
-		btnBack.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				finish();
-			}
-		});
 		TextView btnLicences = findViewById(R.id.btnLicences);
 		TextView btnRate = findViewById(R.id.btnRate);
 		TextView txtAbout = findViewById(R.id.txtAbout);
 		txtAbout.setText(getAboutContent());
+		btnBack.setOnClickListener(this);
 		btnLicences.setOnClickListener(this);
 		btnRate.setOnClickListener(this);
 	}
@@ -51,6 +46,8 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
+			case R.id.btn_back:
+				finish();
 			case R.id.btnLicences:
 //				startActivity(new Intent(getApplicationContext(), LicenceActivity.class));
 				break;

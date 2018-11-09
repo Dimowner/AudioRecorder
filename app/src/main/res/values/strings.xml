@@ -1,6 +1,7 @@
 <resources>
 	<string name="app_name">Audio Recorder</string>
 
+	<string name="records">Records</string>
 	<string name="settings">Settings</string>
 	<string name="about">About</string>
 	<string name="open_source_licences">Open source licences</string>

@@ -1,13 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 				  android:orientation="vertical"
 				  android:layout_width="match_parent"
 				  android:layout_height="match_parent">
 
-	<TextView
-			android:layout_width="wrap_content"
+	<android.support.v7.widget.RecyclerView
+			android:id="@+id/recycler_view"
+			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:layout_gravity="center"
-			android:gravity="center"
-			android:text="TEXT"/>
-</LinearLayout>
+			/>
+
+	<LinearLayout
+			android:id="@+id/toolbar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+		<ImageButton
+				android:id="@+id/btn_back"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@null"
+				android:layout_gravity="start"
+				android:background="?android:selectableItemBackground"
+				android:padding="@dimen/spacing_normal"
+				android:src="@drawable/round_arrow_back"/>
+
+		<TextView
+				style="@style/Text.SectionLabel"
+				android:layout_width="wrap_content"
+				android:layout_height="@dimen/toolbar_height"
+				android:gravity="center_vertical"
+				android:paddingStart="@dimen/spacing_normal"
+				android:paddingLeft="@dimen/spacing_normal"
+				android:paddingEnd="@dimen/spacing_normal"
+				android:paddingRight="@dimen/spacing_normal"
+				android:textColor="@color/text_primary_light"
+				android:text="@string/records"
+				/>
+
+	</LinearLayout>
+
+	<View
+			android:id="@+id/bottomDivider"
+			android:layout_width="match_parent"
+			android:layout_height="1px"
+			android:elevation="@dimen/toolbar_elevation"
+			android:background="@color/grey"
+			android:layout_gravity="bottom"
+			/>
+
+</FrameLayout>

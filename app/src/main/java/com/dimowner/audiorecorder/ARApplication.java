@@ -33,6 +33,7 @@ public class ARApplication extends Application {
 	public static volatile Handler applicationHandler;
 
 	private int appThemeResource = 0;
+	private int primaryColorRes = R.color.md_blue_700;
 
 	private AppStartTracker startTracker = new AppStartTracker();
 
@@ -44,8 +45,16 @@ public class ARApplication extends Application {
 		return ((ARApplication) context).getThemeResource();
 	}
 
+	public static int getPrimaryColorRes(Context context) {
+		return ((ARApplication) context).getPrimaryColorRes();
+	}
+
 	private int getThemeResource() {
 		return appThemeResource;
+	}
+
+	private int getPrimaryColorRes() {
+		return primaryColorRes;
 	}
 
 	private AppStartTracker getStartTracker() {
@@ -68,27 +77,39 @@ public class ARApplication extends Application {
 
 		applicationContext = getApplicationContext();
 		applicationHandler = new Handler(applicationContext.getMainLooper());
-		appThemeResource = selectRandomThemeColor();
+
+		selectRandomThemeColor();
 	}
 
-	private int selectRandomThemeColor() {
+	private void selectRandomThemeColor() {
 		switch (new Random().nextInt(7)) {
-			case 0:
-				return R.style.AppTheme;
 			case 1:
-				return R.style.AppTheme_Brown;
+				appThemeResource = R.style.AppTheme_Brown;
+				primaryColorRes = R.color.md_brown_700;
+				break;
 			case 2:
-				return R.style.AppTheme_DeepOrange;
+				appThemeResource = R.style.AppTheme_DeepOrange;
+				primaryColorRes = R.color.md_deep_orange_800;
+				break;
 			case 3:
-				return R.style.AppTheme_Pink;
+				appThemeResource = R.style.AppTheme_Pink;
+				primaryColorRes = R.color.md_pink_800;
+				break;
 			case 4:
-				return R.style.AppTheme_Purple;
+				appThemeResource = R.style.AppTheme_Purple;
+				primaryColorRes = R.color.md_deep_purple_700;
+				break;
 			case 5:
-				return R.style.AppTheme_Red;
+				appThemeResource = R.style.AppTheme_Red;
+				primaryColorRes = R.color.md_red_700;
+				break;
 			case 6:
-				return R.style.AppTheme_Teal;
-
-				default: return R.style.AppTheme;
+				appThemeResource = R.style.AppTheme_Teal;
+				primaryColorRes = R.color.md_teal_700;
+			case 0:
+			default:
+				primaryColorRes = R.color.md_blue_700;
+				appThemeResource = R.style.AppTheme;
 		}
 	}
 }
