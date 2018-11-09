@@ -22,6 +22,7 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.dimowner.audiorecorder.util.AppStartTracker;
+import java.util.Random;
 
 import timber.log.Timber;
 
@@ -31,10 +32,20 @@ public class ARApplication extends Application {
 	public static volatile Context applicationContext;
 	public static volatile Handler applicationHandler;
 
+	private int appThemeResource = 0;
+
 	private AppStartTracker startTracker = new AppStartTracker();
 
 	public static AppStartTracker getAppStartTracker(Context context) {
 		return ((ARApplication) context).getStartTracker();
+	}
+
+	public static int getAppThemeResource(Context context) {
+		return ((ARApplication) context).getThemeResource();
+	}
+
+	private int getThemeResource() {
+		return appThemeResource;
 	}
 
 	private AppStartTracker getStartTracker() {
@@ -57,7 +68,27 @@ public class ARApplication extends Application {
 
 		applicationContext = getApplicationContext();
 		applicationHandler = new Handler(applicationContext.getMainLooper());
+		appThemeResource = selectRandomThemeColor();
 	}
 
+	private int selectRandomThemeColor() {
+		switch (new Random().nextInt(7)) {
+			case 0:
+				return R.style.AppTheme;
+			case 1:
+				return R.style.AppTheme_Brown;
+			case 2:
+				return R.style.AppTheme_DeepOrange;
+			case 3:
+				return R.style.AppTheme_Pink;
+			case 4:
+				return R.style.AppTheme_Purple;
+			case 5:
+				return R.style.AppTheme_Red;
+			case 6:
+				return R.style.AppTheme_Teal;
 
+				default: return R.style.AppTheme;
+		}
+	}
 }

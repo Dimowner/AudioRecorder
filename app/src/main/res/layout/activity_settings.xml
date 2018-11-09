@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical">
+
+	<LinearLayout
+			android:id="@+id/toolbar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+		<ImageButton
+				android:id="@+id/btn_back"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@null"
+				android:layout_gravity="start|left"
+				android:background="?android:selectableItemBackground"
+				android:padding="@dimen/spacing_normal"
+				android:src="@drawable/round_arrow_back"/>
+
+		<TextView
+				style="@style/Text.SectionLabel"
+				android:layout_width="wrap_content"
+				android:layout_height="56dp"
+				android:gravity="center_vertical"
+				android:paddingStart="@dimen/spacing_normal"
+				android:paddingLeft="@dimen/spacing_normal"
+				android:textColor="@color/text_primary_light"
+				android:text="@string/settings"
+				/>
+
+
+	</LinearLayout>
+
+	<TextView
+			android:id="@+id/someSetting"
+			style="@style/Text.NormalLabel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Some setting"
+			android:drawableLeft="@drawable/ic_round_settings"
+			android:drawableStart="@drawable/ic_round_settings"
+			android:layout_margin="@dimen/spacing_normal"
+			android:drawablePadding="@dimen/spacing_double"
+			/>
+
+	<TextView
+			android:id="@+id/btnLicences"
+			style="@style/Text.NormalLabel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/open_source_licences"
+			android:drawableLeft="@drawable/dna"
+			android:drawableStart="@drawable/dna"
+			android:background="@drawable/button_selector"
+			android:padding="@dimen/spacing_small"
+			android:layout_margin="@dimen/spacing_small"
+			android:drawablePadding="@dimen/spacing_double"
+			/>
+
+	<TextView
+			android:id="@+id/btnRate"
+			style="@style/Text.NormalLabel"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/rate_app"
+			android:drawableLeft="@drawable/ic_round_thumbs_up_down"
+			android:drawableStart="@drawable/ic_round_thumbs_up_down"
+			android:background="@drawable/button_selector"
+			android:padding="@dimen/spacing_small"
+			android:layout_margin="@dimen/spacing_small"
+			android:drawablePadding="@dimen/spacing_double"
+			/>
+
+	<TextView
+			android:id="@+id/txtAbout"
+			style="@style/Text.NormalLabel"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/app_name"
+			android:gravity="bottom|center"
+			android:textSize="@dimen/text_xmedium"
+			android:background="@drawable/button_selector"
+			android:padding="@dimen/spacing_normal"
+			android:drawablePadding="@dimen/spacing_double"
+			/>
+
+</LinearLayout>

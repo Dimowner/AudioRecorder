@@ -63,6 +63,19 @@
 			>
 
 		<ImageButton
+				android:id="@+id/btn_settings"
+				android:layout_width="@dimen/bottom_pnl_btn_size"
+				android:layout_height="@dimen/bottom_pnl_btn_size"
+				android:layout_marginTop="@dimen/spacing_small"
+				android:adjustViewBounds="true"
+				android:clickable="true"
+				android:contentDescription="@null"
+				android:scaleType="centerInside"
+				android:background="@drawable/button_selector"
+				android:src="@drawable/ic_round_settings"
+				android:focusable="true"/>
+
+		<ImageButton
 				android:id="@+id/btn_clear"
 				android:layout_width="@dimen/bottom_pnl_btn_size"
 				android:layout_height="@dimen/bottom_pnl_btn_size"
@@ -79,7 +92,7 @@
 				android:id="@+id/btn_play"
 				android:layout_width="@dimen/bottom_pnl_btn_size"
 				android:layout_height="@dimen/bottom_pnl_btn_size"
-				android:layout_margin="@dimen/spacing_small"
+				android:layout_marginTop="@dimen/spacing_small"
 				android:adjustViewBounds="true"
 				android:clickable="true"
 				android:contentDescription="@null"
@@ -101,6 +114,18 @@
 				android:src="@drawable/record"
 				android:focusable="true"/>
 
+		<ImageButton
+				android:id="@+id/btn_records_list"
+				android:layout_width="@dimen/bottom_pnl_btn_size"
+				android:layout_height="@dimen/bottom_pnl_btn_size"
+				android:layout_marginTop="@dimen/spacing_small"
+				android:adjustViewBounds="true"
+				android:clickable="true"
+				android:contentDescription="@null"
+				android:scaleType="centerInside"
+				android:background="@drawable/button_selector"
+				android:src="@drawable/ic_round_list"
+				android:focusable="true"/>
 		<!--<ProgressBar-->
 				<!--android:id="@+id/progress"-->
 				<!--android:layout_width="match_parent"-->

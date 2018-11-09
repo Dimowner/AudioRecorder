@@ -50,4 +50,23 @@
 		<item name="android:windowBackground">@drawable/gradient_teal</item>
 	</style>
 
+	<style name="Text">
+		<item name="android:textColor">@color/text_primary_light</item>
+		<item name="android:fontFamily">sans-serif-light</item>
+	</style>
+
+	<style name="Text.NormalLabel" parent="Text">
+		<item name="android:textSize">@dimen/text_large</item>
+	</style>
+
+	<style name="Text.NormalValue" parent="Text">
+		<item name="android:textSize">@dimen/text_large</item>
+		<item name="android:fontFamily">sans-serif</item>
+	</style>
+
+	<style name="Text.SectionLabel">
+		<item name="android:textColor">@color/colorAccent</item>
+		<item name="android:fontFamily">sans-serif-light</item>
+		<item name="android:textSize">@dimen/text_xlarge</item>
+	</style>
 </resources>

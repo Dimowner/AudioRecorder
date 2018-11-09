@@ -34,6 +34,8 @@ import com.dimowner.audiorecorder.data.FileRepositoryImpl;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.exception.ErrorParser;
 import com.dimowner.audiorecorder.exception.FileRepositoryInitializationFailed;
+import com.dimowner.audiorecorder.ui.records.RecordsActivity;
+import com.dimowner.audiorecorder.ui.settings.SettingsActivity;
 import com.dimowner.audiorecorder.ui.widget.ScrubberView;
 import com.dimowner.audiorecorder.ui.widget.WaveformView;
 import com.dimowner.audiorecorder.audio.SoundFile;
@@ -57,6 +59,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ImageButton btnPlay;
 	private ImageButton btnRecord;
 	private ImageButton btnClear;
+	private ImageButton btnRecordsList;
+	private ImageButton btnSettings;
 	private ScrubberView scrubberView;
 
 //	private ProgressBar progressBar;
@@ -67,7 +71,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	protected void onCreate(Bundle savedInstanceState) {
 		tracker = ARApplication.getAppStartTracker(getApplicationContext());
 		tracker.activityOnCreate();
-		applyColoredTheme(new Random().nextInt(7));
+		setTheme(ARApplication.getAppThemeResource(getApplicationContext()));
 		super.onCreate(savedInstanceState);
 		tracker.activityContentViewBefore();
 		setContentView(R.layout.activity_main);
@@ -78,6 +82,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnPlay = findViewById(R.id.btn_play);
 		btnRecord = findViewById(R.id.btn_record);
 		btnClear = findViewById(R.id.btn_clear);
+		btnRecordsList = findViewById(R.id.btn_records_list);
+		btnSettings = findViewById(R.id.btn_settings);
 
 		scrubberView = findViewById(R.id.scrubber);
 
@@ -93,6 +99,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			btnPlay.setOnClickListener(this);
 			btnRecord.setOnClickListener(this);
 			btnClear.setOnClickListener(this);
+			btnRecordsList.setOnClickListener(this);
+			btnSettings.setOnClickListener(this);
 		} catch (FileRepositoryInitializationFailed e) {
 			Timber.e(e);
 			showError(ErrorParser.parseException(e));
@@ -141,6 +149,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				break;
 			case R.id.btn_clear:
 				presenter.deleteAll();
+				break;
+			case R.id.btn_records_list:
+				startActivity(RecordsActivity.getStartIntent(getApplicationContext()));
+				break;
+			case R.id.btn_settings:
+				startActivity(SettingsActivity.getStartIntent(getApplicationContext()));
 				break;
 		}
 	}
@@ -219,9 +233,14 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void showDuration(String duration) {
+	public void showDuration(final String duration) {
 //		txtDuration.setText(getString(R.string.duration, duration));
-		txtDuration.setText(duration);
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				txtDuration.setText(duration);
+			}
+		});
 	}
 
 	@Override
@@ -251,33 +270,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		if (requestCode == REQ_CODE_RECORD_AUDIO && grantResults.length > 0
 					&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 			presenter.recordingClicked();
-		}
-	}
-
-	private void applyColoredTheme(int r) {
-		Timber.v("applyColoredTheme r = %d", r);
-		switch (r) {
-			case 0:
-				setTheme(R.style.AppTheme);
-				break;
-			case 1:
-				setTheme(R.style.AppTheme_Brown);
-				break;
-			case 2:
-				setTheme(R.style.AppTheme_DeepOrange);
-				break;
-			case 3:
-				setTheme(R.style.AppTheme_Pink);
-				break;
-			case 4:
-				setTheme(R.style.AppTheme_Purple);
-				break;
-			case 5:
-				setTheme(R.style.AppTheme_Red);
-				break;
-			case 6:
-				setTheme(R.style.AppTheme_Teal);
-				break;
 		}
 	}
 }
