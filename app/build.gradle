@@ -1,27 +1,78 @@
 apply plugin: 'com.android.application'
 
+ext.versions = [
+      // Android
+      targetSdkVersion : 28,
+      minSdkVersion    : 16,
+      buildtools       : "28.0.3",
+      support          : "27.1.1",
+
+      //Timber
+      timber			  : "4.6.0",
+]
+
 def versionMajor = 0
 def versionMinor = 1
-def versionPatch = 8
+def versionPatch = 9
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion versions.targetSdkVersion
+    buildToolsVersion versions.buildtools
     defaultConfig {
         applicationId "com.dimowner.audiorecorder"
-        minSdkVersion 16
-        targetSdkVersion 28
+        minSdkVersion versions.minSdkVersion
+        targetSdkVersion versions.targetSdkVersion
         versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+    }
+
+    def keystorePropertiesFile = rootProject.file("keystore.properties")
+    def keystoreProperties = new Properties()
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+    signingConfigs {
+        dev {
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+        }
+        release {
+            storeFile file(keystoreProperties['prodStoreFile'])
+            storePassword keystoreProperties['prodStorePassword']
+            keyAlias keystoreProperties['prodKeyAlias']
+            keyPassword keystoreProperties['prodKeyPassword']
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled true
+			   shrinkResources false
+            useProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
             minifyEnabled false
+        }
+    }
+
+    flavorDimensions "default"
+
+    productFlavors {
+        debugConfig {
+            dimension "default"
+            applicationId "com.dimowner.audiorecorder.debug"
+            minSdkVersion versions.minSdkVersion
+            targetSdkVersion versions.targetSdkVersion
+            signingConfig = signingConfigs.dev
+        }
+        releaseConfig {
+            dimension "default"
+            signingConfig = signingConfigs.release
+            applicationId "com.dimowner.audiorecorder"
+            minSdkVersion versions.minSdkVersion
+            targetSdkVersion versions.targetSdkVersion
         }
     }
 
@@ -30,10 +81,14 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
+    lintOptions {
+        abortOnError false
+    }
+
     dependencies {
         //Timber
-        implementation 'com.jakewharton.timber:timber:4.6.0'
-        implementation 'com.android.support:recyclerview-v7:28.0.0'
+        implementation "com.jakewharton.timber:timber:$versions.timber"
+        implementation "com.android.support:recyclerview-v7:$versions.support"
     }
 }
 

@@ -1,1 +1,6 @@
 /build
+/key/release
+/debug
+/release
+/releaseConfig
+/debugConfig
