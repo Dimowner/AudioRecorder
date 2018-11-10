@@ -21,7 +21,9 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
 
+import com.crashlytics.android.Crashlytics;
 import com.dimowner.audiorecorder.util.AppStartTracker;
+import io.fabric.sdk.android.Fabric;
 import java.util.Random;
 
 import timber.log.Timber;
@@ -74,6 +76,7 @@ public class ARApplication extends Application {
 		}
 		startTracker.appOnCreate();
 		super.onCreate();
+		Fabric.with(this, new Crashlytics());
 
 		applicationContext = getApplicationContext();
 		applicationHandler = new Handler(applicationContext.getMainLooper());
