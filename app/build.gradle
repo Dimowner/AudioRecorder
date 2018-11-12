@@ -34,6 +34,7 @@ android {
 		targetSdkVersion versions.targetSdkVersion
 		versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
 		versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+		vectorDrawables.useSupportLibrary = true
 	}
 
 	def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -58,7 +59,7 @@ android {
 	buildTypes {
 		release {
 			minifyEnabled true
-			shrinkResources false
+			shrinkResources true
 			useProguard true
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 		}
@@ -117,9 +118,7 @@ dependencies {
 	implementation "com.jakewharton.timber:timber:$versions.timber"
 	implementation "com.android.support:recyclerview-v7:$versions.support"
 
-	implementation('com.crashlytics.sdk.android:crashlytics:2.9.6@aar') {
-		transitive = true
-	}
+//	implementation('com.crashlytics.sdk.android:crashlytics:2.9.6@aar') {
+//		transitive = true
+//	}
 }
-
-

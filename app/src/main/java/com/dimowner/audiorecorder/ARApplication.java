@@ -21,9 +21,8 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
 
-import com.crashlytics.android.Crashlytics;
-import com.dimowner.audiorecorder.util.AppStartTracker;
-import io.fabric.sdk.android.Fabric;
+//import com.crashlytics.android.Crashlytics;
+//import io.fabric.sdk.android.Fabric;
 import java.util.Random;
 
 import timber.log.Timber;
@@ -37,11 +36,6 @@ public class ARApplication extends Application {
 	private int appThemeResource = 0;
 	private int primaryColorRes = R.color.md_blue_700;
 
-	private AppStartTracker startTracker = new AppStartTracker();
-
-	public static AppStartTracker getAppStartTracker(Context context) {
-		return ((ARApplication) context).getStartTracker();
-	}
 
 	public static int getAppThemeResource(Context context) {
 		return ((ARApplication) context).getThemeResource();
@@ -59,10 +53,6 @@ public class ARApplication extends Application {
 		return primaryColorRes;
 	}
 
-	private AppStartTracker getStartTracker() {
-		return startTracker;
-	}
-
 	@Override
 	public void onCreate() {
 		if (BuildConfig.DEBUG) {
@@ -74,9 +64,9 @@ public class ARApplication extends Application {
 				}
 			});
 		}
-		startTracker.appOnCreate();
+
 		super.onCreate();
-		Fabric.with(this, new Crashlytics());
+//		Fabric.with(this, new Crashlytics());
 
 		applicationContext = getApplicationContext();
 		applicationHandler = new Handler(applicationContext.getMainLooper());

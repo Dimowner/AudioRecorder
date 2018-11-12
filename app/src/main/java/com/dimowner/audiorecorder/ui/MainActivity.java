@@ -39,10 +39,7 @@ import com.dimowner.audiorecorder.ui.settings.SettingsActivity;
 import com.dimowner.audiorecorder.ui.widget.ScrubberView;
 import com.dimowner.audiorecorder.ui.widget.WaveformView;
 import com.dimowner.audiorecorder.audio.SoundFile;
-import com.dimowner.audiorecorder.util.AppStartTracker;
 import com.dimowner.audiorecorder.util.TimeUtils;
-
-import java.util.Random;
 
 import timber.log.Timber;
 
@@ -51,8 +48,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 //	TODO: make waveform look like in soundcloud app.
 
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
-
-	private AppStartTracker tracker;
 
 	private WaveformView waveformView;
 	private TextView txtDuration;
@@ -69,13 +64,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		tracker = ARApplication.getAppStartTracker(getApplicationContext());
-		tracker.activityOnCreate();
 		setTheme(ARApplication.getAppThemeResource(getApplicationContext()));
 		super.onCreate(savedInstanceState);
-		tracker.activityContentViewBefore();
 		setContentView(R.layout.activity_main);
-		tracker.activityContentViewAfter();
 
 		waveformView = findViewById(R.id.record);
 		txtDuration = findViewById(R.id.txt_duration);
@@ -105,27 +96,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			Timber.e(e);
 			showError(ErrorParser.parseException(e));
 		}
-
-		tracker.activityOnCreateEnd();
-	}
-
-	@Override
-	protected void onStart() {
-		super.onStart();
-		tracker.activityOnStart();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-
 		presenter.loadLastRecord(getApplicationContext());
-		tracker.activityOnResume();
-//		Timber.v(tracker.getResults());
-		if (!tracker.isRun()) {
-			Toast.makeText(getApplicationContext(), tracker.getStartTime(), Toast.LENGTH_LONG).show();
-		}
-		tracker.setRun();
 	}
 
 	@Override
