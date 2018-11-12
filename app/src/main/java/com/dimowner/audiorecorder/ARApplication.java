@@ -23,6 +23,8 @@ import android.os.Handler;
 
 //import com.crashlytics.android.Crashlytics;
 //import io.fabric.sdk.android.Fabric;
+import com.dimowner.audiorecorder.data.Prefs;
+
 import java.util.Random;
 
 import timber.log.Timber;
@@ -35,6 +37,7 @@ public class ARApplication extends Application {
 
 	private int appThemeResource = 0;
 	private int primaryColorRes = R.color.md_blue_700;
+	private Prefs prefs;
 
 
 	public static int getAppThemeResource(Context context) {
@@ -45,12 +48,20 @@ public class ARApplication extends Application {
 		return ((ARApplication) context).getPrimaryColorRes();
 	}
 
+	public static Prefs getPrefs(Context context) {
+		return ((ARApplication) context).getPrefs();
+	}
+
 	private int getThemeResource() {
 		return appThemeResource;
 	}
 
 	private int getPrimaryColorRes() {
 		return primaryColorRes;
+	}
+
+	private Prefs getPrefs() {
+		return prefs;
 	}
 
 	@Override
@@ -71,6 +82,7 @@ public class ARApplication extends Application {
 		applicationContext = getApplicationContext();
 		applicationHandler = new Handler(applicationContext.getMainLooper());
 
+		prefs = new Prefs(applicationContext);
 		selectRandomThemeColor();
 	}
 

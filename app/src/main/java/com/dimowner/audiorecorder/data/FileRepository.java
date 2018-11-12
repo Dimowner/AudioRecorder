@@ -31,4 +31,7 @@ public interface FileRepository {
 	boolean deleteRecordFile(String path);
 
 	void deleteAllRecords();
+
+	void setRecordingDir(File file);
+
 }

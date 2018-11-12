@@ -30,9 +30,11 @@ import com.dimowner.audiorecorder.exception.CantCreateFileException;
 import com.dimowner.audiorecorder.exception.ErrorParser;
 import com.dimowner.audiorecorder.audio.SoundFile;
 import com.dimowner.audiorecorder.util.AndroidUtils;
+import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import timber.log.Timber;
@@ -215,6 +217,22 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(0));
 			view.showSoundFile(null);
 		}
+	}
+
+	@Override
+	public void updateRecordingDir(Context context) {
+		File recDir;
+		if (prefs.isStoreDirPublic()) {
+			recDir = FileUtil.getAppDir();
+		} else {
+			try {
+				recDir = FileUtil.getPrivateRecordsDir(context);
+			} catch (FileNotFoundException e) {
+				Timber.e(e);
+				recDir = FileUtil.getAppDir();
+			}
+		}
+		this.fileRepository.setRecordingDir(recDir);
 	}
 
 	private int readRecordingTrackDuration(Context context, String path) {

@@ -28,15 +28,20 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.data.Prefs;
 
 public class SettingsActivity extends Activity implements View.OnClickListener {
 
 	private static final String VERSION_UNAVAILABLE = "N/A";
+
+	private Prefs prefs;
 
 	public static Intent getStartIntent(Context context) {
 		return new Intent(context, SettingsActivity.class);
@@ -48,6 +53,8 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
 
+		prefs = ARApplication.getPrefs(getApplicationContext());
+
 		ImageButton btnBack = findViewById(R.id.btn_back);
 		TextView btnLicences = findViewById(R.id.btnLicences);
 		TextView btnRate = findViewById(R.id.btnRate);
@@ -56,6 +63,14 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
 		btnBack.setOnClickListener(this);
 		btnLicences.setOnClickListener(this);
 		btnRate.setOnClickListener(this);
+		Switch swPublicDir = findViewById(R.id.swPublicDir);
+		swPublicDir.setChecked(prefs.isStoreDirPublic());
+		swPublicDir.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
+				prefs.setStoreDirPublic(isChecked);
+			}
+		});
 	}
 
 

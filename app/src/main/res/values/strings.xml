@@ -6,6 +6,7 @@
 	<string name="about">About</string>
 	<string name="open_source_licences">Open source licences</string>
 	<string name="rate_app">Rate app</string>
+	<string name="store_records_public">Store records in public dir</string>
 
 	<string name="btn_ok">OK</string>
 	<string name="btn_cancel">Cancel</string>

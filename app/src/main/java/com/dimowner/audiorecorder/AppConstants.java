@@ -21,6 +21,9 @@ package com.dimowner.audiorecorder;
  */
 public class AppConstants {
 
+    public static final String APPLICATION_NAME = "AudioRecorder";
+    public static final String RECORDS_DIR = "records";
+
     /** Density pixel count per one second of time. */
     public static final int PIXELS_PER_SECOND = 40;
 

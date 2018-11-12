@@ -17,12 +17,9 @@
 package com.dimowner.audiorecorder.data;
 
 import java.io.File;
-
-import android.content.Context;
 import timber.log.Timber;
 
 import com.dimowner.audiorecorder.exception.CantCreateFileException;
-import com.dimowner.audiorecorder.exception.FileRepositoryInitializationFailed;
 import com.dimowner.audiorecorder.util.FileUtil;
 
 public class FileRepositoryImpl implements FileRepository {
@@ -31,12 +28,9 @@ public class FileRepositoryImpl implements FileRepository {
 
 	private File recordDirectory;
 
-	public FileRepositoryImpl(Context context) throws FileRepositoryInitializationFailed {
-		//TODO: provide ability record to app folder, if not allowed save files to private app dir
-		this.recordDirectory = FileUtil.getPrivateMusicStorageDir(context, PRIVATE_DIR_NAME);
-		if (recordDirectory == null) {
-			throw new FileRepositoryInitializationFailed();
-		}
+	public FileRepositoryImpl(File recordsRid) {
+		Timber.v("FileRepositoryImpl file: " + recordsRid);
+		this.recordDirectory = recordsRid;
 	}
 
 	@Override
@@ -76,5 +70,10 @@ public class FileRepositoryImpl implements FileRepository {
 	@Override
 	public void deleteAllRecords() {
 		FileUtil.deleteFile(recordDirectory);
+	}
+
+	@Override
+	public void setRecordingDir(File file) {
+		this.recordDirectory = file;
 	}
 }

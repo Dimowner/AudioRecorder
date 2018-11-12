@@ -21,15 +21,18 @@ import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
 
+import com.dimowner.audiorecorder.AppConstants;
+import com.dimowner.audiorecorder.exception.FileRepositoryInitializationFailed;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import timber.log.Timber;
+
 public class FileUtil {
 
-	/** Application directory name. */
-	public static final String APPLICATION_DIR = "MultiTrackRecorder";
 
 	private static final String LOG_TAG = "FileUtil";
 
@@ -37,7 +40,15 @@ public class FileUtil {
 	}
 
 	public static File getAppDir() {
-		return getStorageDir(APPLICATION_DIR);
+		return getStorageDir(AppConstants.APPLICATION_NAME);
+	}
+
+	public static File getPrivateRecordsDir(Context context) throws FileNotFoundException {
+		File dir = FileUtil.getPrivateMusicStorageDir(context, AppConstants.RECORDS_DIR);
+		if (dir == null) {
+			throw new FileNotFoundException();
+		}
+		return dir;
 	}
 
 	public static String generateRecordName() {
@@ -53,6 +64,7 @@ public class FileUtil {
 	 */
 	public static File createFile(File path, String fileName) {
 		if (path != null) {
+			createDir(path);
 			Log.d(LOG_TAG, "createFile path = " + path.getAbsolutePath() + " fileName = " + fileName);
 			File file = new File(path, fileName);
 			//Create file if need.
@@ -75,6 +87,28 @@ public class FileUtil {
 		} else {
 			return null;
 		}
+	}
+
+	public static File createDir(File dir) {
+		if (dir != null) {
+			if (!dir.exists()) {
+				try {
+					if (dir.mkdirs()) {
+						Log.d(LOG_TAG, "Dirs are successfully created");
+						return dir;
+					} else {
+						Log.e(LOG_TAG, "Dirs are NOT created! Please check permission write to external storage!");
+					}
+				} catch (Exception e) {
+					Timber.e(e);
+				}
+			} else {
+				Log.d(LOG_TAG, "Dir already exists");
+				return dir;
+			}
+		}
+		Log.e(LOG_TAG, "File is null or unable to create dirs");
+		return null;
 	}
 
 	/**
@@ -117,9 +151,12 @@ public class FileUtil {
 		if (dirName != null && !dirName.isEmpty()) {
 			File file = new File(Environment.getExternalStorageDirectory(), dirName);
 			if (isExternalStorageReadable() && isExternalStorageWritable()) {
-				if (!file.exists() && !file.mkdirs()) {
-					Log.e(LOG_TAG, "Directory " + file.getAbsolutePath() + " was not created");
-				}
+//				if (!file.exists() && !file.mkdirs()) {
+//					Log.e(LOG_TAG, "Directory " + file.getAbsolutePath() + " was not created");
+//				}
+				createDir(file);
+			} else {
+				Log.e(LOG_TAG, "External storage are not readable or writable");
 			}
 			return file;
 		} else {

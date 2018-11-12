@@ -51,5 +51,7 @@ public interface MainContract {
 		void deleteAll();
 
 		void loadLastRecord(Context context);
+
+		void updateRecordingDir(Context context);
 	}
 }

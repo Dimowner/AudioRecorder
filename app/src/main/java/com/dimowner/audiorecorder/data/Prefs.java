@@ -27,6 +27,7 @@ public class Prefs {
 
 	private static final String PREF_KEY_IS_FIRST_RUN = "is_first_run";
 	private static final String PREF_KEY_LAST_RECORDED_FILE = "last_recorded_file";
+	private static final String PREF_KEY_IS_STORE_DIR_PUBLIC = "is_store_dir_public";
 
 	private SharedPreferences sharedPreferences;
 
@@ -59,6 +60,16 @@ public class Prefs {
 	public void clearLastRecordFile() {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.remove(PREF_KEY_LAST_RECORDED_FILE);
+		editor.apply();
+	}
+
+	public boolean isStoreDirPublic() {
+		return sharedPreferences.contains(PREF_KEY_IS_STORE_DIR_PUBLIC) && sharedPreferences.getBoolean(PREF_KEY_IS_STORE_DIR_PUBLIC, false);
+	}
+
+	public void setStoreDirPublic(boolean b) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putBoolean(PREF_KEY_IS_STORE_DIR_PUBLIC, b);
 		editor.apply();
 	}
 }

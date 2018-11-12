@@ -13,7 +13,7 @@ apply plugin: 'io.fabric'
 ext.versions = [
 		// Android
 		targetSdkVersion: 28,
-		minSdkVersion   : 16,
+		minSdkVersion   : 21,
 		buildtools      : "28.0.3",
 		support         : "27.1.1",
 
@@ -23,7 +23,7 @@ ext.versions = [
 
 def versionMajor = 0
 def versionMinor = 1
-def versionPatch = 10
+def versionPatch = 11
 
 android {
 	compileSdkVersion versions.targetSdkVersion
@@ -34,7 +34,7 @@ android {
 		targetSdkVersion versions.targetSdkVersion
 		versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
 		versionName "${versionMajor}.${versionMinor}.${versionPatch}"
-		vectorDrawables.useSupportLibrary = true
+//		vectorDrawables.useSupportLibrary = true
 	}
 
 	def keystorePropertiesFile = rootProject.file("keystore.properties")

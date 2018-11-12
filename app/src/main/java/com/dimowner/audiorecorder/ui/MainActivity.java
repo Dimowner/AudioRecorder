@@ -39,7 +39,11 @@ import com.dimowner.audiorecorder.ui.settings.SettingsActivity;
 import com.dimowner.audiorecorder.ui.widget.ScrubberView;
 import com.dimowner.audiorecorder.ui.widget.WaveformView;
 import com.dimowner.audiorecorder.audio.SoundFile;
+import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 
 import timber.log.Timber;
 
@@ -47,7 +51,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 //	TODO: make waveform look like in soundcloud app.
 
+	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
+	public static final int REQ_CODE_WRITE_EXTERNAL_STORAGE = 404;
 
 	private WaveformView waveformView;
 	private TextView txtDuration;
@@ -59,6 +65,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ScrubberView scrubberView;
 
 //	private ProgressBar progressBar;
+
+	private Prefs prefs;
 
 	private MainPresenter presenter;
 
@@ -80,27 +88,35 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 //		progressBar = findViewById(R.id.progress);
 
-		try {
-			//Presenter initialization
-			final Prefs prefs = new Prefs(getApplicationContext());
-			FileRepository fileRepository = new FileRepositoryImpl(getApplicationContext());
-			presenter = new MainPresenter(prefs, fileRepository);
-			presenter.bindView(this);
-
-			btnPlay.setOnClickListener(this);
-			btnRecord.setOnClickListener(this);
-			btnClear.setOnClickListener(this);
-			btnRecordsList.setOnClickListener(this);
-			btnSettings.setOnClickListener(this);
-		} catch (FileRepositoryInitializationFailed e) {
-			Timber.e(e);
-			showError(ErrorParser.parseException(e));
+		//Presenter initialization
+		prefs = ARApplication.getPrefs(getApplicationContext());
+		File recDir;
+		if (prefs.isStoreDirPublic()) {
+			recDir = FileUtil.getAppDir();
+		} else {
+			try {
+				recDir = FileUtil.getPrivateRecordsDir(getApplicationContext());
+			} catch (FileNotFoundException e) {
+				Timber.e(e);
+				recDir = FileUtil.getAppDir();
+			}
 		}
+
+		FileRepository fileRepository = new FileRepositoryImpl(recDir);
+		presenter = new MainPresenter(prefs, fileRepository);
+		presenter.bindView(this);
+
+		btnPlay.setOnClickListener(this);
+		btnRecord.setOnClickListener(this);
+		btnClear.setOnClickListener(this);
+		btnRecordsList.setOnClickListener(this);
+		btnSettings.setOnClickListener(this);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
+		presenter.updateRecordingDir(getApplicationContext());
 		presenter.loadLastRecord(getApplicationContext());
 	}
 
@@ -231,11 +247,39 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		});
 	}
 
+//	private boolean checkWriteToExternalStoragePermission() {
+//		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//			if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+//				requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQ_CODE_WRITE_EXTERNAL_STORAGE);
+//				return false;
+//			}
+//		}
+//		return true;
+//	}
+
 	private boolean checkRecordPermission() {
-		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-				requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_CODE_RECORD_AUDIO);
-				return false;
+		if (prefs.isStoreDirPublic()) {
+			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
+						&& checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+					requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL);
+					return false;
+				} else if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+						&& checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+					requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQ_CODE_WRITE_EXTERNAL_STORAGE);
+					return false;
+				} else if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
+						&& checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+					requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_CODE_RECORD_AUDIO);
+					return false;
+				}
+			}
+		} else {
+			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+					requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_CODE_RECORD_AUDIO);
+					return false;
+				}
 			}
 		}
 		return true;
@@ -243,8 +287,15 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-		if (requestCode == REQ_CODE_RECORD_AUDIO && grantResults.length > 0
-					&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+		if (requestCode == REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL && grantResults.length > 0
+					&& grantResults[0] == PackageManager.PERMISSION_GRANTED
+					&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+			presenter.recordingClicked();
+		} else if (requestCode == REQ_CODE_RECORD_AUDIO && grantResults.length > 0
+				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+			presenter.recordingClicked();
+		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.length > 0
+				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 			presenter.recordingClicked();
 		}
 	}
