@@ -1,0 +1,224 @@
+/*
+ * Copyright 2018 Dmitriy Ponomarenko
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dimowner.audiorecorder.data.database;
+
+import java.util.ArrayList;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+/**
+ * Base class to communicate with some table T in database.
+ * @author Dimowner
+ */
+public abstract class DataSource<T> {
+
+	/** SQLite database manager. */
+	protected SQLiteHelper dbHelper;
+
+	/** Class provides access to database. */
+	protected SQLiteDatabase db;
+
+	/** Source table name. */
+	protected String tableName;
+
+	/** Tag for logging messages. */
+	private final String LOG_TAG = getClass().getSimpleName();
+
+
+	/**
+	 * Constructor.
+	 * @param context Application context.
+	 * @param tableName Table name.
+	 */
+	public DataSource (Context context, String tableName) {
+		dbHelper = new SQLiteHelper(context);
+		this.tableName = tableName;
+	}
+
+	/**
+	 * Open connection to SQLite database.
+	 */
+	public void open() {
+		db = dbHelper.getWritableDatabase();
+	}
+
+	/**
+	 * Close connection to SQLite database.
+	 */
+	public void close() {
+		db.close();
+		dbHelper.close();
+	}
+
+	public boolean isOpen() {
+		return db != null && db.isOpen();
+	}
+
+	/**
+	 * Insert new item into database for table T.
+	 * @param item Item that will be inserted ind database.
+	 */
+	public T insertItem(T item) {
+		ContentValues values = itemToContentValues(item);
+		if (values != null) {
+			int insertId = (int) db.insert(tableName, null, values);
+			Log.d(LOG_TAG, "Insert into " + tableName + " id = " + insertId);
+			return getItem(insertId);
+		} else {
+			Log.e(LOG_TAG, "Unable to write empty item!");
+			return null;
+		}
+	}
+
+	/**
+	 * Convert item into {@link android.content.ContentValues ContentValues}
+	 * @param item Item to convert
+	 * @return Converted item into {@link android.content.ContentValues ContentValues}.
+	 */
+	public abstract ContentValues itemToContentValues(T item);
+
+	/**
+	 * Delete item from database for table T.
+	 * @param id Item id of element that will be deleted from table T.
+	 */
+	public void deleteItem(int id) {
+		Log.d(LOG_TAG, tableName + " deleted ID = " + id);
+		db.delete(tableName, SQLiteHelper.COLUMN_ID + " = " + id, null);
+	}
+
+	/**
+	 * Update item in databese for table T.
+	 * @param item Item that will be updated.
+	 */
+	public void updateItem(T item) {
+		ContentValues values = itemToContentValues(item);
+		if (values != null && values.containsKey(SQLiteHelper.COLUMN_ID)) {
+			String where = SQLiteHelper.COLUMN_ID + " = "
+					+ values.get(SQLiteHelper.COLUMN_ID);
+			int n = db.update(tableName, values, where, null);
+			Log.d(LOG_TAG, "Updated records count = " + n);
+		} else {
+			Log.e(LOG_TAG, "Unable to update empty item!");
+		}
+	}
+
+	/**
+	 * Get all records from database for table T.
+	 * @return List that contains all records of table T.
+	 */
+	public ArrayList<T> getAll() {
+		Cursor cursor = queryLocal(db, "SELECT * FROM " + tableName);
+		return convertCursor(cursor);
+	}
+
+	/**
+	 * Get items that match the conditions from table T.
+	 * @param where Conditions to select some items.
+	 * @return List of some records from table T.
+	 */
+	public ArrayList<T> getItems(String where) {
+		Cursor cursor = queryLocal(db, "SELECT * FROM "
+				+ tableName + " WHERE " + where);
+		return convertCursor(cursor);
+	}
+
+	/**
+	 * Get item from table T.
+	 * @param id Item id to select.
+	 * @return Selected item from table.
+	 */
+	public T getItem(int id) {
+		Cursor cursor = queryLocal(db, "SELECT * FROM " + tableName
+				+ " WHERE " + SQLiteHelper.COLUMN_ID + " = " + id);
+		return convertCursor(cursor).get(0);
+	}
+
+	/**
+	 * Convert {@link android.database.Cursor Cursor} into item T
+	 * @param cursor Cursor.
+	 * @return T item which corresponds some table in database.
+	 */
+	public ArrayList<T> convertCursor(Cursor cursor) {
+		ArrayList<T> items = new ArrayList<>();
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) {
+			items.add(recordToItem(cursor));
+			cursor.moveToNext();
+		}
+		cursor.close();
+		if (items.size() > 0) {
+			return items;
+		}
+		return new ArrayList<>();
+	}
+
+	/**
+	 * Convert one record of {@link android.database.Cursor Cursor} into item T
+	 * @param cursor Cursor positioned to item need to convert.
+	 * @return T item which corresponds some table in database.
+	 */
+	public abstract T recordToItem(Cursor cursor);
+
+	/**
+	 * Query to local SQLite database with write to log query text and query result.
+	 * @param db Provides access to database.
+	 * @param query Query string.
+	 * @return Cursor that contains query result.
+	 */
+	protected Cursor queryLocal(SQLiteDatabase db, String query) {
+		Log.d(LOG_TAG, "queryLocal: " + query);
+		Cursor c = db.rawQuery(query, null);
+		StringBuilder data = new StringBuilder("Cursor[");
+		if (c.moveToFirst()) {
+			do {
+				int columnCount = c.getColumnCount();
+				data.append("row[");
+				for (int i = 0; i < columnCount; ++i) {
+					data.append(c.getColumnName(i)).append(" = ");
+
+					switch (c.getType(i)) {
+						case Cursor.FIELD_TYPE_BLOB:
+							data.append("byte array");
+							break;
+						case Cursor.FIELD_TYPE_FLOAT:
+							data.append(c.getFloat(i));
+							break;
+						case Cursor.FIELD_TYPE_INTEGER:
+							data.append(c.getInt(i));
+							break;
+						case Cursor.FIELD_TYPE_NULL:
+							data.append("null");
+							break;
+						case Cursor.FIELD_TYPE_STRING:
+							data.append(c.getString(i));
+							break;
+					}
+					if (i != columnCount - 1) {
+						data.append(", ");
+					}
+				}
+				data.append("]\n");
+			} while (c.moveToNext());
+		}
+		data.append("]");
+		Log.d(LOG_TAG, data.toString());
+		return c;
+	}
+}

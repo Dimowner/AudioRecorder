@@ -32,8 +32,6 @@ import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.FileRepositoryImpl;
 import com.dimowner.audiorecorder.data.Prefs;
-import com.dimowner.audiorecorder.exception.ErrorParser;
-import com.dimowner.audiorecorder.exception.FileRepositoryInitializationFailed;
 import com.dimowner.audiorecorder.ui.records.RecordsActivity;
 import com.dimowner.audiorecorder.ui.settings.SettingsActivity;
 import com.dimowner.audiorecorder.ui.widget.ScrubberView;
@@ -44,7 +42,6 @@ import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-
 import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
@@ -118,6 +115,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		super.onResume();
 		presenter.updateRecordingDir(getApplicationContext());
 		presenter.loadLastRecord(getApplicationContext());
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
 	}
 
 	@Override
