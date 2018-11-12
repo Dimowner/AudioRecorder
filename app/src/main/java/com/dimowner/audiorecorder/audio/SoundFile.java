@@ -135,15 +135,6 @@ public class SoundFile {
 		return calculateSamplesPerFrame();
 	}
 
-	/**
-	 * This value specifies the number of frames per second.
-	 * In {@link WaveformView} one frame corresponds to one pixel
-	 * To make synchronized grids of {@link WaveformView}
-	 * and {@link WaveformView} they should have the
-	 * same value the POINTS_PER_AUDIO_SECOND;
-	 *
-	 * @return Number of samples per frame.
-	 */
 	private int calculateSamplesPerFrame() {
 		return mSampleRate / AppConstants.PIXELS_PER_SECOND;
 	}
@@ -151,22 +142,6 @@ public class SoundFile {
 	// Should be removed when the app will use directly the samples instead of the frames.
 	public int[] getFrameGains() {
 		return mFrameGains;
-	}
-
-	public ShortBuffer getSamples() {
-		if (mDecodedSamples != null) {
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
-//                Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1) {
-//                // Hack for Nougat where asReadOnlyBuffer fails to respect byte ordering.
-//                // See https://code.google.com/p/android/issues/detail?id=223824
-//                // The bug looks like fixed.
-			return mDecodedSamples;
-//            } else {
-//                return mDecodedSamples.asReadOnlyBuffer();
-//            }
-		} else {
-			return null;
-		}
 	}
 
 	public void getData(byte[] dst) {
@@ -268,7 +243,7 @@ public class SoundFile {
 					presentation_time = extractor.getSampleTime();
 					codec.queueInputBuffer(inputBufferIndex, 0, sample_size, presentation_time, 0);
 					extractor.advance();
-//                    tot_size_read += sample_size;
+               tot_size_read += sample_size;
 //                    if (mProgressListener != null) {
 //                        if (!mProgressListener.reportProgress((float)(tot_size_read) / mFileSize)) {
 //                            // We are asked to stop reading the file. Returning immediately. The
