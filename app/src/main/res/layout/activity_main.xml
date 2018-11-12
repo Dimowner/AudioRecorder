@@ -23,41 +23,27 @@
 		android:orientation="vertical"
 		tools:context="com.dimowner.audiorecorder.ui.MainActivity">
 
-	<HorizontalScrollView
-			android:id="@+id/tracks_scroll"
+	<FrameLayout
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
 			android:layout_weight="1"
-			android:fillViewport="true">
+			>
 
-		<LinearLayout
+		<com.dimowner.audiorecorder.ui.widget.WaveformView
+				android:id="@+id/record"
 				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
-				android:orientation="vertical">
+				android:layout_height="200dp"
+				android:layout_gravity="center"
+				/>
 
-			<com.dimowner.audiorecorder.ui.widget.GridView
-					android:id="@+id/timeline"
-					android:layout_width="match_parent"
-					android:layout_height="40dp"/>
+		<com.dimowner.audiorecorder.ui.widget.ScrubberView
+				android:id="@+id/scrubber"
+				android:layout_width="match_parent"
+				android:layout_height="200dp"
+				android:layout_gravity="center"
+				/>
 
-			<FrameLayout
-					android:layout_width="match_parent"
-					android:layout_height="match_parent">
-
-				<com.dimowner.audiorecorder.ui.widget.WaveformView
-						android:id="@+id/record"
-						android:layout_width="wrap_content"
-						android:layout_height="100dp"
-						/>
-
-				<com.dimowner.audiorecorder.ui.widget.ScrubberView
-						android:id="@+id/scrubber"
-						android:layout_width="match_parent"
-						android:layout_height="100dp"/>
-
-			</FrameLayout>
-		</LinearLayout>
-	</HorizontalScrollView>
+	</FrameLayout>
 
 	<TextView
 			android:id="@+id/txt_duration"
@@ -65,17 +51,17 @@
 			android:layout_height="wrap_content"
 			android:gravity="center_horizontal"
 			android:padding="@dimen/spacing_normal"
+			android:textColor="@color/text_primary_light"
 			android:textSize="48sp"
 			android:textStyle="bold"
-			android:textColor="@color/text_primary_light"
 			tools:text="Duration: 00:00"/>
 
 	<LinearLayout
 			android:id="@+id/control_panel"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:orientation="horizontal"
 			android:gravity="center_horizontal"
+			android:orientation="horizontal"
 			>
 
 		<ImageButton
@@ -84,12 +70,12 @@
 				android:layout_height="@dimen/bottom_pnl_btn_size"
 				android:layout_marginTop="@dimen/spacing_small"
 				android:adjustViewBounds="true"
+				android:background="@drawable/button_selector"
 				android:clickable="true"
 				android:contentDescription="@null"
+				android:focusable="true"
 				android:scaleType="centerInside"
-				android:background="@drawable/button_selector"
-				android:src="@drawable/ic_round_settings"
-				android:focusable="true"/>
+				android:src="@drawable/ic_round_settings"/>
 
 		<ImageButton
 				android:id="@+id/btn_clear"
@@ -97,12 +83,12 @@
 				android:layout_height="@dimen/bottom_pnl_btn_size"
 				android:layout_margin="@dimen/spacing_small"
 				android:adjustViewBounds="true"
+				android:background="@drawable/button_selector"
 				android:clickable="true"
 				android:contentDescription="@null"
+				android:focusable="true"
 				android:scaleType="center"
-				android:src="@drawable/delete_forever"
-				android:background="@drawable/button_selector"
-				android:focusable="true"/>
+				android:src="@drawable/delete_forever"/>
 
 		<ImageButton
 				android:id="@+id/btn_play"
@@ -110,12 +96,12 @@
 				android:layout_height="@dimen/bottom_pnl_btn_size"
 				android:layout_marginTop="@dimen/spacing_small"
 				android:adjustViewBounds="true"
+				android:background="@drawable/button_selector"
 				android:clickable="true"
 				android:contentDescription="@null"
-				android:background="@drawable/button_selector"
+				android:focusable="true"
 				android:scaleType="center"
-				android:src="@drawable/play"
-				android:focusable="true"/>
+				android:src="@drawable/play"/>
 
 		<ImageButton
 				android:id="@+id/btn_record"
@@ -123,12 +109,12 @@
 				android:layout_height="@dimen/bottom_pnl_btn_size"
 				android:layout_margin="@dimen/spacing_small"
 				android:adjustViewBounds="true"
+				android:background="@drawable/button_selector"
 				android:clickable="true"
 				android:contentDescription="@null"
+				android:focusable="true"
 				android:scaleType="centerInside"
-				android:background="@drawable/button_selector"
-				android:src="@drawable/record"
-				android:focusable="true"/>
+				android:src="@drawable/record"/>
 
 		<ImageButton
 				android:id="@+id/btn_records_list"
@@ -136,19 +122,13 @@
 				android:layout_height="@dimen/bottom_pnl_btn_size"
 				android:layout_marginTop="@dimen/spacing_small"
 				android:adjustViewBounds="true"
+				android:background="@drawable/button_selector"
 				android:clickable="true"
 				android:contentDescription="@null"
+				android:focusable="true"
 				android:scaleType="centerInside"
-				android:background="@drawable/button_selector"
-				android:src="@drawable/ic_round_list"
-				android:focusable="true"/>
-		<!--<ProgressBar-->
-				<!--android:id="@+id/progress"-->
-				<!--android:layout_width="match_parent"-->
-				<!--android:layout_height="@dimen/bottom_pnl_btn_size"-->
-				<!--android:layout_margin="@dimen/spacing_small"-->
-				<!--android:layout_gravity="center_horizontal"-->
-				<!--android:visibility="gone"/>-->
+				android:src="@drawable/ic_round_list"/>
+
 	</LinearLayout>
 
 </LinearLayout>

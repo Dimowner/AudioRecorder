@@ -25,7 +25,7 @@ public class AppConstants {
     public static final String RECORDS_DIR = "records";
 
     /** Density pixel count per one second of time. */
-    public static final int PIXELS_PER_SECOND = 40;
+    public static final int PIXELS_PER_SECOND = 30;
 
     // recording and playback
     public final static int PLAYBACK_SAMPLE_RATE = 44100;

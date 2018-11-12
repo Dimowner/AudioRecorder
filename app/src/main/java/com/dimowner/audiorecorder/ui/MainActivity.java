@@ -61,8 +61,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ImageButton btnSettings;
 	private ScrubberView scrubberView;
 
-//	private ProgressBar progressBar;
-
 	private Prefs prefs;
 
 	private MainPresenter presenter;
@@ -82,8 +80,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnSettings = findViewById(R.id.btn_settings);
 
 		scrubberView = findViewById(R.id.scrubber);
-
-//		progressBar = findViewById(R.id.progress);
 
 		//Presenter initialization
 		prefs = ARApplication.getPrefs(getApplicationContext());
@@ -158,6 +154,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnClear.setVisibility(View.GONE);
 		btnPlay.setVisibility(View.GONE);
 		btnRecord.setVisibility(View.GONE);
+		btnSettings.setVisibility(View.GONE);
+		btnRecordsList.setVisibility(View.GONE);
 //		progressBar.setVisibility(View.VISIBLE);
 	}
 
@@ -166,6 +164,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnClear.setVisibility(View.VISIBLE);
 		btnPlay.setVisibility(View.VISIBLE);
 		btnRecord.setVisibility(View.VISIBLE);
+		btnSettings.setVisibility(View.VISIBLE);
+		btnRecordsList.setVisibility(View.VISIBLE);
 //		progressBar.setVisibility(View.GONE);
 	}
 
