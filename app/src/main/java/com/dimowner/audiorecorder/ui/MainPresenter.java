@@ -187,7 +187,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	public void loadLastRecord() {
 		view.showProgress();
 		final List<Record> recordList = localRepository.getAllRecords();
-		if (recordList.size() > 0) {
+		if (recordList != null && recordList.size() > 0) {
 			final Record record = recordList.get(recordList.size()-1);
 			songDuration = record.getDuration();
 			AndroidUtils.runOnUIThread(new Runnable() {

@@ -30,8 +30,21 @@ public class Prefs {
 
 	private SharedPreferences sharedPreferences;
 
-	public Prefs(Context context) {
+	private volatile static Prefs instance;
+
+	private Prefs(Context context) {
 		sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+	}
+
+	public static Prefs getInstance(Context context) {
+		if (instance == null) {
+			synchronized (Prefs.class) {
+				if (instance == null) {
+					instance = new Prefs(context);
+				}
+			}
+		}
+		return instance;
 	}
 
 	public boolean isFirstRun() {

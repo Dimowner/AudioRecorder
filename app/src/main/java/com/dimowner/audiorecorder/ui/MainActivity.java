@@ -28,22 +28,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.Injector;
 import com.dimowner.audiorecorder.R;
-import com.dimowner.audiorecorder.data.FileRepository;
-import com.dimowner.audiorecorder.data.FileRepositoryImpl;
 import com.dimowner.audiorecorder.data.Prefs;
-import com.dimowner.audiorecorder.data.database.LocalRepository;
-import com.dimowner.audiorecorder.data.database.LocalRepositoryImpl;
-import com.dimowner.audiorecorder.data.database.RecordsDataSource;
 import com.dimowner.audiorecorder.ui.records.RecordsActivity;
 import com.dimowner.audiorecorder.ui.settings.SettingsActivity;
 import com.dimowner.audiorecorder.ui.widget.ScrubberView;
 import com.dimowner.audiorecorder.ui.widget.WaveformView;
-import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
-
-import java.io.File;
-import java.io.FileNotFoundException;
 import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
@@ -62,6 +54,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Welcome screen
 // TODO: Guidelines
 // TODO: Fix error when after stop recording on screen showed prev record
+// TODO: Sync LocalRepository fix error "Closed!"
+// TODO: Move Theme variables into separate class and put that class into Injector;
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -98,23 +92,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		scrubberView = findViewById(R.id.scrubber);
 
-		//Presenter initialization
-		prefs = ARApplication.getPrefs(getApplicationContext());
-		File recDir;
-		if (prefs.isStoreDirPublic()) {
-			recDir = FileUtil.getAppDir();
-		} else {
-			try {
-				recDir = FileUtil.getPrivateRecordsDir(getApplicationContext());
-			} catch (FileNotFoundException e) {
-				Timber.e(e);
-				recDir = FileUtil.getAppDir();
-			}
-		}
-
-		FileRepository fileRepository = new FileRepositoryImpl(recDir);
-		LocalRepository localRepository = new LocalRepositoryImpl(new RecordsDataSource(getApplicationContext()));
-		presenter = new MainPresenter(prefs, fileRepository, localRepository);
+		Injector injector = ARApplication.getInjector();
+		prefs = injector.providePrefs();
+		presenter = injector.provideMainPresenter();
 		presenter.bindView(this);
 
 		btnPlay.setOnClickListener(this);

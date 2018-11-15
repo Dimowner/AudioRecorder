@@ -46,8 +46,21 @@ public class LocalRepositoryImpl implements LocalRepository {
 
 	public RecordsDataSource dataSource;
 
-	public LocalRepositoryImpl(RecordsDataSource dataSource) {
+	private volatile static LocalRepositoryImpl instance;
+
+	private LocalRepositoryImpl(RecordsDataSource dataSource) {
 		this.dataSource = dataSource;
+	}
+
+	public static LocalRepositoryImpl getInstance(RecordsDataSource source) {
+		if (instance == null) {
+			synchronized (LocalRepositoryImpl.class) {
+				if (instance == null) {
+					instance = new LocalRepositoryImpl(source);
+				}
+			}
+		}
+		return instance;
 	}
 
 	public void open() {

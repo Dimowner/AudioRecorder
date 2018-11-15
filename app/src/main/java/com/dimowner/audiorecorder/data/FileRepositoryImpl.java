@@ -16,7 +16,11 @@
 
 package com.dimowner.audiorecorder.data;
 
+import android.content.Context;
+
 import java.io.File;
+import java.io.FileNotFoundException;
+
 import timber.log.Timber;
 
 import com.dimowner.audiorecorder.exception.CantCreateFileException;
@@ -28,9 +32,30 @@ public class FileRepositoryImpl implements FileRepository {
 
 	private File recordDirectory;
 
-	public FileRepositoryImpl(File recordsRid) {
-		Timber.v("FileRepositoryImpl file: " + recordsRid);
-		this.recordDirectory = recordsRid;
+	private volatile static FileRepositoryImpl instance;
+
+	private FileRepositoryImpl(Context context, Prefs prefs) {
+		if (prefs.isStoreDirPublic()) {
+			recordDirectory = FileUtil.getAppDir();
+		} else {
+			try {
+				recordDirectory = FileUtil.getPrivateRecordsDir(context);
+			} catch (FileNotFoundException e) {
+				Timber.e(e);
+				recordDirectory = FileUtil.getAppDir();
+			}
+		}
+	}
+
+	public static FileRepositoryImpl getInstance(Context context, Prefs prefs) {
+		if (instance == null) {
+			synchronized (FileRepositoryImpl.class) {
+				if (instance == null) {
+					instance = new FileRepositoryImpl(context, prefs);
+				}
+			}
+		}
+		return instance;
 	}
 
 	@Override

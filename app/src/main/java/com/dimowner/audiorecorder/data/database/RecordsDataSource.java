@@ -27,7 +27,20 @@ import timber.log.Timber;
  */
 public class RecordsDataSource extends DataSource<Record> {
 
-	public RecordsDataSource(Context context) {
+	private volatile static RecordsDataSource instance;
+
+	public static RecordsDataSource getInstance(Context context) {
+		if (instance == null) {
+			synchronized (RecordsDataSource.class) {
+				if (instance == null) {
+					instance = new RecordsDataSource(context);
+				}
+			}
+		}
+		return instance;
+	}
+
+	private RecordsDataSource(Context context) {
 		super(context, SQLiteHelper.TABLE_RECORDS);
 	}
 

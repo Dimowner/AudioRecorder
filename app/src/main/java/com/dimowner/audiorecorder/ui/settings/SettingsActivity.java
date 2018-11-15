@@ -41,8 +41,6 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
 
 	private static final String VERSION_UNAVAILABLE = "N/A";
 
-	private Prefs prefs;
-
 	public static Intent getStartIntent(Context context) {
 		return new Intent(context, SettingsActivity.class);
 	}
@@ -53,8 +51,6 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
 
-		prefs = ARApplication.getPrefs(getApplicationContext());
-
 		ImageButton btnBack = findViewById(R.id.btn_back);
 		TextView btnLicences = findViewById(R.id.btnLicences);
 		TextView btnRate = findViewById(R.id.btnRate);
@@ -64,6 +60,8 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
 		btnLicences.setOnClickListener(this);
 		btnRate.setOnClickListener(this);
 		Switch swPublicDir = findViewById(R.id.swPublicDir);
+
+		final Prefs prefs = ARApplication.getInjector().providePrefs();
 		swPublicDir.setChecked(prefs.isStoreDirPublic());
 		swPublicDir.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override

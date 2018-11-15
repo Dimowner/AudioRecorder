@@ -23,7 +23,6 @@ import android.os.Handler;
 
 //import com.crashlytics.android.Crashlytics;
 //import io.fabric.sdk.android.Fabric;
-import com.dimowner.audiorecorder.data.Prefs;
 
 import java.util.Random;
 
@@ -31,13 +30,12 @@ import timber.log.Timber;
 
 public class ARApplication extends Application {
 
-	@SuppressLint("StaticFieldLeak")
-	public static volatile Context applicationContext;
 	public static volatile Handler applicationHandler;
 
 	private int appThemeResource = 0;
 	private int primaryColorRes = R.color.md_blue_700;
-	private Prefs prefs;
+
+	public static Injector injector;
 
 
 	public static int getAppThemeResource(Context context) {
@@ -48,8 +46,8 @@ public class ARApplication extends Application {
 		return ((ARApplication) context).getPrimaryColorRes();
 	}
 
-	public static Prefs getPrefs(Context context) {
-		return ((ARApplication) context).getPrefs();
+	public static Injector getInjector() {
+		return injector;
 	}
 
 	private int getThemeResource() {
@@ -58,10 +56,6 @@ public class ARApplication extends Application {
 
 	private int getPrimaryColorRes() {
 		return primaryColorRes;
-	}
-
-	private Prefs getPrefs() {
-		return prefs;
 	}
 
 	@Override
@@ -79,10 +73,9 @@ public class ARApplication extends Application {
 		super.onCreate();
 //		Fabric.with(this, new Crashlytics());
 
-		applicationContext = getApplicationContext();
-		applicationHandler = new Handler(applicationContext.getMainLooper());
+		applicationHandler = new Handler(getApplicationContext().getMainLooper());
 
-		prefs = new Prefs(applicationContext);
+		injector = new Injector(getApplicationContext());
 		selectRandomThemeColor();
 	}
 

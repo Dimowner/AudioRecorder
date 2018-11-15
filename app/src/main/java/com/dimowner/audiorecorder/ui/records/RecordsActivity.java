@@ -31,8 +31,6 @@ import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
-import com.dimowner.audiorecorder.data.database.LocalRepositoryImpl;
-import com.dimowner.audiorecorder.data.database.RecordsDataSource;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
 
@@ -102,7 +100,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 			toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
 		}
 
-		presenter = new RecordsPresenter(new LocalRepositoryImpl(new RecordsDataSource(getApplicationContext())));
+		presenter = ARApplication.getInjector().provideRecordPresenter();
 		presenter.bindView(this);
 		presenter.loadRecords();
 	}
