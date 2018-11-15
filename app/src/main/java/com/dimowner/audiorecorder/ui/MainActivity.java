@@ -38,18 +38,15 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
-//	TODO: make waveform look like in soundcloud app.
 // TODO: Show notification when recording
 // TODO: Settings select Theme color
 // TODO: Settings select Record quality
 // TODO: Settings select Record stereo/mono
-// TODO: Asyc read write to local database.
 // TODO: Ability to import/export records
 // TODO: Ability to share record
 // TODO: Ability to rename record
 // TODO: Welcome screen
 // TODO: Guidelines
-// TODO: Fix error when after stop recording on screen showed prev record
 // TODO: Move Theme variables into separate class and put that class into Injector;
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
@@ -58,6 +55,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	private WaveformView waveformView;
 	private TextView txtDuration;
+	private TextView txtTotalDuration;
+	private TextView txtRecordsCount;
 	private ImageButton btnPlay;
 	private ImageButton btnRecord;
 	private ImageButton btnClear;
@@ -82,6 +81,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnRecordsList = findViewById(R.id.btn_records_list);
 		btnSettings = findViewById(R.id.btn_settings);
 		progressBar = findViewById(R.id.progress);
+		txtRecordsCount = findViewById(R.id.txt_records_count);
+		txtTotalDuration= findViewById(R.id.txt_total_duration);
 
 		scrubberView = findViewById(R.id.scrubber);
 
@@ -135,22 +136,22 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showProgress() {
-		btnClear.setVisibility(View.GONE);
-		btnPlay.setVisibility(View.GONE);
-		btnRecord.setVisibility(View.GONE);
-		btnSettings.setVisibility(View.GONE);
-		btnRecordsList.setVisibility(View.GONE);
-		waveformView.setVisibility(View.GONE);
+//		btnClear.setVisibility(View.GONE);
+//		btnPlay.setVisibility(View.GONE);
+//		btnRecord.setVisibility(View.GONE);
+//		btnSettings.setVisibility(View.GONE);
+//		btnRecordsList.setVisibility(View.GONE);
+		waveformView.setVisibility(View.INVISIBLE);
 		progressBar.setVisibility(View.VISIBLE);
 	}
 
 	@Override
 	public void hideProgress() {
-		btnClear.setVisibility(View.VISIBLE);
-		btnPlay.setVisibility(View.VISIBLE);
-		btnRecord.setVisibility(View.VISIBLE);
-		btnSettings.setVisibility(View.VISIBLE);
-		btnRecordsList.setVisibility(View.VISIBLE);
+//		btnClear.setVisibility(View.VISIBLE);
+//		btnPlay.setVisibility(View.VISIBLE);
+//		btnRecord.setVisibility(View.VISIBLE);
+//		btnSettings.setVisibility(View.VISIBLE);
+//		btnRecordsList.setVisibility(View.VISIBLE);
 		waveformView.setVisibility(View.VISIBLE);
 		progressBar.setVisibility(View.GONE);
 	}
@@ -221,6 +222,16 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				txtDuration.setText(duration);
 			}
 		});
+	}
+
+	@Override
+	public void showTotalRecordsDuration(String duration) {
+		txtTotalDuration.setText(getResources().getString(R.string.total_duration, duration));
+	}
+
+	@Override
+	public void showRecordsCount(int count) {
+		txtRecordsCount.setText(getResources().getString(R.string.total_record_count, count));
 	}
 
 	@Override

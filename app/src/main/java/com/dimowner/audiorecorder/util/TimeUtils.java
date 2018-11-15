@@ -48,6 +48,21 @@ public class TimeUtils {
         return String.format(Locale.getDefault(), "%02d:%02d:%02d", min, sec, m);
     }
 
+    public static String formatTimeIntervalHourMinSec(long mills) {
+        long hour = mills/(60 * 60 * 1000);
+        long min = mills/(60 * 1000);
+        long sec = (mills/1000)%60;
+        if (hour == 0) {
+            if (min == 0) {
+                return String.format(Locale.getDefault(), "%02ds", sec);
+            } else {
+                return String.format(Locale.getDefault(), "%02dm:%02ds", min, sec);
+            }
+        } else {
+            return String.format(Locale.getDefault(), "%02dh:%02dm:%02ds", hour, min, sec);
+        }
+    }
+
     public static String formatTime(long timeMills, int timeFormat) {
         if (timeMills <= 0) {
             return "";

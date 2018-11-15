@@ -17,6 +17,8 @@
 package com.dimowner.audiorecorder.data.database;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -124,7 +126,7 @@ public abstract class DataSource<T> {
 	 * @return List that contains all records of table T.
 	 */
 	public ArrayList<T> getAll() {
-		Cursor cursor = queryLocal(db, "SELECT * FROM " + tableName);
+		Cursor cursor = queryLocal("SELECT * FROM " + tableName);
 		return convertCursor(cursor);
 	}
 
@@ -134,7 +136,7 @@ public abstract class DataSource<T> {
 	 * @return List of some records from table T.
 	 */
 	public ArrayList<T> getItems(String where) {
-		Cursor cursor = queryLocal(db, "SELECT * FROM "
+		Cursor cursor = queryLocal("SELECT * FROM "
 				+ tableName + " WHERE " + where);
 		return convertCursor(cursor);
 	}
@@ -145,7 +147,7 @@ public abstract class DataSource<T> {
 	 * @return Selected item from table.
 	 */
 	public T getItem(int id) {
-		Cursor cursor = queryLocal(db, "SELECT * FROM " + tableName
+		Cursor cursor = queryLocal("SELECT * FROM " + tableName
 				+ " WHERE " + SQLiteHelper.COLUMN_ID + " = " + id);
 		return convertCursor(cursor).get(0);
 	}
@@ -166,7 +168,7 @@ public abstract class DataSource<T> {
 		if (items.size() > 0) {
 			return items;
 		}
-		return new ArrayList<>();
+		return items;
 	}
 
 	/**
@@ -178,11 +180,10 @@ public abstract class DataSource<T> {
 
 	/**
 	 * Query to local SQLite database with write to log query text and query result.
-	 * @param db Provides access to database.
 	 * @param query Query string.
 	 * @return Cursor that contains query result.
 	 */
-	protected Cursor queryLocal(SQLiteDatabase db, String query) {
+	protected Cursor queryLocal(String query) {
 		Log.d(LOG_TAG, "queryLocal: " + query);
 		Cursor c = db.rawQuery(query, null);
 		StringBuilder data = new StringBuilder("Cursor[");
@@ -220,5 +221,20 @@ public abstract class DataSource<T> {
 		data.append("]");
 		Log.d(LOG_TAG, data.toString());
 		return c;
+	}
+
+	public List<Long> getRecordsDurations() {
+		Cursor cursor = queryLocal("SELECT * FROM " + tableName);
+		ArrayList<Long> items = new ArrayList<>();
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) {
+			items.add(cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_DURATION)));
+			cursor.moveToNext();
+		}
+		cursor.close();
+		if (items.size() > 0) {
+			return items;
+		}
+		return items;
 	}
 }

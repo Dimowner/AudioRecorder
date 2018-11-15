@@ -38,6 +38,10 @@ public interface MainContract {
 
 		void showDuration(String duration);
 
+		void showTotalRecordsDuration(String duration);
+
+		void showRecordsCount(int count);
+
 		void onPlayProgress(long mills, int px);
 	}
 

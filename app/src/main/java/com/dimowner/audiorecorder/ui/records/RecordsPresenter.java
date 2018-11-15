@@ -125,17 +125,22 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	@Override
 	public void loadRecords() {
 		view.showProgress();
-		final List<Record> recordList = localRepository.getAllRecords();
-		if (recordList.size() > 0) {
-			AndroidUtils.runOnUIThread(new Runnable() {
-				@Override
-				public void run() {
-					view.showRecords(Mapper.recordsToListItems(recordList));
+		new Thread("LoadRecords") {
+			@Override
+			public void run() {
+				final List<Record> recordList = localRepository.getAllRecords();
+				if (recordList.size() > 0) {
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							view.showRecords(Mapper.recordsToListItems(recordList));
+							view.hideProgress();
+						}
+					});
+				} else {
 					view.hideProgress();
 				}
-			});
-		} else {
-			view.hideProgress();
-		}
+			}
+		}.start();
 	}
 }

@@ -30,7 +30,14 @@ public interface LocalRepository {
 
 	void insertRecord(Record record);
 
-	void insertFile(String filePath);
+	void insertFile(String filePath, OnCompleteListener listener);
 
 	void deleteRecord(int id);
+
+	List<Long> getRecordsDurations();
+
+	interface OnCompleteListener {
+		void onComplete();
+		void onError(Exception e);
+	}
 }

@@ -33,7 +33,7 @@
 			android:textColor="@color/text_primary_light"
 			android:textSize="@dimen/text_xlarge"
 			android:textStyle="bold"
-			android:text="Audio Recorder"/>
+			android:text="@string/app_name"/>
 
 	<FrameLayout
 			android:layout_width="match_parent"
@@ -64,21 +64,23 @@
 	</FrameLayout>
 
 	<TextView
+			android:id="@+id/txt_records_count"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:gravity="start"
 			android:textColor="@color/text_primary_light"
 			android:layout_marginStart="@dimen/spacing_double"
 			android:textSize="@dimen/text_medium"
-			android:text="Records count: 48"/>
+			android:text="@string/total_record_count"/>
 	<TextView
+			android:id="@+id/txt_total_duration"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:gravity="start"
 			android:textColor="@color/text_primary_light"
 			android:layout_marginStart="@dimen/spacing_double"
 			android:textSize="@dimen/text_medium"
-			android:text="Total time: 1h:57m:34s "/>
+			android:text="@string/total_duration"/>
 	<TextView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -97,7 +99,7 @@
 			android:textColor="@color/text_primary_light"
 			android:textSize="@dimen/text_largest"
 			android:textStyle="bold"
-			android:text="Duration: 00:00"/>
+			android:text="00:00:00"/>
 
 	<LinearLayout
 			android:id="@+id/control_panel"

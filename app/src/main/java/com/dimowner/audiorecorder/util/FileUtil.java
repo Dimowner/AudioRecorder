@@ -22,7 +22,6 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.dimowner.audiorecorder.AppConstants;
-import com.dimowner.audiorecorder.exception.FileRepositoryInitializationFailed;
 
 import java.io.File;
 import java.io.FileNotFoundException;

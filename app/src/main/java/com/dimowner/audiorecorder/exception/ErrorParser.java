@@ -23,9 +23,7 @@ public class ErrorParser {
 	private ErrorParser() {}
 
 	public static int parseException(Exception e) {
-		if (e instanceof FileRepositoryInitializationFailed) {
-			return R.string.error_cant_read_files;
-		} else if (e instanceof CantCreateFileException) {
+		if (e instanceof CantCreateFileException) {
 			return R.string.error_cant_create_file;
 		} else if (e instanceof InvalidOutputFile) {
 			return R.string.error_invalid_output_file;

@@ -21,7 +21,6 @@ import android.media.MediaExtractor;
 import android.media.MediaFormat;
 
 import com.dimowner.audiorecorder.AppConstants;
-import com.dimowner.audiorecorder.util.AndroidUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,18 +30,11 @@ import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.util.Arrays;
 
-import timber.log.Timber;
-
 public class SoundFile {
 
 	private File mInputFile = null;
 
-	private static final int PIXEL_PER_SECOND = (int) AndroidUtils.dpToPx(AppConstants.PIXELS_PER_SECOND);
-
-	// Member variables representing frame data
-	private String mFileType;
 	private int mFileSize;
-	private int mAvgBitRate;  // Average bit rate in kbps.
 	private int mSampleRate;
 	private int mChannels;
 	private int mNumSamples;  // total number of samples per channel in audio file
@@ -84,11 +76,6 @@ public class SoundFile {
 	}
 
 	// Should be removed when the app will use directly the samples instead of the frames.
-	public int getNumFrames() {
-		return mNumFrames;
-	}
-
-	// Should be removed when the app will use directly the samples instead of the frames.
 	public int getSamplesPerFrame() {
 		return calculateSamplesPerFrame();
 	}
@@ -112,8 +99,6 @@ public class SoundFile {
 		int i;
 
 		mInputFile = inputFile;
-		String[] components = mInputFile.getPath().split("\\.");
-		mFileType = components[components.length - 1];
 		mFileSize = (int) mInputFile.length();
 		extractor.setDataSource(mInputFile.getPath());
 		int numTracks = extractor.getTrackCount();
@@ -257,7 +242,6 @@ public class SoundFile {
 		mDecodedBytes.rewind();
 		mDecodedBytes.order(ByteOrder.LITTLE_ENDIAN);
 		mDecodedSamples = mDecodedBytes.asShortBuffer();
-		mAvgBitRate = (int) ((mFileSize * 8) * ((float) mSampleRate / mNumSamples) / 1000);
 
 		extractor.release();
 		extractor = null;
@@ -273,8 +257,6 @@ public class SoundFile {
 		mFrameGains = new int[mNumFrames];
 		int j;
 		int gain, value;
-		int frameLens = (int) ((1000 * mAvgBitRate / 8) *
-				((float) getSamplesPerFrame() / mSampleRate));
 		for (i = 0; i < mNumFrames; i++) {
 			gain = -1;
 			for (j = 0; j < getSamplesPerFrame(); j++) {

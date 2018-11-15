@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.data.database;
 
 import com.dimowner.audiorecorder.audio.SoundFile;
+import com.dimowner.audiorecorder.util.AndroidUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,7 +90,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
-	public void insertFile(final String lastFile) {
+	public void insertFile(final String lastFile, final OnCompleteListener listener) {
 		if (lastFile != null && !lastFile.isEmpty()) {
 			new Thread("SoundInsertion") {
 				@Override
@@ -106,11 +107,22 @@ public class LocalRepositoryImpl implements LocalRepository {
 									lastFile,
 									soundFile.getFrameGains());
 							insertRecord(record);
+							AndroidUtils.runOnUIThread(new Runnable() {
+								@Override public void run() { listener.onComplete(); }
+							});
+
 						} else {
 							Timber.e("Unable to read sound file by specified path!");
+							AndroidUtils.runOnUIThread(new Runnable() {
+								@Override public void run() {
+									listener.onError(new IOException("Unable to read sound file by specified path!"));
+								}});
 						}
-					} catch (IOException e) {
+					} catch (final IOException e) {
 						Timber.e(e);
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override public void run() { listener.onError(e);
+						}});
 					}
 				}
 			}.start();
@@ -131,5 +143,13 @@ public class LocalRepositoryImpl implements LocalRepository {
 			dataSource.open();
 		}
 		dataSource.deleteItem(id);
+	}
+
+	@Override
+	public List<Long> getRecordsDurations() {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		return dataSource.getRecordsDurations();
 	}
 }

@@ -76,13 +76,17 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			@Override
 			public void onStopRecord(File output) {
 				Timber.v("onStopRecord file = %s", output.getAbsolutePath());
-//				String prevRecord = prefs.getLastRecordedFile();
-//				boolean b = fileRepository.deleteRecordFile(prevRecord);
-//				Timber.v("Deletion is " + b);
-//				prefs.saveLastRecordedFile(output.getAbsolutePath());
-				localRepository.insertFile(output.getAbsolutePath());
+				localRepository.insertFile(output.getAbsolutePath(), new LocalRepository.OnCompleteListener() {
+					@Override
+					public void onComplete() {
+						loadLastRecord();
+					}
+					@Override
+					public void onError(Exception e) {
+						Timber.e(e);
+					}
+				});
 				view.showRecordingStop();
-				loadLastRecord();
 			}
 
 			@Override
@@ -186,22 +190,36 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void loadLastRecord() {
 		view.showProgress();
-		final List<Record> recordList = localRepository.getAllRecords();
-		if (recordList != null && recordList.size() > 0) {
-			final Record record = recordList.get(recordList.size()-1);
-			songDuration = record.getDuration();
-			AndroidUtils.runOnUIThread(new Runnable() {
-				@Override
-				public void run() {
-					audioPlayer.setData(record.getPath());
-					view.showWaveForm(record.getAmps());
-					view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration/1000));
-					view.hideProgress();
+		new Thread("SoundLoading") {
+			@Override
+			public void run() {
+				final List<Record> recordList = localRepository.getAllRecords();
+				final List<Long> durations = localRepository.getRecordsDurations();
+				long totalDuration = 0;
+				for (int i = 0; i < durations.size(); i++) {
+					totalDuration +=durations.get(i);
 				}
-			});
-		} else {
-			view.hideProgress();
-		}
+				if (recordList != null && recordList.size() > 0) {
+					final Record record = recordList.get(recordList.size() - 1);
+					songDuration = record.getDuration();
+					final long finalTotalDuration = totalDuration;
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							audioPlayer.setData(record.getPath());
+							view.showWaveForm(record.getAmps());
+							view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration / 1000));
+							view.showTotalRecordsDuration(TimeUtils.formatTimeIntervalHourMinSec(finalTotalDuration/1000));
+							view.showRecordsCount(durations.size());
+							view.hideProgress();
+						}
+					});
+				} else {
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override public void run() { view.hideProgress(); }});
+				}
+			}
+		}.start();
 
 //		final String lastFile = prefs.getLastRecordedFile();
 //		if (lastFile != null && !lastFile.isEmpty()) {
