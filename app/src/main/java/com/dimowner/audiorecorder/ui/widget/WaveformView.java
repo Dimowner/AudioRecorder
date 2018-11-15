@@ -20,6 +20,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -87,7 +88,7 @@ public class WaveformView extends View {
 
 		gridPaint = new Paint();
 		gridPaint.setColor(context.getResources().getColor(R.color.md_grey_100));
-		gridPaint.setStrokeWidth(AndroidUtils.dpToPx(1));
+		gridPaint.setStrokeWidth(AndroidUtils.dpToPx(1)/2);
 
 		textHeight = context.getResources().getDimension(R.dimen.text_normal);
 		inset = textHeight + PADD;
@@ -95,6 +96,7 @@ public class WaveformView extends View {
 		textPaint.setColor(context.getResources().getColor(R.color.md_grey_100));
 		textPaint.setStrokeWidth(AndroidUtils.dpToPx(1));
 		textPaint.setTextAlign(Paint.Align.RIGHT);
+		textPaint.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
 		textPaint.setTextSize(textHeight);
 
 		playProgress = -1;
