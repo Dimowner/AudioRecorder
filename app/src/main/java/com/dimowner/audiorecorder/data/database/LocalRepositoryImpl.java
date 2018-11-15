@@ -74,17 +74,18 @@ public class LocalRepositoryImpl implements LocalRepository {
 
 	public Record getRecord(int id) {
 //		TODO: make async
-		if (dataSource.isOpen()) {
-			return dataSource.getItem(id);
+		if (!dataSource.isOpen()) {
+			dataSource.open();
 		}
-		return null;
+		return dataSource.getItem(id);
 	}
 
 	public void insertRecord(Record record) {
 //		TODO: make async
-		if (dataSource.isOpen()) {
-			dataSource.insertItem(record);
+		if (!dataSource.isOpen()) {
+			dataSource.open();
 		}
+		dataSource.insertItem(record);
 	}
 
 	@Override
@@ -118,18 +119,17 @@ public class LocalRepositoryImpl implements LocalRepository {
 
 	public List<Record> getAllRecords() {
 		//		TODO: make async
-		if (dataSource.isOpen()) {
-			return dataSource.getAll();
+		if (!dataSource.isOpen()) {
+			dataSource.open();
 		}
-		Timber.e("Database is closed!!");
-		return null;
+		return dataSource.getAll();
 	}
 
 	public void deleteRecord(int id) {
 		//		TODO: make async
-		if (dataSource.isOpen()) {
-			dataSource.deleteItem(id);
+		if (!dataSource.isOpen()) {
+			dataSource.open();
 		}
-		Timber.e("Database is closed!!");
+		dataSource.deleteItem(id);
 	}
 }

@@ -28,9 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
-import com.dimowner.audiorecorder.Injector;
 import com.dimowner.audiorecorder.R;
-import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.ui.records.RecordsActivity;
 import com.dimowner.audiorecorder.ui.settings.SettingsActivity;
 import com.dimowner.audiorecorder.ui.widget.ScrubberView;
@@ -41,8 +39,6 @@ import timber.log.Timber;
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
 //	TODO: make waveform look like in soundcloud app.
-// TODO: save Presenter state on activity recreate
-// TODO: Create dependency injector
 // TODO: Show notification when recording
 // TODO: Settings select Theme color
 // TODO: Settings select Record quality
@@ -54,7 +50,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Welcome screen
 // TODO: Guidelines
 // TODO: Fix error when after stop recording on screen showed prev record
-// TODO: Sync LocalRepository fix error "Closed!"
 // TODO: Move Theme variables into separate class and put that class into Injector;
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
@@ -70,8 +65,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ImageButton btnSettings;
 	private ScrubberView scrubberView;
 	private ProgressBar progressBar;
-
-	private Prefs prefs;
 
 	private MainContract.UserActionsListener presenter;
 
@@ -92,33 +85,26 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		scrubberView = findViewById(R.id.scrubber);
 
-		Injector injector = ARApplication.getInjector();
-		prefs = injector.providePrefs();
-		presenter = injector.provideMainPresenter();
-		presenter.bindView(this);
-
 		btnPlay.setOnClickListener(this);
 		btnRecord.setOnClickListener(this);
 		btnClear.setOnClickListener(this);
 		btnRecordsList.setOnClickListener(this);
 		btnSettings.setOnClickListener(this);
+
+		presenter = ARApplication.getInjector().provideMainPresenter();
 	}
 
 	@Override
-	protected void onResume() {
-		super.onResume();
+	protected void onStart() {
+		super.onStart();
+		presenter.bindView(this);
 		presenter.updateRecordingDir(getApplicationContext());
 		presenter.loadLastRecord();
 	}
 
 	@Override
-	protected void onPause() {
-		super.onPause();
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
+	protected void onStop() {
+		super.onStop();
 		if (presenter != null) {
 			presenter.unbindView();
 		}
@@ -249,18 +235,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		});
 	}
 
-//	private boolean checkWriteToExternalStoragePermission() {
-//		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//			if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-//				requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQ_CODE_WRITE_EXTERNAL_STORAGE);
-//				return false;
-//			}
-//		}
-//		return true;
-//	}
-
 	private boolean checkRecordPermission() {
-		if (prefs.isStoreDirPublic()) {
+		if (presenter.isStorePublic()) {
 			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 				if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
 						&& checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {

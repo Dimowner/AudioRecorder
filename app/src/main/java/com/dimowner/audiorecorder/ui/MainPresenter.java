@@ -260,11 +260,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		this.fileRepository.setRecordingDir(recDir);
 	}
 
-//	private int readRecordingTrackDuration(Context context, String path) {
-//		Uri uri = Uri.parse(path);
-//		MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-//		mmr.setDataSource(context, uri);
-//		String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-//		return Integer.parseInt(durationStr);
-//	}
+	@Override
+	public boolean isStorePublic() {
+		return prefs.isStoreDirPublic();
+	}
 }

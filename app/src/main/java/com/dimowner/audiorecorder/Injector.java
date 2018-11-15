@@ -17,11 +17,6 @@ public class Injector {
 
 	private Context context;
 
-//	private Prefs prefs;
-//	private RecordsDataSource dataSource;
-//	private FileRepository fileRepository;
-//	private LocalRepository localRepository;
-
 	private MainContract.UserActionsListener mainPresenter;
 	private RecordsContract.UserActionsListener recordsPresenter;
 
@@ -46,7 +41,6 @@ public class Injector {
 	}
 
 	public MainContract.UserActionsListener provideMainPresenter() {
-//		return new MainPresenter(providePrefs(), provideFileRepository(), provideLocalRepository());
 		if (mainPresenter == null) {
 			mainPresenter = new MainPresenter(providePrefs(), provideFileRepository(), provideLocalRepository());
 		}
@@ -59,8 +53,4 @@ public class Injector {
 		}
 		return recordsPresenter;
 	}
-
-//	private static class FileRepositoryHolder {
-//		private static final FileRepository fileRepository = new FileRepositoryImpl();
-//	}
 }

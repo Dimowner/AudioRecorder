@@ -29,11 +29,16 @@ import android.widget.TextView;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 	private List<ListItem> data;
+
+	public RecordsAdapter() {
+		this.data = new ArrayList<>();
+	}
 
 	@NonNull
 	@Override

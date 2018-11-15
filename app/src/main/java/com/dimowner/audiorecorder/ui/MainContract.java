@@ -19,7 +19,6 @@ package com.dimowner.audiorecorder.ui;
 import android.content.Context;
 
 import com.dimowner.audiorecorder.Contract;
-import com.dimowner.audiorecorder.audio.SoundFile;
 
 public interface MainContract {
 
@@ -53,5 +52,7 @@ public interface MainContract {
 		void loadLastRecord();
 
 		void updateRecordingDir(Context context);
+
+		boolean isStorePublic();
 	}
 }

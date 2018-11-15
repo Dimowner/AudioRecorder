@@ -41,9 +41,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 	private RecyclerView recyclerView;
 	private LinearLayoutManager layoutManager;
 	private RecordsAdapter adapter;
+
 	private LinearLayout toolbar;
-	private View bottomDivider;
 	private ProgressBar progressBar;
+	private View bottomDivider;
+
 	private RecordsContract.UserActionsListener presenter;
 
 	public static Intent getStartIntent(Context context) {
@@ -99,15 +101,19 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 			// Set the padding to match the Status Bar height
 			toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
 		}
-
 		presenter = ARApplication.getInjector().provideRecordPresenter();
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
 		presenter.bindView(this);
 		presenter.loadRecords();
 	}
 
 	@Override
-	protected void onDestroy() {
-		super.onDestroy();
+	protected void onStop() {
+		super.onStop();
 		if (presenter != null) {
 			presenter.unbindView();
 		}
@@ -116,7 +122,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 	private void handleToolbarScroll(int dy) {
 		float inset = toolbar.getTranslationY() - dy;
 		int height;
-		if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			height = toolbar.getHeight() + AndroidUtils.getStatusBarHeight(getApplicationContext());
 		} else {
 			height = toolbar.getHeight();
