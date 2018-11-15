@@ -76,14 +76,19 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			@Override
 			public void onStopRecord(File output) {
 				Timber.v("onStopRecord file = %s", output.getAbsolutePath());
+				view.showProgress();
 				localRepository.insertFile(output.getAbsolutePath(), new LocalRepository.OnCompleteListener() {
 					@Override
 					public void onComplete() {
 						loadLastRecord();
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override public void run() { view.hideProgress(); }});
 					}
 					@Override
 					public void onError(Exception e) {
 						Timber.e(e);
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override public void run() { view.hideProgress(); }});
 					}
 				});
 				view.showRecordingStop();

@@ -39,6 +39,12 @@ import timber.log.Timber;
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
 // TODO: Show notification when recording
+// TODO: Play selected record
+// TODO: Fix playback after orientation change
+// TODO: Show wave forms in records list
+// TODO: Fix main screen panel
+// TODO: Fix decrease size of RecyclerView or replace it by ListView
+// TODO: Fix waveform adjustment
 // TODO: Settings select Theme color
 // TODO: Settings select Record quality
 // TODO: Settings select Record stereo/mono
@@ -57,9 +63,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private TextView txtDuration;
 	private TextView txtTotalDuration;
 	private TextView txtRecordsCount;
-	private ImageButton btnPlay;
+//	private ImageButton btnPlay;
 	private ImageButton btnRecord;
-	private ImageButton btnClear;
+//	private ImageButton btnClear;
 	private ImageButton btnRecordsList;
 	private ImageButton btnSettings;
 	private ScrubberView scrubberView;
@@ -75,9 +81,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		waveformView = findViewById(R.id.record);
 		txtDuration = findViewById(R.id.txt_duration);
-		btnPlay = findViewById(R.id.btn_play);
+//		btnPlay = findViewById(R.id.btn_play);
 		btnRecord = findViewById(R.id.btn_record);
-		btnClear = findViewById(R.id.btn_clear);
+//		btnClear = findViewById(R.id.btn_clear);
 		btnRecordsList = findViewById(R.id.btn_records_list);
 		btnSettings = findViewById(R.id.btn_settings);
 		progressBar = findViewById(R.id.progress);
@@ -86,9 +92,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		scrubberView = findViewById(R.id.scrubber);
 
-		btnPlay.setOnClickListener(this);
+//		btnPlay.setOnClickListener(this);
 		btnRecord.setOnClickListener(this);
-		btnClear.setOnClickListener(this);
+//		btnClear.setOnClickListener(this);
 		btnRecordsList.setOnClickListener(this);
 		btnSettings.setOnClickListener(this);
 
@@ -114,17 +120,17 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
-			case R.id.btn_play:
-				presenter.playClicked();
-				break;
+//			case R.id.btn_play:
+//				presenter.playClicked();
+//				break;
 			case R.id.btn_record:
 				if (checkRecordPermission()) {
 					presenter.recordingClicked();
 				}
 				break;
-			case R.id.btn_clear:
-				presenter.deleteAll();
-				break;
+//			case R.id.btn_clear:
+//				presenter.deleteAll();
+//				break;
 			case R.id.btn_records_list:
 				startActivity(RecordsActivity.getStartIntent(getApplicationContext()));
 				break;
@@ -179,33 +185,33 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showPlayStart() {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				btnPlay.setImageResource(R.drawable.pause);
-			}
-		});
+//		runOnUiThread(new Runnable() {
+//			@Override
+//			public void run() {
+//				btnPlay.setImageResource(R.drawable.pause);
+//			}
+//		});
 	}
 
 	@Override
 	public void showPlayPause() {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				btnPlay.setImageResource(R.drawable.play);
-			}
-		});
+//		runOnUiThread(new Runnable() {
+//			@Override
+//			public void run() {
+//				btnPlay.setImageResource(R.drawable.play);
+//			}
+//		});
 	}
 
 	@Override
 	public void showPlayStop() {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				btnPlay.setImageResource(R.drawable.play);
-				scrubberView.setCurrentPosition(-1);
-			}
-		});
+//		runOnUiThread(new Runnable() {
+//			@Override
+//			public void run() {
+//				btnPlay.setImageResource(R.drawable.play);
+//				scrubberView.setCurrentPosition(-1);
+//			}
+//		});
 	}
 
 	@Override

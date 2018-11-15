@@ -82,9 +82,10 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 					if (isListOnTop()) {
 						AnimationUtil.viewElevationAnimation(toolbar, 0f);
-					} else {
-						AnimationUtil.viewElevationAnimation(toolbar, getResources().getDimension(R.dimen.toolbar_elevation));
 					}
+//					else {
+//						AnimationUtil.viewElevationAnimation(toolbar, getResources().getDimension(R.dimen.toolbar_elevation));
+//					}
 				}
 				if (isListOnBottom()) {
 					bottomDivider.setVisibility(View.GONE);
@@ -130,11 +131,13 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 
 		if (inset < -height) {
 			inset = -height;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				toolbar.setTranslationZ(getResources().getDimension(R.dimen.toolbar_elevation));
+			}
 		}
 
 		if (toolbar.getTranslationY() <= 0 && inset > 0) {
 			toolbar.setTranslationY(0);
-
 		} else {
 			toolbar.setTranslationY(inset);
 		}

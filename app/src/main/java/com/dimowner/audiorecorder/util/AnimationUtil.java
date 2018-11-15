@@ -27,7 +27,7 @@ public class AnimationUtil {
 	public static void viewElevationAnimation(View view, float val) {
 		view.animate()
 				.translationZ(val)
-				.setDuration(100L)
+				.setDuration(250L)
 				.setInterpolator(AnimationUtils.loadInterpolator(view.getContext(),
 						android.R.interpolator.accelerate_decelerate))
 				.start();

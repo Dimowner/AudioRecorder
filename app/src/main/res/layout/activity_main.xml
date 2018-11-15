@@ -69,6 +69,7 @@
 			android:layout_height="wrap_content"
 			android:gravity="start"
 			android:textColor="@color/text_primary_light"
+			android:fontFamily="sans-serif-light"
 			android:layout_marginStart="@dimen/spacing_double"
 			android:textSize="@dimen/text_medium"
 			android:text="@string/total_record_count"/>
@@ -78,6 +79,7 @@
 			android:layout_height="wrap_content"
 			android:gravity="start"
 			android:textColor="@color/text_primary_light"
+			android:fontFamily="sans-serif-light"
 			android:layout_marginStart="@dimen/spacing_double"
 			android:textSize="@dimen/text_medium"
 			android:text="@string/total_duration"/>
@@ -86,6 +88,7 @@
 			android:layout_height="wrap_content"
 			android:gravity="start"
 			android:textColor="@color/text_primary_light"
+			android:fontFamily="sans-serif-light"
 			android:layout_marginStart="@dimen/spacing_double"
 			android:textSize="@dimen/text_medium"
 			android:text="Available space: 34h:12m:22s "/>
@@ -101,12 +104,10 @@
 			android:textStyle="bold"
 			android:text="00:00:00"/>
 
-	<LinearLayout
+	<FrameLayout
 			android:id="@+id/control_panel"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:gravity="center_horizontal"
-			android:orientation="horizontal"
 			>
 
 		<ImageButton
@@ -116,37 +117,38 @@
 				android:layout_marginTop="@dimen/spacing_small"
 				android:adjustViewBounds="true"
 				android:background="@drawable/button_selector"
+				android:layout_gravity="start"
 				android:clickable="true"
 				android:contentDescription="@null"
 				android:focusable="true"
 				android:scaleType="centerInside"
 				android:src="@drawable/ic_round_settings"/>
 
-		<ImageButton
-				android:id="@+id/btn_clear"
-				android:layout_width="@dimen/bottom_pnl_btn_size"
-				android:layout_height="@dimen/bottom_pnl_btn_size"
-				android:layout_margin="@dimen/spacing_small"
-				android:adjustViewBounds="true"
-				android:background="@drawable/button_selector"
-				android:clickable="true"
-				android:contentDescription="@null"
-				android:focusable="true"
-				android:scaleType="center"
-				android:src="@drawable/delete_forever"/>
+		<!--<ImageButton-->
+				<!--android:id="@+id/btn_clear"-->
+				<!--android:layout_width="@dimen/bottom_pnl_btn_size"-->
+				<!--android:layout_height="@dimen/bottom_pnl_btn_size"-->
+				<!--android:layout_margin="@dimen/spacing_small"-->
+				<!--android:adjustViewBounds="true"-->
+				<!--android:background="@drawable/button_selector"-->
+				<!--android:clickable="true"-->
+				<!--android:contentDescription="@null"-->
+				<!--android:focusable="true"-->
+				<!--android:scaleType="center"-->
+				<!--android:src="@drawable/delete_forever"/>-->
 
-		<ImageButton
-				android:id="@+id/btn_play"
-				android:layout_width="@dimen/bottom_pnl_btn_size"
-				android:layout_height="@dimen/bottom_pnl_btn_size"
-				android:layout_marginTop="@dimen/spacing_small"
-				android:adjustViewBounds="true"
-				android:background="@drawable/button_selector"
-				android:clickable="true"
-				android:contentDescription="@null"
-				android:focusable="true"
-				android:scaleType="center"
-				android:src="@drawable/play"/>
+		<!--<ImageButton-->
+				<!--android:id="@+id/btn_play"-->
+				<!--android:layout_width="@dimen/bottom_pnl_btn_size"-->
+				<!--android:layout_height="@dimen/bottom_pnl_btn_size"-->
+				<!--android:layout_marginTop="@dimen/spacing_small"-->
+				<!--android:adjustViewBounds="true"-->
+				<!--android:background="@drawable/button_selector"-->
+				<!--android:clickable="true"-->
+				<!--android:contentDescription="@null"-->
+				<!--android:focusable="true"-->
+				<!--android:scaleType="center"-->
+				<!--android:src="@drawable/play"/>-->
 
 		<ImageButton
 				android:id="@+id/btn_record"
@@ -155,6 +157,7 @@
 				android:layout_margin="@dimen/spacing_small"
 				android:adjustViewBounds="true"
 				android:background="@drawable/button_selector"
+				android:layout_gravity="center"
 				android:clickable="true"
 				android:contentDescription="@null"
 				android:focusable="true"
@@ -168,12 +171,13 @@
 				android:layout_marginTop="@dimen/spacing_small"
 				android:adjustViewBounds="true"
 				android:background="@drawable/button_selector"
+				android:layout_gravity="end"
 				android:clickable="true"
 				android:contentDescription="@null"
 				android:focusable="true"
 				android:scaleType="centerInside"
 				android:src="@drawable/ic_round_list"/>
 
-	</LinearLayout>
+	</FrameLayout>
 
 </LinearLayout>
