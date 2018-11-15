@@ -23,7 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
-//import android.widget.ProgressBar;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,11 +32,13 @@ import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.FileRepositoryImpl;
 import com.dimowner.audiorecorder.data.Prefs;
+import com.dimowner.audiorecorder.data.database.LocalRepository;
+import com.dimowner.audiorecorder.data.database.LocalRepositoryImpl;
+import com.dimowner.audiorecorder.data.database.RecordsDataSource;
 import com.dimowner.audiorecorder.ui.records.RecordsActivity;
 import com.dimowner.audiorecorder.ui.settings.SettingsActivity;
 import com.dimowner.audiorecorder.ui.widget.ScrubberView;
 import com.dimowner.audiorecorder.ui.widget.WaveformView;
-import com.dimowner.audiorecorder.audio.SoundFile;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
@@ -47,6 +49,19 @@ import timber.log.Timber;
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
 //	TODO: make waveform look like in soundcloud app.
+// TODO: save Presenter state on activity recreate
+// TODO: Create dependency injector
+// TODO: Show notification when recording
+// TODO: Settings select Theme color
+// TODO: Settings select Record quality
+// TODO: Settings select Record stereo/mono
+// TODO: Asyc read write to local database.
+// TODO: Ability to import/export records
+// TODO: Ability to share record
+// TODO: Ability to rename record
+// TODO: Welcome screen
+// TODO: Guidelines
+// TODO: Fix error when after stop recording on screen showed prev record
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -60,10 +75,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ImageButton btnRecordsList;
 	private ImageButton btnSettings;
 	private ScrubberView scrubberView;
+	private ProgressBar progressBar;
 
 	private Prefs prefs;
 
-	private MainPresenter presenter;
+	private MainContract.UserActionsListener presenter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +94,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnClear = findViewById(R.id.btn_clear);
 		btnRecordsList = findViewById(R.id.btn_records_list);
 		btnSettings = findViewById(R.id.btn_settings);
+		progressBar = findViewById(R.id.progress);
 
 		scrubberView = findViewById(R.id.scrubber);
 
@@ -96,7 +113,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		}
 
 		FileRepository fileRepository = new FileRepositoryImpl(recDir);
-		presenter = new MainPresenter(prefs, fileRepository);
+		LocalRepository localRepository = new LocalRepositoryImpl(new RecordsDataSource(getApplicationContext()));
+		presenter = new MainPresenter(prefs, fileRepository, localRepository);
 		presenter.bindView(this);
 
 		btnPlay.setOnClickListener(this);
@@ -110,7 +128,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	protected void onResume() {
 		super.onResume();
 		presenter.updateRecordingDir(getApplicationContext());
-		presenter.loadLastRecord(getApplicationContext());
+		presenter.loadLastRecord();
 	}
 
 	@Override
@@ -156,7 +174,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnRecord.setVisibility(View.GONE);
 		btnSettings.setVisibility(View.GONE);
 		btnRecordsList.setVisibility(View.GONE);
-//		progressBar.setVisibility(View.VISIBLE);
+		waveformView.setVisibility(View.GONE);
+		progressBar.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -166,7 +185,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnRecord.setVisibility(View.VISIBLE);
 		btnSettings.setVisibility(View.VISIBLE);
 		btnRecordsList.setVisibility(View.VISIBLE);
-//		progressBar.setVisibility(View.GONE);
+		waveformView.setVisibility(View.VISIBLE);
+		progressBar.setVisibility(View.GONE);
 	}
 
 	@Override
@@ -187,7 +207,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void showRecordingStop() {
 		btnRecord.setImageResource(R.drawable.record);
-		presenter.loadLastRecord(getApplicationContext());
+		presenter.loadLastRecord();
 	}
 
 	@Override
@@ -222,8 +242,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void showSoundFile(SoundFile soundFile) {
-		waveformView.setSoundFile(soundFile);
+	public void showWaveForm(int[] waveForm) {
+		waveformView.setWaveform(waveForm);
 	}
 
 	@Override

@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.ui;
-
-import android.content.Context;
+package com.dimowner.audiorecorder.ui.records;
 
 import com.dimowner.audiorecorder.Contract;
-import com.dimowner.audiorecorder.audio.SoundFile;
+import com.dimowner.audiorecorder.data.database.Record;
 
-public interface MainContract {
+import java.util.List;
+
+public interface RecordsContract {
 
 	interface View extends Contract.View {
-
-		void showRecordingStart();
-
-		void showRecordingStop();
 
 		void showPlayStart();
 
@@ -35,23 +31,31 @@ public interface MainContract {
 
 		void showPlayStop();
 
+		void showNextRecord();
+
+		void showPrevRecord();
+
 		void showWaveForm(int[] waveForm);
 
 		void showDuration(String duration);
 
 		void onPlayProgress(long mills, int px);
+
+		void showRecords(List<ListItem> records);
 	}
 
-	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
-
-		void recordingClicked();
+	interface UserActionsListener extends Contract.UserActionsListener<RecordsContract.View> {
 
 		void playClicked();
 
-		void deleteAll();
+		void pauseClicked();
 
-		void loadLastRecord();
+		void stopClicked();
 
-		void updateRecordingDir(Context context);
+		void playNextClicked();
+
+		void playPrevClicked();
+
+		void loadRecords();
 	}
 }

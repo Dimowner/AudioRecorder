@@ -22,7 +22,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -42,9 +41,8 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		if (type == ListItem.ITEM_TYPE_HEADER) {
 
 			View view = new View(viewGroup.getContext());
-			int height = 0;
+			int height;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-
 				height = AndroidUtils.getStatusBarHeight(viewGroup.getContext()) + (int) viewGroup.getContext().getResources().getDimension(R.dimen.toolbar_height);
 			} else {
 				height = (int) viewGroup.getContext().getResources().getDimension(R.dimen.toolbar_height);
@@ -81,13 +79,14 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 	public void setData(List<ListItem> data) {
 		this.data = data;
+		this.data.add(0, ListItem.createHeaderItem());
 		notifyDataSetChanged();
 	}
 
 	public class ItemViewHolder extends RecyclerView.ViewHolder {
 		TextView name;
 		TextView description;
-		ImageView image;
+//		ImageView image;
 		View view;
 
 		public ItemViewHolder(View itemView) {
@@ -95,7 +94,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			this.view = itemView;
 			this.name = itemView.findViewById(R.id.list_item_name);
 			this.description = itemView.findViewById(R.id.list_item_description);
-			this.image = itemView.findViewById(R.id.list_item_image);
+//			this.image = itemView.findViewById(R.id.list_item_image);
 		}
 	}
 

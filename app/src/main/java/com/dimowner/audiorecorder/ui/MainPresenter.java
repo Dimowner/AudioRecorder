@@ -17,8 +17,6 @@
 package com.dimowner.audiorecorder.ui;
 
 import android.content.Context;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
 
 import com.dimowner.audiorecorder.audio.player.AudioPlayerContract;
 import com.dimowner.audiorecorder.audio.player.AudioPlayer;
@@ -26,16 +24,17 @@ import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
 import com.dimowner.audiorecorder.audio.recorder.AudioRecorderContract;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
+import com.dimowner.audiorecorder.data.database.LocalRepository;
+import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.CantCreateFileException;
 import com.dimowner.audiorecorder.exception.ErrorParser;
-import com.dimowner.audiorecorder.audio.SoundFile;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -46,13 +45,15 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private final AudioRecorder audioRecorder;
 	private final AudioPlayer audioPlayer;
 	private final FileRepository fileRepository;
+	private final LocalRepository localRepository;
 	private final Prefs prefs;
 	private long songDuration = 0;
 
 
-	public MainPresenter(final Prefs prefs, final FileRepository fileRepository) {
+	public MainPresenter(final Prefs prefs, final FileRepository fileRepository, final LocalRepository localRepository) {
 		this.prefs = prefs;
 		this.fileRepository = fileRepository;
+		this.localRepository = localRepository;
 		this.audioRecorder = new AudioRecorder(new AudioRecorderContract.RecorderActions() {
 			@Override
 			public void onPrepareRecord() {
@@ -75,11 +76,13 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			@Override
 			public void onStopRecord(File output) {
 				Timber.v("onStopRecord file = %s", output.getAbsolutePath());
-				String prevRecord = prefs.getLastRecordedFile();
-				boolean b = fileRepository.deleteRecordFile(prevRecord);
-				Timber.v("Deletion is " + b);
-				prefs.saveLastRecordedFile(output.getAbsolutePath());
+//				String prevRecord = prefs.getLastRecordedFile();
+//				boolean b = fileRepository.deleteRecordFile(prevRecord);
+//				Timber.v("Deletion is " + b);
+//				prefs.saveLastRecordedFile(output.getAbsolutePath());
+				localRepository.insertFile(output.getAbsolutePath());
 				view.showRecordingStop();
+				loadLastRecord();
 			}
 
 			@Override
@@ -115,7 +118,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			public void onStopPlay() {
 				view.showPlayStop();
 				Timber.d("onStopPlay");
-				view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration));
+				view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration/1000));
 			}
 
 			@Override
@@ -139,11 +142,13 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void bindView(MainContract.View view) {
 		this.view = view;
+		this.localRepository.open();
 	}
 
 	@Override
 	public void unbindView() {
 		this.view = null;
+		this.localRepository.close();
 
 		audioPlayer.stopListenActions();
 		audioPlayer.stop();
@@ -174,49 +179,69 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void deleteAll() {
 		Timber.v("deleteAll");
-		prefs.clearLastRecordFile();
-		loadLastRecord(null);
+//		prefs.clearLastRecordFile();
+//		loadRecords(null);
 	}
 
 	@Override
-	public void loadLastRecord(final Context context) {
-		final String lastFile = prefs.getLastRecordedFile();
-		if (lastFile != null && !lastFile.isEmpty()) {
-			view.showProgress();
-			new Thread("SoundLoading") {
+	public void loadLastRecord() {
+		view.showProgress();
+		final List<Record> recordList = localRepository.getAllRecords();
+		if (recordList.size() > 0) {
+			final Record record = recordList.get(recordList.size()-1);
+			songDuration = record.getDuration();
+			AndroidUtils.runOnUIThread(new Runnable() {
 				@Override
 				public void run() {
-					try {
-						final SoundFile soundFile = SoundFile.create(lastFile);
-//						final int duration = readRecordingTrackDuration(context, lastFile);
-						songDuration = readRecordingTrackDuration(context, lastFile);
-						Timber.v("Duration = " + songDuration);
-
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
-								audioPlayer.setData(lastFile);
-								view.showSoundFile(soundFile);
-								view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration));
-								view.hideProgress();
-							}
-						});
-					} catch (IOException e) {
-						Timber.e(e);
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
-								view.showError("Couldn't load audio file!");
-								view.hideProgress();
-							}
-						});
-					}
+					audioPlayer.setData(record.getPath());
+					view.showWaveForm(record.getAmps());
+					view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration/1000));
+					view.hideProgress();
 				}
-			}.start();
+			});
 		} else {
-			view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(0));
-			view.showSoundFile(null);
+			view.hideProgress();
 		}
+
+//		final String lastFile = prefs.getLastRecordedFile();
+//		if (lastFile != null && !lastFile.isEmpty()) {
+//			view.showProgress();
+//			new Thread("SoundLoading") {
+//				@Override
+//				public void run() {
+//					try {
+//						final SoundFile soundFile = SoundFile.create(lastFile);
+////						final int duration = readRecordingTrackDuration(context, lastFile);
+//						songDuration = readRecordingTrackDuration(context, lastFile);
+//						Timber.v("Duration = " + songDuration);
+//
+//						AndroidUtils.runOnUIThread(new Runnable() {
+//							@Override
+//							public void run() {
+//								audioPlayer.setData(lastFile);
+//								if (soundFile != null) {
+//									view.showWaveForm(soundFile.getFrameGains());
+//								}
+//								view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration));
+//								view.hideProgress();
+//							}
+//						});
+//					} catch (IOException e) {
+//						Timber.e(e);
+//						AndroidUtils.runOnUIThread(new Runnable() {
+//							@Override
+//							public void run() {
+//								view.showError("Couldn't load audio file!");
+//								view.hideProgress();
+//							}
+//						});
+//					}
+//				}
+//			}.start();
+//		} else {
+//			view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(0));
+//			view.showWaveForm(null);
+//		}
 	}
 
 	@Override
@@ -235,11 +260,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		this.fileRepository.setRecordingDir(recDir);
 	}
 
-	private int readRecordingTrackDuration(Context context, String path) {
-		Uri uri = Uri.parse(path);
-		MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-		mmr.setDataSource(context, uri);
-		String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-		return Integer.parseInt(durationStr);
-	}
+//	private int readRecordingTrackDuration(Context context, String path) {
+//		Uri uri = Uri.parse(path);
+//		MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+//		mmr.setDataSource(context, uri);
+//		String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+//		return Integer.parseInt(durationStr);
+//	}
 }

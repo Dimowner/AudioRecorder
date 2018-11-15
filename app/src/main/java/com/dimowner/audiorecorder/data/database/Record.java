@@ -26,16 +26,19 @@ public class Record {
 
 	private int id;
 	private String name;
+	private long duration;
 	private long created;
 	private String path;
 	private int[] amps;
 	private byte[] data;
 	private String dataStr;
+	//TODO: Add duration field.
 
 
-	public Record(int id, String name, long created, String path, int[] amps) {
+	public Record(int id, String name, long duration, long created, String path, int[] amps) {
 		this.id = id;
 		this.name = name;
+		this.duration = duration;
 		this.created = created;
 		this.path = path;
 		this.amps = amps;
@@ -66,6 +69,10 @@ public class Record {
 
 	public int[] getAmps() {
 		return amps;
+	}
+
+	public long getDuration() {
+		return duration;
 	}
 
 	public byte[] getData() {
@@ -111,6 +118,7 @@ public class Record {
 		return "Record{" +
 				"id=" + id +
 				", name='" + name + '\'' +
+				", duration='" + duration + '\'' +
 				", created=" + created +
 				", path='" + path + '\'' +
 				", data=" + Arrays.toString(data) +

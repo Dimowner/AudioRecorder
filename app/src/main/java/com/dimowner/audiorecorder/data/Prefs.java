@@ -26,7 +26,6 @@ public class Prefs {
 	private static final String PREF_NAME = "com.dimowner.audiorecorder.data.Prefs";
 
 	private static final String PREF_KEY_IS_FIRST_RUN = "is_first_run";
-	private static final String PREF_KEY_LAST_RECORDED_FILE = "last_recorded_file";
 	private static final String PREF_KEY_IS_STORE_DIR_PUBLIC = "is_store_dir_public";
 
 	private SharedPreferences sharedPreferences;
@@ -42,24 +41,6 @@ public class Prefs {
 	public void firstRunExecuted() {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putBoolean(PREF_KEY_IS_FIRST_RUN, false);
-		editor.apply();
-	}
-
-	public String getLastRecordedFile() {
-		Timber.v("getLastRecordedFile: %s", sharedPreferences.getString(PREF_KEY_LAST_RECORDED_FILE, null));
-		return sharedPreferences.getString(PREF_KEY_LAST_RECORDED_FILE, null);
-	}
-
-	public void saveLastRecordedFile(String str) {
-		Timber.v("setLastRecordedFile: %s", str);
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.putString(PREF_KEY_LAST_RECORDED_FILE, str);
-		editor.apply();
-	}
-
-	public void clearLastRecordFile() {
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.remove(PREF_KEY_LAST_RECORDED_FILE);
 		editor.apply();
 	}
 

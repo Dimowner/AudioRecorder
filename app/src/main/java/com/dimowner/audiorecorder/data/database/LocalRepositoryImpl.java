@@ -16,7 +16,13 @@
 
 package com.dimowner.audiorecorder.data.database;
 
+import com.dimowner.audiorecorder.audio.SoundFile;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+
+import timber.log.Timber;
 
 public class LocalRepositoryImpl implements LocalRepository {
 
@@ -68,11 +74,41 @@ public class LocalRepositoryImpl implements LocalRepository {
 		}
 	}
 
+	@Override
+	public void insertFile(final String lastFile) {
+		if (lastFile != null && !lastFile.isEmpty()) {
+			new Thread("SoundInsertion") {
+				@Override
+				public void run() {
+					try {
+						final SoundFile soundFile = SoundFile.create(lastFile);
+						if (soundFile != null) {
+							File file = new File(lastFile);
+							Record record = new Record(
+									Record.NO_ID,
+									file.getName(),
+									soundFile.getDuration(),
+									file.lastModified(),
+									lastFile,
+									soundFile.getFrameGains());
+							insertRecord(record);
+						} else {
+							Timber.e("Unable to read sound file by specified path!");
+						}
+					} catch (IOException e) {
+						Timber.e(e);
+					}
+				}
+			}.start();
+		}
+	}
+
 	public List<Record> getAllRecords() {
 		//		TODO: make async
 		if (dataSource.isOpen()) {
 			return dataSource.getAll();
 		}
+		Timber.e("Database is closed!!");
 		return null;
 	}
 
@@ -81,5 +117,6 @@ public class LocalRepositoryImpl implements LocalRepository {
 		if (dataSource.isOpen()) {
 			dataSource.deleteItem(id);
 		}
+		Timber.e("Database is closed!!");
 	}
 }

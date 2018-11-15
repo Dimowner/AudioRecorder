@@ -55,6 +55,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 	//Fields for table Records
 	static final String COLUMN_ID = "_id";
 	static final String COLUMN_NAME = "name";
+	static final String COLUMN_DURATION = "duration";
 	static final String COLUMN_CREATION_DATE = "created";
 	static final String COLUMN_PATH = "path";
 	/** Simplified array of audio record amplitudes that represents waveform. */
@@ -66,6 +67,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 			"CREATE TABLE " + TABLE_RECORDS + " ("
 					+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 					+ COLUMN_NAME + " TEXT NOT NULL, "
+					+ COLUMN_DURATION + " LONG NOT NULL, "
 					+ COLUMN_CREATION_DATE + " LONG NOT NULL, "
 					+ COLUMN_PATH + " TEXT NOT NULL, "
 					+ COLUMN_DATA + " BLOB NOT NULL, "

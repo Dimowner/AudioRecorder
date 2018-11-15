@@ -26,22 +26,27 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.data.database.LocalRepositoryImpl;
+import com.dimowner.audiorecorder.data.database.RecordsDataSource;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class RecordsActivity extends Activity {
+public class RecordsActivity extends Activity implements RecordsContract.View {
 
 	private RecyclerView recyclerView;
 	private LinearLayoutManager layoutManager;
 	private RecordsAdapter adapter;
 	private LinearLayout toolbar;
 	private View bottomDivider;
+	private ProgressBar progressBar;
+	private RecordsContract.UserActionsListener presenter;
 
 	public static Intent getStartIntent(Context context) {
 		return new Intent(context, RecordsActivity.class);
@@ -62,6 +67,7 @@ public class RecordsActivity extends Activity {
 		toolbar.setBackgroundResource(ARApplication.getPrimaryColorRes(getApplicationContext()));
 
 		bottomDivider = findViewById(R.id.bottomDivider);
+		progressBar = findViewById(R.id.progress);
 
 		recyclerView = findViewById(R.id.recycler_view);
 		recyclerView.setHasFixedSize(true);
@@ -90,16 +96,22 @@ public class RecordsActivity extends Activity {
 
 		adapter = new RecordsAdapter();
 		recyclerView.setAdapter(adapter);
-		List<ListItem> data = new ArrayList<>(20);
-		data.add(new ListItem(ListItem.ITEM_TYPE_HEADER, "HEADER", "Header Description"));
-		for (int i = 1; i < 20; i++) {
-			data.add(new ListItem(ListItem.ITEM_TYPE_NORMAL,"Name "+ i, "Description " + i));
-		}
-		adapter.setData(data);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			// Set the padding to match the Status Bar height
 			toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
+		}
+
+		presenter = new RecordsPresenter(new LocalRepositoryImpl(new RecordsDataSource(getApplicationContext())));
+		presenter.bindView(this);
+		presenter.loadRecords();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if (presenter != null) {
+			presenter.unbindView();
 		}
 	}
 
@@ -130,5 +142,70 @@ public class RecordsActivity extends Activity {
 
 	public boolean isListOnBottom() {
 		return (layoutManager.findLastCompletelyVisibleItemPosition() == adapter.getItemCount()-1);
+	}
+
+	@Override
+	public void showPlayStart() {
+
+	}
+
+	@Override
+	public void showPlayPause() {
+
+	}
+
+	@Override
+	public void showPlayStop() {
+
+	}
+
+	@Override
+	public void showNextRecord() {
+
+	}
+
+	@Override
+	public void showPrevRecord() {
+
+	}
+
+	@Override
+	public void showWaveForm(int[] waveForm) {
+
+	}
+
+	@Override
+	public void showDuration(String duration) {
+
+	}
+
+	@Override
+	public void onPlayProgress(long mills, int px) {
+
+	}
+
+	@Override
+	public void showRecords(List<ListItem> records) {
+		adapter.setData(records);
+	}
+
+	@Override
+	public void showProgress() {
+		progressBar.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void hideProgress() {
+		progressBar.setVisibility(View.GONE);
+	}
+
+	@Override
+	public void showError(String message) {
+		Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void showError(int resId) {
+		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
 	}
 }

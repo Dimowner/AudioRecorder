@@ -25,7 +25,6 @@ import android.view.View;
 
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.R;
-import com.dimowner.audiorecorder.audio.SoundFile;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
@@ -43,10 +42,7 @@ public class WaveformView extends View {
 	private int[] waveformData;
 	private int playProgress;
 
-	private int numFrames;
-
-	//TODO: get rid of this field
-	private int[] frameGains;
+	private int[] waveForm;
 
 	private boolean isInitialized;
 	private float textHeight;
@@ -102,21 +98,19 @@ public class WaveformView extends View {
 		textPaint.setTextSize(textHeight);
 
 		playProgress = -1;
-		frameGains = null;
-		numFrames = 0;
+		waveForm = null;
 		isInitialized = false;
 	}
 
-	public void setSoundFile(SoundFile soundFile) {
-		if (soundFile != null) {
-			numFrames = soundFile.getNumFrames();
-			frameGains = soundFile.getFrameGains();
+	public void setWaveform(int[] frameGains) {
+		if (frameGains != null) {
+			this.waveForm = frameGains;
 			if (isMeasured) {
-				adjustWaveformHeights(numFrames, frameGains);
+				adjustWaveformHeights(waveForm);
 			}
 		} else {
 			if (isMeasured) {
-				adjustWaveformHeights(0, new int[0]);
+				adjustWaveformHeights(new int[0]);
 			}
 		}
 		requestLayout();
@@ -156,10 +150,10 @@ public class WaveformView extends View {
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
 		if (isMeasured && !isInitialized) {
-			if (frameGains != null) {
-				adjustWaveformHeights(numFrames, frameGains);
+			if (waveForm != null) {
+				adjustWaveformHeights(waveForm);
 			} else {
-				adjustWaveformHeights(0, empty);
+				adjustWaveformHeights(empty);
 			}
 		}
 	}
@@ -252,7 +246,8 @@ public class WaveformView extends View {
 	/**
 	 * Called once when a new sound file is added
 	 */
-	private void adjustWaveformHeights(int numFrames, int[] frameGains) {
+	private void adjustWaveformHeights(int[] frameGains) {
+		int numFrames = frameGains.length;
 		//One frame corresponds one pixel on screen
 		double[] smoothedGains = new double[numFrames];
 		if (numFrames == 1) {

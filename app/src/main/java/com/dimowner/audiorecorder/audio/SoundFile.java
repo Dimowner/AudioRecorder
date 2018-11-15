@@ -21,7 +21,6 @@ import android.media.MediaExtractor;
 import android.media.MediaFormat;
 
 import com.dimowner.audiorecorder.AppConstants;
-import com.dimowner.audiorecorder.ui.widget.WaveformView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 
 import java.io.File;
@@ -31,6 +30,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.util.Arrays;
+
+import timber.log.Timber;
 
 public class SoundFile {
 
@@ -55,30 +56,11 @@ public class SoundFile {
 	// Member variables for hack (making it work with old version, until app just uses the samples).
 	private int mNumFrames;
 	private int[] mFrameGains;
-	private int[] mFrameLens;
-	private int[] mFrameOffsets;
+	private long duration;
+	private static final String[] SUPPORTED_EXT = new String[]{"mp3", "wav", "3gpp", "3gp", "amr", "aac", "m4a", "ogg"};
 
 	// A SoundFile object should only be created using the static methods create() and record().
 	private SoundFile() {
-	}
-
-	public long getDurationMills() {
-		return mNumSamples * 1000 / mSampleRate;
-	}
-
-	// TODO(nfaralli): what is the real list of supported extensions? Is it device dependent?
-	public static String[] getSupportedExtensions() {
-		return new String[]{"mp3", "wav", "3gpp", "3gp", "amr", "aac", "m4a", "ogg"};
-	}
-
-	public static boolean isFilenameSupported(String filename) {
-		String[] extensions = getSupportedExtensions();
-		for (int i = 0; i < extensions.length; i++) {
-			if (filename.endsWith("." + extensions[i])) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	// Create and return a SoundFile object using the file fileName.
@@ -93,36 +75,12 @@ public class SoundFile {
 		if (components.length < 2) {
 			return null;
 		}
-		if (!Arrays.asList(getSupportedExtensions()).contains(components[components.length - 1])) {
+		if (!Arrays.asList(SUPPORTED_EXT).contains(components[components.length - 1])) {
 			return null;
 		}
 		SoundFile soundFile = new SoundFile();
 		soundFile.readFile(f);
 		return soundFile;
-	}
-
-	public String getFiletype() {
-		return mFileType;
-	}
-
-	public int getFileSizeBytes() {
-		return mFileSize;
-	}
-
-	public int getAvgBitrateKbps() {
-		return mAvgBitRate;
-	}
-
-	public int getSampleRate() {
-		return mSampleRate;
-	}
-
-	public int getChannels() {
-		return mChannels;
-	}
-
-	public int getNumSamples() {
-		return mNumSamples;  // Number of samples per channel.
 	}
 
 	// Should be removed when the app will use directly the samples instead of the frames.
@@ -135,6 +93,10 @@ public class SoundFile {
 		return calculateSamplesPerFrame();
 	}
 
+	public long getDuration() {
+		return duration;
+	}
+
 	private int calculateSamplesPerFrame() {
 		return mSampleRate / AppConstants.PIXELS_PER_SECOND;
 	}
@@ -143,31 +105,6 @@ public class SoundFile {
 	public int[] getFrameGains() {
 		return mFrameGains;
 	}
-
-	public void getData(byte[] dst) {
-		mDecodedBytes.get(dst);
-	}
-
-	public int position() {
-		return mDecodedBytes.position();
-	}
-
-	public void setPosition(int pos) {
-		mDecodedBytes.position(pos);
-	}
-
-	public final int remaining() {
-		return mDecodedBytes.remaining();
-	}
-
-	public void rewind() {
-		mDecodedBytes.rewind();
-	}
-
-	public long getBytesCount() {
-		return mDecodedBytes.limit();
-	}
-
 
 	private void readFile(File inputFile) throws IOException {
 		MediaExtractor extractor = new MediaExtractor();
@@ -197,6 +134,9 @@ public class SoundFile {
 		// Expected total number of samples per channel.
 		int expectedNumSamples =
 				(int) ((format.getLong(MediaFormat.KEY_DURATION) / 1000000.f) * mSampleRate + 0.5f);
+
+		//SoundFile duration.
+		duration = format.getLong(MediaFormat.KEY_DURATION);
 
 		MediaCodec codec = MediaCodec.createDecoderByType(format.getString(MediaFormat.KEY_MIME));
 		codec.configure(format, null, null, 0);
@@ -244,18 +184,6 @@ public class SoundFile {
 					codec.queueInputBuffer(inputBufferIndex, 0, sample_size, presentation_time, 0);
 					extractor.advance();
                tot_size_read += sample_size;
-//                    if (mProgressListener != null) {
-//                        if (!mProgressListener.reportProgress((float)(tot_size_read) / mFileSize)) {
-//                            // We are asked to stop reading the file. Returning immediately. The
-//                            // SoundFile object is invalid and should NOT be used afterward!
-//                            extractor.release();
-//                            extractor = null;
-//                            codec.stop();
-//                            codec.release();
-//                            codec = null;
-//                            return;
-//                        }
-//                    }
 				}
 				firstSampleData = false;
 			}
@@ -343,8 +271,6 @@ public class SoundFile {
 			mNumFrames++;
 		}
 		mFrameGains = new int[mNumFrames];
-		mFrameLens = new int[mNumFrames];
-		mFrameOffsets = new int[mNumFrames];
 		int j;
 		int gain, value;
 		int frameLens = (int) ((1000 * mAvgBitRate / 8) *
@@ -364,9 +290,6 @@ public class SoundFile {
 				}
 			}
 			mFrameGains[i] = (int) Math.sqrt(gain);  // here gain = sqrt(max value of 1st channel)...
-			mFrameLens[i] = frameLens;  // totally not accurate...
-			mFrameOffsets[i] = (int) (i * (1000 * mAvgBitRate / 8) *  //  = i * frameLens
-					((float) getSamplesPerFrame() / mSampleRate));
 		}
 		mDecodedSamples.rewind();
 		// DumpSamples();  // Uncomment this line to dump the samples in a TSV file.

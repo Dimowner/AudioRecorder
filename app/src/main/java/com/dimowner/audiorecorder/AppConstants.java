@@ -27,6 +27,10 @@ public class AppConstants {
     /** Density pixel count per one second of time. */
     public static final int PIXELS_PER_SECOND = 30;
 
+
+    public static final int TIME_FORMAT_24H = 11;
+    public static final int TIME_FORMAT_12H = 12;
+
     // recording and playback
     public final static int PLAYBACK_SAMPLE_RATE = 44100;
     public final static int RECORD_SAMPLE_RATE = 44100;

@@ -23,21 +23,21 @@
 		android:layout_height="wrap_content"
 		android:clickable="true"
 		android:focusable="true"
-		android:orientation="horizontal"
+		android:orientation="vertical"
 		android:background="?android:attr/selectableItemBackground">
 
-	<ImageView
-			android:id="@+id/list_item_image"
-			android:layout_width="110dp"
-			android:layout_height="80dp"
-			android:src="@drawable/ic_round_settings"
-			android:scaleType="centerCrop"/>
+	<!--<ImageView-->
+			<!--android:id="@+id/list_item_image"-->
+			<!--android:layout_width="110dp"-->
+			<!--android:layout_height="80dp"-->
+			<!--android:src="@drawable/ic_round_settings"-->
+			<!--android:scaleType="centerCrop"/>-->
 
-	<LinearLayout
-			android:layout_width="0dp"
-			android:layout_height="match_parent"
-			android:orientation="vertical"
-			android:layout_weight="1">
+	<!--<LinearLayout-->
+			<!--android:layout_width="0dp"-->
+			<!--android:layout_height="match_parent"-->
+			<!--android:orientation="vertical"-->
+			<!--android:layout_weight="1">-->
 
 		<TextView
 				android:id="@+id/list_item_name"
@@ -68,6 +68,6 @@
 				android:paddingEnd="@dimen/spacing_normal"
 				android:paddingBottom="@dimen/spacing_normal"
 				android:maxLines="1"/>
-	</LinearLayout>
+	<!--</LinearLayout>-->
 
 </LinearLayout>

@@ -30,5 +30,7 @@ public interface LocalRepository {
 
 	void insertRecord(Record record);
 
+	void insertFile(String filePath);
+
 	void deleteRecord(int id);
 }

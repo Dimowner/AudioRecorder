@@ -31,12 +31,16 @@ public class ListItem implements Parcelable {
 	private final String avatar_url;
 
 
-	public ListItem(int type, String name, String description) {
+	public ListItem(long id, int type, String name, String description) {
+		this.id = id;
 		this.type = type;
-		this.id = 1;
 		this.name = name;
 		this.description = description;
 		this.avatar_url = "";
+	}
+
+	public static ListItem createHeaderItem() {
+		return new ListItem(-1, ListItem.ITEM_TYPE_HEADER, "HEADER", "");
 	}
 
 	public long getId() {

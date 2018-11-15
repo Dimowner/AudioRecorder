@@ -23,6 +23,18 @@
 		android:orientation="vertical"
 		tools:context="com.dimowner.audiorecorder.ui.MainActivity">
 
+	<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_horizontal"
+			android:layout_marginStart="@dimen/spacing_double"
+			android:layout_marginEnd="@dimen/spacing_double"
+			android:layout_marginTop="@dimen/spacing_normal"
+			android:textColor="@color/text_primary_light"
+			android:textSize="@dimen/text_xlarge"
+			android:textStyle="bold"
+			android:text="Audio Recorder"/>
+
 	<FrameLayout
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
@@ -43,7 +55,38 @@
 				android:layout_gravity="center"
 				/>
 
+		<ProgressBar
+				android:id="@+id/progress"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"/>
+
 	</FrameLayout>
+
+	<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="start"
+			android:textColor="@color/text_primary_light"
+			android:layout_marginStart="@dimen/spacing_double"
+			android:textSize="@dimen/text_medium"
+			android:text="Records count: 48"/>
+	<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="start"
+			android:textColor="@color/text_primary_light"
+			android:layout_marginStart="@dimen/spacing_double"
+			android:textSize="@dimen/text_medium"
+			android:text="Total time: 1h:57m:34s "/>
+	<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="start"
+			android:textColor="@color/text_primary_light"
+			android:layout_marginStart="@dimen/spacing_double"
+			android:textSize="@dimen/text_medium"
+			android:text="Available space: 34h:12m:22s "/>
 
 	<TextView
 			android:id="@+id/txt_duration"
@@ -52,9 +95,9 @@
 			android:gravity="center_horizontal"
 			android:padding="@dimen/spacing_normal"
 			android:textColor="@color/text_primary_light"
-			android:textSize="48sp"
+			android:textSize="@dimen/text_largest"
 			android:textStyle="bold"
-			tools:text="Duration: 00:00"/>
+			android:text="Duration: 00:00"/>
 
 	<LinearLayout
 			android:id="@+id/control_panel"
