@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.ui;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -70,6 +71,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ImageButton btnSettings;
 	private ScrubberView scrubberView;
 	private ProgressBar progressBar;
+
+	private boolean isForeground = false;
 
 	private MainContract.UserActionsListener presenter;
 
@@ -126,6 +129,15 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			case R.id.btn_record:
 				if (checkRecordPermission()) {
 					presenter.recordingClicked();
+//					startForegroundService(new )
+					Intent intent = new Intent(getApplicationContext(), RecordingService.class);
+					if (isForeground) {
+						intent.setAction(RecordingService.ACTION_STOP_FOREGROUND_SERVICE);
+					} else {
+						intent.setAction(RecordingService.ACTION_START_FOREGROUND_SERVICE);
+					}
+					isForeground = !isForeground;
+					startService(intent);
 				}
 				break;
 //			case R.id.btn_clear:

@@ -7,6 +7,7 @@
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
 	<uses-permission android:name="android.permission.RECORD_AUDIO" />
 	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 	<uses-feature android:name="android.hardware.screen.portrait" android:required="false" />
 	<uses-feature android:name="android.hardware.telephony" android:required="false" />
@@ -34,6 +35,9 @@
 
 		<activity android:name="com.dimowner.audiorecorder.ui.records.RecordsActivity"/>
 		<activity android:name="com.dimowner.audiorecorder.ui.settings.SettingsActivity"/>
+
+		<service android:name="com.dimowner.audiorecorder.ui.RecordingService" />
+
 	    <meta-data
             android:name="io.fabric.ApiKey"
             android:value="a911efb38fc3ed01944c7ea4410acde51d847864" />
