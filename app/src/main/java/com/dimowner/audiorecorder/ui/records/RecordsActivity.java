@@ -87,7 +87,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 //						AnimationUtil.viewElevationAnimation(toolbar, getResources().getDimension(R.dimen.toolbar_elevation));
 //					}
 				}
-				if (isListOnBottom()) {
+				if (adapter.getItemCount() < 5 || isListOnBottom()) {
 					bottomDivider.setVisibility(View.GONE);
 				} else {
 					bottomDivider.setVisibility(View.VISIBLE);
