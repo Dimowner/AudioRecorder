@@ -62,7 +62,10 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 
 		ImageButton btnBack = findViewById(R.id.btn_back);
 		btnBack.setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View view) { finish(); }});
+			@Override public void onClick(View view) {
+				finish();
+				ARApplication.getInjector().clearRecordsPresenter();
+			}});
 		toolbar = findViewById(R.id.toolbar);
 		toolbar.setBackgroundResource(ARApplication.getPrimaryColorRes(getApplicationContext()));
 
@@ -102,7 +105,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 			// Set the padding to match the Status Bar height
 			toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
 		}
-		presenter = ARApplication.getInjector().provideRecordPresenter();
+		presenter = ARApplication.getInjector().provideRecordsPresenter();
 	}
 
 	@Override
@@ -118,6 +121,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 		if (presenter != null) {
 			presenter.unbindView();
 		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		ARApplication.getInjector().clearRecordsPresenter();
 	}
 
 	private void handleToolbarScroll(int dy) {

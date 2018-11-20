@@ -35,107 +35,107 @@ import static com.dimowner.audiorecorder.AppConstants.VISUALIZATION_INTERVAL;
 
 public class AudioRecorder implements AudioRecorderContract.UserActions {
 
-    private MediaRecorder recorder = null;
-    private File recordFile = null;
+	private MediaRecorder recorder = null;
+	private File recordFile = null;
 
-    private boolean isPrepared = false;
-    private boolean isRecording = false;
-    private Timer timerProgress;
-    private long progress = 0;
+	private boolean isPrepared = false;
+	private boolean isRecording = false;
+	private Timer timerProgress;
+	private long progress = 0;
 
-    private AudioRecorderContract.RecorderActions actionsListener;
+	private AudioRecorderContract.RecorderActions actionsListener;
 
-    public AudioRecorder(AudioRecorderContract.RecorderActions actionsListener) {
-        this.actionsListener = actionsListener;
-    }
+	public AudioRecorder(AudioRecorderContract.RecorderActions actionsListener) {
+		this.actionsListener = actionsListener;
+	}
 
-    @Override
-    public void prepare(String outputFile) {
-        Timber.v("prepare file: %s", outputFile);
-        recordFile = new File(outputFile);
-        if (recordFile.exists() && recordFile.isFile()) {
-            recorder = new MediaRecorder();
-            recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-            recorder.setAudioChannels(RECORD_AUDIO_CHANNELS_COUNT);
-            recorder.setAudioSamplingRate(RECORD_SAMPLE_RATE);
-            recorder.setAudioEncodingBitRate(RECORD_ENCODING_BITRATE);
-            recorder.setMaxDuration(RECORD_MAX_DURATION);
-            recorder.setOutputFile(recordFile.getAbsolutePath());
-            try {
-                recorder.prepare();
-                isPrepared = true;
-                if (actionsListener != null) {
-                    actionsListener.onPrepareRecord();
-                }
-            } catch (IOException e) {
-                Timber.e(e, "prepare() failed");
-                if (actionsListener != null) {
-                    actionsListener.onError(e);
-                }
-            }
-        } else {
-            if (actionsListener != null) {
-                actionsListener.onError(new InvalidOutputFile());
-            }
-        }
-    }
+	@Override
+	public void prepare(String outputFile) {
+		Timber.v("prepare file: %s", outputFile);
+		recordFile = new File(outputFile);
+		if (recordFile.exists() && recordFile.isFile()) {
+			recorder = new MediaRecorder();
+			recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+			recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+			recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+			recorder.setAudioChannels(RECORD_AUDIO_CHANNELS_COUNT);
+			recorder.setAudioSamplingRate(RECORD_SAMPLE_RATE);
+			recorder.setAudioEncodingBitRate(RECORD_ENCODING_BITRATE);
+			recorder.setMaxDuration(RECORD_MAX_DURATION);
+			recorder.setOutputFile(recordFile.getAbsolutePath());
+			try {
+				recorder.prepare();
+				isPrepared = true;
+				if (actionsListener != null) {
+					actionsListener.onPrepareRecord();
+				}
+			} catch (IOException e) {
+				Timber.e(e, "prepare() failed");
+				if (actionsListener != null) {
+					actionsListener.onError(e);
+				}
+			}
+		} else {
+			if (actionsListener != null) {
+				actionsListener.onError(new InvalidOutputFile());
+			}
+		}
+	}
 
-    @Override
-    public void startRecording() {
-        Timber.v("startRecording");
-        if (isPrepared) {
-            recorder.start();
-            isRecording = true;
-            startRecordingTimer();
-            if (actionsListener != null) {
-                actionsListener.onStartRecord();
-            }
-        } else {
-            Timber.e("Recorder is not prepared!!!");
-        }
-    }
+	@Override
+	public void startRecording() {
+		Timber.v("startRecording");
+		if (isPrepared) {
+			recorder.start();
+			isRecording = true;
+			startRecordingTimer();
+			if (actionsListener != null) {
+				actionsListener.onStartRecord();
+			}
+		} else {
+			Timber.e("Recorder is not prepared!!!");
+		}
+	}
 
-    @Override
-    public void stopRecording() {
-        Timber.v("stopRecording");
-        if (isRecording) {
-            stopRecordingTimer();
-            recorder.stop();
-            recorder.release();
-            if (actionsListener != null) {
-                actionsListener.onStopRecord(recordFile);
-            }
-            recordFile = null;
-            isPrepared = false;
-            isRecording = false;
-            recorder = null;
-        } else {
-            Timber.e("Recording has already stopped or hasn't started");
-        }
-    }
+	@Override
+	public void stopRecording() {
+		Timber.v("stopRecording");
+		if (isRecording) {
+			stopRecordingTimer();
+			recorder.stop();
+			recorder.release();
+			if (actionsListener != null) {
+				actionsListener.onStopRecord(recordFile);
+			}
+			recordFile = null;
+			isPrepared = false;
+			isRecording = false;
+			recorder = null;
+		} else {
+			Timber.e("Recording has already stopped or hasn't started");
+		}
+	}
 
-    private void startRecordingTimer() {
-        timerProgress = new Timer();
-        timerProgress.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (actionsListener != null && recorder != null) {
-                    actionsListener.onRecordProgress(progress, recorder.getMaxAmplitude());
-                    progress += VISUALIZATION_INTERVAL;
-                }
-            }
-        }, 0, VISUALIZATION_INTERVAL);
-    }
+	private void startRecordingTimer() {
+		timerProgress = new Timer();
+		timerProgress.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				if (actionsListener != null && recorder != null) {
+					actionsListener.onRecordProgress(progress, recorder.getMaxAmplitude());
+					progress += VISUALIZATION_INTERVAL;
+				}
+			}
+		}, 0, VISUALIZATION_INTERVAL);
+	}
 
-    private void stopRecordingTimer() {
-        timerProgress.cancel();
-        timerProgress.purge();
-        progress = 0;
-    }
+	private void stopRecordingTimer() {
+		timerProgress.cancel();
+		timerProgress.purge();
+		progress = 0;
+	}
 
-    public boolean isRecording() {
-        return isRecording;
-    }
+	public boolean isRecording() {
+		return isRecording;
+	}
 }

@@ -29,134 +29,134 @@ import timber.log.Timber;
 
 public class AudioPlayer implements AudioPlayerContract.UserActions {
 
-    private AudioPlayerContract.PlayerActions actionsListener;
+	private AudioPlayerContract.PlayerActions actionsListener;
 
-    private MediaPlayer mediaPlayer;
-    private Timer timerProgress;
-    private boolean isPrepared = false;
-    private boolean isCompleted = false;
+	private MediaPlayer mediaPlayer;
+	private Timer timerProgress;
+	private boolean isPrepared = false;
+	private boolean isCompleted = false;
 
-    public AudioPlayer(AudioPlayerContract.PlayerActions playerActions) {
-        this.actionsListener = playerActions;
-    }
+	public AudioPlayer(AudioPlayerContract.PlayerActions playerActions) {
+		this.actionsListener = playerActions;
+	}
 
-    @Override
-    public void setData(String data) {
-        try {
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer.setDataSource(data);
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+	@Override
+	public void setData(String data) {
+		try {
+			mediaPlayer = new MediaPlayer();
+			mediaPlayer.setDataSource(data);
+			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 //            if (actionsListener != null) {
 //                actionsListener.onAddRecord(mediaPlayer.getDuration());
 //            }
-        } catch (IOException e) {
-            Timber.e(e);
-            actionsListener.onError(e);
-        }
+		} catch (IOException e) {
+			Timber.e(e);
+			actionsListener.onError(e);
+		}
 
-    }
+	}
 
-    @Override
-    public void clearData() {
-        stop();
-    }
+	@Override
+	public void clearData() {
+		stop();
+	}
 
-    @Override
-    public void playOrPause() {
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                pause();
-            } else {
-                try {
-                    if (!isPrepared) {
-                        mediaPlayer.prepare();
-                        if (actionsListener != null) {
-                            actionsListener.onPreparePlay();
-                        }
-                        isPrepared = true;
-                    }
+	@Override
+	public void playOrPause() {
+		if (mediaPlayer != null) {
+			if (mediaPlayer.isPlaying()) {
+				pause();
+			} else {
+				try {
+					if (!isPrepared) {
+						mediaPlayer.prepare();
+						if (actionsListener != null) {
+							actionsListener.onPreparePlay();
+						}
+						isPrepared = true;
+					}
 
-                    mediaPlayer.start();
-                    if (actionsListener != null) {
-                        actionsListener.onStartPlay();
-                    }
-                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                        @Override
-                        public void onCompletion(MediaPlayer mp) {
-                            isCompleted = true;
-                            timerProgress.cancel();
-                            timerProgress.purge();
-                            if (actionsListener != null) {
-                                actionsListener.onStopPlay();
-                            }
-                        }
-                    });
+					mediaPlayer.start();
+					if (actionsListener != null) {
+						actionsListener.onStartPlay();
+					}
+					mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+						@Override
+						public void onCompletion(MediaPlayer mp) {
+							isCompleted = true;
+							timerProgress.cancel();
+							timerProgress.purge();
+							if (actionsListener != null) {
+								actionsListener.onStopPlay();
+							}
+						}
+					});
 
-                    timerProgress = new Timer();
-                    timerProgress.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            if (actionsListener != null && mediaPlayer != null) {
-                                actionsListener.onPlayProgress(mediaPlayer.getCurrentPosition());
-                            }
-                        }
-                    }, 0, AppConstants.VISUALIZATION_INTERVAL);
-                } catch (IOException e) {
-                    Timber.e(e);
-                    actionsListener.onError(e);
-                }
-            }
-        }
-    }
+					timerProgress = new Timer();
+					timerProgress.schedule(new TimerTask() {
+						@Override
+						public void run() {
+							if (actionsListener != null && mediaPlayer != null) {
+								actionsListener.onPlayProgress(mediaPlayer.getCurrentPosition());
+							}
+						}
+					}, 0, AppConstants.VISUALIZATION_INTERVAL);
+				} catch (IOException e) {
+					Timber.e(e);
+					actionsListener.onError(e);
+				}
+			}
+		}
+	}
 
-    @Override
-    public void seek(int pixels) {
-        double mills = AndroidUtils.convertPxToMills(pixels);
-        mediaPlayer.seekTo((int) mills);
-        if (actionsListener != null) {
-            actionsListener.onSeek((int) mills);
-        }
-    }
+	@Override
+	public void seek(int pixels) {
+		double mills = AndroidUtils.convertPxToMills(pixels);
+		mediaPlayer.seekTo((int) mills);
+		if (actionsListener != null) {
+			actionsListener.onSeek((int) mills);
+		}
+	}
 
-    @Override
-    public void pause() {
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.pause();
-                if (actionsListener != null) {
-                    actionsListener.onPausePlay();
-                }
-            }
-        }
-        if (timerProgress != null) {
-            timerProgress.cancel();
-            timerProgress.purge();
-        }
-    }
+	@Override
+	public void pause() {
+		if (mediaPlayer != null) {
+			if (mediaPlayer.isPlaying()) {
+				mediaPlayer.pause();
+				if (actionsListener != null) {
+					actionsListener.onPausePlay();
+				}
+			}
+		}
+		if (timerProgress != null) {
+			timerProgress.cancel();
+			timerProgress.purge();
+		}
+	}
 
-    @Override
-    public void stop() {
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-                isPrepared = false;
-                isCompleted = false;
-                if (actionsListener != null) {
-                    actionsListener.onStopPlay();
-                }
-                mediaPlayer.release();
-                mediaPlayer = null;
-            }
-        }
-        if (timerProgress != null) {
-            timerProgress.cancel();
-            timerProgress.purge();
-        }
-    }
+	@Override
+	public void stop() {
+		if (mediaPlayer != null) {
+			if (mediaPlayer.isPlaying()) {
+				mediaPlayer.stop();
+				isPrepared = false;
+				isCompleted = false;
+				if (actionsListener != null) {
+					actionsListener.onStopPlay();
+				}
+				mediaPlayer.release();
+				mediaPlayer = null;
+			}
+		}
+		if (timerProgress != null) {
+			timerProgress.cancel();
+			timerProgress.purge();
+		}
+	}
 
-    public void stopListenActions() {
-        if (actionsListener != null) {
-            actionsListener = null;
-        }
-    }
+	public void stopListenActions() {
+		if (actionsListener != null) {
+			actionsListener = null;
+		}
+	}
 }

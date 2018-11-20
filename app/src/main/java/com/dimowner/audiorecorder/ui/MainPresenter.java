@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.ui;
 
 import android.content.Context;
 
+import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.audio.player.AudioPlayerContract;
 import com.dimowner.audiorecorder.audio.player.AudioPlayer;
 import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
@@ -34,6 +35,7 @@ import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 import timber.log.Timber;
@@ -44,16 +46,23 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	private final AudioRecorder audioRecorder;
 	private final AudioPlayer audioPlayer;
+	private final BackgroundQueue loadingTasks;
+	private final BackgroundQueue recordingsTasks;
 	private final FileRepository fileRepository;
 	private final LocalRepository localRepository;
 	private final Prefs prefs;
 	private long songDuration = 0;
 
 
-	public MainPresenter(final Prefs prefs, final FileRepository fileRepository, final LocalRepository localRepository) {
+	public MainPresenter(final Prefs prefs, final FileRepository fileRepository,
+								final LocalRepository localRepository,
+								final BackgroundQueue recordingTasks,
+								final BackgroundQueue loadingTasks) {
 		this.prefs = prefs;
 		this.fileRepository = fileRepository;
 		this.localRepository = localRepository;
+		this.loadingTasks = loadingTasks;
+		this.recordingsTasks = recordingTasks;
 		this.audioRecorder = new AudioRecorder(new AudioRecorderContract.RecorderActions() {
 			@Override
 			public void onPrepareRecord() {
@@ -68,30 +77,34 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			}
 
 			@Override
-			public void onRecordProgress(long mills, int amplitude) {
+			public void onRecordProgress(final long mills, int amplitude) {
 				Timber.v("onRecordProgress time = %d, apm = %d", mills, amplitude);
-				view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(mills));
+
+				AndroidUtils.runOnUIThread(new Runnable() {
+					@Override public void run() {
+						view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(mills));
+					}});
 			}
 
 			@Override
-			public void onStopRecord(File output) {
+			public void onStopRecord(final File output) {
 				Timber.v("onStopRecord file = %s", output.getAbsolutePath());
 				view.showProgress();
-				localRepository.insertFile(output.getAbsolutePath(), new LocalRepository.OnCompleteListener() {
+				recordingTasks.postRunnable(new Runnable() {
 					@Override
-					public void onComplete() {
-						loadLastRecord();
+					public void run() {
+						try {
+							localRepository.insertFile(output.getAbsolutePath());
+						} catch (IOException e) {
+							Timber.e(e);
+						}
 						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override public void run() { view.hideProgress(); }});
-					}
-					@Override
-					public void onError(Exception e) {
-						Timber.e(e);
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override public void run() { view.hideProgress(); }});
+							@Override public void run() {
+								view.hideProgress();
+								view.showRecordingStop();
+						}});
 					}
 				});
-				view.showRecordingStop();
 			}
 
 			@Override
@@ -118,16 +131,22 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			}
 
 			@Override
-			public void onPlayProgress(long mills) {
+			public void onPlayProgress(final long mills) {
 				Timber.v("onPlayProgress: " + mills);
-				view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills));
+				AndroidUtils.runOnUIThread(new Runnable() {
+					@Override public void run() {
+						view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills));
+					}});
 			}
 
 			@Override
 			public void onStopPlay() {
 				view.showPlayStop();
 				Timber.d("onStopPlay");
-				view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration/1000));
+				AndroidUtils.runOnUIThread(new Runnable() {
+					@Override public void run() {
+						view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration / 1000));
+					}});
 			}
 
 			@Override
@@ -166,6 +185,17 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
+	public void clear() {
+		if (view != null) {
+			unbindView();
+		}
+		audioPlayer.clearData();
+		audioRecorder.stopRecording();
+		loadingTasks.close();
+		recordingsTasks.close();
+	}
+
+	@Override
 	public void recordingClicked() {
 		Timber.v("recordingClicked");
 		if (audioRecorder.isRecording()) {
@@ -195,9 +225,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void loadLastRecord() {
 		view.showProgress();
-		new Thread("SoundLoading") {
+//		new Thread("SoundLoading") {
+		loadingTasks.postRunnable(new Runnable() {
 			@Override
 			public void run() {
+				//TODO: remove loading all records
 				final List<Record> recordList = localRepository.getAllRecords();
 				final List<Long> durations = localRepository.getRecordsDurations();
 				long totalDuration = 0;
@@ -224,7 +256,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						@Override public void run() { view.hideProgress(); }});
 				}
 			}
-		}.start();
+		});
 
 //		final String lastFile = prefs.getLastRecordedFile();
 //		if (lastFile != null && !lastFile.isEmpty()) {

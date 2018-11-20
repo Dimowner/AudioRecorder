@@ -22,6 +22,7 @@ public class ErrorParser {
 
 	private ErrorParser() {}
 
+	//TODO: Fix error parsing implementation
 	public static int parseException(Exception e) {
 		if (e instanceof CantCreateFileException) {
 			return R.string.error_cant_create_file;

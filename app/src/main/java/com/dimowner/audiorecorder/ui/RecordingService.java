@@ -85,7 +85,9 @@ public class RecordingService extends Service {
 	private void startForegroundService() {
 		Log.d(TAG_FOREGROUND_SERVICE, "Start foreground service.");
 
-		createNotificationChannel(CHANNEL_ID, CHANNEL_NAME);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			createNotificationChannel(CHANNEL_ID, CHANNEL_NAME);
+		}
 
 		// Create notification default intent.
 		Intent intent = new Intent();

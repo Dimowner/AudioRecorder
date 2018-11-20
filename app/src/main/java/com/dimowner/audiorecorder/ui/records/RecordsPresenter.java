@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.ui.records;
 
+import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.audio.player.AudioPlayerContract;
 import com.dimowner.audiorecorder.audio.player.AudioPlayer;
@@ -29,11 +30,13 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	private RecordsContract.View view;
 	private final AudioPlayer audioPlayer;
+	private final BackgroundQueue loadingTasks;
 	private final LocalRepository localRepository;
 
 
-	public RecordsPresenter(final LocalRepository localRepository) {
+	public RecordsPresenter(final LocalRepository localRepository, BackgroundQueue loadingTasks) {
 		this.localRepository = localRepository;
+		this.loadingTasks = loadingTasks;
 		this.audioPlayer = new AudioPlayer(new AudioPlayerContract.PlayerActions() {
 
 			@Override
@@ -97,6 +100,15 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	}
 
 	@Override
+	public void clear() {
+		if (view != null) {
+			unbindView();
+		}
+		audioPlayer.clearData();
+//		loadingTasks.close();
+	}
+
+	@Override
 	public void playClicked() {
 		Timber.v("playClicked");
 		audioPlayer.playOrPause();
@@ -125,22 +137,25 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	@Override
 	public void loadRecords() {
 		view.showProgress();
-		new Thread("LoadRecords") {
+		loadingTasks.postRunnable(new Runnable() {
 			@Override
 			public void run() {
 				final List<Record> recordList = localRepository.getAllRecords();
 				if (recordList.size() > 0) {
 					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							view.showRecords(Mapper.recordsToListItems(recordList));
-							view.hideProgress();
-						}
-					});
+						@Override public void run() {
+							if (view != null) {
+								view.showRecords(Mapper.recordsToListItems(recordList));
+								view.hideProgress();
+							}
+						}});
 				} else {
-					view.hideProgress();
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override public void run() {
+							if (view !=null) { view.hideProgress(); }
+						}});
 				}
 			}
-		}.start();
+		});
 	}
 }

@@ -78,6 +78,13 @@ public class ARApplication extends Application {
 		selectRandomThemeColor();
 	}
 
+	@Override
+	public void onTerminate() {
+		super.onTerminate();
+		Timber.v("onTerminate");
+		injector.clearMainPresenter();
+	}
+
 	private void selectRandomThemeColor() {
 		switch (new Random().nextInt(7)) {
 			case 1:

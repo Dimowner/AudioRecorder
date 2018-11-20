@@ -33,6 +33,9 @@ public class Injector {
 
 	private Context context;
 
+	private BackgroundQueue loadingTasks;
+	private BackgroundQueue recordingTasks;
+
 	private MainContract.UserActionsListener mainPresenter;
 	private RecordsContract.UserActionsListener recordsPresenter;
 
@@ -56,17 +59,48 @@ public class Injector {
 		return LocalRepositoryImpl.getInstance(provideRecordsDataSource());
 	}
 
+	public BackgroundQueue provideLoadingTasksQueue() {
+		if (loadingTasks == null) {
+			loadingTasks = new BackgroundQueue("LoadingTasks");
+		}
+		return loadingTasks;
+	}
+
+	public BackgroundQueue provideRecordingTasksQueue() {
+		if (recordingTasks == null) {
+			recordingTasks = new BackgroundQueue("RecordingTasks");
+		}
+		return recordingTasks;
+	}
+
 	public MainContract.UserActionsListener provideMainPresenter() {
 		if (mainPresenter == null) {
-			mainPresenter = new MainPresenter(providePrefs(), provideFileRepository(), provideLocalRepository());
+			mainPresenter = new MainPresenter(providePrefs(), provideFileRepository(),
+					provideLocalRepository(), provideLoadingTasksQueue(), provideRecordingTasksQueue());
 		}
 		return mainPresenter;
 	}
 
-	public RecordsContract.UserActionsListener provideRecordPresenter() {
+	public RecordsContract.UserActionsListener provideRecordsPresenter() {
 		if (recordsPresenter == null) {
-			recordsPresenter = new RecordsPresenter(provideLocalRepository());
+			recordsPresenter = new RecordsPresenter(provideLocalRepository(), provideLoadingTasksQueue());
 		}
 		return recordsPresenter;
+	}
+
+	public void clearRecordsPresenter() {
+		if (recordsPresenter != null) {
+			recordsPresenter.unbindView();
+			recordsPresenter.clear();
+			recordsPresenter = null;
+		}
+	}
+
+	public void clearMainPresenter() {
+		if (mainPresenter != null) {
+			mainPresenter.unbindView();
+			mainPresenter.clear();
+			mainPresenter = null;
+		}
 	}
 }

@@ -17,7 +17,6 @@
 package com.dimowner.audiorecorder.data.database;
 
 import com.dimowner.audiorecorder.audio.SoundFile;
-import com.dimowner.audiorecorder.util.AndroidUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,63 +73,48 @@ public class LocalRepositoryImpl implements LocalRepository {
 
 
 	public Record getRecord(int id) {
-//		TODO: make async
 		if (!dataSource.isOpen()) {
 			dataSource.open();
 		}
 		return dataSource.getItem(id);
 	}
 
-	public void insertRecord(Record record) {
-//		TODO: make async
+	public Record insertRecord(Record record) {
 		if (!dataSource.isOpen()) {
 			dataSource.open();
 		}
-		dataSource.insertItem(record);
+		return dataSource.insertItem(record);
 	}
 
 	@Override
-	public void insertFile(final String lastFile, final OnCompleteListener listener) {
-		if (lastFile != null && !lastFile.isEmpty()) {
-			new Thread("SoundInsertion") {
-				@Override
-				public void run() {
-					try {
-						final SoundFile soundFile = SoundFile.create(lastFile);
-						if (soundFile != null) {
-							File file = new File(lastFile);
-							Record record = new Record(
-									Record.NO_ID,
-									file.getName(),
-									soundFile.getDuration(),
-									file.lastModified(),
-									lastFile,
-									soundFile.getFrameGains());
-							insertRecord(record);
-							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override public void run() { listener.onComplete(); }
-							});
-
-						} else {
-							Timber.e("Unable to read sound file by specified path!");
-							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override public void run() {
-									listener.onError(new IOException("Unable to read sound file by specified path!"));
-								}});
-						}
-					} catch (final IOException e) {
-						Timber.e(e);
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override public void run() { listener.onError(e);
-						}});
-					}
+	public boolean insertFile(String path) throws IOException {
+		if (path != null && !path.isEmpty()) {
+			final SoundFile soundFile = SoundFile.create(path);
+			if (soundFile != null) {
+				File file = new File(path);
+				Record record = new Record(
+						Record.NO_ID,
+						file.getName(),
+						soundFile.getDuration(),
+						file.lastModified(),
+						path,
+						soundFile.getFrameGains());
+				if (insertRecord(record) != null) {
+					return true;
+				} else {
+					Timber.e("Failed to insert record into local database!");
 				}
-			}.start();
+			} else {
+				Timber.e("Unable to read sound file by specified path!");
+				throw new IOException("Unable to read sound file by specified path!");
+			}
+		} else {
+			Timber.e("File path is null or empty");
 		}
+		return false;
 	}
 
 	public List<Record> getAllRecords() {
-		//		TODO: make async
 		if (!dataSource.isOpen()) {
 			dataSource.open();
 		}
@@ -138,7 +122,6 @@ public class LocalRepositoryImpl implements LocalRepository {
 	}
 
 	public void deleteRecord(int id) {
-		//		TODO: make async
 		if (!dataSource.isOpen()) {
 			dataSource.open();
 		}

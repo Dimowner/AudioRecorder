@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.data.database;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface LocalRepository {
@@ -28,16 +29,11 @@ public interface LocalRepository {
 
 	List<Record> getAllRecords();
 
-	void insertRecord(Record record);
+	Record insertRecord(Record record);
 
-	void insertFile(String filePath, OnCompleteListener listener);
+	boolean insertFile(String filePath) throws IOException;
 
 	void deleteRecord(int id);
 
 	List<Long> getRecordsDurations();
-
-	interface OnCompleteListener {
-		void onComplete();
-		void onError(Exception e);
-	}
 }
