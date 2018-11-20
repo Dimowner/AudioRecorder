@@ -102,6 +102,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnSettings.setOnClickListener(this);
 
 		presenter = ARApplication.getInjector().provideMainPresenter();
+		showTotalRecordsDuration("0h:0m:0s");
+		showRecordsCount(0);
 	}
 
 	@Override
