@@ -57,11 +57,6 @@ public class AudioPlayer implements AudioPlayerContract.UserActions {
 	}
 
 	@Override
-	public void clearData() {
-		stop();
-	}
-
-	@Override
 	public void playOrPause() {
 		if (mediaPlayer != null) {
 			if (mediaPlayer.isPlaying()) {
@@ -96,7 +91,7 @@ public class AudioPlayer implements AudioPlayerContract.UserActions {
 					timerProgress.schedule(new TimerTask() {
 						@Override
 						public void run() {
-							if (actionsListener != null && mediaPlayer != null) {
+							if (actionsListener != null && mediaPlayer != null && mediaPlayer.isPlaying()) {
 								actionsListener.onPlayProgress(mediaPlayer.getCurrentPosition());
 							}
 						}
@@ -120,6 +115,10 @@ public class AudioPlayer implements AudioPlayerContract.UserActions {
 
 	@Override
 	public void pause() {
+		if (timerProgress != null) {
+			timerProgress.cancel();
+			timerProgress.purge();
+		}
 		if (mediaPlayer != null) {
 			if (mediaPlayer.isPlaying()) {
 				mediaPlayer.pause();
@@ -128,30 +127,40 @@ public class AudioPlayer implements AudioPlayerContract.UserActions {
 				}
 			}
 		}
-		if (timerProgress != null) {
-			timerProgress.cancel();
-			timerProgress.purge();
-		}
 	}
 
 	@Override
 	public void stop() {
-		if (mediaPlayer != null) {
-			if (mediaPlayer.isPlaying()) {
-				mediaPlayer.stop();
-				isPrepared = false;
-				isCompleted = false;
-				if (actionsListener != null) {
-					actionsListener.onStopPlay();
-				}
-				mediaPlayer.release();
-				mediaPlayer = null;
-			}
-		}
 		if (timerProgress != null) {
 			timerProgress.cancel();
 			timerProgress.purge();
 		}
+		if (mediaPlayer != null) {
+			mediaPlayer.stop();
+			isPrepared = false;
+			isCompleted = false;
+			if (actionsListener != null) {
+				actionsListener.onStopPlay();
+			}
+			mediaPlayer.getCurrentPosition();
+		}
+	}
+
+	@Override
+	public boolean isPlaying() {
+		return mediaPlayer.isPlaying();
+	}
+
+	@Override
+	public void release() {
+		mediaPlayer.release();
+		mediaPlayer = null;
+		if (timerProgress != null) {
+			timerProgress.cancel();
+			timerProgress.purge();
+		}
+		isCompleted = false;
+		isPrepared = false;
 	}
 
 	public void stopListenActions() {

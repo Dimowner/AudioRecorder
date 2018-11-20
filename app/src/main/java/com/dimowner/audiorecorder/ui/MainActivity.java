@@ -64,9 +64,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private TextView txtDuration;
 	private TextView txtTotalDuration;
 	private TextView txtRecordsCount;
-//	private ImageButton btnPlay;
+	private ImageButton btnPlay;
 	private ImageButton btnRecord;
-//	private ImageButton btnClear;
+	private ImageButton btnStop;
 	private ImageButton btnRecordsList;
 	private ImageButton btnSettings;
 	private ScrubberView scrubberView;
@@ -84,9 +84,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		waveformView = findViewById(R.id.record);
 		txtDuration = findViewById(R.id.txt_duration);
-//		btnPlay = findViewById(R.id.btn_play);
+		btnPlay = findViewById(R.id.btn_play);
 		btnRecord = findViewById(R.id.btn_record);
-//		btnClear = findViewById(R.id.btn_clear);
+		btnStop = findViewById(R.id.btn_stop);
 		btnRecordsList = findViewById(R.id.btn_records_list);
 		btnSettings = findViewById(R.id.btn_settings);
 		progressBar = findViewById(R.id.progress);
@@ -95,9 +95,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		scrubberView = findViewById(R.id.scrubber);
 
-//		btnPlay.setOnClickListener(this);
+		btnPlay.setOnClickListener(this);
 		btnRecord.setOnClickListener(this);
-//		btnClear.setOnClickListener(this);
+		btnStop.setOnClickListener(this);
 		btnRecordsList.setOnClickListener(this);
 		btnSettings.setOnClickListener(this);
 
@@ -125,12 +125,13 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
-//			case R.id.btn_play:
-//				presenter.playClicked();
-//				break;
+			case R.id.btn_play:
+				//This method Starts or Pause playback.
+				presenter.startPlayback();
+				break;
 			case R.id.btn_record:
 				if (checkRecordPermission()) {
-					presenter.recordingClicked();
+					presenter.startRecording();
 //					startForegroundService(new )
 					Intent intent = new Intent(getApplicationContext(), RecordingService.class);
 					if (isForeground) {
@@ -142,9 +143,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 					startService(intent);
 				}
 				break;
-//			case R.id.btn_clear:
-//				presenter.deleteAll();
-//				break;
+			case R.id.btn_stop:
+				presenter.stopPlayback();
+				presenter.stopRecording();
+				break;
 			case R.id.btn_records_list:
 				startActivity(RecordsActivity.getStartIntent(getApplicationContext()));
 				break;
@@ -156,22 +158,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showProgress() {
-//		btnClear.setVisibility(View.GONE);
-//		btnPlay.setVisibility(View.GONE);
-//		btnRecord.setVisibility(View.GONE);
-//		btnSettings.setVisibility(View.GONE);
-//		btnRecordsList.setVisibility(View.GONE);
 		waveformView.setVisibility(View.INVISIBLE);
 		progressBar.setVisibility(View.VISIBLE);
 	}
 
 	@Override
 	public void hideProgress() {
-//		btnClear.setVisibility(View.VISIBLE);
-//		btnPlay.setVisibility(View.VISIBLE);
-//		btnRecord.setVisibility(View.VISIBLE);
-//		btnSettings.setVisibility(View.VISIBLE);
-//		btnRecordsList.setVisibility(View.VISIBLE);
 		waveformView.setVisibility(View.VISIBLE);
 		progressBar.setVisibility(View.GONE);
 	}
@@ -188,49 +180,43 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showRecordingStart() {
-		btnRecord.setImageResource(R.drawable.record_rec);
+		btnRecord.setImageResource(R.drawable.ic_record_rec);
+		btnPlay.setVisibility(View.INVISIBLE);
+		btnStop.setVisibility(View.VISIBLE);
 	}
 
 	@Override
 	public void showRecordingStop() {
-		btnRecord.setImageResource(R.drawable.record);
+		btnRecord.setImageResource(R.drawable.ic_record);
 		presenter.loadLastRecord();
+		btnPlay.setVisibility(View.VISIBLE);
+		btnStop.setVisibility(View.INVISIBLE);
 	}
 
 	@Override
 	public void showPlayStart() {
-//		runOnUiThread(new Runnable() {
-//			@Override
-//			public void run() {
-//				btnPlay.setImageResource(R.drawable.pause);
-//			}
-//		});
+		btnPlay.setImageResource(R.drawable.ic_pause);
+		btnStop.setVisibility(View.VISIBLE);
+		btnRecord.setEnabled(false);
 	}
 
 	@Override
 	public void showPlayPause() {
-//		runOnUiThread(new Runnable() {
-//			@Override
-//			public void run() {
-//				btnPlay.setImageResource(R.drawable.play);
-//			}
-//		});
+		btnPlay.setImageResource(R.drawable.ic_play);
 	}
 
 	@Override
 	public void showPlayStop() {
-//		runOnUiThread(new Runnable() {
-//			@Override
-//			public void run() {
-//				btnPlay.setImageResource(R.drawable.play);
-//				scrubberView.setCurrentPosition(-1);
-//			}
-//		});
+		btnPlay.setImageResource(R.drawable.ic_play);
+		btnStop.setVisibility(View.INVISIBLE);
+		scrubberView.setCurrentPosition(-1);
+		btnRecord.setEnabled(true);
 	}
 
 	@Override
 	public void showWaveForm(int[] waveForm) {
 		waveformView.setWaveform(waveForm);
+		btnPlay.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -299,13 +285,13 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		if (requestCode == REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL && grantResults.length > 0
 					&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 					&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-			presenter.recordingClicked();
+			presenter.startRecording();
 		} else if (requestCode == REQ_CODE_RECORD_AUDIO && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-			presenter.recordingClicked();
+			presenter.startRecording();
 		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-			presenter.recordingClicked();
+			presenter.startRecording();
 		}
 	}
 }

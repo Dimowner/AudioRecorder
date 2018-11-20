@@ -98,6 +98,14 @@ public class AudioRecorder implements AudioRecorderContract.UserActions {
 	}
 
 	@Override
+	public void pauseRecording() {
+		if (isRecording) {
+			//TODO: For below API 24 pause is not available that why records append should be implemented.
+//			recorder.pause();
+		}
+	}
+
+	@Override
 	public void stopRecording() {
 		Timber.v("stopRecording");
 		if (isRecording) {

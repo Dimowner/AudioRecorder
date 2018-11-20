@@ -30,7 +30,7 @@
 			<!--android:id="@+id/list_item_image"-->
 			<!--android:layout_width="110dp"-->
 			<!--android:layout_height="80dp"-->
-			<!--android:src="@drawable/ic_round_settings"-->
+			<!--android:src="@drawable/ic_settings"-->
 			<!--android:scaleType="centerCrop"/>-->
 
 	<!--<LinearLayout-->

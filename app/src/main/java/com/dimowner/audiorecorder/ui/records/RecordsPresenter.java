@@ -104,7 +104,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		if (view != null) {
 			unbindView();
 		}
-		audioPlayer.clearData();
+		audioPlayer.release();
 //		loadingTasks.close();
 	}
 

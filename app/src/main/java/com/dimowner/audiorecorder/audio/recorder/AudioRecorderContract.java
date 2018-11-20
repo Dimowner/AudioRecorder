@@ -23,6 +23,7 @@ public interface AudioRecorderContract {
 	interface RecorderActions {
 		void onPrepareRecord();
 		void onStartRecord();
+		void onPauseRecord();
 		void onRecordProgress(long mills, int amp);
 		void onStopRecord(File output);
 		void onError(Exception throwable);
@@ -31,6 +32,7 @@ public interface AudioRecorderContract {
 	interface UserActions {
 		void prepare(String outputFile);
 		void startRecording();
+		void pauseRecording();
 		void stopRecording();
 	}
 }

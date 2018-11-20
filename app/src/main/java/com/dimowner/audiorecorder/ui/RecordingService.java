@@ -74,7 +74,7 @@ public class RecordingService extends Service {
 					break;
 				case ACTION_PAUSE:
 					Toast.makeText(getApplicationContext(), "You click Pause button.", Toast.LENGTH_LONG).show();
-					presenter.recordingClicked();
+					presenter.startRecording();
 					break;
 			}
 		}
@@ -104,8 +104,8 @@ public class RecordingService extends Service {
 		builder.setStyle(bigTextStyle);
 
 		builder.setWhen(System.currentTimeMillis());
-		builder.setSmallIcon(R.drawable.dna);
-//		Bitmap largeIconBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.dna);
+		builder.setSmallIcon(R.drawable.ic_dna);
+//		Bitmap largeIconBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_dna);
 //		builder.setLargeIcon(largeIconBitmap);
 		// Make the notification max priority.
 		builder.setPriority(Notification.PRIORITY_MAX);
@@ -116,14 +116,14 @@ public class RecordingService extends Service {
 		Intent playIntent = new Intent(this, RecordingService.class);
 		playIntent.setAction(ACTION_CLOSE);
 		PendingIntent pendingPlayIntent = PendingIntent.getService(this, 0, playIntent, 0);
-		NotificationCompat.Action playAction = new NotificationCompat.Action(R.drawable.round_arrow_back, "Stop", pendingPlayIntent);
+		NotificationCompat.Action playAction = new NotificationCompat.Action(R.drawable.ic_arrow_back, "Stop", pendingPlayIntent);
 		builder.addAction(playAction);
 
 		// Add Pause button intent in notification.
 		Intent pauseIntent = new Intent(this, RecordingService.class);
 		pauseIntent.setAction(ACTION_PAUSE);
 		PendingIntent pendingPrevIntent = PendingIntent.getService(this, 0, pauseIntent, 0);
-		NotificationCompat.Action prevAction = new NotificationCompat.Action(R.drawable.pause, "Pause", pendingPrevIntent);
+		NotificationCompat.Action prevAction = new NotificationCompat.Action(R.drawable.ic_pause, "Pause", pendingPrevIntent);
 		builder.addAction(prevAction);
 
 		// Build the notification.

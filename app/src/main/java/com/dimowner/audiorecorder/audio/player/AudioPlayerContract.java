@@ -30,10 +30,11 @@ public interface AudioPlayerContract {
 
 	interface UserActions {
 		void setData(String data);
-		void clearData();
 		void playOrPause();
 		void seek(int pixels);
 		void pause();
 		void stop();
+		boolean isPlaying();
+		void release();
 	}
 }

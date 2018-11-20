@@ -107,8 +107,7 @@
 	<FrameLayout
 			android:id="@+id/control_panel"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			>
+			android:layout_height="wrap_content">
 
 		<ImageButton
 				android:id="@+id/btn_settings"
@@ -122,47 +121,56 @@
 				android:contentDescription="@null"
 				android:focusable="true"
 				android:scaleType="centerInside"
-				android:src="@drawable/ic_round_settings"/>
+				android:src="@drawable/ic_settings"/>
 
-		<!--<ImageButton-->
-				<!--android:id="@+id/btn_clear"-->
-				<!--android:layout_width="@dimen/bottom_pnl_btn_size"-->
-				<!--android:layout_height="@dimen/bottom_pnl_btn_size"-->
-				<!--android:layout_margin="@dimen/spacing_small"-->
-				<!--android:adjustViewBounds="true"-->
-				<!--android:background="@drawable/button_selector"-->
-				<!--android:clickable="true"-->
-				<!--android:contentDescription="@null"-->
-				<!--android:focusable="true"-->
-				<!--android:scaleType="center"-->
-				<!--android:src="@drawable/delete_forever"/>-->
-
-		<!--<ImageButton-->
-				<!--android:id="@+id/btn_play"-->
-				<!--android:layout_width="@dimen/bottom_pnl_btn_size"-->
-				<!--android:layout_height="@dimen/bottom_pnl_btn_size"-->
-				<!--android:layout_marginTop="@dimen/spacing_small"-->
-				<!--android:adjustViewBounds="true"-->
-				<!--android:background="@drawable/button_selector"-->
-				<!--android:clickable="true"-->
-				<!--android:contentDescription="@null"-->
-				<!--android:focusable="true"-->
-				<!--android:scaleType="center"-->
-				<!--android:src="@drawable/play"/>-->
-
-		<ImageButton
-				android:id="@+id/btn_record"
-				android:layout_width="@dimen/bottom_pnl_btn_size"
-				android:layout_height="@dimen/bottom_pnl_btn_size"
-				android:layout_margin="@dimen/spacing_small"
-				android:adjustViewBounds="true"
-				android:background="@drawable/button_selector"
+		<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
 				android:layout_gravity="center"
-				android:clickable="true"
-				android:contentDescription="@null"
-				android:focusable="true"
-				android:scaleType="centerInside"
-				android:src="@drawable/record"/>
+				android:orientation="horizontal">
+
+			<ImageButton
+					android:id="@+id/btn_play"
+					android:layout_width="@dimen/bottom_pnl_small_btn_size"
+					android:layout_height="@dimen/bottom_pnl_small_btn_size"
+					android:adjustViewBounds="true"
+					android:background="@drawable/button_selector"
+					android:clickable="true"
+					android:contentDescription="@null"
+					android:layout_gravity="center"
+					android:focusable="true"
+					android:visibility="invisible"
+					android:scaleType="center"
+					android:src="@drawable/ic_play"/>
+
+			<ImageButton
+					android:id="@+id/btn_record"
+					android:layout_width="@dimen/bottom_pnl_btn_size"
+					android:layout_height="@dimen/bottom_pnl_btn_size"
+					android:layout_margin="@dimen/spacing_small"
+					android:adjustViewBounds="true"
+					android:background="@drawable/button_selector"
+					android:clickable="true"
+					android:contentDescription="@null"
+					android:focusable="true"
+					android:scaleType="centerInside"
+					android:src="@drawable/ic_record"/>
+
+			<ImageButton
+					android:id="@+id/btn_stop"
+					android:layout_width="@dimen/bottom_pnl_small_btn_size"
+					android:layout_height="@dimen/bottom_pnl_small_btn_size"
+					android:adjustViewBounds="true"
+					android:background="@drawable/button_selector"
+					android:clickable="true"
+					android:contentDescription="@null"
+					android:layout_gravity="center"
+					android:focusable="true"
+					android:visibility="invisible"
+					android:scaleType="center"
+					android:src="@drawable/ic_stop"/>
+
+		</LinearLayout>
 
 		<ImageButton
 				android:id="@+id/btn_records_list"
@@ -176,7 +184,7 @@
 				android:contentDescription="@null"
 				android:focusable="true"
 				android:scaleType="centerInside"
-				android:src="@drawable/ic_round_list"/>
+				android:src="@drawable/ic_list"/>
 
 	</FrameLayout>
 

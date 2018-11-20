@@ -35,7 +35,7 @@
 				android:layout_gravity="start"
 				android:background="?android:selectableItemBackground"
 				android:padding="@dimen/spacing_normal"
-				android:src="@drawable/round_arrow_back"/>
+				android:src="@drawable/ic_arrow_back"/>
 
 		<TextView
 				style="@style/Text.SectionLabel"
@@ -63,8 +63,8 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:text="@string/store_records_public"
-				android:drawableLeft="@drawable/ic_round_public"
-				android:drawableStart="@drawable/ic_round_public"
+				android:drawableLeft="@drawable/ic_public"
+				android:drawableStart="@drawable/ic_public"
 				android:layout_margin="@dimen/spacing_normal"
 				android:drawablePadding="@dimen/spacing_double"
 				/>
@@ -84,8 +84,8 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="Some setting"
-			android:drawableLeft="@drawable/ic_round_settings"
-			android:drawableStart="@drawable/ic_round_settings"
+			android:drawableLeft="@drawable/ic_settings"
+			android:drawableStart="@drawable/ic_settings"
 			android:layout_margin="@dimen/spacing_normal"
 			android:drawablePadding="@dimen/spacing_double"
 			/>
@@ -96,8 +96,8 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/open_source_licences"
-			android:drawableLeft="@drawable/dna"
-			android:drawableStart="@drawable/dna"
+			android:drawableLeft="@drawable/ic_dna"
+			android:drawableStart="@drawable/ic_dna"
 			android:background="@drawable/button_selector"
 			android:padding="@dimen/spacing_small"
 			android:layout_margin="@dimen/spacing_small"
@@ -110,8 +110,8 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/rate_app"
-			android:drawableLeft="@drawable/ic_round_thumbs_up_down"
-			android:drawableStart="@drawable/ic_round_thumbs_up_down"
+			android:drawableLeft="@drawable/ic_thumbs"
+			android:drawableStart="@drawable/ic_thumbs"
 			android:background="@drawable/button_selector"
 			android:padding="@dimen/spacing_small"
 			android:layout_margin="@dimen/spacing_small"

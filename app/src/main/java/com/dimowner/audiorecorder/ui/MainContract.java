@@ -47,9 +47,15 @@ public interface MainContract {
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
 
-		void recordingClicked();
+		void startRecording();
 
-		void playClicked();
+		void stopRecording();
+
+		void startPlayback();
+
+		void pausePlayback();
+
+		void stopPlayback();
 
 		void deleteAll();
 

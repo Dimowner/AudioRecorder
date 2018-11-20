@@ -77,6 +77,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			}
 
 			@Override
+			public void onPauseRecord() {
+				Timber.v("onPauseRecord");
+			}
+
+			@Override
 			public void onRecordProgress(final long mills, int amplitude) {
 				Timber.v("onRecordProgress time = %d, apm = %d", mills, amplitude);
 
@@ -189,30 +194,51 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		if (view != null) {
 			unbindView();
 		}
-		audioPlayer.clearData();
+		audioPlayer.release();
 		audioRecorder.stopRecording();
 		loadingTasks.close();
 		recordingsTasks.close();
 	}
 
 	@Override
-	public void recordingClicked() {
-		Timber.v("recordingClicked");
-		if (audioRecorder.isRecording()) {
-			audioRecorder.stopRecording();
-		} else {
+	public void startRecording() {
+		Timber.v("startRecording");
+		if (!audioRecorder.isRecording()) {
 			try {
 				audioRecorder.prepare(fileRepository.provideRecordFile().getAbsolutePath());
 			} catch (CantCreateFileException e) {
 				view.showError(ErrorParser.parseException(e));
 			}
+		} else {
+			//TODO: pause recording
+			audioRecorder.pauseRecording();
 		}
 	}
 
 	@Override
-	public void playClicked() {
-		Timber.v("playClicked");
+	public void stopRecording() {
+		Timber.v("stopRecording");
+		if (audioRecorder.isRecording()) {
+			audioRecorder.stopRecording();
+		}
+	}
+
+	@Override
+	public void startPlayback() {
+		Timber.v("startPlayback");
 		audioPlayer.playOrPause();
+	}
+
+	@Override
+	public void pausePlayback() {
+		if (audioPlayer.isPlaying()) {
+			audioPlayer.pause();
+		}
+	}
+
+	@Override
+	public void stopPlayback() {
+		audioPlayer.stop();
 	}
 
 	@Override
