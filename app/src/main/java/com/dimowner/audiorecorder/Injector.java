@@ -18,6 +18,8 @@ package com.dimowner.audiorecorder;
 
 import android.content.Context;
 
+import com.dimowner.audiorecorder.audio.player.AudioPlayer;
+import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.FileRepositoryImpl;
 import com.dimowner.audiorecorder.data.Prefs;
@@ -74,17 +76,23 @@ public class Injector {
 		return recordingTasks;
 	}
 
+	public PlayerContract.Player provideAudioPlayer() {
+		return AudioPlayer.getInstance();
+	}
+
 	public MainContract.UserActionsListener provideMainPresenter() {
 		if (mainPresenter == null) {
 			mainPresenter = new MainPresenter(providePrefs(), provideFileRepository(),
-					provideLocalRepository(), provideLoadingTasksQueue(), provideRecordingTasksQueue());
+					provideLocalRepository(), provideAudioPlayer(),
+					provideLoadingTasksQueue(), provideRecordingTasksQueue());
 		}
 		return mainPresenter;
 	}
 
 	public RecordsContract.UserActionsListener provideRecordsPresenter() {
 		if (recordsPresenter == null) {
-			recordsPresenter = new RecordsPresenter(provideLocalRepository(), provideLoadingTasksQueue());
+			recordsPresenter = new RecordsPresenter(provideLocalRepository(),
+					provideLoadingTasksQueue(), provideAudioPlayer(), providePrefs());
 		}
 		return recordsPresenter;
 	}

@@ -78,14 +78,16 @@ public class LocalRepositoryImpl implements LocalRepository {
 			dataSource.open();
 		}
 		Record r = dataSource.getItem(id);
-		if (isFileExists(r.getPath())) {
-			return r;
-		} else {
-			//If Audio file deleted then delete record about it from local database.
-			dataSource.deleteItem(r.getId());
-			Timber.e("Audio file for this record is lost");
-			return null;
+		if (r != null) {
+			if (isFileExists(r.getPath())) {
+				return r;
+			} else {
+				//If Audio file deleted then delete record about it from local database.
+				dataSource.deleteItem(r.getId());
+				Timber.e("Audio file for this record is lost");
+			}
 		}
+		return null;
 	}
 
 	public Record insertRecord(Record record) {
@@ -96,7 +98,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
-	public boolean insertFile(String path) throws IOException {
+	public long insertFile(String path) throws IOException {
 		if (path != null && !path.isEmpty()) {
 			final SoundFile soundFile = SoundFile.create(path);
 			if (soundFile != null) {
@@ -108,8 +110,9 @@ public class LocalRepositoryImpl implements LocalRepository {
 						file.lastModified(),
 						path,
 						soundFile.getFrameGains());
-				if (insertRecord(record) != null) {
-					return true;
+				Record r = insertRecord(record);
+				if (r != null) {
+					return r.getId();
 				} else {
 					Timber.e("Failed to insert record into local database!");
 				}
@@ -120,7 +123,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 		} else {
 			Timber.e("File path is null or empty");
 		}
-		return false;
+		return Record.NO_ID;
 	}
 
 	public List<Record> getAllRecords() {
@@ -139,7 +142,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 
 	@Override
 	public Record getLastRecord() {
-		Timber.v("getLastRecord");
+		Timber.v("getActiveRecord");
 		if (!dataSource.isOpen()) {
 			dataSource.open();
 		}

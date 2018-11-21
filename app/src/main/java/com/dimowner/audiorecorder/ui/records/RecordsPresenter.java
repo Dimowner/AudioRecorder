@@ -19,7 +19,7 @@ package com.dimowner.audiorecorder.ui.records;
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
-import com.dimowner.audiorecorder.audio.player.AudioPlayer;
+import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
@@ -29,73 +29,83 @@ import timber.log.Timber;
 public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	private RecordsContract.View view;
-	private final AudioPlayer audioPlayer;
+	private final PlayerContract.Player audioPlayer;
+	private PlayerContract.PlayerCallback playerCallback;
 	private final BackgroundQueue loadingTasks;
 	private final LocalRepository localRepository;
+	private final Prefs prefs;
 
 
-	public RecordsPresenter(final LocalRepository localRepository, BackgroundQueue loadingTasks) {
+	public RecordsPresenter(final LocalRepository localRepository, BackgroundQueue loadingTasks,
+				PlayerContract.Player player, Prefs prefs) {
 		this.localRepository = localRepository;
 		this.loadingTasks = loadingTasks;
-		this.audioPlayer = new AudioPlayer(new PlayerContract.PlayerActions() {
-
-			@Override
-			public void onPreparePlay() {
-				Timber.d("onPreparePlay");
-				// Scroll to start position for the first playback time.
-//				scrollToPlaybackPosition(0);
-			}
-
-			@Override
-			public void onStartPlay() {
-				Timber.d("onStartPlay");
-//				runOnUiThread(() -> playbackView.setStartPosition(SimpleWaveformView.NO_PROGRESS));
-				view.showPlayStart();
-			}
-
-			@Override
-			public void onPlayProgress(long mills) {
-				Timber.v("onPlayProgress: " + mills);
-				view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills));
-			}
-
-			@Override
-			public void onStopPlay() {
-				view.showPlayStop();
-				Timber.d("onStopPlay");
-//				view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration));
-			}
-
-			@Override
-			public void onPausePlay() {
-				view.showPlayPause();
-				Timber.d("onPausePlay");
-			}
-
-			@Override
-			public void onSeek(long mills) {
-				Timber.d("onSeek = " + mills);
-			}
-
-			@Override
-			public void onError(Throwable throwable) {
-				Timber.d("onPlayError");
-			}
-		});
+		this.audioPlayer = player;
+		this.playerCallback = null;
+		this.prefs = prefs;
 	}
 
 	@Override
-	public void bindView(RecordsContract.View view) {
-		this.view = view;
+	public void bindView(RecordsContract.View v) {
+		this.view = v;
 		this.localRepository.open();
+		if (playerCallback == null) {
+			this.playerCallback = new PlayerContract.PlayerCallback() {
+
+				@Override
+				public void onPreparePlay() {
+					Timber.d("onPreparePlay");
+					// Scroll to start position for the first playback time.
+//				scrollToPlaybackPosition(0);
+				}
+
+				@Override
+				public void onStartPlay() {
+					Timber.d("onStartPlay");
+//				runOnUiThread(() -> playbackView.setStartPosition(SimpleWaveformView.NO_PROGRESS));
+					view.showPlayStart();
+				}
+
+				@Override
+				public void onPlayProgress(long mills) {
+					if (view != null) {
+						Timber.v("onPlayProgress: " + mills);
+						view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills));
+					}
+				}
+
+				@Override
+				public void onStopPlay() {
+					view.showPlayStop();
+					Timber.d("onStopPlay");
+//				view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration));
+				}
+
+				@Override
+				public void onPausePlay() {
+					view.showPlayPause();
+					Timber.d("onPausePlay");
+				}
+
+				@Override
+				public void onSeek(long mills) {
+					Timber.d("onSeek = " + mills);
+				}
+
+				@Override
+				public void onError(Throwable throwable) {
+					Timber.d("onPlayError");
+				}
+			};
+		}
+		audioPlayer.addPlayerCallback(playerCallback);
 	}
 
 	@Override
 	public void unbindView() {
-		this.view = null;
 		this.localRepository.close();
-
-		audioPlayer.stop();
+		audioPlayer.removePlayerCallback(playerCallback);
+		this.view = null;
 	}
 
 	@Override
@@ -103,33 +113,36 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		if (view != null) {
 			unbindView();
 		}
-		audioPlayer.release();
+//		audioPlayer.release();
 //		loadingTasks.close();
 	}
 
 	@Override
-	public void playClicked() {
-		Timber.v("playClicked");
+	public void startPlayback(String path) {
+		Timber.v("startPlayback path: " + path);
+		audioPlayer.setData(path);
 		audioPlayer.playOrPause();
 	}
 
 	@Override
-	public void pauseClicked() {
+	public void pausePlayback() {
+		if (audioPlayer.isPlaying()) {
+			audioPlayer.pause();
+		}
+	}
+
+	@Override
+	public void stopPlayback() {
+		audioPlayer.stop();
+	}
+
+	@Override
+	public void playNext() {
 
 	}
 
 	@Override
-	public void stopClicked() {
-
-	}
-
-	@Override
-	public void playNextClicked() {
-
-	}
-
-	@Override
-	public void playPrevClicked() {
+	public void playPrev() {
 
 	}
 
@@ -156,5 +169,10 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				}
 			}
 		});
+	}
+
+	@Override
+	public void setActiveRecord(long id) {
+		prefs.setActiveRecord(id);
 	}
 }

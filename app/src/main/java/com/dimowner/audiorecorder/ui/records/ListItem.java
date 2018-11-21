@@ -27,20 +27,22 @@ public class ListItem implements Parcelable {
 	private final long id;
 	private final int type;
 	private final String name;
+	private final String path;
 	private final String description;
 	private final String avatar_url;
 
 
-	public ListItem(long id, int type, String name, String description) {
+	public ListItem(long id, int type, String name, String description, String path) {
 		this.id = id;
 		this.type = type;
 		this.name = name;
 		this.description = description;
+		this.path = path;
 		this.avatar_url = "";
 	}
 
 	public static ListItem createHeaderItem() {
-		return new ListItem(-1, ListItem.ITEM_TYPE_HEADER, "HEADER", "");
+		return new ListItem(-1, ListItem.ITEM_TYPE_HEADER, "HEADER", "", "");
 	}
 
 	public long getId() {
@@ -55,6 +57,10 @@ public class ListItem implements Parcelable {
 		return description;
 	}
 
+	public String getPath() {
+		return path;
+	}
+
 	public String getImageUrl() {
 		return avatar_url;
 	}
@@ -67,11 +73,12 @@ public class ListItem implements Parcelable {
 	private ListItem(Parcel in) {
 		type = in.readInt();
 		id = in.readLong();
-		String[] data = new String[3];
+		String[] data = new String[4];
 		in.readStringArray(data);
 		name = data[0];
 		description = data[1];
-		avatar_url = data[2];
+		path = data[2];
+		avatar_url = data[3];
 	}
 
 	public int describeContents() {
@@ -81,7 +88,7 @@ public class ListItem implements Parcelable {
 	public void writeToParcel(Parcel out, int flags) {
 		out.writeInt(type);
 		out.writeLong(id);
-		out.writeStringArray(new String[] {name, description, avatar_url});
+		out.writeStringArray(new String[] {name, description, path, avatar_url});
 	}
 
 	public static final Parcelable.Creator<ListItem> CREATOR

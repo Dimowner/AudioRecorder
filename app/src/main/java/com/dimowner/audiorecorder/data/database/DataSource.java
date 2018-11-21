@@ -151,7 +151,11 @@ public abstract class DataSource<T> {
 	public T getItem(int id) {
 		Cursor cursor = queryLocal("SELECT * FROM " + tableName
 				+ " WHERE " + SQLiteHelper.COLUMN_ID + " = " + id);
-		return convertCursor(cursor).get(0);
+		List<T> list = convertCursor(cursor);
+		if (list.size() > 0) {
+			return list.get(0);
+		}
+		return null;
 	}
 
 	/**

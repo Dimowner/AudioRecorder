@@ -18,7 +18,7 @@ package com.dimowner.audiorecorder.audio.player;
 
 public interface PlayerContract {
 
-	interface PlayerActions {
+	interface PlayerCallback {
 		void onPreparePlay();
 		void onStartPlay();
 		void onPlayProgress(long mills);
@@ -28,7 +28,9 @@ public interface PlayerContract {
 		void onError(Throwable throwable);
 	}
 
-	interface UserActions {
+	interface Player {
+		void addPlayerCallback(PlayerContract.PlayerCallback callback);
+		boolean removePlayerCallback(PlayerContract.PlayerCallback callback);
 		void setData(String data);
 		void playOrPause();
 		void seek(int pixels);

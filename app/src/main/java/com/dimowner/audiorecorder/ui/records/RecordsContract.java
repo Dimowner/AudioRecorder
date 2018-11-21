@@ -46,16 +46,18 @@ public interface RecordsContract {
 
 	interface UserActionsListener extends Contract.UserActionsListener<RecordsContract.View> {
 
-		void playClicked();
+		void startPlayback(String path);
 
-		void pauseClicked();
+		void pausePlayback();
 
-		void stopClicked();
+		void stopPlayback();
 
-		void playNextClicked();
+		void playNext();
 
-		void playPrevClicked();
+		void playPrev();
 
 		void loadRecords();
+
+		void setActiveRecord(long id);
 	}
 }

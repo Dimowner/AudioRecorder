@@ -20,7 +20,6 @@ import android.content.Context;
 
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
-import com.dimowner.audiorecorder.audio.player.AudioPlayer;
 import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.FileRepository;
@@ -43,18 +42,19 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private MainContract.View view;
 
 	private final RecorderContract.UserActions audioRecorder;
-	private final PlayerContract.UserActions audioPlayer;
+	private final PlayerContract.Player audioPlayer;
+	private PlayerContract.PlayerCallback playerCallback;
 	private final BackgroundQueue loadingTasks;
 	private final BackgroundQueue recordingsTasks;
 	private final FileRepository fileRepository;
 	private final LocalRepository localRepository;
 	private final Prefs prefs;
 	private long songDuration = 0;
-
-
+	private Record record;
 
 	public MainPresenter(final Prefs prefs, final FileRepository fileRepository,
 								final LocalRepository localRepository,
+								PlayerContract.Player audioPlayer,
 								final BackgroundQueue recordingTasks,
 								final BackgroundQueue loadingTasks) {
 		this.prefs = prefs;
@@ -62,6 +62,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		this.localRepository = localRepository;
 		this.loadingTasks = loadingTasks;
 		this.recordingsTasks = recordingTasks;
+		this.audioPlayer = audioPlayer;
 		this.audioRecorder = new AudioRecorder(new RecorderContract.RecorderActions() {
 			@Override
 			public void onPrepareRecord() {
@@ -98,7 +99,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					@Override
 					public void run() {
 						try {
-							localRepository.insertFile(output.getAbsolutePath());
+							long id = localRepository.insertFile(output.getAbsolutePath());
+							prefs.setActiveRecord(id);
 						} catch (IOException e) {
 							Timber.e(e);
 						}
@@ -117,74 +119,88 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				view.showError(ErrorParser.parseException(throwable));
 			}
 		});
-
-		this.audioPlayer = new AudioPlayer(new PlayerContract.PlayerActions() {
-
-			@Override
-			public void onPreparePlay() {
-				Timber.d("onPreparePlay");
-				// Scroll to start position for the first playback time.
-//				scrollToPlaybackPosition(0);
-			}
-
-			@Override
-			public void onStartPlay() {
-				Timber.d("onStartPlay");
-//				runOnUiThread(() -> playbackView.setStartPosition(SimpleWaveformView.NO_PROGRESS));
-				view.showPlayStart();
-			}
-
-			@Override
-			public void onPlayProgress(final long mills) {
-				Timber.v("onPlayProgress: " + mills);
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override public void run() {
-						view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills));
-					}});
-			}
-
-			@Override
-			public void onStopPlay() {
-				view.showPlayStop();
-				Timber.d("onStopPlay");
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override public void run() {
-						view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration / 1000));
-					}});
-			}
-
-			@Override
-			public void onPausePlay() {
-				view.showPlayPause();
-				Timber.d("onPausePlay");
-			}
-
-			@Override
-			public void onSeek(long mills) {
-				Timber.d("onSeek = " + mills);
-			}
-
-			@Override
-			public void onError(Throwable throwable) {
-				Timber.d("onPlayError");
-			}
-		});
 	}
 
 	@Override
-	public void bindView(MainContract.View view) {
-		this.view = view;
+	public void bindView(MainContract.View v) {
+		Timber.v("bindView");
+		this.view = v;
 		this.localRepository.open();
+
+		if (playerCallback == null) {
+			playerCallback = new PlayerContract.PlayerCallback() {
+				@Override
+				public void onPreparePlay() {
+					Timber.d("onPreparePlay");
+					// Scroll to start position for the first playback time.
+//				scrollToPlaybackPosition(0);
+				}
+
+				@Override
+				public void onStartPlay() {
+					Timber.d("onStartPlay");
+//				runOnUiThread(() -> playbackView.setStartPosition(SimpleWaveformView.NO_PROGRESS));
+					view.showPlayStart();
+				}
+
+				@Override
+				public void onPlayProgress(final long mills) {
+					Timber.v("onPlayProgress: " + mills);
+					if (view != null) {
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override public void run() {
+								if (view != null) {
+									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills));
+								}
+							}});
+					}
+				}
+
+				@Override
+				public void onStopPlay() {
+					view.showPlayStop();
+					Timber.d("onStopPlay");
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration / 1000));
+						}
+					});
+				}
+
+				@Override
+				public void onPausePlay() {
+					view.showPlayPause();
+					Timber.d("onPausePlay");
+				}
+
+				@Override
+				public void onSeek(long mills) {
+					Timber.d("onSeek = " + mills);
+				}
+
+				@Override
+				public void onError(Throwable throwable) {
+					Timber.d("onPlayError");
+				}
+			};
+		}
+
+		this.audioPlayer.addPlayerCallback(playerCallback);
+
+		if (!audioPlayer.isPlaying()) {
+			view.showPlayStop();
+		}
 	}
 
 	@Override
 	public void unbindView() {
 		this.localRepository.close();
 
-		pausePlayback();
 		//TODO: do not stop recording
 		stopRecording();
 
+		audioPlayer.removePlayerCallback(playerCallback);
 		this.view = null;
 	}
 
@@ -225,7 +241,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void startPlayback() {
 		Timber.v("startPlayback");
-		audioPlayer.playOrPause();
+		if (record != null) {
+			if (!audioPlayer.isPlaying()) {
+				audioPlayer.setData(record.getPath());
+			}
+			audioPlayer.playOrPause();
+		}
 	}
 
 	@Override
@@ -253,8 +274,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		loadingTasks.postRunnable(new Runnable() {
 			@Override
 			public void run() {
-				//TODO: remove loading all records
-				final Record record = localRepository.getLastRecord();
+//				record = localRepository.getActiveRecord();
+				record = localRepository.getRecord((int) prefs.getActiveRecord());
 				final List<Long> durations = localRepository.getRecordsDurations();
 				long totalDuration = 0;
 				for (int i = 0; i < durations.size(); i++) {
@@ -266,7 +287,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override
 						public void run() {
-							audioPlayer.setData(record.getPath());
+//							audioPlayer.setData(record.getPath());
 							view.showWaveForm(record.getAmps());
 							view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration / 1000));
 							view.showTotalRecordsDuration(TimeUtils.formatTimeIntervalHourMinSec(finalTotalDuration/1000));

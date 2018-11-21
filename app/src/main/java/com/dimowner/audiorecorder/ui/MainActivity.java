@@ -107,6 +107,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		presenter = ARApplication.getInjector().provideMainPresenter();
 		showTotalRecordsDuration("0h:0m:0s");
 		showRecordsCount(0);
+//		presenter.bindView(this);
+//		presenter.updateRecordingDir(getApplicationContext());
+////		if (!isLoaded) {
+//		presenter.loadLastRecord();
+////			isLoaded = true;
+////		}
 	}
 
 	@Override

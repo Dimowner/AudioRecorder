@@ -23,4 +23,7 @@ public interface Prefs {
 
 	boolean isStoreDirPublic();
 	void setStoreDirPublic(boolean b);
+
+	long getActiveRecord();
+	void setActiveRecord(long id);
 }

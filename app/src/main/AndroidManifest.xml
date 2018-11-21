@@ -37,6 +37,7 @@
 		<activity android:name="com.dimowner.audiorecorder.ui.settings.SettingsActivity"/>
 
 		<service android:name="com.dimowner.audiorecorder.ui.RecordingService" />
+		<service android:name="com.dimowner.audiorecorder.ui.PlaybackService" />
 
 	    <meta-data
             android:name="io.fabric.ApiKey"

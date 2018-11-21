@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 
 import java.util.ArrayList;
@@ -35,6 +36,8 @@ import java.util.List;
 public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 	private List<ListItem> data;
+
+	private ItemClickListener itemClickListener;
 
 	public RecordsAdapter() {
 		this.data = new ArrayList<>();
@@ -64,11 +67,18 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int pos) {
+	public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int pos) {
 		if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_NORMAL) {
 			ItemViewHolder holder = (ItemViewHolder) viewHolder;
 			holder.name.setText(data.get(pos).getName());
 			holder.description.setText(data.get(pos).getDescription());
+
+			holder.view.setOnClickListener(new View.OnClickListener() {
+				@Override public void onClick(View v) {
+					if (itemClickListener != null) {
+						itemClickListener.onItemClick(v, data.get(pos).getId(), data.get(pos).getPath(), pos);
+					}
+				}});
 		}
 	}
 
@@ -101,6 +111,14 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			this.description = itemView.findViewById(R.id.list_item_description);
 //			this.image = itemView.findViewById(R.id.list_item_image);
 		}
+	}
+
+	public void setItemClickListener(ItemClickListener itemClickListener) {
+		this.itemClickListener = itemClickListener;
+	}
+
+	public interface ItemClickListener{
+		void onItemClick(View view, long id, String path, int position);
 	}
 
 	public class HeaderViewHolder extends RecyclerView.ViewHolder {

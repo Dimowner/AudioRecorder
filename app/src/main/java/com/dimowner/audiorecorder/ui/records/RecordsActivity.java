@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
 
@@ -45,6 +46,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 	private LinearLayout toolbar;
 	private ProgressBar progressBar;
 	private View bottomDivider;
+	private ImageButton btnPlay;
 
 	private RecordsContract.UserActionsListener presenter;
 
@@ -71,6 +73,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 
 		bottomDivider = findViewById(R.id.bottomDivider);
 		progressBar = findViewById(R.id.progress);
+		btnPlay = findViewById(R.id.btn_play);
+		btnPlay.setOnClickListener(new View.OnClickListener() {
+			@Override public void onClick(View v) {
+				presenter.stopPlayback();
+			}});
 
 		recyclerView = findViewById(R.id.recycler_view);
 		recyclerView.setHasFixedSize(true);
@@ -99,6 +106,13 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 		});
 
 		adapter = new RecordsAdapter();
+		adapter.setItemClickListener(new RecordsAdapter.ItemClickListener() {
+			@Override
+			public void onItemClick(View view, long id, String path, int position) {
+				presenter.setActiveRecord(id);
+				presenter.startPlayback(path);
+			}
+		});
 		recyclerView.setAdapter(adapter);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {

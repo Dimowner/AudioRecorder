@@ -15,7 +15,8 @@ public class Mapper {
 				record.getId(),
 				ListItem.ITEM_TYPE_NORMAL,
 				record.getName(),
-				"Dur: " + TimeUtils.formatTimeIntervalMinSecMills(record.getDuration()/1000) + " Created: " + TimeUtils.formatTime(record.getCreated()));
+				"Dur: " + TimeUtils.formatTimeIntervalMinSecMills(record.getDuration()/1000) + " Created: " + TimeUtils.formatTime(record.getCreated()),
+				record.getPath());
 	}
 
 	public static List<ListItem> recordsToListItems(List<Record> records) {

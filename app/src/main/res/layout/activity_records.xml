@@ -70,4 +70,17 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"/>
+
+	<ImageButton
+			android:id="@+id/btn_play"
+			android:layout_width="@dimen/bottom_pnl_btn_size"
+			android:layout_height="@dimen/bottom_pnl_btn_size"
+			android:adjustViewBounds="true"
+			android:background="@drawable/button_selector"
+			android:contentDescription="@null"
+			android:layout_gravity="bottom|center"
+			android:focusable="true"
+			android:scaleType="center"
+			android:src="@drawable/ic_play"/>
+
 </FrameLayout>

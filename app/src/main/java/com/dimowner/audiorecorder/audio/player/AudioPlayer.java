@@ -22,21 +22,48 @@ import android.media.MediaPlayer;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import timber.log.Timber;
 
-public class AudioPlayer implements PlayerContract.UserActions {
+public class AudioPlayer implements PlayerContract.Player {
 
-	private PlayerContract.PlayerActions actionsListener;
+	private List<PlayerContract.PlayerCallback> actionsListeners = new ArrayList<>();
 
 	private MediaPlayer mediaPlayer;
 	private Timer timerProgress;
 	private boolean isPrepared = false;
 
-	public AudioPlayer(PlayerContract.PlayerActions playerActions) {
-		this.actionsListener = playerActions;
+
+	private static class SingletonHolder {
+		private static AudioPlayer singleton = new AudioPlayer();
+
+		public static AudioPlayer getSingleton() {
+			return SingletonHolder.singleton;
+		}
+	}
+
+	public static AudioPlayer getInstance() {
+		return SingletonHolder.getSingleton();
+	}
+
+//	public AudioPlayer() {}
+//
+//	public AudioPlayer(PlayerContract.PlayerCallback playerCallback) {
+//		this.actionsListeners.add(playerCallback);
+//	}
+
+	@Override
+	public void addPlayerCallback(PlayerContract.PlayerCallback callback) {
+		actionsListeners.add(callback);
+	}
+
+	@Override
+	public boolean removePlayerCallback(PlayerContract.PlayerCallback callback) {
+		return actionsListeners.remove(callback);
 	}
 
 	@Override
@@ -48,9 +75,8 @@ public class AudioPlayer implements PlayerContract.UserActions {
 			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		} catch (IOException e) {
 			Timber.e(e);
-			actionsListener.onError(e);
+			onError(e);
 		}
-
 	}
 
 	@Override
@@ -62,23 +88,17 @@ public class AudioPlayer implements PlayerContract.UserActions {
 				try {
 					if (!isPrepared) {
 						mediaPlayer.prepare();
-						if (actionsListener != null) {
-							actionsListener.onPreparePlay();
-						}
+						onPreparePlay();
 						isPrepared = true;
 					}
 
 					mediaPlayer.start();
-					if (actionsListener != null) {
-						actionsListener.onStartPlay();
-					}
+					onStartPlay();
 					mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 						@Override
 						public void onCompletion(MediaPlayer mp) {
 							stop();
-							if (actionsListener != null) {
-								actionsListener.onStopPlay();
-							}
+							onStopPlay();
 						}
 					});
 
@@ -86,14 +106,14 @@ public class AudioPlayer implements PlayerContract.UserActions {
 					timerProgress.schedule(new TimerTask() {
 						@Override
 						public void run() {
-							if (actionsListener != null && mediaPlayer != null && mediaPlayer.isPlaying()) {
-								actionsListener.onPlayProgress(mediaPlayer.getCurrentPosition());
+							if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+								onPlayProgress(mediaPlayer.getCurrentPosition());
 							}
 						}
 					}, 0, AppConstants.VISUALIZATION_INTERVAL);
 				} catch (IOException e) {
 					Timber.e(e);
-					actionsListener.onError(e);
+					onError(e);
 				}
 			}
 		}
@@ -104,9 +124,7 @@ public class AudioPlayer implements PlayerContract.UserActions {
 		if (mediaPlayer != null) {
 			double mills = AndroidUtils.convertPxToMills(pixels);
 			mediaPlayer.seekTo((int) mills);
-			if (actionsListener != null) {
-				actionsListener.onSeek((int) mills);
-			}
+			onSeek((int) mills);
 		}
 	}
 
@@ -119,9 +137,7 @@ public class AudioPlayer implements PlayerContract.UserActions {
 		if (mediaPlayer != null) {
 			if (mediaPlayer.isPlaying()) {
 				mediaPlayer.pause();
-				if (actionsListener != null) {
-					actionsListener.onPausePlay();
-				}
+				onPausePlay();
 			}
 		}
 	}
@@ -135,9 +151,7 @@ public class AudioPlayer implements PlayerContract.UserActions {
 		if (mediaPlayer != null) {
 			mediaPlayer.stop();
 			isPrepared = false;
-			if (actionsListener != null) {
-				actionsListener.onStopPlay();
-			}
+			onStopPlay();
 			mediaPlayer.getCurrentPosition();
 		}
 	}
@@ -155,5 +169,62 @@ public class AudioPlayer implements PlayerContract.UserActions {
 			mediaPlayer = null;
 		}
 		isPrepared = false;
+		actionsListeners.clear();
+	}
+
+	private void onPreparePlay() {
+		if (!actionsListeners.isEmpty()) {
+			for (int i = 0; i < actionsListeners.size(); i++) {
+				actionsListeners.get(i).onPreparePlay();
+			}
+		}
+	}
+
+	private  void onStartPlay() {
+		if (!actionsListeners.isEmpty()) {
+			for (int i = 0; i < actionsListeners.size(); i++) {
+				actionsListeners.get(i).onStartPlay();
+			}
+		}
+	}
+
+	private void onPlayProgress(long mills) {
+		if (!actionsListeners.isEmpty()) {
+			for (int i = 0; i < actionsListeners.size(); i++) {
+				actionsListeners.get(i).onPlayProgress(mills);
+			}
+		}
+	}
+
+	private void onStopPlay() {
+		if (!actionsListeners.isEmpty()) {
+			for (int i = 0; i < actionsListeners.size(); i++) {
+				actionsListeners.get(i).onStopPlay();
+			}
+		}
+	}
+
+	private void onPausePlay() {
+		if (!actionsListeners.isEmpty()) {
+			for (int i = 0; i < actionsListeners.size(); i++) {
+				actionsListeners.get(i).onPausePlay();
+			}
+		}
+	}
+
+	private void onSeek(long mills) {
+		if (!actionsListeners.isEmpty()) {
+			for (int i = 0; i < actionsListeners.size(); i++) {
+				actionsListeners.get(i).onSeek(mills);
+			}
+		}
+	}
+
+	private void onError(Throwable throwable) {
+		if (!actionsListeners.isEmpty()) {
+			for (int i = 0; i < actionsListeners.size(); i++) {
+				actionsListeners.get(i).onError(throwable);
+			}
+		}
 	}
 }
