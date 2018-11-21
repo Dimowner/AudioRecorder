@@ -43,15 +43,9 @@ public class AudioPlayer implements PlayerContract.UserActions {
 	public void setData(String data) {
 		try {
 			isPrepared = false;
-			if (actionsListener != null) {
-				actionsListener.onPlayProgress(0);
-			}
 			mediaPlayer = new MediaPlayer();
 			mediaPlayer.setDataSource(data);
 			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-//            if (actionsListener != null) {
-//                actionsListener.onAddRecord(mediaPlayer.getDuration());
-//            }
 		} catch (IOException e) {
 			Timber.e(e);
 			actionsListener.onError(e);

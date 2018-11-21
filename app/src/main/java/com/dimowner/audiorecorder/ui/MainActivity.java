@@ -227,13 +227,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showDuration(final String duration) {
-//		txtDuration.setText(getString(R.string.duration, duration));
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				txtDuration.setText(duration);
-			}
-		});
+		txtDuration.setText(duration);
 	}
 
 	@Override

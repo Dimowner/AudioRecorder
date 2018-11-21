@@ -21,6 +21,7 @@ import android.content.Context;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.FileRepositoryImpl;
 import com.dimowner.audiorecorder.data.Prefs;
+import com.dimowner.audiorecorder.data.PrefsImpl;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.LocalRepositoryImpl;
 import com.dimowner.audiorecorder.data.database.RecordsDataSource;
@@ -44,7 +45,7 @@ public class Injector {
 	}
 
 	public Prefs providePrefs() {
-		return Prefs.getInstance(context);
+		return PrefsImpl.getInstance(context);
 	}
 
 	public RecordsDataSource provideRecordsDataSource() {
