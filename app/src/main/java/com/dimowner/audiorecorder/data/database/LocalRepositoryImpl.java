@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.data.database;
 
+import android.database.Cursor;
 import com.dimowner.audiorecorder.audio.SoundFile;
 
 import java.io.File;
@@ -119,6 +120,20 @@ public class LocalRepositoryImpl implements LocalRepository {
 			dataSource.open();
 		}
 		return dataSource.getAll();
+	}
+
+	@Override
+	public Record getLastRecord() {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		Cursor c = dataSource.queryLocal("SELECT * FROM " + SQLiteHelper.TABLE_RECORDS +
+				" ORDER BY " + SQLiteHelper.COLUMN_ID + " DESC LIMIT 1");
+		if (c != null && c.moveToFirst()) {
+			return dataSource.recordToItem(c);
+		} else {
+			return null;
+		}
 	}
 
 	public void deleteRecord(int id) {

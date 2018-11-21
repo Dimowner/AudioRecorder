@@ -40,6 +40,8 @@ import timber.log.Timber;
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
 // TODO: Show notification when recording
+// TODO: Make Foreground service for playback
+// TODO: Make Foreground service for recording
 // TODO: Play selected record
 // TODO: Fix playback after orientation change
 // TODO: Show wave forms in records list
@@ -73,6 +75,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ProgressBar progressBar;
 
 	private boolean isForeground = false;
+	private boolean isLoaded = false;
 
 	private MainContract.UserActionsListener presenter;
 
@@ -111,7 +114,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		super.onStart();
 		presenter.bindView(this);
 		presenter.updateRecordingDir(getApplicationContext());
-		presenter.loadLastRecord();
+		if (!isLoaded) {
+			presenter.loadLastRecord();
+			isLoaded = true;
+		}
 	}
 
 	@Override

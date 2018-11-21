@@ -34,7 +34,6 @@ public class AudioPlayer implements AudioPlayerContract.UserActions {
 	private MediaPlayer mediaPlayer;
 	private Timer timerProgress;
 	private boolean isPrepared = false;
-	private boolean isCompleted = false;
 
 	public AudioPlayer(AudioPlayerContract.PlayerActions playerActions) {
 		this.actionsListener = playerActions;
@@ -43,6 +42,10 @@ public class AudioPlayer implements AudioPlayerContract.UserActions {
 	@Override
 	public void setData(String data) {
 		try {
+			isPrepared = false;
+			if (actionsListener != null) {
+				actionsListener.onPlayProgress(0);
+			}
 			mediaPlayer = new MediaPlayer();
 			mediaPlayer.setDataSource(data);
 			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -78,9 +81,7 @@ public class AudioPlayer implements AudioPlayerContract.UserActions {
 					mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 						@Override
 						public void onCompletion(MediaPlayer mp) {
-							isCompleted = true;
-							timerProgress.cancel();
-							timerProgress.purge();
+							stop();
 							if (actionsListener != null) {
 								actionsListener.onStopPlay();
 							}
@@ -106,10 +107,12 @@ public class AudioPlayer implements AudioPlayerContract.UserActions {
 
 	@Override
 	public void seek(int pixels) {
-		double mills = AndroidUtils.convertPxToMills(pixels);
-		mediaPlayer.seekTo((int) mills);
-		if (actionsListener != null) {
-			actionsListener.onSeek((int) mills);
+		if (mediaPlayer != null) {
+			double mills = AndroidUtils.convertPxToMills(pixels);
+			mediaPlayer.seekTo((int) mills);
+			if (actionsListener != null) {
+				actionsListener.onSeek((int) mills);
+			}
 		}
 	}
 
@@ -138,7 +141,6 @@ public class AudioPlayer implements AudioPlayerContract.UserActions {
 		if (mediaPlayer != null) {
 			mediaPlayer.stop();
 			isPrepared = false;
-			isCompleted = false;
 			if (actionsListener != null) {
 				actionsListener.onStopPlay();
 			}
@@ -148,24 +150,16 @@ public class AudioPlayer implements AudioPlayerContract.UserActions {
 
 	@Override
 	public boolean isPlaying() {
-		return mediaPlayer.isPlaying();
+		return mediaPlayer != null && mediaPlayer.isPlaying();
 	}
 
 	@Override
 	public void release() {
-		mediaPlayer.release();
-		mediaPlayer = null;
-		if (timerProgress != null) {
-			timerProgress.cancel();
-			timerProgress.purge();
+		stop();
+		if (mediaPlayer != null) {
+			mediaPlayer.release();
+			mediaPlayer = null;
 		}
-		isCompleted = false;
 		isPrepared = false;
-	}
-
-	public void stopListenActions() {
-		if (actionsListener != null) {
-			actionsListener = null;
-		}
 	}
 }

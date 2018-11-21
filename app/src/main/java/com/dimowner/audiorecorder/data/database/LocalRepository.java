@@ -29,6 +29,8 @@ public interface LocalRepository {
 
 	List<Record> getAllRecords();
 
+	Record getLastRecord();
+
 	Record insertRecord(Record record);
 
 	boolean insertFile(String filePath) throws IOException;

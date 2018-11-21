@@ -25,6 +25,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.dimowner.audiorecorder.BuildConfig;
+
 /**
  * Base class to communicate with some table T in database.
  * @author Dimowner
@@ -186,40 +188,42 @@ public abstract class DataSource<T> {
 	protected Cursor queryLocal(String query) {
 		Log.d(LOG_TAG, "queryLocal: " + query);
 		Cursor c = db.rawQuery(query, null);
-		StringBuilder data = new StringBuilder("Cursor[");
-		if (c.moveToFirst()) {
-			do {
-				int columnCount = c.getColumnCount();
-				data.append("row[");
-				for (int i = 0; i < columnCount; ++i) {
-					data.append(c.getColumnName(i)).append(" = ");
+		if (BuildConfig.DEBUG) {
+			StringBuilder data = new StringBuilder("Cursor[");
+			if (c.moveToFirst()) {
+				do {
+					int columnCount = c.getColumnCount();
+					data.append("row[");
+					for (int i = 0; i < columnCount; ++i) {
+						data.append(c.getColumnName(i)).append(" = ");
 
-					switch (c.getType(i)) {
-						case Cursor.FIELD_TYPE_BLOB:
-							data.append("byte array");
-							break;
-						case Cursor.FIELD_TYPE_FLOAT:
-							data.append(c.getFloat(i));
-							break;
-						case Cursor.FIELD_TYPE_INTEGER:
-							data.append(c.getInt(i));
-							break;
-						case Cursor.FIELD_TYPE_NULL:
-							data.append("null");
-							break;
-						case Cursor.FIELD_TYPE_STRING:
-							data.append(c.getString(i));
-							break;
+						switch (c.getType(i)) {
+							case Cursor.FIELD_TYPE_BLOB:
+								data.append("byte array");
+								break;
+							case Cursor.FIELD_TYPE_FLOAT:
+								data.append(c.getFloat(i));
+								break;
+							case Cursor.FIELD_TYPE_INTEGER:
+								data.append(c.getInt(i));
+								break;
+							case Cursor.FIELD_TYPE_NULL:
+								data.append("null");
+								break;
+							case Cursor.FIELD_TYPE_STRING:
+								data.append(c.getString(i));
+								break;
+						}
+						if (i != columnCount - 1) {
+							data.append(", ");
+						}
 					}
-					if (i != columnCount - 1) {
-						data.append(", ");
-					}
-				}
-				data.append("]\n");
-			} while (c.moveToNext());
+					data.append("]\n");
+				} while (c.moveToNext());
+			}
+			data.append("]");
+			Log.d(LOG_TAG, data.toString());
 		}
-		data.append("]");
-		Log.d(LOG_TAG, data.toString());
 		return c;
 	}
 

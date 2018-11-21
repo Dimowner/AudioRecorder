@@ -53,6 +53,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private final Prefs prefs;
 	private long songDuration = 0;
 
+	private AudioPlayerContract.PlayerActions playListener;
+
 
 	public MainPresenter(final Prefs prefs, final FileRepository fileRepository,
 								final LocalRepository localRepository,
@@ -119,7 +121,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			}
 		});
 
-		this.audioPlayer = new AudioPlayer(new AudioPlayerContract.PlayerActions() {
+		playListener = new AudioPlayerContract.PlayerActions() {
 
 			@Override
 			public void onPreparePlay() {
@@ -169,7 +171,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			public void onError(Throwable throwable) {
 				Timber.d("onPlayError");
 			}
-		});
+		};
+		this.audioPlayer = new AudioPlayer(playListener);
 	}
 
 	@Override
@@ -180,13 +183,13 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void unbindView() {
-		this.view = null;
 		this.localRepository.close();
 
-		audioPlayer.stopListenActions();
-		audioPlayer.stop();
+		pausePlayback();
+		//TODO: do not stop recording
+		stopRecording();
 
-		audioRecorder.stopRecording();
+		this.view = null;
 	}
 
 	@Override
@@ -251,19 +254,17 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void loadLastRecord() {
 		view.showProgress();
-//		new Thread("SoundLoading") {
 		loadingTasks.postRunnable(new Runnable() {
 			@Override
 			public void run() {
 				//TODO: remove loading all records
-				final List<Record> recordList = localRepository.getAllRecords();
+				final Record record = localRepository.getLastRecord();
 				final List<Long> durations = localRepository.getRecordsDurations();
 				long totalDuration = 0;
 				for (int i = 0; i < durations.size(); i++) {
 					totalDuration +=durations.get(i);
 				}
-				if (recordList != null && recordList.size() > 0) {
-					final Record record = recordList.get(recordList.size() - 1);
+				if (record != null) {
 					songDuration = record.getDuration();
 					final long finalTotalDuration = totalDuration;
 					AndroidUtils.runOnUIThread(new Runnable() {
@@ -283,62 +284,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				}
 			}
 		});
-
-//		final String lastFile = prefs.getLastRecordedFile();
-//		if (lastFile != null && !lastFile.isEmpty()) {
-//			view.showProgress();
-//			new Thread("SoundLoading") {
-//				@Override
-//				public void run() {
-//					try {
-//						final SoundFile soundFile = SoundFile.create(lastFile);
-////						final int duration = readRecordingTrackDuration(context, lastFile);
-//						songDuration = readRecordingTrackDuration(context, lastFile);
-//						Timber.v("Duration = " + songDuration);
-//
-//						AndroidUtils.runOnUIThread(new Runnable() {
-//							@Override
-//							public void run() {
-//								audioPlayer.setData(lastFile);
-//								if (soundFile != null) {
-//									view.showWaveForm(soundFile.getFrameGains());
-//								}
-//								view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration));
-//								view.hideProgress();
-//							}
-//						});
-//					} catch (IOException e) {
-//						Timber.e(e);
-//						AndroidUtils.runOnUIThread(new Runnable() {
-//							@Override
-//							public void run() {
-//								view.showError("Couldn't load audio file!");
-//								view.hideProgress();
-//							}
-//						});
-//					}
-//				}
-//			}.start();
-//		} else {
-//			view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(0));
-//			view.showWaveForm(null);
-//		}
 	}
 
 	@Override
 	public void updateRecordingDir(Context context) {
-		File recDir;
-		if (prefs.isStoreDirPublic()) {
-			recDir = FileUtil.getAppDir();
-		} else {
-			try {
-				recDir = FileUtil.getPrivateRecordsDir(context);
-			} catch (FileNotFoundException e) {
-				Timber.e(e);
-				recDir = FileUtil.getAppDir();
-			}
-		}
-		this.fileRepository.setRecordingDir(recDir);
+		this.fileRepository.updateRecordingDir(context, prefs);
 	}
 
 	@Override

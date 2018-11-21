@@ -16,6 +16,8 @@
 
 package com.dimowner.audiorecorder.data;
 
+import android.content.Context;
+
 import com.dimowner.audiorecorder.exception.CantCreateFileException;
 
 import java.io.File;
@@ -32,6 +34,6 @@ public interface FileRepository {
 
 	void deleteAllRecords();
 
-	void setRecordingDir(File file);
+	void updateRecordingDir(Context context, Prefs prefs);
 
 }

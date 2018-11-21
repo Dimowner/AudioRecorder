@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 
 import timber.log.Timber;
 
+import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.exception.CantCreateFileException;
 import com.dimowner.audiorecorder.util.FileUtil;
 
@@ -35,16 +36,7 @@ public class FileRepositoryImpl implements FileRepository {
 	private volatile static FileRepositoryImpl instance;
 
 	private FileRepositoryImpl(Context context, Prefs prefs) {
-		if (prefs.isStoreDirPublic()) {
-			recordDirectory = FileUtil.getAppDir();
-		} else {
-			try {
-				recordDirectory = FileUtil.getPrivateRecordsDir(context);
-			} catch (FileNotFoundException e) {
-				Timber.e(e);
-				recordDirectory = FileUtil.getAppDir();
-			}
-		}
+		updateRecordingDir(context, prefs);
 	}
 
 	public static FileRepositoryImpl getInstance(Context context, Prefs prefs) {
@@ -97,8 +89,32 @@ public class FileRepositoryImpl implements FileRepository {
 		FileUtil.deleteFile(recordDirectory);
 	}
 
-	@Override
-	public void setRecordingDir(File file) {
-		this.recordDirectory = file;
+	public void updateRecordingDir(Context context, Prefs prefs) {
+		if (prefs.isStoreDirPublic()) {
+			recordDirectory = FileUtil.getAppDir();
+			if (recordDirectory == null) {
+				//Try to init private dir
+				try {
+					recordDirectory = FileUtil.getPrivateRecordsDir(context);
+				} catch (FileNotFoundException e) {
+					Timber.e(e);
+					//If nothing helped then hardcode recording dir
+					recordDirectory = new File("/data/data/" + ARApplication.appPackage() + "/files");
+				}
+			}
+		} else {
+			try {
+				recordDirectory = FileUtil.getPrivateRecordsDir(context);
+			} catch (FileNotFoundException e) {
+				Timber.e(e);
+				//Try to init public dir
+				recordDirectory = FileUtil.getAppDir();
+				if (recordDirectory == null) {
+					//If nothing helped then hardcode recording dir
+					recordDirectory = new File("/data/data/" + ARApplication.appPackage() + "/files");
+				}
+			}
+		}
+		Timber.v("updateRecordingDir: " + recordDirectory.getAbsolutePath());
 	}
 }

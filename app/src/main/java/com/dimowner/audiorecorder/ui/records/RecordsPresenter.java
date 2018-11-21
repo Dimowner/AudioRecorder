@@ -95,7 +95,6 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		this.view = null;
 		this.localRepository.close();
 
-		audioPlayer.stopListenActions();
 		audioPlayer.stop();
 	}
 

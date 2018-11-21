@@ -29,6 +29,7 @@ import timber.log.Timber;
 
 public class ARApplication extends Application {
 
+	private static String PACKAGE_NAME ;
 	public static volatile Handler applicationHandler;
 
 	private int appThemeResource = 0;
@@ -47,6 +48,10 @@ public class ARApplication extends Application {
 
 	public static Injector getInjector() {
 		return injector;
+	}
+
+	public static String appPackage() {
+		return PACKAGE_NAME;
 	}
 
 	private int getThemeResource() {
@@ -72,6 +77,7 @@ public class ARApplication extends Application {
 		super.onCreate();
 //		Fabric.with(this, new Crashlytics());
 
+		PACKAGE_NAME = getApplicationContext().getPackageName();
 		applicationHandler = new Handler(getApplicationContext().getMainLooper());
 
 		injector = new Injector(getApplicationContext());
