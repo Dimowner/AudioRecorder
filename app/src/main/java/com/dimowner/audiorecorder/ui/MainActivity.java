@@ -75,7 +75,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ProgressBar progressBar;
 
 	private boolean isForeground = false;
-	private boolean isLoaded = false;
+//	private boolean isLoaded = false;
 
 	private MainContract.UserActionsListener presenter;
 
@@ -114,10 +114,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		super.onStart();
 		presenter.bindView(this);
 		presenter.updateRecordingDir(getApplicationContext());
-		if (!isLoaded) {
+//		if (!isLoaded) {
 			presenter.loadLastRecord();
-			isLoaded = true;
-		}
+//			isLoaded = true;
+//		}
 	}
 
 	@Override

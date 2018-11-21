@@ -77,7 +77,15 @@ public class LocalRepositoryImpl implements LocalRepository {
 		if (!dataSource.isOpen()) {
 			dataSource.open();
 		}
-		return dataSource.getItem(id);
+		Record r = dataSource.getItem(id);
+		if (isFileExists(r.getPath())) {
+			return r;
+		} else {
+			//If Audio file deleted then delete record about it from local database.
+			dataSource.deleteItem(r.getId());
+			Timber.e("Audio file for this record is lost");
+			return null;
+		}
 	}
 
 	public Record insertRecord(Record record) {
@@ -119,21 +127,40 @@ public class LocalRepositoryImpl implements LocalRepository {
 		if (!dataSource.isOpen()) {
 			dataSource.open();
 		}
-		return dataSource.getAll();
+		List<Record> list = dataSource.getAll();
+		//Remove not records with not existing audio files (which was lost or deleted)
+		for (int i = 0; i < list.size(); i++) {
+			if (!isFileExists(list.get(i).getPath())) {
+				dataSource.deleteItem(list.get(i).getId());
+			}
+		}
+		return list;
 	}
 
 	@Override
 	public Record getLastRecord() {
+		Timber.v("getLastRecord");
 		if (!dataSource.isOpen()) {
 			dataSource.open();
 		}
 		Cursor c = dataSource.queryLocal("SELECT * FROM " + SQLiteHelper.TABLE_RECORDS +
 				" ORDER BY " + SQLiteHelper.COLUMN_ID + " DESC LIMIT 1");
 		if (c != null && c.moveToFirst()) {
-			return dataSource.recordToItem(c);
+			Record r = dataSource.recordToItem(c);
+			if (isFileExists(r.getPath())) {
+				return r;
+			} else {
+				//If Audio file deleted then delete record about it from local database.
+				dataSource.deleteItem(r.getId());
+				return getLastRecord();
+			}
 		} else {
 			return null;
 		}
+	}
+
+	private boolean isFileExists(String path) {
+		return new File(path).exists();
 	}
 
 	public void deleteRecord(int id) {
