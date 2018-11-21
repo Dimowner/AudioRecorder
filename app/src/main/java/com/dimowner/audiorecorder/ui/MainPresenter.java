@@ -19,10 +19,10 @@ package com.dimowner.audiorecorder.ui;
 import android.content.Context;
 
 import com.dimowner.audiorecorder.BackgroundQueue;
-import com.dimowner.audiorecorder.audio.player.AudioPlayerContract;
+import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.audio.player.AudioPlayer;
 import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
-import com.dimowner.audiorecorder.audio.recorder.AudioRecorderContract;
+import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
@@ -30,11 +30,9 @@ import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.CantCreateFileException;
 import com.dimowner.audiorecorder.exception.ErrorParser;
 import com.dimowner.audiorecorder.util.AndroidUtils;
-import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -44,8 +42,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	private MainContract.View view;
 
-	private final AudioRecorder audioRecorder;
-	private final AudioPlayer audioPlayer;
+	private final RecorderContract.UserActions audioRecorder;
+	private final PlayerContract.UserActions audioPlayer;
 	private final BackgroundQueue loadingTasks;
 	private final BackgroundQueue recordingsTasks;
 	private final FileRepository fileRepository;
@@ -53,7 +51,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private final Prefs prefs;
 	private long songDuration = 0;
 
-	private AudioPlayerContract.PlayerActions playListener;
 
 
 	public MainPresenter(final Prefs prefs, final FileRepository fileRepository,
@@ -65,7 +62,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		this.localRepository = localRepository;
 		this.loadingTasks = loadingTasks;
 		this.recordingsTasks = recordingTasks;
-		this.audioRecorder = new AudioRecorder(new AudioRecorderContract.RecorderActions() {
+		this.audioRecorder = new AudioRecorder(new RecorderContract.RecorderActions() {
 			@Override
 			public void onPrepareRecord() {
 				Timber.v("onPrepareRecord");
@@ -121,7 +118,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			}
 		});
 
-		playListener = new AudioPlayerContract.PlayerActions() {
+		this.audioPlayer = new AudioPlayer(new PlayerContract.PlayerActions() {
 
 			@Override
 			public void onPreparePlay() {
@@ -171,8 +168,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			public void onError(Throwable throwable) {
 				Timber.d("onPlayError");
 			}
-		};
-		this.audioPlayer = new AudioPlayer(playListener);
+		});
 	}
 
 	@Override

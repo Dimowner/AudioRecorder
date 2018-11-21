@@ -14,25 +14,27 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.audio.recorder;
+package com.dimowner.audiorecorder.audio.player;
 
-import java.io.File;
+public interface PlayerContract {
 
-public interface AudioRecorderContract {
-
-	interface RecorderActions {
-		void onPrepareRecord();
-		void onStartRecord();
-		void onPauseRecord();
-		void onRecordProgress(long mills, int amp);
-		void onStopRecord(File output);
-		void onError(Exception throwable);
+	interface PlayerActions {
+		void onPreparePlay();
+		void onStartPlay();
+		void onPlayProgress(long mills);
+		void onStopPlay();
+		void onPausePlay();
+		void onSeek(long mills);
+		void onError(Throwable throwable);
 	}
 
 	interface UserActions {
-		void prepare(String outputFile);
-		void startRecording();
-		void pauseRecording();
-		void stopRecording();
+		void setData(String data);
+		void playOrPause();
+		void seek(int pixels);
+		void pause();
+		void stop();
+		boolean isPlaying();
+		void release();
 	}
 }

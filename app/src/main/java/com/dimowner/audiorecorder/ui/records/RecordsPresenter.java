@@ -18,7 +18,7 @@ package com.dimowner.audiorecorder.ui.records;
 
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.Mapper;
-import com.dimowner.audiorecorder.audio.player.AudioPlayerContract;
+import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.audio.player.AudioPlayer;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.Record;
@@ -37,7 +37,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	public RecordsPresenter(final LocalRepository localRepository, BackgroundQueue loadingTasks) {
 		this.localRepository = localRepository;
 		this.loadingTasks = loadingTasks;
-		this.audioPlayer = new AudioPlayer(new AudioPlayerContract.PlayerActions() {
+		this.audioPlayer = new AudioPlayer(new PlayerContract.PlayerActions() {
 
 			@Override
 			public void onPreparePlay() {

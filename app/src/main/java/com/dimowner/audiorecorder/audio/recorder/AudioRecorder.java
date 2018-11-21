@@ -33,7 +33,7 @@ import static com.dimowner.audiorecorder.AppConstants.RECORD_MAX_DURATION;
 import static com.dimowner.audiorecorder.AppConstants.RECORD_SAMPLE_RATE;
 import static com.dimowner.audiorecorder.AppConstants.VISUALIZATION_INTERVAL;
 
-public class AudioRecorder implements AudioRecorderContract.UserActions {
+public class AudioRecorder implements RecorderContract.UserActions {
 
 	private MediaRecorder recorder = null;
 	private File recordFile = null;
@@ -43,9 +43,9 @@ public class AudioRecorder implements AudioRecorderContract.UserActions {
 	private Timer timerProgress;
 	private long progress = 0;
 
-	private AudioRecorderContract.RecorderActions actionsListener;
+	private RecorderContract.RecorderActions actionsListener;
 
-	public AudioRecorder(AudioRecorderContract.RecorderActions actionsListener) {
+	public AudioRecorder(RecorderContract.RecorderActions actionsListener) {
 		this.actionsListener = actionsListener;
 	}
 
@@ -143,6 +143,7 @@ public class AudioRecorder implements AudioRecorderContract.UserActions {
 		progress = 0;
 	}
 
+	@Override
 	public boolean isRecording() {
 		return isRecording;
 	}

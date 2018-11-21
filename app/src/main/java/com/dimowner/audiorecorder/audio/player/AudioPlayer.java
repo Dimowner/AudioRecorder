@@ -27,15 +27,15 @@ import java.util.TimerTask;
 
 import timber.log.Timber;
 
-public class AudioPlayer implements AudioPlayerContract.UserActions {
+public class AudioPlayer implements PlayerContract.UserActions {
 
-	private AudioPlayerContract.PlayerActions actionsListener;
+	private PlayerContract.PlayerActions actionsListener;
 
 	private MediaPlayer mediaPlayer;
 	private Timer timerProgress;
 	private boolean isPrepared = false;
 
-	public AudioPlayer(AudioPlayerContract.PlayerActions playerActions) {
+	public AudioPlayer(PlayerContract.PlayerActions playerActions) {
 		this.actionsListener = playerActions;
 	}
 
