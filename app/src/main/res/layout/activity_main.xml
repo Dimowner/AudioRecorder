@@ -30,6 +30,7 @@
 			android:layout_marginStart="@dimen/spacing_double"
 			android:layout_marginEnd="@dimen/spacing_double"
 			android:layout_marginTop="@dimen/spacing_normal"
+			android:layout_marginBottom="@dimen/spacing_double"
 			android:textColor="@color/text_primary_light"
 			android:textSize="@dimen/text_xlarge"
 			android:textStyle="bold"
@@ -37,8 +38,7 @@
 
 	<FrameLayout
 			android:layout_width="match_parent"
-			android:layout_height="0dp"
-			android:layout_weight="1"
+			android:layout_height="wrap_content"
 			>
 
 		<com.dimowner.audiorecorder.ui.widget.WaveformView
@@ -62,6 +62,17 @@
 				android:layout_gravity="center"/>
 
 	</FrameLayout>
+
+	<TextView
+			android:id="@+id/txt_name"
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1"
+			android:gravity="top|center_horizontal"
+			android:layout_margin="@dimen/spacing_small"
+			android:textColor="@color/text_primary_light"
+			android:textSize="@dimen/text_xmedium"
+			android:text="@string/app_name"/>
 
 	<TextView
 			android:id="@+id/txt_records_count"

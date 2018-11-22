@@ -19,10 +19,13 @@ package com.dimowner.audiorecorder.ui.records;
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
+import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
+import com.dimowner.audiorecorder.util.TimeUtils;
+
 import java.util.List;
 import timber.log.Timber;
 
@@ -32,14 +35,21 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	private final PlayerContract.Player audioPlayer;
 	private PlayerContract.PlayerCallback playerCallback;
 	private final BackgroundQueue loadingTasks;
+	private final BackgroundQueue recordingsTasks;
+	private final FileRepository fileRepository;
 	private final LocalRepository localRepository;
 	private final Prefs prefs;
 
+	private Record record;
 
-	public RecordsPresenter(final LocalRepository localRepository, BackgroundQueue loadingTasks,
-				PlayerContract.Player player, Prefs prefs) {
+
+	public RecordsPresenter(final LocalRepository localRepository, FileRepository fileRepository,
+									BackgroundQueue loadingTasks, BackgroundQueue recordingsTasks,
+									PlayerContract.Player player, Prefs prefs) {
 		this.localRepository = localRepository;
+		this.fileRepository = fileRepository;
 		this.loadingTasks = loadingTasks;
+		this.recordingsTasks = recordingsTasks;
 		this.audioPlayer = player;
 		this.playerCallback = null;
 		this.prefs = prefs;
@@ -67,10 +77,15 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				}
 
 				@Override
-				public void onPlayProgress(long mills) {
+				public void onPlayProgress(final long mills) {
+					Timber.v("onPlayProgress: " + mills);
 					if (view != null) {
-						Timber.v("onPlayProgress: " + mills);
-						view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills));
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override public void run() {
+								if (view != null) {
+									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills));
+								}
+							}});
 					}
 				}
 
@@ -99,6 +114,10 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			};
 		}
 		audioPlayer.addPlayerCallback(playerCallback);
+		if (audioPlayer.isPlaying()) {
+			view.showPlayerPanel();
+			view.showPlayStart();
+		}
 	}
 
 	@Override
@@ -118,10 +137,13 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	}
 
 	@Override
-	public void startPlayback(String path) {
-		Timber.v("startPlayback path: " + path);
-		audioPlayer.setData(path);
-		audioPlayer.playOrPause();
+	public void startPlayback() {
+		if (record != null) {
+			if (!audioPlayer.isPlaying()) {
+				audioPlayer.setData(record.getPath());
+			}
+			audioPlayer.playOrPause();
+		}
 	}
 
 	@Override
@@ -147,18 +169,44 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	}
 
 	@Override
+	public void deleteActiveRecord() {
+		audioPlayer.stop();
+		recordingsTasks.postRunnable(new Runnable() {
+			@Override public void run() {
+				localRepository.deleteRecord(record.getId());
+				fileRepository.deleteRecordFile(record.getPath());
+				prefs.setActiveRecord(-1);
+				final long id = record.getId();
+				record = null;
+				AndroidUtils.runOnUIThread(new Runnable() {
+					@Override public void run() {
+						view.onDeleteRecord(id);
+					}});
+			}
+		});
+	}
+
+	@Override
 	public void loadRecords() {
 		view.showProgress();
+		view.showPanelProgress();
 		loadingTasks.postRunnable(new Runnable() {
 			@Override
 			public void run() {
 				final List<Record> recordList = localRepository.getAllRecords();
+				record = localRepository.getRecord((int) prefs.getActiveRecord());
 				if (recordList.size() > 0) {
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override public void run() {
 							if (view != null) {
 								view.showRecords(Mapper.recordsToListItems(recordList));
+								if (record != null) {
+									view.showWaveForm(record.getAmps());
+									view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(record.getDuration() / 1000));
+									view.showRecordName(record.getName());
+								}
 								view.hideProgress();
+								view.hidePanelProgress();
 							}
 						}});
 				} else {
@@ -172,7 +220,41 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	}
 
 	@Override
-	public void setActiveRecord(long id) {
+	public void setActiveRecord(final long id, final RecordsContract.Callback callback) {
 		prefs.setActiveRecord(id);
+//		view.showProgress();
+		view.showPanelProgress();
+		loadingTasks.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+//				record = localRepository.getActiveRecord();
+				record = localRepository.getRecord((int) id);
+				if (record != null) {
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+//							audioPlayer.setData(record.getPath());
+							view.showWaveForm(record.getAmps());
+							view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(record.getDuration() / 1000));
+							view.showRecordName(record.getName());
+							callback.onSuccess();
+							view.hidePanelProgress();
+							view.showPlayerPanel();
+						}
+					});
+				} else {
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override public void run() {
+							callback.onError(new Exception("Record is NULL!"));
+							view.hidePanelProgress();
+						}});
+				}
+			}
+		});
+	}
+
+	@Override
+	public long getActiveRecordId() {
+		return prefs.getActiveRecord();
 	}
 }

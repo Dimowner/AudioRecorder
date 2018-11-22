@@ -16,8 +16,11 @@
 
 package com.dimowner.audiorecorder.ui.records;
 
+import android.animation.Animator;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,17 +30,24 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
-import com.dimowner.audiorecorder.data.database.Record;
+import com.dimowner.audiorecorder.ui.widget.ScrubberView;
+import com.dimowner.audiorecorder.ui.widget.ThresholdListener;
+import com.dimowner.audiorecorder.ui.widget.TouchLayout;
+import com.dimowner.audiorecorder.ui.widget.WaveformView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
+import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.util.List;
 
-public class RecordsActivity extends Activity implements RecordsContract.View {
+import timber.log.Timber;
+
+public class RecordsActivity extends Activity implements RecordsContract.View, View.OnClickListener {
 
 	private RecyclerView recyclerView;
 	private LinearLayoutManager layoutManager;
@@ -47,6 +57,16 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 	private ProgressBar progressBar;
 	private View bottomDivider;
 	private ImageButton btnPlay;
+	private ImageButton btnStop;
+	private ImageButton btnNext;
+	private ImageButton btnPrev;
+	private ImageButton btnDelete;
+	private TextView txtDuration;
+	private TextView txtName;
+	private TouchLayout touchLayout;
+	private WaveformView waveformView;
+	private ScrubberView scrubberView;
+	private ProgressBar panelProgress;
 
 	private RecordsContract.UserActionsListener presenter;
 
@@ -73,11 +93,37 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 
 		bottomDivider = findViewById(R.id.bottomDivider);
 		progressBar = findViewById(R.id.progress);
+		panelProgress = findViewById(R.id.wave_progress);
 		btnPlay = findViewById(R.id.btn_play);
-		btnPlay.setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View v) {
+		btnStop = findViewById(R.id.btn_stop);
+		btnNext = findViewById(R.id.btn_next);
+		btnPrev = findViewById(R.id.btn_prev);
+		btnDelete = findViewById(R.id.btn_delete);
+		btnPlay.setOnClickListener(this);
+		btnStop.setOnClickListener(this);
+		btnNext.setOnClickListener(this);
+		btnPrev.setOnClickListener(this);
+		btnDelete.setOnClickListener(this);
+
+		txtDuration = findViewById(R.id.txt_duration);
+		txtName = findViewById(R.id.txt_name);
+		waveformView = findViewById(R.id.record);
+		scrubberView = findViewById(R.id.scrubber);
+
+		touchLayout = findViewById(R.id.touch_layout);
+		touchLayout.setOnThresholdListener(new ThresholdListener() {
+			@Override public void onTopThreshold() {
+				hidePanel();
 				presenter.stopPlayback();
-			}});
+			}
+			@Override public void onBottomThreshold() {
+				hidePanel();
+				presenter.stopPlayback();
+			}
+			@Override public void onTouchDown() { }
+			@Override public void onTouchUp() { }
+		});
+
 
 		recyclerView = findViewById(R.id.recycler_view);
 		recyclerView.setHasFixedSize(true);
@@ -109,8 +155,15 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 		adapter.setItemClickListener(new RecordsAdapter.ItemClickListener() {
 			@Override
 			public void onItemClick(View view, long id, String path, int position) {
-				presenter.setActiveRecord(id);
-				presenter.startPlayback(path);
+				presenter.setActiveRecord(id, new RecordsContract.Callback() {
+					@Override public void onSuccess() {
+						presenter.startPlayback();
+					}
+					@Override public void onError(Exception e) {
+						Timber.e(e);
+					}
+				});
+//				showPlayerPanel();
 			}
 		});
 		recyclerView.setAdapter(adapter);
@@ -120,6 +173,105 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 			toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
 		}
 		presenter = ARApplication.getInjector().provideRecordsPresenter();
+	}
+
+	@Override
+	public void showPlayerPanel() {
+		if (touchLayout.getVisibility() != View.VISIBLE) {
+			touchLayout.setVisibility(View.VISIBLE);
+			if (touchLayout.getHeight() == 0) {
+				touchLayout.setTranslationY(AndroidUtils.dpToPx(800));
+			} else {
+				touchLayout.setTranslationY(touchLayout.getHeight());
+			}
+			adapter.showFooter();
+			touchLayout.animate()
+					.translationY(0)
+					.setDuration(200)
+					.setListener(new Animator.AnimatorListener() {
+						@Override public void onAnimationStart(Animator animation) { }
+						@Override public void onAnimationEnd(Animator animation) {
+							recyclerView.smoothScrollBy(0, touchLayout.getHeight());
+						}
+						@Override public void onAnimationCancel(Animator animation) { }
+						@Override public void onAnimationRepeat(Animator animation) { }
+					})
+					.start();
+		}
+//		touchLayout.setReturnPositionY(0);
+	}
+
+	public void hidePanel() {
+		if (touchLayout.getVisibility() == View.VISIBLE) {
+			adapter.hideFooter();
+			touchLayout.animate()
+					.translationY(touchLayout.getHeight())
+					.setDuration(200)
+					.setListener(new Animator.AnimatorListener() {
+						@Override public void onAnimationStart(Animator animation) { }
+						@Override public void onAnimationEnd(Animator animation) {
+							touchLayout.setVisibility(View.GONE);
+//							recyclerView.smoothScrollBy(0, -touchLayout.getHeight());
+						}
+						@Override public void onAnimationCancel(Animator animation) { }
+						@Override public void onAnimationRepeat(Animator animation) { }
+					})
+					.start();
+		}
+	}
+
+	@Override
+	public void onClick(View view) {
+		switch (view.getId()) {
+			case R.id.btn_play:
+				//This method Starts or Pause playback.
+				presenter.startPlayback();
+				break;
+			case R.id.btn_stop:
+				presenter.stopPlayback();
+				hidePanel();
+				break;
+			case R.id.btn_next:
+				presenter.setActiveRecord(adapter.getNextTo(presenter.getActiveRecordId()), new RecordsContract.Callback() {
+					@Override public void onSuccess() {
+						presenter.pausePlayback();
+					}
+					@Override public void onError(Exception e) {
+						Timber.e(e);
+					}
+				});
+				break;
+			case R.id.btn_prev:
+				presenter.setActiveRecord(adapter.getPrevTo(presenter.getActiveRecordId()), new RecordsContract.Callback() {
+					@Override public void onSuccess() {
+						presenter.pausePlayback();
+					}
+					@Override public void onError(Exception e) {
+						Timber.e(e);
+					}
+				});
+				break;
+			case R.id.btn_delete:
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setTitle("Warning")
+						.setMessage("Delete this record?")
+						.setCancelable(false)
+						.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								presenter.deleteActiveRecord();
+								dialog.dismiss();
+							}
+						})
+						.setNegativeButton("No",
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog, int id) {
+										dialog.dismiss();
+									}
+								});
+				AlertDialog alert = builder.create();
+				alert.show();
+				break;
+		}
 	}
 
 	@Override
@@ -176,17 +328,17 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 
 	@Override
 	public void showPlayStart() {
-
+		btnPlay.setImageResource(R.drawable.ic_pause_64);
 	}
 
 	@Override
 	public void showPlayPause() {
-
+		btnPlay.setImageResource(R.drawable.ic_play_64);
 	}
 
 	@Override
 	public void showPlayStop() {
-
+		scrubberView.setCurrentPosition(-1);
 	}
 
 	@Override
@@ -201,22 +353,50 @@ public class RecordsActivity extends Activity implements RecordsContract.View {
 
 	@Override
 	public void showWaveForm(int[] waveForm) {
-
+		waveformView.setWaveform(waveForm);
 	}
 
 	@Override
-	public void showDuration(String duration) {
-
+	public void showDuration(final String duration) {
+		txtDuration.setText(duration);
 	}
 
 	@Override
-	public void onPlayProgress(long mills, int px) {
-
+	public void onPlayProgress(final long mills, final int px) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Timber.v("onPlayProgress: " + px);
+				scrubberView.setCurrentPosition(px);
+				txtDuration.setText(TimeUtils.formatTimeIntervalMinSecMills(mills));
+			}
+		});
 	}
 
 	@Override
 	public void showRecords(List<ListItem> records) {
 		adapter.setData(records);
+	}
+
+	@Override
+	public void showPanelProgress() {
+		panelProgress.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void hidePanelProgress() {
+		panelProgress.setVisibility(View.GONE);
+	}
+
+	@Override
+	public void showRecordName(String name) {
+		txtName.setText(name);
+	}
+
+	@Override
+	public void onDeleteRecord(long id) {
+		adapter.deleteItem(id);
+		hidePanel();
 	}
 
 	@Override

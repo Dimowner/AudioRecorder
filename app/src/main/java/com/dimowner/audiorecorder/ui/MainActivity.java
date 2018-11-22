@@ -66,6 +66,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private TextView txtDuration;
 	private TextView txtTotalDuration;
 	private TextView txtRecordsCount;
+	private TextView txtName;
 	private ImageButton btnPlay;
 	private ImageButton btnRecord;
 	private ImageButton btnStop;
@@ -87,6 +88,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		waveformView = findViewById(R.id.record);
 		txtDuration = findViewById(R.id.txt_duration);
+		txtName = findViewById(R.id.txt_name);
 		btnPlay = findViewById(R.id.btn_play);
 		btnRecord = findViewById(R.id.btn_record);
 		btnStop = findViewById(R.id.btn_stop);
@@ -110,7 +112,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 //		presenter.bindView(this);
 //		presenter.updateRecordingDir(getApplicationContext());
 ////		if (!isLoaded) {
-//		presenter.loadLastRecord();
+//		presenter.loadActiveRecord();
 ////			isLoaded = true;
 ////		}
 	}
@@ -121,7 +123,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		presenter.bindView(this);
 		presenter.updateRecordingDir(getApplicationContext());
 //		if (!isLoaded) {
-			presenter.loadLastRecord();
+			presenter.loadActiveRecord();
 //			isLoaded = true;
 //		}
 	}
@@ -200,7 +202,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void showRecordingStop() {
 		btnRecord.setImageResource(R.drawable.ic_record);
-		presenter.loadLastRecord();
+		presenter.loadActiveRecord();
 		btnPlay.setVisibility(View.VISIBLE);
 		btnStop.setVisibility(View.INVISIBLE);
 	}
@@ -237,6 +239,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
+	public void showName(String name) {
+		txtName.setText(name);
+	}
+
+	@Override
 	public void showTotalRecordsDuration(String duration) {
 		txtTotalDuration.setText(getResources().getString(R.string.total_duration, duration));
 	}
@@ -248,14 +255,14 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void onPlayProgress(final long mills, final int px) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
+//		runOnUiThread(new Runnable() {
+//			@Override
+//			public void run() {
 				Timber.v("onPlayProgress: " + px);
 				scrubberView.setCurrentPosition(px);
 				txtDuration.setText(TimeUtils.formatTimeIntervalMinSecMills(mills));
-			}
-		});
+//			}
+//		});
 	}
 
 	private boolean checkRecordPermission() {

@@ -27,7 +27,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.dimowner.audiorecorder.R;
-import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 
 import java.util.ArrayList;
@@ -55,6 +54,14 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			} else {
 				height = (int) viewGroup.getContext().getResources().getDimension(R.dimen.toolbar_height);
 			}
+
+			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+					LinearLayout.LayoutParams.MATCH_PARENT, height);
+			view.setLayoutParams(lp);
+			return new HeaderViewHolder(view);
+		} else if (type == ListItem.ITEM_TYPE_FOOTER) {
+			View view = new View(viewGroup.getContext());
+			int height = (int) viewGroup.getContext().getResources().getDimension(R.dimen.panel_height);
 
 			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
 					LinearLayout.LayoutParams.MATCH_PARENT, height);
@@ -96,6 +103,57 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		this.data = data;
 		this.data.add(0, ListItem.createHeaderItem());
 		notifyDataSetChanged();
+	}
+
+	public void deleteItem(long id) {
+		for (int i = 0; i < data.size(); i++) {
+			if (data.get(i).getId() == id) {
+				data.remove(i);
+				notifyItemRemoved(i);
+			}
+		}
+	}
+
+	public void showFooter() {
+		if (findFooter() == -1) {
+			this.data.add(ListItem.createFooterItem());
+			notifyItemInserted(data.size()-1);
+		}
+	}
+
+	public void hideFooter() {
+		int pos = findFooter();
+		if (pos != -1) {
+			this.data.remove(pos);
+			notifyItemRemoved(pos);
+		}
+	}
+
+	public long getNextTo(long id) {
+		for (int i = 0; i < data.size()-1; i++) {
+			if (data.get(i).getId() == id) {
+				return data.get(i+1).getId();
+			}
+		}
+		return -1;
+	}
+
+	public long getPrevTo(long id) {
+		for (int i = 1; i < data.size(); i++) {
+			if (data.get(i).getId() == id) {
+				return data.get(i-1).getId();
+			}
+		}
+		return -1;
+	}
+
+	private int findFooter() {
+		for (int i = data.size()-1; i>= 0; i--) {
+			if (data.get(i).getType() == ListItem.ITEM_TYPE_FOOTER) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	public class ItemViewHolder extends RecyclerView.ViewHolder {

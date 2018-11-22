@@ -190,6 +190,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 		if (!audioPlayer.isPlaying()) {
 			view.showPlayStop();
+		} else {
+			view.showPlayStart();
 		}
 	}
 
@@ -269,7 +271,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void loadLastRecord() {
+	public void loadActiveRecord() {
 		view.showProgress();
 		loadingTasks.postRunnable(new Runnable() {
 			@Override
@@ -289,6 +291,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						public void run() {
 //							audioPlayer.setData(record.getPath());
 							view.showWaveForm(record.getAmps());
+							view.showName(record.getName());
 							view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration / 1000));
 							view.showTotalRecordsDuration(TimeUtils.formatTimeIntervalHourMinSec(finalTotalDuration/1000));
 							view.showRecordsCount(durations.size());

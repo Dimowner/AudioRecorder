@@ -9,6 +9,7 @@
 	<string name="store_records_public">Store records in public dir</string>
 	<string name="total_duration">Total records duration: %s</string>
 	<string name="total_record_count">Total records count: %d</string>
+	<string name="delete_all">Delete all records</string>
 
 	<string name="btn_ok">OK</string>
 	<string name="btn_cancel">Cancel</string>

@@ -38,6 +38,8 @@ public interface MainContract {
 
 		void showDuration(String duration);
 
+		void showName(String name);
+
 		void showTotalRecordsDuration(String duration);
 
 		void showRecordsCount(int count);
@@ -59,7 +61,7 @@ public interface MainContract {
 
 		void deleteAll();
 
-		void loadLastRecord();
+		void loadActiveRecord();
 
 		void updateRecordingDir(Context context);
 

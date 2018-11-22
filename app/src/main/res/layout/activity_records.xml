@@ -16,8 +16,9 @@
   -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-				  android:layout_width="match_parent"
-				  android:layout_height="match_parent">
+				 android:layout_width="match_parent"
+				 android:layout_height="match_parent"
+				 xmlns:tools="http://schemas.android.com/tools">
 
 	<android.support.v7.widget.RecyclerView
 			android:id="@+id/recycler_view"
@@ -71,16 +72,149 @@
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"/>
 
-	<ImageButton
-			android:id="@+id/btn_play"
-			android:layout_width="@dimen/bottom_pnl_btn_size"
-			android:layout_height="@dimen/bottom_pnl_btn_size"
-			android:adjustViewBounds="true"
-			android:background="@drawable/button_selector"
-			android:contentDescription="@null"
-			android:layout_gravity="bottom|center"
-			android:focusable="true"
-			android:scaleType="center"
-			android:src="@drawable/ic_play"/>
+	<com.dimowner.audiorecorder.ui.widget.TouchLayout
+			android:id="@+id/touch_layout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:clipToPadding="false"
+			android:layout_gravity="bottom"
+			android:elevation="@dimen/toolbar_elevation"
+			android:visibility="gone"
+			android:background="@drawable/panel_shape"
+			tools:visibility="visible"
+			>
+
+		<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+			<TextView
+					android:id="@+id/txt_duration"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:gravity="center_horizontal"
+					android:padding="@dimen/spacing_small"
+					android:textColor="@color/text_primary_light"
+					android:textSize="@dimen/text_xlarge"
+					android:textStyle="bold"
+					android:text="00:00:00"/>
+
+			<FrameLayout
+					android:layout_width="match_parent"
+					android:layout_height="120dp"
+					>
+
+				<com.dimowner.audiorecorder.ui.widget.WaveformView
+						android:id="@+id/record"
+						android:layout_width="wrap_content"
+						android:layout_height="120dp"
+						android:layout_gravity="center"
+						/>
+
+				<com.dimowner.audiorecorder.ui.widget.ScrubberView
+						android:id="@+id/scrubber"
+						android:layout_width="match_parent"
+						android:layout_height="120dp"
+						android:layout_gravity="center"
+						/>
+
+				<ProgressBar
+						android:id="@+id/wave_progress"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:visibility="gone"
+						android:layout_gravity="center"/>
+
+			</FrameLayout>
+
+			<TextView
+					android:id="@+id/txt_name"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:gravity="center_horizontal"
+					android:padding="@dimen/spacing_tiny"
+					android:textColor="@color/text_primary_light"
+					android:textSize="@dimen/text_medium"
+					android:text="Record 2321"/>
+
+			<LinearLayout
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="bottom|center_horizontal"
+					android:layout_margin="@dimen/spacing_small"
+					android:orientation="horizontal">
+
+				<ImageButton
+						android:id="@+id/btn_prev"
+						android:layout_width="@dimen/bottom_pnl_small_btn_size"
+						android:layout_height="@dimen/bottom_pnl_small_btn_size"
+						android:adjustViewBounds="true"
+						android:background="@drawable/button_selector"
+						android:contentDescription="@null"
+						android:layout_gravity="center"
+						android:scaleType="center"
+						android:src="@drawable/ic_skip_previous"/>
+
+				<View
+						android:layout_width="0dp"
+						android:layout_height="10dp"
+						android:layout_weight="1"
+						/>
+
+				<ImageButton
+						android:id="@+id/btn_delete"
+						android:layout_width="@dimen/bottom_pnl_small_btn_size"
+						android:layout_height="@dimen/bottom_pnl_small_btn_size"
+						android:adjustViewBounds="true"
+						android:background="@drawable/button_selector"
+						android:contentDescription="@null"
+						android:layout_gravity="center"
+						android:scaleType="center"
+						android:src="@drawable/ic_delete_forever_36"/>
+
+				<ImageButton
+						android:id="@+id/btn_play"
+						android:layout_width="64dp"
+						android:layout_height="64dp"
+						android:adjustViewBounds="true"
+						android:background="@drawable/button_selector"
+						android:contentDescription="@null"
+						android:layout_gravity="center"
+						android:scaleType="center"
+						android:layout_marginStart="@dimen/spacing_small"
+						android:layout_marginEnd="@dimen/spacing_small"
+						android:src="@drawable/ic_play_64"/>
+
+				<ImageButton
+						android:id="@+id/btn_stop"
+						android:layout_width="@dimen/bottom_pnl_small_btn_size"
+						android:layout_height="@dimen/bottom_pnl_small_btn_size"
+						android:adjustViewBounds="true"
+						android:background="@drawable/button_selector"
+						android:contentDescription="@null"
+						android:layout_gravity="center"
+						android:scaleType="center"
+						android:src="@drawable/ic_stop"/>
+
+				<View
+						android:layout_width="0dp"
+						android:layout_height="10dp"
+						android:layout_weight="1"
+						/>
+				<ImageButton
+						android:id="@+id/btn_next"
+						android:layout_width="@dimen/bottom_pnl_small_btn_size"
+						android:layout_height="@dimen/bottom_pnl_small_btn_size"
+						android:adjustViewBounds="true"
+						android:background="@drawable/button_selector"
+						android:contentDescription="@null"
+						android:layout_gravity="center"
+						android:scaleType="center"
+						android:src="@drawable/ic_skip_next"/>
+
+			</LinearLayout>
+		</LinearLayout>
+	</com.dimowner.audiorecorder.ui.widget.TouchLayout>
 
 </FrameLayout>

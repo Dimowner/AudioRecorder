@@ -35,6 +35,8 @@ public interface RecordsContract {
 
 		void showPrevRecord();
 
+		void showPlayerPanel();
+
 		void showWaveForm(int[] waveForm);
 
 		void showDuration(String duration);
@@ -42,11 +44,19 @@ public interface RecordsContract {
 		void onPlayProgress(long mills, int px);
 
 		void showRecords(List<ListItem> records);
+
+		void showPanelProgress();
+
+		void hidePanelProgress();
+
+		void showRecordName(String name);
+
+		void onDeleteRecord(long id);
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<RecordsContract.View> {
 
-		void startPlayback(String path);
+		void startPlayback();
 
 		void pausePlayback();
 
@@ -56,8 +66,17 @@ public interface RecordsContract {
 
 		void playPrev();
 
+		void deleteActiveRecord();
+
 		void loadRecords();
 
-		void setActiveRecord(long id);
+		void setActiveRecord(long id, Callback callback);
+
+		long getActiveRecordId();
+	}
+
+	interface Callback {
+		void onSuccess();
+		void onError(Exception e);
 	}
 }

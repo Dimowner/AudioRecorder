@@ -91,8 +91,8 @@ public class Injector {
 
 	public RecordsContract.UserActionsListener provideRecordsPresenter() {
 		if (recordsPresenter == null) {
-			recordsPresenter = new RecordsPresenter(provideLocalRepository(),
-					provideLoadingTasksQueue(), provideAudioPlayer(), providePrefs());
+			recordsPresenter = new RecordsPresenter(provideLocalRepository(), provideFileRepository(),
+					provideLoadingTasksQueue(), provideRecordingTasksQueue(), provideAudioPlayer(), providePrefs());
 		}
 		return recordsPresenter;
 	}

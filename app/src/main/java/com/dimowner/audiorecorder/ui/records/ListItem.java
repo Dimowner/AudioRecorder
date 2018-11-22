@@ -23,6 +23,7 @@ public class ListItem implements Parcelable {
 
 	public final static int ITEM_TYPE_NORMAL = 1;
 	public final static int ITEM_TYPE_HEADER = 2;
+	public final static int ITEM_TYPE_FOOTER = 3;
 
 	private final long id;
 	private final int type;
@@ -43,6 +44,10 @@ public class ListItem implements Parcelable {
 
 	public static ListItem createHeaderItem() {
 		return new ListItem(-1, ListItem.ITEM_TYPE_HEADER, "HEADER", "", "");
+	}
+
+	public static ListItem createFooterItem() {
+		return new ListItem(-1, ListItem.ITEM_TYPE_FOOTER, "HEADER", "", "");
 	}
 
 	public long getId() {
