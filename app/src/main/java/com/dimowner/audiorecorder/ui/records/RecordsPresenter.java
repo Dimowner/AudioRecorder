@@ -65,20 +65,16 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				@Override
 				public void onPreparePlay() {
 					Timber.d("onPreparePlay");
-					// Scroll to start position for the first playback time.
-//				scrollToPlaybackPosition(0);
 				}
 
 				@Override
 				public void onStartPlay() {
 					Timber.d("onStartPlay");
-//				runOnUiThread(() -> playbackView.setStartPosition(SimpleWaveformView.NO_PROGRESS));
 					view.showPlayStart();
 				}
 
 				@Override
 				public void onPlayProgress(final long mills) {
-					Timber.v("onPlayProgress: " + mills);
 					if (view != null) {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override public void run() {
@@ -91,9 +87,10 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 				@Override
 				public void onStopPlay() {
-					view.showPlayStop();
+					if (view != null) {
+						view.showPlayStop();
+					}
 					Timber.d("onStopPlay");
-//				view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration));
 				}
 
 				@Override
@@ -109,7 +106,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 				@Override
 				public void onError(Throwable throwable) {
-					Timber.d("onPlayError");
+					Timber.d("onError");
 				}
 			};
 		}

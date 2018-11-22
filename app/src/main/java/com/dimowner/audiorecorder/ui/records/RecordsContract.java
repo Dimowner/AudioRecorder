@@ -17,7 +17,6 @@
 package com.dimowner.audiorecorder.ui.records;
 
 import com.dimowner.audiorecorder.Contract;
-import com.dimowner.audiorecorder.data.database.Record;
 
 import java.util.List;
 

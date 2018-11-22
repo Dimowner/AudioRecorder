@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.ui.records.RecordsActivity;
 import com.dimowner.audiorecorder.ui.settings.SettingsActivity;
@@ -79,10 +80,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 //	private boolean isLoaded = false;
 
 	private MainContract.UserActionsListener presenter;
+	private ColorMap colorMap;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setTheme(ARApplication.getAppThemeResource(getApplicationContext()));
+		colorMap = ARApplication.getInjector().provideColorMap();
+		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 

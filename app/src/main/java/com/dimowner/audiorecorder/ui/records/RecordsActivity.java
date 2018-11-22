@@ -34,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.ui.widget.ScrubberView;
 import com.dimowner.audiorecorder.ui.widget.ThresholdListener;
@@ -69,6 +70,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private ProgressBar panelProgress;
 
 	private RecordsContract.UserActionsListener presenter;
+	private ColorMap colorMap;
 
 	public static Intent getStartIntent(Context context) {
 		return new Intent(context, RecordsActivity.class);
@@ -76,7 +78,8 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setTheme(ARApplication.getAppThemeResource(getApplicationContext()));
+		colorMap = ARApplication.getInjector().provideColorMap();
+		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_records);
 
@@ -89,7 +92,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				ARApplication.getInjector().clearRecordsPresenter();
 			}});
 		toolbar = findViewById(R.id.toolbar);
-		toolbar.setBackgroundResource(ARApplication.getPrimaryColorRes(getApplicationContext()));
+		toolbar.setBackgroundResource(colorMap.getPrimaryColorRes());
 
 		bottomDivider = findViewById(R.id.bottomDivider);
 		progressBar = findViewById(R.id.progress);
@@ -111,6 +114,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		scrubberView = findViewById(R.id.scrubber);
 
 		touchLayout = findViewById(R.id.touch_layout);
+		touchLayout.setBackgroundResource(colorMap.getPlaybackPanelBackground());
 		touchLayout.setOnThresholdListener(new ThresholdListener() {
 			@Override public void onTopThreshold() {
 				hidePanel();
@@ -253,16 +257,17 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				break;
 			case R.id.btn_delete:
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle("Warning")
-						.setMessage("Delete this record?")
+				builder.setTitle(R.string.warning)
+						.setIcon(R.drawable.ic_delete_forever)
+						.setMessage(R.string.delete_record)
 						.setCancelable(false)
-						.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+						.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
 								presenter.deleteActiveRecord();
 								dialog.dismiss();
 							}
 						})
-						.setNegativeButton("No",
+						.setNegativeButton(R.string.btn_no,
 								new DialogInterface.OnClickListener() {
 									public void onClick(DialogInterface dialog, int id) {
 										dialog.dismiss();
@@ -339,6 +344,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	@Override
 	public void showPlayStop() {
 		scrubberView.setCurrentPosition(-1);
+		btnPlay.setImageResource(R.drawable.ic_play_64);
 	}
 
 	@Override

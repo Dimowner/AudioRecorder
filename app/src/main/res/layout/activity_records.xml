@@ -80,7 +80,7 @@
 			android:layout_gravity="bottom"
 			android:elevation="@dimen/toolbar_elevation"
 			android:visibility="gone"
-			android:background="@drawable/panel_shape"
+			android:background="@drawable/panel_amber"
 			tools:visibility="visible"
 			>
 

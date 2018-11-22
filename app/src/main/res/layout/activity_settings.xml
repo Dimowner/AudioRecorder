@@ -78,7 +78,7 @@
 	</LinearLayout>
 
 	<TextView
-			android:id="@+id/someSetting"
+			android:id="@+id/btnDeleteAll"
 			style="@style/Text.NormalLabel"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

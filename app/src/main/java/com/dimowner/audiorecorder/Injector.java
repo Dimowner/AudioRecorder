@@ -76,6 +76,10 @@ public class Injector {
 		return recordingTasks;
 	}
 
+	public ColorMap provideColorMap() {
+		return ColorMap.getInstance();
+	}
+
 	public PlayerContract.Player provideAudioPlayer() {
 		return AudioPlayer.getInstance();
 	}

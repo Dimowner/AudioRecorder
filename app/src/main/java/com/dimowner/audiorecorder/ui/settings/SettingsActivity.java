@@ -47,16 +47,18 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setTheme(ARApplication.getAppThemeResource(getApplicationContext()));
+		setTheme(ARApplication.getInjector().provideColorMap().getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
 
 		ImageButton btnBack = findViewById(R.id.btn_back);
+		TextView btnDeleteAll = findViewById(R.id.btnDeleteAll);
 		TextView btnLicences = findViewById(R.id.btnLicences);
 		TextView btnRate = findViewById(R.id.btnRate);
 		TextView txtAbout = findViewById(R.id.txtAbout);
 		txtAbout.setText(getAboutContent());
 		btnBack.setOnClickListener(this);
+		btnDeleteAll.setOnClickListener(this);
 		btnLicences.setOnClickListener(this);
 		btnRate.setOnClickListener(this);
 		Switch swPublicDir = findViewById(R.id.swPublicDir);
