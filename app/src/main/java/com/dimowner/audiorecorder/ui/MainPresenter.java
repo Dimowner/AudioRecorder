@@ -96,10 +96,14 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				Timber.v("onStopRecord file = %s", output.getAbsolutePath());
 				view.showProgress();
 				recordingTasks.postRunnable(new Runnable() {
+
+					long id = -1;
+
 					@Override
 					public void run() {
+
 						try {
-							long id = localRepository.insertFile(output.getAbsolutePath());
+							id = localRepository.insertFile(output.getAbsolutePath());
 							prefs.setActiveRecord(id);
 						} catch (IOException e) {
 							Timber.e(e);
@@ -107,7 +111,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override public void run() {
 								view.hideProgress();
-								view.showRecordingStop();
+								view.showRecordingStop(id, output);
 						}});
 					}
 				});
@@ -260,6 +264,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		Timber.v("deleteAll");
 //		prefs.clearLastRecordFile();
 //		loadRecords(null);
+	}
+
+	@Override
+	public void renameRecord(long id, String name) {
+		Timber.v("renameRecord id: " + id + " name: " + name);
 	}
 
 	@Override

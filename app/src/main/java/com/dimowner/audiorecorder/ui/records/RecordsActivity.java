@@ -256,6 +256,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				});
 				break;
 			case R.id.btn_delete:
+				presenter.pausePlayback();
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				builder.setTitle(R.string.warning)
 						.setIcon(R.drawable.ic_delete_forever)
@@ -372,7 +373,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Timber.v("onPlayProgress: " + px);
+//				Timber.v("onPlayProgress: " + px);
 				scrubberView.setCurrentPosition(px);
 				txtDuration.setText(TimeUtils.formatTimeIntervalMinSecMills(mills));
 			}

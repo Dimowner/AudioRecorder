@@ -27,6 +27,6 @@
 	<dimen name="toolbar_height">56dp</dimen>
 	<dimen name="toolbar_elevation">4dp</dimen>
 
-	<dimen name="panel_height">250dp</dimen>
+	<dimen name="panel_height">280dp</dimen>
 
 </resources>

@@ -26,4 +26,8 @@ public interface Prefs {
 
 	long getActiveRecord();
 	void setActiveRecord(long id);
+
+	long getRecordCounter();
+	void incrementRecordCounter();
+
 }

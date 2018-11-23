@@ -20,13 +20,15 @@ import android.content.Context;
 
 import com.dimowner.audiorecorder.Contract;
 
+import java.io.File;
+
 public interface MainContract {
 
 	interface View extends Contract.View {
 
 		void showRecordingStart();
 
-		void showRecordingStop();
+		void showRecordingStop(long id, File file);
 
 		void showPlayStart();
 
@@ -60,6 +62,8 @@ public interface MainContract {
 		void stopPlayback();
 
 		void deleteAll();
+
+		void renameRecord(long id, String name);
 
 		void loadActiveRecord();
 

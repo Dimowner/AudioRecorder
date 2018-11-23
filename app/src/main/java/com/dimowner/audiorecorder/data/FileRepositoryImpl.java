@@ -32,11 +32,13 @@ public class FileRepositoryImpl implements FileRepository {
 	public static final String PRIVATE_DIR_NAME = "records";
 
 	private File recordDirectory;
+	private Prefs prefs;
 
 	private volatile static FileRepositoryImpl instance;
 
 	private FileRepositoryImpl(Context context, Prefs prefs) {
 		updateRecordingDir(context, prefs);
+		this.prefs = prefs;
 	}
 
 	public static FileRepositoryImpl getInstance(Context context, Prefs prefs) {
@@ -52,7 +54,8 @@ public class FileRepositoryImpl implements FileRepository {
 
 	@Override
 	public File provideRecordFile() throws CantCreateFileException {
-		File recordFile = FileUtil.createFile(recordDirectory, FileUtil.generateRecordName());
+		prefs.incrementRecordCounter();
+		File recordFile = FileUtil.createFile(recordDirectory, FileUtil.generateRecordNameCounted(prefs.getRecordCounter()));
 		if (recordFile != null) {
 			Timber.v("provideRecordFile: %s", recordFile.getAbsolutePath() + " isExists = " + recordFile.exists() + " isDir = " + recordFile.isDirectory());
 			return recordFile;
@@ -62,7 +65,8 @@ public class FileRepositoryImpl implements FileRepository {
 
 	@Override
 	public File getRecordFileByName(String name) {
-		File recordFile = new File(recordDirectory.getAbsolutePath() + File.separator + FileUtil.generateRecordName());
+		prefs.incrementRecordCounter();
+		File recordFile = new File(recordDirectory.getAbsolutePath() + File.separator + FileUtil.generateRecordNameCounted(prefs.getRecordCounter()));
 		if (recordFile.exists() && recordFile.isFile()) {
 			return recordFile;
 		}
@@ -72,7 +76,8 @@ public class FileRepositoryImpl implements FileRepository {
 
 	@Override
 	public boolean deleteRecordFileByName(String name) {
-		File recordFile = new File(recordDirectory.getAbsolutePath() + File.separator + FileUtil.generateRecordName());
+		prefs.incrementRecordCounter();
+		File recordFile = new File(recordDirectory.getAbsolutePath() + File.separator + FileUtil.generateRecordNameCounted(prefs.getRecordCounter()));
 		return FileUtil.deleteFile(recordFile);
 	}
 

@@ -18,12 +18,20 @@ package com.dimowner.audiorecorder.ui;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +44,9 @@ import com.dimowner.audiorecorder.ui.settings.SettingsActivity;
 import com.dimowner.audiorecorder.ui.widget.ScrubberView;
 import com.dimowner.audiorecorder.ui.widget.WaveformView;
 import com.dimowner.audiorecorder.util.TimeUtils;
+
+import java.io.File;
+
 import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
@@ -43,7 +54,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Show notification when recording
 // TODO: Make Foreground service for playback
 // TODO: Make Foreground service for recording
-// TODO: Play selected record
 // TODO: Fix playback after orientation change
 // TODO: Show wave forms in records list
 // TODO: Fix main screen panel
@@ -57,7 +67,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Ability to rename record
 // TODO: Welcome screen
 // TODO: Guidelines
-// TODO: Move Theme variables into separate class and put that class into Injector;
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -203,11 +212,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void showRecordingStop() {
+	public void showRecordingStop(long id, File file) {
 		btnRecord.setImageResource(R.drawable.ic_record);
 		presenter.loadActiveRecord();
 		btnPlay.setVisibility(View.VISIBLE);
 		btnStop.setVisibility(View.INVISIBLE);
+		setRecordName(id, file);
 	}
 
 	@Override
@@ -258,14 +268,69 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void onPlayProgress(final long mills, final int px) {
-//		runOnUiThread(new Runnable() {
-//			@Override
-//			public void run() {
-				Timber.v("onPlayProgress: " + px);
-				scrubberView.setCurrentPosition(px);
-				txtDuration.setText(TimeUtils.formatTimeIntervalMinSecMills(mills));
-//			}
-//		});
+//		Timber.v("onPlayProgress: " + px);
+		scrubberView.setCurrentPosition(px);
+		txtDuration.setText(TimeUtils.formatTimeIntervalMinSecMills(mills));
+	}
+
+	public void setRecordName(final long recordId, File file) {
+		//Create dialog layout programmatically.
+		LinearLayout container = new LinearLayout(getApplicationContext());
+		container.setOrientation(LinearLayout.VERTICAL);
+		LinearLayout.LayoutParams containerLp = new LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.WRAP_CONTENT);
+		container.setLayoutParams(containerLp);
+
+		final EditText editText = new EditText(getApplicationContext());
+		ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT,
+				ViewGroup.LayoutParams.WRAP_CONTENT);
+		editText.setLayoutParams(lp);
+		editText.setTextColor(getResources().getColor(R.color.text_primary_light));
+		editText.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_medium));
+
+		int pad = (int) getResources().getDimension(R.dimen.spacing_normal);
+		ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(editText.getLayoutParams());
+		params.setMargins(pad, pad, pad, pad);
+		editText.setLayoutParams(params);
+		container.addView(editText);
+
+		editText.setText(file.getName().substring(0, file.getName().length()-4));
+
+		AlertDialog alertDialog = new AlertDialog.Builder(this)
+				.setTitle(R.string.record_name)
+				.setView(container)
+				.setPositiveButton(R.string.btn_save, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						presenter.renameRecord(recordId, editText.getText().toString());
+						hideKeyboard();
+						dialog.dismiss();
+					}
+				})
+				.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						hideKeyboard();
+						dialog.dismiss();
+					}
+				})
+				.create();
+		alertDialog.show();
+		editText.requestFocus();
+		editText.setSelection(editText.getText().length());
+		showKeyboard();
+	}
+
+	/** Show soft keyboard for a dialog. */
+	public void showKeyboard(){
+		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+	}
+
+	/** Hide soft keyboard after a dialog. */
+	public void hideKeyboard(){
+		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 	}
 
 	private boolean checkRecordPermission() {

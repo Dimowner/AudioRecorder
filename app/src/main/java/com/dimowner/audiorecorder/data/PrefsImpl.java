@@ -29,6 +29,7 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_IS_FIRST_RUN = "is_first_run";
 	private static final String PREF_KEY_IS_STORE_DIR_PUBLIC = "is_store_dir_public";
 	private static final String PREF_KEY_ACTIVE_RECORD = "active_record";
+	private static final String PREF_KEY_RECORD_COUNTER = "record_counter";
 
 	private SharedPreferences sharedPreferences;
 
@@ -82,6 +83,18 @@ public class PrefsImpl implements Prefs {
 	public void setActiveRecord(long id) {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putLong(PREF_KEY_ACTIVE_RECORD, id);
+		editor.apply();
+	}
+
+	@Override
+	public long getRecordCounter() {
+		return sharedPreferences.getLong(PREF_KEY_RECORD_COUNTER, 0);
+	}
+
+	@Override
+	public void incrementRecordCounter() {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putLong(PREF_KEY_RECORD_COUNTER, getRecordCounter()+1);
 		editor.apply();
 	}
 }

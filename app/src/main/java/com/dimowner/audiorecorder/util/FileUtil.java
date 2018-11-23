@@ -52,7 +52,11 @@ public class FileUtil {
 
 	public static String generateRecordName() {
 		long time = System.currentTimeMillis();
-		return "audio_rec_" + time + ".m4a";
+		return "Record-" + time/100 + ".m4a";
+	}
+
+	public static String generateRecordNameCounted(long counter) {
+		return "Record-" + counter + ".m4a";
 	}
 
 	/**

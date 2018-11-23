@@ -19,35 +19,51 @@ package com.dimowner.audiorecorder.ui.records;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.dimowner.audiorecorder.util.TimeUtils;
+
 public class ListItem implements Parcelable {
 
+	//TODO: make base item with type
 	public final static int ITEM_TYPE_NORMAL = 1;
 	public final static int ITEM_TYPE_HEADER = 2;
-	public final static int ITEM_TYPE_FOOTER = 3;
+	public final static int ITEM_TYPE_DATE   = 3;
+	public final static int ITEM_TYPE_FOOTER = 4;
 
 	private final long id;
 	private final int type;
 	private final String name;
 	private final String path;
 	private final String description;
+	private final String durationStr;
+	private final long duration;
+	private final long created;
+	private final String createTime;
 	private final String avatar_url;
 
 
-	public ListItem(long id, int type, String name, String description, String path) {
+	public ListItem(long id, int type, String name, String description, long duration, long created, String path) {
 		this.id = id;
 		this.type = type;
 		this.name = name;
 		this.description = description;
+		this.created = created;
+		this.createTime = convertTimeToStr(created);
+		this.duration = duration;
+		this.durationStr = convertDurationToStr(duration);
 		this.path = path;
 		this.avatar_url = "";
 	}
 
 	public static ListItem createHeaderItem() {
-		return new ListItem(-1, ListItem.ITEM_TYPE_HEADER, "HEADER", "", "");
+		return new ListItem(-1, ListItem.ITEM_TYPE_HEADER, "HEADER", "", 0, 0, "");
 	}
 
 	public static ListItem createFooterItem() {
-		return new ListItem(-1, ListItem.ITEM_TYPE_FOOTER, "HEADER", "", "");
+		return new ListItem(-1, ListItem.ITEM_TYPE_FOOTER, "FOOTER", "", 0, 0, "");
+	}
+
+	public static ListItem createDateItem(long date) {
+		return new ListItem(-1, ListItem.ITEM_TYPE_DATE, "DATE", "", 0, date, "");
 	}
 
 	public long getId() {
@@ -62,6 +78,22 @@ public class ListItem implements Parcelable {
 		return description;
 	}
 
+	public long getCreated() {
+		return created;
+	}
+
+	public String getCreateTimeStr() {
+		return createTime;
+	}
+
+	public String getDurationStr() {
+		return durationStr;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
 	public String getPath() {
 		return path;
 	}
@@ -74,10 +106,24 @@ public class ListItem implements Parcelable {
 		return type;
 	}
 
+	private String convertTimeToStr(long time) {
+		return TimeUtils.formatTime(time);
+	}
+
+	private String convertDurationToStr(long dur) {
+		return TimeUtils.formatTimeIntervalHourMinSec2(dur);
+	}
+
 	//----- START Parcelable implementation ----------
 	private ListItem(Parcel in) {
 		type = in.readInt();
-		id = in.readLong();
+		long[] longs = new long[3];
+		in.readLongArray(longs);
+		id = longs[0];
+		created = longs[1];
+		duration = longs[2];
+		createTime = convertTimeToStr(created);
+		durationStr = convertDurationToStr(duration);
 		String[] data = new String[4];
 		in.readStringArray(data);
 		name = data[0];
@@ -92,7 +138,7 @@ public class ListItem implements Parcelable {
 
 	public void writeToParcel(Parcel out, int flags) {
 		out.writeInt(type);
-		out.writeLong(id);
+		out.writeLongArray(new long[] {id, created, duration});
 		out.writeStringArray(new String[] {name, description, path, avatar_url});
 	}
 
@@ -108,12 +154,19 @@ public class ListItem implements Parcelable {
 	};
 	//----- END Parcelable implementation ----------
 
+
 	@Override
 	public String toString() {
 		return "ListItem{" +
 				"id=" + id +
+				", type=" + type +
 				", name='" + name + '\'' +
+				", path='" + path + '\'' +
 				", description='" + description + '\'' +
+				", durationStr='" + durationStr + '\'' +
+				", duration=" + duration +
+				", created=" + created +
+				", createTime='" + createTime + '\'' +
 				", avatar_url='" + avatar_url + '\'' +
 				'}';
 	}

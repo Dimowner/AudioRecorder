@@ -16,69 +16,135 @@
 
 package com.dimowner.audiorecorder.util;
 
-import com.dimowner.audiorecorder.AppConstants;
+import android.content.Context;
+
+import com.dimowner.audiorecorder.R;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class TimeUtils {
 
-    /** Date format: May 16, 03:30 PM */
-    private static SimpleDateFormat dateFormat12H = new SimpleDateFormat("MMM dd, hh:mm aa", Locale.US);
+	/** Date format: May 16, 03:30 PM */
+	private static SimpleDateFormat dateTimeFormat12H = new SimpleDateFormat("MMM dd, hh:mm aa", Locale.US);
 
-    /** Date format: May 16, 15:30 */
-    private static SimpleDateFormat dateFormat24H = new SimpleDateFormat("MMM dd, HH:mm", Locale.US);
+	/** Date format: May 16, 15:30 */
+	private static SimpleDateFormat dateTimeFormat24H = new SimpleDateFormat("MMM dd, HH:mm", Locale.US);
 
+	/** Date format: May 16 */
+	private static SimpleDateFormat dateFormat24H = new SimpleDateFormat("MMM dd", Locale.US);
 
-    private TimeUtils() {}
+	/** Date format: 22.11.2018, 11:30 */
+	private static SimpleDateFormat dateTimeFormatEU = new SimpleDateFormat("dd.mm.yyyy, HH:mm", Locale.FRANCE);
 
-    public static String formatTimeIntervalMinSec(long length) {
-        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-        long numMinutes = timeUnit.toMinutes(length);
-        long numSeconds = timeUnit.toSeconds(length);
-        return String.format(Locale.getDefault(), "%02d:%02d", numMinutes, numSeconds % 60);
-    }
+	/** Time format: 11:30 */
+	private static SimpleDateFormat timeFormatEU = new SimpleDateFormat("HH:mm", Locale.FRANCE);
 
-    public static String formatTimeIntervalMinSecMills(long mills) {
-        long min = mills/(60 * 1000);
-        long sec = (mills/1000)%60;
-        long m = (mills/10)%100;
-        return String.format(Locale.getDefault(), "%02d:%02d:%02d", min, sec, m);
-    }
+	/** Time format: 22.11.2018 */
+	private static SimpleDateFormat dateFormatEU = new SimpleDateFormat("dd.mm.yyyy", Locale.FRANCE);
 
-    public static String formatTimeIntervalHourMinSec(long mills) {
-        long hour = mills/(60 * 60 * 1000);
-        long min = mills/(60 * 1000);
-        long sec = (mills/1000)%60;
-        if (hour == 0) {
-            if (min == 0) {
-                return String.format(Locale.getDefault(), "%02ds", sec);
-            } else {
-                return String.format(Locale.getDefault(), "%02dm:%02ds", min, sec);
-            }
-        } else {
-            return String.format(Locale.getDefault(), "%02dh:%02dm:%02ds", hour, min, sec);
-        }
-    }
+	private TimeUtils() {
+	}
 
-    public static String formatTime(long timeMills, int timeFormat) {
-        if (timeMills <= 0) {
-            return "";
-        }
-        if (timeFormat == AppConstants.TIME_FORMAT_12H) {
-            return dateFormat12H.format(new Date(timeMills));
-        } else {
-            return dateFormat24H.format(new Date(timeMills));
-        }
-    }
+	public static String formatTimeIntervalMinSec(long length) {
+		TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+		long numMinutes = timeUnit.toMinutes(length);
+		long numSeconds = timeUnit.toSeconds(length);
+		return String.format(Locale.getDefault(), "%02d:%02d", numMinutes, numSeconds % 60);
+	}
 
-    public static String formatTime(long timeMills) {
-        if (timeMills <= 0) {
-            return "";
-        }
-        return dateFormat24H.format(new Date(timeMills));
-    }
+	public static String formatTimeIntervalHourMinSec2(long length) {
+		TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+		long numHour = timeUnit.toHours(length);
+		long numMinutes = timeUnit.toMinutes(length);
+		long numSeconds = timeUnit.toSeconds(length);
+		return String.format(Locale.getDefault(), "%02d:%02d:%02d", numHour, numMinutes, numSeconds % 60);
+	}
 
+	public static String formatTimeIntervalMinSecMills(long mills) {
+		long min = mills / (60 * 1000);
+		long sec = (mills / 1000) % 60;
+		long m = (mills / 10) % 100;
+		return String.format(Locale.getDefault(), "%02d:%02d:%02d", min, sec, m);
+	}
+
+	public static String formatTimeIntervalHourMinSec(long mills) {
+		long hour = mills / (60 * 60 * 1000);
+		long min = mills / (60 * 1000);
+		long sec = (mills / 1000) % 60;
+		if (hour == 0) {
+			if (min == 0) {
+				return String.format(Locale.getDefault(), "%02ds", sec);
+			} else {
+				return String.format(Locale.getDefault(), "%02dm:%02ds", min, sec);
+			}
+		} else {
+			return String.format(Locale.getDefault(), "%02dh:%02dm:%02ds", hour, min, sec);
+		}
+	}
+
+	public static String formatDateSmart(long time, Context ctx) {
+		if (time <= 0) {
+			return "Wrong date!";
+		}
+		Calendar today = Calendar.getInstance();
+		Calendar date = Calendar.getInstance();
+		date.setTimeInMillis(time);
+		if (isSameYear(today, date)) {
+			if (isSameDay(today, date)) {
+				return ctx.getResources().getString(R.string.today);
+			} else {
+				today.add(Calendar.DAY_OF_YEAR, -1); //Make yesterday
+				//Check is yesterday
+				if (isSameDay(today, date)) {
+					return ctx.getResources().getString(R.string.yesterday);
+				} else {
+					return dateFormat24H.format(new Date(time));
+				}
+			}
+		} else {
+			return dateFormatEU.format(new Date(time));
+		}
+	}
+
+	public static String formatTime(long timeMills) {
+		if (timeMills <= 0) {
+			return "";
+		}
+		return timeFormatEU.format(new Date(timeMills));
+	}
+
+	/**
+	 * <p>Checks if two calendars represent the same day ignoring time.</p>
+	 * @param cal1  the first calendar, not altered, not null
+	 * @param cal2  the second calendar, not altered, not null
+	 * @return true if they represent the same day
+	 * @throws IllegalArgumentException if either calendar is <code>null</code>
+	 */
+	public static boolean isSameDay(Calendar cal1, Calendar cal2) {
+		if (cal1 == null || cal2 == null) {
+			throw new IllegalArgumentException("The dates must not be null");
+		}
+		return (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
+				cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+				cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR));
+	}
+
+	/**
+	 * <p>Checks if two calendars represent the same year ignoring time.</p>
+	 * @param cal1  the first calendar, not altered, not null
+	 * @param cal2  the second calendar, not altered, not null
+	 * @return true if they represent the same day
+	 * @throws IllegalArgumentException if either calendar is <code>null</code>
+	 */
+	public static boolean isSameYear(Calendar cal1, Calendar cal2) {
+		if (cal1 == null || cal2 == null) {
+			throw new IllegalArgumentException("The dates must not be null");
+		}
+		return (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
+				cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR));
+	}
 }

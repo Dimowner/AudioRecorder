@@ -16,9 +16,12 @@
 
 package com.dimowner.audiorecorder.ui.records;
 
+import android.graphics.Typeface;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,13 +31,17 @@ import android.widget.TextView;
 
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.util.AndroidUtils;
+import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 	private List<ListItem> data;
+
+	private boolean showDateHeaders = true;
 
 	private ItemClickListener itemClickListener;
 
@@ -58,7 +65,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
 					LinearLayout.LayoutParams.MATCH_PARENT, height);
 			view.setLayoutParams(lp);
-			return new HeaderViewHolder(view);
+			return new UniversalViewHolder(view);
 		} else if (type == ListItem.ITEM_TYPE_FOOTER) {
 			View view = new View(viewGroup.getContext());
 			int height = (int) viewGroup.getContext().getResources().getDimension(R.dimen.panel_height);
@@ -66,7 +73,23 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
 					LinearLayout.LayoutParams.MATCH_PARENT, height);
 			view.setLayoutParams(lp);
-			return new HeaderViewHolder(view);
+			return new UniversalViewHolder(view);
+		} else if (type == ListItem.ITEM_TYPE_DATE) {
+			//Create date list item layout programmatically.
+			TextView textView = new TextView(viewGroup.getContext());
+			ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
+					ViewGroup.LayoutParams.MATCH_PARENT,
+					ViewGroup.LayoutParams.WRAP_CONTENT);
+			textView.setLayoutParams(lp);
+			textView.setTypeface(textView.getTypeface(), Typeface.BOLD);
+
+			textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, viewGroup.getContext().getResources().getDimension(R.dimen.text_medium));
+
+			int pad = (int) viewGroup.getContext().getResources().getDimension(R.dimen.spacing_small);
+			textView.setPadding(pad, pad, pad, pad);
+			textView.setGravity(Gravity.CENTER);
+
+			return new UniversalViewHolder(textView);
 		} else {
 			View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item, viewGroup, false);
 			return new ItemViewHolder(v);
@@ -74,11 +97,13 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int pos) {
+	public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int p) {
 		if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_NORMAL) {
+			final int pos = viewHolder.getAdapterPosition();
 			ItemViewHolder holder = (ItemViewHolder) viewHolder;
 			holder.name.setText(data.get(pos).getName());
-			holder.description.setText(data.get(pos).getDescription());
+			holder.description.setText(data.get(pos).getDurationStr());
+			holder.created.setText(data.get(pos).getCreateTimeStr());
 
 			holder.view.setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View v) {
@@ -86,6 +111,10 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 						itemClickListener.onItemClick(v, data.get(pos).getId(), data.get(pos).getPath(), pos);
 					}
 				}});
+		} else if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_DATE) {
+			final int pos = viewHolder.getAdapterPosition();
+			UniversalViewHolder holder = (UniversalViewHolder) viewHolder;
+			((TextView)holder.view).setText(TimeUtils.formatDateSmart(data.get(pos).getCreated(), holder.view.getContext()));
 		}
 	}
 
@@ -101,8 +130,25 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 	public void setData(List<ListItem> data) {
 		this.data = data;
+		if (showDateHeaders) {
+			addDateHeaders();
+		}
 		this.data.add(0, ListItem.createHeaderItem());
 		notifyDataSetChanged();
+	}
+
+	private void addDateHeaders() {
+		data.add(0, ListItem.createDateItem(data.get(0).getCreated()));
+		Calendar d1 = Calendar.getInstance();
+		d1.setTimeInMillis(data.get(0).getCreated());
+		Calendar d2 = Calendar.getInstance();
+		for (int i = 1; i < data.size(); i++) {
+			d1.setTimeInMillis(data.get(i-1).getCreated());
+			d2.setTimeInMillis(data.get(i).getCreated());
+			if (!TimeUtils.isSameDay(d1, d2)) {
+				data.add(i, ListItem.createDateItem(data.get(i).getCreated()));
+			}
+		}
 	}
 
 	public void deleteItem(long id) {
@@ -156,21 +202,6 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		return -1;
 	}
 
-	public class ItemViewHolder extends RecyclerView.ViewHolder {
-		TextView name;
-		TextView description;
-//		ImageView image;
-		View view;
-
-		public ItemViewHolder(View itemView) {
-			super(itemView);
-			this.view = itemView;
-			this.name = itemView.findViewById(R.id.list_item_name);
-			this.description = itemView.findViewById(R.id.list_item_description);
-//			this.image = itemView.findViewById(R.id.list_item_image);
-		}
-	}
-
 	public void setItemClickListener(ItemClickListener itemClickListener) {
 		this.itemClickListener = itemClickListener;
 	}
@@ -179,10 +210,28 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		void onItemClick(View view, long id, String path, int position);
 	}
 
-	public class HeaderViewHolder extends RecyclerView.ViewHolder {
+
+	public class ItemViewHolder extends RecyclerView.ViewHolder {
+		TextView name;
+		TextView description;
+		TextView created;
+		//		ImageView image;
 		View view;
 
-		public HeaderViewHolder(View view) {
+		public ItemViewHolder(View itemView) {
+			super(itemView);
+			this.view = itemView;
+			this.name = itemView.findViewById(R.id.list_item_name);
+			this.description = itemView.findViewById(R.id.list_item_description);
+			this.created = itemView.findViewById(R.id.list_item_date);
+//			this.image = itemView.findViewById(R.id.list_item_image);
+		}
+	}
+
+	public class UniversalViewHolder extends RecyclerView.ViewHolder {
+		View view;
+
+		public UniversalViewHolder(View view) {
 			super(view);
 			this.view = view;
 		}

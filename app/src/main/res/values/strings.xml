@@ -11,8 +11,13 @@
 	<string name="delete_all">Delete all records</string>
 	<string name="warning">Warning!</string>
 	<string name="delete_record">Delete this record?</string>
+	<string name="record_name">New name</string>
+
+	<string name="today">Today</string>
+	<string name="yesterday">Yesterday</string>
 
 	<string name="btn_ok">OK</string>
+	<string name="btn_save">Save</string>
 	<string name="btn_cancel">Cancel</string>
 	<string name="btn_yes">Yes</string>
 	<string name="btn_no">No</string>
