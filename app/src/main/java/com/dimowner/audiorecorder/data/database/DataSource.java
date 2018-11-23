@@ -111,15 +111,17 @@ public abstract class DataSource<T> {
 	 * Update item in databese for table T.
 	 * @param item Item that will be updated.
 	 */
-	public void updateItem(T item) {
+	public int updateItem(T item) {
 		ContentValues values = itemToContentValues(item);
 		if (values != null && values.containsKey(SQLiteHelper.COLUMN_ID)) {
 			String where = SQLiteHelper.COLUMN_ID + " = "
 					+ values.get(SQLiteHelper.COLUMN_ID);
 			int n = db.update(tableName, values, where, null);
 			Log.d(LOG_TAG, "Updated records count = " + n);
+			return n;
 		} else {
 			Log.e(LOG_TAG, "Unable to update empty item!");
+			return 0;
 		}
 	}
 

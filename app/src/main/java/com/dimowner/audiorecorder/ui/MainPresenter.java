@@ -18,7 +18,9 @@ package com.dimowner.audiorecorder.ui;
 
 import android.content.Context;
 
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
+import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
@@ -29,6 +31,7 @@ import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.CantCreateFileException;
 import com.dimowner.audiorecorder.exception.ErrorParser;
 import com.dimowner.audiorecorder.util.AndroidUtils;
+import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
@@ -267,8 +270,56 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void renameRecord(long id, String name) {
-		Timber.v("renameRecord id: " + id + " name: " + name);
+	public void renameRecord(final long id, final String n) {
+		if (id < 0 || n == null || n.isEmpty()) {
+			AndroidUtils.runOnUIThread(new Runnable() {
+				@Override public void run() { view.showError(R.string.error_failed_to_rename); }});
+			return;
+		}
+		view.showProgress();
+		final String name = FileUtil.removeUnallowedSignsFromName(n);
+		loadingTasks.postRunnable(new Runnable() {
+			@Override public void run() {
+//				TODO: This code need to be refactored!
+				Record r = localRepository.getRecord((int)id);
+				String nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.RECORD_FILE_EXTENSION;
+				File file = new File(r.getPath());
+				File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
+
+				if (renamed.exists()) {
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override public void run() { view.showError(R.string.error_file_exists); }});
+				} else {
+					if (fileRepository.renameFile(r.getPath(), name)) {
+						record = new Record(r.getId(), nameWithExt, r.getDuration(), r.getCreated(), renamed.getAbsolutePath(), r.getAmps());
+						if (localRepository.updateRecord(record)) {
+							AndroidUtils.runOnUIThread(new Runnable() {
+								@Override public void run() {
+									view.hideProgress();
+									view.showName(name);
+								}});
+						} else {
+							AndroidUtils.runOnUIThread(new Runnable() {
+								@Override public void run() { view.showError(R.string.error_failed_to_rename); }});
+							//Restore file name after fail update path in local database.
+							if (renamed.exists()) {
+								//Try to rename 3 times;
+								if (!renamed.renameTo(file)) {
+									if (!renamed.renameTo(file)) {
+										renamed.renameTo(file);
+									}
+								}
+							}
+						}
+
+					} else {
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override public void run() { view.showError(R.string.error_failed_to_rename); }});
+					}
+				}
+				AndroidUtils.runOnUIThread(new Runnable() {
+					@Override public void run() { view.hideProgress(); }});
+			}});
 	}
 
 	@Override
@@ -292,7 +343,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						public void run() {
 //							audioPlayer.setData(record.getPath());
 							view.showWaveForm(record.getAmps());
-							view.showName(record.getName());
+							view.showName(FileUtil.removeFileExtension(record.getName()));
 							view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration / 1000));
 							view.showTotalRecordsDuration(TimeUtils.formatTimeIntervalHourMinSec(finalTotalDuration/1000));
 							view.showRecordsCount(durations.size());

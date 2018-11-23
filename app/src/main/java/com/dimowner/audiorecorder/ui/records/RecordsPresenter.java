@@ -24,6 +24,7 @@ import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
+import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.util.List;
@@ -233,7 +234,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 //							audioPlayer.setData(record.getPath());
 							view.showWaveForm(record.getAmps());
 							view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(record.getDuration() / 1000));
-							view.showRecordName(record.getName());
+							view.showRecordName(FileUtil.removeFileExtension(record.getName()));
 							callback.onSuccess();
 							view.hidePanelProgress();
 							view.showPlayerPanel();

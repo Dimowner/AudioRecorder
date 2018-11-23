@@ -34,6 +34,8 @@ public interface FileRepository {
 
 	void deleteAllRecords();
 
+	boolean renameFile(String path, String newName);
+
 	void updateRecordingDir(Context context, Prefs prefs);
 
 }

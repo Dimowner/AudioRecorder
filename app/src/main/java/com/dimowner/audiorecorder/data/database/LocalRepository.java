@@ -33,6 +33,8 @@ public interface LocalRepository {
 
 	Record insertRecord(Record record);
 
+	boolean updateRecord(Record record);
+
 	long insertFile(String filePath) throws IOException;
 
 	void deleteRecord(int id);

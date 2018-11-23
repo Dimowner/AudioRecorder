@@ -43,11 +43,10 @@ import com.dimowner.audiorecorder.ui.records.RecordsActivity;
 import com.dimowner.audiorecorder.ui.settings.SettingsActivity;
 import com.dimowner.audiorecorder.ui.widget.ScrubberView;
 import com.dimowner.audiorecorder.ui.widget.WaveformView;
+import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
-
-import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
@@ -296,7 +295,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		editText.setLayoutParams(params);
 		container.addView(editText);
 
-		editText.setText(file.getName().substring(0, file.getName().length()-4));
+		editText.setText(FileUtil.removeFileExtension(file.getName()));
 
 		AlertDialog alertDialog = new AlertDialog.Builder(this)
 				.setTitle(R.string.record_name)

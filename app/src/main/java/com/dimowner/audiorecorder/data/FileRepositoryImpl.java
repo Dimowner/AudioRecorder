@@ -94,6 +94,11 @@ public class FileRepositoryImpl implements FileRepository {
 		FileUtil.deleteFile(recordDirectory);
 	}
 
+	@Override
+	public boolean renameFile(String path, String newName) {
+		return FileUtil.renameFile(new File(path), newName);
+	}
+
 	public void updateRecordingDir(Context context, Prefs prefs) {
 		if (prefs.isStoreDirPublic()) {
 			recordDirectory = FileUtil.getAppDir();

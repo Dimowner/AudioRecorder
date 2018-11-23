@@ -98,6 +98,15 @@ public class LocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
+	public boolean updateRecord(Record record) {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		//If updated record count is more than 0, then update is successful.
+		return (dataSource.updateItem(record) > 0);
+	}
+
+	@Override
 	public long insertFile(String path) throws IOException {
 		if (path != null && !path.isEmpty()) {
 			final SoundFile soundFile = SoundFile.create(path);

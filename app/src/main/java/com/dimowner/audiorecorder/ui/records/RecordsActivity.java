@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.ViewPropertyAnimator;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -189,33 +190,38 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				touchLayout.setTranslationY(touchLayout.getHeight());
 			}
 			adapter.showFooter();
-			touchLayout.animate()
-					.translationY(0)
+			final ViewPropertyAnimator animator = touchLayout.animate();
+			animator.translationY(0)
 					.setDuration(200)
 					.setListener(new Animator.AnimatorListener() {
 						@Override public void onAnimationStart(Animator animation) { }
 						@Override public void onAnimationEnd(Animator animation) {
-							recyclerView.smoothScrollBy(0, touchLayout.getHeight());
+							int o = recyclerView.computeVerticalScrollOffset();
+							int r = recyclerView.computeVerticalScrollRange();
+							int e = recyclerView.computeVerticalScrollExtent();
+							float k = (float)o/(float)(r-e);
+							recyclerView.smoothScrollBy(0, (int)(touchLayout.getHeight()*k));
+							animator.setListener(null);
 						}
 						@Override public void onAnimationCancel(Animator animation) { }
 						@Override public void onAnimationRepeat(Animator animation) { }
 					})
 					.start();
 		}
-//		touchLayout.setReturnPositionY(0);
 	}
 
 	public void hidePanel() {
 		if (touchLayout.getVisibility() == View.VISIBLE) {
 			adapter.hideFooter();
-			touchLayout.animate()
-					.translationY(touchLayout.getHeight())
+			final ViewPropertyAnimator animator = touchLayout.animate();
+			animator.translationY(touchLayout.getHeight())
 					.setDuration(200)
 					.setListener(new Animator.AnimatorListener() {
 						@Override public void onAnimationStart(Animator animation) { }
 						@Override public void onAnimationEnd(Animator animation) {
 							touchLayout.setVisibility(View.GONE);
 //							recyclerView.smoothScrollBy(0, -touchLayout.getHeight());
+							animator.setListener(null);
 						}
 						@Override public void onAnimationCancel(Animator animation) { }
 						@Override public void onAnimationRepeat(Animator animation) { }

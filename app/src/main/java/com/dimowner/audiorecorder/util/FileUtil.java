@@ -52,11 +52,23 @@ public class FileUtil {
 
 	public static String generateRecordName() {
 		long time = System.currentTimeMillis();
-		return "Record-" + time/100 + ".m4a";
+		return AppConstants.BASE_RECORD_NAME + time/100 + AppConstants.EXTENSION_SEPARATOR + AppConstants.RECORD_FILE_EXTENSION;
 	}
 
 	public static String generateRecordNameCounted(long counter) {
-		return "Record-" + counter + ".m4a";
+		return AppConstants.BASE_RECORD_NAME + counter + AppConstants.EXTENSION_SEPARATOR + AppConstants.RECORD_FILE_EXTENSION;
+	}
+
+	/**
+	 * Remove file extension from file name;
+	 * @param name File name with extension;
+	 * @return File name without extension or unchanged String if extension was not identified.
+	 */
+	public static String removeFileExtension(String name) {
+		if (name.contains(AppConstants.EXTENSION_SEPARATOR)) {
+			return name.substring(0, name.lastIndexOf(AppConstants.EXTENSION_SEPARATOR));
+		}
+		return name;
 	}
 
 	/**
@@ -204,6 +216,27 @@ public class FileUtil {
 			}
 		}
 		return null;
+	}
+
+	public static boolean renameFile(File file, String newName) {
+		if (!file.exists()) {
+			return false;
+		}
+		Timber.v("old File: " + file.getAbsolutePath());
+		File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + newName + AppConstants.EXTENSION_SEPARATOR + AppConstants.RECORD_FILE_EXTENSION);
+		Timber.v("new File: " + renamed.getAbsolutePath());
+
+		if (!file.renameTo(renamed)) {
+			if (!file.renameTo(renamed)) {
+				return (file.renameTo(renamed));
+			}
+		}
+		return true;
+	}
+
+	public static String removeUnallowedSignsFromName(String name) {
+		String str = name.replaceAll("[^a-zA-Z0-9\\.\\-\\_]", "_");
+		return str;
 	}
 
 	/**
