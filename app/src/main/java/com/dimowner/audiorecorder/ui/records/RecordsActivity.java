@@ -38,6 +38,7 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.ui.widget.ScrubberView;
+import com.dimowner.audiorecorder.ui.widget.SimpleWaveformView;
 import com.dimowner.audiorecorder.ui.widget.ThresholdListener;
 import com.dimowner.audiorecorder.ui.widget.TouchLayout;
 import com.dimowner.audiorecorder.ui.widget.WaveformView;
@@ -134,6 +135,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		recyclerView.setHasFixedSize(true);
 		layoutManager = new LinearLayoutManager(getApplicationContext());
 		recyclerView.setLayoutManager(layoutManager);
+//		recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
 
 		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
@@ -156,6 +158,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			}
 		});
 
+		SimpleWaveformView.setWaveformColorRes(colorMap.getPrimaryColorRes());
 		adapter = new RecordsAdapter();
 		adapter.setItemClickListener(new RecordsAdapter.ItemClickListener() {
 			@Override

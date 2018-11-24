@@ -30,6 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.ui.widget.SimpleWaveformView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
@@ -91,7 +92,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 			return new UniversalViewHolder(textView);
 		} else {
-			View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item, viewGroup, false);
+			View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item2, viewGroup, false);
 			return new ItemViewHolder(v);
 		}
 	}
@@ -104,6 +105,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			holder.name.setText(data.get(pos).getName());
 			holder.description.setText(data.get(pos).getDurationStr());
 			holder.created.setText(data.get(pos).getCreateTimeStr());
+			holder.waveformView.setWaveform(data.get(pos).getAmps());
 
 			holder.view.setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View v) {
@@ -216,6 +218,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		TextView description;
 		TextView created;
 		//		ImageView image;
+		SimpleWaveformView waveformView;
 		View view;
 
 		public ItemViewHolder(View itemView) {
@@ -225,6 +228,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			this.description = itemView.findViewById(R.id.list_item_description);
 			this.created = itemView.findViewById(R.id.list_item_date);
 //			this.image = itemView.findViewById(R.id.list_item_image);
+			this.waveformView = itemView.findViewById(R.id.list_item_waveform);
 		}
 	}
 

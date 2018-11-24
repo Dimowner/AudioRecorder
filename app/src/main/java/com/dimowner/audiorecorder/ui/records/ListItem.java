@@ -39,9 +39,10 @@ public class ListItem implements Parcelable {
 	private final long created;
 	private final String createTime;
 	private final String avatar_url;
+	private int[] amps;
 
 
-	public ListItem(long id, int type, String name, String description, long duration, long created, String path) {
+	public ListItem(long id, int type, String name, String description, long duration, long created, String path, int[] amps) {
 		this.id = id;
 		this.type = type;
 		this.name = name;
@@ -52,18 +53,19 @@ public class ListItem implements Parcelable {
 		this.durationStr = convertDurationToStr(duration);
 		this.path = path;
 		this.avatar_url = "";
+		this.amps = amps;
 	}
 
 	public static ListItem createHeaderItem() {
-		return new ListItem(-1, ListItem.ITEM_TYPE_HEADER, "HEADER", "", 0, 0, "");
+		return new ListItem(-1, ListItem.ITEM_TYPE_HEADER, "HEADER", "", 0, 0, "", null);
 	}
 
 	public static ListItem createFooterItem() {
-		return new ListItem(-1, ListItem.ITEM_TYPE_FOOTER, "FOOTER", "", 0, 0, "");
+		return new ListItem(-1, ListItem.ITEM_TYPE_FOOTER, "FOOTER", "", 0, 0, "", null);
 	}
 
 	public static ListItem createDateItem(long date) {
-		return new ListItem(-1, ListItem.ITEM_TYPE_DATE, "DATE", "", 0, date, "");
+		return new ListItem(-1, ListItem.ITEM_TYPE_DATE, "DATE", "", 0, date, "", null);
 	}
 
 	public long getId() {
@@ -106,6 +108,10 @@ public class ListItem implements Parcelable {
 		return type;
 	}
 
+	public int[] getAmps() {
+		return amps;
+	}
+
 	private String convertTimeToStr(long time) {
 		return TimeUtils.formatTime(time);
 	}
@@ -130,6 +136,7 @@ public class ListItem implements Parcelable {
 		description = data[1];
 		path = data[2];
 		avatar_url = data[3];
+		in.readIntArray(amps);
 	}
 
 	public int describeContents() {
@@ -140,6 +147,7 @@ public class ListItem implements Parcelable {
 		out.writeInt(type);
 		out.writeLongArray(new long[] {id, created, duration});
 		out.writeStringArray(new String[] {name, description, path, avatar_url});
+		out.writeIntArray(amps);
 	}
 
 	public static final Parcelable.Creator<ListItem> CREATOR
@@ -168,6 +176,7 @@ public class ListItem implements Parcelable {
 				", created=" + created +
 				", createTime='" + createTime + '\'' +
 				", avatar_url='" + avatar_url + '\'' +
+				", amps length='" + amps.length+ '\'' +
 				'}';
 	}
 }

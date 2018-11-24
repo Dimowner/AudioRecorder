@@ -18,7 +18,8 @@ public class Mapper {
 				TimeUtils.formatTimeIntervalMinSec(record.getDuration()/1000),
 				record.getDuration()/1000,
 				record.getCreated(),
-				record.getPath());
+				record.getPath(),
+				record.getAmps());
 	}
 
 	public static List<ListItem> recordsToListItems(List<Record> records) {

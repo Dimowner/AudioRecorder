@@ -54,11 +54,19 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Make Foreground service for playback
 // TODO: Make Foreground service for recording
 // TODO: Fix playback after orientation change
+// TODO: Show recording progress on main screen
+// TODO: Do keep recording even if move to next screen or app
+// TODO: Store simplified waveform in local database;
+// TODO: Show available space on main screen
+// TODO: Fix pause/play flow
+// TODO: Add ViewPager to swipe to Settings or Records list
+// TODO: Show waveform for each item in records list behind text info colored the same waveformColorRes as playback panel
+// TODO: Add pagination for records list
 // TODO: Show wave forms in records list
 // TODO: Fix main screen panel
 // TODO: Fix decrease size of RecyclerView or replace it by ListView
 // TODO: Fix waveform adjustment
-// TODO: Settings select Theme color
+// TODO: Settings select Theme waveformColorRes
 // TODO: Settings select Record quality
 // TODO: Settings select Record stereo/mono
 // TODO: Ability to import/export records

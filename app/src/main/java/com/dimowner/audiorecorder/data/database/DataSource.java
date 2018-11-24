@@ -108,7 +108,7 @@ public abstract class DataSource<T> {
 	}
 
 	/**
-	 * Update item in databese for table T.
+	 * Update item in database for table T.
 	 * @param item Item that will be updated.
 	 */
 	public int updateItem(T item) {
@@ -233,6 +233,7 @@ public abstract class DataSource<T> {
 		return c;
 	}
 
+	//TODO: move this method
 	public List<Long> getRecordsDurations() {
 		Cursor cursor = queryLocal("SELECT * FROM " + tableName);
 		ArrayList<Long> items = new ArrayList<>();

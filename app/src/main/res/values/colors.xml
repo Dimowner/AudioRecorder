@@ -8,6 +8,7 @@
 	<color name="text_secondary_dark">#8a000000</color> <!-- 54% -->
 	<color name="text_tertiary_dark">#61000000</color> <!-- 38% -->
 	<color name="text_primary_light">#ffffffff</color>
+	<color name="text_primary_light2">#ccffffff</color>
 	<color name="text_secondary_light">#b3ffffff</color> <!-- 70% -->
 	<color name="text_disabled_light">#4dffffff</color> <!-- 30% -->
 
@@ -24,6 +25,7 @@
 	<color name="md_pink_600">#D81B60</color>
 	<color name="md_pink_700">#C2185B</color>
 	<color name="md_pink_800">#ad1457</color>
+	<color name="md_pink_800x">#a61052</color>
 	<!-- purples -->
 	<color name="md_purple_500">#9C27B0</color>
 	<color name="md_purple_600">#8E24AA</color>

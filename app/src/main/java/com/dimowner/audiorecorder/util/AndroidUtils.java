@@ -97,7 +97,6 @@ public class AndroidUtils {
 	}
 
 	public static void runOnUIThread(Runnable runnable, long delay) {
-		Timber.v("runOnUIThread");
 		if (delay == 0) {
 			ARApplication.applicationHandler.post(runnable);
 		} else {
