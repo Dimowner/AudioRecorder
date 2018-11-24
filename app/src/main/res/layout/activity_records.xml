@@ -97,7 +97,7 @@
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:gravity="center_horizontal"
-					android:padding="@dimen/spacing_small"
+					android:padding="@dimen/spacing_normal"
 					android:textColor="@color/text_primary_light"
 					android:textSize="@dimen/text_xlarge"
 					android:textStyle="bold"
@@ -111,13 +111,6 @@
 				<com.dimowner.audiorecorder.ui.widget.WaveformView
 						android:id="@+id/record"
 						android:layout_width="wrap_content"
-						android:layout_height="120dp"
-						android:layout_gravity="center"
-						/>
-
-				<com.dimowner.audiorecorder.ui.widget.ScrubberView
-						android:id="@+id/scrubber"
-						android:layout_width="match_parent"
 						android:layout_height="120dp"
 						android:layout_gravity="center"
 						/>

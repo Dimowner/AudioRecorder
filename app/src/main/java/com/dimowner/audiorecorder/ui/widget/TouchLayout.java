@@ -83,13 +83,6 @@ public class TouchLayout extends FrameLayout {
 						cumulatedDy = 0;
 						realDy = 0;
 
-//					if (moveAnimationY != null) {
-//						if (moveAnimationY.canSkipToEnd()) {
-//							moveAnimationY.skipToEnd();
-//						} else {
-//							moveAnimationY.cancel();
-//						}
-//					}
 						if (onThresholdListener != null) {
 							onThresholdListener.onTouchDown();
 						}
@@ -114,10 +107,7 @@ public class TouchLayout extends FrameLayout {
 					case MotionEvent.ACTION_UP:
 						Timber.v("UP");
 						performClick();
-//					moveAnimationY = new SpringAnimation(this, DynamicAnimation.TRANSLATION_Y, returnPositionY);
-//					moveAnimationY.getSpring().setStiffness(SpringForce.STIFFNESS_LOW)
-//							.setDampingRatio(SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-//					moveAnimationY.start();
+
 						animate().translationY(returnPositionY).start();
 
 						if (cumulatedDy < -TOP_THRESHOLD) {
@@ -137,10 +127,6 @@ public class TouchLayout extends FrameLayout {
 				return true;
 			}
 		});
-	}
-
-	public void setReturnPositionY(float returnPositionY) {
-		this.returnPositionY = returnPositionY;
 	}
 
 	public void setOnThresholdListener(ThresholdListener onThresholdListener) {

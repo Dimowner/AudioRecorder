@@ -41,7 +41,6 @@ import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.ui.records.RecordsActivity;
 import com.dimowner.audiorecorder.ui.settings.SettingsActivity;
-import com.dimowner.audiorecorder.ui.widget.ScrubberView;
 import com.dimowner.audiorecorder.ui.widget.WaveformView;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
@@ -60,9 +59,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Show available space on main screen
 // TODO: Fix pause/play flow
 // TODO: Add ViewPager to swipe to Settings or Records list
-// TODO: Show waveform for each item in records list behind text info colored the same waveformColorRes as playback panel
 // TODO: Add pagination for records list
-// TODO: Show wave forms in records list
 // TODO: Fix main screen panel
 // TODO: Fix decrease size of RecyclerView or replace it by ListView
 // TODO: Fix waveform adjustment
@@ -72,6 +69,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Ability to import/export records
 // TODO: Ability to share record
 // TODO: Ability to rename record
+// TODO: Ability to search by record name in list
 // TODO: Welcome screen
 // TODO: Guidelines
 
@@ -89,7 +87,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ImageButton btnStop;
 	private ImageButton btnRecordsList;
 	private ImageButton btnSettings;
-	private ScrubberView scrubberView;
 	private ProgressBar progressBar;
 
 	private boolean isForeground = false;
@@ -117,7 +114,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtRecordsCount = findViewById(R.id.txt_records_count);
 		txtTotalDuration= findViewById(R.id.txt_total_duration);
 
-		scrubberView = findViewById(R.id.scrubber);
+//		scrubberView = findViewById(R.id.scrubber);
 
 		btnPlay.setOnClickListener(this);
 		btnRecord.setOnClickListener(this);
@@ -134,6 +131,13 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 //		presenter.loadActiveRecord();
 ////			isLoaded = true;
 ////		}
+
+		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
+			@Override
+			public void onSeek(int px) {
+				presenter.seekPlayback(px);
+			}
+		});
 	}
 
 	@Override
@@ -243,7 +247,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void showPlayStop() {
 		btnPlay.setImageResource(R.drawable.ic_play);
 		btnStop.setVisibility(View.INVISIBLE);
-		scrubberView.setCurrentPosition(-1);
+//		scrubberView.setCurrentPosition(-1);
+		waveformView.setPlayback(-1);
 		btnRecord.setEnabled(true);
 	}
 
@@ -276,7 +281,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void onPlayProgress(final long mills, final int px) {
 //		Timber.v("onPlayProgress: " + px);
-		scrubberView.setCurrentPosition(px);
+//		scrubberView.setCurrentPosition(px);
+		waveformView.setPlayback(px);
 		txtDuration.setText(TimeUtils.formatTimeIntervalMinSecMills(mills));
 	}
 

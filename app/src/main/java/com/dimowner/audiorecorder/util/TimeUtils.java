@@ -51,9 +51,16 @@ public class TimeUtils {
 
 	public static String formatTimeIntervalMinSec(long length) {
 		TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-		long numMinutes = timeUnit.toMinutes(length);
-		long numSeconds = timeUnit.toSeconds(length);
-		return String.format(Locale.getDefault(), "%02d:%02d", numMinutes, numSeconds % 60);
+//		if (length < 0) {
+//			length = -length;
+//			long numMinutes = timeUnit.toMinutes(length);
+//			long numSeconds = timeUnit.toSeconds(length);
+//			return "-" + String.format(Locale.getDefault(), "%02d:%02d", numMinutes, numSeconds % 60);
+//		} else {
+			long numMinutes = timeUnit.toMinutes(length);
+			long numSeconds = timeUnit.toSeconds(length);
+			return String.format(Locale.getDefault(), "%02d:%02d", numMinutes, numSeconds % 60);
+//		}
 	}
 
 	public static String formatTimeIntervalHourMinSec2(long length) {

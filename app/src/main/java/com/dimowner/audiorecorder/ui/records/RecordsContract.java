@@ -59,6 +59,8 @@ public interface RecordsContract {
 
 		void pausePlayback();
 
+		void seekPlayback(int px);
+
 		void stopPlayback();
 
 		void playNext();

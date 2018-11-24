@@ -48,13 +48,6 @@
 				android:layout_gravity="center"
 				/>
 
-		<com.dimowner.audiorecorder.ui.widget.ScrubberView
-				android:id="@+id/scrubber"
-				android:layout_width="match_parent"
-				android:layout_height="200dp"
-				android:layout_gravity="center"
-				/>
-
 		<ProgressBar
 				android:id="@+id/progress"
 				android:layout_width="wrap_content"
@@ -94,7 +87,9 @@
 			android:layout_marginStart="@dimen/spacing_double"
 			android:textSize="@dimen/text_medium"
 			android:text="@string/total_duration"/>
+
 	<TextView
+			android:id="@+id/txt_available_space"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:gravity="start"
@@ -102,6 +97,7 @@
 			android:fontFamily="sans-serif-light"
 			android:layout_marginStart="@dimen/spacing_double"
 			android:textSize="@dimen/text_medium"
+			android:visibility="gone"
 			android:text="Available space: 34h:12m:22s "/>
 
 	<TextView

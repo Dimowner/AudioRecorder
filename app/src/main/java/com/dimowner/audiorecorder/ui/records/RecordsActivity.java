@@ -37,7 +37,6 @@ import android.widget.Toast;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
-import com.dimowner.audiorecorder.ui.widget.ScrubberView;
 import com.dimowner.audiorecorder.ui.widget.SimpleWaveformView;
 import com.dimowner.audiorecorder.ui.widget.ThresholdListener;
 import com.dimowner.audiorecorder.ui.widget.TouchLayout;
@@ -68,7 +67,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private TextView txtName;
 	private TouchLayout touchLayout;
 	private WaveformView waveformView;
-	private ScrubberView scrubberView;
 	private ProgressBar panelProgress;
 
 	private RecordsContract.UserActionsListener presenter;
@@ -112,7 +110,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		txtDuration = findViewById(R.id.txt_duration);
 		txtName = findViewById(R.id.txt_name);
 		waveformView = findViewById(R.id.record);
-		scrubberView = findViewById(R.id.scrubber);
 
 		touchLayout = findViewById(R.id.touch_layout);
 		touchLayout.setBackgroundResource(colorMap.getPlaybackPanelBackground());
@@ -187,6 +184,13 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
 		}
 		presenter = ARApplication.getInjector().provideRecordsPresenter();
+
+		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
+			@Override
+			public void onSeek(int px) {
+				presenter.seekPlayback(px);
+			}
+		});
 	}
 
 	@Override
@@ -360,7 +364,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	public void showPlayStop() {
-		scrubberView.setCurrentPosition(-1);
+		waveformView.setPlayback(-1);
 		btnPlay.setImageResource(R.drawable.ic_play_64);
 	}
 
@@ -390,7 +394,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			@Override
 			public void run() {
 //				Timber.v("onPlayProgress: " + px);
-				scrubberView.setCurrentPosition(px);
+				waveformView.setPlayback(px);
 				txtDuration.setText(TimeUtils.formatTimeIntervalMinSecMills(mills));
 			}
 		});

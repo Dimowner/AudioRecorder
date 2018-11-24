@@ -172,26 +172,27 @@ public class SimpleWaveformView extends View {
 	private void adjustWaveformHeights(int[] frameGains) {
 		int numFrames = frameGains.length;
 		//One frame corresponds one pixel on screen
-		double[] smoothedGains = new double[numFrames];
-		if (numFrames == 1) {
-			smoothedGains[0] = frameGains[0];
-		} else if (numFrames == 2) {
-			smoothedGains[0] = frameGains[0];
-			smoothedGains[1] = frameGains[1];
-		} else if (numFrames > 2) {
-			smoothedGains[0] = (
-					(frameGains[0] / 2.0) +
-							(frameGains[1] / 2.0));
-			for (int i = 1; i < numFrames - 1; i++) {
-				smoothedGains[i] = (
-						(frameGains[i - 1] / 3.0) +
-								(frameGains[i] / 3.0) +
-								(frameGains[i + 1] / 3.0));
-			}
-			smoothedGains[numFrames - 1] = (
-					(frameGains[numFrames - 2] / 2.0) +
-							(frameGains[numFrames - 1] / 2.0));
-		}
+		int[] smoothedGains = frameGains;
+//		double[] smoothedGains = new double[numFrames];
+//		if (numFrames == 1) {
+//			smoothedGains[0] = frameGains[0];
+//		} else if (numFrames == 2) {
+//			smoothedGains[0] = frameGains[0];
+//			smoothedGains[1] = frameGains[1];
+//		} else if (numFrames > 2) {
+//			smoothedGains[0] = (
+//					(frameGains[0] / 2.0) +
+//							(frameGains[1] / 2.0));
+//			for (int i = 1; i < numFrames - 1; i++) {
+//				smoothedGains[i] = (
+//						(frameGains[i - 1] / 3.0) +
+//								(frameGains[i] / 3.0) +
+//								(frameGains[i + 1] / 3.0));
+//			}
+//			smoothedGains[numFrames - 1] = (
+//					(frameGains[numFrames - 2] / 2.0) +
+//							(frameGains[numFrames - 1] / 2.0));
+//		}
 
 		// Make sure the range is no more than 0 - 255
 		double maxGain = 1.0;

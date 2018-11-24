@@ -130,7 +130,7 @@ public class RecordingService extends Service {
 		Notification notification = builder.build();
 
 		// Start foreground service.
-		startForeground(1, notification);
+//		startForeground(1, notification);
 
 	}
 

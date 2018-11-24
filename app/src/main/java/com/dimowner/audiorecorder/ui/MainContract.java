@@ -59,6 +59,8 @@ public interface MainContract {
 
 		void pausePlayback();
 
+		void seekPlayback(int px);
+
 		void stopPlayback();
 
 		void deleteAll();

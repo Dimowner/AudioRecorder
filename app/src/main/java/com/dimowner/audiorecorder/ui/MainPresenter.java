@@ -258,6 +258,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
+	public void seekPlayback(int px) {
+		audioPlayer.seek(px);
+	}
+
+	@Override
 	public void stopPlayback() {
 		audioPlayer.stop();
 	}

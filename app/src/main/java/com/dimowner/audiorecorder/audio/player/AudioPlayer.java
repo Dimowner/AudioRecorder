@@ -150,6 +150,7 @@ public class AudioPlayer implements PlayerContract.Player {
 		}
 		if (mediaPlayer != null) {
 			mediaPlayer.stop();
+			mediaPlayer.setOnCompletionListener(null);
 			isPrepared = false;
 			onStopPlay();
 			mediaPlayer.getCurrentPosition();
