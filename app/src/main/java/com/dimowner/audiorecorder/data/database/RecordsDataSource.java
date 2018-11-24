@@ -56,7 +56,8 @@ public class RecordsDataSource extends DataSource<Record> {
 			values.put(SQLiteHelper.COLUMN_CREATION_DATE, item.getCreated());
 			values.put(SQLiteHelper.COLUMN_PATH, item.getPath());
 			values.put(SQLiteHelper.COLUMN_DATA, item.getData());
-			values.put(SQLiteHelper.COLUMN_DATA_STR, item.getDataStr());
+			//TODO: Remove this field from database.
+			values.put(SQLiteHelper.COLUMN_DATA_STR, "");
 			return values;
 		} else {
 			Timber.e("Can't convert Record with empty Name!");
@@ -73,8 +74,9 @@ public class RecordsDataSource extends DataSource<Record> {
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_DURATION)),
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_CREATION_DATE)),
 				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_PATH)),
-				Record.stringToArray(
-						cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATA_STR)))
+				cursor.getBlob(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATA))
+//				Record.stringToArray(
+//						cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATA_STR)))
 		);
 	}
 }

@@ -16,13 +16,13 @@
 
 package com.dimowner.audiorecorder.data.database;
 
+import com.dimowner.audiorecorder.util.AndroidUtils;
 import java.util.Arrays;
-import timber.log.Timber;
 
 public class Record {
 
 	public static final int NO_ID = -1;
-	private static final String DELIMITER = ",";
+//	private static final String DELIMITER = ",";
 
 	private int id;
 	private String name;
@@ -31,9 +31,7 @@ public class Record {
 	private String path;
 	private int[] amps;
 	private byte[] data;
-	private String dataStr;
-	//TODO: Add duration field.
-
+	//TODO: Remove not needed data clusters.
 
 	public Record(int id, String name, long duration, long created, String path, int[] amps) {
 		this.id = id;
@@ -42,9 +40,17 @@ public class Record {
 		this.created = created;
 		this.path = path;
 		this.amps = amps;
-//		TODO: fix byte array
-		this.data = new byte[1];
-		this.dataStr = arrayToString(amps);
+		this.data = AndroidUtils.int2byte(amps);
+	}
+
+	public Record(int id, String name, long duration, long created, String path, byte[] amps) {
+		this.id = id;
+		this.name = name;
+		this.duration = duration;
+		this.created = created;
+		this.path = path;
+		this.amps = AndroidUtils.byte2int(amps);
+		this.data = amps;
 	}
 
 	public int getId() {
@@ -79,39 +85,35 @@ public class Record {
 		return data;
 	}
 
-	public String getDataStr() {
-		return dataStr;
-	}
-
-	public static int[] stringToArray(String groups) {
-		if (groups != null && !groups.isEmpty()) {
-			String[] grStr = groups.split(DELIMITER);
-			int[] grInt = new int[grStr.length];
-			for (int i = 0; i < grStr.length; i++) {
-				try {
-					grInt[i] = Integer.parseInt(grStr[i]);
-				} catch (NumberFormatException e) {
-					Timber.e(e);
-				}
-			}
-			return grInt;
-		}
-		return new int[0];
-	}
-
-	public static String arrayToString(int[] tokens) {
-		StringBuilder sb = new StringBuilder();
-		boolean firstTime = true;
-		for (Object token: tokens) {
-			if (firstTime) {
-				firstTime = false;
-			} else {
-				sb.append(DELIMITER);
-			}
-			sb.append(token);
-		}
-		return sb.toString();
-	}
+//	public static int[] stringToArray(String groups) {
+//		if (groups != null && !groups.isEmpty()) {
+//			String[] grStr = groups.split(DELIMITER);
+//			int[] grInt = new int[grStr.length];
+//			for (int i = 0; i < grStr.length; i++) {
+//				try {
+//					grInt[i] = Integer.parseInt(grStr[i]);
+//				} catch (NumberFormatException e) {
+//					Timber.e(e);
+//				}
+//			}
+//			return grInt;
+//		}
+//		return new int[0];
+//	}
+//
+//	public static String arrayToString(int[] tokens) {
+//		StringBuilder sb = new StringBuilder();
+//		boolean firstTime = true;
+//		for (Object token: tokens) {
+//			if (firstTime) {
+//				firstTime = false;
+//			} else {
+//				sb.append(DELIMITER);
+//			}
+//			sb.append(token);
+//		}
+//		return sb.toString();
+//	}
 
 	@Override
 	public String toString() {
@@ -122,7 +124,6 @@ public class Record {
 				", created=" + created +
 				", path='" + path + '\'' +
 				", data=" + Arrays.toString(data) +
-				", dataStr='" + dataStr + '\'' +
 				'}';
 	}
 }

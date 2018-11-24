@@ -26,7 +26,8 @@ import android.view.WindowManager;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ARApplication;
 
-import timber.log.Timber;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 /**
  * Android related utilities methods.
@@ -106,5 +107,34 @@ public class AndroidUtils {
 
 	public static void cancelRunOnUIThread(Runnable runnable) {
 		ARApplication.applicationHandler.removeCallbacks(runnable);
+	}
+
+	/**
+	 * Convert int array to byte array
+	 */
+	public static byte[] int2byte(int[] src) {
+		ByteBuffer byteBuffer = ByteBuffer.allocate(src.length * 4);
+		IntBuffer intBuffer = byteBuffer.asIntBuffer();
+		intBuffer.put(src);
+		return byteBuffer.array();
+	}
+
+	/**
+	 * Convert byte array to int array
+	 */
+	public static int[] byte2int(byte[]src) {
+		int dstLength = src.length >>> 2;
+		int[]dst = new int[dstLength];
+
+		for (int i=0; i<dstLength; i++) {
+			int j = i << 2;
+			int x = 0;
+			x += (src[j++] & 0xff) << 0;
+			x += (src[j++] & 0xff) << 8;
+			x += (src[j++] & 0xff) << 16;
+			x += (src[j++] & 0xff) << 24;
+			dst[i] = x;
+		}
+		return dst;
 	}
 }

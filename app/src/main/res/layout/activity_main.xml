@@ -44,7 +44,7 @@
 		<com.dimowner.audiorecorder.ui.widget.WaveformView
 				android:id="@+id/record"
 				android:layout_width="wrap_content"
-				android:layout_height="200dp"
+				android:layout_height="@dimen/waveform_height"
 				android:layout_gravity="center"
 				/>
 

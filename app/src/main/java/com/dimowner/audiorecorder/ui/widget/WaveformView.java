@@ -272,13 +272,14 @@ public class WaveformView extends View {
 							(frameGains[numFrames - 1] / 2.0));
 		}
 
-		// Make sure the range is no more than 0 - 255
+		//Find the highest gain
 		double maxGain = 1.0;
 		for (int i = 0; i < numFrames; i++) {
 			if (smoothedGains[i] > maxGain) {
 				maxGain = smoothedGains[i];
 			}
 		}
+		// Make sure the range is no more than 0 - 255
 		double scaleFactor = 1.0;
 		if (maxGain > 255.0) {
 			scaleFactor = 255 / maxGain;
