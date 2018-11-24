@@ -15,6 +15,7 @@
  */
 
 package com.dimowner.audiorecorder.util;
+import android.animation.Animator;
 import android.annotation.TargetApi;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -24,12 +25,13 @@ public class AnimationUtil {
 	private AnimationUtil() {}
 
 	@TargetApi(21)
-	public static void viewElevationAnimation(View view, float val) {
+	public static void viewElevationAnimation(final View view, float val, Animator.AnimatorListener listener) {
 		view.animate()
 				.translationZ(val)
 				.setDuration(250L)
 				.setInterpolator(AnimationUtils.loadInterpolator(view.getContext(),
 						android.R.interpolator.accelerate_decelerate))
+				.setListener(listener)
 				.start();
 	}
 }

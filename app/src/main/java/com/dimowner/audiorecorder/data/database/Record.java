@@ -40,7 +40,8 @@ public class Record {
 		this.created = created;
 		this.path = path;
 		this.amps = amps;
-		this.data = AndroidUtils.int2byte(amps);
+		this.data = int2byte(amps);
+//		this.data = AndroidUtils.int2byte(amps);
 	}
 
 	public Record(int id, String name, long duration, long created, String path, byte[] amps) {
@@ -49,8 +50,31 @@ public class Record {
 		this.duration = duration;
 		this.created = created;
 		this.path = path;
-		this.amps = AndroidUtils.byte2int(amps);
+		this.amps = byte2int(amps);
+//		this.amps = AndroidUtils.byte2int(amps);
 		this.data = amps;
+	}
+
+	public byte[] int2byte(int[] amps) {
+		byte[] bytes = new byte[amps.length];
+		for (int i = 0; i < amps.length; i++) {
+			if (amps[i] >= 255) {
+				bytes[i] = 127;
+			} else if (amps[i] < 0) {
+				bytes[i] = 0;
+			} else {
+				bytes[i] = (byte)(amps[i]-128);
+			}
+		}
+		return bytes;
+	}
+
+	public int[] byte2int(byte[] amps) {
+		int[] ints = new int[amps.length];
+		for (int i = 0; i < amps.length; i++) {
+			ints[i] = amps[i]+128;
+		}
+		return ints;
 	}
 
 	public int getId() {

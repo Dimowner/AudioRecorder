@@ -94,7 +94,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				ARApplication.getInjector().clearRecordsPresenter();
 			}});
 		toolbar = findViewById(R.id.toolbar);
-		toolbar.setBackgroundResource(colorMap.getPrimaryColorRes());
 
 		bottomDivider = findViewById(R.id.bottomDivider);
 		progressBar = findViewById(R.id.progress);
@@ -144,7 +143,14 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				handleToolbarScroll(dy);
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 					if (isListOnTop()) {
-						AnimationUtil.viewElevationAnimation(toolbar, 0f);
+						AnimationUtil.viewElevationAnimation(toolbar, 0f, new Animator.AnimatorListener() {
+							@Override public void onAnimationStart(Animator animation) { }
+							@Override public void onAnimationEnd(Animator animation) {
+								toolbar.setBackgroundResource(android.R.color.transparent);
+							}
+							@Override public void onAnimationCancel(Animator animation) { }
+							@Override public void onAnimationRepeat(Animator animation) { }
+						});
 					}
 //					else {
 //						AnimationUtil.viewElevationAnimation(toolbar, getResources().getDimension(R.dimen.toolbar_elevation));
@@ -323,6 +329,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			inset = -height;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 				toolbar.setTranslationZ(getResources().getDimension(R.dimen.toolbar_elevation));
+				toolbar.setBackgroundResource(colorMap.getPrimaryColorRes());
 			}
 		}
 
