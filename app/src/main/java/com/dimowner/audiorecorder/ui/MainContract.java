@@ -30,6 +30,8 @@ public interface MainContract {
 
 		void showRecordingStop(long id, File file);
 
+		void onRecordingProgress(long mills, int amp);
+
 		void showPlayStart();
 
 		void showPlayPause();

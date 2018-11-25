@@ -31,7 +31,7 @@ public class AppConstants {
 	/**
 	 * Density pixel count per one second of time.
 	 */
-	public static final int PIXELS_PER_SECOND = 30;
+	public static final int PIXELS_PER_SECOND = 25;
 
 
 	public static final int TIME_FORMAT_24H = 11;
@@ -42,9 +42,7 @@ public class AppConstants {
 	public final static int RECORD_SAMPLE_RATE = 44100;
 	public final static int RECORD_ENCODING_BITRATE = 48000;
 	public final static int RECORD_AUDIO_CHANNELS_COUNT = 2;
-	public final static int RECORD_MAX_DURATION = 300000; // 5 min
-	public final static int RECORDS_AVAILABLE_COUNT = 10;
-	public final static int VISUALIZATION_INTERVAL = 25;
-
+	public final static int RECORD_MAX_DURATION = 600000; // 10 min
+	public final static int VISUALIZATION_INTERVAL = 40;
 
 }

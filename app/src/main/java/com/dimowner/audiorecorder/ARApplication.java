@@ -19,8 +19,8 @@ package com.dimowner.audiorecorder;
 import android.app.Application;
 import android.os.Handler;
 
-//import com.crashlytics.android.Crashlytics;
-//import io.fabric.sdk.android.Fabric;
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 
 import timber.log.Timber;
 
@@ -52,7 +52,7 @@ public class ARApplication extends Application {
 		}
 
 		super.onCreate();
-//		Fabric.with(this, new Crashlytics());
+		Fabric.with(this, new Crashlytics());
 
 		PACKAGE_NAME = getApplicationContext().getPackageName();
 		applicationHandler = new Handler(getApplicationContext().getMainLooper());

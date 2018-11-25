@@ -74,6 +74,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Ability to search by record name in list
 // TODO: Welcome screen
 // TODO: Guidelines
+// TODO: Check how work max recording duration
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -223,6 +224,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnRecord.setImageResource(R.drawable.ic_record_rec);
 		btnPlay.setVisibility(View.INVISIBLE);
 		btnStop.setVisibility(View.VISIBLE);
+		waveformView.showRecording();
 	}
 
 	@Override
@@ -232,6 +234,13 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnPlay.setVisibility(View.VISIBLE);
 		btnStop.setVisibility(View.INVISIBLE);
 		setRecordName(id, file);
+		waveformView.hideRecording();
+		waveformView.clearRecordingData();
+	}
+
+	@Override
+	public void onRecordingProgress(long mills, int amp) {
+		waveformView.addRecordAmp(amp);
 	}
 
 	@Override
@@ -312,14 +321,18 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		editText.setLayoutParams(params);
 		container.addView(editText);
 
-		editText.setText(FileUtil.removeFileExtension(file.getName()));
+		final String fileName = FileUtil.removeFileExtension(file.getName());
+		editText.setText(fileName);
 
 		AlertDialog alertDialog = new AlertDialog.Builder(this)
 				.setTitle(R.string.record_name)
 				.setView(container)
 				.setPositiveButton(R.string.btn_save, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
-						presenter.renameRecord(recordId, editText.getText().toString());
+						String newName = editText.getText().toString();
+						if (!fileName.equalsIgnoreCase(newName)) {
+							presenter.renameRecord(recordId, newName);
+						}
 						hideKeyboard();
 						dialog.dismiss();
 					}

@@ -85,12 +85,13 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			}
 
 			@Override
-			public void onRecordProgress(final long mills, int amplitude) {
+			public void onRecordProgress(final long mills, final int amplitude) {
 				Timber.v("onRecordProgress time = %d, apm = %d", mills, amplitude);
 
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override public void run() {
 						view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(mills));
+						view.onRecordingProgress(mills, amplitude);
 					}});
 			}
 
