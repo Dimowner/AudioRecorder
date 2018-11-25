@@ -47,6 +47,8 @@ import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
 
+import timber.log.Timber;
+
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
 // TODO: Show notification when recording
@@ -135,6 +137,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
 			@Override
 			public void onSeek(int px) {
+				Timber.v("onSeek: " + px);
 				presenter.seekPlayback(px);
 			}
 		});

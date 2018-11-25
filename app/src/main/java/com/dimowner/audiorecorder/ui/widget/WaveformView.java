@@ -58,10 +58,11 @@ public class WaveformView extends View {
 
 	private int[] empty = new int[0];
 
-	private int shift = 0;
+	private volatile int shift = 0;
 	private int prevShift = 0;
 	private float startX = 0;
 	private boolean readPlayProgress = true;
+	private int viewWidth = 0;
 
 	/**
 	 * Values used to prevent call {@link #adjustWaveformHeights} before view is measured because
@@ -99,7 +100,7 @@ public class WaveformView extends View {
 		scrubberPaint.setAntiAlias(false);
 		scrubberPaint.setStyle(Paint.Style.STROKE);
 		scrubberPaint.setStrokeWidth(AndroidUtils.dpToPx(2));
-		scrubberPaint.setColor(context.getResources().getColor(R.color.white));
+		scrubberPaint.setColor(context.getResources().getColor(R.color.colorAccent));
 
 //		selectPaint = new Paint();
 //		selectPaint.setStyle(Paint.Style.FILL);
@@ -129,20 +130,21 @@ public class WaveformView extends View {
 					case MotionEvent.ACTION_DOWN:
 						Timber.v("DOWN");
 						startX = motionEvent.getX();
-						shift = 0;
 						readPlayProgress = false;
 						break;
 					case MotionEvent.ACTION_MOVE:
 						shift = (int)(motionEvent.getX() - startX + prevShift);
-						Timber.v("MOVE: shift = " + shift + " x = " + motionEvent.getX() + " start = " + startX + " prec = " + prevShift);
+						if (shift > viewWidth /2) { shift = viewWidth /2;}
+//						Timber.v("MOVE: shift = " + shift + " x = " + motionEvent.getX()
+//								+ " start = " + startX + " prec = " + prevShift + " half Width= " + viewWidth/2);
 						invalidate();
 
 						break;
 					case MotionEvent.ACTION_UP:
 						Timber.v("UP");
 
-						if (onSeekListener != null && shift < 0) {
-							onSeekListener.onSeek(-shift);
+						if (onSeekListener != null) {
+							onSeekListener.onSeek(-(shift - viewWidth/2));
 						}
 						readPlayProgress = true;
 						prevShift = shift;
@@ -152,6 +154,17 @@ public class WaveformView extends View {
 				return true;
 			}
 		});
+	}
+
+	public void setPlayback(long px) {
+		if (readPlayProgress) {
+			playProgress = px;
+//			Timber.v("setPlayback px: " + playProgress + " shift = " + shift + " half viewWidth: " + viewWidth/2);
+			shift = viewWidth /2 + (int) (-playProgress);
+//			Timber.v("setPlayback new shift = " + shift);
+			prevShift = shift;
+			invalidate();
+		}
 	}
 
 	public void setWaveform(int[] frameGains) {
@@ -166,19 +179,6 @@ public class WaveformView extends View {
 			}
 		}
 		requestLayout();
-	}
-
-	public void setPlayback(long px) {
-		if (readPlayProgress) {
-			playProgress = px;
-			shift = (int) (-playProgress);
-			prevShift = shift;
-			invalidate();
-		}
-	}
-
-	public long getPlaybackPx() {
-		return playProgress;
 	}
 
 	@Override
@@ -197,11 +197,12 @@ public class WaveformView extends View {
 
 		if (!isMeasured) isMeasured = true;
 		// Reconcile the measured dimensions with the this view's constraints and
-		// set the final measured width and height.
+		// set the final measured viewWidth and height.
 		int width = MeasureSpec.getSize(widthMeasureSpec);
 
-//		prevShift = width/2;
-//		shift = prevShift;
+		this.viewWidth = width;
+		prevShift = width/2;
+		shift = prevShift;
 
 		setMeasuredDimension(
 				resolveSize(width, widthMeasureSpec),
@@ -223,7 +224,7 @@ public class WaveformView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-
+		Timber.v("DRAW: shift = " + shift + " start = " + startX + " prec = " + prevShift + " length = " + waveformData.length);
 		if (waveformData == null) {
 			return;
 		}
@@ -235,7 +236,7 @@ public class WaveformView extends View {
 //		if (playProgress >= 0) {
 //			canvas.drawRect(0, 0, playProgress, getMeasuredHeight(), selectPaint);
 //			canvas.drawLine(playProgress, 0, playProgress, getMeasuredHeight(), scrubberPaint);
-			canvas.drawLine(0, 0, 0, getMeasuredHeight(), scrubberPaint);
+			canvas.drawLine(viewWidth /2, 0, viewWidth /2, measuredHeight, scrubberPaint);
 //		}
 		float density = AndroidUtils.dpToPx(1);
 
@@ -253,7 +254,7 @@ public class WaveformView extends View {
 		if (waveformData.length > 2) {
 			lineCount = (int) AndroidUtils.dpToPx(waveformData.length) / PIXEL_PER_SECOND;
 		} else {
-			lineCount = getWidth()/PIXEL_PER_SECOND;
+			lineCount = viewWidth /PIXEL_PER_SECOND;
 		}
 		for (float i = -10f; i < lineCount + 10; i+=2) {
 			//Draw seconds marks

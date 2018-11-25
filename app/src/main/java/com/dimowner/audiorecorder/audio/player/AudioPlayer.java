@@ -36,6 +36,7 @@ public class AudioPlayer implements PlayerContract.Player {
 	private MediaPlayer mediaPlayer;
 	private Timer timerProgress;
 	private boolean isPrepared = false;
+	private long seekPos = 0;
 
 
 	private static class SingletonHolder {
@@ -93,6 +94,7 @@ public class AudioPlayer implements PlayerContract.Player {
 					}
 
 					mediaPlayer.start();
+					mediaPlayer.seekTo((int) seekPos);
 					onStartPlay();
 					mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 						@Override
@@ -107,7 +109,9 @@ public class AudioPlayer implements PlayerContract.Player {
 						@Override
 						public void run() {
 							if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-								onPlayProgress(mediaPlayer.getCurrentPosition());
+								int curPos = mediaPlayer.getCurrentPosition();
+								Timber.v( "CurPos = " + curPos);
+								onPlayProgress(curPos);
 							}
 						}
 					}, 0, AppConstants.VISUALIZATION_INTERVAL);
@@ -122,9 +126,10 @@ public class AudioPlayer implements PlayerContract.Player {
 	@Override
 	public void seek(int pixels) {
 		if (mediaPlayer != null) {
-			double mills = AndroidUtils.convertPxToMills(pixels);
-			mediaPlayer.seekTo((int) mills);
-			onSeek((int) mills);
+			seekPos = AndroidUtils.convertPxToMills(pixels);
+			Timber.v("seekPlayback mills: " + seekPos);
+			mediaPlayer.seekTo((int) seekPos);
+			onSeek((int) seekPos);
 		}
 	}
 
@@ -138,6 +143,7 @@ public class AudioPlayer implements PlayerContract.Player {
 			if (mediaPlayer.isPlaying()) {
 				mediaPlayer.pause();
 				onPausePlay();
+				seekPos = mediaPlayer.getCurrentPosition();
 			}
 		}
 	}
@@ -154,6 +160,7 @@ public class AudioPlayer implements PlayerContract.Player {
 			isPrepared = false;
 			onStopPlay();
 			mediaPlayer.getCurrentPosition();
+			seekPos = 0;
 		}
 	}
 
