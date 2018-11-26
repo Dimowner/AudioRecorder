@@ -64,10 +64,11 @@ public class WaveformView extends View {
 
 	private int[] empty = new int[0];
 
-	private float shift = 0;
-	private int prevShift = 0;
+	private int prevScreenShift = 0;
 	private float startX = 0;
 	private boolean readPlayProgress = true;
+	private int screenShift = 0;
+	private int waveformShift = 0;
 	private int viewWidth = 0;
 
 	/**
@@ -137,25 +138,22 @@ public class WaveformView extends View {
 				switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
 					case MotionEvent.ACTION_DOWN:
 						Timber.v("DOWN");
-						startX = motionEvent.getX();
 						readPlayProgress = false;
+						startX = motionEvent.getX();
 						break;
 					case MotionEvent.ACTION_MOVE:
-						shift = (int)(motionEvent.getX() - startX + prevShift);
-						if (shift > viewWidth /2) { shift = viewWidth /2;}
-//						Timber.v("MOVE: shift = " + shift + " x = " + motionEvent.getX()
-//								+ " start = " + startX + " prec = " + prevShift + " half Width= " + viewWidth/2);
+						Timber.v("MOVE: screenShift = " + screenShift + " waveShift = " + waveformShift + " x = " + motionEvent.getX()
+								+ " start = " + startX );
+						updateShifts((int)(prevScreenShift + (motionEvent.getX()) - startX));
 						invalidate();
-
 						break;
 					case MotionEvent.ACTION_UP:
 						Timber.v("UP");
-
 						if (onSeekListener != null) {
-							onSeekListener.onSeek(-((int)shift - viewWidth/2));
+							onSeekListener.onSeek(-screenShift);
 						}
+						prevScreenShift = screenShift;
 						readPlayProgress = true;
-						prevShift = (int)shift;
 						performClick();
 						break;
 				}
@@ -167,10 +165,10 @@ public class WaveformView extends View {
 	public void setPlayback(long px) {
 		if (readPlayProgress) {
 			playProgress = px;
-//			Timber.v("setPlayback px: " + playProgress + " shift = " + shift + " half viewWidth: " + viewWidth/2);
-			shift = viewWidth /2 + (int) (-playProgress);
-//			Timber.v("setPlayback new shift = " + shift);
-			prevShift = (int)shift;
+			Timber.v("setPlayback px: " + playProgress + " shift = " + waveformShift + " screenShift: " + screenShift);
+			updateShifts((int)-playProgress);
+			prevScreenShift = screenShift;
+			Timber.v("setPlayback new shift = " + screenShift + " waveShift = " + waveformShift);
 			invalidate();
 		}
 	}
@@ -190,20 +188,20 @@ public class WaveformView extends View {
 	}
 
 	public void showRecording() {
-		shift = viewWidth/2;
+		updateShifts(0);
 		showRecording = true;
 	}
 
 	public void hideRecording() {
 		showRecording = false;
-		shift = 0;
+		updateShifts(0);
 	}
 
 	public void addRecordAmp(int amp) {
 		if (amp < 0) {
 			amp = 0;
 		}
-		shift -=AndroidUtils.dpToPx(1);
+		updateShifts((int) -AndroidUtils.dpToPx(recordingData.size()));
 		recordingData.add(convertAmp(amp));
 		invalidate();
 	}
@@ -239,8 +237,8 @@ public class WaveformView extends View {
 		int width = MeasureSpec.getSize(widthMeasureSpec);
 
 		this.viewWidth = width;
-		prevShift = width/2;
-		shift = prevShift;
+		screenShift = 0;
+		waveformShift = viewWidth/2;
 
 		setMeasuredDimension(
 				resolveSize(width, widthMeasureSpec),
@@ -262,7 +260,7 @@ public class WaveformView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-//		Timber.v("DRAW: shift = " + shift + " start = " + startX + " prec = " + prevShift + " length = " + waveformData.length);
+		Timber.v("DRAW: screenShift" + screenShift + " waveShift = " + waveformShift + " start = " + startX + " length = " + waveformData.length);
 		if (waveformData == null && recordingData.size() == 0) {
 			return;
 		}
@@ -280,16 +278,23 @@ public class WaveformView extends View {
 		} else {
 			drawWaveForm(canvas);
 
-
 			float density = AndroidUtils.dpToPx(1);
 
 			//Draw waveform start indication
-			canvas.drawLine(shift, inset, shift, measuredHeight-inset, waveformPaint);
+			canvas.drawLine(waveformShift, inset, waveformShift, measuredHeight-inset, waveformPaint);
 
 			//Draw waveform end indication
-			canvas.drawLine(shift + waveformData.length * density, inset,
-					shift + waveformData.length * density, measuredHeight-inset, waveformPaint);
+			canvas.drawLine(waveformShift + waveformData.length * density, inset,
+					waveformShift + waveformData.length * density, measuredHeight-inset, waveformPaint);
 		}
+	}
+
+	private void updateShifts(int px) {
+		screenShift = px;
+		if (screenShift > 0) {
+			screenShift = 0;
+		}
+		waveformShift = screenShift + viewWidth/2;
 	}
 
 	private void drawGrid(Canvas canvas) {
@@ -302,10 +307,10 @@ public class WaveformView extends View {
 		}
 		for (float i = -10f; i < lineCount + 10; i+=2) {
 			//Draw seconds marks
-			float xPos = i * PIXEL_PER_SECOND + shift;
+			float xPos = i * PIXEL_PER_SECOND + waveformShift;
 			canvas.drawLine(xPos, height-inset, xPos, inset, gridPaint);
 
-			xPos = (i+1) * PIXEL_PER_SECOND + shift;
+			xPos = (i+1) * PIXEL_PER_SECOND + waveformShift;
 			canvas.drawLine(xPos, height - inset, xPos, height - SMALL_LINE_HEIGHT - inset, gridPaint);
 
 			canvas.drawLine(xPos, inset, xPos, SMALL_LINE_HEIGHT + inset, gridPaint);
@@ -313,7 +318,7 @@ public class WaveformView extends View {
 
 		for (float i = 0f; i < lineCount + 10; i+=2) {
 			//Draw seconds marks
-			float xPos = i * PIXEL_PER_SECOND + shift;
+			float xPos = i * PIXEL_PER_SECOND + waveformShift;
 			if (i >= 0) {
 				String text = TimeUtils.formatTimeIntervalMinSec(((long) i) * 1000);
 				//Bottom text
@@ -334,16 +339,16 @@ public class WaveformView extends View {
 			}
 
 			Path path = new Path();
-			path.moveTo(shift, half);
-			path.lineTo(shift, half);
+			path.moveTo(waveformShift, half);
+			path.lineTo(waveformShift, half);
 			float dpi = AndroidUtils.dpToPx(1);
 			for (int i = 1; i < width; i++) {
-				path.lineTo(shift + i * dpi, half - waveformData[i]);
+				path.lineTo(waveformShift + i * dpi, half - waveformData[i]);
 			}
 			for (int i = width - 1; i >= 0; i--) {
-				path.lineTo(shift + i * dpi, half + 1 + waveformData[i]);
+				path.lineTo(waveformShift + i * dpi, half + 1 + waveformData[i]);
 			}
-			path.lineTo(shift, half);
+			path.lineTo(waveformShift, half);
 			path.close();
 			canvas.drawPath(path, waveformPaint);
 		}
@@ -359,16 +364,16 @@ public class WaveformView extends View {
 			}
 
 			Path path = new Path();
-			path.moveTo(shift, half);
-			path.lineTo(shift, half);
+			path.moveTo(waveformShift, half);
+			path.lineTo(waveformShift, half);
 			float dpi = AndroidUtils.dpToPx(1);
 			for (int i = 1; i < width; i++) {
-				path.lineTo(shift + i * dpi, half - recordingData.get(i));
+				path.lineTo(waveformShift + i * dpi, half - recordingData.get(i));
 			}
 			for (int i = width - 1; i >= 0; i--) {
-				path.lineTo(shift + i * dpi, half + 1 + recordingData.get(i));
+				path.lineTo(waveformShift + i * dpi, half + 1 + recordingData.get(i));
 			}
-			path.lineTo(shift, half);
+			path.lineTo(waveformShift, half);
 			path.close();
 			canvas.drawPath(path, waveformPaint);
 		}

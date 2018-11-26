@@ -71,6 +71,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Ability to import/export records
 // TODO: Ability to share record
 // TODO: Ability to rename record
+// TODO: Ability to delete record by swipe left
+// TODO: Ability to scroll up from the bottom of the list
+// TODO: Empty list text and image
 // TODO: Ability to search by record name in list
 // TODO: Welcome screen
 // TODO: Guidelines
