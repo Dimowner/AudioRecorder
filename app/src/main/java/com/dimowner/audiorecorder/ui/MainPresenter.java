@@ -43,6 +43,7 @@ import timber.log.Timber;
 public class MainPresenter implements MainContract.UserActionsListener {
 
 	private MainContract.View view;
+	private MainContract.SimpleView simpleView;
 
 	private final RecorderContract.UserActions audioRecorder;
 	private final PlayerContract.Player audioPlayer;
@@ -54,6 +55,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private final Prefs prefs;
 	private long songDuration = 0;
 	private Record record;
+	private boolean stopRecordingRemote = false;
 
 	public MainPresenter(final Prefs prefs, final FileRepository fileRepository,
 								final LocalRepository localRepository,
@@ -92,12 +94,15 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					@Override public void run() {
 						view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(mills));
 						view.onRecordingProgress(mills, amplitude);
+						if (simpleView != null) {
+							simpleView.onRecordingProgress(mills, amplitude);
+						}
 					}});
 			}
 
 			@Override
 			public void onStopRecord(final File output) {
-				Timber.v("onStopRecord file = %s", output.getAbsolutePath());
+//				Timber.v("onStopRecord file = %s", output.getAbsolutePath());
 				view.showProgress();
 				recordingTasks.postRunnable(new Runnable() {
 
@@ -116,6 +121,10 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							@Override public void run() {
 								view.hideProgress();
 								view.showRecordingStop(id, output);
+								if (!stopRecordingRemote) {
+									view.askRecordingNewName(id, output);
+								}
+								stopRecordingRemote = false;
 						}});
 					}
 				});
@@ -218,10 +227,21 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
+	public void bindSimpleView(MainContract.SimpleView view) {
+		this.simpleView = view;
+	}
+
+	@Override
+	public void unbindSimpleView() {
+		this.simpleView = null;
+	}
+
+	@Override
 	public void startRecording() {
 		Timber.v("startRecording");
 		if (!audioRecorder.isRecording()) {
 			try {
+				view.showError("");
 				audioRecorder.prepare(fileRepository.provideRecordFile().getAbsolutePath());
 			} catch (CantCreateFileException e) {
 				view.showError(ErrorParser.parseException(e));
@@ -236,6 +256,15 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	public void stopRecording() {
 		Timber.v("stopRecording");
 		if (audioRecorder.isRecording()) {
+			audioRecorder.stopRecording();
+		}
+	}
+
+	@Override
+	public void stopRecordingRemote() {
+		Timber.v("stopRecordingRemote");
+		if (audioRecorder.isRecording()) {
+			stopRecordingRemote = true;
 			audioRecorder.stopRecording();
 		}
 	}

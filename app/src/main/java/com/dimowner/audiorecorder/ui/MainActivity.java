@@ -51,13 +51,12 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
-// TODO: Show notification when recording
 // TODO: Make Foreground service for playback
 // TODO: Make Foreground service for recording
 // TODO: Fix playback after orientation change
 // TODO: Show recording progress on main screen
 // TODO: Do keep recording even if move to next screen or app
-// TODO: Store simplified waveform in local database;
+// TODO: Store fixed length of waveform in database
 // TODO: Show available space on main screen
 // TODO: Fix pause/play flow
 // TODO: Add ViewPager to swipe to Settings or Records list
@@ -172,6 +171,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			case R.id.btn_play:
 				//This method Starts or Pause playback.
 				presenter.startPlayback();
+//				startForegroundService(new )
 				break;
 			case R.id.btn_record:
 				if (checkRecordPermission()) {
@@ -236,9 +236,14 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		presenter.loadActiveRecord();
 		btnPlay.setVisibility(View.VISIBLE);
 		btnStop.setVisibility(View.INVISIBLE);
-		setRecordName(id, file);
 		waveformView.hideRecording();
 		waveformView.clearRecordingData();
+		isForeground = false;
+	}
+
+	@Override
+	public void askRecordingNewName(long id, File file) {
+		setRecordName(id, file);
 	}
 
 	@Override

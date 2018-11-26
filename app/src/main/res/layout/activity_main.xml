@@ -150,10 +150,8 @@
 					android:layout_height="@dimen/bottom_pnl_small_btn_size"
 					android:adjustViewBounds="true"
 					android:background="?android:selectableItemBackgroundBorderless"
-					android:clickable="true"
 					android:contentDescription="@null"
 					android:layout_gravity="center"
-					android:focusable="true"
 					android:visibility="invisible"
 					android:scaleType="center"
 					android:src="@drawable/ic_play"/>
@@ -165,9 +163,7 @@
 					android:layout_margin="@dimen/spacing_small"
 					android:adjustViewBounds="true"
 					android:background="?android:selectableItemBackgroundBorderless"
-					android:clickable="true"
 					android:contentDescription="@null"
-					android:focusable="true"
 					android:scaleType="centerInside"
 					android:src="@drawable/ic_record"/>
 
@@ -177,10 +173,8 @@
 					android:layout_height="@dimen/bottom_pnl_small_btn_size"
 					android:adjustViewBounds="true"
 					android:background="?android:selectableItemBackgroundBorderless"
-					android:clickable="true"
 					android:contentDescription="@null"
 					android:layout_gravity="center"
-					android:focusable="true"
 					android:visibility="invisible"
 					android:scaleType="center"
 					android:src="@drawable/ic_stop"/>
@@ -195,9 +189,7 @@
 				android:adjustViewBounds="true"
 				android:background="?android:selectableItemBackgroundBorderless"
 				android:layout_gravity="end"
-				android:clickable="true"
 				android:contentDescription="@null"
-				android:focusable="true"
 				android:scaleType="centerInside"
 				android:src="@drawable/ic_list"/>
 

@@ -12,6 +12,7 @@
 	<string name="warning">Warning!</string>
 	<string name="delete_record">Delete this record?</string>
 	<string name="record_name">New name</string>
+	<string name="recording">Recording: %s</string>
 
 	<string name="today">Today</string>
 	<string name="yesterday">Yesterday</string>

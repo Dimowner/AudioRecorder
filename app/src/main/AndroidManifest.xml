@@ -45,6 +45,9 @@
 	    <meta-data
             android:name="io.fabric.ApiKey"
             android:value="a911efb38fc3ed01944c7ea4410acde51d847864" />
+
+		<receiver android:name=".ui.RecordingService$StopRecordingReceiver" />
+
     </application>
 
 </manifest>

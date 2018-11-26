@@ -268,7 +268,7 @@ public class WaveformView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		Timber.v("DRAW: screenShift" + screenShift + " waveShift = " + waveformShift + " start = " + startX + " length = " + waveformData.length);
+//		Timber.v("DRAW: screenShift" + screenShift + " waveShift = " + waveformShift + " start = " + startX + " length = " + waveformData.length);
 		if (waveformData == null && recordingData.size() == 0) {
 			return;
 		}

@@ -30,6 +30,8 @@ public interface MainContract {
 
 		void showRecordingStop(long id, File file);
 
+		void askRecordingNewName(long id, File file);
+
 		void onRecordingProgress(long mills, int amp);
 
 		void showPlayStart();
@@ -51,11 +53,24 @@ public interface MainContract {
 		void onPlayProgress(long mills, int px);
 	}
 
+	interface SimpleView {
+
+		void onPlayProgress(long mills, int px);
+
+		void onRecordingProgress(long mills, int amp);
+	}
+
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
+
+		void bindSimpleView(SimpleView view);
+
+		void unbindSimpleView();
 
 		void startRecording();
 
 		void stopRecording();
+
+		void stopRecordingRemote();
 
 		void startPlayback();
 
