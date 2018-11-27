@@ -107,7 +107,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnPrev.setOnClickListener(this);
 		btnDelete.setOnClickListener(this);
 
-		txtDuration = findViewById(R.id.txt_duration);
+		txtDuration = findViewById(R.id.txt_progress);
 		txtName = findViewById(R.id.txt_name);
 		waveformView = findViewById(R.id.record);
 
@@ -190,6 +190,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			public void onSeek(int px) {
 				presenter.seekPlayback(px);
 			}
+			@Override public void onSeeking(int px) { }
 		});
 	}
 

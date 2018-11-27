@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -42,6 +43,7 @@ import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.ui.records.RecordsActivity;
 import com.dimowner.audiorecorder.ui.settings.SettingsActivity;
 import com.dimowner.audiorecorder.ui.widget.WaveformView;
+import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
@@ -83,6 +85,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public static final int REQ_CODE_WRITE_EXTERNAL_STORAGE = 404;
 
 	private WaveformView waveformView;
+	private TextView txtProgress;
 	private TextView txtDuration;
 	private TextView txtTotalDuration;
 	private TextView txtRecordsCount;
@@ -93,6 +96,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ImageButton btnRecordsList;
 	private ImageButton btnSettings;
 	private ProgressBar progressBar;
+	private ProgressBar playProgress;
 
 //	private boolean isLoaded = false;
 
@@ -107,6 +111,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		setContentView(R.layout.activity_main);
 
 		waveformView = findViewById(R.id.record);
+		txtProgress = findViewById(R.id.txt_progress);
 		txtDuration = findViewById(R.id.txt_duration);
 		txtName = findViewById(R.id.txt_name);
 		btnPlay = findViewById(R.id.btn_play);
@@ -115,6 +120,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnRecordsList = findViewById(R.id.btn_records_list);
 		btnSettings = findViewById(R.id.btn_settings);
 		progressBar = findViewById(R.id.progress);
+		playProgress = findViewById(R.id.play_progress);
+		// Get the Drawable custom_progressbar
+		Drawable draw = getResources().getDrawable(R.drawable.progress_drawable);
+		// set the drawable as progress drawable
+		playProgress.setProgressDrawable(draw);
+
 		txtRecordsCount = findViewById(R.id.txt_records_count);
 		txtTotalDuration= findViewById(R.id.txt_total_duration);
 
@@ -141,6 +152,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			public void onSeek(int px) {
 				Timber.v("onSeek: " + px);
 				presenter.seekPlayback(px);
+			}
+			@Override
+			public void onSeeking(int px) {
+				Timber.v("onSeeking: " + px + " duration: " + waveformView.getWaveformLength()
+						+ " percent: " + 100*px/waveformView.getWaveformLength());
+				playProgress.setProgress(1000*(int)AndroidUtils.pxToDp(px)/waveformView.getWaveformLength());
 			}
 		});
 	}
@@ -236,6 +253,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void onRecordingProgress(long mills, int amp) {
+		txtProgress.setText(TimeUtils.formatTimeIntervalMinSecMills(mills));
 		waveformView.addRecordAmp(amp);
 	}
 
@@ -286,6 +304,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 //		scrubberView.setCurrentPosition(-1);
 		waveformView.setPlayback(-1);
 		btnRecord.setEnabled(true);
+		playProgress.setProgress(0);
 	}
 
 	@Override
@@ -296,7 +315,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showDuration(final String duration) {
-		txtDuration.setText(duration);
+		txtProgress.setText(duration);
+//		TODO: fix substring
+		txtDuration.setText(duration.substring(3, duration.length()));
 	}
 
 	@Override
@@ -315,11 +336,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void onPlayProgress(final long mills, final int px) {
-//		Timber.v("onPlayProgress: " + px);
-//		scrubberView.setCurrentPosition(px);
+	public void onPlayProgress(final long mills, final int px, int percent) {
+		Timber.v("onPlayProgress: " + px + " percent = " + percent);
+		playProgress.setProgress(percent);
 		waveformView.setPlayback(px);
-		txtDuration.setText(TimeUtils.formatTimeIntervalMinSecMills(mills));
+		txtProgress.setText(TimeUtils.formatTimeIntervalMinSecMills(mills));
 	}
 
 	public void setRecordName(final long recordId, File file) {

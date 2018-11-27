@@ -93,7 +93,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override public void run() {
-						view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(mills));
 						view.onRecordingProgress(mills, amplitude);
 						if (simpleView != null) {
 							simpleView.onRecordingProgress(mills, amplitude);
@@ -168,7 +167,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override public void run() {
 								if (view != null) {
-									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills));
+									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills), (int)(1000 * mills/(songDuration/1000)));
 									if (simpleView != null) {
 										simpleView.onPlayProgress(mills);
 									}

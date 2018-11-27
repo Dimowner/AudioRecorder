@@ -152,6 +152,9 @@ public class WaveformView extends View {
 						if (shift > 0) {
 							shift = 0;
 						}
+						if (onSeekListener != null) {
+							onSeekListener.onSeeking(-screenShift);
+						}
 						updateShifts(shift);
 						invalidate();
 						break;
@@ -203,6 +206,10 @@ public class WaveformView extends View {
 	public void hideRecording() {
 		showRecording = false;
 		updateShifts(0);
+	}
+
+	public int getWaveformLength() {
+		return waveformData.length;
 	}
 
 	public void addRecordAmp(int amp) {
@@ -507,5 +514,6 @@ public class WaveformView extends View {
 
 	public interface OnSeekListener {
 		void onSeek(int px);
+		void onSeeking(int px);
 	}
 }

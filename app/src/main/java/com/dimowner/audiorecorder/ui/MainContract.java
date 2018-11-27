@@ -58,7 +58,7 @@ public interface MainContract {
 
 		void showRecordsCount(int count);
 
-		void onPlayProgress(long mills, int px);
+		void onPlayProgress(long mills, int px, int percent);
 	}
 
 	interface SimpleView {
