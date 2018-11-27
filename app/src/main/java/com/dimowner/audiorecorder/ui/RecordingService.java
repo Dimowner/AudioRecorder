@@ -27,19 +27,18 @@ public class RecordingService extends Service implements MainContract.SimpleView
 	private final static String CHANNEL_NAME = "Default";
 	private final static String CHANNEL_ID = "com.dimowner.audiorecorder.NotificationId";
 
-	public static final String ACTION_START_FOREGROUND_SERVICE = "ACTION_START_FOREGROUND_SERVICE";
+	public static final String ACTION_START_RECORDING_SERVICE = "ACTION_START_RECORDING_SERVICE";
 
-	public static final String ACTION_STOP_FOREGROUND_SERVICE = "ACTION_STOP_FOREGROUND_SERVICE";
+	public static final String ACTION_STOP_RECORDING_SERVICE = "ACTION_STOP_RECORDING_SERVICE";
 
-	public static final String ACTION_STOP = "ACTION_STOP";
-
-	private static final String ACTION_RECEIVER = "ACTON_RECEIVER";
+	public static final String ACTION_STOP_RECORDING = "ACTION_STOP_RECORDING";
 
 	private static final int NOTIF_ID = 101;
 	private NotificationCompat.Builder builder;
-	private NotificationManager mNotificationManager;
-	private RemoteViews mRemoteViews;
-	private Notification mNotification;
+	private NotificationManager notificationManager;
+	private RemoteViews remoteViewsSmall;
+	private RemoteViews remoteViewsBig;
+	private Notification notification;
 
 	private MainContract.UserActionsListener presenter;
 	private ColorMap colorMap;
@@ -66,16 +65,16 @@ public class RecordingService extends Service implements MainContract.SimpleView
 			String action = intent.getAction();
 			if (action != null && !action.isEmpty()) {
 				switch (action) {
-					case ACTION_START_FOREGROUND_SERVICE:
-						Timber.v("StartForeground");
+					case ACTION_START_RECORDING_SERVICE:
+						Timber.v("ACTION_START_RECORDING_SERVICE");
 						startForegroundService();
 						break;
-					case ACTION_STOP_FOREGROUND_SERVICE:
-						Timber.v("StopForeground");
+					case ACTION_STOP_RECORDING_SERVICE:
+						Timber.v("ACTION_STOP_RECORDING_SERVICE");
 						stopForegroundService();
 						break;
-					case ACTION_STOP:
-						Timber.v("ACTION_CLOSE_SERVICE");
+					case ACTION_STOP_RECORDING:
+						Timber.v("ACTION_STOP_RECORDING");
 						presenter.stopRecordingRemote();
 						stopForegroundService();
 						break;
@@ -86,19 +85,24 @@ public class RecordingService extends Service implements MainContract.SimpleView
 	}
 
 	private void startForegroundService() {
-		mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			createNotificationChannel(CHANNEL_ID, CHANNEL_NAME);
 		}
 
-		mRemoteViews = new RemoteViews(getPackageName(), R.layout.layout_record_notification);
-		mRemoteViews.setOnClickPendingIntent(R.id.btn_recording_stop, getPendingSelfIntent(getApplicationContext(), ACTION_RECEIVER));
-		mRemoteViews.setTextViewText(R.id.txt_recording_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
-		mRemoteViews.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
+		remoteViewsSmall = new RemoteViews(getPackageName(), R.layout.layout_record_notification_small);
+		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_recording_stop, getPendingSelfIntent(getApplicationContext(), ACTION_STOP_RECORDING));
+		remoteViewsSmall.setTextViewText(R.id.txt_recording_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
+		remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
+
+		remoteViewsBig = new RemoteViews(getPackageName(), R.layout.layout_record_notification_big);
+		remoteViewsBig.setOnClickPendingIntent(R.id.btn_recording_stop, getPendingSelfIntent(getApplicationContext(), ACTION_STOP_RECORDING));
+		remoteViewsBig.setTextViewText(R.id.txt_recording_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
+		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
 		// Create notification default intent.
-		Intent intent = new Intent();
+		Intent intent = new Intent(this, MainActivity.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
 		// Create notification builder.
@@ -108,11 +112,11 @@ public class RecordingService extends Service implements MainContract.SimpleView
 		builder.setSmallIcon(R.drawable.ic_record_rec);
 		builder.setPriority(Notification.PRIORITY_MAX);
 		// Make head-up notification.
-		builder.setFullScreenIntent(pendingIntent, true);
-		builder.setCustomContentView(mRemoteViews);
-		mNotification = builder.build();
-
-		startForeground(NOTIF_ID, mNotification);
+		builder.setContentIntent(pendingIntent);
+		builder.setCustomContentView(remoteViewsSmall);
+		builder.setCustomBigContentView(remoteViewsBig);
+		notification = builder.build();
+		startForeground(NOTIF_ID, notification);
 	}
 
 	private void stopForegroundService() {
@@ -129,29 +133,28 @@ public class RecordingService extends Service implements MainContract.SimpleView
 
 	@RequiresApi(Build.VERSION_CODES.O)
 	private String createNotificationChannel(String channelId, String channelName) {
-		NotificationChannel channel = mNotificationManager.getNotificationChannel(channelId);
+		NotificationChannel channel = notificationManager.getNotificationChannel(channelId);
 		if (channel == null) {
-			Timber.v("Create notification channel: " + CHANNEL_ID);
-			NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_NONE);
+			NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
 			chan.setLightColor(Color.BLUE);
-			chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-			mNotificationManager.createNotificationChannel(chan);
-		} else {
-			Timber.v("Channel already exists: " + CHANNEL_ID);
+			chan.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+			notificationManager.createNotificationChannel(chan);
 		}
 		return channelId;
 	}
 
 	private void updateNotification(long mills) {
-		Timber.v("updateNotification: " + mills);
-		mRemoteViews.setTextViewText(R.id.txt_recording_progress,
+		remoteViewsSmall.setTextViewText(R.id.txt_recording_progress,
 				getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
 
-		mNotificationManager.notify(NOTIF_ID, builder.build());
+		remoteViewsBig.setTextViewText(R.id.txt_recording_progress,
+				getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
+
+		notificationManager.notify(NOTIF_ID, builder.build());
 	}
 
 	@Override
-	public void onPlayProgress(long mills, int px) { }
+	public void onPlayProgress(long mills) { }
 
 	@Override
 	public void onRecordingProgress(long mills, int amp) {
@@ -160,12 +163,18 @@ public class RecordingService extends Service implements MainContract.SimpleView
 		}
 	}
 
+	@Override
+	public void onPausePlayback() { }
+
+	@Override
+	public void onStartPlayback() { }
+
 	public static class StopRecordingReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Timber.v("ON RECEIVE StopRecordingReceiver");
+			Timber.v("ON RECEIVE StopPlaybackReceiver");
 			Intent stopIntent = new Intent(context, RecordingService.class);
-			stopIntent.setAction(ACTION_STOP);
+			stopIntent.setAction(intent.getAction());
 			context.startService(stopIntent);
 		}
 	}

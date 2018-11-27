@@ -34,6 +34,14 @@ public interface MainContract {
 
 		void onRecordingProgress(long mills, int amp);
 
+		void startRecordingService();
+
+		void stopRecordingService();
+
+		void startPlaybackService();
+
+		void stopPlaybackService();
+
 		void showPlayStart();
 
 		void showPlayPause();
@@ -55,9 +63,13 @@ public interface MainContract {
 
 	interface SimpleView {
 
-		void onPlayProgress(long mills, int px);
+		void onPlayProgress(long mills);
 
 		void onRecordingProgress(long mills, int amp);
+
+		void onPausePlayback();
+
+		void onStartPlayback();
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
@@ -88,6 +100,9 @@ public interface MainContract {
 
 		void updateRecordingDir(Context context);
 
+		//TODO: Remove this getters
 		boolean isStorePublic();
+
+		String getRecordName();
 	}
 }

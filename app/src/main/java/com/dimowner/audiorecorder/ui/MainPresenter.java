@@ -79,6 +79,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			public void onStartRecord() {
 				Timber.v("onStartRecord");
 				view.showRecordingStart();
+				view.startRecordingService();
 			}
 
 			@Override
@@ -104,6 +105,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			public void onStopRecord(final File output) {
 //				Timber.v("onStopRecord file = %s", output.getAbsolutePath());
 				view.showProgress();
+				view.stopRecordingService();
 				recordingTasks.postRunnable(new Runnable() {
 
 					long id = -1;
@@ -154,6 +156,10 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				public void onStartPlay() {
 					Timber.d("onStartPlay");
 					view.showPlayStart();
+					view.startPlaybackService();
+					if (simpleView != null) {
+						simpleView.onStartPlayback();
+					}
 				}
 
 				@Override
@@ -163,6 +169,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							@Override public void run() {
 								if (view != null) {
 									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills));
+									if (simpleView != null) {
+										simpleView.onPlayProgress(mills);
+									}
 								}
 							}});
 					}
@@ -174,6 +183,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						view.showPlayStop();
 						Timber.d("onStopPlay");
 						view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration / 1000));
+						view.stopPlaybackService();
 					}
 				}
 
@@ -181,6 +191,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				public void onPausePlay() {
 					view.showPlayPause();
 					Timber.d("onPausePlay");
+					if (simpleView != null) {
+						simpleView.onPausePlayback();
+					}
 				}
 
 				@Override
@@ -401,5 +414,15 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public boolean isStorePublic() {
 		return prefs.isStoreDirPublic();
+	}
+
+	@Override
+	public String getRecordName() {
+		Timber.v("getRecordName");
+		if (record != null) {
+			return record.getName();
+		} else {
+			return "Record";
+		}
 	}
 }

@@ -54,9 +54,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Make Foreground service for playback
 // TODO: Make Foreground service for recording
 // TODO: Fix playback after orientation change
-// TODO: Show recording progress on main screen
 // TODO: Do keep recording even if move to next screen or app
 // TODO: Store fixed length of waveform in database
+// TODO: Add waveform type field in database
 // TODO: Show available space on main screen
 // TODO: Fix pause/play flow
 // TODO: Add ViewPager to swipe to Settings or Records list
@@ -77,6 +77,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Welcome screen
 // TODO: Guidelines
 // TODO: Check how work max recording duration
+// TODO: Move into 1 class same logic for Recording and Playback services
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -94,7 +95,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ImageButton btnSettings;
 	private ProgressBar progressBar;
 
-	private boolean isForeground = false;
 //	private boolean isLoaded = false;
 
 	private MainContract.UserActionsListener presenter;
@@ -171,20 +171,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			case R.id.btn_play:
 				//This method Starts or Pause playback.
 				presenter.startPlayback();
-//				startForegroundService(new )
 				break;
 			case R.id.btn_record:
 				if (checkRecordPermission()) {
 					presenter.startRecording();
-//					startForegroundService(new )
-					Intent intent = new Intent(getApplicationContext(), RecordingService.class);
-					if (isForeground) {
-						intent.setAction(RecordingService.ACTION_STOP_FOREGROUND_SERVICE);
-					} else {
-						intent.setAction(RecordingService.ACTION_START_FOREGROUND_SERVICE);
-					}
-					isForeground = !isForeground;
-					startService(intent);
 				}
 				break;
 			case R.id.btn_stop:
@@ -238,7 +228,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnStop.setVisibility(View.INVISIBLE);
 		waveformView.hideRecording();
 		waveformView.clearRecordingData();
-		isForeground = false;
 	}
 
 	@Override
@@ -249,6 +238,34 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void onRecordingProgress(long mills, int amp) {
 		waveformView.addRecordAmp(amp);
+	}
+
+	@Override
+	public void startRecordingService() {
+		Intent intent = new Intent(getApplicationContext(), RecordingService.class);
+		intent.setAction(RecordingService.ACTION_START_RECORDING_SERVICE);
+		startService(intent);
+	}
+
+	@Override
+	public void stopRecordingService() {
+		Intent intent = new Intent(getApplicationContext(), RecordingService.class);
+		intent.setAction(RecordingService.ACTION_STOP_RECORDING_SERVICE);
+		startService(intent);
+	}
+
+	@Override
+	public void startPlaybackService() {
+		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
+		intent.setAction(PlaybackService.ACTION_START_PLAYBACK_SERVICE);
+		startService(intent);
+	}
+
+	@Override
+	public void stopPlaybackService() {
+		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
+		intent.setAction(PlaybackService.ACTION_STOP_PLAYBACK_SERVICE);
+		startService(intent);
 	}
 
 	@Override
