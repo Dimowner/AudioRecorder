@@ -36,6 +36,7 @@ import android.widget.TextView;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.data.Prefs;
+import com.dimowner.audiorecorder.licences.LicenceActivity;
 
 public class SettingsActivity extends Activity implements View.OnClickListener {
 
@@ -78,8 +79,9 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
 		switch (v.getId()) {
 			case R.id.btn_back:
 				finish();
+				break;
 			case R.id.btnLicences:
-//				startActivity(new Intent(getApplicationContext(), LicenceActivity.class));
+				startActivity(new Intent(getApplicationContext(), LicenceActivity.class));
 				break;
 			case R.id.btnRate:
 				rateApp();

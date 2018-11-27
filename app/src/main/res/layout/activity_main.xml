@@ -175,7 +175,6 @@
 					android:background="?android:selectableItemBackgroundBorderless"
 					android:contentDescription="@null"
 					android:layout_gravity="center"
-					android:visibility="invisible"
 					android:scaleType="center"
 					android:src="@drawable/ic_stop"/>
 

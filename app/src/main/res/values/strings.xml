@@ -37,4 +37,7 @@
 		Version %s
 	]]></string>
 	<!--<a href="http://#/">Application site</a>-->
+
+	<string name="licences_description">This application makes use of the following third party libraries.</string>
+
 </resources>

@@ -102,7 +102,7 @@ public class WaveformView extends View {
 		waveformPaint = new Paint();
 		waveformPaint.setStyle(Paint.Style.FILL);
 		waveformPaint.setAntiAlias(true);
-		waveformPaint.setColor(context.getResources().getColor(R.color.white));
+		waveformPaint.setColor(context.getResources().getColor(R.color.dark_white));
 
 		scrubberPaint = new Paint();
 		scrubberPaint.setAntiAlias(false);

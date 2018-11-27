@@ -58,10 +58,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Store fixed length of waveform in database
 // TODO: Add waveform type field in database
 // TODO: Show available space on main screen
-// TODO: Fix pause/play flow
 // TODO: Add ViewPager to swipe to Settings or Records list
 // TODO: Add pagination for records list
-// TODO: Fix main screen panel
 // TODO: Fix decrease size of RecyclerView or replace it by ListView
 // TODO: Fix waveform adjustment
 // TODO: Settings select Theme waveformColorRes
@@ -78,6 +76,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Guidelines
 // TODO: Check how work max recording duration
 // TODO: Move into 1 class same logic for Recording and Playback services
+// TODO: Show total record duration when pla record
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -216,7 +215,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void showRecordingStart() {
 		btnRecord.setImageResource(R.drawable.ic_record_rec);
 		btnPlay.setVisibility(View.INVISIBLE);
-		btnStop.setVisibility(View.VISIBLE);
+//		btnStop.setVisibility(View.VISIBLE);
 		waveformView.showRecording();
 	}
 
@@ -225,7 +224,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnRecord.setImageResource(R.drawable.ic_record);
 		presenter.loadActiveRecord();
 		btnPlay.setVisibility(View.VISIBLE);
-		btnStop.setVisibility(View.INVISIBLE);
+//		btnStop.setVisibility(View.INVISIBLE);
 		waveformView.hideRecording();
 		waveformView.clearRecordingData();
 	}
@@ -271,7 +270,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void showPlayStart() {
 		btnPlay.setImageResource(R.drawable.ic_pause);
-		btnStop.setVisibility(View.VISIBLE);
+//		btnStop.setVisibility(View.VISIBLE);
 		btnRecord.setEnabled(false);
 	}
 
@@ -283,7 +282,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void showPlayStop() {
 		btnPlay.setImageResource(R.drawable.ic_play);
-		btnStop.setVisibility(View.INVISIBLE);
+//		btnStop.setVisibility(View.INVISIBLE);
 //		scrubberView.setCurrentPosition(-1);
 		waveformView.setPlayback(-1);
 		btnRecord.setEnabled(true);

@@ -12,7 +12,8 @@
 	<color name="text_secondary_light">#b3ffffff</color> <!-- 70% -->
 	<color name="text_disabled_light">#4dffffff</color> <!-- 30% -->
 
-	<color name="white">#eaeaea</color>
+	<color name="dark_white">#eaeaea</color>
+	<color name="white">#ffffff</color>
 	<color name="grey">#545454</color>
 
 	<color name="icon_background">#f3f5f7</color>
