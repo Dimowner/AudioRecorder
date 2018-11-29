@@ -39,10 +39,10 @@
 		<activity android:name="com.dimowner.audiorecorder.ui.settings.SettingsActivity"
 					 android:screenOrientation="portrait"/>
 
-		<activity android:name="com.dimowner.audiorecorder.licences.LicenceActivity"
+		<activity android:name=".ui.licences.LicenceActivity"
 					 android:label="@string/open_source_licences"
 					 android:screenOrientation="portrait"/>
-		<activity android:name="com.dimowner.audiorecorder.licences.LicenceDetail"
+		<activity android:name=".ui.licences.LicenceDetail"
 					 android:screenOrientation="portrait"/>
 
 		<service android:name="com.dimowner.audiorecorder.ui.RecordingService" />

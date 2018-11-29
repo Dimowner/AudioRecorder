@@ -36,7 +36,7 @@ import android.widget.TextView;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.data.Prefs;
-import com.dimowner.audiorecorder.licences.LicenceActivity;
+import com.dimowner.audiorecorder.ui.licences.LicenceActivity;
 
 public class SettingsActivity extends Activity implements View.OnClickListener {
 

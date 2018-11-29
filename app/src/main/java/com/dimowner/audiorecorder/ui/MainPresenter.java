@@ -181,7 +181,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					if (view != null) {
 						view.showPlayStop();
 						Timber.d("onStopPlay");
-						view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration / 1000));
+						view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
 						view.stopPlaybackService();
 					}
 				}
@@ -391,7 +391,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 //							audioPlayer.setData(record.getPath());
 							view.showWaveForm(record.getAmps());
 							view.showName(FileUtil.removeFileExtension(record.getName()));
-							view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(songDuration / 1000));
+							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
 							view.showTotalRecordsDuration(TimeUtils.formatTimeIntervalHourMinSec(finalTotalDuration/1000));
 							view.showRecordsCount(durations.size());
 							view.hideProgress();

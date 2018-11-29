@@ -80,7 +80,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override public void run() {
 								if (view != null) {
-									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills));
+									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills), (int)(1000 * mills/(record.getDuration()/1000)));
 								}
 							}});
 					}
@@ -205,8 +205,8 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 								view.showRecords(Mapper.recordsToListItems(recordList));
 								if (record != null) {
 									view.showWaveForm(record.getAmps());
-									view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(record.getDuration() / 1000));
-									view.showRecordName(record.getName());
+									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
+									view.showRecordName(FileUtil.removeFileExtension(record.getName()));
 								}
 								view.hideProgress();
 								view.hidePanelProgress();
@@ -238,7 +238,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 						public void run() {
 //							audioPlayer.setData(record.getPath());
 							view.showWaveForm(record.getAmps());
-							view.showDuration(TimeUtils.formatTimeIntervalMinSecMills(record.getDuration() / 1000));
+							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
 							view.showRecordName(FileUtil.removeFileExtension(record.getName()));
 							callback.onSuccess();
 							view.hidePanelProgress();

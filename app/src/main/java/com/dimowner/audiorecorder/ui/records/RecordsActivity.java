@@ -63,11 +63,13 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private ImageButton btnNext;
 	private ImageButton btnPrev;
 	private ImageButton btnDelete;
+	private TextView txtProgress;
 	private TextView txtDuration;
 	private TextView txtName;
 	private TouchLayout touchLayout;
 	private WaveformView waveformView;
 	private ProgressBar panelProgress;
+	private ProgressBar playProgress;
 
 	private RecordsContract.UserActionsListener presenter;
 	private ColorMap colorMap;
@@ -107,7 +109,9 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnPrev.setOnClickListener(this);
 		btnDelete.setOnClickListener(this);
 
-		txtDuration = findViewById(R.id.txt_progress);
+		playProgress = findViewById(R.id.play_progress);
+		txtProgress = findViewById(R.id.txt_progress);
+		txtDuration = findViewById(R.id.txt_duration);
 		txtName = findViewById(R.id.txt_name);
 		waveformView = findViewById(R.id.record);
 
@@ -190,7 +194,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			public void onSeek(int px) {
 				presenter.seekPlayback(px);
 			}
-			@Override public void onSeeking(int px) { }
+			@Override
+			public void onSeeking(int px) {
+				playProgress.setProgress(1000*(int)AndroidUtils.pxToDp(px)/waveformView.getWaveformLength());
+				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2((long) AndroidUtils.convertPxToMills(px)));
+			}
 		});
 	}
 
@@ -367,6 +375,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	public void showPlayStop() {
 		waveformView.setPlayback(-1);
 		btnPlay.setImageResource(R.drawable.ic_play_64);
+		playProgress.setProgress(0);
 	}
 
 	@Override
@@ -386,17 +395,19 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	public void showDuration(final String duration) {
+		txtProgress.setText(duration);
 		txtDuration.setText(duration);
 	}
 
 	@Override
-	public void onPlayProgress(final long mills, final int px) {
+	public void onPlayProgress(final long mills, final int px, final int percent) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 //				Timber.v("onPlayProgress: " + px);
 				waveformView.setPlayback(px);
-				txtDuration.setText(TimeUtils.formatTimeIntervalMinSecMills(mills));
+				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
+				playProgress.setProgress(percent);
 			}
 		});
 	}

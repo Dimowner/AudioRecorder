@@ -124,15 +124,51 @@
 
 			</FrameLayout>
 
-			<TextView
-					android:id="@+id/txt_name"
+			<FrameLayout
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:gravity="center_horizontal"
-					android:padding="@dimen/spacing_tiny"
-					android:textColor="@color/text_primary_light"
-					android:textSize="@dimen/text_medium"
-					android:text="Record 2321"/>
+					android:layout_marginBottom="@dimen/spacing_small">
+
+				<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="start|bottom"
+						android:textColor="@color/text_primary_light"
+						android:layout_marginStart="@dimen/spacing_small"
+						android:textSize="@dimen/text_medium"
+						android:text="00:00"/>
+
+				<TextView
+						android:id="@+id/txt_name"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="bottom|center_horizontal"
+						android:padding="@dimen/spacing_tiny"
+						android:textColor="@color/text_primary_light"
+						android:textSize="@dimen/text_xmedium"
+						android:text="Record 2321"/>
+
+				<TextView
+						android:id="@+id/txt_duration"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="end|bottom"
+						android:textColor="@color/text_primary_light"
+						android:layout_marginEnd="@dimen/spacing_small"
+						android:textSize="@dimen/text_medium"
+						android:text="34:56"/>
+
+			</FrameLayout>
+			<ProgressBar
+					android:id="@+id/play_progress"
+					android:layout_width="match_parent"
+					android:layout_height="2dp"
+					android:indeterminate="false"
+					android:max="1000"
+					android:progress="20"
+					android:progressDrawable="@drawable/progress_drawable"
+					style="?android:attr/progressBarStyleHorizontal"
+					/>
 
 			<LinearLayout
 					android:layout_width="wrap_content"

@@ -121,10 +121,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnSettings = findViewById(R.id.btn_settings);
 		progressBar = findViewById(R.id.progress);
 		playProgress = findViewById(R.id.play_progress);
-		// Get the Drawable custom_progressbar
-		Drawable draw = getResources().getDrawable(R.drawable.progress_drawable);
-		// set the drawable as progress drawable
-		playProgress.setProgressDrawable(draw);
+//		// Get the Drawable custom_progressbar
+//		Drawable draw = getResources().getDrawable(R.drawable.progress_drawable);
+//		// set the drawable as progress drawable
+//		playProgress.setProgressDrawable(draw);
 
 		txtRecordsCount = findViewById(R.id.txt_records_count);
 		txtTotalDuration= findViewById(R.id.txt_total_duration);
@@ -150,14 +150,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
 			@Override
 			public void onSeek(int px) {
-				Timber.v("onSeek: " + px);
 				presenter.seekPlayback(px);
 			}
 			@Override
 			public void onSeeking(int px) {
-				Timber.v("onSeeking: " + px + " duration: " + waveformView.getWaveformLength()
-						+ " percent: " + 100*px/waveformView.getWaveformLength());
 				playProgress.setProgress(1000*(int)AndroidUtils.pxToDp(px)/waveformView.getWaveformLength());
+				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2((long) AndroidUtils.convertPxToMills(px)));
 			}
 		});
 	}
@@ -253,7 +251,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void onRecordingProgress(long mills, int amp) {
-		txtProgress.setText(TimeUtils.formatTimeIntervalMinSecMills(mills));
+		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 		waveformView.addRecordAmp(amp);
 	}
 
@@ -316,8 +314,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void showDuration(final String duration) {
 		txtProgress.setText(duration);
-//		TODO: fix substring
-		txtDuration.setText(duration.substring(3, duration.length()));
+		txtDuration.setText(duration);
 	}
 
 	@Override
@@ -340,7 +337,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		Timber.v("onPlayProgress: " + px + " percent = " + percent);
 		playProgress.setProgress(percent);
 		waveformView.setPlayback(px);
-		txtProgress.setText(TimeUtils.formatTimeIntervalMinSecMills(mills));
+		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 	}
 
 	public void setRecordName(final long recordId, File file) {

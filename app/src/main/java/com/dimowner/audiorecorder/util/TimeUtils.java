@@ -68,7 +68,11 @@ public class TimeUtils {
 		long numHour = timeUnit.toHours(length);
 		long numMinutes = timeUnit.toMinutes(length);
 		long numSeconds = timeUnit.toSeconds(length);
-		return String.format(Locale.getDefault(), "%02d:%02d:%02d", numHour, numMinutes, numSeconds % 60);
+		if (numHour == 0) {
+			return String.format(Locale.getDefault(), "%02d:%02d", numMinutes, numSeconds % 60);
+		} else {
+			return String.format(Locale.getDefault(), "%02d:%02d:%02d", numHour, numMinutes, numSeconds % 60);
+		}
 	}
 
 	public static String formatTimeIntervalMinSecMills(long mills) {

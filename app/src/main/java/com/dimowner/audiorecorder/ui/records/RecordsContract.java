@@ -40,7 +40,7 @@ public interface RecordsContract {
 
 		void showDuration(String duration);
 
-		void onPlayProgress(long mills, int px);
+		void onPlayProgress(long mills, int px, int percent);
 
 		void showRecords(List<ListItem> records);
 

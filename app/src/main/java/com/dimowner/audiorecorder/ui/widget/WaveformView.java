@@ -108,7 +108,7 @@ public class WaveformView extends View {
 		scrubberPaint.setAntiAlias(false);
 		scrubberPaint.setStyle(Paint.Style.STROKE);
 		scrubberPaint.setStrokeWidth(AndroidUtils.dpToPx(2));
-		scrubberPaint.setColor(context.getResources().getColor(R.color.colorAccent));
+		scrubberPaint.setColor(context.getResources().getColor(R.color.md_yellow_A700));
 
 //		selectPaint = new Paint();
 //		selectPaint.setStyle(Paint.Style.FILL);
@@ -281,11 +281,6 @@ public class WaveformView extends View {
 		}
 
 		int measuredHeight = getMeasuredHeight();
-		//		if (playProgress >= 0) {
-		//			canvas.drawRect(0, 0, playProgress, getMeasuredHeight(), selectPaint);
-		//			canvas.drawLine(playProgress, 0, playProgress, getMeasuredHeight(), scrubberPaint);
-		canvas.drawLine(viewWidth /2, 0, viewWidth /2, measuredHeight, scrubberPaint);
-		//		}
 
 		drawGrid(canvas);
 		if (showRecording) {
@@ -301,6 +296,8 @@ public class WaveformView extends View {
 			//Draw waveform end indication
 			canvas.drawLine(waveformShift + waveformData.length * density, inset,
 					waveformShift + waveformData.length * density, measuredHeight-inset, waveformPaint);
+
+			canvas.drawLine(viewWidth/2, 0, viewWidth/2, measuredHeight, scrubberPaint);
 		}
 	}
 
