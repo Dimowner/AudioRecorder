@@ -72,6 +72,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				public void onStartPlay() {
 					Timber.d("onStartPlay");
 					view.showPlayStart();
+					view.startPlaybackService();
 				}
 
 				@Override
@@ -90,6 +91,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				public void onStopPlay() {
 					if (view != null) {
 						view.showPlayStop();
+						view.stopPlaybackService();
 					}
 					Timber.d("onStopPlay");
 				}

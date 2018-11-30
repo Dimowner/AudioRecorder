@@ -20,6 +20,8 @@ import android.content.Context;
 
 import com.dimowner.audiorecorder.audio.player.AudioPlayer;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
+import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
+import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.FileRepositoryImpl;
 import com.dimowner.audiorecorder.data.Prefs;
@@ -84,10 +86,14 @@ public class Injector {
 		return AudioPlayer.getInstance();
 	}
 
+	public RecorderContract.Recorder provideAudioRecorder() {
+		return AudioRecorder.getInstance();
+	}
+
 	public MainContract.UserActionsListener provideMainPresenter() {
 		if (mainPresenter == null) {
 			mainPresenter = new MainPresenter(providePrefs(), provideFileRepository(),
-					provideLocalRepository(), provideAudioPlayer(),
+					provideLocalRepository(), provideAudioPlayer(), provideAudioRecorder(),
 					provideLoadingTasksQueue(), provideRecordingTasksQueue());
 		}
 		return mainPresenter;

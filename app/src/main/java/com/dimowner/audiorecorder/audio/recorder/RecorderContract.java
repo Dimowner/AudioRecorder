@@ -20,7 +20,7 @@ import java.io.File;
 
 public interface RecorderContract {
 
-	interface RecorderActions {
+	interface RecorderCallback {
 		void onPrepareRecord();
 		void onStartRecord();
 		void onPauseRecord();
@@ -29,7 +29,8 @@ public interface RecorderContract {
 		void onError(Exception throwable);
 	}
 
-	interface UserActions {
+	interface Recorder {
+		void setRecorderCallback(RecorderCallback callback);
 		void prepare(String outputFile);
 		void startRecording();
 		void pauseRecording();

@@ -21,6 +21,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Typeface;
+import android.os.Bundle;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -297,8 +298,8 @@ public class WaveformView extends View {
 			canvas.drawLine(waveformShift + waveformData.length * density, inset,
 					waveformShift + waveformData.length * density, measuredHeight-inset, waveformPaint);
 
-			canvas.drawLine(viewWidth/2, 0, viewWidth/2, measuredHeight, scrubberPaint);
 		}
+		canvas.drawLine(viewWidth/2, 0, viewWidth/2, measuredHeight, scrubberPaint);
 	}
 
 	private void updateShifts(int px) {
@@ -503,6 +504,22 @@ public class WaveformView extends View {
 		}
 
 		isInitialized = true;
+	}
+
+	public void onSaveState(Bundle b) {
+		b.putIntArray("waveformData", waveformData);
+		b.putLong("playProgress", playProgress);
+		b.putIntArray("waveForm", waveForm);
+		b.putIntegerArrayList("recordingData", (ArrayList<Integer>) recordingData);
+		b.putBoolean("showRecording", showRecording);
+	}
+
+	public void onRestoreState(Bundle b) {
+		waveformData = b.getIntArray("waveformData");
+		playProgress = b.getLong("playProgress");
+		waveForm = b.getIntArray("waveForm");
+		recordingData = b.getIntegerArrayList("recordingData");
+		showRecording = b.getBoolean("showRecording");
 	}
 
 	public void setOnSeekListener(OnSeekListener onSeekListener) {

@@ -37,6 +37,7 @@ import android.widget.Toast;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.ui.PlaybackService;
 import com.dimowner.audiorecorder.ui.widget.SimpleWaveformView;
 import com.dimowner.audiorecorder.ui.widget.ThresholdListener;
 import com.dimowner.audiorecorder.ui.widget.TouchLayout;
@@ -230,6 +231,20 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 					})
 					.start();
 		}
+	}
+
+	@Override
+	public void startPlaybackService() {
+		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
+		intent.setAction(PlaybackService.ACTION_START_PLAYBACK_SERVICE);
+		startService(intent);
+	}
+
+	@Override
+	public void stopPlaybackService() {
+		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
+		intent.setAction(PlaybackService.ACTION_STOP_PLAYBACK_SERVICE);
+		startService(intent);
 	}
 
 	public void hidePanel() {

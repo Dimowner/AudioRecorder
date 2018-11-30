@@ -33,7 +33,7 @@ import static com.dimowner.audiorecorder.AppConstants.RECORD_MAX_DURATION;
 import static com.dimowner.audiorecorder.AppConstants.RECORD_SAMPLE_RATE;
 import static com.dimowner.audiorecorder.AppConstants.VISUALIZATION_INTERVAL;
 
-public class AudioRecorder implements RecorderContract.UserActions {
+public class AudioRecorder implements RecorderContract.Recorder {
 
 	private MediaRecorder recorder = null;
 	private File recordFile = null;
@@ -43,10 +43,27 @@ public class AudioRecorder implements RecorderContract.UserActions {
 	private Timer timerProgress;
 	private long progress = 0;
 
-	private RecorderContract.RecorderActions actionsListener;
+	private RecorderContract.RecorderCallback recorderCallback;
 
-	public AudioRecorder(RecorderContract.RecorderActions actionsListener) {
-		this.actionsListener = actionsListener;
+	private static class RecorderSingletonHolder {
+		private static AudioRecorder singleton = new AudioRecorder();
+
+		public static AudioRecorder getSingleton() {
+			return RecorderSingletonHolder.singleton;
+		}
+	}
+
+	public static AudioRecorder getInstance() {
+		return RecorderSingletonHolder.getSingleton();
+	}
+
+//	public void setActionsListener(RecorderContract.RecorderCallback recorderCallback) {
+//		this.recorderCallback = recorderCallback;
+//	}
+
+	@Override
+	public void setRecorderCallback(RecorderContract.RecorderCallback callback) {
+		this.recorderCallback = callback;
 	}
 
 	@Override
@@ -66,18 +83,18 @@ public class AudioRecorder implements RecorderContract.UserActions {
 			try {
 				recorder.prepare();
 				isPrepared = true;
-				if (actionsListener != null) {
-					actionsListener.onPrepareRecord();
+				if (recorderCallback != null) {
+					recorderCallback.onPrepareRecord();
 				}
 			} catch (IOException e) {
 				Timber.e(e, "prepare() failed");
-				if (actionsListener != null) {
-					actionsListener.onError(e);
+				if (recorderCallback != null) {
+					recorderCallback.onError(e);
 				}
 			}
 		} else {
-			if (actionsListener != null) {
-				actionsListener.onError(new InvalidOutputFile());
+			if (recorderCallback != null) {
+				recorderCallback.onError(new InvalidOutputFile());
 			}
 		}
 	}
@@ -89,8 +106,8 @@ public class AudioRecorder implements RecorderContract.UserActions {
 			recorder.start();
 			isRecording = true;
 			startRecordingTimer();
-			if (actionsListener != null) {
-				actionsListener.onStartRecord();
+			if (recorderCallback != null) {
+				recorderCallback.onStartRecord();
 			}
 		} else {
 			Timber.e("Recorder is not prepared!!!");
@@ -102,6 +119,7 @@ public class AudioRecorder implements RecorderContract.UserActions {
 		if (isRecording) {
 			//TODO: For below API 24 pause is not available that why records append should be implemented.
 //			recorder.pause();
+			stopRecording();
 		}
 	}
 
@@ -112,8 +130,8 @@ public class AudioRecorder implements RecorderContract.UserActions {
 			stopRecordingTimer();
 			recorder.stop();
 			recorder.release();
-			if (actionsListener != null) {
-				actionsListener.onStopRecord(recordFile);
+			if (recorderCallback != null) {
+				recorderCallback.onStopRecord(recordFile);
 			}
 			recordFile = null;
 			isPrepared = false;
@@ -129,8 +147,8 @@ public class AudioRecorder implements RecorderContract.UserActions {
 		timerProgress.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				if (actionsListener != null && recorder != null) {
-					actionsListener.onRecordProgress(progress, recorder.getMaxAmplitude());
+				if (recorderCallback != null && recorder != null) {
+					recorderCallback.onRecordProgress(progress, recorder.getMaxAmplitude());
 					progress += VISUALIZATION_INTERVAL;
 				}
 			}

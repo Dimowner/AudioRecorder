@@ -101,7 +101,7 @@
 					android:textColor="@color/text_primary_light"
 					android:textSize="@dimen/text_xlarge"
 					android:textStyle="bold"
-					android:text="00:00:00"/>
+					tools:text="00:00:00"/>
 
 			<FrameLayout
 					android:layout_width="match_parent"
@@ -135,8 +135,8 @@
 						android:layout_gravity="start|bottom"
 						android:textColor="@color/text_primary_light"
 						android:layout_marginStart="@dimen/spacing_small"
-						android:textSize="@dimen/text_medium"
-						android:text="00:00"/>
+						android:textSize="@dimen/text_normal"
+						android:text="@string/zero_time"/>
 
 				<TextView
 						android:id="@+id/txt_name"
@@ -146,7 +146,7 @@
 						android:padding="@dimen/spacing_tiny"
 						android:textColor="@color/text_primary_light"
 						android:textSize="@dimen/text_xmedium"
-						android:text="Record 2321"/>
+						tools:text="Record 2321"/>
 
 				<TextView
 						android:id="@+id/txt_duration"
@@ -155,8 +155,8 @@
 						android:layout_gravity="end|bottom"
 						android:textColor="@color/text_primary_light"
 						android:layout_marginEnd="@dimen/spacing_small"
-						android:textSize="@dimen/text_medium"
-						android:text="34:56"/>
+						android:textSize="@dimen/text_normal"
+						tools:text="34:56"/>
 
 			</FrameLayout>
 			<ProgressBar

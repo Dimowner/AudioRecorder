@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -53,8 +52,6 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
-// TODO: Make Foreground service for playback
-// TODO: Make Foreground service for recording
 // TODO: Fix playback after orientation change
 // TODO: Do keep recording even if move to next screen or app
 // TODO: Store fixed length of waveform in database
@@ -78,7 +75,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Guidelines
 // TODO: Check how work max recording duration
 // TODO: Move into 1 class same logic for Recording and Playback services
-// TODO: Show total record duration when pla record
+// TODO: Double-tap on waveform to rewind 10sec
+// TODO: Show total records count, total duration, available space in app settings
+// TODO: Fix recording notification
+// TODO: Fix wrong record deletion error.
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -97,8 +97,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ImageButton btnSettings;
 	private ProgressBar progressBar;
 	private ProgressBar playProgress;
-
-//	private boolean isLoaded = false;
 
 	private MainContract.UserActionsListener presenter;
 	private ColorMap colorMap;
@@ -121,15 +119,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnSettings = findViewById(R.id.btn_settings);
 		progressBar = findViewById(R.id.progress);
 		playProgress = findViewById(R.id.play_progress);
-//		// Get the Drawable custom_progressbar
-//		Drawable draw = getResources().getDrawable(R.drawable.progress_drawable);
-//		// set the drawable as progress drawable
-//		playProgress.setProgressDrawable(draw);
+
+		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 
 		txtRecordsCount = findViewById(R.id.txt_records_count);
 		txtTotalDuration= findViewById(R.id.txt_total_duration);
-
-//		scrubberView = findViewById(R.id.scrubber);
 
 		btnPlay.setOnClickListener(this);
 		btnRecord.setOnClickListener(this);
@@ -140,16 +134,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		presenter = ARApplication.getInjector().provideMainPresenter();
 		showTotalRecordsDuration("0h:0m:0s");
 		showRecordsCount(0);
-//		presenter.bindView(this);
-//		presenter.updateRecordingDir(getApplicationContext());
-////		if (!isLoaded) {
-//		presenter.loadActiveRecord();
-////			isLoaded = true;
-////		}
 
 		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
 			@Override
 			public void onSeek(int px) {
+				Timber.v("onSeek: " + px);
 				presenter.seekPlayback(px);
 			}
 			@Override
@@ -165,10 +154,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		super.onStart();
 		presenter.bindView(this);
 		presenter.updateRecordingDir(getApplicationContext());
-//		if (!isLoaded) {
-			presenter.loadActiveRecord();
-//			isLoaded = true;
-//		}
+		presenter.loadActiveRecord();
 	}
 
 	@Override
@@ -229,8 +215,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void showRecordingStart() {
 		btnRecord.setImageResource(R.drawable.ic_record_rec);
-		btnPlay.setVisibility(View.INVISIBLE);
-//		btnStop.setVisibility(View.VISIBLE);
+		btnPlay.setEnabled(false);
 		waveformView.showRecording();
 	}
 
@@ -238,8 +223,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void showRecordingStop(long id, File file) {
 		btnRecord.setImageResource(R.drawable.ic_record);
 		presenter.loadActiveRecord();
-		btnPlay.setVisibility(View.VISIBLE);
-//		btnStop.setVisibility(View.INVISIBLE);
+		btnPlay.setEnabled(true);
 		waveformView.hideRecording();
 		waveformView.clearRecordingData();
 	}
@@ -286,7 +270,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void showPlayStart() {
 		btnPlay.setImageResource(R.drawable.ic_pause);
-//		btnStop.setVisibility(View.VISIBLE);
 		btnRecord.setEnabled(false);
 	}
 
@@ -298,22 +281,19 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void showPlayStop() {
 		btnPlay.setImageResource(R.drawable.ic_play);
-//		btnStop.setVisibility(View.INVISIBLE);
-//		scrubberView.setCurrentPosition(-1);
 		waveformView.setPlayback(-1);
 		btnRecord.setEnabled(true);
 		playProgress.setProgress(0);
+		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 	}
 
 	@Override
 	public void showWaveForm(int[] waveForm) {
-		waveformView.setWaveform(waveForm);
-		btnPlay.setVisibility(View.VISIBLE);
+		waveformView.setWaveform(waveForm);;
 	}
 
 	@Override
 	public void showDuration(final String duration) {
-		txtProgress.setText(duration);
 		txtDuration.setText(duration);
 	}
 

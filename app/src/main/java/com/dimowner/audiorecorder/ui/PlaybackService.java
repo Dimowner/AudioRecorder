@@ -19,7 +19,6 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.util.FileUtil;
-import com.dimowner.audiorecorder.util.TimeUtils;
 
 import timber.log.Timber;
 
@@ -37,6 +36,8 @@ public class PlaybackService extends Service implements MainContract.SimpleView 
 	public static final String ACTION_PLAY_NEXT = "ACTION_PLAY_NEXT";
 
 	public static final String ACTION_PLAY_PREV = "ACTION_PLAY_PREV";
+
+	public static final String ACTION_CLOSE = "ACTION_CLOSE";
 
 	private static final int NOTIF_ID = 101;
 	private NotificationCompat.Builder builder;
@@ -82,6 +83,11 @@ public class PlaybackService extends Service implements MainContract.SimpleView 
 						Timber.v("ACTION_PAUSE_PLAYBACK");
 						presenter.startPlayback();
 						break;
+					case ACTION_CLOSE:
+						Timber.v("ACTION_CLOSE");
+						presenter.stopPlayback();
+						stopForegroundService();
+						break;
 					case ACTION_PLAY_NEXT:
 						Timber.v("ACTION_PLAY_NEXT");
 						break;
@@ -104,28 +110,32 @@ public class PlaybackService extends Service implements MainContract.SimpleView 
 
 		remoteViewsSmall = new RemoteViews(getPackageName(), R.layout.layout_play_notification_small);
 		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_pause, getPendingSelfIntent(getApplicationContext(), ACTION_PAUSE_PLAYBACK));
+		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_close, getPendingSelfIntent(getApplicationContext(), ACTION_CLOSE));
 //		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_next, getPendingSelfIntent(getApplicationContext(), ACTION_PLAY_NEXT));
 //		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_prev, getPendingSelfIntent(getApplicationContext(), ACTION_PLAY_PREV));
-		remoteViewsSmall.setTextViewText(R.id.txt_playback_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
-		remoteViewsSmall.setTextViewText(R.id.txt_name, "Record2222");
+//		remoteViewsSmall.setTextViewText(R.id.txt_playback_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
+		remoteViewsSmall.setTextViewText(R.id.txt_name, FileUtil.removeFileExtension(presenter.getRecordName()));
 		remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
 		remoteViewsBig = new RemoteViews(getPackageName(), R.layout.layout_play_notification_big);
 		remoteViewsBig.setOnClickPendingIntent(R.id.btn_pause, getPendingSelfIntent(getApplicationContext(), ACTION_PAUSE_PLAYBACK));
+		remoteViewsBig.setOnClickPendingIntent(R.id.btn_close, getPendingSelfIntent(getApplicationContext(), ACTION_CLOSE));
 //		remoteViewsBig.setOnClickPendingIntent(R.id.btn_next, getPendingSelfIntent(getApplicationContext(), ACTION_PLAY_NEXT));
 //		remoteViewsBig.setOnClickPendingIntent(R.id.btn_prev, getPendingSelfIntent(getApplicationContext(), ACTION_PLAY_PREV));
-		remoteViewsBig.setTextViewText(R.id.txt_playback_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
+//		remoteViewsBig.setTextViewText(R.id.txt_playback_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
 		remoteViewsBig.setTextViewText(R.id.txt_name, FileUtil.removeFileExtension(presenter.getRecordName()));
 		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
 		// Create notification default intent.
 		Intent intent = new Intent(this, MainActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
 		// Create notification builder.
 		builder = new NotificationCompat.Builder(this, CHANNEL_ID);
 
 		builder.setWhen(System.currentTimeMillis());
+		builder.setContentTitle(getResources().getString(R.string.app_name));
 		builder.setSmallIcon(R.drawable.ic_play_circle);
 		builder.setPriority(Notification.PRIORITY_MAX);
 		// Make head-up notification.
@@ -164,22 +174,22 @@ public class PlaybackService extends Service implements MainContract.SimpleView 
 		return channelId;
 	}
 
-	private void updateNotification(long mills) {
-		Timber.v("updateNotification: " + mills);
-		remoteViewsSmall.setTextViewText(R.id.txt_playback_progress,
-				getResources().getString(R.string.playback, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
-
-		remoteViewsBig.setTextViewText(R.id.txt_playback_progress,
-				getResources().getString(R.string.playback, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
-
-		notificationManager.notify(NOTIF_ID, builder.build());
-	}
+//	private void updateNotification(long mills) {
+//		Timber.v("updateNotification: " + mills);
+//		remoteViewsSmall.setTextViewText(R.id.txt_playback_progress,
+//				getResources().getString(R.string.playback, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
+//
+//		remoteViewsBig.setTextViewText(R.id.txt_playback_progress,
+//				getResources().getString(R.string.playback, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
+//
+//		notificationManager.notify(NOTIF_ID, builder.build());
+//	}
 
 	@Override
 	public void onPlayProgress(long mills) {
 		Timber.v("onPlayProgress: " + mills);
 //		if (mills%1000 == 0) {
-			updateNotification(mills);
+//			updateNotification(mills);
 //		}
 	}
 
