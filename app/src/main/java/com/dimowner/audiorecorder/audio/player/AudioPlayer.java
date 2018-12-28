@@ -20,6 +20,9 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 
 import com.dimowner.audiorecorder.AppConstants;
+import com.dimowner.audiorecorder.exception.AppException;
+import com.dimowner.audiorecorder.exception.PlayerDataSourceException;
+import com.dimowner.audiorecorder.exception.PlayerInitException;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -76,7 +79,7 @@ public class AudioPlayer implements PlayerContract.Player {
 			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		} catch (IOException e) {
 			Timber.e(e);
-			onError(e);
+			onError(new PlayerDataSourceException());
 		}
 	}
 
@@ -117,7 +120,7 @@ public class AudioPlayer implements PlayerContract.Player {
 					}, 0, AppConstants.VISUALIZATION_INTERVAL);
 				} catch (IOException e) {
 					Timber.e(e);
-					onError(e);
+					onError(new PlayerInitException());
 				}
 			}
 		}
@@ -228,7 +231,7 @@ public class AudioPlayer implements PlayerContract.Player {
 		}
 	}
 
-	private void onError(Throwable throwable) {
+	private void onError(AppException throwable) {
 		if (!actionsListeners.isEmpty()) {
 			for (int i = 0; i < actionsListeners.size(); i++) {
 				actionsListeners.get(i).onError(throwable);

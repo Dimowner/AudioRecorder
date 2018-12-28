@@ -19,6 +19,7 @@ package com.dimowner.audiorecorder.audio.recorder;
 import android.media.MediaRecorder;
 
 import com.dimowner.audiorecorder.exception.InvalidOutputFile;
+import com.dimowner.audiorecorder.exception.RecorderInitException;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,7 +90,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 			} catch (IOException e) {
 				Timber.e(e, "prepare() failed");
 				if (recorderCallback != null) {
-					recorderCallback.onError(e);
+					recorderCallback.onError(new RecorderInitException());
 				}
 			}
 		} else {

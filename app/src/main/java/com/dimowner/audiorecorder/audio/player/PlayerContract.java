@@ -16,6 +16,8 @@
 
 package com.dimowner.audiorecorder.audio.player;
 
+import com.dimowner.audiorecorder.exception.AppException;
+
 public interface PlayerContract {
 
 	interface PlayerCallback {
@@ -25,7 +27,7 @@ public interface PlayerContract {
 		void onStopPlay();
 		void onPausePlay();
 		void onSeek(long mills);
-		void onError(Throwable throwable);
+		void onError(AppException throwable);
 	}
 
 	interface Player {

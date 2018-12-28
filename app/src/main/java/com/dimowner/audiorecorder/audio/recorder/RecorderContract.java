@@ -16,6 +16,8 @@
 
 package com.dimowner.audiorecorder.audio.recorder;
 
+import com.dimowner.audiorecorder.exception.AppException;
+
 import java.io.File;
 
 public interface RecorderContract {
@@ -26,7 +28,7 @@ public interface RecorderContract {
 		void onPauseRecord();
 		void onRecordProgress(long mills, int amp);
 		void onStopRecord(File output);
-		void onError(Exception throwable);
+		void onError(AppException throwable);
 	}
 
 	interface Recorder {

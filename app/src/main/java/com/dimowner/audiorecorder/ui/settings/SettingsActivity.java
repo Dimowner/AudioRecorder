@@ -43,7 +43,9 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
 	private static final String VERSION_UNAVAILABLE = "N/A";
 
 	public static Intent getStartIntent(Context context) {
-		return new Intent(context, SettingsActivity.class);
+		Intent intent = new Intent(context, SettingsActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		return intent;
 	}
 
 	@Override

@@ -52,7 +52,6 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
-// TODO: Fix playback after orientation change
 // TODO: Do keep recording even if move to next screen or app
 // TODO: Store fixed length of waveform in database
 // TODO: Add waveform type field in database

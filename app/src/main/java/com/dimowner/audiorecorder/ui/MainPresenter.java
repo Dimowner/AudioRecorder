@@ -27,6 +27,7 @@ import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.Record;
+import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.exception.CantCreateFileException;
 import com.dimowner.audiorecorder.exception.ErrorParser;
 import com.dimowner.audiorecorder.util.AndroidUtils;
@@ -153,7 +154,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				}
 
 				@Override
-				public void onError(Exception throwable) {
+				public void onError(AppException throwable) {
 					Timber.e(throwable);
 					if (view != null) {
 						view.showError(ErrorParser.parseException(throwable));
@@ -220,8 +221,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				}
 
 				@Override
-				public void onError(Throwable throwable) {
-					Timber.d("onError");
+				public void onError(AppException throwable) {
+					Timber.e(throwable);
+					if (view != null) {
+						view.showError(ErrorParser.parseException(throwable));
+					}
 				}
 			};
 		}

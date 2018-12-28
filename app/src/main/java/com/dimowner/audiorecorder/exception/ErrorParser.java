@@ -22,12 +22,17 @@ public class ErrorParser {
 
 	private ErrorParser() {}
 
-	//TODO: Fix error parsing implementation
-	public static int parseException(Exception e) {
-		if (e instanceof CantCreateFileException) {
+	public static int parseException(AppException e) {
+		if (e.getType() == AppException.CANT_CREATE_FILE) {
 			return R.string.error_cant_create_file;
-		} else if (e instanceof InvalidOutputFile) {
+		} else if (e.getType() == AppException.INVALID_OUTPUT_FILE) {
 			return R.string.error_invalid_output_file;
+		} else if (e.getType() == AppException.RECORDER_INIT_EXCEPTION) {
+			return R.string.error_failed_to_init_recorder;
+		} else if (e.getType() == AppException.PLAYER_DATA_SOURCE_EXCEPTION) {
+			return R.string.error_player_data_source;
+		} else if (e.getType() == AppException.PLAYER_INIT_EXCEPTION) {
+			return R.string.error_failed_to_init_player;
 		}
 		return R.string.error_unknown;
 	}

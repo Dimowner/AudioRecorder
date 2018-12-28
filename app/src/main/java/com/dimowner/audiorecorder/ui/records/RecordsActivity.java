@@ -77,7 +77,9 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private ColorMap colorMap;
 
 	public static Intent getStartIntent(Context context) {
-		return new Intent(context, RecordsActivity.class);
+		Intent intent = new Intent(context, RecordsActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		return intent;
 	}
 
 	@Override

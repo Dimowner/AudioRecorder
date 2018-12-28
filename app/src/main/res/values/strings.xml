@@ -32,6 +32,9 @@
 	<string name="error_invalid_output_file">Invalid output file</string>
 	<string name="error_file_exists">File with this name is already exists!</string>
 	<string name="error_failed_to_rename">Failed to rename record!</string>
+	<string name="error_failed_to_init_recorder">Failed to init Recorder</string>
+	<string name="error_failed_to_init_player">Failed to init Player</string>
+	<string name="error_player_data_source">Player can\'t read file</string>
 
 	<!-- Shown in the 'About' window of the app. -->
 	<string name="about_body"><![CDATA[
