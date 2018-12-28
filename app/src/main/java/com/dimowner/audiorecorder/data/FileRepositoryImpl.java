@@ -65,7 +65,6 @@ public class FileRepositoryImpl implements FileRepository {
 
 	@Override
 	public File getRecordFileByName(String name) {
-		prefs.incrementRecordCounter();
 		File recordFile = new File(recordDirectory.getAbsolutePath() + File.separator + FileUtil.generateRecordNameCounted(prefs.getRecordCounter()));
 		if (recordFile.exists() && recordFile.isFile()) {
 			return recordFile;
@@ -76,7 +75,6 @@ public class FileRepositoryImpl implements FileRepository {
 
 	@Override
 	public boolean deleteRecordFileByName(String name) {
-		prefs.incrementRecordCounter();
 		File recordFile = new File(recordDirectory.getAbsolutePath() + File.separator + FileUtil.generateRecordNameCounted(prefs.getRecordCounter()));
 		return FileUtil.deleteFile(recordFile);
 	}
@@ -90,8 +88,8 @@ public class FileRepositoryImpl implements FileRepository {
 	}
 
 	@Override
-	public void deleteAllRecords() {
-		FileUtil.deleteFile(recordDirectory);
+	public boolean deleteAllRecords() {
+		return FileUtil.deleteFile(recordDirectory);
 	}
 
 	@Override

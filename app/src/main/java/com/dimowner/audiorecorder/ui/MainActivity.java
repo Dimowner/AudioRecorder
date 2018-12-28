@@ -68,7 +68,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Ability to rename record
 // TODO: Ability to delete record by swipe left
 // TODO: Ability to scroll up from the bottom of the list
-// TODO: Empty list text and image
 // TODO: Ability to search by record name in list
 // TODO: Welcome screen
 // TODO: Guidelines
@@ -77,7 +76,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Double-tap on waveform to rewind 10sec
 // TODO: Show total records count, total duration, available space in app settings
 // TODO: Fix recording notification
-// TODO: Fix wrong record deletion error.
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -142,7 +140,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			}
 			@Override
 			public void onSeeking(int px) {
-				playProgress.setProgress(1000*(int)AndroidUtils.pxToDp(px)/waveformView.getWaveformLength());
+				if (waveformView.getWaveformLength() > 0) {
+					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / waveformView.getWaveformLength());
+				}
 				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2((long) AndroidUtils.convertPxToMills(px)));
 			}
 		});

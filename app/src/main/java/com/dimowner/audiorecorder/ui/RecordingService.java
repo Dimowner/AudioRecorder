@@ -42,6 +42,7 @@ public class RecordingService extends Service implements MainContract.SimpleView
 
 	private MainContract.UserActionsListener presenter;
 	private ColorMap colorMap;
+	private boolean started = false;
 
 	public RecordingService() {
 	}
@@ -120,12 +121,14 @@ public class RecordingService extends Service implements MainContract.SimpleView
 		builder.setSound(null);
 		notification = builder.build();
 		startForeground(NOTIF_ID, notification);
+		started = true;
 	}
 
 	private void stopForegroundService() {
 		presenter.unbindSimpleView();
 		stopForeground(true);
 		stopSelf();
+		started = false;
 	}
 
 	protected PendingIntent getPendingSelfIntent(Context context, String action) {
@@ -151,13 +154,15 @@ public class RecordingService extends Service implements MainContract.SimpleView
 	}
 
 	private void updateNotification(long mills) {
-		remoteViewsSmall.setTextViewText(R.id.txt_recording_progress,
-				getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
+		if (started) {
+			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress,
+					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
 
-		remoteViewsBig.setTextViewText(R.id.txt_recording_progress,
-				getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
+			remoteViewsBig.setTextViewText(R.id.txt_recording_progress,
+					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
 
-		notificationManager.notify(NOTIF_ID, builder.build());
+			notificationManager.notify(NOTIF_ID, builder.build());
+		}
 	}
 
 	@Override

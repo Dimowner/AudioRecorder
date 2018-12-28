@@ -29,6 +29,8 @@ public interface LocalRepository {
 
 	List<Record> getAllRecords();
 
+	boolean deleteAllRecords();
+
 	Record getLastRecord();
 
 	Record insertRecord(Record record);

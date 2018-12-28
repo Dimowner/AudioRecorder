@@ -33,6 +33,8 @@ import com.dimowner.audiorecorder.ui.MainContract;
 import com.dimowner.audiorecorder.ui.MainPresenter;
 import com.dimowner.audiorecorder.ui.records.RecordsContract;
 import com.dimowner.audiorecorder.ui.records.RecordsPresenter;
+import com.dimowner.audiorecorder.ui.settings.SettingsContract;
+import com.dimowner.audiorecorder.ui.settings.SettingsPresenter;
 
 public class Injector {
 
@@ -43,6 +45,7 @@ public class Injector {
 
 	private MainContract.UserActionsListener mainPresenter;
 	private RecordsContract.UserActionsListener recordsPresenter;
+	private SettingsContract.UserActionsListener settingsPresenter;
 
 	public Injector(Context context) {
 		this.context = context;
@@ -107,6 +110,14 @@ public class Injector {
 		return recordsPresenter;
 	}
 
+	public SettingsContract.UserActionsListener provideSettingsPresenter() {
+		if (settingsPresenter == null) {
+			settingsPresenter = new SettingsPresenter(provideLocalRepository(), provideFileRepository(),
+					provideRecordingTasksQueue(), providePrefs());
+		}
+		return settingsPresenter;
+	}
+
 	public void clearRecordsPresenter() {
 		if (recordsPresenter != null) {
 			recordsPresenter.unbindView();
@@ -120,6 +131,14 @@ public class Injector {
 			mainPresenter.unbindView();
 			mainPresenter.clear();
 			mainPresenter = null;
+		}
+	}
+
+	public void clearSettingsPresenter() {
+		if (settingsPresenter != null) {
+			settingsPresenter.unbindView();
+			settingsPresenter.clear();
+			settingsPresenter = null;
 		}
 	}
 }

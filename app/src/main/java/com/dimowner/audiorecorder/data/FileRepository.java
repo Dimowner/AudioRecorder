@@ -32,7 +32,7 @@ public interface FileRepository {
 
 	boolean deleteRecordFile(String path);
 
-	void deleteAllRecords();
+	boolean deleteAllRecords();
 
 	boolean renameFile(String path, String newName);
 

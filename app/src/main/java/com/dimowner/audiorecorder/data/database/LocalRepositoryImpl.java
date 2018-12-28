@@ -17,6 +17,8 @@
 package com.dimowner.audiorecorder.data.database;
 
 import android.database.Cursor;
+import android.database.SQLException;
+
 import com.dimowner.audiorecorder.audio.SoundFile;
 
 import java.io.File;
@@ -188,5 +190,19 @@ public class LocalRepositoryImpl implements LocalRepository {
 			dataSource.open();
 		}
 		return dataSource.getRecordsDurations();
+	}
+
+	@Override
+	public boolean deleteAllRecords() {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		try {
+			dataSource.deleteAll();
+			return true;
+		} catch (SQLException e) {
+			Timber.e(e);
+			return false;
+		}
 	}
 }

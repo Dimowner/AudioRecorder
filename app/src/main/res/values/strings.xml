@@ -11,6 +11,9 @@
 	<string name="delete_all">Delete all records</string>
 	<string name="warning">Warning!</string>
 	<string name="delete_record">Delete this record?</string>
+	<string name="delete_all_records">Delete all records?</string>
+	<string name="all_records_deleted">All records deleted successfully</string>
+	<string name="failed_to_delete_all_records">Failed to deleted all records</string>
 	<string name="record_name">New name</string>
 	<string name="recording">Recording: %s</string>
 	<string name="playback">Playback: %s</string>

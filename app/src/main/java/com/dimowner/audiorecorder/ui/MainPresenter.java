@@ -423,6 +423,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override
 							public void run() {
+								view.showWaveForm(new int[] {});
 								view.hideProgress();
 							}
 						});

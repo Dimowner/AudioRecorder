@@ -22,6 +22,7 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -132,6 +133,14 @@ public abstract class DataSource<T> {
 	public ArrayList<T> getAll() {
 		Cursor cursor = queryLocal("SELECT * FROM " + tableName + " ORDER BY " + SQLiteHelper.COLUMN_ID + " DESC");
 		return convertCursor(cursor);
+	}
+
+	/**
+	 * Delete all records from the table
+	 * @throws SQLException on error
+	 */
+	public void deleteAll() throws SQLException {
+		db.execSQL("DELETE FROM " + tableName);
 	}
 
 	/**
