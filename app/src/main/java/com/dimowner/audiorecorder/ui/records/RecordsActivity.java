@@ -67,6 +67,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private TextView txtProgress;
 	private TextView txtDuration;
 	private TextView txtName;
+	private TextView txtEmpty;
 	private TouchLayout touchLayout;
 	private WaveformView waveformView;
 	private ProgressBar panelProgress;
@@ -104,6 +105,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnNext = findViewById(R.id.btn_next);
 		btnPrev = findViewById(R.id.btn_prev);
 		btnDelete = findViewById(R.id.btn_delete);
+		txtEmpty = findViewById(R.id.txtEmpty);
 		btnPlay.setOnClickListener(this);
 		btnStop.setOnClickListener(this);
 		btnNext.setOnClickListener(this);
@@ -130,7 +132,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			@Override public void onTouchDown() { }
 			@Override public void onTouchUp() { }
 		});
-
 
 		recyclerView = findViewById(R.id.recycler_view);
 		recyclerView.setHasFixedSize(true);
@@ -429,7 +430,17 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	public void showRecords(List<ListItem> records) {
-		adapter.setData(records);
+		if (records.size() == 0) {
+			txtEmpty.setVisibility(View.VISIBLE);
+		} else {
+			adapter.setData(records);
+			txtEmpty.setVisibility(View.GONE);
+		}
+	}
+
+	@Override
+	public void showEmptyList() {
+		txtEmpty.setVisibility(View.VISIBLE);
 	}
 
 	@Override

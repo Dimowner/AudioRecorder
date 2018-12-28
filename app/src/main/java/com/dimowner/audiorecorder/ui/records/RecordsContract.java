@@ -40,7 +40,6 @@ public interface RecordsContract {
 
 		void stopPlaybackService();
 
-
 		void showWaveForm(int[] waveForm);
 
 		void showDuration(String duration);
@@ -48,6 +47,8 @@ public interface RecordsContract {
 		void onPlayProgress(long mills, int px, int percent);
 
 		void showRecords(List<ListItem> records);
+
+		void showEmptyList();
 
 		void showPanelProgress();
 

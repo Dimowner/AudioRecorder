@@ -15,6 +15,7 @@
 	<string name="recording">Recording: %s</string>
 	<string name="playback">Playback: %s</string>
 	<string name="zero_time">00:00</string>
+	<string name="no_records">Records is empty.</string>
 
 	<string name="today">Today</string>
 	<string name="yesterday">Yesterday</string>

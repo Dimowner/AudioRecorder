@@ -217,7 +217,10 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				} else {
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override public void run() {
-							if (view !=null) { view.hideProgress(); }
+							if (view !=null) {
+								view.hideProgress();
+								view.showEmptyList();
+							}
 						}});
 				}
 			}

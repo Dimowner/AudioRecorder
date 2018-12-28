@@ -72,6 +72,21 @@
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"/>
 
+	<TextView
+			android:id="@+id/txtEmpty"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:layout_gravity="center"
+			android:layout_marginTop="24dp"
+			android:drawablePadding="@dimen/spacing_normal"
+			android:drawableTop="@drawable/ic_audiotrack"
+			android:textSize="@dimen/text_large"
+			android:text="@string/no_records"
+			tools:text="@string/app_name"
+			tools:visibility="visible"
+			/>
+
 	<com.dimowner.audiorecorder.ui.widget.TouchLayout
 			android:id="@+id/touch_layout"
 			android:layout_width="match_parent"
@@ -84,7 +99,7 @@
 			android:elevation="@dimen/toolbar_elevation"
 			android:visibility="gone"
 			android:background="@drawable/panel_amber"
-			tools:visibility="visible"
+
 			>
 
 		<LinearLayout
