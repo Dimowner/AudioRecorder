@@ -463,6 +463,9 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	@Override
 	public void onDeleteRecord(long id) {
 		adapter.deleteItem(id);
+		if (adapter.getAudioRecordsCount() == 0) {
+			showEmptyList();
+		}
 		hidePanel();
 	}
 

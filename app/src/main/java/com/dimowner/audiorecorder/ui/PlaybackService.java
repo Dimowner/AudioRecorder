@@ -143,6 +143,9 @@ public class PlaybackService extends Service implements MainContract.SimpleView 
 		builder.setCustomContentView(remoteViewsSmall);
 		builder.setCustomBigContentView(remoteViewsBig);
 		builder.setOngoing(true);
+		builder.setOnlyAlertOnce(true);
+		builder.setDefaults(0);
+		builder.setSound(null);
 		notification = builder.build();
 		startForeground(NOTIF_ID, notification);
 	}
@@ -167,6 +170,10 @@ public class PlaybackService extends Service implements MainContract.SimpleView 
 			NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
 			chan.setLightColor(Color.BLUE);
 			chan.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+			chan.setSound(null,null);
+			chan.enableLights(false);
+			chan.enableVibration(false);
+
 			notificationManager.createNotificationChannel(chan);
 		} else {
 			Timber.v("Channel already exists: " + CHANNEL_ID);

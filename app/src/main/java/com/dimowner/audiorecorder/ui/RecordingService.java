@@ -115,6 +115,9 @@ public class RecordingService extends Service implements MainContract.SimpleView
 		builder.setContentIntent(pendingIntent);
 		builder.setCustomContentView(remoteViewsSmall);
 		builder.setCustomBigContentView(remoteViewsBig);
+		builder.setOnlyAlertOnce(true);
+		builder.setDefaults(0);
+		builder.setSound(null);
 		notification = builder.build();
 		startForeground(NOTIF_ID, notification);
 	}
@@ -138,6 +141,10 @@ public class RecordingService extends Service implements MainContract.SimpleView
 			NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
 			chan.setLightColor(Color.BLUE);
 			chan.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+			chan.setSound(null,null);
+			chan.enableLights(false);
+			chan.enableVibration(false);
+
 			notificationManager.createNotificationChannel(chan);
 		}
 		return channelId;

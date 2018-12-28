@@ -98,25 +98,24 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int p) {
+	public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder viewHolder, final int p) {
 		if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_NORMAL) {
-			final int pos = viewHolder.getAdapterPosition();
 			ItemViewHolder holder = (ItemViewHolder) viewHolder;
-			holder.name.setText(data.get(pos).getName());
-			holder.description.setText(data.get(pos).getDurationStr());
-			holder.created.setText(data.get(pos).getCreateTimeStr());
-			holder.waveformView.setWaveform(data.get(pos).getAmps());
+			holder.name.setText(data.get(p).getName());
+			holder.description.setText(data.get(p).getDurationStr());
+			holder.created.setText(data.get(p).getCreateTimeStr());
+			holder.waveformView.setWaveform(data.get(p).getAmps());
 
 			holder.view.setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View v) {
 					if (itemClickListener != null) {
-						itemClickListener.onItemClick(v, data.get(pos).getId(), data.get(pos).getPath(), pos);
+						int lpos = viewHolder.getLayoutPosition();
+						itemClickListener.onItemClick(v, data.get(lpos).getId(), data.get(lpos).getPath(), lpos);
 					}
 				}});
 		} else if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_DATE) {
-			final int pos = viewHolder.getAdapterPosition();
 			UniversalViewHolder holder = (UniversalViewHolder) viewHolder;
-			((TextView)holder.view).setText(TimeUtils.formatDateSmart(data.get(pos).getCreated(), holder.view.getContext()));
+			((TextView)holder.view).setText(TimeUtils.formatDateSmart(data.get(p).getCreated(), holder.view.getContext()));
 		}
 	}
 
@@ -157,9 +156,24 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		for (int i = 0; i < data.size(); i++) {
 			if (data.get(i).getId() == id) {
 				data.remove(i);
-				notifyItemRemoved(i);
+				if (getAudioRecordsCount() == 0) {
+					data.clear();
+					notifyDataSetChanged();
+				} else {
+					notifyItemRemoved(i);
+				}
 			}
 		}
+	}
+
+	public int getAudioRecordsCount() {
+		int count = 0;
+		for (int i = 0; i < data.size(); i++) {
+			if (data.get(i).getType() == ListItem.ITEM_TYPE_NORMAL) {
+				count++;
+			}
+		}
+		return count;
 	}
 
 	public void showFooter() {

@@ -82,6 +82,7 @@
 			android:drawablePadding="@dimen/spacing_normal"
 			android:drawableTop="@drawable/ic_audiotrack"
 			android:textSize="@dimen/text_large"
+			android:textColor="@color/text_primary_light"
 			android:text="@string/no_records"
 			tools:text="@string/app_name"
 			tools:visibility="visible"
