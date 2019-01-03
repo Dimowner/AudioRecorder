@@ -38,7 +38,7 @@ public interface MainContract {
 
 		void stopRecordingService();
 
-		void startPlaybackService();
+		void startPlaybackService(String name);
 
 		void stopPlaybackService();
 

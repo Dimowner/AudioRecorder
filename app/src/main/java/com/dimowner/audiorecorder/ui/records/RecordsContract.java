@@ -80,6 +80,8 @@ public interface RecordsContract {
 		void setActiveRecord(long id, Callback callback);
 
 		long getActiveRecordId();
+
+		String getRecordName();
 	}
 
 	interface Callback {

@@ -240,6 +240,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	public void startPlaybackService() {
 		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
 		intent.setAction(PlaybackService.ACTION_START_PLAYBACK_SERVICE);
+		intent.putExtra(PlaybackService.EXTRAS_KEY_RECORD_NAME, presenter.getRecordName());
 		startService(intent);
 	}
 

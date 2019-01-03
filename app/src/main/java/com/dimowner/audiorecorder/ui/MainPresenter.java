@@ -175,10 +175,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				public void onStartPlay() {
 					Timber.d("onStartPlay");
 					view.showPlayStart();
-					view.startPlaybackService();
-					if (simpleView != null) {
-						simpleView.onStartPlayback();
-					}
+					view.startPlaybackService(record.getName());
 				}
 
 				@Override
@@ -188,9 +185,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							@Override public void run() {
 								if (view != null) {
 									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills), (int)(1000 * mills/(songDuration/1000)));
-									if (simpleView != null) {
-										simpleView.onPlayProgress(mills);
-									}
 								}
 							}});
 					}
@@ -210,9 +204,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				public void onPausePlay() {
 					view.showPlayPause();
 					Timber.d("onPausePlay");
-					if (simpleView != null) {
-						simpleView.onPausePlayback();
-					}
 				}
 
 				@Override

@@ -82,7 +82,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 					if (view != null) {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override public void run() {
-								if (view != null) {
+								if (view != null && record != null) {
 									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills), (int)(1000 * mills/(record.getDuration()/1000)));
 								}
 							}});
@@ -269,5 +269,15 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	@Override
 	public long getActiveRecordId() {
 		return prefs.getActiveRecord();
+	}
+
+	@Override
+	public String getRecordName() {
+		Timber.v("getRecordName");
+		if (record != null) {
+			return record.getName();
+		} else {
+			return "Record";
+		}
 	}
 }

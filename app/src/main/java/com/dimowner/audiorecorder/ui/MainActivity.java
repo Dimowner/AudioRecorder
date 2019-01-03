@@ -253,9 +253,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void startPlaybackService() {
+	public void startPlaybackService(String name) {
 		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
 		intent.setAction(PlaybackService.ACTION_START_PLAYBACK_SERVICE);
+		intent.putExtra(PlaybackService.EXTRAS_KEY_RECORD_NAME, name);
 		startService(intent);
 	}
 

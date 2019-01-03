@@ -18,11 +18,13 @@ import android.widget.RemoteViews;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.audio.player.PlayerContract;
+import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.util.FileUtil;
 
 import timber.log.Timber;
 
-public class PlaybackService extends Service implements MainContract.SimpleView {
+public class PlaybackService extends Service {
 
 	private final static String CHANNEL_NAME = "Default";
 	private final static String CHANNEL_ID = "com.dimowner.audiorecorder.NotificationId";
@@ -39,14 +41,17 @@ public class PlaybackService extends Service implements MainContract.SimpleView 
 
 	public static final String ACTION_CLOSE = "ACTION_CLOSE";
 
+	public static final String EXTRAS_KEY_RECORD_NAME = "record_name";
+
 	private static final int NOTIF_ID = 101;
 	private NotificationCompat.Builder builder;
 	private NotificationManager notificationManager;
 	private RemoteViews remoteViewsSmall;
 	private RemoteViews remoteViewsBig;
 	private Notification notification;
+	private String recordName = "";
 
-	private MainContract.UserActionsListener presenter;
+	private PlayerContract.Player audioPlayer;
 	private ColorMap colorMap;
 
 	public PlaybackService() {
@@ -60,14 +65,37 @@ public class PlaybackService extends Service implements MainContract.SimpleView 
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		presenter = ARApplication.getInjector().provideMainPresenter();
+
+		audioPlayer = ARApplication.getInjector().provideAudioPlayer();
 		colorMap = ARApplication.getInjector().provideColorMap();
-		presenter.bindSimpleView(this);
+		PlayerContract.PlayerCallback playerCallback = new PlayerContract.PlayerCallback() {
+				@Override public void onPreparePlay() {}
+				@Override public void onPlayProgress(final long mills) {}
+				@Override public void onStopPlay() {}
+				@Override public void onSeek(long mills) {}
+				@Override public void onError(AppException throwable) {}
+
+				@Override
+				public void onStartPlay() {
+					onStartPlayback();
+				}
+
+				@Override
+				public void onPausePlay() {
+					onPausePlayback();
+				}
+			};
+
+		this.audioPlayer.addPlayerCallback(playerCallback);
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (intent != null) {
+			if (intent.hasExtra(EXTRAS_KEY_RECORD_NAME)) {
+				recordName = intent.getStringExtra(EXTRAS_KEY_RECORD_NAME);
+			}
+
 			String action = intent.getAction();
 			if (action != null && !action.isEmpty()) {
 				switch (action) {
@@ -81,11 +109,11 @@ public class PlaybackService extends Service implements MainContract.SimpleView 
 						break;
 					case ACTION_PAUSE_PLAYBACK:
 						Timber.v("ACTION_PAUSE_PLAYBACK");
-						presenter.startPlayback();
+						audioPlayer.playOrPause();
 						break;
 					case ACTION_CLOSE:
 						Timber.v("ACTION_CLOSE");
-						presenter.stopPlayback();
+						audioPlayer.stop();
 						stopForegroundService();
 						break;
 					case ACTION_PLAY_NEXT:
@@ -93,7 +121,9 @@ public class PlaybackService extends Service implements MainContract.SimpleView 
 						break;
 					case ACTION_PLAY_PREV:
 						Timber.v("ACTION_PLAY_PREV");
-						presenter.pausePlayback();
+						if (audioPlayer.isPlaying()) {
+							audioPlayer.pause();
+						}
 						break;
 				}
 			}
@@ -114,7 +144,7 @@ public class PlaybackService extends Service implements MainContract.SimpleView 
 //		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_next, getPendingSelfIntent(getApplicationContext(), ACTION_PLAY_NEXT));
 //		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_prev, getPendingSelfIntent(getApplicationContext(), ACTION_PLAY_PREV));
 //		remoteViewsSmall.setTextViewText(R.id.txt_playback_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
-		remoteViewsSmall.setTextViewText(R.id.txt_name, FileUtil.removeFileExtension(presenter.getRecordName()));
+		remoteViewsSmall.setTextViewText(R.id.txt_name, FileUtil.removeFileExtension(recordName));
 		remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
 		remoteViewsBig = new RemoteViews(getPackageName(), R.layout.layout_play_notification_big);
@@ -123,7 +153,7 @@ public class PlaybackService extends Service implements MainContract.SimpleView 
 //		remoteViewsBig.setOnClickPendingIntent(R.id.btn_next, getPendingSelfIntent(getApplicationContext(), ACTION_PLAY_NEXT));
 //		remoteViewsBig.setOnClickPendingIntent(R.id.btn_prev, getPendingSelfIntent(getApplicationContext(), ACTION_PLAY_PREV));
 //		remoteViewsBig.setTextViewText(R.id.txt_playback_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
-		remoteViewsBig.setTextViewText(R.id.txt_name, FileUtil.removeFileExtension(presenter.getRecordName()));
+		remoteViewsBig.setTextViewText(R.id.txt_name, FileUtil.removeFileExtension(recordName));
 		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
 		// Create notification default intent.
@@ -151,7 +181,7 @@ public class PlaybackService extends Service implements MainContract.SimpleView 
 	}
 
 	private void stopForegroundService() {
-		presenter.unbindSimpleView();
+		audioPlayer = null;
 		stopForeground(true);
 		stopSelf();
 	}
@@ -181,29 +211,6 @@ public class PlaybackService extends Service implements MainContract.SimpleView 
 		return channelId;
 	}
 
-//	private void updateNotification(long mills) {
-//		Timber.v("updateNotification: " + mills);
-//		remoteViewsSmall.setTextViewText(R.id.txt_playback_progress,
-//				getResources().getString(R.string.playback, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
-//
-//		remoteViewsBig.setTextViewText(R.id.txt_playback_progress,
-//				getResources().getString(R.string.playback, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
-//
-//		notificationManager.notify(NOTIF_ID, builder.build());
-//	}
-
-	@Override
-	public void onPlayProgress(long mills) {
-		Timber.v("onPlayProgress: " + mills);
-//		if (mills%1000 == 0) {
-//			updateNotification(mills);
-//		}
-	}
-
-	@Override
-	public void onRecordingProgress(long mills, int amp) { }
-
-	@Override
 	public void onPausePlayback() {
 		Timber.v("onPausePlayback");
 //		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
@@ -213,7 +220,6 @@ public class PlaybackService extends Service implements MainContract.SimpleView 
 		notificationManager.notify(NOTIF_ID, builder.build());
 	}
 
-	@Override
 	public void onStartPlayback() {
 		Timber.v("onStartPlayback");
 		remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_pause);
