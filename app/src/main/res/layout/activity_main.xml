@@ -53,6 +53,7 @@
 					android:id="@+id/record"
 					android:layout_width="wrap_content"
 					android:layout_height="@dimen/waveform_height"
+					android:layout_marginBottom="48dp"
 					/>
 
 			<ProgressBar
@@ -60,6 +61,17 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center"/>
+
+			<ImageButton
+					android:id="@+id/btn_play"
+					android:layout_width="@dimen/bottom_pnl_small_btn_size"
+					android:layout_height="@dimen/bottom_pnl_small_btn_size"
+					android:adjustViewBounds="true"
+					android:background="?android:selectableItemBackgroundBorderless"
+					android:contentDescription="@null"
+					android:layout_gravity="bottom|center"
+					android:scaleType="center"
+					android:src="@drawable/ic_play"/>
 		</FrameLayout>
 
 	</LinearLayout>
@@ -180,16 +192,17 @@
 				android:layout_gravity="center"
 				android:orientation="horizontal">
 
-			<ImageButton
-					android:id="@+id/btn_play"
-					android:layout_width="@dimen/bottom_pnl_small_btn_size"
-					android:layout_height="@dimen/bottom_pnl_small_btn_size"
-					android:adjustViewBounds="true"
-					android:background="?android:selectableItemBackgroundBorderless"
-					android:contentDescription="@null"
-					android:layout_gravity="center"
-					android:scaleType="center"
-					android:src="@drawable/ic_play"/>
+			<!--<ImageButton-->
+					<!--android:id="@+id/btn_play"-->
+					<!--android:layout_width="@dimen/bottom_pnl_small_btn_size"-->
+					<!--android:layout_height="@dimen/bottom_pnl_small_btn_size"-->
+					<!--android:adjustViewBounds="true"-->
+					<!--android:background="?android:selectableItemBackgroundBorderless"-->
+					<!--android:contentDescription="@null"-->
+					<!--android:layout_gravity="center"-->
+					<!--android:scaleType="center"-->
+					<!--android:visibility="invisible"-->
+					<!--android:src="@drawable/ic_play"/>-->
 
 			<ImageButton
 					android:id="@+id/btn_record"
@@ -202,16 +215,17 @@
 					android:scaleType="centerInside"
 					android:src="@drawable/ic_record"/>
 
-			<ImageButton
-					android:id="@+id/btn_stop"
-					android:layout_width="@dimen/bottom_pnl_small_btn_size"
-					android:layout_height="@dimen/bottom_pnl_small_btn_size"
-					android:adjustViewBounds="true"
-					android:background="?android:selectableItemBackgroundBorderless"
-					android:contentDescription="@null"
-					android:layout_gravity="center"
-					android:scaleType="center"
-					android:src="@drawable/ic_stop"/>
+			<!--<ImageButton-->
+					<!--android:id="@+id/btn_stop"-->
+					<!--android:layout_width="@dimen/bottom_pnl_small_btn_size"-->
+					<!--android:layout_height="@dimen/bottom_pnl_small_btn_size"-->
+					<!--android:adjustViewBounds="true"-->
+					<!--android:background="?android:selectableItemBackgroundBorderless"-->
+					<!--android:contentDescription="@null"-->
+					<!--android:layout_gravity="center"-->
+					<!--android:scaleType="center"-->
+					<!--android:visibility="invisible"-->
+					<!--android:src="@drawable/ic_stop"/>-->
 
 		</LinearLayout>
 

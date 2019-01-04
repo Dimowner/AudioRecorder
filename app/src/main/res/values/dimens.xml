@@ -17,7 +17,7 @@
 
 	<dimen name="divider_height">1dp</dimen>
 
-	<dimen name="bottom_pnl_btn_size">72dp</dimen>
+	<dimen name="bottom_pnl_btn_size">84dp</dimen>
 	<dimen name="bottom_pnl_small_btn_size">54dp</dimen>
 
 	<dimen name="gradient_radius">300dp</dimen>

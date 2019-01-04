@@ -76,6 +76,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Double-tap on waveform to rewind 10sec
 // TODO: Show total records count, total duration, available space in app settings
 // TODO: Fix recording notification
+// TODO: Show Record info
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -89,7 +90,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private TextView txtName;
 	private ImageButton btnPlay;
 	private ImageButton btnRecord;
-	private ImageButton btnStop;
+//	private ImageButton btnStop;
 	private ImageButton btnRecordsList;
 	private ImageButton btnSettings;
 	private ProgressBar progressBar;
@@ -111,7 +112,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtName = findViewById(R.id.txt_name);
 		btnPlay = findViewById(R.id.btn_play);
 		btnRecord = findViewById(R.id.btn_record);
-		btnStop = findViewById(R.id.btn_stop);
+//		btnStop = findViewById(R.id.btn_stop);
 		btnRecordsList = findViewById(R.id.btn_records_list);
 		btnSettings = findViewById(R.id.btn_settings);
 		progressBar = findViewById(R.id.progress);
@@ -124,7 +125,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		btnPlay.setOnClickListener(this);
 		btnRecord.setOnClickListener(this);
-		btnStop.setOnClickListener(this);
+//		btnStop.setOnClickListener(this);
 		btnRecordsList.setOnClickListener(this);
 		btnSettings.setOnClickListener(this);
 
@@ -289,7 +290,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showWaveForm(int[] waveForm) {
-		waveformView.setWaveform(waveForm);;
+		waveformView.setWaveform(waveForm);
 	}
 
 	@Override
