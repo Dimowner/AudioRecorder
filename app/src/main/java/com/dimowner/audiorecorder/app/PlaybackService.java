@@ -1,4 +1,4 @@
-package com.dimowner.audiorecorder.ui;
+package com.dimowner.audiorecorder.app;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -232,7 +232,6 @@ public class PlaybackService extends Service {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Timber.v("ON RECEIVE StopPlaybackReceiver");
 			Intent stopIntent = new Intent(context, PlaybackService.class);
 			stopIntent.setAction(intent.getAction());
 			context.startService(stopIntent);

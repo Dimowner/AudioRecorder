@@ -17,7 +17,7 @@
  * the License.
  */
 
-package com.dimowner.audiorecorder.ui.widget;
+package com.dimowner.audiorecorder.app.widget;
 
 public interface ThresholdListener {
 	void onTopThreshold();

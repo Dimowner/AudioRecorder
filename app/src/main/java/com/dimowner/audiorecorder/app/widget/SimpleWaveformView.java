@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.ui.widget;
+package com.dimowner.audiorecorder.app.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;

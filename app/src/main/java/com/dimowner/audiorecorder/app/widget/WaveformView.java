@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.ui.widget;
+package com.dimowner.audiorecorder.app.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -219,6 +219,15 @@ public class WaveformView extends View {
 		}
 		updateShifts((int) -AndroidUtils.dpToPx(recordingData.size()));
 		recordingData.add(convertAmp(amp));
+		invalidate();
+	}
+
+	public void setRecordingData(List<Integer> data) {
+		recordingData.clear();
+		for (int i = 0; i < data.size(); i++) {
+			recordingData.add(convertAmp(data.get(i)));
+		}
+		updateShifts((int) -AndroidUtils.dpToPx(recordingData.size()));
 		invalidate();
 	}
 

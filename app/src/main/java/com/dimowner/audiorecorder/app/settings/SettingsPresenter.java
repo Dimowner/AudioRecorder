@@ -1,4 +1,4 @@
-package com.dimowner.audiorecorder.ui.settings;
+package com.dimowner.audiorecorder.app.settings;
 
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.data.FileRepository;

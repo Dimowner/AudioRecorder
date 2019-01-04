@@ -18,6 +18,8 @@ package com.dimowner.audiorecorder;
 
 import android.content.Context;
 
+import com.dimowner.audiorecorder.app.AppRecorder;
+import com.dimowner.audiorecorder.app.AppRecorderImpl;
 import com.dimowner.audiorecorder.audio.player.AudioPlayer;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
@@ -29,12 +31,12 @@ import com.dimowner.audiorecorder.data.PrefsImpl;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.LocalRepositoryImpl;
 import com.dimowner.audiorecorder.data.database.RecordsDataSource;
-import com.dimowner.audiorecorder.ui.MainContract;
-import com.dimowner.audiorecorder.ui.MainPresenter;
-import com.dimowner.audiorecorder.ui.records.RecordsContract;
-import com.dimowner.audiorecorder.ui.records.RecordsPresenter;
-import com.dimowner.audiorecorder.ui.settings.SettingsContract;
-import com.dimowner.audiorecorder.ui.settings.SettingsPresenter;
+import com.dimowner.audiorecorder.app.MainContract;
+import com.dimowner.audiorecorder.app.MainPresenter;
+import com.dimowner.audiorecorder.app.records.RecordsContract;
+import com.dimowner.audiorecorder.app.records.RecordsPresenter;
+import com.dimowner.audiorecorder.app.settings.SettingsContract;
+import com.dimowner.audiorecorder.app.settings.SettingsPresenter;
 
 public class Injector {
 
@@ -67,6 +69,11 @@ public class Injector {
 		return LocalRepositoryImpl.getInstance(provideRecordsDataSource());
 	}
 
+	public AppRecorder provideAppRecorder() {
+		return AppRecorderImpl.getInstance(provideAudioRecorder(), provideLocalRepository(),
+				provideLoadingTasksQueue(), providePrefs());
+	}
+
 	public BackgroundQueue provideLoadingTasksQueue() {
 		if (loadingTasks == null) {
 			loadingTasks = new BackgroundQueue("LoadingTasks");
@@ -96,7 +103,7 @@ public class Injector {
 	public MainContract.UserActionsListener provideMainPresenter() {
 		if (mainPresenter == null) {
 			mainPresenter = new MainPresenter(providePrefs(), provideFileRepository(),
-					provideLocalRepository(), provideAudioPlayer(), provideAudioRecorder(),
+					provideLocalRepository(), provideAudioPlayer(), provideAppRecorder(),
 					provideLoadingTasksQueue(), provideRecordingTasksQueue());
 		}
 		return mainPresenter;
@@ -105,7 +112,8 @@ public class Injector {
 	public RecordsContract.UserActionsListener provideRecordsPresenter() {
 		if (recordsPresenter == null) {
 			recordsPresenter = new RecordsPresenter(provideLocalRepository(), provideFileRepository(),
-					provideLoadingTasksQueue(), provideRecordingTasksQueue(), provideAudioPlayer(), providePrefs());
+					provideLoadingTasksQueue(), provideRecordingTasksQueue(), provideAudioPlayer(),
+					provideAppRecorder(), providePrefs());
 		}
 		return recordsPresenter;
 	}

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.ui.records;
+package com.dimowner.audiorecorder.app.records;
 
 import com.dimowner.audiorecorder.Contract;
 

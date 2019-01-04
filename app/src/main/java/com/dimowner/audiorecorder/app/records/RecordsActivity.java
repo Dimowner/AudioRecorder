@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.ui.records;
+package com.dimowner.audiorecorder.app.records;
 
 import android.animation.Animator;
 import android.app.Activity;
@@ -37,11 +37,11 @@ import android.widget.Toast;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
-import com.dimowner.audiorecorder.ui.PlaybackService;
-import com.dimowner.audiorecorder.ui.widget.SimpleWaveformView;
-import com.dimowner.audiorecorder.ui.widget.ThresholdListener;
-import com.dimowner.audiorecorder.ui.widget.TouchLayout;
-import com.dimowner.audiorecorder.ui.widget.WaveformView;
+import com.dimowner.audiorecorder.app.PlaybackService;
+import com.dimowner.audiorecorder.app.widget.SimpleWaveformView;
+import com.dimowner.audiorecorder.app.widget.ThresholdListener;
+import com.dimowner.audiorecorder.app.widget.TouchLayout;
+import com.dimowner.audiorecorder.app.widget.WaveformView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;

@@ -1,4 +1,4 @@
-package com.dimowner.audiorecorder.ui;
+package com.dimowner.audiorecorder.app;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -18,11 +18,14 @@ import android.widget.RemoteViews;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.util.TimeUtils;
+
+import java.io.File;
 
 import timber.log.Timber;
 
-public class RecordingService extends Service implements MainContract.SimpleView {
+public class RecordingService extends Service {
 
 	private final static String CHANNEL_NAME = "Default";
 	private final static String CHANNEL_ID = "com.dimowner.audiorecorder.NotificationId";
@@ -40,7 +43,8 @@ public class RecordingService extends Service implements MainContract.SimpleView
 	private RemoteViews remoteViewsBig;
 	private Notification notification;
 
-	private MainContract.UserActionsListener presenter;
+	private AppRecorder appRecorder;
+	private AppRecorderCallback appRecorderCallback;
 	private ColorMap colorMap;
 	private boolean started = false;
 
@@ -55,9 +59,24 @@ public class RecordingService extends Service implements MainContract.SimpleView
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		presenter = ARApplication.getInjector().provideMainPresenter();
+		appRecorder = ARApplication.getInjector().provideAppRecorder();
 		colorMap = ARApplication.getInjector().provideColorMap();
-		presenter.bindSimpleView(this);
+		appRecorderCallback = new AppRecorderCallback() {
+			@Override public void onRecordingStarted() { }
+			@Override public void onRecordingPaused() { }
+			@Override public void onRecordProcessing() { }
+			@Override public void onRecordingStopped(long id, File file) { }
+
+			@Override
+			public void onRecordingProgress(long mills, int amp) {
+				if (mills%1000 == 0) {
+					updateNotification(mills);
+				}
+			}
+
+			@Override public void onError(AppException throwable) { }
+		};
+		appRecorder.addRecordingCallback(appRecorderCallback);
 	}
 
 	@Override
@@ -76,7 +95,7 @@ public class RecordingService extends Service implements MainContract.SimpleView
 						break;
 					case ACTION_STOP_RECORDING:
 						Timber.v("ACTION_STOP_RECORDING");
-						presenter.stopRecordingRemote();
+						appRecorder.stopRecording();
 						stopForegroundService();
 						break;
 				}
@@ -125,7 +144,7 @@ public class RecordingService extends Service implements MainContract.SimpleView
 	}
 
 	private void stopForegroundService() {
-		presenter.unbindSimpleView();
+		appRecorder.removeRecordingCallback(appRecorderCallback);
 		stopForeground(true);
 		stopSelf();
 		started = false;
@@ -165,26 +184,9 @@ public class RecordingService extends Service implements MainContract.SimpleView
 		}
 	}
 
-	@Override
-	public void onPlayProgress(long mills) { }
-
-	@Override
-	public void onRecordingProgress(long mills, int amp) {
-		if (mills%1000 == 0) {
-			updateNotification(mills);
-		}
-	}
-
-	@Override
-	public void onPausePlayback() { }
-
-	@Override
-	public void onStartPlayback() { }
-
 	public static class StopRecordingReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Timber.v("ON RECEIVE StopPlaybackReceiver");
 			Intent stopIntent = new Intent(context, RecordingService.class);
 			stopIntent.setAction(intent.getAction());
 			context.startService(stopIntent);

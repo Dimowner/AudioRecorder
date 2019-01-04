@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.ui;
+package com.dimowner.audiorecorder.app;
 
 import android.Manifest;
 import android.app.Activity;
@@ -39,14 +39,15 @@ import android.widget.Toast;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
-import com.dimowner.audiorecorder.ui.records.RecordsActivity;
-import com.dimowner.audiorecorder.ui.settings.SettingsActivity;
-import com.dimowner.audiorecorder.ui.widget.WaveformView;
+import com.dimowner.audiorecorder.app.records.RecordsActivity;
+import com.dimowner.audiorecorder.app.settings.SettingsActivity;
+import com.dimowner.audiorecorder.app.widget.WaveformView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -220,9 +221,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void showRecordingStop(long id, File file) {
+	public void showRecordingStop() {
 		btnRecord.setImageResource(R.drawable.ic_record);
-		presenter.loadActiveRecord();
 		btnPlay.setEnabled(true);
 		waveformView.hideRecording();
 		waveformView.clearRecordingData();
@@ -311,6 +311,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void showRecordsCount(int count) {
 		txtRecordsCount.setText(getResources().getString(R.string.total_record_count, count));
+	}
+
+	@Override
+	public void updateRecordingView(List<Integer> data) {
+		waveformView.setRecordingData(data);
 	}
 
 	@Override

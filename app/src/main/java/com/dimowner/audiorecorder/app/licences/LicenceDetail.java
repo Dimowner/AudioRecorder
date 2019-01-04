@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.ui.licences;
+package com.dimowner.audiorecorder.app.licences;
 
 import android.app.Activity;
 import android.os.Bundle;

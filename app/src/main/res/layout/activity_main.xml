@@ -21,7 +21,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:orientation="vertical"
-		tools:context="com.dimowner.audiorecorder.ui.MainActivity">
+		tools:context="com.dimowner.audiorecorder.app.MainActivity">
 
 	<TextView
 			android:layout_width="match_parent"
@@ -49,7 +49,7 @@
 				android:layout_gravity="center"
 				>
 
-			<com.dimowner.audiorecorder.ui.widget.WaveformView
+			<com.dimowner.audiorecorder.app.widget.WaveformView
 					android:id="@+id/record"
 					android:layout_width="wrap_content"
 					android:layout_height="@dimen/waveform_height"

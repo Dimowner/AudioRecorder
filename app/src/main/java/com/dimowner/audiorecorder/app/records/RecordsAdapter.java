@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.ui.records;
+package com.dimowner.audiorecorder.app.records;
 
 import android.graphics.Typeface;
 import android.os.Build;
@@ -30,7 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.dimowner.audiorecorder.R;
-import com.dimowner.audiorecorder.ui.widget.SimpleWaveformView;
+import com.dimowner.audiorecorder.app.widget.SimpleWaveformView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.TimeUtils;
 

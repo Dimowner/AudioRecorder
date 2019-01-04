@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.ui;
+package com.dimowner.audiorecorder.app;
 
 import android.content.Context;
 
 import com.dimowner.audiorecorder.Contract;
 
 import java.io.File;
+import java.util.List;
 
 public interface MainContract {
 
@@ -28,7 +29,7 @@ public interface MainContract {
 
 		void showRecordingStart();
 
-		void showRecordingStop(long id, File file);
+		void showRecordingStop();
 
 		void askRecordingNewName(long id, File file);
 
@@ -58,31 +59,16 @@ public interface MainContract {
 
 		void showRecordsCount(int count);
 
+		void updateRecordingView(List<Integer> data);
+
 		void onPlayProgress(long mills, int px, int percent);
-	}
-
-	interface SimpleView {
-
-		void onPlayProgress(long mills);
-
-		void onRecordingProgress(long mills, int amp);
-
-		void onPausePlayback();
-
-		void onStartPlayback();
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
 
-		void bindSimpleView(SimpleView view);
-
-		void unbindSimpleView();
-
 		void startRecording();
 
 		void stopRecording();
-
-		void stopRecordingRemote();
 
 		void startPlayback();
 
@@ -92,8 +78,6 @@ public interface MainContract {
 
 		void stopPlayback();
 
-		void deleteAll();
-
 		void renameRecord(long id, String name);
 
 		void loadActiveRecord();
@@ -102,7 +86,5 @@ public interface MainContract {
 
 		//TODO: Remove this getters
 		boolean isStorePublic();
-
-		String getRecordName();
 	}
 }

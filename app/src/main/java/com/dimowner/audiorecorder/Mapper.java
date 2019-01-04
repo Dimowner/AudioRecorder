@@ -1,7 +1,7 @@
 package com.dimowner.audiorecorder;
 
 import com.dimowner.audiorecorder.data.database.Record;
-import com.dimowner.audiorecorder.ui.records.ListItem;
+import com.dimowner.audiorecorder.app.records.ListItem;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.util.ArrayList;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.ui.settings;
+package com.dimowner.audiorecorder.app.settings;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -39,7 +39,7 @@ import android.widget.Toast;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.data.Prefs;
-import com.dimowner.audiorecorder.ui.licences.LicenceActivity;
+import com.dimowner.audiorecorder.app.licences.LicenceActivity;
 
 public class SettingsActivity extends Activity implements SettingsContract.View, View.OnClickListener {
 

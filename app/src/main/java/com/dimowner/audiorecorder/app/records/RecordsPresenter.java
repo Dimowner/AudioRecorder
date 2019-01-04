@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.ui.records;
+package com.dimowner.audiorecorder.app.records;
 
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.Mapper;
+import com.dimowner.audiorecorder.app.AppRecorder;
+import com.dimowner.audiorecorder.app.AppRecorderCallback;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
@@ -29,6 +31,7 @@ import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
+import java.io.File;
 import java.util.List;
 import timber.log.Timber;
 
@@ -36,7 +39,9 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	private RecordsContract.View view;
 	private final PlayerContract.Player audioPlayer;
+	private AppRecorder appRecorder;
 	private PlayerContract.PlayerCallback playerCallback;
+	private AppRecorderCallback appRecorderCallback;
 	private final BackgroundQueue loadingTasks;
 	private final BackgroundQueue recordingsTasks;
 	private final FileRepository fileRepository;
@@ -48,20 +53,42 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	public RecordsPresenter(final LocalRepository localRepository, FileRepository fileRepository,
 									BackgroundQueue loadingTasks, BackgroundQueue recordingsTasks,
-									PlayerContract.Player player, Prefs prefs) {
+									PlayerContract.Player player, AppRecorder appRecorder, Prefs prefs) {
 		this.localRepository = localRepository;
 		this.fileRepository = fileRepository;
 		this.loadingTasks = loadingTasks;
 		this.recordingsTasks = recordingsTasks;
 		this.audioPlayer = player;
+		this.appRecorder = appRecorder;
 		this.playerCallback = null;
 		this.prefs = prefs;
 	}
 
 	@Override
-	public void bindView(RecordsContract.View v) {
+	public void bindView(final RecordsContract.View v) {
 		this.view = v;
 		this.localRepository.open();
+
+		if (appRecorderCallback == null) {
+			appRecorderCallback = new AppRecorderCallback() {
+				@Override public void onRecordingStarted() {}
+				@Override public void onRecordingPaused() {}
+				@Override public void onRecordProcessing() {}
+				@Override public void onRecordingProgress(long mills, int amp) {}
+
+				@Override
+				public void onRecordingStopped(long id, File file) {
+					loadRecords();
+				}
+
+				@Override
+				public void onError(AppException e) {
+					view.showError(ErrorParser.parseException(e));
+				}
+			};
+		}
+		appRecorder.addRecordingCallback(appRecorderCallback);
+
 		if (playerCallback == null) {
 			this.playerCallback = new PlayerContract.PlayerCallback() {
 
@@ -129,6 +156,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	public void unbindView() {
 		this.localRepository.close();
 		audioPlayer.removePlayerCallback(playerCallback);
+		appRecorder.removeRecordingCallback(appRecorderCallback);
 		this.view = null;
 	}
 

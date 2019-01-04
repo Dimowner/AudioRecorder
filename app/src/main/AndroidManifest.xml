@@ -25,7 +25,7 @@
 			android:label="@string/app_name"
 			android:theme="@style/AppTheme">
 
-		<activity android:name="com.dimowner.audiorecorder.ui.MainActivity"
+		<activity android:name="com.dimowner.audiorecorder.app.MainActivity"
 					 android:screenOrientation="portrait">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
@@ -34,26 +34,26 @@
 			</intent-filter>
 		</activity>
 
-		<activity android:name="com.dimowner.audiorecorder.ui.records.RecordsActivity"
+		<activity android:name="com.dimowner.audiorecorder.app.records.RecordsActivity"
 					 android:screenOrientation="portrait"/>
-		<activity android:name="com.dimowner.audiorecorder.ui.settings.SettingsActivity"
+		<activity android:name="com.dimowner.audiorecorder.app.settings.SettingsActivity"
 					 android:screenOrientation="portrait"/>
 
-		<activity android:name=".ui.licences.LicenceActivity"
+		<activity android:name=".app.licences.LicenceActivity"
 					 android:label="@string/open_source_licences"
 					 android:screenOrientation="portrait"/>
-		<activity android:name=".ui.licences.LicenceDetail"
+		<activity android:name=".app.licences.LicenceDetail"
 					 android:screenOrientation="portrait"/>
 
-		<service android:name="com.dimowner.audiorecorder.ui.RecordingService" />
-		<service android:name="com.dimowner.audiorecorder.ui.PlaybackService" />
+		<service android:name="com.dimowner.audiorecorder.app.RecordingService" />
+		<service android:name="com.dimowner.audiorecorder.app.PlaybackService" />
 
 	    <meta-data
             android:name="io.fabric.ApiKey"
             android:value="a911efb38fc3ed01944c7ea4410acde51d847864" />
 
-		<receiver android:name=".ui.RecordingService$StopRecordingReceiver" />
-		<receiver android:name=".ui.PlaybackService$StopPlaybackReceiver" />
+		<receiver android:name=".app.RecordingService$StopRecordingReceiver" />
+		<receiver android:name=".app.PlaybackService$StopPlaybackReceiver" />
 
     </application>
 
