@@ -16,7 +16,6 @@
 
 package com.dimowner.audiorecorder.data.database;
 
-import com.dimowner.audiorecorder.util.AndroidUtils;
 import java.util.Arrays;
 
 public class Record {
@@ -29,27 +28,30 @@ public class Record {
 	private long duration;
 	private long created;
 	private String path;
+	private boolean bookmark;
 	private int[] amps;
 	private byte[] data;
 	//TODO: Remove not needed data clusters.
 
-	public Record(int id, String name, long duration, long created, String path, int[] amps) {
+	public Record(int id, String name, long duration, long created, String path, boolean bookmark, int[] amps) {
 		this.id = id;
 		this.name = name;
 		this.duration = duration;
 		this.created = created;
 		this.path = path;
+		this.bookmark = bookmark;
 		this.amps = amps;
 		this.data = int2byte(amps);
 //		this.data = AndroidUtils.int2byte(amps);
 	}
 
-	public Record(int id, String name, long duration, long created, String path, byte[] amps) {
+	public Record(int id, String name, long duration, long created, String path, boolean bookmark, byte[] amps) {
 		this.id = id;
 		this.name = name;
 		this.duration = duration;
 		this.created = created;
 		this.path = path;
+		this.bookmark = bookmark;
 		this.amps = byte2int(amps);
 //		this.amps = AndroidUtils.byte2int(amps);
 		this.data = amps;
@@ -107,6 +109,14 @@ public class Record {
 
 	public byte[] getData() {
 		return data;
+	}
+
+	public boolean isBookmarked() {
+		return bookmark;
+	}
+
+	public void setBookmark(boolean b) {
+		this.bookmark = b;
 	}
 
 //	public static int[] stringToArray(String groups) {

@@ -23,6 +23,7 @@ import com.dimowner.audiorecorder.audio.SoundFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
@@ -120,6 +121,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 						soundFile.getDuration(),
 						file.lastModified(),
 						path,
+						false,
 						soundFile.getFrameGains());
 				Record r = insertRecord(record);
 				if (r != null) {
@@ -164,7 +166,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 			if (isFileExists(r.getPath())) {
 				return r;
 			} else {
-				//If Audio file deleted then delete record about it from local database.
+				//If Audio file deleted then delete record from local database.
 				dataSource.deleteItem(r.getId());
 				return getLastRecord();
 			}
@@ -190,6 +192,53 @@ public class LocalRepositoryImpl implements LocalRepository {
 			dataSource.open();
 		}
 		return dataSource.getRecordsDurations();
+	}
+
+	@Override
+	public boolean addToBookmarks(int id) {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		Record r = dataSource.getItem(id);
+		r.setBookmark(true);
+		return (dataSource.updateItem(r) > 0);
+	}
+
+	@Override
+	public boolean removeFromBookmarks(int id) {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		Record r = dataSource.getItem(id);
+		r.setBookmark(false);
+		return (dataSource.updateItem(r) > 0);
+	}
+
+	@Override
+	public List<Record> getBookmarks() {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		List<Record> list = new ArrayList<>();
+		Cursor c = dataSource.queryLocal("SELECT * FROM " + SQLiteHelper.TABLE_RECORDS +
+				" WHERE " + SQLiteHelper.COLUMN_BOOKMARK + " = 1" +
+				" ORDER BY " + SQLiteHelper.COLUMN_CREATION_DATE  + " DESC");
+
+		if (c != null && c.moveToFirst()) {
+			do {
+				Record r = dataSource.recordToItem(c);
+				if (isFileExists(r.getPath())) {
+					list.add(r);
+				} else {
+					//If Audio file deleted then delete record from local database.
+					dataSource.deleteItem(r.getId());
+				}
+			} while (c.moveToNext());
+		} else {
+			return new ArrayList<>();
+		}
+		Timber.v("Bookmarks: " + list.toString());
+		return list;
 	}
 
 	@Override

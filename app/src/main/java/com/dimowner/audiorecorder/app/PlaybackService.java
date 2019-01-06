@@ -213,19 +213,23 @@ public class PlaybackService extends Service {
 
 	public void onPausePlayback() {
 		Timber.v("onPausePlayback");
+		if (remoteViewsBig != null && remoteViewsSmall != null) {
 //		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
-		remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_play);
-		remoteViewsSmall.setImageViewResource(R.id.btn_pause, R.drawable.ic_play);
-		builder.setOngoing(false);
-		notificationManager.notify(NOTIF_ID, builder.build());
+			remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_play);
+			remoteViewsSmall.setImageViewResource(R.id.btn_pause, R.drawable.ic_play);
+			builder.setOngoing(false);
+			notificationManager.notify(NOTIF_ID, builder.build());
+		}
 	}
 
 	public void onStartPlayback() {
 		Timber.v("onStartPlayback");
-		remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_pause);
-		remoteViewsSmall.setImageViewResource(R.id.btn_pause, R.drawable.ic_pause);
-		builder.setOngoing(true);
-		notificationManager.notify(NOTIF_ID, builder.build());
+		if (remoteViewsBig != null && remoteViewsSmall != null) {
+			remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_pause);
+			remoteViewsSmall.setImageViewResource(R.id.btn_pause, R.drawable.ic_pause);
+			builder.setOngoing(true);
+			notificationManager.notify(NOTIF_ID, builder.build());
+		}
 	}
 
 	public static class StopPlaybackReceiver extends BroadcastReceiver {

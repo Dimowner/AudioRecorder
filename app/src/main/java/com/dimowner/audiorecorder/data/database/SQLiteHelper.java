@@ -61,6 +61,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 	/** Simplified array of audio record amplitudes that represents waveform. */
 	static final String COLUMN_DATA = "data";
 	static final String COLUMN_DATA_STR = "data_str";
+	static final String COLUMN_BOOKMARK = "bookmark";
 
 	//Create records table sql statement
 	private static final String CREATE_RECORDS_TABLE_SCRIPT =
@@ -71,5 +72,6 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 					+ COLUMN_CREATION_DATE + " LONG NOT NULL, "
 					+ COLUMN_PATH + " TEXT NOT NULL, "
 					+ COLUMN_DATA + " BLOB NOT NULL, "
+					+ COLUMN_BOOKMARK + " INTEGER NOT NULL DEFAULT 0, "
 					+ COLUMN_DATA_STR + " BLOB NOT NULL);";
 }

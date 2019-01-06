@@ -126,7 +126,7 @@ public class Injector {
 		return settingsPresenter;
 	}
 
-	public void clearRecordsPresenter() {
+	public void releaseRecordsPresenter() {
 		if (recordsPresenter != null) {
 			recordsPresenter.unbindView();
 			recordsPresenter.clear();
@@ -134,7 +134,7 @@ public class Injector {
 		}
 	}
 
-	public void clearMainPresenter() {
+	public void releaseMainPresenter() {
 		if (mainPresenter != null) {
 			mainPresenter.unbindView();
 			mainPresenter.clear();
@@ -142,7 +142,7 @@ public class Injector {
 		}
 	}
 
-	public void clearSettingsPresenter() {
+	public void releaseSettingsPresenter() {
 		if (settingsPresenter != null) {
 			settingsPresenter.unbindView();
 			settingsPresenter.clear();

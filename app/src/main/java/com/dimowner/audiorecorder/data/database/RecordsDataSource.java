@@ -55,6 +55,7 @@ public class RecordsDataSource extends DataSource<Record> {
 			values.put(SQLiteHelper.COLUMN_DURATION, item.getDuration());
 			values.put(SQLiteHelper.COLUMN_CREATION_DATE, item.getCreated());
 			values.put(SQLiteHelper.COLUMN_PATH, item.getPath());
+			values.put(SQLiteHelper.COLUMN_BOOKMARK, item.isBookmarked() ? 1 : 0);
 			values.put(SQLiteHelper.COLUMN_DATA, item.getData());
 			//TODO: Remove this field from database.
 			values.put(SQLiteHelper.COLUMN_DATA_STR, "");
@@ -67,13 +68,13 @@ public class RecordsDataSource extends DataSource<Record> {
 
 	@Override
 	public Record recordToItem(Cursor cursor) {
-		//TODO: fix byte array.
 		return new Record(
 				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_ID)),
 				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_NAME)),
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_DURATION)),
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_CREATION_DATE)),
 				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_PATH)),
+				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_BOOKMARK)) != 0,
 				cursor.getBlob(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATA))
 //				Record.stringToArray(
 //						cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATA_STR)))

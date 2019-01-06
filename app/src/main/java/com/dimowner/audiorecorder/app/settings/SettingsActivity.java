@@ -102,7 +102,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.btn_back:
-				ARApplication.getInjector().clearSettingsPresenter();
+				ARApplication.getInjector().releaseSettingsPresenter();
 				finish();
 				break;
 			case R.id.btnLicences:
@@ -138,7 +138,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
-		ARApplication.getInjector().clearSettingsPresenter();
+		ARApplication.getInjector().releaseSettingsPresenter();
 	}
 
 	public void rateApp() {

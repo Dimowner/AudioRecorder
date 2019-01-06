@@ -26,6 +26,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -45,6 +46,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	private boolean showDateHeaders = true;
 
 	private ItemClickListener itemClickListener;
+	private OnAddToBookmarkListener onAddToBookmarkListener = null;
 
 	public RecordsAdapter() {
 		this.data = new ArrayList<>();
@@ -104,6 +106,23 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			holder.name.setText(data.get(p).getName());
 			holder.description.setText(data.get(p).getDurationStr());
 			holder.created.setText(data.get(p).getCreateTimeStr());
+			if (data.get(p).isBookmarked()) {
+				holder.bookmark.setImageResource(R.drawable.ic_bookmark_small);
+			} else {
+				holder.bookmark.setImageResource(R.drawable.ic_bookmark_bordered_small);
+			}
+			holder.bookmark.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (onAddToBookmarkListener != null) {
+						if(data.get(p).isBookmarked()) {
+							onAddToBookmarkListener.onRemoveFromBookmarks((int) data.get(p).getId());
+						} else {
+							onAddToBookmarkListener.onAddToBookmarks((int) data.get(p).getId());
+						}
+					}
+				}
+			});
 			holder.waveformView.setWaveform(data.get(p).getAmps());
 
 			holder.view.setOnClickListener(new View.OnClickListener() {
@@ -139,15 +158,17 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	}
 
 	private void addDateHeaders() {
-		data.add(0, ListItem.createDateItem(data.get(0).getCreated()));
-		Calendar d1 = Calendar.getInstance();
-		d1.setTimeInMillis(data.get(0).getCreated());
-		Calendar d2 = Calendar.getInstance();
-		for (int i = 1; i < data.size(); i++) {
-			d1.setTimeInMillis(data.get(i-1).getCreated());
-			d2.setTimeInMillis(data.get(i).getCreated());
-			if (!TimeUtils.isSameDay(d1, d2)) {
-				data.add(i, ListItem.createDateItem(data.get(i).getCreated()));
+		if (data.size() > 0) {
+			data.add(0, ListItem.createDateItem(data.get(0).getCreated()));
+			Calendar d1 = Calendar.getInstance();
+			d1.setTimeInMillis(data.get(0).getCreated());
+			Calendar d2 = Calendar.getInstance();
+			for (int i = 1; i < data.size(); i++) {
+				d1.setTimeInMillis(data.get(i - 1).getCreated());
+				d2.setTimeInMillis(data.get(i).getCreated());
+				if (!TimeUtils.isSameDay(d1, d2)) {
+					data.add(i, ListItem.createDateItem(data.get(i).getCreated()));
+				}
 			}
 		}
 	}
@@ -218,8 +239,30 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		return -1;
 	}
 
+	public void markAddedToBookmarks(int id) {
+		for (int i = 0; i < data.size(); i++) {
+			if (data.get(i).getId() == id) {
+				data.get(i).setBookmarked(true);
+				notifyItemChanged(i);
+			}
+		}
+	}
+
+	public void markRemovedFromBookmarks(int id) {
+		for (int i = 0; i < data.size(); i++) {
+			if (data.get(i).getId() == id) {
+				data.get(i).setBookmarked(false);
+				notifyItemChanged(i);
+			}
+		}
+	}
+
 	public void setItemClickListener(ItemClickListener itemClickListener) {
 		this.itemClickListener = itemClickListener;
+	}
+
+	public void setOnAddToBookmarkListener(OnAddToBookmarkListener onAddToBookmarkListener) {
+		this.onAddToBookmarkListener = onAddToBookmarkListener;
 	}
 
 	public interface ItemClickListener{
@@ -227,11 +270,17 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	}
 
 
+	public interface OnAddToBookmarkListener {
+		void onAddToBookmarks(int id);
+		void onRemoveFromBookmarks(int id);
+	}
+
 	public class ItemViewHolder extends RecyclerView.ViewHolder {
 		TextView name;
 		TextView description;
 		TextView created;
 		//		ImageView image;
+		ImageButton bookmark;
 		SimpleWaveformView waveformView;
 		View view;
 
@@ -242,6 +291,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			this.description = itemView.findViewById(R.id.list_item_description);
 			this.created = itemView.findViewById(R.id.list_item_date);
 //			this.image = itemView.findViewById(R.id.list_item_image);
+			this.bookmark = itemView.findViewById(R.id.bookmark);
 			this.waveformView = itemView.findViewById(R.id.list_item_waveform);
 		}
 	}

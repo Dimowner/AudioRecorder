@@ -46,7 +46,7 @@ public class ARApplication extends Application {
 			Timber.plant(new Timber.DebugTree() {
 				@Override
 				protected String createStackElementTag(StackTraceElement element) {
-					return super.createStackElementTag(element) + ":" + element.getLineNumber();
+					return "AR-AR" + super.createStackElementTag(element) + ":" + element.getLineNumber();
 				}
 			});
 		}
@@ -64,6 +64,6 @@ public class ARApplication extends Application {
 	public void onTerminate() {
 		super.onTerminate();
 		Timber.v("onTerminate");
-		injector.clearMainPresenter();
+		injector.releaseMainPresenter();
 	}
 }

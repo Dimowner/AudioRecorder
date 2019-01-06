@@ -292,7 +292,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						@Override public void run() { view.showError(R.string.error_file_exists); }});
 				} else {
 					if (fileRepository.renameFile(r.getPath(), name)) {
-						record = new Record(r.getId(), nameWithExt, r.getDuration(), r.getCreated(), renamed.getAbsolutePath(), r.getAmps());
+						record = new Record(r.getId(), nameWithExt, r.getDuration(), r.getCreated(), renamed.getAbsolutePath(), r.isBookmarked(), r.getAmps());
 						if (localRepository.updateRecord(record)) {
 							AndroidUtils.runOnUIThread(new Runnable() {
 								@Override public void run() {

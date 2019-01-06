@@ -39,13 +39,13 @@ import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.widget.SimpleWaveformView;
-import com.dimowner.audiorecorder.app.widget.ThresholdListener;
 import com.dimowner.audiorecorder.app.widget.TouchLayout;
 import com.dimowner.audiorecorder.app.widget.WaveformView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
@@ -64,6 +64,8 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private ImageButton btnNext;
 	private ImageButton btnPrev;
 	private ImageButton btnDelete;
+	private ImageButton btnBookmarks;
+	private ImageButton btnCheckBookmark;
 	private TextView txtProgress;
 	private TextView txtDuration;
 	private TextView txtName;
@@ -95,7 +97,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnBack.setOnClickListener(new View.OnClickListener() {
 			@Override public void onClick(View view) {
 				finish();
-				ARApplication.getInjector().clearRecordsPresenter();
+				ARApplication.getInjector().releaseRecordsPresenter();
 			}});
 		toolbar = findViewById(R.id.toolbar);
 
@@ -107,12 +109,16 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnNext = findViewById(R.id.btn_next);
 		btnPrev = findViewById(R.id.btn_prev);
 		btnDelete = findViewById(R.id.btn_delete);
+		btnBookmarks = findViewById(R.id.btn_bookmarks);
+		btnCheckBookmark = findViewById(R.id.btn_check_bookmark);
 		txtEmpty = findViewById(R.id.txtEmpty);
 		btnPlay.setOnClickListener(this);
 		btnStop.setOnClickListener(this);
 		btnNext.setOnClickListener(this);
 		btnPrev.setOnClickListener(this);
 		btnDelete.setOnClickListener(this);
+		btnBookmarks.setOnClickListener(this);
+		btnCheckBookmark.setOnClickListener(this);
 
 		playProgress = findViewById(R.id.play_progress);
 		txtProgress = findViewById(R.id.txt_progress);
@@ -122,7 +128,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 		touchLayout = findViewById(R.id.touch_layout);
 		touchLayout.setBackgroundResource(colorMap.getPlaybackPanelBackground());
-		touchLayout.setOnThresholdListener(new ThresholdListener() {
+		touchLayout.setOnThresholdListener(new TouchLayout.ThresholdListener() {
 			@Override public void onTopThreshold() {
 				hidePanel();
 				presenter.stopPlayback();
@@ -183,6 +189,14 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 					}
 				});
 //				showPlayerPanel();
+			}
+		});
+		adapter.setOnAddToBookmarkListener(new RecordsAdapter.OnAddToBookmarkListener() {
+			@Override public void onAddToBookmarks(int id) {
+				presenter.addToBookmark(id);
+			}
+			@Override public void onRemoveFromBookmarks(int id) {
+				presenter.removeFromBookmarks(id);
 			}
 		});
 		recyclerView.setAdapter(adapter);
@@ -324,6 +338,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				AlertDialog alert = builder.create();
 				alert.show();
 				break;
+			case R.id.btn_check_bookmark:
+				presenter.checkBookmarkActiveRecord();
+				break;
+			case R.id.btn_bookmarks:
+				presenter.applyBookmarksFilter();
+				break;
 		}
 	}
 
@@ -345,7 +365,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
-		ARApplication.getInjector().clearRecordsPresenter();
+		ARApplication.getInjector().releaseRecordsPresenter();
 	}
 
 	private void handleToolbarScroll(int dy) {
@@ -435,6 +455,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	public void showRecords(List<ListItem> records) {
 		if (records.size() == 0) {
 			txtEmpty.setVisibility(View.VISIBLE);
+			adapter.setData(new ArrayList<ListItem>());
 		} else {
 			adapter.setData(records);
 			txtEmpty.setVisibility(View.GONE);
@@ -443,6 +464,13 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	public void showEmptyList() {
+		txtEmpty.setText(R.string.no_records);
+		txtEmpty.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void showEmptyBookmarksList() {
+		txtEmpty.setText(R.string.no_bookmarks);
 		txtEmpty.setVisibility(View.VISIBLE);
 	}
 
@@ -468,6 +496,32 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			showEmptyList();
 		}
 		hidePanel();
+	}
+
+	@Override
+	public void addedToBookmarks(int id, boolean active) {
+		if (active) {
+			btnCheckBookmark.setImageResource(R.drawable.ic_bookmark);
+		}
+		adapter.markAddedToBookmarks(id);
+	}
+
+	@Override
+	public void removedFromBookmarks(int id, boolean active) {
+		if (active) {
+			btnCheckBookmark.setImageResource(R.drawable.ic_bookmark_bordered);
+		}
+		adapter.markRemovedFromBookmarks(id);
+	}
+
+	@Override
+	public void bookmarksSelected() {
+		btnBookmarks.setImageResource(R.drawable.ic_bookmark);
+	}
+
+	@Override
+	public void bookmarksUnselected() {
+		btnBookmarks.setImageResource(R.drawable.ic_bookmark_bordered);
 	}
 
 	@Override

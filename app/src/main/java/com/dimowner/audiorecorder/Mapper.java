@@ -19,6 +19,7 @@ public class Mapper {
 				record.getDuration()/1000,
 				record.getCreated(),
 				record.getPath(),
+				record.isBookmarked(),
 				record.getAmps());
 	}
 

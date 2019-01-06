@@ -44,8 +44,9 @@
 
 		<TextView
 				style="@style/Text.SectionLabel"
-				android:layout_width="wrap_content"
+				android:layout_width="0dp"
 				android:layout_height="@dimen/toolbar_height"
+				android:layout_weight="1"
 				android:gravity="center_vertical"
 				android:paddingStart="@dimen/spacing_normal"
 				android:paddingLeft="@dimen/spacing_normal"
@@ -54,6 +55,17 @@
 				android:textColor="@color/text_primary_light"
 				android:text="@string/records"
 				/>
+
+		<ImageButton
+				android:id="@+id/btn_bookmarks"
+				android:layout_width="@dimen/bottom_pnl_small_btn_size"
+				android:layout_height="@dimen/bottom_pnl_small_btn_size"
+				android:adjustViewBounds="true"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:contentDescription="@null"
+				android:layout_gravity="center_vertical|end"
+				android:scaleType="center"
+				android:src="@drawable/ic_bookmark_bordered"/>
 
 	</LinearLayout>
 
@@ -100,7 +112,7 @@
 			android:elevation="@dimen/toolbar_elevation"
 			android:visibility="gone"
 			android:background="@drawable/panel_amber"
-
+			tools:visibility="visible"
 			>
 
 		<LinearLayout
@@ -108,16 +120,32 @@
 				android:layout_height="wrap_content"
 				android:orientation="vertical">
 
-			<TextView
-					android:id="@+id/txt_progress"
+			<FrameLayout
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:gravity="center_horizontal"
-					android:padding="@dimen/spacing_normal"
-					android:textColor="@color/text_primary_light"
-					android:textSize="@dimen/text_xlarge"
-					android:textStyle="bold"
-					tools:text="00:00:00"/>
+					android:layout_height="wrap_content">
+				<TextView
+						android:id="@+id/txt_progress"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center"
+						android:padding="@dimen/spacing_normal"
+						android:textColor="@color/text_primary_light"
+						android:textSize="@dimen/text_xlarge"
+						android:textStyle="bold"
+						tools:text="00:00:00"/>
+
+				<ImageButton
+						android:id="@+id/btn_check_bookmark"
+						android:layout_width="@dimen/bottom_pnl_small_btn_size"
+						android:layout_height="@dimen/bottom_pnl_small_btn_size"
+						android:adjustViewBounds="true"
+						android:background="?android:selectableItemBackgroundBorderless"
+						android:contentDescription="@null"
+						android:layout_gravity="center_vertical|end"
+						android:scaleType="center"
+						android:layout_marginEnd="@dimen/spacing_small"
+						android:src="@drawable/ic_bookmark_bordered"/>
+			</FrameLayout>
 
 			<FrameLayout
 					android:layout_width="match_parent"

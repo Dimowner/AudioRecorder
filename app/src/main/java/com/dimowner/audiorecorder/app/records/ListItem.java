@@ -38,11 +38,12 @@ public class ListItem implements Parcelable {
 	private final long duration;
 	private final long created;
 	private final String createTime;
+	private boolean bookmarked;
 	private final String avatar_url;
 	private int[] amps;
 
 
-	public ListItem(long id, int type, String name, String description, long duration, long created, String path, int[] amps) {
+	public ListItem(long id, int type, String name, String description, long duration, long created, String path, boolean bookmarked, int[] amps) {
 		this.id = id;
 		this.type = type;
 		this.name = name;
@@ -52,20 +53,21 @@ public class ListItem implements Parcelable {
 		this.duration = duration;
 		this.durationStr = convertDurationToStr(duration);
 		this.path = path;
+		this.bookmarked = bookmarked;
 		this.avatar_url = "";
 		this.amps = amps;
 	}
 
 	public static ListItem createHeaderItem() {
-		return new ListItem(-1, ListItem.ITEM_TYPE_HEADER, "HEADER", "", 0, 0, "", null);
+		return new ListItem(-1, ListItem.ITEM_TYPE_HEADER, "HEADER", "", 0, 0, "", false, null);
 	}
 
 	public static ListItem createFooterItem() {
-		return new ListItem(-1, ListItem.ITEM_TYPE_FOOTER, "FOOTER", "", 0, 0, "", null);
+		return new ListItem(-1, ListItem.ITEM_TYPE_FOOTER, "FOOTER", "", 0, 0, "", false, null);
 	}
 
 	public static ListItem createDateItem(long date) {
-		return new ListItem(-1, ListItem.ITEM_TYPE_DATE, "DATE", "", 0, date, "", null);
+		return new ListItem(-1, ListItem.ITEM_TYPE_DATE, "DATE", "", 0, date, "", false, null);
 	}
 
 	public long getId() {
@@ -108,6 +110,14 @@ public class ListItem implements Parcelable {
 		return type;
 	}
 
+	public boolean isBookmarked() {
+		return bookmarked;
+	}
+
+	public void setBookmarked(boolean bookmarked) {
+		this.bookmarked = bookmarked;
+	}
+
 	public int[] getAmps() {
 		return amps;
 	}
@@ -137,6 +147,9 @@ public class ListItem implements Parcelable {
 		path = data[2];
 		avatar_url = data[3];
 		in.readIntArray(amps);
+		boolean[] bools = new boolean[1];
+		in.readBooleanArray(bools);
+		bookmarked = bools[0];
 	}
 
 	public int describeContents() {
@@ -148,6 +161,7 @@ public class ListItem implements Parcelable {
 		out.writeLongArray(new long[] {id, created, duration});
 		out.writeStringArray(new String[] {name, description, path, avatar_url});
 		out.writeIntArray(amps);
+		out.writeBooleanArray(new boolean[] {bookmarked});
 	}
 
 	public static final Parcelable.Creator<ListItem> CREATOR
@@ -175,6 +189,7 @@ public class ListItem implements Parcelable {
 				", duration=" + duration +
 				", created=" + created +
 				", createTime='" + createTime + '\'' +
+				", bookmarked='" + bookmarked + '\'' +
 				", avatar_url='" + avatar_url + '\'' +
 				", amps length='" + amps.length+ '\'' +
 				'}';

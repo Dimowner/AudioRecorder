@@ -47,16 +47,21 @@ public interface RecordsContract {
 		void onPlayProgress(long mills, int px, int percent);
 
 		void showRecords(List<ListItem> records);
-
 		void showEmptyList();
+		void showEmptyBookmarksList();
 
 		void showPanelProgress();
-
 		void hidePanelProgress();
 
 		void showRecordName(String name);
 
 		void onDeleteRecord(long id);
+
+		void addedToBookmarks(int id, boolean active);
+		void removedFromBookmarks(int id, boolean active);
+
+		void bookmarksSelected();
+		void bookmarksUnselected();
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<RecordsContract.View> {
@@ -76,6 +81,12 @@ public interface RecordsContract {
 		void deleteActiveRecord();
 
 		void loadRecords();
+
+		void applyBookmarksFilter();
+		void checkBookmarkActiveRecord();
+
+		void addToBookmark(int id);
+		void removeFromBookmarks(int id);
 
 		void setActiveRecord(long id, Callback callback);
 

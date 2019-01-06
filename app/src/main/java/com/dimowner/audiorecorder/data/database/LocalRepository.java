@@ -42,4 +42,10 @@ public interface LocalRepository {
 	void deleteRecord(int id);
 
 	List<Long> getRecordsDurations();
+
+	boolean addToBookmarks(int id);
+
+	boolean removeFromBookmarks(int id);
+
+	List<Record> getBookmarks();
 }

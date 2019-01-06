@@ -132,4 +132,11 @@ public class TouchLayout extends FrameLayout {
 	public void setOnThresholdListener(ThresholdListener onThresholdListener) {
 		this.onThresholdListener = onThresholdListener;
 	}
+
+	public interface ThresholdListener {
+		void onTopThreshold();
+		void onBottomThreshold();
+		void onTouchDown();
+		void onTouchUp();
+	}
 }

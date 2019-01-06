@@ -49,7 +49,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	private final Prefs prefs;
 
 	private Record record;
-
+	private boolean showBookmarks = false;
 
 	public RecordsPresenter(final LocalRepository localRepository, FileRepository fileRepository,
 									BackgroundQueue loadingTasks, BackgroundQueue recordingsTasks,
@@ -226,35 +226,151 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	@Override
 	public void loadRecords() {
-		view.showProgress();
-		view.showPanelProgress();
-		loadingTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				final List<Record> recordList = localRepository.getAllRecords();
-				record = localRepository.getRecord((int) prefs.getActiveRecord());
-				if (recordList.size() > 0) {
+		if (view != null) {
+			view.showProgress();
+			view.showPanelProgress();
+			loadingTasks.postRunnable(new Runnable() {
+				@Override
+				public void run() {
+					final List<Record> recordList = localRepository.getAllRecords();
+					record = localRepository.getRecord((int) prefs.getActiveRecord());
 					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override public void run() {
+						@Override
+						public void run() {
 							if (view != null) {
 								view.showRecords(Mapper.recordsToListItems(recordList));
 								if (record != null) {
 									view.showWaveForm(record.getAmps());
 									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
 									view.showRecordName(FileUtil.removeFileExtension(record.getName()));
+									if (record.isBookmarked()) {
+										view.bookmarksSelected();
+									} else {
+										view.bookmarksUnselected();
+									}
 								}
 								view.hideProgress();
 								view.hidePanelProgress();
+								view.bookmarksUnselected();
+								if (recordList.size() == 0) {
+									view.showEmptyList();
+								}
 							}
-						}});
+						}
+					});
+				}
+			});
+		}
+	}
+
+	public void loadBookmarks() {
+		if (!showBookmarks) {
+			loadRecords();
+		} else {
+			if (view != null) {
+				view.showProgress();
+				view.showPanelProgress();
+				loadingTasks.postRunnable(new Runnable() {
+					@Override
+					public void run() {
+						final List<Record> recordList = localRepository.getBookmarks();
+						record = localRepository.getRecord((int) prefs.getActiveRecord());
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override
+							public void run() {
+								if (view != null) {
+									view.showRecords(Mapper.recordsToListItems(recordList));
+									if (record != null) {
+										view.showWaveForm(record.getAmps());
+										view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
+										view.showRecordName(FileUtil.removeFileExtension(record.getName()));
+									}
+									view.hideProgress();
+									view.hidePanelProgress();
+									view.bookmarksSelected();
+									if (recordList.size() == 0) {
+										view.showEmptyBookmarksList();
+									}
+								}
+							}
+						});
+					}
+				});
+			}
+		}
+	}
+
+	@Override
+	public void applyBookmarksFilter() {
+		showBookmarks = !showBookmarks;
+		loadBookmarks();
+	}
+
+	@Override
+	public void checkBookmarkActiveRecord() {
+		recordingsTasks.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				if (record.isBookmarked()) {
+					localRepository.removeFromBookmarks(record.getId());
 				} else {
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override public void run() {
-							if (view !=null) {
-								view.hideProgress();
-								view.showEmptyList();
+					localRepository.addToBookmarks(record.getId());
+				}
+				record.setBookmark(!record.isBookmarked());
+
+				AndroidUtils.runOnUIThread(new Runnable() {
+					@Override
+					public void run() {
+						if (view != null) {
+							if (record.isBookmarked()) {
+								view.addedToBookmarks(record.getId(), true);
+							} else {
+								view.removedFromBookmarks(record.getId(), true);
 							}
-						}});
+						}
+					}
+				});
+			}
+		});
+	}
+
+	@Override
+	public void addToBookmark(final int id) {
+		recordingsTasks.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				final Record r = localRepository.getRecord(id);
+				if (r != null) {
+					localRepository.addToBookmarks(r.getId());
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							if (view != null) {
+								view.addedToBookmarks(r.getId(), r.getId() == record.getId());
+							}
+						}
+					});
+				}
+			}
+		});
+	}
+
+	@Override
+	public void removeFromBookmarks(final int id) {
+		recordingsTasks.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				final Record r = localRepository.getRecord(id);
+				if (r != null) {
+					localRepository.removeFromBookmarks(r.getId());
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							if (view != null) {
+								view.removedFromBookmarks(r.getId(), r.getId() == record.getId());
+							}
+						}
+					});
 				}
 			}
 		});
@@ -279,6 +395,11 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
 							view.showRecordName(FileUtil.removeFileExtension(record.getName()));
 							callback.onSuccess();
+							if (record.isBookmarked()) {
+								view.addedToBookmarks(record.getId(), true);
+							} else {
+								view.removedFromBookmarks(record.getId(), true);
+							}
 							view.hidePanelProgress();
 							view.showPlayerPanel();
 						}
