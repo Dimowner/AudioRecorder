@@ -18,6 +18,7 @@ import android.widget.RemoteViews;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.main.MainActivity;
 import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.util.TimeUtils;
 

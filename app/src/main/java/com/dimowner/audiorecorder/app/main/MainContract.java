@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.app;
+package com.dimowner.audiorecorder.app.main;
 
 import android.content.Context;
 
@@ -86,5 +86,9 @@ public interface MainContract {
 
 		//TODO: Remove this getters
 		boolean isStorePublic();
+
+		String getActiveRecordPath();
+
+		String getActiveRecordName();
 	}
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.app;
+package com.dimowner.audiorecorder.app.main;
 
 import android.Manifest;
 import android.app.Activity;
@@ -23,8 +23,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.FileProvider;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +41,8 @@ import android.widget.Toast;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.PlaybackService;
+import com.dimowner.audiorecorder.app.RecordingService;
 import com.dimowner.audiorecorder.app.records.RecordsActivity;
 import com.dimowner.audiorecorder.app.settings.SettingsActivity;
 import com.dimowner.audiorecorder.app.widget.WaveformView;
@@ -53,13 +57,10 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
-// TODO: Do keep recording even if move to next screen or app
 // TODO: Store fixed length of waveform in database
 // TODO: Add waveform type field in database
-// TODO: Show available space on main screen
-// TODO: Add ViewPager to swipe to Settings or Records list
-// TODO: Add pagination for records list
-// TODO: Fix decrease size of RecyclerView or replace it by ListView
+// TODO: Show total records count, total duration, available space in app settings
+// TODO: Show Record info
 // TODO: Fix waveform adjustment
 // TODO: Settings select Theme waveformColorRes
 // TODO: Settings select Record quality
@@ -70,14 +71,13 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Ability to delete record by swipe left
 // TODO: Ability to scroll up from the bottom of the list
 // TODO: Ability to search by record name in list
+// TODO: Add ViewPager to swipe to Settings or Records list
+// TODO: Add pagination for records list
 // TODO: Welcome screen
 // TODO: Guidelines
 // TODO: Check how work max recording duration
 // TODO: Move into 1 class same logic for Recording and Playback services
 // TODO: Double-tap on waveform to rewind 10sec
-// TODO: Show total records count, total duration, available space in app settings
-// TODO: Fix recording notification
-// TODO: Show Record info
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -91,7 +91,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private TextView txtName;
 	private ImageButton btnPlay;
 	private ImageButton btnRecord;
-//	private ImageButton btnStop;
+	private ImageButton btnShare;
 	private ImageButton btnRecordsList;
 	private ImageButton btnSettings;
 	private ProgressBar progressBar;
@@ -116,6 +116,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 //		btnStop = findViewById(R.id.btn_stop);
 		btnRecordsList = findViewById(R.id.btn_records_list);
 		btnSettings = findViewById(R.id.btn_settings);
+		btnShare = findViewById(R.id.btn_share);
 		progressBar = findViewById(R.id.progress);
 		playProgress = findViewById(R.id.play_progress);
 
@@ -129,6 +130,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 //		btnStop.setOnClickListener(this);
 		btnRecordsList.setOnClickListener(this);
 		btnSettings.setOnClickListener(this);
+		btnShare.setOnClickListener(this);
 
 		presenter = ARApplication.getInjector().provideMainPresenter();
 		showTotalRecordsDuration("0h:0m:0s");
@@ -187,6 +189,23 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				break;
 			case R.id.btn_settings:
 				startActivity(SettingsActivity.getStartIntent(getApplicationContext()));
+				break;
+			case R.id.btn_share:
+				String sharePath = presenter.getActiveRecordPath();
+				if (sharePath != null) {
+					Uri photoURI = FileProvider.getUriForFile(
+							getApplicationContext(),
+							getApplicationContext().getApplicationContext().getPackageName() + ".app_file_provider",
+							new File(sharePath)
+					);
+					Intent share = new Intent(Intent.ACTION_SEND);
+					share.setType("audio/*");
+					share.putExtra(Intent.EXTRA_STREAM, photoURI);
+					share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+					startActivity(Intent.createChooser(share, getResources().getString(R.string.share_record, presenter.getActiveRecordName())));
+				} else {
+					Timber.e("There no active record selected!");
+				}
 				break;
 		}
 	}

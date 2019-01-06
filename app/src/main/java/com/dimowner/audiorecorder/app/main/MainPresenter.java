@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.app;
+package com.dimowner.audiorecorder.app.main;
 
 import android.content.Context;
 
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.AppRecorder;
+import com.dimowner.audiorecorder.app.AppRecorderCallback;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
@@ -370,5 +372,23 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public boolean isStorePublic() {
 		return prefs.isStoreDirPublic();
+	}
+
+	@Override
+	public String getActiveRecordPath() {
+		if (record != null) {
+			return record.getPath();
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public String getActiveRecordName() {
+		if (record != null) {
+			return record.getName();
+		} else {
+			return null;
+		}
 	}
 }

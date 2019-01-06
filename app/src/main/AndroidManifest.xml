@@ -25,7 +25,7 @@
 			android:label="@string/app_name"
 			android:theme="@style/AppTheme">
 
-		<activity android:name="com.dimowner.audiorecorder.app.MainActivity"
+		<activity android:name="com.dimowner.audiorecorder.app.main.MainActivity"
 					 android:screenOrientation="portrait">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
@@ -54,6 +54,16 @@
 
 		<receiver android:name=".app.RecordingService$StopRecordingReceiver" />
 		<receiver android:name=".app.PlaybackService$StopPlaybackReceiver" />
+
+		<provider
+				android:name=".AppFileProvider"
+				android:authorities="${applicationId}.app_file_provider"
+				android:exported="false"
+				android:grantUriPermissions="true">
+			<meta-data
+					android:name="android.support.FILE_PROVIDER_PATHS"
+					android:resource="@xml/provider_paths"/>
+		</provider>
 
     </application>
 

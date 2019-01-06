@@ -21,20 +21,50 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:orientation="vertical"
-		tools:context="com.dimowner.audiorecorder.app.MainActivity">
+		tools:context="com.dimowner.audiorecorder.app.main.MainActivity">
 
-	<TextView
+	<LinearLayout
+			android:id="@+id/toolbar"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:gravity="center_horizontal"
-			android:layout_marginStart="@dimen/spacing_double"
-			android:layout_marginEnd="@dimen/spacing_double"
-			android:layout_marginTop="@dimen/spacing_normal"
-			android:layout_marginBottom="@dimen/spacing_double"
-			android:textColor="@color/text_primary_light"
-			android:textSize="@dimen/text_xlarge"
-			android:textStyle="bold"
-			android:text="@string/app_name"/>
+			android:orientation="horizontal">
+
+		<!--<ImageButton-->
+				<!--android:id="@+id/btn_import"-->
+				<!--android:layout_width="wrap_content"-->
+				<!--android:layout_height="wrap_content"-->
+				<!--android:contentDescription="@null"-->
+				<!--android:layout_gravity="start"-->
+				<!--android:background="?android:selectableItemBackground"-->
+				<!--android:padding="@dimen/spacing_normal"-->
+				<!--android:src="@drawable/ic_import"/>-->
+
+		<TextView
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:gravity="center_horizontal"
+				android:layout_marginStart="@dimen/spacing_double"
+				android:layout_marginEnd="@dimen/spacing_double"
+				android:layout_marginTop="@dimen/spacing_normal"
+				android:layout_marginBottom="@dimen/spacing_double"
+				android:textColor="@color/text_primary_light"
+				android:textSize="@dimen/text_xlarge"
+				android:textStyle="bold"
+				android:text="@string/app_name"/>
+
+		<ImageButton
+				android:id="@+id/btn_share"
+				android:layout_width="@dimen/bottom_pnl_small_btn_size"
+				android:layout_height="@dimen/bottom_pnl_small_btn_size"
+				android:adjustViewBounds="true"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:contentDescription="@null"
+				android:layout_gravity="end"
+				android:scaleType="center"
+				android:src="@drawable/ic_share"/>
+
+	</LinearLayout>
 
 	<LinearLayout
 			android:layout_width="match_parent"
