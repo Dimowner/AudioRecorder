@@ -29,59 +29,46 @@ public interface MainContract {
 	interface View extends Contract.View {
 
 		void showRecordingStart();
-
 		void showRecordingStop();
+		void onRecordingProgress(long mills, int amp);
 
 		void askRecordingNewName(long id, File file);
 
-		void onRecordingProgress(long mills, int amp);
-
 		void startRecordingService();
-
 		void stopRecordingService();
 
 		void startPlaybackService(String name);
-
 		void stopPlaybackService();
 
 		void showPlayStart();
-
 		void showPlayPause();
-
 		void showPlayStop();
+		void onPlayProgress(long mills, int px, int percent);
 
 		void showWaveForm(int[] waveForm);
-
 		void showDuration(String duration);
-
 		void showName(String name);
-
 		void showTotalRecordsDuration(String duration);
-
 		void showRecordsCount(int count);
 
 		void updateRecordingView(List<Integer> data);
-
-		void onPlayProgress(long mills, int px, int percent);
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
 
 		void startRecording();
-
 		void stopRecording();
 
 		void startPlayback();
-
 		void pausePlayback();
-
 		void seekPlayback(int px);
-
 		void stopPlayback();
 
 		void renameRecord(long id, String name);
 
 		void loadActiveRecord();
+
+		void importAudioFile(Context context, Uri uri);
 
 		void updateRecordingDir(Context context);
 
@@ -93,7 +80,5 @@ public interface MainContract {
 		String getActiveRecordName();
 
 		int getActiveRecordId();
-
-		void importAudioFile(Context context, Uri uri);
 	}
 }

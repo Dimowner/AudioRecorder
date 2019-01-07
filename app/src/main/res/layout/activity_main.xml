@@ -101,6 +101,7 @@
 					android:contentDescription="@null"
 					android:layout_gravity="bottom|center"
 					android:scaleType="center"
+					android:visibility="invisible"
 					android:src="@drawable/ic_play"/>
 
 			<ImageButton
@@ -159,12 +160,14 @@
 			android:layout_height="wrap_content">
 
 		<TextView
+				android:id="@+id/txt_zero_time"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="start|bottom"
 				android:textColor="@color/text_primary_light"
 				android:layout_margin="@dimen/spacing_normal"
 				android:textSize="@dimen/text_medium"
+				android:visibility="invisible"
 				android:text="@string/zero_time"/>
 
 		<TextView
@@ -177,6 +180,7 @@
 				android:textSize="54sp"
 				android:textStyle="bold"
 				tools:text="00:00"/>
+
 		<TextView
 				android:id="@+id/txt_name"
 				android:layout_width="wrap_content"
@@ -187,7 +191,8 @@
 				android:maxLines="1"
 				android:textSize="@dimen/text_large"
 				android:drawableEnd="@drawable/ic_pencil"
-				android:text="@string/app_name"
+				android:visibility="invisible"
+				tools:text="@string/app_name"
 				/>
 
 		<TextView
@@ -198,7 +203,8 @@
 				android:textColor="@color/text_primary_light"
 				android:layout_margin="@dimen/spacing_normal"
 				android:textSize="@dimen/text_medium"
-				tools:text="00:00"/>
+				android:visibility="invisible"
+				android:text="@string/zero_time"/>
 
 	</FrameLayout>
 	<ProgressBar

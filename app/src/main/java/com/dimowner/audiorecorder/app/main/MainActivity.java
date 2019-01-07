@@ -62,10 +62,9 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
-//	TODO: show importing progress
+//	TODO: show importing progress, optimize import speed
 //	TODO: Fix view == null in presenter
 // TODO: Store fixed length of waveform in database
-// TODO: Record name max length
 // TODO: Add waveform type field in database
 // TODO: Show total records count, total duration, available space in app settings
 // TODO: Show Record info
@@ -73,9 +72,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Settings select Theme waveformColorRes
 // TODO: Settings select Record quality
 // TODO: Settings select Record stereo/mono
-// TODO: Ability to import/export records
-// TODO: Ability to share record
-// TODO: Ability to rename record
 // TODO: Ability to delete record by swipe left
 // TODO: Ability to scroll up from the bottom of the list
 // TODO: Ability to search by record name in list
@@ -96,6 +92,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private WaveformView waveformView;
 	private TextView txtProgress;
 	private TextView txtDuration;
+	private TextView txtZeroTime;
 	private TextView txtTotalDuration;
 	private TextView txtRecordsCount;
 	private TextView txtName;
@@ -122,6 +119,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		waveformView = findViewById(R.id.record);
 		txtProgress = findViewById(R.id.txt_progress);
 		txtDuration = findViewById(R.id.txt_duration);
+		txtZeroTime = findViewById(R.id.txt_zero_time);
 		txtName = findViewById(R.id.txt_name);
 		btnPlay = findViewById(R.id.btn_play);
 		btnRecord = findViewById(R.id.btn_record);
@@ -228,7 +226,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				}
 				break;
 			case R.id.txt_name:
-				setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()));
+				if (presenter.getActiveRecordId() != -1) {
+					setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()));
+				}
 				break;
 		}
 	}
@@ -363,6 +363,15 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showWaveForm(int[] waveForm) {
+		if (waveForm.length > 0) {
+			btnPlay.setVisibility(View.VISIBLE);
+			txtDuration.setVisibility(View.VISIBLE);
+			txtZeroTime.setVisibility(View.VISIBLE);
+		} else {
+			btnPlay.setVisibility(View.INVISIBLE);
+			txtDuration.setVisibility(View.INVISIBLE);
+			txtZeroTime.setVisibility(View.INVISIBLE);
+		}
 		waveformView.setWaveform(waveForm);
 	}
 
@@ -373,6 +382,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showName(String name) {
+		if (txtName.getVisibility() == View.INVISIBLE) {
+			txtName.setVisibility(View.VISIBLE);
+		}
 		txtName.setText(name);
 	}
 
