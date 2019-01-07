@@ -28,6 +28,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.FileProvider;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.PlaybackService;
@@ -410,6 +413,15 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.WRAP_CONTENT);
 		editText.setLayoutParams(lp);
+		editText.addTextChangedListener(new TextWatcher() {
+			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+			@Override public void afterTextChanged(Editable s) {
+				if (s.length() > AppConstants.MAX_RECORD_NAME_LENGTH) {
+					s.delete(s.length() - 1, s.length());
+				}
+			}
+			@Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+		});
 		editText.setTextColor(getResources().getColor(R.color.text_primary_light));
 		editText.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_medium));
 

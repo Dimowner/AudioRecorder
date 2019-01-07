@@ -26,6 +26,7 @@ public class AppConstants {
 	public static final String RECORD_FILE_EXTENSION = "m4a";
 	public static final String EXTENSION_SEPARATOR = ".";
 	public static final String BASE_RECORD_NAME = "Record-";
+	public static final int MAX_RECORD_NAME_LENGTH = 20;
 
 
 	/**

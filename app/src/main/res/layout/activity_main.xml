@@ -184,6 +184,7 @@
 				android:layout_gravity="bottom|center_horizontal"
 				android:layout_marginBottom="@dimen/spacing_normal"
 				android:textColor="@color/text_primary_light"
+				android:maxLines="1"
 				android:textSize="@dimen/text_large"
 				android:drawableEnd="@drawable/ic_pencil"
 				android:text="@string/app_name"
@@ -197,7 +198,7 @@
 				android:textColor="@color/text_primary_light"
 				android:layout_margin="@dimen/spacing_normal"
 				android:textSize="@dimen/text_medium"
-				tools:text="34:56"/>
+				tools:text="00:00"/>
 
 	</FrameLayout>
 	<ProgressBar

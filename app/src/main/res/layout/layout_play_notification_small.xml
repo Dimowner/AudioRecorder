@@ -42,6 +42,7 @@
 				android:layout_marginStart="@dimen/spacing_small"
 				android:layout_marginTop="@dimen/spacing_tiny"
 				android:textColor="@color/text_primary_light"
+				android:maxLines="1"
 				android:textStyle="bold"
 				android:textSize="@dimen/text_medium"
 				tools:text="Record-15"/>
