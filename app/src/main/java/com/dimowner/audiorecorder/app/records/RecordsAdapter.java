@@ -105,7 +105,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			ItemViewHolder holder = (ItemViewHolder) viewHolder;
 			holder.name.setText(data.get(p).getName());
 			holder.description.setText(data.get(p).getDurationStr());
-			holder.created.setText(data.get(p).getCreateTimeStr());
+			holder.created.setText(data.get(p).getAddedTimeStr());
 			if (data.get(p).isBookmarked()) {
 				holder.bookmark.setImageResource(R.drawable.ic_bookmark_small);
 			} else {
@@ -134,7 +134,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 				}});
 		} else if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_DATE) {
 			UniversalViewHolder holder = (UniversalViewHolder) viewHolder;
-			((TextView)holder.view).setText(TimeUtils.formatDateSmart(data.get(p).getCreated(), holder.view.getContext()));
+			((TextView)holder.view).setText(TimeUtils.formatDateSmart(data.get(p).getAdded(), holder.view.getContext()));
 		}
 	}
 
@@ -159,15 +159,15 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 	private void addDateHeaders() {
 		if (data.size() > 0) {
-			data.add(0, ListItem.createDateItem(data.get(0).getCreated()));
+			data.add(0, ListItem.createDateItem(data.get(0).getAdded()));
 			Calendar d1 = Calendar.getInstance();
-			d1.setTimeInMillis(data.get(0).getCreated());
+			d1.setTimeInMillis(data.get(0).getAdded());
 			Calendar d2 = Calendar.getInstance();
 			for (int i = 1; i < data.size(); i++) {
-				d1.setTimeInMillis(data.get(i - 1).getCreated());
-				d2.setTimeInMillis(data.get(i).getCreated());
+				d1.setTimeInMillis(data.get(i - 1).getAdded());
+				d2.setTimeInMillis(data.get(i).getAdded());
 				if (!TimeUtils.isSameDay(d1, d2)) {
-					data.add(i, ListItem.createDateItem(data.get(i).getCreated()));
+					data.add(i, ListItem.createDateItem(data.get(i).getAdded()));
 				}
 			}
 		}

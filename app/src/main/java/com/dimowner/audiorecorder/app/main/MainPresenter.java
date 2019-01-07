@@ -17,6 +17,10 @@
 package com.dimowner.audiorecorder.app.main;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.provider.OpenableColumns;
 
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
@@ -36,6 +40,8 @@ import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.IOException;
 import java.util.List;
 
 import timber.log.Timber;
@@ -294,7 +300,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						@Override public void run() { view.showError(R.string.error_file_exists); }});
 				} else {
 					if (fileRepository.renameFile(r.getPath(), name)) {
-						record = new Record(r.getId(), nameWithExt, r.getDuration(), r.getCreated(), renamed.getAbsolutePath(), r.isBookmarked(), r.getAmps());
+						record = new Record(r.getId(), nameWithExt, r.getDuration(), r.getCreated(),
+								r.getAdded(), renamed.getAbsolutePath(), r.isBookmarked(), r.getAmps());
 						if (localRepository.updateRecord(record)) {
 							AndroidUtils.runOnUIThread(new Runnable() {
 								@Override public void run() {
@@ -390,5 +397,61 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		} else {
 			return null;
 		}
+	}
+
+	@Override
+	public int getActiveRecordId() {
+		if (record != null) {
+			return record.getId();
+		} else {
+			return -1;
+		}
+	}
+
+	@Override
+	public void importAudioFile(final Context context, final Uri uri) {
+//		TODO: Show import progress
+//		view.showProgress();
+		recordingsTasks.postRunnable(new Runnable() {
+			long id = -1;
+
+			@Override
+			public void run() {
+				try {
+					ParcelFileDescriptor parcelFileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
+					FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+					String name = extractFileName(context, uri);
+
+					File newFile = fileRepository.provideRecordFile(name);
+					if (FileUtil.copyFile(fileDescriptor, newFile)) {
+						Timber.v("Copy file %s succeed!", newFile.getAbsolutePath());
+						id = localRepository.insertFile(newFile.getAbsolutePath());
+						prefs.setActiveRecord(id);
+					}
+				} catch (IOException e) {
+					Timber.e(e);
+				} catch (CantCreateFileException ex) {
+					view.showError(ErrorParser.parseException(ex));
+				}
+				AndroidUtils.runOnUIThread(new Runnable() {
+					@Override
+					public void run() {
+						loadActiveRecord();
+					}
+				});
+			}
+		});
+	}
+
+	private String extractFileName(Context context, Uri uri) {
+		Cursor cursor = context.getContentResolver().query(uri, null, null, null, null, null);
+		try {
+			if (cursor != null && cursor.moveToFirst()) {
+				return cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+			}
+		} finally {
+			cursor.close();
+		}
+		return null;
 	}
 }

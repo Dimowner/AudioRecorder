@@ -24,6 +24,8 @@ import android.util.Log;
 import com.dimowner.audiorecorder.AppConstants;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,7 +33,6 @@ import java.io.IOException;
 import timber.log.Timber;
 
 public class FileUtil {
-
 
 	private static final String LOG_TAG = "FileUtil";
 
@@ -72,6 +73,35 @@ public class FileUtil {
 	}
 
 	/**
+	 * Copy file.
+	 * @param fileToCopy File to copy.
+	 * @param newFile File in which will contain copied data.
+	 * @return true if copy succeed, otherwise - false.
+	 */
+	public static boolean copyFile(FileDescriptor fileToCopy, File newFile) throws IOException {
+		FileInputStream in = null;
+		FileOutputStream out = null;
+		try {
+			in = new FileInputStream(fileToCopy);
+			out = new FileOutputStream(newFile);
+			int c;
+			while ((c = in.read()) != -1) {
+				out.write(c);
+			}
+			return true;
+		} catch (Exception e) {
+			return false;
+		} finally {
+			if (in != null) {
+				in.close();
+			}
+			if (out != null) {
+				out.close();
+			}
+		}
+	}
+
+	/**
 	 * Create file.
 	 * If it is not exists, than create it.
 	 * @param path Path to file.
@@ -94,6 +124,11 @@ public class FileUtil {
 					Log.e(LOG_TAG, "Failed to create the file.", e);
 					return null;
 				}
+			} else {
+				Log.e(LOG_TAG, "File already exists!! Please rename file!");
+				Log.i(LOG_TAG, "Renaming file");
+//				TODO: Find better way to rename file.
+				return createFile(path, "1" + fileName);
 			}
 			if (!file.canWrite()) {
 				Log.e(LOG_TAG, "The file can not be written.");

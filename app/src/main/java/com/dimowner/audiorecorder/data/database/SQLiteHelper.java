@@ -57,6 +57,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 	static final String COLUMN_NAME = "name";
 	static final String COLUMN_DURATION = "duration";
 	static final String COLUMN_CREATION_DATE = "created";
+	static final String COLUMN_DATE_ADDED = "added";
 	static final String COLUMN_PATH = "path";
 	/** Simplified array of audio record amplitudes that represents waveform. */
 	static final String COLUMN_DATA = "data";
@@ -70,6 +71,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 					+ COLUMN_NAME + " TEXT NOT NULL, "
 					+ COLUMN_DURATION + " LONG NOT NULL, "
 					+ COLUMN_CREATION_DATE + " LONG NOT NULL, "
+					+ COLUMN_DATE_ADDED + " LONG NOT NULL, "
 					+ COLUMN_PATH + " TEXT NOT NULL, "
 					+ COLUMN_DATA + " BLOB NOT NULL, "
 					+ COLUMN_BOOKMARK + " INTEGER NOT NULL DEFAULT 0, "

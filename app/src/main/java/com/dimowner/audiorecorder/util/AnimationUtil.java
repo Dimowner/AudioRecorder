@@ -34,4 +34,15 @@ public class AnimationUtil {
 				.setListener(listener)
 				.start();
 	}
+
+	@TargetApi(21)
+	public static void viewAnimationX(final View view, float val, Animator.AnimatorListener listener) {
+		view.animate()
+				.translationX(val)
+				.setDuration(150L)
+				.setInterpolator(AnimationUtils.loadInterpolator(view.getContext(),
+						android.R.interpolator.accelerate_decelerate))
+				.setListener(listener)
+				.start();
+	}
 }

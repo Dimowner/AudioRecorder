@@ -19,7 +19,7 @@
 	<style name="AppTheme" parent="@android:style/Theme.Material">
 		<item name="android:colorPrimary">@color/md_blue_700</item>
 		<item name="android:colorPrimaryDark">@color/md_blue_700</item>
-		<item name="android:colorAccent">@color/colorAccent</item>
+		<item name="android:colorAccent">@color/md_yellow_A700</item>
 
 		<item name="android:windowActionBar">false</item>
 		<item name="android:windowNoTitle">true</item>

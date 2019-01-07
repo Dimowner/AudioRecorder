@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.app.main;
 
 import android.Manifest;
+import android.animation.Animator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -47,6 +48,7 @@ import com.dimowner.audiorecorder.app.records.RecordsActivity;
 import com.dimowner.audiorecorder.app.settings.SettingsActivity;
 import com.dimowner.audiorecorder.app.widget.WaveformView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
+import com.dimowner.audiorecorder.util.AnimationUtil;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
@@ -57,7 +59,10 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
+//	TODO: show importing progress
+//	TODO: Fix view == null in presenter
 // TODO: Store fixed length of waveform in database
+// TODO: Record name max length
 // TODO: Add waveform type field in database
 // TODO: Show total records count, total duration, available space in app settings
 // TODO: Show Record info
@@ -82,6 +87,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
 	public static final int REQ_CODE_WRITE_EXTERNAL_STORAGE = 404;
+	public static final int REQ_CODE_READ_EXTERNAL_STORAGE = 405;
+	public static final int REQ_CODE_IMPORT_AUDIO = 11;
 
 	private WaveformView waveformView;
 	private TextView txtProgress;
@@ -90,10 +97,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private TextView txtRecordsCount;
 	private TextView txtName;
 	private ImageButton btnPlay;
+	private ImageButton btnStop;
 	private ImageButton btnRecord;
 	private ImageButton btnShare;
 	private ImageButton btnRecordsList;
 	private ImageButton btnSettings;
+	private ImageButton btnImport;
 	private ProgressBar progressBar;
 	private ProgressBar playProgress;
 
@@ -113,10 +122,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtName = findViewById(R.id.txt_name);
 		btnPlay = findViewById(R.id.btn_play);
 		btnRecord = findViewById(R.id.btn_record);
-//		btnStop = findViewById(R.id.btn_stop);
+		btnStop = findViewById(R.id.btn_stop);
 		btnRecordsList = findViewById(R.id.btn_records_list);
 		btnSettings = findViewById(R.id.btn_settings);
 		btnShare = findViewById(R.id.btn_share);
+		btnImport = findViewById(R.id.btn_import);
 		progressBar = findViewById(R.id.progress);
 		playProgress = findViewById(R.id.play_progress);
 
@@ -127,10 +137,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		btnPlay.setOnClickListener(this);
 		btnRecord.setOnClickListener(this);
-//		btnStop.setOnClickListener(this);
+		btnStop.setOnClickListener(this);
 		btnRecordsList.setOnClickListener(this);
 		btnSettings.setOnClickListener(this);
 		btnShare.setOnClickListener(this);
+		btnImport.setOnClickListener(this);
+		txtName.setOnClickListener(this);
 
 		presenter = ARApplication.getInjector().provideMainPresenter();
 		showTotalRecordsDuration("0h:0m:0s");
@@ -182,7 +194,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				break;
 			case R.id.btn_stop:
 				presenter.stopPlayback();
-				presenter.stopRecording();
+//				presenter.stopRecording();
 				break;
 			case R.id.btn_records_list:
 				startActivity(RecordsActivity.getStartIntent(getApplicationContext()));
@@ -207,6 +219,29 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 					Timber.e("There no active record selected!");
 				}
 				break;
+			case R.id.btn_import:
+				if (checkStoragePermission()) {
+					startFileSelector();
+				}
+				break;
+			case R.id.txt_name:
+				setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()));
+				break;
+		}
+	}
+
+	private void startFileSelector() {
+		Intent intent_upload = new Intent();
+		intent_upload.setType("audio/*");
+		intent_upload.setAction(Intent.ACTION_GET_CONTENT);
+		startActivityForResult(intent_upload, REQ_CODE_IMPORT_AUDIO);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == REQ_CODE_IMPORT_AUDIO && resultCode == RESULT_OK){
+			presenter.importAudioFile(getApplicationContext(), data.getData());
 		}
 	}
 
@@ -291,6 +326,14 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void showPlayStart() {
 		btnPlay.setImageResource(R.drawable.ic_pause);
 		btnRecord.setEnabled(false);
+		AnimationUtil.viewAnimationX(btnPlay, -75f, new Animator.AnimatorListener() {
+			@Override public void onAnimationStart(Animator animation) { }
+			@Override public void onAnimationEnd(Animator animation) {
+				btnStop.setVisibility(View.VISIBLE);
+			}
+			@Override public void onAnimationCancel(Animator animation) { }
+			@Override public void onAnimationRepeat(Animator animation) { }
+		});
 	}
 
 	@Override
@@ -305,6 +348,14 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnRecord.setEnabled(true);
 		playProgress.setProgress(0);
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
+		AnimationUtil.viewAnimationX(btnPlay, 0f, new Animator.AnimatorListener() {
+			@Override public void onAnimationStart(Animator animation) { }
+			@Override public void onAnimationEnd(Animator animation) {
+				btnStop.setVisibility(View.GONE);
+			}
+			@Override public void onAnimationCancel(Animator animation) { }
+			@Override public void onAnimationRepeat(Animator animation) { }
+		});
 	}
 
 	@Override
@@ -409,6 +460,16 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 	}
 
+	private boolean checkStoragePermission() {
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+				requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQ_CODE_READ_EXTERNAL_STORAGE);
+				return false;
+			}
+		}
+		return true;
+	}
+
 	private boolean checkRecordPermission() {
 		if (presenter.isStorePublic()) {
 			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -449,6 +510,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 			presenter.startRecording();
+		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE && grantResults.length > 0) {
+			startFileSelector();
 		}
 	}
 }

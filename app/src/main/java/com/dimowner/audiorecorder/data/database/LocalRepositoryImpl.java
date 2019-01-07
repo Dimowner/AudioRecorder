@@ -24,6 +24,7 @@ import com.dimowner.audiorecorder.audio.SoundFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import timber.log.Timber;
@@ -120,6 +121,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 						file.getName(),
 						soundFile.getDuration(),
 						file.lastModified(),
+						new Date().getTime(),
 						path,
 						false,
 						soundFile.getFrameGains());

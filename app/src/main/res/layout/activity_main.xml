@@ -29,15 +29,15 @@
 			android:layout_height="wrap_content"
 			android:orientation="horizontal">
 
-		<!--<ImageButton-->
-				<!--android:id="@+id/btn_import"-->
-				<!--android:layout_width="wrap_content"-->
-				<!--android:layout_height="wrap_content"-->
-				<!--android:contentDescription="@null"-->
-				<!--android:layout_gravity="start"-->
-				<!--android:background="?android:selectableItemBackground"-->
-				<!--android:padding="@dimen/spacing_normal"-->
-				<!--android:src="@drawable/ic_import"/>-->
+		<ImageButton
+				android:id="@+id/btn_import"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@null"
+				android:layout_gravity="start"
+				android:background="?android:selectableItemBackground"
+				android:padding="@dimen/spacing_normal"
+				android:src="@drawable/ic_import"/>
 
 		<TextView
 				android:layout_width="0dp"
@@ -102,6 +102,19 @@
 					android:layout_gravity="bottom|center"
 					android:scaleType="center"
 					android:src="@drawable/ic_play"/>
+
+			<ImageButton
+					android:id="@+id/btn_stop"
+					android:layout_width="@dimen/bottom_pnl_small_btn_size"
+					android:layout_height="@dimen/bottom_pnl_small_btn_size"
+					android:adjustViewBounds="true"
+					android:background="?android:selectableItemBackgroundBorderless"
+					android:contentDescription="@null"
+					android:layout_gravity="bottom|center"
+					android:layout_marginStart="27dp"
+					android:scaleType="center"
+					android:visibility="gone"
+					android:src="@drawable/ic_stop"/>
 		</FrameLayout>
 
 	</LinearLayout>
@@ -172,6 +185,7 @@
 				android:layout_marginBottom="@dimen/spacing_normal"
 				android:textColor="@color/text_primary_light"
 				android:textSize="@dimen/text_large"
+				android:drawableEnd="@drawable/ic_pencil"
 				android:text="@string/app_name"
 				/>
 

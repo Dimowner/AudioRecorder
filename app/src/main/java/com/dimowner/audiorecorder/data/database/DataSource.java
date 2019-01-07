@@ -131,7 +131,7 @@ public abstract class DataSource<T> {
 	 * @return List that contains all records of table T.
 	 */
 	public ArrayList<T> getAll() {
-		Cursor cursor = queryLocal("SELECT * FROM " + tableName + " ORDER BY " + SQLiteHelper.COLUMN_ID + " DESC");
+		Cursor cursor = queryLocal("SELECT * FROM " + tableName + " ORDER BY " + SQLiteHelper.COLUMN_DATE_ADDED + " DESC");
 		return convertCursor(cursor);
 	}
 

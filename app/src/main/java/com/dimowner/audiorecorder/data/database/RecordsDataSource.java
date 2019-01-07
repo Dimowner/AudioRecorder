@@ -54,6 +54,7 @@ public class RecordsDataSource extends DataSource<Record> {
 			values.put(SQLiteHelper.COLUMN_NAME, item.getName());
 			values.put(SQLiteHelper.COLUMN_DURATION, item.getDuration());
 			values.put(SQLiteHelper.COLUMN_CREATION_DATE, item.getCreated());
+			values.put(SQLiteHelper.COLUMN_DATE_ADDED, item.getAdded());
 			values.put(SQLiteHelper.COLUMN_PATH, item.getPath());
 			values.put(SQLiteHelper.COLUMN_BOOKMARK, item.isBookmarked() ? 1 : 0);
 			values.put(SQLiteHelper.COLUMN_DATA, item.getData());
@@ -73,6 +74,7 @@ public class RecordsDataSource extends DataSource<Record> {
 				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_NAME)),
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_DURATION)),
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_CREATION_DATE)),
+				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATE_ADDED)),
 				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_PATH)),
 				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_BOOKMARK)) != 0,
 				cursor.getBlob(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATA))

@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.app.main;
 
 import android.content.Context;
+import android.net.Uri;
 
 import com.dimowner.audiorecorder.Contract;
 
@@ -90,5 +91,9 @@ public interface MainContract {
 		String getActiveRecordPath();
 
 		String getActiveRecordName();
+
+		int getActiveRecordId();
+
+		void importAudioFile(Context context, Uri uri);
 	}
 }

@@ -18,6 +18,7 @@ public class Mapper {
 				TimeUtils.formatTimeIntervalMinSec(record.getDuration()/1000),
 				record.getDuration()/1000,
 				record.getCreated(),
+				record.getAdded(),
 				record.getPath(),
 				record.isBookmarked(),
 				record.getAmps());

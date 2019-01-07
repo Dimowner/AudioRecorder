@@ -64,6 +64,16 @@ public class FileRepositoryImpl implements FileRepository {
 	}
 
 	@Override
+	public File provideRecordFile(String name) throws CantCreateFileException {
+		File recordFile = FileUtil.createFile(recordDirectory, name);
+		if (recordFile != null) {
+			Timber.v("provideRecordFile: %s", recordFile.getAbsolutePath() + " isExists = " + recordFile.exists() + " isDir = " + recordFile.isDirectory());
+			return recordFile;
+		}
+		throw new CantCreateFileException();
+	}
+
+	@Override
 	public File getRecordFileByName(String name) {
 		File recordFile = new File(recordDirectory.getAbsolutePath() + File.separator + FileUtil.generateRecordNameCounted(prefs.getRecordCounter()));
 		if (recordFile.exists() && recordFile.isFile()) {

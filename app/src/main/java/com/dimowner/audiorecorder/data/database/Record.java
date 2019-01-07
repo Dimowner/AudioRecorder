@@ -16,6 +16,8 @@
 
 package com.dimowner.audiorecorder.data.database;
 
+import android.support.annotation.NonNull;
+
 import java.util.Arrays;
 
 public class Record {
@@ -27,17 +29,19 @@ public class Record {
 	private String name;
 	private long duration;
 	private long created;
+	private long added;
 	private String path;
 	private boolean bookmark;
 	private int[] amps;
 	private byte[] data;
 	//TODO: Remove not needed data clusters.
 
-	public Record(int id, String name, long duration, long created, String path, boolean bookmark, int[] amps) {
+	public Record(int id, String name, long duration, long created, long added, String path, boolean bookmark, int[] amps) {
 		this.id = id;
 		this.name = name;
 		this.duration = duration;
 		this.created = created;
+		this.added= added;
 		this.path = path;
 		this.bookmark = bookmark;
 		this.amps = amps;
@@ -45,11 +49,12 @@ public class Record {
 //		this.data = AndroidUtils.int2byte(amps);
 	}
 
-	public Record(int id, String name, long duration, long created, String path, boolean bookmark, byte[] amps) {
+	public Record(int id, String name, long duration, long created, long added, String path, boolean bookmark, byte[] amps) {
 		this.id = id;
 		this.name = name;
 		this.duration = duration;
 		this.created = created;
+		this.added = added;
 		this.path = path;
 		this.bookmark = bookmark;
 		this.amps = byte2int(amps);
@@ -89,6 +94,10 @@ public class Record {
 
 	public long getCreated() {
 		return created;
+	}
+
+	public long getAdded() {
+		return added;
 	}
 
 	public String getPath() {
@@ -149,14 +158,18 @@ public class Record {
 //		return sb.toString();
 //	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		return "Record{" +
 				"id=" + id +
 				", name='" + name + '\'' +
-				", duration='" + duration + '\'' +
+				", duration=" + duration +
 				", created=" + created +
+				", added=" + added +
 				", path='" + path + '\'' +
+				", bookmark=" + bookmark +
+				", amps=" + Arrays.toString(amps) +
 				", data=" + Arrays.toString(data) +
 				'}';
 	}

@@ -26,6 +26,8 @@ public interface FileRepository {
 
 	File provideRecordFile() throws CantCreateFileException;
 
+	File provideRecordFile(String name) throws CantCreateFileException;
+
 	File getRecordFileByName(String name);
 
 	boolean deleteRecordFileByName(String name);
