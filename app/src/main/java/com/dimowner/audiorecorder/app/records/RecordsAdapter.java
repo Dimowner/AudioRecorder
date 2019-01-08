@@ -44,6 +44,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	private List<ListItem> data;
 
 	private boolean showDateHeaders = true;
+	private int activeItem = -1;
 
 	private ItemClickListener itemClickListener;
 	private OnAddToBookmarkListener onAddToBookmarkListener = null;
@@ -102,7 +103,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	@Override
 	public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder viewHolder, final int p) {
 		if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_NORMAL) {
-			ItemViewHolder holder = (ItemViewHolder) viewHolder;
+			final ItemViewHolder holder = (ItemViewHolder) viewHolder;
 			holder.name.setText(data.get(p).getName());
 			holder.description.setText(data.get(p).getDurationStr());
 			holder.created.setText(data.get(p).getAddedTimeStr());
@@ -111,6 +112,12 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			} else {
 				holder.bookmark.setImageResource(R.drawable.ic_bookmark_bordered_small);
 			}
+			if (viewHolder.getLayoutPosition() == activeItem) {
+				holder.view.setBackgroundResource(R.color.selected_item_color);
+			} else {
+				holder.view.setBackgroundResource(android.R.color.transparent);
+			}
+
 			holder.bookmark.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -136,6 +143,31 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			UniversalViewHolder holder = (UniversalViewHolder) viewHolder;
 			((TextView)holder.view).setText(TimeUtils.formatDateSmart(data.get(p).getAdded(), holder.view.getContext()));
 		}
+	}
+
+	public void setActiveItem(int activeItem) {
+		int prev = this.activeItem;
+		this.activeItem = activeItem;
+		notifyItemChanged(prev);
+		notifyItemChanged(activeItem);
+	}
+
+	public void setActiveItemById(long id) {
+		int pos = findPositionById(id);
+		if (pos >= 0) {
+			setActiveItem(pos);
+		}
+	}
+
+	public int findPositionById(long id) {
+		if (id >= 0) {
+			for (int i = 0; i < data.size() - 1; i++) {
+				if (data.get(i).getId() == id) {
+					return i;
+				}
+			}
+		}
+		return -1;
 	}
 
 	@Override
@@ -213,18 +245,30 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	}
 
 	public long getNextTo(long id) {
-		for (int i = 0; i < data.size()-1; i++) {
-			if (data.get(i).getId() == id) {
-				return data.get(i+1).getId();
+		if (id >= 0) {
+			for (int i = 0; i < data.size() - 1; i++) {
+				if (data.get(i).getId() == id) {
+					if (data.get(i + 1).getId() == -1 && i+2 < data.size()) {
+						return data.get(i + 2).getId();
+					} else {
+						return data.get(i + 1).getId();
+					}
+				}
 			}
 		}
 		return -1;
 	}
 
 	public long getPrevTo(long id) {
-		for (int i = 1; i < data.size(); i++) {
-			if (data.get(i).getId() == id) {
-				return data.get(i-1).getId();
+		if (id >= 0) {
+			for (int i = 1; i < data.size(); i++) {
+				if (data.get(i).getId() == id) {
+					if (data.get(i - 1).getId() == -1 && i-2 >= 0) {
+						return data.get(i - 2).getId();
+					} else {
+						return data.get(i - 1).getId();
+					}
+				}
 			}
 		}
 		return -1;

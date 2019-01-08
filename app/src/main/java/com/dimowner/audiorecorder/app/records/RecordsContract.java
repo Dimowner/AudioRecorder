@@ -25,26 +25,20 @@ public interface RecordsContract {
 	interface View extends Contract.View {
 
 		void showPlayStart();
-
 		void showPlayPause();
-
 		void showPlayStop();
+		void onPlayProgress(long mills, int px, int percent);
 
 		void showNextRecord();
-
 		void showPrevRecord();
 
 		void showPlayerPanel();
 
 		void startPlaybackService();
-
 		void stopPlaybackService();
 
 		void showWaveForm(int[] waveForm);
-
 		void showDuration(String duration);
-
-		void onPlayProgress(long mills, int px, int percent);
 
 		void showRecords(List<ListItem> records);
 		void showEmptyList();
@@ -57,8 +51,8 @@ public interface RecordsContract {
 
 		void onDeleteRecord(long id);
 
-		void addedToBookmarks(int id, boolean active);
-		void removedFromBookmarks(int id, boolean active);
+		void addedToBookmarks(int id, boolean isActive);
+		void removedFromBookmarks(int id, boolean isActive);
 
 		void bookmarksSelected();
 		void bookmarksUnselected();

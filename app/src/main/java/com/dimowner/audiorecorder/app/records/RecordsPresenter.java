@@ -378,41 +378,43 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	@Override
 	public void setActiveRecord(final long id, final RecordsContract.Callback callback) {
-		prefs.setActiveRecord(id);
-//		view.showProgress();
-		view.showPanelProgress();
-		loadingTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-//				record = localRepository.getActiveRecord();
-				record = localRepository.getRecord((int) id);
-				if (record != null) {
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-//							audioPlayer.setData(record.getPath());
-							view.showWaveForm(record.getAmps());
-							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
-							view.showRecordName(FileUtil.removeFileExtension(record.getName()));
-							callback.onSuccess();
-							if (record.isBookmarked()) {
-								view.addedToBookmarks(record.getId(), true);
-							} else {
-								view.removedFromBookmarks(record.getId(), true);
+		if (id >= 0) {
+//			view.showProgress();
+			prefs.setActiveRecord(id);
+			view.showPanelProgress();
+			loadingTasks.postRunnable(new Runnable() {
+				@Override
+				public void run() {
+					record = localRepository.getRecord((int) id);
+					if (record != null) {
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override
+							public void run() {
+								view.showWaveForm(record.getAmps());
+								view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
+								view.showRecordName(FileUtil.removeFileExtension(record.getName()));
+								callback.onSuccess();
+								if (record.isBookmarked()) {
+									view.addedToBookmarks(record.getId(), true);
+								} else {
+									view.removedFromBookmarks(record.getId(), true);
+								}
+								view.hidePanelProgress();
+								view.showPlayerPanel();
 							}
-							view.hidePanelProgress();
-							view.showPlayerPanel();
-						}
-					});
-				} else {
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override public void run() {
-							callback.onError(new Exception("Record is NULL!"));
-							view.hidePanelProgress();
-						}});
+						});
+					} else {
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override
+							public void run() {
+								callback.onError(new Exception("Record is NULL!"));
+								view.hidePanelProgress();
+							}
+						});
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 
 	@Override

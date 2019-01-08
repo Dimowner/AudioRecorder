@@ -15,6 +15,7 @@
 	<string name="delete_all_records">Delete all records?</string>
 	<string name="all_records_deleted">All records deleted successfully</string>
 	<string name="failed_to_delete_all_records">Failed to deleted all records</string>
+	<string name="please_select_record_to_share">Please select or record an audio file to share</string>
 	<string name="record_name">New name</string>
 	<string name="recording">Recording: %s</string>
 	<string name="playback">Playback: %s</string>
@@ -41,6 +42,7 @@
 	<string name="error_failed_to_init_recorder">Failed to init Recorder</string>
 	<string name="error_failed_to_init_player">Failed to init Player</string>
 	<string name="error_player_data_source">Player can\'t read file</string>
+	<string name="error_unable_to_read_sound_file">Unable to read sound file</string>
 
 	<!-- Shown in the 'About' window of the app. -->
 	<string name="about_body"><![CDATA[

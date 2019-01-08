@@ -1,7 +1,7 @@
 # Audio Recorder
 <p>Audio Recorder application</p>
 <p>This application shows how small can be Android app. Apk file about ~370kb size.</br>
-About 140kb takes the RecyclerView and NotificationCompat, about 100kb takes the Fabric.io analytics. Rest 90kb is the app source code.</br>
+About 140kb takes the RecyclerView and NotificationCompat, about 100kb takes the Fabric.io analytics. The rest 130kb is the app source code.</br>
 Apk size can be optimized to 130kb if replace RecyclerView by ListView and remove Fabric.io analytics.</p>
 
 ### License

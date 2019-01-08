@@ -45,4 +45,15 @@ public class AnimationUtil {
 				.setListener(listener)
 				.start();
 	}
+
+	@TargetApi(21)
+	public static void viewAnimationY(final View view, float val, Animator.AnimatorListener listener) {
+		view.animate()
+				.translationY(val)
+				.setDuration(250L)
+				.setInterpolator(AnimationUtils.loadInterpolator(view.getContext(),
+						android.R.interpolator.accelerate_decelerate))
+				.setListener(listener)
+				.start();
+	}
 }

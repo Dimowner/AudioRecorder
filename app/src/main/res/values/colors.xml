@@ -11,6 +11,7 @@
 	<color name="text_primary_light2">#ccffffff</color>
 	<color name="text_secondary_light">#b3ffffff</color> <!-- 70% -->
 	<color name="text_disabled_light">#4dffffff</color> <!-- 30% -->
+	<color name="selected_item_color">#30ffffff</color>
 
 	<color name="dark_white">#eaeaea</color>
 	<color name="white">#ffffff</color>

@@ -179,10 +179,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		adapter = new RecordsAdapter();
 		adapter.setItemClickListener(new RecordsAdapter.ItemClickListener() {
 			@Override
-			public void onItemClick(View view, long id, String path, int position) {
+			public void onItemClick(View view, long id, String path, final int position) {
 				presenter.setActiveRecord(id, new RecordsContract.Callback() {
 					@Override public void onSuccess() {
+						presenter.stopPlayback();
 						presenter.startPlayback();
+						adapter.setActiveItem(position);
 					}
 					@Override public void onError(Exception e) {
 						Timber.e(e);
@@ -268,6 +270,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	public void hidePanel() {
 		if (touchLayout.getVisibility() == View.VISIBLE) {
 			adapter.hideFooter();
+			showToolbar();
 			final ViewPropertyAnimator animator = touchLayout.animate();
 			animator.translationY(touchLayout.getHeight())
 					.setDuration(200)
@@ -285,6 +288,10 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		}
 	}
 
+	private void showToolbar() {
+		AnimationUtil.viewAnimationY(toolbar, 0f, null);
+	}
+
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
@@ -297,9 +304,17 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				hidePanel();
 				break;
 			case R.id.btn_next:
-				presenter.setActiveRecord(adapter.getNextTo(presenter.getActiveRecordId()), new RecordsContract.Callback() {
+				presenter.pausePlayback();
+				final long id = adapter.getNextTo(presenter.getActiveRecordId());
+				presenter.setActiveRecord(id, new RecordsContract.Callback() {
 					@Override public void onSuccess() {
-						presenter.pausePlayback();
+						presenter.stopPlayback();
+						presenter.startPlayback();
+						int pos = adapter.findPositionById(id);
+						if (pos >= 0) {
+							recyclerView.scrollToPosition(pos);
+							adapter.setActiveItem(pos);
+						}
 					}
 					@Override public void onError(Exception e) {
 						Timber.e(e);
@@ -307,9 +322,17 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				});
 				break;
 			case R.id.btn_prev:
-				presenter.setActiveRecord(adapter.getPrevTo(presenter.getActiveRecordId()), new RecordsContract.Callback() {
+				presenter.pausePlayback();
+				final long id2 = adapter.getPrevTo(presenter.getActiveRecordId());
+				presenter.setActiveRecord(id2, new RecordsContract.Callback() {
 					@Override public void onSuccess() {
-						presenter.pausePlayback();
+						presenter.stopPlayback();
+						presenter.startPlayback();
+						int pos2 = adapter.findPositionById(id2);
+						if (pos2 >= 0) {
+							recyclerView.scrollToPosition(pos2);
+							adapter.setActiveItem(pos2);
+						}
 					}
 					@Override public void onError(Exception e) {
 						Timber.e(e);
@@ -415,6 +438,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		waveformView.setPlayback(-1);
 		btnPlay.setImageResource(R.drawable.ic_play_64);
 		playProgress.setProgress(0);
+		adapter.setActiveItem(-1);
 	}
 
 	@Override
@@ -499,16 +523,16 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
-	public void addedToBookmarks(int id, boolean active) {
-		if (active) {
+	public void addedToBookmarks(int id, boolean isActive) {
+		if (isActive) {
 			btnCheckBookmark.setImageResource(R.drawable.ic_bookmark);
 		}
 		adapter.markAddedToBookmarks(id);
 	}
 
 	@Override
-	public void removedFromBookmarks(int id, boolean active) {
-		if (active) {
+	public void removedFromBookmarks(int id, boolean isActive) {
+		if (isActive) {
 			btnCheckBookmark.setImageResource(R.drawable.ic_bookmark_bordered);
 		}
 		adapter.markRemovedFromBookmarks(id);

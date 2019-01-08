@@ -218,6 +218,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 					startActivity(Intent.createChooser(share, getResources().getString(R.string.share_record, presenter.getActiveRecordName())));
 				} else {
 					Timber.e("There no active record selected!");
+					Toast.makeText(getApplicationContext(), R.string.please_select_record_to_share, Toast.LENGTH_LONG).show();
 				}
 				break;
 			case R.id.btn_import:
@@ -382,7 +383,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showName(String name) {
-		if (txtName.getVisibility() == View.INVISIBLE) {
+		if (name == null || name.isEmpty()) {
+			txtName.setVisibility(View.INVISIBLE);
+		} else if (txtName.getVisibility() == View.INVISIBLE) {
 			txtName.setVisibility(View.VISIBLE);
 		}
 		txtName.setText(name);

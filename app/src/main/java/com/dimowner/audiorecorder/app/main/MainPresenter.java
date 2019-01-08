@@ -363,6 +363,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						@Override
 						public void run() {
 							view.showWaveForm(new int[] {});
+							view.showName("");
+							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
+							view.showTotalRecordsDuration(TimeUtils.formatTimeIntervalHourMinSec(0));
 							view.hideProgress();
 						}
 					});
@@ -430,6 +433,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					}
 				} catch (IOException e) {
 					Timber.e(e);
+					view.showError(R.string.error_unable_to_read_sound_file);
 				} catch (CantCreateFileException ex) {
 					view.showError(ErrorParser.parseException(ex));
 				}
@@ -447,7 +451,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		Cursor cursor = context.getContentResolver().query(uri, null, null, null, null, null);
 		try {
 			if (cursor != null && cursor.moveToFirst()) {
-				return cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+				String name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+//				TODO: find a better way to extract file extension.
+				if (!name.contains(".")) {
+					return name + ".m4a";
+				}
+				return name;
 			}
 		} finally {
 			cursor.close();

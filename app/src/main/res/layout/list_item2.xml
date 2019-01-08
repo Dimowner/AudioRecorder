@@ -23,7 +23,7 @@
 		android:layout_height="wrap_content"
 		android:clickable="true"
 		android:focusable="true"
-		android:background="?android:attr/selectableItemBackground">
+		android:foreground="?android:attr/selectableItemBackground">
 
 	<com.dimowner.audiorecorder.app.widget.SimpleWaveformView
 			android:id="@+id/list_item_waveform"
