@@ -93,8 +93,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private TextView txtProgress;
 	private TextView txtDuration;
 	private TextView txtZeroTime;
-	private TextView txtTotalDuration;
-	private TextView txtRecordsCount;
 	private TextView txtName;
 	private ImageButton btnPlay;
 	private ImageButton btnStop;
@@ -133,9 +131,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 
-		txtRecordsCount = findViewById(R.id.txt_records_count);
-		txtTotalDuration= findViewById(R.id.txt_total_duration);
-
 		btnPlay.setOnClickListener(this);
 		btnRecord.setOnClickListener(this);
 		btnStop.setOnClickListener(this);
@@ -146,8 +141,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtName.setOnClickListener(this);
 
 		presenter = ARApplication.getInjector().provideMainPresenter();
-		showTotalRecordsDuration("0h:0m:0s");
-		showRecordsCount(0);
 
 		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
 			@Override
@@ -389,16 +382,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			txtName.setVisibility(View.VISIBLE);
 		}
 		txtName.setText(name);
-	}
-
-	@Override
-	public void showTotalRecordsDuration(String duration) {
-		txtTotalDuration.setText(getResources().getString(R.string.total_duration, duration));
-	}
-
-	@Override
-	public void showRecordsCount(int count) {
-		txtRecordsCount.setText(getResources().getString(R.string.total_record_count, count));
 	}
 
 	@Override

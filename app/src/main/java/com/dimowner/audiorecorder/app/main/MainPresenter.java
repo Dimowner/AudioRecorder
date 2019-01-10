@@ -42,7 +42,6 @@ import com.dimowner.audiorecorder.util.TimeUtils;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
-import java.util.List;
 
 import timber.log.Timber;
 
@@ -339,22 +338,14 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			@Override
 			public void run() {
 				record = localRepository.getRecord((int) prefs.getActiveRecord());
-				final List<Long> durations = localRepository.getRecordsDurations();
-				long totalDuration = 0;
-				for (int i = 0; i < durations.size(); i++) {
-					totalDuration += durations.get(i);
-				}
 				if (record != null) {
 					songDuration = record.getDuration();
-					final long finalTotalDuration = totalDuration;
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override
 						public void run() {
 							view.showWaveForm(record.getAmps());
 							view.showName(FileUtil.removeFileExtension(record.getName()));
 							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
-							view.showTotalRecordsDuration(TimeUtils.formatTimeIntervalHourMinSec(finalTotalDuration / 1000));
-							view.showRecordsCount(durations.size());
 							view.hideProgress();
 						}
 					});
@@ -365,7 +356,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							view.showWaveForm(new int[] {});
 							view.showName("");
 							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
-							view.showTotalRecordsDuration(TimeUtils.formatTimeIntervalHourMinSec(0));
 							view.hideProgress();
 						}
 					});
@@ -415,33 +405,42 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	public void importAudioFile(final Context context, final Uri uri) {
 //		TODO: Show import progress
 //		view.showProgress();
+
 		recordingsTasks.postRunnable(new Runnable() {
 			long id = -1;
 
 			@Override
 			public void run() {
+				Timber.v("importAudioFile uri: " + uri.getPath());
 				try {
 					ParcelFileDescriptor parcelFileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
 					FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
 					String name = extractFileName(context, uri);
 
 					File newFile = fileRepository.provideRecordFile(name);
-					if (FileUtil.copyFile(fileDescriptor, newFile)) {
-						Timber.v("Copy file %s succeed!", newFile.getAbsolutePath());
-						id = localRepository.insertFile(newFile.getAbsolutePath());
-						prefs.setActiveRecord(id);
-					}
+
+					Timber.v("COPY - Start!");
+						if (FileUtil.copyFile(fileDescriptor, newFile)) {
+							Timber.v("COPY - FINISH!");
+							Timber.v("Copy file %s succeed!", newFile.getAbsolutePath());
+							Timber.v("INSERT - START!");
+							id = localRepository.insertFile(newFile.getAbsolutePath());
+							Timber.v("INSERT - FINISH!");
+							prefs.setActiveRecord(id);
+						}
+//					}
 				} catch (IOException e) {
 					Timber.e(e);
-					view.showError(R.string.error_unable_to_read_sound_file);
-				} catch (CantCreateFileException ex) {
-					view.showError(ErrorParser.parseException(ex));
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override public void run() { view.showError(R.string.error_unable_to_read_sound_file); }
+					});
+				} catch (final CantCreateFileException ex) {
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override public void run() { view.showError(ErrorParser.parseException(ex)); }
+					});
 				}
 				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override
-					public void run() {
-						loadActiveRecord();
-					}
+					@Override public void run() { loadActiveRecord(); }
 				});
 			}
 		});

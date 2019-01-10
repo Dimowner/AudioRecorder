@@ -244,7 +244,7 @@ public abstract class DataSource<T> {
 
 	//TODO: move this method
 	public List<Long> getRecordsDurations() {
-		Cursor cursor = queryLocal("SELECT * FROM " + tableName);
+		Cursor cursor = queryLocal("SELECT " + SQLiteHelper.COLUMN_DURATION + " FROM " + tableName);
 		ArrayList<Long> items = new ArrayList<>();
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {

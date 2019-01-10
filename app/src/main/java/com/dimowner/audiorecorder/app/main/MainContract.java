@@ -48,8 +48,6 @@ public interface MainContract {
 		void showWaveForm(int[] waveForm);
 		void showDuration(String duration);
 		void showName(String name);
-		void showTotalRecordsDuration(String duration);
-		void showRecordsCount(int count);
 
 		void updateRecordingView(List<Integer> data);
 	}

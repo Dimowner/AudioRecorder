@@ -121,7 +121,7 @@ public class Injector {
 	public SettingsContract.UserActionsListener provideSettingsPresenter() {
 		if (settingsPresenter == null) {
 			settingsPresenter = new SettingsPresenter(provideLocalRepository(), provideFileRepository(),
-					provideRecordingTasksQueue(), providePrefs());
+					provideRecordingTasksQueue(), provideLoadingTasksQueue(), providePrefs());
 		}
 		return settingsPresenter;
 	}

@@ -84,6 +84,11 @@ public class FileRepositoryImpl implements FileRepository {
 	}
 
 	@Override
+	public File getRecordingDir() {
+		return recordDirectory;
+	}
+
+	@Override
 	public boolean deleteRecordFileByName(String name) {
 		File recordFile = new File(recordDirectory.getAbsolutePath() + File.separator + FileUtil.generateRecordNameCounted(prefs.getRecordCounter()));
 		return FileUtil.deleteFile(recordFile);

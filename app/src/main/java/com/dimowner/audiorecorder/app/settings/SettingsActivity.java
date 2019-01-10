@@ -45,6 +45,10 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	private static final String VERSION_UNAVAILABLE = "N/A";
 
+	private TextView txtTotalDuration;
+	private TextView txtRecordsCount;
+	private TextView txtAvailableSpace;
+
 	private SettingsContract.UserActionsListener presenter;
 
 
@@ -71,6 +75,10 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		btnLicences.setOnClickListener(this);
 		btnRate.setOnClickListener(this);
 		Switch swPublicDir = findViewById(R.id.swPublicDir);
+
+		txtRecordsCount = findViewById(R.id.txt_records_count);
+		txtTotalDuration= findViewById(R.id.txt_total_duration);
+		txtAvailableSpace = findViewById(R.id.txt_available_space);
 
 		final Prefs prefs = ARApplication.getInjector().providePrefs();
 		swPublicDir.setChecked(prefs.isStoreDirPublic());
@@ -203,6 +211,21 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	@Override
 	public void showFailDeleteAllRecords() {
 		Toast.makeText(getApplicationContext(), R.string.failed_to_delete_all_records, Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void showTotalRecordsDuration(String duration) {
+		txtTotalDuration.setText(getResources().getString(R.string.total_duration, duration));
+	}
+
+	@Override
+	public void showRecordsCount(int count) {
+		txtRecordsCount.setText(getResources().getString(R.string.total_record_count, count));
+	}
+
+	@Override
+	public void showAvailableSpace(String space) {
+		txtAvailableSpace.setText(getResources().getString(R.string.available_space, space));
 	}
 
 	@Override

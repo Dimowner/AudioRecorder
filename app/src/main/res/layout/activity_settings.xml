@@ -17,6 +17,7 @@
 
 <LinearLayout
 		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:tools="http://schemas.android.com/tools"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:orientation="vertical">
@@ -112,6 +113,41 @@
 			android:padding="@dimen/spacing_normal"
 			android:drawablePadding="@dimen/spacing_double"
 			/>
+
+	<TextView
+			android:id="@+id/txt_records_count"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="start"
+			android:textColor="@color/text_primary_light"
+			android:fontFamily="sans-serif-light"
+			android:layout_marginTop="@dimen/spacing_normal"
+			android:layout_marginStart="@dimen/spacing_huge"
+			android:textSize="@dimen/text_xmedium"
+			tools:text="@string/total_record_count"/>
+
+	<TextView
+			android:id="@+id/txt_total_duration"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="start"
+			android:textColor="@color/text_primary_light"
+			android:fontFamily="sans-serif-light"
+			android:layout_marginStart="@dimen/spacing_huge"
+			android:textSize="@dimen/text_xmedium"
+			tools:text="@string/total_duration"/>
+
+	<TextView
+			android:id="@+id/txt_available_space"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="start"
+			android:textColor="@color/text_primary_light"
+			android:fontFamily="sans-serif-light"
+			android:layout_marginStart="@dimen/spacing_huge"
+			android:textSize="@dimen/text_xmedium"
+			android:layout_marginBottom="@dimen/spacing_normal"
+			tools:text="Available space: 34h:12m:22s "/>
 
 	<TextView
 			android:id="@+id/txtAbout"

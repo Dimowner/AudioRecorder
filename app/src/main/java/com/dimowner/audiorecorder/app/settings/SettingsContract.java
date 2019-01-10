@@ -15,6 +15,10 @@ public class SettingsContract {
 		void showAllRecordsDeleted();
 
 		void showFailDeleteAllRecords();
+
+		void showTotalRecordsDuration(String duration);
+		void showRecordsCount(int count);
+		void showAvailableSpace(String space);
 	}
 
 	public interface UserActionsListener extends Contract.UserActionsListener<SettingsContract.View> {

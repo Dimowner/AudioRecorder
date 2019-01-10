@@ -30,6 +30,8 @@ public interface FileRepository {
 
 	File getRecordFileByName(String name);
 
+	File getRecordingDir();
+
 	boolean deleteRecordFileByName(String name);
 
 	boolean deleteRecordFile(String path);

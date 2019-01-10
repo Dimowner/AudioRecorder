@@ -84,7 +84,7 @@ public class TimeUtils {
 
 	public static String formatTimeIntervalHourMinSec(long mills) {
 		long hour = mills / (60 * 60 * 1000);
-		long min = mills / (60 * 1000);
+		long min = mills / (60 * 1000) % 60;
 		long sec = (mills / 1000) % 60;
 		if (hour == 0) {
 			if (min == 0) {

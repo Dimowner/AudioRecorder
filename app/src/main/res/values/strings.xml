@@ -7,8 +7,9 @@
 	<string name="open_source_licences">Open source licences</string>
 	<string name="rate_app">Rate app</string>
 	<string name="store_records_public">Store records in public dir</string>
-	<string name="total_duration">Total records duration: %s</string>
+	<string name="total_duration">Total recorded duration: %s</string>
 	<string name="total_record_count">Total records count: %d</string>
+	<string name="available_space">Available space: %s</string>
 	<string name="delete_all">Delete all records</string>
 	<string name="warning">Warning!</string>
 	<string name="delete_record">Delete this record?</string>

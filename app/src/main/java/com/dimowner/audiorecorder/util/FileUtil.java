@@ -18,7 +18,9 @@ package com.dimowner.audiorecorder.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Environment;
+import android.os.StatFs;
 import android.util.Log;
 
 import com.dimowner.audiorecorder.AppConstants;
@@ -29,12 +31,22 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import timber.log.Timber;
 
 public class FileUtil {
 
 	private static final String LOG_TAG = "FileUtil";
+
+	/** The default buffer size ({@value}) to use for
+	 * {@link #copyLarge(InputStream, OutputStream)} */
+	private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
+
+	/** Represents the end-of-file (or stream).*/
+	public static final int EOF = -1;
+
 
 	private FileUtil() {
 	}
@@ -73,6 +85,30 @@ public class FileUtil {
 	}
 
 	/**
+	 *
+	 * @param input the <code>InputStream</code> to read from
+	 * @param output the <code>OutputStream</code> to write to
+	 * @return the number of bytes copied
+	 * @throws NullPointerException if the input or output is null
+	 * @throws IOException          if an I/O error occurs
+	 * */
+	public static long copyLarge(final InputStream input, final OutputStream output)
+			throws IOException {
+		return copyLarge(input, output, new byte[DEFAULT_BUFFER_SIZE]);
+	}
+
+	public static long copyLarge(final InputStream input, final OutputStream output, final byte[] buffer)
+			throws IOException {
+		long count = 0;
+		int n;
+		while (EOF != (n = input.read(buffer))) {
+			output.write(buffer, 0, n);
+			count += n;
+		}
+		return count;
+	}
+
+	/**
 	 * Copy file.
 	 * @param fileToCopy File to copy.
 	 * @param newFile File in which will contain copied data.
@@ -84,11 +120,13 @@ public class FileUtil {
 		try {
 			in = new FileInputStream(fileToCopy);
 			out = new FileOutputStream(newFile);
-			int c;
-			while ((c = in.read()) != -1) {
-				out.write(c);
+
+			if (copyLarge(in, out) > 0) {
+				return true;
+			}  else {
+				Timber.e("Nothing was copied!");
+				return false;
 			}
-			return true;
 		} catch (Exception e) {
 			return false;
 		} finally {
@@ -99,6 +137,24 @@ public class FileUtil {
 				out.close();
 			}
 		}
+	}
+
+	/**
+	 * Get free space for specified file
+	 * @param f Dir
+	 * @return Available space for specified file in bytes
+	 */
+	public static long getFree(File f) {
+		while (!f.exists()) {
+			f = f.getParentFile();
+			if (f == null)
+				return 0;
+		}
+		StatFs fsi = new StatFs(f.getPath());
+		if (Build.VERSION.SDK_INT >= 18)
+			return fsi.getBlockSizeLong() * fsi.getAvailableBlocksLong();
+		else
+			return fsi.getBlockSize() * (long) fsi.getAvailableBlocks();
 	}
 
 	/**
