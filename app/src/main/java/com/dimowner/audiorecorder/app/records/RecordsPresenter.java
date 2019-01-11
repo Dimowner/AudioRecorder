@@ -120,7 +120,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				public void onStopPlay() {
 					if (view != null) {
 						view.showPlayStop();
-						view.stopPlaybackService();
+//						view.stopPlaybackService();
 					}
 					Timber.d("onStopPlay");
 				}
@@ -391,7 +391,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 							@Override
 							public void run() {
 								view.showWaveForm(record.getAmps());
-								view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
+//								view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
 								view.showRecordName(FileUtil.removeFileExtension(record.getName()));
 								callback.onSuccess();
 								if (record.isBookmarked()) {

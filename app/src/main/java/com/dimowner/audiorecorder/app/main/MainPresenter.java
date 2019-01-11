@@ -171,7 +171,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						view.showPlayStop();
 						Timber.d("onStopPlay");
 						view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
-						view.stopPlaybackService();
+//						view.stopPlaybackService();
+						view.stopForeground();
 					}
 				}
 
@@ -210,6 +211,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		this.localRepository.close();
 		audioPlayer.removePlayerCallback(playerCallback);
 		appRecorder.removeRecordingCallback(appRecorderCallback);
+		this.view.stopPlaybackService();
 		this.view = null;
 	}
 

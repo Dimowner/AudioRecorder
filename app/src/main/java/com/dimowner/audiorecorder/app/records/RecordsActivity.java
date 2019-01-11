@@ -19,11 +19,14 @@ package com.dimowner.audiorecorder.app.records;
 import android.animation.Animator;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -76,7 +79,10 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private ProgressBar playProgress;
 
 	private RecordsContract.UserActionsListener presenter;
+	private ServiceConnection serviceConnection;
+	private PlaybackService playbackService;
 	private ColorMap colorMap;
+	private boolean isBound = false;
 
 	public static Intent getStartIntent(Context context) {
 		Intent intent = new Intent(context, RecordsActivity.class);
@@ -255,16 +261,38 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	@Override
 	public void startPlaybackService() {
 		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
-		intent.setAction(PlaybackService.ACTION_START_PLAYBACK_SERVICE);
-		intent.putExtra(PlaybackService.EXTRAS_KEY_RECORD_NAME, presenter.getRecordName());
+//		intent.setAction(PlaybackService.ACTION_START_PLAYBACK_SERVICE);
+//		intent.putExtra(PlaybackService.EXTRAS_KEY_RECORD_NAME, presenter.getRecordName());
 		startService(intent);
+		if (serviceConnection == null) {
+			serviceConnection = new ServiceConnection() {
+				@Override public void onServiceConnected(ComponentName n, IBinder service) {
+					Timber.v("onServiceConnected nam: %s", n);
+					PlaybackService.PlaybackBinder pb = (PlaybackService.PlaybackBinder) service;
+					playbackService = pb.getService();
+					playbackService.startForeground(presenter.getRecordName());
+					isBound = true;
+				}
+				@Override public void onServiceDisconnected(ComponentName n) {
+					Timber.v("onServiceDisconnected name: %s", n);
+					isBound = false;
+				}
+			};
+		}
+
+		bindService(intent, serviceConnection, Context.BIND_IMPORTANT);
 	}
 
 	@Override
 	public void stopPlaybackService() {
-		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
-		intent.setAction(PlaybackService.ACTION_STOP_PLAYBACK_SERVICE);
-		startService(intent);
+		Timber.v("stopPlaybackService");
+//		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
+//		intent.setAction(PlaybackService.ACTION_STOP_PLAYBACK_SERVICE);
+//		startService(intent);
+		if (isBound && serviceConnection != null) {
+			unbindService(serviceConnection);
+			isBound = false;
+		}
 	}
 
 	public void hidePanel() {
@@ -312,7 +340,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 						presenter.startPlayback();
 						int pos = adapter.findPositionById(id);
 						if (pos >= 0) {
-							recyclerView.scrollToPosition(pos);
+//							recyclerView.scrollToPosition(pos);
 							adapter.setActiveItem(pos);
 						}
 					}
@@ -330,7 +358,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 						presenter.startPlayback();
 						int pos2 = adapter.findPositionById(id2);
 						if (pos2 >= 0) {
-							recyclerView.scrollToPosition(pos2);
+//							recyclerView.scrollToPosition(pos2);
 							adapter.setActiveItem(pos2);
 						}
 					}
@@ -383,6 +411,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		if (presenter != null) {
 			presenter.unbindView();
 		}
+		stopPlaybackService();
 	}
 
 	@Override

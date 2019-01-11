@@ -20,13 +20,16 @@ import android.Manifest;
 import android.animation.Animator;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.content.FileProvider;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -62,11 +65,12 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
+//	TODO: Fix toolbar transparency in records list.
+//	TODO: Fix services errors
 //	TODO: show importing progress, optimize import speed
 //	TODO: Fix view == null in presenter
 // TODO: Store fixed length of waveform in database
 // TODO: Add waveform type field in database
-// TODO: Show total records count, total duration, available space in app settings
 // TODO: Show Record info
 // TODO: Fix waveform adjustment
 // TODO: Settings select Theme waveformColorRes
@@ -105,6 +109,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ProgressBar playProgress;
 
 	private MainContract.UserActionsListener presenter;
+	private ServiceConnection serviceConnection;
+	private PlaybackService playbackService;
+	private boolean isBound = false;
 	private ColorMap colorMap;
 
 	@Override
@@ -305,28 +312,48 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void startPlaybackService(String name) {
+	public void startPlaybackService(final String name) {
 		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
-		intent.setAction(PlaybackService.ACTION_START_PLAYBACK_SERVICE);
-		intent.putExtra(PlaybackService.EXTRAS_KEY_RECORD_NAME, name);
+//		intent.setAction(PlaybackService.ACTION_START_PLAYBACK_SERVICE);
+//		intent.putExtra(PlaybackService.EXTRAS_KEY_RECORD_NAME, name);
 		startService(intent);
+		if (serviceConnection == null) {
+			serviceConnection = new ServiceConnection() {
+				@Override public void onServiceConnected(ComponentName n, IBinder service) {
+					PlaybackService.PlaybackBinder pb = (PlaybackService.PlaybackBinder) service;
+					playbackService = pb.getService();
+					playbackService.startForeground(name);
+					isBound = true;
+				}
+				@Override public void onServiceDisconnected(ComponentName n) {
+					Timber.v("onServiceDisconnected name: %s", n);
+					isBound = false;
+				}
+			};
+		}
+
+		bindService(intent, serviceConnection, Context.BIND_IMPORTANT);
 	}
 
 	@Override
 	public void stopPlaybackService() {
-		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
-		intent.setAction(PlaybackService.ACTION_STOP_PLAYBACK_SERVICE);
-		startService(intent);
+//		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
+//		intent.setAction(PlaybackService.ACTION_STOP_PLAYBACK_SERVICE);
+//		startService(intent);
+		if (isBound && serviceConnection != null) {
+			unbindService(serviceConnection);
+			isBound = false;
+		}
 	}
 
 	@Override
 	public void showPlayStart() {
-		btnPlay.setImageResource(R.drawable.ic_pause);
 		btnRecord.setEnabled(false);
 		AnimationUtil.viewAnimationX(btnPlay, -75f, new Animator.AnimatorListener() {
 			@Override public void onAnimationStart(Animator animation) { }
 			@Override public void onAnimationEnd(Animator animation) {
 				btnStop.setVisibility(View.VISIBLE);
+				btnPlay.setImageResource(R.drawable.ic_pause);
 			}
 			@Override public void onAnimationCancel(Animator animation) { }
 			@Override public void onAnimationRepeat(Animator animation) { }
@@ -385,13 +412,18 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
+	public void stopForeground() {
+		playbackService.stopForegroundService();
+	}
+
+	@Override
 	public void updateRecordingView(List<Integer> data) {
 		waveformView.setRecordingData(data);
 	}
 
 	@Override
 	public void onPlayProgress(final long mills, final int px, int percent) {
-		Timber.v("onPlayProgress: " + px + " percent = " + percent);
+//		Timber.v("onPlayProgress: " + px + " percent = " + percent);
 		playProgress.setProgress(percent);
 		waveformView.setPlayback(px);
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));

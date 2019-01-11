@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.RequiresApi;
@@ -53,6 +54,7 @@ public class PlaybackService extends Service {
 	private String recordName = "";
 
 	private PlayerContract.Player audioPlayer;
+	private PlayerContract.PlayerCallback playerCallback;
 	private ColorMap colorMap;
 
 	public PlaybackService() {
@@ -60,7 +62,8 @@ public class PlaybackService extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		throw new UnsupportedOperationException("Not yet implemented");
+//		throw new UnsupportedOperationException("Not yet implemented");
+		return new PlaybackBinder();
 	}
 
 	@Override
@@ -69,25 +72,6 @@ public class PlaybackService extends Service {
 
 		audioPlayer = ARApplication.getInjector().provideAudioPlayer();
 		colorMap = ARApplication.getInjector().provideColorMap();
-		PlayerContract.PlayerCallback playerCallback = new PlayerContract.PlayerCallback() {
-				@Override public void onPreparePlay() {}
-				@Override public void onPlayProgress(final long mills) {}
-				@Override public void onStopPlay() {}
-				@Override public void onSeek(long mills) {}
-				@Override public void onError(AppException throwable) {}
-
-				@Override
-				public void onStartPlay() {
-					onStartPlayback();
-				}
-
-				@Override
-				public void onPausePlay() {
-					onPausePlayback();
-				}
-			};
-
-		this.audioPlayer.addPlayerCallback(playerCallback);
 	}
 
 	@Override
@@ -130,6 +114,34 @@ public class PlaybackService extends Service {
 			}
 		}
 		return super.onStartCommand(intent, flags, startId);
+	}
+
+	public void startForeground(String name) {
+		recordName = name;
+		if (playerCallback == null) {
+			playerCallback = new PlayerContract.PlayerCallback() {
+				@Override public void onPreparePlay() {}
+				@Override public void onPlayProgress(final long mills) {}
+				@Override public void onStopPlay() {
+//					stopForegroundService();
+				}
+				@Override public void onSeek(long mills) {}
+				@Override public void onError(AppException throwable) {}
+
+				@Override
+				public void onStartPlay() {
+					onStartPlayback();
+				}
+
+				@Override
+				public void onPausePlay() {
+					onPausePlayback();
+				}
+			};
+		}
+
+		this.audioPlayer.addPlayerCallback(playerCallback);
+		startForegroundService();
 	}
 
 	private void startForegroundService() {
@@ -181,8 +193,9 @@ public class PlaybackService extends Service {
 		startForeground(NOTIF_ID, notification);
 	}
 
-	private void stopForegroundService() {
-		audioPlayer = null;
+	public void stopForegroundService() {
+		audioPlayer.removePlayerCallback(playerCallback);
+//		audioPlayer = null;
 		stopForeground(true);
 		stopSelf();
 	}
@@ -240,6 +253,12 @@ public class PlaybackService extends Service {
 			Intent stopIntent = new Intent(context, PlaybackService.class);
 			stopIntent.setAction(intent.getAction());
 			context.startService(stopIntent);
+		}
+	}
+
+	public class PlaybackBinder extends Binder {
+		public PlaybackService getService() {
+			return PlaybackService.this;
 		}
 	}
 }

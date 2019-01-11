@@ -39,7 +39,7 @@ public class AnimationUtil {
 	public static void viewAnimationX(final View view, float val, Animator.AnimatorListener listener) {
 		view.animate()
 				.translationX(val)
-				.setDuration(150L)
+				.setDuration(250L)
 				.setInterpolator(AnimationUtils.loadInterpolator(view.getContext(),
 						android.R.interpolator.accelerate_decelerate))
 				.setListener(listener)

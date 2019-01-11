@@ -22,7 +22,6 @@ import android.media.MediaPlayer;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.exception.PlayerDataSourceException;
-import com.dimowner.audiorecorder.exception.PlayerInitException;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,7 +31,7 @@ import java.util.TimerTask;
 
 import timber.log.Timber;
 
-public class AudioPlayer implements PlayerContract.Player {
+public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPreparedListener {
 
 	private List<PlayerContract.PlayerCallback> actionsListeners = new ArrayList<>();
 
@@ -40,6 +39,7 @@ public class AudioPlayer implements PlayerContract.Player {
 	private Timer timerProgress;
 	private boolean isPrepared = false;
 	private long seekPos = 0;
+	private String dataSource = null;
 
 
 	private static class SingletonHolder {
@@ -72,14 +72,33 @@ public class AudioPlayer implements PlayerContract.Player {
 
 	@Override
 	public void setData(String data) {
-		try {
-			isPrepared = false;
-			mediaPlayer = new MediaPlayer();
-			mediaPlayer.setDataSource(data);
-			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-		} catch (IOException e) {
-			Timber.e(e);
-			onError(new PlayerDataSourceException());
+		if (mediaPlayer != null && dataSource != null && dataSource.equals(data)) {
+			//Do nothing
+		} else {
+			try {
+				isPrepared = false;
+				mediaPlayer = new MediaPlayer();
+				mediaPlayer.setDataSource(data);
+				mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+				dataSource = data;
+			} catch (IOException e) {
+				Timber.e(e);
+				onError(new PlayerDataSourceException());
+			}
+		}
+	}
+
+	private void restartPlayer() {
+		if (dataSource != null) {
+			try {
+				isPrepared = false;
+				mediaPlayer = new MediaPlayer();
+				mediaPlayer.setDataSource(dataSource);
+				mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+			} catch (IOException e) {
+				Timber.e(e);
+				onError(new PlayerDataSourceException());
+			}
 		}
 	}
 
@@ -89,41 +108,83 @@ public class AudioPlayer implements PlayerContract.Player {
 			if (mediaPlayer.isPlaying()) {
 				pause();
 			} else {
-				try {
+//				try {
 					if (!isPrepared) {
-						mediaPlayer.prepare();
-						onPreparePlay();
-						isPrepared = true;
-					}
-
-					mediaPlayer.start();
-					mediaPlayer.seekTo((int) seekPos);
-					onStartPlay();
-					mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-						@Override
-						public void onCompletion(MediaPlayer mp) {
-							stop();
-							onStopPlay();
+						try {
+							mediaPlayer.setOnPreparedListener(this);
+							mediaPlayer.prepareAsync();
+//						onPreparePlay();
+//						isPrepared = true;
+						} catch (IllegalStateException ex) {
+							Timber.e(ex);
+							restartPlayer();
+							mediaPlayer.setOnPreparedListener(this);
+							mediaPlayer.prepareAsync();
 						}
-					});
+					} else {
 
-					timerProgress = new Timer();
-					timerProgress.schedule(new TimerTask() {
-						@Override
-						public void run() {
-							if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-								int curPos = mediaPlayer.getCurrentPosition();
-								Timber.v( "CurPos = " + curPos);
-								onPlayProgress(curPos);
+						mediaPlayer.start();
+						mediaPlayer.seekTo((int) seekPos);
+						onStartPlay();
+						mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+							@Override
+							public void onCompletion(MediaPlayer mp) {
+								stop();
+								onStopPlay();
 							}
-						}
-					}, 0, AppConstants.VISUALIZATION_INTERVAL);
-				} catch (IOException e) {
-					Timber.e(e);
-					onError(new PlayerInitException());
-				}
+						});
+
+						timerProgress = new Timer();
+						timerProgress.schedule(new TimerTask() {
+							@Override
+							public void run() {
+								if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+									int curPos = mediaPlayer.getCurrentPosition();
+//								Timber.v( "CurPos = " + curPos);
+									onPlayProgress(curPos);
+								}
+							}
+						}, 0, AppConstants.VISUALIZATION_INTERVAL);
+					}
+//				} catch (IOException e) {
+//					Timber.e(e);
+//					onError(new PlayerInitException());
+//				}
 			}
 		}
+	}
+
+	@Override
+	public void onPrepared(final MediaPlayer mp) {
+		if (mediaPlayer != mp) {
+			mediaPlayer.stop();
+			mediaPlayer.release();
+			mediaPlayer = mp;
+		}
+		onPreparePlay();
+		isPrepared = true;
+		mediaPlayer.start();
+		mediaPlayer.seekTo((int) seekPos);
+		onStartPlay();
+		mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+			@Override
+			public void onCompletion(MediaPlayer mp) {
+				stop();
+				onStopPlay();
+			}
+		});
+
+		timerProgress = new Timer();
+		timerProgress.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+					int curPos = mediaPlayer.getCurrentPosition();
+//								Timber.v( "CurPos = " + curPos);
+					onPlayProgress(curPos);
+				}
+			}
+		}, 0, AppConstants.VISUALIZATION_INTERVAL);
 	}
 
 	@Override
@@ -180,6 +241,7 @@ public class AudioPlayer implements PlayerContract.Player {
 			mediaPlayer = null;
 		}
 		isPrepared = false;
+		dataSource = null;
 		actionsListeners.clear();
 	}
 
@@ -194,6 +256,7 @@ public class AudioPlayer implements PlayerContract.Player {
 	private  void onStartPlay() {
 		if (!actionsListeners.isEmpty()) {
 			for (int i = 0; i < actionsListeners.size(); i++) {
+				Timber.v("onStartPlay i = " + i);
 				actionsListeners.get(i).onStartPlay();
 			}
 		}
@@ -209,7 +272,8 @@ public class AudioPlayer implements PlayerContract.Player {
 
 	private void onStopPlay() {
 		if (!actionsListeners.isEmpty()) {
-			for (int i = 0; i < actionsListeners.size(); i++) {
+			for (int i = actionsListeners.size()-1; i >= 0; i--) {
+				Timber.v("onStopPlay i = " + i);
 				actionsListeners.get(i).onStopPlay();
 			}
 		}
@@ -226,6 +290,7 @@ public class AudioPlayer implements PlayerContract.Player {
 	private void onSeek(long mills) {
 		if (!actionsListeners.isEmpty()) {
 			for (int i = 0; i < actionsListeners.size(); i++) {
+				Timber.v("onSeek i = " + i);
 				actionsListeners.get(i).onSeek(mills);
 			}
 		}

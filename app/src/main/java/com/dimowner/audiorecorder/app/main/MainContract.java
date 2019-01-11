@@ -39,6 +39,7 @@ public interface MainContract {
 
 		void startPlaybackService(String name);
 		void stopPlaybackService();
+		void stopForeground();
 
 		void showPlayStart();
 		void showPlayPause();
