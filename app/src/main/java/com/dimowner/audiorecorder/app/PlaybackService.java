@@ -123,7 +123,7 @@ public class PlaybackService extends Service {
 				@Override public void onPreparePlay() {}
 				@Override public void onPlayProgress(final long mills) {}
 				@Override public void onStopPlay() {
-//					stopForegroundService();
+					stopForegroundService();
 				}
 				@Override public void onSeek(long mills) {}
 				@Override public void onError(AppException throwable) {}

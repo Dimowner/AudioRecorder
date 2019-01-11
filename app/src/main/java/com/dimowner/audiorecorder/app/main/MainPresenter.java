@@ -171,8 +171,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						view.showPlayStop();
 						Timber.d("onStopPlay");
 						view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
-//						view.stopPlaybackService();
-						view.stopForeground();
 					}
 				}
 
@@ -253,7 +251,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void startPlayback() {
-		Timber.v("startPlayback");
+		Timber.v("startPlayback: rec: " + record.toString());
 		if (record != null) {
 			if (!audioPlayer.isPlaying()) {
 				audioPlayer.setData(record.getPath());

@@ -317,20 +317,18 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 //		intent.setAction(PlaybackService.ACTION_START_PLAYBACK_SERVICE);
 //		intent.putExtra(PlaybackService.EXTRAS_KEY_RECORD_NAME, name);
 		startService(intent);
-		if (serviceConnection == null) {
-			serviceConnection = new ServiceConnection() {
-				@Override public void onServiceConnected(ComponentName n, IBinder service) {
-					PlaybackService.PlaybackBinder pb = (PlaybackService.PlaybackBinder) service;
-					playbackService = pb.getService();
-					playbackService.startForeground(name);
-					isBound = true;
-				}
-				@Override public void onServiceDisconnected(ComponentName n) {
-					Timber.v("onServiceDisconnected name: %s", n);
-					isBound = false;
-				}
-			};
-		}
+		serviceConnection = new ServiceConnection() {
+			@Override public void onServiceConnected(ComponentName n, IBinder service) {
+				PlaybackService.PlaybackBinder pb = (PlaybackService.PlaybackBinder) service;
+				playbackService = pb.getService();
+				playbackService.startForeground(name);
+				isBound = true;
+			}
+			@Override public void onServiceDisconnected(ComponentName n) {
+				Timber.v("onServiceDisconnected name: %s", n);
+				isBound = false;
+			}
+		};
 
 		bindService(intent, serviceConnection, Context.BIND_IMPORTANT);
 	}
@@ -411,10 +409,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtName.setText(name);
 	}
 
-	@Override
-	public void stopForeground() {
-		playbackService.stopForegroundService();
-	}
+//	@Override
+//	public void stopForeground() {
+//		playbackService.stopForegroundService();
+//	}
 
 	@Override
 	public void updateRecordingView(List<Integer> data) {

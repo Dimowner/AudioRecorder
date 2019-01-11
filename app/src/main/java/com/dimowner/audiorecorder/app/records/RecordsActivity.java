@@ -264,21 +264,19 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 //		intent.setAction(PlaybackService.ACTION_START_PLAYBACK_SERVICE);
 //		intent.putExtra(PlaybackService.EXTRAS_KEY_RECORD_NAME, presenter.getRecordName());
 		startService(intent);
-		if (serviceConnection == null) {
-			serviceConnection = new ServiceConnection() {
-				@Override public void onServiceConnected(ComponentName n, IBinder service) {
-					Timber.v("onServiceConnected nam: %s", n);
-					PlaybackService.PlaybackBinder pb = (PlaybackService.PlaybackBinder) service;
-					playbackService = pb.getService();
-					playbackService.startForeground(presenter.getRecordName());
-					isBound = true;
-				}
-				@Override public void onServiceDisconnected(ComponentName n) {
-					Timber.v("onServiceDisconnected name: %s", n);
-					isBound = false;
-				}
-			};
-		}
+		serviceConnection = new ServiceConnection() {
+			@Override public void onServiceConnected(ComponentName n, IBinder service) {
+				Timber.v("onServiceConnected nam: %s", n);
+				PlaybackService.PlaybackBinder pb = (PlaybackService.PlaybackBinder) service;
+				playbackService = pb.getService();
+				playbackService.startForeground(presenter.getRecordName());
+				isBound = true;
+			}
+			@Override public void onServiceDisconnected(ComponentName n) {
+				Timber.v("onServiceDisconnected name: %s", n);
+				isBound = false;
+			}
+		};
 
 		bindService(intent, serviceConnection, Context.BIND_IMPORTANT);
 	}
@@ -340,7 +338,14 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 						presenter.startPlayback();
 						int pos = adapter.findPositionById(id);
 						if (pos >= 0) {
-//							recyclerView.scrollToPosition(pos);
+							recyclerView.scrollToPosition(pos);
+							int o = recyclerView.computeVerticalScrollOffset();
+							if (o > 0) {
+								if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+									toolbar.setTranslationZ(getResources().getDimension(R.dimen.toolbar_elevation));
+									toolbar.setBackgroundResource(colorMap.getPrimaryColorRes());
+								}
+							}
 							adapter.setActiveItem(pos);
 						}
 					}
@@ -358,7 +363,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 						presenter.startPlayback();
 						int pos2 = adapter.findPositionById(id2);
 						if (pos2 >= 0) {
-//							recyclerView.scrollToPosition(pos2);
+							recyclerView.scrollToPosition(pos2);
 							adapter.setActiveItem(pos2);
 						}
 					}
