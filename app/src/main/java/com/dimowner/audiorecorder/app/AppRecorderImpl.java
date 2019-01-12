@@ -82,7 +82,6 @@ public class AppRecorderImpl implements AppRecorder {
 
 					@Override
 					public void run() {
-
 						try {
 							id = localRepository.insertFile(output.getAbsolutePath());
 							prefs.setActiveRecord(id);

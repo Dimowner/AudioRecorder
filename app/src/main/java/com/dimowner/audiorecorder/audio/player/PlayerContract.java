@@ -35,7 +35,7 @@ public interface PlayerContract {
 		boolean removePlayerCallback(PlayerContract.PlayerCallback callback);
 		void setData(String data);
 		void playOrPause();
-		void seek(int pixels);
+		void seek(long mills);
 		void pause();
 		void stop();
 		boolean isPlaying();

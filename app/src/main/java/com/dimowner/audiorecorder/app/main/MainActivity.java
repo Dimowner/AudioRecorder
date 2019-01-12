@@ -156,11 +156,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				presenter.seekPlayback(px);
 			}
 			@Override
-			public void onSeeking(int px) {
+			public void onSeeking(int px, long mills) {
 				if (waveformView.getWaveformLength() > 0) {
 					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / waveformView.getWaveformLength());
 				}
-				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2((long) AndroidUtils.convertPxToMills(px)));
+				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 			}
 		});
 	}
@@ -381,7 +381,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void showWaveForm(int[] waveForm) {
+	public void showWaveForm(int[] waveForm, long duration) {
 		if (waveForm.length > 0) {
 			btnPlay.setVisibility(View.VISIBLE);
 			txtDuration.setVisibility(View.VISIBLE);
@@ -392,6 +392,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			txtZeroTime.setVisibility(View.INVISIBLE);
 		}
 		waveformView.setWaveform(waveForm);
+		waveformView.setPxPerSecond(AndroidUtils.dpToPx(ARApplication.getDpPerSecond((float)duration/1000000)));
 	}
 
 	@Override
@@ -421,7 +422,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void onPlayProgress(final long mills, final int px, int percent) {
-//		Timber.v("onPlayProgress: " + px + " percent = " + percent);
+		Timber.v("onPlayProgress mills: " + mills + ", px: " + px + ", percent = " + percent);
 		playProgress.setProgress(percent);
 		waveformView.setPlayback(px);
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));

@@ -221,9 +221,9 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				presenter.seekPlayback(px);
 			}
 			@Override
-			public void onSeeking(int px) {
+			public void onSeeking(int px, long mills) {
 				playProgress.setProgress(1000*(int)AndroidUtils.pxToDp(px)/waveformView.getWaveformLength());
-				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2((long) AndroidUtils.convertPxToMills(px)));
+				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 			}
 		});
 	}
@@ -486,8 +486,9 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
-	public void showWaveForm(int[] waveForm) {
+	public void showWaveForm(int[] waveForm, long duration) {
 		waveformView.setWaveform(waveForm);
+		waveformView.setPxPerSecond(AndroidUtils.dpToPx(ARApplication.getDpPerSecond((float)duration/1000000)));
 	}
 
 	@Override

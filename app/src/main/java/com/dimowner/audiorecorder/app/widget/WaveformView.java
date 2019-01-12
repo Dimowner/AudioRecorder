@@ -39,10 +39,12 @@ import timber.log.Timber;
 
 public class WaveformView extends View {
 
-	private static final int PIXEL_PER_SECOND = (int) AndroidUtils.dpToPx(AppConstants.PIXELS_PER_SECOND);
+	private static final int DEFAULT_PIXEL_PER_SECOND = (int) AndroidUtils.dpToPx(AppConstants.SHORT_RECORD_DP_PER_SECOND);
 	private static final float SMALL_LINE_HEIGHT = 30.0f;
 	private static final float PADD = 15.0f;
 	private static final int VIEW_DRAW_EDGE = 0;
+
+	private float pxPerSecond = DEFAULT_PIXEL_PER_SECOND;
 
 	private Paint waveformPaint;
 	private Paint gridPaint;
@@ -70,6 +72,9 @@ public class WaveformView extends View {
 	private int screenShift = 0;
 	private int waveformShift = 0;
 	private int viewWidth = 0;
+
+	/** Defines which grid drawn for short waveform or for long. */
+	private boolean isShortWaveForm = true;
 
 	/**
 	 * Values used to prevent call {@link #adjustWaveformHeights} before view is measured because
@@ -154,7 +159,7 @@ public class WaveformView extends View {
 							shift = 0;
 						}
 						if (onSeekListener != null) {
-							onSeekListener.onSeeking(-screenShift);
+							onSeekListener.onSeeking(-screenShift, AndroidUtils.convertPxToMills(-screenShift, pxPerSecond));
 						}
 						updateShifts(shift);
 						invalidate();
@@ -199,9 +204,17 @@ public class WaveformView extends View {
 		requestLayout();
 	}
 
+	public void setPxPerSecond(float pxPerSecond) {
+		isShortWaveForm = pxPerSecond == DEFAULT_PIXEL_PER_SECOND;
+		this.pxPerSecond = pxPerSecond;
+	}
+
 	public void showRecording() {
 		updateShifts(0);
+		pxPerSecond = (int) AndroidUtils.dpToPx(AppConstants.SHORT_RECORD_DP_PER_SECOND);
+		isShortWaveForm = true;
 		showRecording = true;
+		invalidate();
 	}
 
 	public void hideRecording() {
@@ -292,7 +305,11 @@ public class WaveformView extends View {
 
 		int measuredHeight = getMeasuredHeight();
 
-		drawGrid(canvas);
+		if (isShortWaveForm) {
+			drawGrid(canvas);
+		} else {
+			drawGrid2(canvas);
+		}
 		if (showRecording) {
 			drawRecordingWaveform(canvas);
 		} else {
@@ -316,17 +333,21 @@ public class WaveformView extends View {
 		waveformShift = screenShift + viewWidth/2;
 	}
 
+	/**
+	 * Draws grid for short waveform shorter than {@link AppConstants#LONG_RECORD_THRESHOLD_SECONDS} value.
+	 * Also for recording.
+	 */
 	private void drawGrid(Canvas canvas) {
 		float height = (float) getHeight();
-		int count = 3 + viewWidth/PIXEL_PER_SECOND;
-		int gridShift = waveformShift%(PIXEL_PER_SECOND*2);
+		int count = 3 + viewWidth/ DEFAULT_PIXEL_PER_SECOND;
+		int gridShift = waveformShift%(DEFAULT_PIXEL_PER_SECOND *2);
 
 		for (float i = -2f; i < count; i+=2) {
 			//Draw seconds marks
-			float xPos = i * PIXEL_PER_SECOND + gridShift;
+			float xPos = i * DEFAULT_PIXEL_PER_SECOND + gridShift;
 			canvas.drawLine(xPos, height-inset, xPos, inset, gridPaint);
 
-			xPos = (i+1) * PIXEL_PER_SECOND + gridShift;
+			xPos = (i+1) * DEFAULT_PIXEL_PER_SECOND + gridShift;
 			canvas.drawLine(xPos, height - inset, xPos, height - SMALL_LINE_HEIGHT - inset, gridPaint);
 
 			canvas.drawLine(xPos, inset, xPos, SMALL_LINE_HEIGHT + inset, gridPaint);
@@ -334,8 +355,46 @@ public class WaveformView extends View {
 
 		for (float i = -2f; i < count; i+=2) {
 			//Draw seconds marks
-			float xPos = i * PIXEL_PER_SECOND + gridShift;
-			long mills = (long)((-waveformShift/(PIXEL_PER_SECOND) + gridShift/PIXEL_PER_SECOND + i)  * 1000);
+			float xPos = i * DEFAULT_PIXEL_PER_SECOND + gridShift;
+			long mills = (long)((-waveformShift/(DEFAULT_PIXEL_PER_SECOND) + gridShift/ DEFAULT_PIXEL_PER_SECOND + i)  * 1000);
+			if (mills >= 0) {
+				String text = TimeUtils.formatTimeIntervalMinSec(mills);
+				//Bottom text
+				canvas.drawText(text, xPos, height - PADD, textPaint);
+				//Top text
+				canvas.drawText(text, xPos, textHeight, textPaint);
+			}
+		}
+	}
+
+	/**
+	 * Draws grid for long waveform longer than {@link AppConstants#LONG_RECORD_THRESHOLD_SECONDS} value.
+	 */
+	private void drawGrid2(Canvas canvas) {
+		float height = (float) getHeight();
+		int markCount = AppConstants.GRID_LINES_COUNT;
+
+		int count = 3 + markCount;
+		int pxPerMark = viewWidth/markCount;
+		float secPerMark = pxPerMark/pxPerSecond;
+
+		int gridShift = (int)(waveformShift%(pxPerMark*2));
+
+		for (float i = -2f; i < count; i+=2) {
+			//Draw seconds marks
+			float xPos = i * pxPerMark + gridShift;
+			canvas.drawLine(xPos, height-inset, xPos, inset, gridPaint);
+
+			xPos = (i+1) * pxPerMark + gridShift;
+			canvas.drawLine(xPos, height - inset, xPos, height - SMALL_LINE_HEIGHT - inset, gridPaint);
+
+			canvas.drawLine(xPos, inset, xPos, SMALL_LINE_HEIGHT + inset, gridPaint);
+		}
+
+		for (float i = -2f; i < count; i+=2) {
+			//Draw seconds marks
+			float xPos = i * pxPerMark + gridShift;
+			long mills = (long)((-waveformShift/pxPerSecond + gridShift/pxPerSecond + secPerMark * i)  * 1000);
 			if (mills >= 0) {
 				String text = TimeUtils.formatTimeIntervalMinSec(mills);
 				//Bottom text
@@ -537,6 +596,6 @@ public class WaveformView extends View {
 
 	public interface OnSeekListener {
 		void onSeek(int px);
-		void onSeeking(int px);
+		void onSeeking(int px, long mills);
 	}
 }

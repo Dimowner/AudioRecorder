@@ -20,6 +20,7 @@ import android.app.Application;
 import android.os.Handler;
 
 import com.crashlytics.android.Crashlytics;
+import com.dimowner.audiorecorder.util.AndroidUtils;
 import io.fabric.sdk.android.Fabric;
 
 import timber.log.Timber;
@@ -29,6 +30,9 @@ public class ARApplication extends Application {
 	private static String PACKAGE_NAME ;
 	public static volatile Handler applicationHandler;
 
+	/** Screen width in dp */
+	private static float screenWidthDp = 0;
+
 	public static Injector injector;
 
 	public static Injector getInjector() {
@@ -37,6 +41,14 @@ public class ARApplication extends Application {
 
 	public static String appPackage() {
 		return PACKAGE_NAME;
+	}
+
+	public static float getDpPerSecond(float duration) {
+		if (duration > AppConstants.LONG_RECORD_THRESHOLD_SECONDS) {
+			return AppConstants.WAVEFORM_WIDTH * screenWidthDp / duration;
+		} else {
+			return AppConstants.SHORT_RECORD_DP_PER_SECOND;
+		}
 	}
 
 	@Override
@@ -56,7 +68,7 @@ public class ARApplication extends Application {
 
 		PACKAGE_NAME = getApplicationContext().getPackageName();
 		applicationHandler = new Handler(getApplicationContext().getMainLooper());
-
+		screenWidthDp = AndroidUtils.pxToDp(AndroidUtils.getScreenWidth(getApplicationContext()));
 		injector = new Injector(getApplicationContext());
 	}
 

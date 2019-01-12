@@ -28,12 +28,26 @@ public class AppConstants {
 	public static final String BASE_RECORD_NAME = "Record-";
 	public static final int MAX_RECORD_NAME_LENGTH = 20;
 
+	//BEGINNING-------------- Waveform visualisation constants ----------------------------------
 
-	/**
-	 * Density pixel count per one second of time.
-	 */
-	public static final int PIXELS_PER_SECOND = 25;
+	/** Density pixel count per one second of time.
+	 *  Used for short records (shorter than {@link AppConstants#LONG_RECORD_THRESHOLD_SECONDS}) */
+//	public static final int PIXELS_PER_SECOND = 25;
+	public static final int SHORT_RECORD_DP_PER_SECOND = 25;
 
+	/** Waveform length, measured in screens count of device.
+	 *  Used for long records (longer than {@link AppConstants#LONG_RECORD_THRESHOLD_SECONDS})   */
+	public static final float WAVEFORM_WIDTH = 1.5f; //one and half of screen waveform width.
+
+	/** Threshold in second which defines when record is considered as long or short.
+	 *  For short and long records used a bit different visualisation algorithm. */
+	public static final int LONG_RECORD_THRESHOLD_SECONDS = 20;
+
+	/** Count of grid lines on visible part of Waveform (actually lines count visible on screen).
+	 *  Used for long records visualisation algorithm. (longer than {@link AppConstants#LONG_RECORD_THRESHOLD_SECONDS} ) */
+	public static final int GRID_LINES_COUNT = 16;
+
+	//END-------------- Waveform visualisation constants ----------------------------------------
 
 	public static final int TIME_FORMAT_24H = 11;
 	public static final int TIME_FORMAT_12H = 12;

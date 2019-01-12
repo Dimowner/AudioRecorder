@@ -16,6 +16,8 @@
 
 package com.dimowner.audiorecorder.app.records;
 
+import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.app.AppRecorder;
@@ -49,6 +51,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	private final Prefs prefs;
 
 	private Record record;
+	private float dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 	private boolean showBookmarks = false;
 
 	public RecordsPresenter(final LocalRepository localRepository, FileRepository fileRepository,
@@ -110,7 +113,8 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override public void run() {
 								if (view != null && record != null) {
-									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills), (int)(1000 * mills/(record.getDuration()/1000)));
+									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
+											AndroidUtils.dpToPx(dpPerSecond)), (int)(1000 * mills/(record.getDuration()/1000)));
 								}
 							}});
 					}
@@ -188,7 +192,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	@Override
 	public void seekPlayback(int px) {
-		audioPlayer.seek(px);
+		audioPlayer.seek(AndroidUtils.convertPxToMills(px, AndroidUtils.dpToPx(dpPerSecond)));
 	}
 
 	@Override
@@ -216,6 +220,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				prefs.setActiveRecord(-1);
 				final long id = record.getId();
 				record = null;
+				dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override public void run() {
 						view.onDeleteRecord(id);
@@ -234,13 +239,14 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				public void run() {
 					final List<Record> recordList = localRepository.getAllRecords();
 					record = localRepository.getRecord((int) prefs.getActiveRecord());
+					dpPerSecond = ARApplication.getDpPerSecond(record.getDuration()/1000000);
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override
 						public void run() {
 							if (view != null) {
 								view.showRecords(Mapper.recordsToListItems(recordList));
 								if (record != null) {
-									view.showWaveForm(record.getAmps());
+									view.showWaveForm(record.getAmps(), record.getDuration());
 									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
 									view.showRecordName(FileUtil.removeFileExtension(record.getName()));
 									if (record.isBookmarked()) {
@@ -275,13 +281,14 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 					public void run() {
 						final List<Record> recordList = localRepository.getBookmarks();
 						record = localRepository.getRecord((int) prefs.getActiveRecord());
+						dpPerSecond = ARApplication.getDpPerSecond(record.getDuration()/1000000);
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override
 							public void run() {
 								if (view != null) {
 									view.showRecords(Mapper.recordsToListItems(recordList));
 									if (record != null) {
-										view.showWaveForm(record.getAmps());
+										view.showWaveForm(record.getAmps(), record.getDuration());
 										view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
 										view.showRecordName(FileUtil.removeFileExtension(record.getName()));
 									}
@@ -386,11 +393,12 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				@Override
 				public void run() {
 					record = localRepository.getRecord((int) id);
+					dpPerSecond = ARApplication.getDpPerSecond(record.getDuration()/1000000);
 					if (record != null) {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override
 							public void run() {
-								view.showWaveForm(record.getAmps());
+								view.showWaveForm(record.getAmps(), record.getDuration());
 //								view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
 								view.showRecordName(FileUtil.removeFileExtension(record.getName()));
 								callback.onSuccess();

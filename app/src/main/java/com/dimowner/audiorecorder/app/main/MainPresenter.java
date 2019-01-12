@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 
+import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.R;
@@ -58,6 +59,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private final LocalRepository localRepository;
 	private final Prefs prefs;
 	private long songDuration = 0;
+	private float dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 	private Record record;
 
 	public MainPresenter(final Prefs prefs, final FileRepository fileRepository,
@@ -159,7 +161,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override public void run() {
 								if (view != null) {
-									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills), (int)(1000 * mills/(songDuration/1000)));
+									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
+											AndroidUtils.dpToPx(dpPerSecond)), (int)(1000 * mills/(songDuration/1000)));
 								}
 							}});
 					}
@@ -269,7 +272,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void seekPlayback(int px) {
-		audioPlayer.seek(px);
+		audioPlayer.seek(AndroidUtils.convertPxToMills(px, AndroidUtils.dpToPx(dpPerSecond)));
 	}
 
 	@Override
@@ -340,10 +343,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				record = localRepository.getRecord((int) prefs.getActiveRecord());
 				if (record != null) {
 					songDuration = record.getDuration();
+					dpPerSecond = ARApplication.getDpPerSecond(songDuration/1000000);
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override
 						public void run() {
-							view.showWaveForm(record.getAmps());
+							view.showWaveForm(record.getAmps(), songDuration);
 							view.showName(FileUtil.removeFileExtension(record.getName()));
 							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
 							view.hideProgress();
@@ -353,7 +357,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override
 						public void run() {
-							view.showWaveForm(new int[] {});
+							view.showWaveForm(new int[] {}, 0);
 							view.showName("");
 							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
 							view.hideProgress();

@@ -19,11 +19,12 @@ package com.dimowner.audiorecorder.util;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Point;
 import android.os.Build;
+import android.view.Display;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ARApplication;
 
 import java.nio.ByteBuffer;
@@ -43,6 +44,16 @@ public class AndroidUtils {
 	 * @return Converted value in pixels.
 	 */
 	public static float dpToPx(int dp) {
+//		return (dp * Resources.getSystem().getDisplayMetrics().density);
+		return dpToPx((float) dp);
+	}
+
+	/**
+	 * Convert density independent pixels value (dip) into pixels value (px).
+	 * @param dp Value needed to convert
+	 * @return Converted value in pixels.
+	 */
+	public static float dpToPx(float dp) {
 		return (dp * Resources.getSystem().getDisplayMetrics().density);
 	}
 
@@ -52,6 +63,16 @@ public class AndroidUtils {
 	 * @return Converted value in pixels.
 	 */
 	public static float pxToDp(int px) {
+//		return (px / Resources.getSystem().getDisplayMetrics().density);
+		return pxToDp((float) px);
+	}
+
+	/**
+	 * Convert pixels value (px) into density independent pixels (dip).
+	 * @param px Value needed to convert
+	 * @return Converted value in pixels.
+	 */
+	public static float pxToDp(float px) {
 		return (px / Resources.getSystem().getDisplayMetrics().density);
 	}
 
@@ -63,13 +84,15 @@ public class AndroidUtils {
 		return Resources.getSystem().getDisplayMetrics().heightPixels;
 	}
 
-	public static int convertMillsToPx(long mills) {
+	public static int convertMillsToPx(long mills, float pxPerSec) {
 		// 1000 is 1 second evaluated in milliseconds
-		return (int) (mills * AndroidUtils.dpToPx(AppConstants.PIXELS_PER_SECOND) / 1000);
+//		return (int) (mills * AndroidUtils.dpToPx(AppConstants.PIXELS_PER_SECOND) / 1000);
+		return (int) (mills * pxPerSec / 1000);
 	}
 
-	public static int convertPxToMills(long px) {
-		return (int) (1000 * px / AndroidUtils.dpToPx(AppConstants.PIXELS_PER_SECOND));
+	public static int convertPxToMills(long px, float pxPerSecond) {
+//		return (int) (1000 * px / AndroidUtils.dpToPx(AppConstants.PIXELS_PER_SECOND));
+		return (int) (1000 * px / pxPerSecond);
 	}
 
 	// A method to find height of the status bar
@@ -136,5 +159,21 @@ public class AndroidUtils {
 			dst[i] = x;
 		}
 		return dst;
+	}
+
+	public static int getScreenWidth(Context context) {
+		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		Display display = wm.getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		return size.x;
+	}
+
+	public static int getScreenHeight(Context context) {
+		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		Display display = wm.getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		return size.y;
 	}
 }

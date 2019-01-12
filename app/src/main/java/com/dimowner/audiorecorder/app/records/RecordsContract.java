@@ -37,7 +37,7 @@ public interface RecordsContract {
 		void startPlaybackService();
 		void stopPlaybackService();
 
-		void showWaveForm(int[] waveForm);
+		void showWaveForm(int[] waveForm, long duration);
 		void showDuration(String duration);
 
 		void showRecords(List<ListItem> records);

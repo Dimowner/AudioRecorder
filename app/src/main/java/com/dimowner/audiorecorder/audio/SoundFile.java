@@ -20,6 +20,7 @@ import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
 
+import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 
 import java.io.File;
@@ -34,6 +35,7 @@ public class SoundFile {
 
 	private File mInputFile = null;
 
+	private float dpPerSec = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 	private int mFileSize;
 	private int mSampleRate;
 	private int mChannels;
@@ -85,7 +87,8 @@ public class SoundFile {
 	}
 
 	private int calculateSamplesPerFrame() {
-		return mSampleRate / AppConstants.PIXELS_PER_SECOND;
+//		return mSampleRate / AppConstants.PIXELS_PER_SECOND;
+		return (int)(mSampleRate / dpPerSec);
 	}
 
 	// Should be removed when the app will use directly the samples instead of the frames.
@@ -122,6 +125,7 @@ public class SoundFile {
 
 		//SoundFile duration.
 		duration = format.getLong(MediaFormat.KEY_DURATION);
+		dpPerSec = ARApplication.getDpPerSecond(duration/1000000);
 
 		MediaCodec codec = MediaCodec.createDecoderByType(format.getString(MediaFormat.KEY_MIME));
 		codec.configure(format, null, null, 0);

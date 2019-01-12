@@ -45,7 +45,7 @@ public interface MainContract {
 		void showPlayStop();
 		void onPlayProgress(long mills, int px, int percent);
 
-		void showWaveForm(int[] waveForm);
+		void showWaveForm(int[] waveForm, long duration);
 		void showDuration(String duration);
 		void showName(String name);
 

@@ -188,8 +188,8 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 	}
 
 	@Override
-	public void seek(int pixels) {
-		seekPos = AndroidUtils.convertPxToMills(pixels);
+	public void seek(long mills) {
+		seekPos = mills;
 		if (mediaPlayer != null) {
 			Timber.v("seekPlayback mills: " + seekPos);
 			mediaPlayer.seekTo((int) seekPos);
