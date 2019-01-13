@@ -65,12 +65,6 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
-//	TODO: Fix toolbar transparency in records list.
-//	TODO: Fix services errors
-//	TODO: show importing progress, optimize import speed
-//	TODO: Fix view == null in presenter
-// TODO: Store fixed length of waveform in database
-// TODO: Add waveform type field in database
 // TODO: Show Record info
 // TODO: Fix waveform adjustment
 // TODO: Settings select Theme waveformColorRes
@@ -107,6 +101,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ImageButton btnImport;
 	private ProgressBar progressBar;
 	private ProgressBar playProgress;
+	private LinearLayout pnlImportProgress;
 
 	private MainContract.UserActionsListener presenter;
 	private ServiceConnection serviceConnection;
@@ -135,6 +130,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnImport = findViewById(R.id.btn_import);
 		progressBar = findViewById(R.id.progress);
 		playProgress = findViewById(R.id.play_progress);
+		pnlImportProgress = findViewById(R.id.pnl_import_progress);
 
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 
@@ -422,10 +418,21 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void onPlayProgress(final long mills, final int px, int percent) {
-		Timber.v("onPlayProgress mills: " + mills + ", px: " + px + ", percent = " + percent);
 		playProgress.setProgress(percent);
 		waveformView.setPlayback(px);
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
+	}
+
+	@Override
+	public void showImportStart() {
+		btnImport.setVisibility(View.INVISIBLE);
+		pnlImportProgress.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void hideImportProgress() {
+		pnlImportProgress.setVisibility(View.INVISIBLE);
+		btnImport.setVisibility(View.VISIBLE);
 	}
 
 	public void setRecordName(final long recordId, File file) {

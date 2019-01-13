@@ -55,6 +55,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private AppRecorderCallback appRecorderCallback;
 	private final BackgroundQueue loadingTasks;
 	private final BackgroundQueue recordingsTasks;
+	private final BackgroundQueue importTasks;
 	private final FileRepository fileRepository;
 	private final LocalRepository localRepository;
 	private final Prefs prefs;
@@ -62,17 +63,23 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private float dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 	private Record record;
 
+	/** Flag true defines that presenter called to show import progress when view was not bind.
+	 * And after view bind we need to show import progress.*/
+	private boolean showImportProgress = false;
+
 	public MainPresenter(final Prefs prefs, final FileRepository fileRepository,
 								final LocalRepository localRepository,
 								PlayerContract.Player audioPlayer,
 								AppRecorder appRecorder,
 								final BackgroundQueue recordingTasks,
-								final BackgroundQueue loadingTasks) {
+								final BackgroundQueue loadingTasks,
+								final BackgroundQueue importTasks) {
 		this.prefs = prefs;
 		this.fileRepository = fileRepository;
 		this.localRepository = localRepository;
 		this.loadingTasks = loadingTasks;
 		this.recordingsTasks = recordingTasks;
+		this.importTasks = importTasks;
 		this.audioPlayer = audioPlayer;
 		this.appRecorder = appRecorder;
 	}
@@ -80,6 +87,10 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void bindView(final MainContract.View v) {
 		this.view = v;
+		if (showImportProgress) {
+			view.showImportStart();
+			showImportProgress = false;
+		}
 		this.localRepository.open();
 
 		if (appRecorder.isRecording()) {
@@ -330,7 +341,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					}
 				}
 				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override public void run() { view.hideProgress(); }});
+					@Override public void run() {
+						view.hideProgress();
+					}});
 			}});
 	}
 
@@ -407,10 +420,13 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void importAudioFile(final Context context, final Uri uri) {
-//		TODO: Show import progress
-//		view.showProgress();
+		if (view != null) {
+			view.showImportStart();
+		} else {
+			showImportProgress = true;
+		}
 
-		recordingsTasks.postRunnable(new Runnable() {
+		importTasks.postRunnable(new Runnable() {
 			long id = -1;
 
 			@Override
@@ -436,15 +452,18 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				} catch (IOException e) {
 					Timber.e(e);
 					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override public void run() { view.showError(R.string.error_unable_to_read_sound_file); }
+						@Override public void run() { if (view != null) view.showError(R.string.error_unable_to_read_sound_file); }
 					});
 				} catch (final CantCreateFileException ex) {
 					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override public void run() { view.showError(ErrorParser.parseException(ex)); }
+						@Override public void run() { if (view != null) view.showError(ErrorParser.parseException(ex)); }
 					});
 				}
 				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override public void run() { loadActiveRecord(); }
+					@Override public void run() {
+						view.hideImportProgress();
+						audioPlayer.stop();
+						loadActiveRecord(); }
 				});
 			}
 		});

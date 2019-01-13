@@ -57,7 +57,7 @@ public class AppConstants {
 	public final static int RECORD_SAMPLE_RATE = 44100;
 	public final static int RECORD_ENCODING_BITRATE = 48000;
 	public final static int RECORD_AUDIO_CHANNELS_COUNT = 2;
-	public final static int RECORD_MAX_DURATION = 600000; // 10 min
+	public final static int RECORD_MAX_DURATION = 7200000; // 120 min
 	public final static int VISUALIZATION_INTERVAL = 40;
 
 	public final static int RECORD_BYTES_PER_SECOND = RECORD_ENCODING_BITRATE/8; //bits per sec converted to bytes per sec.

@@ -44,6 +44,7 @@ public class Injector {
 
 	private BackgroundQueue loadingTasks;
 	private BackgroundQueue recordingTasks;
+	private BackgroundQueue importTasks;
 
 	private MainContract.UserActionsListener mainPresenter;
 	private RecordsContract.UserActionsListener recordsPresenter;
@@ -88,6 +89,13 @@ public class Injector {
 		return recordingTasks;
 	}
 
+	public BackgroundQueue provideImportTasksQueue() {
+		if (importTasks == null) {
+			importTasks = new BackgroundQueue("ImportTasks");
+		}
+		return importTasks;
+	}
+
 	public ColorMap provideColorMap() {
 		return ColorMap.getInstance();
 	}
@@ -104,7 +112,7 @@ public class Injector {
 		if (mainPresenter == null) {
 			mainPresenter = new MainPresenter(providePrefs(), provideFileRepository(),
 					provideLocalRepository(), provideAudioPlayer(), provideAppRecorder(),
-					provideLoadingTasksQueue(), provideRecordingTasksQueue());
+					provideLoadingTasksQueue(), provideRecordingTasksQueue(), provideImportTasksQueue());
 		}
 		return mainPresenter;
 	}
