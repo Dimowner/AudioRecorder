@@ -65,6 +65,7 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
+// TODO: After finish recording show record instantly and process waveform in background.
 // TODO: Show Record info
 // TODO: Fix waveform adjustment
 // TODO: Settings select Theme waveformColorRes
@@ -271,6 +272,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void showRecordingStart() {
 		btnRecord.setImageResource(R.drawable.ic_record_rec);
 		btnPlay.setEnabled(false);
+		btnImport.setEnabled(false);
+		btnShare.setEnabled(false);
 		waveformView.showRecording();
 	}
 
@@ -278,6 +281,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void showRecordingStop() {
 		btnRecord.setImageResource(R.drawable.ic_record);
 		btnPlay.setEnabled(true);
+		btnImport.setEnabled(true);
+		btnShare.setEnabled(true);
 		waveformView.hideRecording();
 		waveformView.clearRecordingData();
 	}

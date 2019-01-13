@@ -105,6 +105,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				public void onRecordingStarted() {
 					Timber.v("onStartRecord");
 					view.showRecordingStart();
+					view.showName("");
 					view.startRecordingService();
 				}
 
@@ -146,6 +147,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					Timber.e(throwable);
 					if (view != null) {
 						view.showError(ErrorParser.parseException(throwable));
+						view.showRecordingStop();
 					}
 				}
 			};
