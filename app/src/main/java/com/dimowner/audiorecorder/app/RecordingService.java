@@ -66,6 +66,7 @@ public class RecordingService extends Service {
 			@Override public void onRecordingStarted() { }
 			@Override public void onRecordingPaused() { }
 			@Override public void onRecordProcessing() { }
+			@Override public void onRecordFinishProcessing() { }
 			@Override public void onRecordingStopped(long id, File file) { }
 
 			@Override
@@ -124,6 +125,7 @@ public class RecordingService extends Service {
 
 		// Create notification default intent.
 		Intent intent = new Intent(this, MainActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
 		// Create notification builder.

@@ -94,6 +94,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		this.localRepository.open();
 
 		if (appRecorder.isRecording()) {
+			view.showRecordingStart();
 			view.updateRecordingView(appRecorder.getRecordingData());
 		} else {
 			view.showRecordingStop();
@@ -116,6 +117,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				@Override
 				public void onRecordProcessing() {
 					view.showProgress();
+				}
+
+				@Override
+				public void onRecordFinishProcessing() {
+					loadActiveRecord();
 				}
 
 				@Override
@@ -351,36 +357,38 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void loadActiveRecord() {
-		view.showProgress();
-		loadingTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				record = localRepository.getRecord((int) prefs.getActiveRecord());
-				if (record != null) {
-					songDuration = record.getDuration();
-					dpPerSecond = ARApplication.getDpPerSecond(songDuration/1000000);
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							view.showWaveForm(record.getAmps(), songDuration);
-							view.showName(FileUtil.removeFileExtension(record.getName()));
-							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
-							view.hideProgress();
-						}
-					});
-				} else {
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							view.showWaveForm(new int[] {}, 0);
-							view.showName("");
-							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
-							view.hideProgress();
-						}
-					});
+		if (!appRecorder.isRecording()) {
+			view.showProgress();
+			loadingTasks.postRunnable(new Runnable() {
+				@Override
+				public void run() {
+					record = localRepository.getRecord((int) prefs.getActiveRecord());
+					if (record != null) {
+						songDuration = record.getDuration();
+						dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override
+							public void run() {
+								view.showWaveForm(record.getAmps(), songDuration);
+								view.showName(FileUtil.removeFileExtension(record.getName()));
+								view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
+								view.hideProgress();
+							}
+						});
+					} else {
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override
+							public void run() {
+								view.showWaveForm(new int[]{}, 0);
+								view.showName("");
+								view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
+								view.hideProgress();
+							}
+						});
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 
 	@Override

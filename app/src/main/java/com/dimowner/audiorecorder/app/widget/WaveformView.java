@@ -446,15 +446,8 @@ public class WaveformView extends View {
 
 	private void drawRecordingWaveform(Canvas canvas) {
 		if (recordingData.size() > 0) {
-//			int width = recordingData.size();
 			int half = getMeasuredHeight() / 2;
-
-//			if (width > getMeasuredWidth()) {
-				int width = getMeasuredWidth();
-//			}
-
 			Path path = new Path();
-
 			float xPos = waveformShift;
 			if (xPos < VIEW_DRAW_EDGE) { xPos = VIEW_DRAW_EDGE; }
 			path.moveTo(xPos, half);

@@ -488,7 +488,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	@Override
 	public void showWaveForm(int[] waveForm, long duration) {
 		waveformView.setWaveform(waveForm);
-		waveformView.setPxPerSecond(AndroidUtils.dpToPx(ARApplication.getDpPerSecond((float)duration/1000000)));
+		waveformView.setPxPerSecond(AndroidUtils.dpToPx(ARApplication.getDpPerSecond((float)duration/1000000f)));
 	}
 
 	@Override

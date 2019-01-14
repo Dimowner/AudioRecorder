@@ -43,12 +43,21 @@ public class ARApplication extends Application {
 		return PACKAGE_NAME;
 	}
 
-	public static float getDpPerSecond(float duration) {
-		if (duration > AppConstants.LONG_RECORD_THRESHOLD_SECONDS) {
-			return AppConstants.WAVEFORM_WIDTH * screenWidthDp / duration;
+	/**
+	 * Calculate density pixels per second for record duration.
+	 * Used for visualisation waveform in view.
+	 * @param durationSec record duration in seconds
+	 */
+	public static float getDpPerSecond(float durationSec) {
+		if (durationSec > AppConstants.LONG_RECORD_THRESHOLD_SECONDS) {
+			return AppConstants.WAVEFORM_WIDTH * screenWidthDp / durationSec;
 		} else {
 			return AppConstants.SHORT_RECORD_DP_PER_SECOND;
 		}
+	}
+
+	public static int getLongWaveformSampleCount() {
+		return (int)(AppConstants.WAVEFORM_WIDTH * screenWidthDp);
 	}
 
 	@Override
@@ -77,5 +86,6 @@ public class ARApplication extends Application {
 		super.onTerminate();
 		Timber.v("onTerminate");
 		injector.releaseMainPresenter();
+		injector.closeTasks();
 	}
 }

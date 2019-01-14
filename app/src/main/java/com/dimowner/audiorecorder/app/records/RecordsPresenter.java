@@ -77,6 +77,12 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				@Override public void onRecordingStarted() {}
 				@Override public void onRecordingPaused() {}
 				@Override public void onRecordProcessing() {}
+
+				@Override
+				public void onRecordFinishProcessing() {
+					loadRecords();
+				}
+
 				@Override public void onRecordingProgress(long mills, int amp) {}
 
 				@Override
@@ -175,11 +181,13 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	@Override
 	public void startPlayback() {
-		if (record != null) {
-			if (!audioPlayer.isPlaying()) {
-				audioPlayer.setData(record.getPath());
+		if (!appRecorder.isRecording()) {
+			if (record != null) {
+				if (!audioPlayer.isPlaying()) {
+					audioPlayer.setData(record.getPath());
+				}
+				audioPlayer.playOrPause();
 			}
-			audioPlayer.playOrPause();
 		}
 	}
 
@@ -239,7 +247,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				public void run() {
 					final List<Record> recordList = localRepository.getAllRecords();
 					record = localRepository.getRecord((int) prefs.getActiveRecord());
-					dpPerSecond = ARApplication.getDpPerSecond(record.getDuration()/1000000);
+					dpPerSecond = ARApplication.getDpPerSecond((float) record.getDuration()/1000000f);
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override
 						public void run() {
@@ -281,7 +289,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 					public void run() {
 						final List<Record> recordList = localRepository.getBookmarks();
 						record = localRepository.getRecord((int) prefs.getActiveRecord());
-						dpPerSecond = ARApplication.getDpPerSecond(record.getDuration()/1000000);
+						dpPerSecond = ARApplication.getDpPerSecond((float) record.getDuration()/1000000f);
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override
 							public void run() {
@@ -385,7 +393,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	@Override
 	public void setActiveRecord(final long id, final RecordsContract.Callback callback) {
-		if (id >= 0) {
+		if (id >= 0 && !appRecorder.isRecording()) {
 //			view.showProgress();
 			prefs.setActiveRecord(id);
 			view.showPanelProgress();
@@ -393,7 +401,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				@Override
 				public void run() {
 					record = localRepository.getRecord((int) id);
-					dpPerSecond = ARApplication.getDpPerSecond(record.getDuration()/1000000);
+					dpPerSecond = ARApplication.getDpPerSecond((float) record.getDuration()/1000000f);
 					if (record != null) {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override

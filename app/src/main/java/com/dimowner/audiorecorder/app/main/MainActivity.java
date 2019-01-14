@@ -65,7 +65,7 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
-// TODO: After finish recording show record instantly and process waveform in background.
+// TODO: Add db flag that shows that audio record was processed.
 // TODO: Show Record info
 // TODO: Fix waveform adjustment
 // TODO: Settings select Theme waveformColorRes
@@ -187,6 +187,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				break;
 			case R.id.btn_record:
 				if (checkRecordPermission()) {
+					//Start or stop recording
 					presenter.startRecording();
 				}
 				break;
@@ -274,6 +275,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnPlay.setEnabled(false);
 		btnImport.setEnabled(false);
 		btnShare.setEnabled(false);
+		playProgress.setProgress(0);
+		txtDuration.setText(R.string.zero_time);
 		waveformView.showRecording();
 	}
 
@@ -393,7 +396,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			txtZeroTime.setVisibility(View.INVISIBLE);
 		}
 		waveformView.setWaveform(waveForm);
-		waveformView.setPxPerSecond(AndroidUtils.dpToPx(ARApplication.getDpPerSecond((float)duration/1000000)));
+		waveformView.setPxPerSecond(AndroidUtils.dpToPx(ARApplication.getDpPerSecond((float)duration/1000000f)));
 	}
 
 	@Override

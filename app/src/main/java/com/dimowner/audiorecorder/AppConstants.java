@@ -32,7 +32,6 @@ public class AppConstants {
 
 	/** Density pixel count per one second of time.
 	 *  Used for short records (shorter than {@link AppConstants#LONG_RECORD_THRESHOLD_SECONDS}) */
-//	public static final int PIXELS_PER_SECOND = 25;
 	public static final int SHORT_RECORD_DP_PER_SECOND = 25;
 
 	/** Waveform length, measured in screens count of device.
@@ -58,7 +57,9 @@ public class AppConstants {
 	public final static int RECORD_ENCODING_BITRATE = 48000;
 	public final static int RECORD_AUDIO_CHANNELS_COUNT = 2;
 	public final static int RECORD_MAX_DURATION = 7200000; // 120 min
-	public final static int VISUALIZATION_INTERVAL = 40;
+
+	/** Time interval for Recording progress visualisation. */
+	public final static int VISUALIZATION_INTERVAL = 1000/SHORT_RECORD_DP_PER_SECOND; //1000 mills/25 dp per sec
 
 	public final static int RECORD_BYTES_PER_SECOND = RECORD_ENCODING_BITRATE/8; //bits per sec converted to bytes per sec.
 

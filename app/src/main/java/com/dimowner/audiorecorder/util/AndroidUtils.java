@@ -20,6 +20,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Point;
+import android.media.MediaExtractor;
+import android.media.MediaFormat;
 import android.os.Build;
 import android.view.Display;
 import android.view.Window;
@@ -27,8 +29,12 @@ import android.view.WindowManager;
 
 import com.dimowner.audiorecorder.ARApplication;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+
+import timber.log.Timber;
 
 /**
  * Android related utilities methods.
@@ -175,5 +181,39 @@ public class AndroidUtils {
 		Point size = new Point();
 		display.getSize(size);
 		return size.y;
+	}
+
+	/**
+	 * Read sound file duration.
+	 * @param file Sound file
+	 * @return Duration in microseconds.
+	 */
+	public static long readRecordDuration(File file) {
+		try {
+			MediaExtractor extractor = new MediaExtractor();
+			MediaFormat format = null;
+			int i;
+
+			extractor.setDataSource(file.getPath());
+			int numTracks = extractor.getTrackCount();
+			// find and select the first audio track present in the file.
+			for (i = 0; i < numTracks; i++) {
+				format = extractor.getTrackFormat(i);
+				if (format.getString(MediaFormat.KEY_MIME).startsWith("audio/")) {
+					extractor.selectTrack(i);
+					break;
+				}
+			}
+
+			if (i == numTracks) {
+				throw new IOException("No audio track found in " + file.toString());
+			}
+			if (format != null) {
+				return format.getLong(MediaFormat.KEY_DURATION);
+			}
+		} catch (IOException e) {
+			Timber.e(e);
+		}
+		return -1;
 	}
 }

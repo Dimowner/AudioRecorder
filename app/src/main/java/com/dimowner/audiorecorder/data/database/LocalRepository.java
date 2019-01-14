@@ -39,6 +39,10 @@ public interface LocalRepository {
 
 	long insertFile(String filePath) throws IOException;
 
+	long insertFile(String filePath, long duration, int[] waveform) throws IOException;
+
+	boolean updateWaveform(int id) throws IOException;
+
 	void deleteRecord(int id);
 
 	List<Long> getRecordsDurations();

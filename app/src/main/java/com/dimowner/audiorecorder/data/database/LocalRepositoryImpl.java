@@ -141,6 +141,64 @@ public class LocalRepositoryImpl implements LocalRepository {
 		return Record.NO_ID;
 	}
 
+	@Override
+	public long insertFile(String path, long duration, int[] waveform) throws IOException {
+		if (path != null && !path.isEmpty()) {
+			File file = new File(path);
+			Record record = new Record(
+					Record.NO_ID,
+					file.getName(),
+					duration,
+					file.lastModified(),
+					new Date().getTime(),
+					path,
+					false,
+					waveform);
+			Record r = insertRecord(record);
+			if (r != null) {
+				return r.getId();
+			} else {
+				Timber.e("Failed to insert record into local database!");
+			}
+		} else {
+			Timber.e("Unable to read sound file by specified path!");
+			throw new IOException("Unable to read sound file by specified path!");
+		}
+		return Record.NO_ID;
+	}
+
+	@Override
+	public boolean updateWaveform(int id) throws IOException {
+		Record record = getRecord(id);
+		String path = record.getPath();
+		if (path != null && !path.isEmpty()) {
+			final SoundFile soundFile = SoundFile.create(path);
+			if (soundFile != null) {
+				Record rec = new Record(
+						record.getId(),
+						record.getName(),
+						record.getDuration(),
+						record.getCreated(),
+						record.getAdded(),
+						record.getPath(),
+						record.isBookmarked(),
+						soundFile.getFrameGains());
+				boolean b = updateRecord(rec);
+				if (b) {
+					return true;
+				} else {
+					Timber.e("Failed to update record id = %d in local database!", rec.getId());
+				}
+			} else {
+				Timber.e("Unable to read sound file by specified path!");
+				throw new IOException("Unable to read sound file by specified path!");
+			}
+		} else {
+			Timber.e("File path is null or empty");
+		}
+		return false;
+	}
+
 	public List<Record> getAllRecords() {
 		if (!dataSource.isOpen()) {
 			dataSource.open();
