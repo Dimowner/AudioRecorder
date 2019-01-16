@@ -159,7 +159,8 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="start|bottom"
 				android:textColor="@color/text_primary_light"
-				android:layout_margin="@dimen/spacing_normal"
+				android:layout_marginStart="@dimen/spacing_normal"
+				android:layout_marginBottom="@dimen/spacing_small"
 				android:textSize="@dimen/text_medium"
 				android:visibility="invisible"
 				android:text="@string/zero_time"/>
@@ -195,22 +196,22 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="end|bottom"
 				android:textColor="@color/text_primary_light"
-				android:layout_margin="@dimen/spacing_normal"
+				android:layout_marginEnd="@dimen/spacing_normal"
+				android:layout_marginBottom="@dimen/spacing_small"
 				android:textSize="@dimen/text_medium"
 				android:visibility="invisible"
 				android:text="@string/zero_time"/>
 
 	</FrameLayout>
-	<ProgressBar
+
+	<SeekBar
 			android:id="@+id/play_progress"
 			android:layout_width="match_parent"
-			android:layout_height="2dp"
-			android:indeterminate="false"
+			android:layout_height="wrap_content"
 			android:max="1000"
 			android:progress="20"
-			android:progressDrawable="@drawable/progress_drawable"
-			style="?android:attr/progressBarStyleHorizontal"
 			/>
+
 	<FrameLayout
 			android:id="@+id/control_panel"
 			android:layout_width="match_parent"

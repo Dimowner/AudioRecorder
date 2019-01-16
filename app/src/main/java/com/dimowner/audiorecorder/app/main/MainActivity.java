@@ -41,6 +41,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,8 +69,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 //	TODO: Setting keep screen on
 // TODO: Settings select Record quality
 // TODO: Fix WaveForm long record
-// TODO: Double-tap on waveform to rewind 10sec
-// TODO: Bottom progressBar replace by seekBar
 
 // TODO: Fix waveform adjustment
 // TODO: Add db flag that shows that audio record was processed.
@@ -104,7 +103,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ImageButton btnSettings;
 	private ImageButton btnImport;
 	private ProgressBar progressBar;
-	private ProgressBar playProgress;
+	private SeekBar playProgress;
 	private LinearLayout pnlImportProgress;
 
 	private MainContract.UserActionsListener presenter;
@@ -147,6 +146,18 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnShare.setOnClickListener(this);
 		btnImport.setOnClickListener(this);
 		txtName.setOnClickListener(this);
+		playProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				if (fromUser) {
+					int val = (int)AndroidUtils.dpToPx(progress * waveformView.getWaveformLength() / 1000);
+					waveformView.seekPx(val);
+					presenter.seekPlayback(val);
+				}
+			}
+			@Override public void onStartTrackingTouch(SeekBar seekBar) { }
+			@Override public void onStopTrackingTouch(SeekBar seekBar) { }
+		});
 
 		presenter = ARApplication.getInjector().provideMainPresenter();
 

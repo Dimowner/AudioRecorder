@@ -190,7 +190,7 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 	@Override
 	public void seek(long mills) {
 		seekPos = mills;
-		if (mediaPlayer != null) {
+		if (mediaPlayer != null && mediaPlayer.isPlaying()) {
 			Timber.v("seekPlayback mills: " + seekPos);
 			mediaPlayer.seekTo((int) seekPos);
 			onSeek((int) seekPos);

@@ -24,6 +24,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -82,7 +83,9 @@ public class WaveformView extends View {
 	 */
 	private boolean isMeasured = false;
 
-	public OnSeekListener onSeekListener;
+	private OnSeekListener onSeekListener;
+
+	private GestureDetector gestureDetector;
 
 	public WaveformView(Context context) {
 		super(context);
@@ -137,6 +140,23 @@ public class WaveformView extends View {
 		waveForm = null;
 		isInitialized = false;
 
+		gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+			@Override
+			public boolean onDown(MotionEvent e) {
+				return true;
+			}
+
+			@Override
+			public boolean onDoubleTap(MotionEvent e) {
+				if (e.getX() > getWidth()/2) {
+					rewindMills(10000);
+				} else {
+					rewindMills(-10000);
+				}
+				return true;
+			}
+		});
+
 		setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent motionEvent) {
@@ -162,6 +182,7 @@ public class WaveformView extends View {
 							if (onSeekListener != null) {
 								onSeekListener.onSeeking(-screenShift, AndroidUtils.convertPxToMills(-screenShift, pxPerSecond));
 							}
+							playProgressPx = -shift;
 							updateShifts(shift);
 							invalidate();
 							break;
@@ -176,7 +197,7 @@ public class WaveformView extends View {
 							break;
 					}
 				}
-				return true;
+				return gestureDetector.onTouchEvent(motionEvent);
 			}
 		});
 	}
@@ -189,6 +210,36 @@ public class WaveformView extends View {
 			prevScreenShift = screenShift;
 //			Timber.v("setPlayback new shift = " + screenShift + " waveShift = " + waveformShift);
 			invalidate();
+		}
+	}
+
+	/**
+	 * Rewinds current play position. (Current position + mills)
+	 * @param mills time interval.
+	 */
+	public void rewindMills(long mills) {
+		Timber.v("rewindMills mills: " + mills);
+		playProgressPx += AndroidUtils.convertMillsToPx(mills, pxPerSecond);
+		updateShifts((int)-playProgressPx);
+		prevScreenShift = screenShift;
+		invalidate();
+		if (onSeekListener != null) {
+			onSeekListener.onSeeking(-screenShift, AndroidUtils.convertPxToMills(-screenShift, pxPerSecond));
+		}
+	}
+
+	/**
+	 * Set new current play position in pixels.
+	 * @param px value.
+	 */
+	public void seekPx(int px) {
+		Timber.v("seekPx px: " + px);
+		playProgressPx = px;
+		updateShifts((int)-playProgressPx);
+		prevScreenShift = screenShift;
+		invalidate();
+		if (onSeekListener != null) {
+			onSeekListener.onSeeking(-screenShift, AndroidUtils.convertPxToMills(-screenShift, pxPerSecond));
 		}
 	}
 
@@ -226,7 +277,10 @@ public class WaveformView extends View {
 	}
 
 	public int getWaveformLength() {
-		return waveformData.length;
+		if (waveformData != null) {
+			return waveformData.length;
+		}
+		return 0;
 	}
 
 	public void addRecordAmp(int amp) {
