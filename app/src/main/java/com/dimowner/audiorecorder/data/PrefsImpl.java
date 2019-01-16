@@ -30,6 +30,7 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_IS_STORE_DIR_PUBLIC = "is_store_dir_public";
 	private static final String PREF_KEY_ACTIVE_RECORD = "active_record";
 	private static final String PREF_KEY_RECORD_COUNTER = "record_counter";
+	private static final String PREF_KEY_THEME_COLORMAP_POSITION = "theme_color";
 
 	private SharedPreferences sharedPreferences;
 
@@ -96,5 +97,17 @@ public class PrefsImpl implements Prefs {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putLong(PREF_KEY_RECORD_COUNTER, getRecordCounter()+1);
 		editor.apply();
+	}
+
+	@Override
+	public void setAppThemeColor(int colorMapPosition) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putInt(PREF_KEY_THEME_COLORMAP_POSITION, colorMapPosition);
+		editor.apply();
+	}
+
+	@Override
+	public int getThemeColor() {
+		return sharedPreferences.getInt(PREF_KEY_THEME_COLORMAP_POSITION, -1);
 	}
 }

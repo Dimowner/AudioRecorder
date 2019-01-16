@@ -65,12 +65,17 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
+// TODO: Settings select Theme waveformColorRes
+// TODO: Settings select Record stereo/mono
+//	TODO: Setting keep screen on
+// TODO: Settings select Record quality
+// TODO: Fix WaveForm long record
+// TODO: Double-tap on waveform to rewind 10sec
+// TODO: Bottom progressBar replace by seekBar
+
+// TODO: Fix waveform adjustment
 // TODO: Add db flag that shows that audio record was processed.
 // TODO: Show Record info
-// TODO: Fix waveform adjustment
-// TODO: Settings select Theme waveformColorRes
-// TODO: Settings select Record quality
-// TODO: Settings select Record stereo/mono
 // TODO: Ability to delete record by swipe left
 // TODO: Ability to scroll up from the bottom of the list
 // TODO: Ability to search by record name in list
@@ -80,7 +85,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Guidelines
 // TODO: Check how work max recording duration
 // TODO: Move into 1 class same logic for Recording and Playback services
-// TODO: Double-tap on waveform to rewind 10sec
+
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -109,6 +114,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private PlaybackService playbackService;
 	private boolean isBound = false;
 	private ColorMap colorMap;
+	private ColorMap.OnThemeColorChangeListener onThemeColorChangeListener;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -160,6 +166,14 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 			}
 		});
+		onThemeColorChangeListener = new ColorMap.OnThemeColorChangeListener() {
+			@Override
+			public void onThemeColorChange(int pos) {
+				setTheme(colorMap.getAppThemeResource());
+				recreate();
+			}
+		};
+		colorMap.addOnThemeColorChangeListener(onThemeColorChangeListener);
 	}
 
 	@Override
@@ -176,6 +190,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		if (presenter != null) {
 			presenter.unbindView();
 		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		colorMap.removeOnThemeColorChangeListener(onThemeColorChangeListener);
 	}
 
 	@Override
@@ -517,10 +537,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	private boolean checkStoragePermission() {
-		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-				requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQ_CODE_READ_EXTERNAL_STORAGE);
-				return false;
+		if (presenter.isStorePublic()) {
+			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+					requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQ_CODE_READ_EXTERNAL_STORAGE);
+					return false;
+				}
 			}
 		}
 		return true;
@@ -566,7 +588,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 			presenter.startRecording();
-		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE && grantResults.length > 0) {
+		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE && grantResults.length > 0
+				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 			startFileSelector();
 		}
 	}

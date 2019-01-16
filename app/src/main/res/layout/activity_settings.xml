@@ -52,6 +52,13 @@
 
 	</LinearLayout>
 
+	<Spinner
+			android:id="@+id/themeColor"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingStart="0dp"
+			android:paddingEnd="1dp"/>
+
 	<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

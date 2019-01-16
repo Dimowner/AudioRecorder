@@ -105,7 +105,7 @@ public class Injector {
 	}
 
 	public ColorMap provideColorMap() {
-		return ColorMap.getInstance();
+		return ColorMap.getInstance(providePrefs());
 	}
 
 	public PlayerContract.Player provideAudioPlayer() {

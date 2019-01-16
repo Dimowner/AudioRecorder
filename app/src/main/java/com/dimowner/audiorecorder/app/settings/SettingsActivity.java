@@ -30,16 +30,24 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.app.licences.LicenceActivity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import timber.log.Timber;
 
 public class SettingsActivity extends Activity implements SettingsContract.View, View.OnClickListener {
 
@@ -50,6 +58,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private TextView txtAvailableSpace;
 
 	private SettingsContract.UserActionsListener presenter;
+	private ColorMap colorMap;
+	private ColorMap.OnThemeColorChangeListener onThemeColorChangeListener;
 
 
 	public static Intent getStartIntent(Context context) {
@@ -60,7 +70,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setTheme(ARApplication.getInjector().provideColorMap().getAppThemeResource());
+		colorMap = ARApplication.getInjector().provideColorMap();
+		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
 
@@ -89,6 +100,35 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			}
 		});
 		presenter = ARApplication.getInjector().provideSettingsPresenter();
+
+		final Spinner spinner = findViewById(R.id.themeColor);
+		List<ThemeColorAdapter.ThemeItem> items = new ArrayList<>();
+		String values[] = getResources().getStringArray(R.array.theme_colors);
+		int[] colorRes = colorMap.getColorResources();
+		for (int i = 0; i < values.length; i++) {
+			items.add(new ThemeColorAdapter.ThemeItem(values[i], getApplicationContext().getResources().getColor(colorRes[i])));
+		}
+		ThemeColorAdapter adapter = new ThemeColorAdapter(SettingsActivity.this,
+				R.layout.list_item_spinner, R.id.txtColor, items);
+		spinner.setAdapter(adapter);
+
+		onThemeColorChangeListener = new ColorMap.OnThemeColorChangeListener() {
+			@Override
+			public void onThemeColorChange(int pos) {
+				Timber.v("onThemeColorChange pos = " + pos);
+				setTheme(colorMap.getAppThemeResource());
+				recreate();
+			}
+		};
+		colorMap.addOnThemeColorChangeListener(onThemeColorChangeListener);
+
+		spinner.setSelection(colorMap.getSelected());
+		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				colorMap.updateColorMap(position);
+			}
+			@Override public void onNothingSelected(AdapterView<?> parent) { }
+		});
 	}
 
 	@Override
@@ -104,6 +144,12 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		if (presenter != null) {
 			presenter.unbindView();
 		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		colorMap.removeOnThemeColorChangeListener(onThemeColorChangeListener);
 	}
 
 	@Override

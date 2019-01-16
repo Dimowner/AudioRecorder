@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TextView
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		style="@style/Text.NormalLabel"
+		android:id="@+id/txtColor"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:padding="@dimen/spacing_normal"
+		android:background="@color/md_blue_700"
+		android:drawableStart="@drawable/ic_color_lens"
+		android:drawablePadding="@dimen/spacing_double"
+		android:text="@string/app_name"/>

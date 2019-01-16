@@ -247,7 +247,9 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				public void run() {
 					final List<Record> recordList = localRepository.getAllRecords();
 					record = localRepository.getRecord((int) prefs.getActiveRecord());
-					dpPerSecond = ARApplication.getDpPerSecond((float) record.getDuration()/1000000f);
+					if (record != null) {
+						dpPerSecond = ARApplication.getDpPerSecond((float) record.getDuration() / 1000000f);
+					}
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override
 						public void run() {
@@ -289,7 +291,9 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 					public void run() {
 						final List<Record> recordList = localRepository.getBookmarks();
 						record = localRepository.getRecord((int) prefs.getActiveRecord());
-						dpPerSecond = ARApplication.getDpPerSecond((float) record.getDuration()/1000000f);
+						if (record != null) {
+							dpPerSecond = ARApplication.getDpPerSecond((float) record.getDuration() / 1000000f);
+						}
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override
 							public void run() {

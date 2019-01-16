@@ -72,4 +72,6 @@
 	<color name="md_black_1000">#000000</color>
 	<color name="md_white_1000">#ffffff</color>
 
+	<color name="transparent">#00000000</color>
+
 </resources>

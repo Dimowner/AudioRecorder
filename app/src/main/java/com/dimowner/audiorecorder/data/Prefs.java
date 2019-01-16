@@ -30,4 +30,6 @@ public interface Prefs {
 	long getRecordCounter();
 	void incrementRecordCounter();
 
+	void setAppThemeColor(int colorMapPosition);
+	int getThemeColor();
 }
