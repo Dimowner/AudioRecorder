@@ -88,9 +88,9 @@ public class ColorMap {
 	public void updateColorMap(int num) {
 		int ondSelected = selected;
 		selected = num;
-		prefs.setAppThemeColor(selected);
-		init(selected);
 		if (ondSelected != selected) {
+			prefs.setAppThemeColor(selected);
+			init(selected);
 			onThemeColorChange(selected);
 		}
 	}

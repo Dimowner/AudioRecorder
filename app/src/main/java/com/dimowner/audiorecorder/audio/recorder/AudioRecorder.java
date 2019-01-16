@@ -68,15 +68,15 @@ public class AudioRecorder implements RecorderContract.Recorder {
 	}
 
 	@Override
-	public void prepare(String outputFile) {
-		Timber.v("prepare file: %s", outputFile);
+	public void prepare(String outputFile, int channelCount) {
+		Timber.v("prepare file: %s", outputFile + " channelCount = " + channelCount);
 		recordFile = new File(outputFile);
 		if (recordFile.exists() && recordFile.isFile()) {
 			recorder = new MediaRecorder();
 			recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 			recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 			recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-			recorder.setAudioChannels(RECORD_AUDIO_CHANNELS_COUNT);
+			recorder.setAudioChannels(channelCount);
 			recorder.setAudioSamplingRate(RECORD_SAMPLE_RATE);
 			recorder.setAudioEncodingBitRate(RECORD_ENCODING_BITRATE);
 			recorder.setMaxDuration(RECORD_MAX_DURATION);

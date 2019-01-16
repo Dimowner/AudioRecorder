@@ -39,6 +39,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.data.Prefs;
@@ -86,6 +87,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		btnLicences.setOnClickListener(this);
 		btnRate.setOnClickListener(this);
 		Switch swPublicDir = findViewById(R.id.swPublicDir);
+		Switch swRecordInStereo = findViewById(R.id.swRecordInStereo);
 
 		txtRecordsCount = findViewById(R.id.txt_records_count);
 		txtTotalDuration= findViewById(R.id.txt_total_duration);
@@ -97,6 +99,13 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			@Override
 			public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
 				prefs.setStoreDirPublic(isChecked);
+			}
+		});
+		swRecordInStereo.setChecked(prefs.getRecordChannelCount() == AppConstants.RECORD_AUDIO_STEREO);
+		swRecordInStereo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
+				prefs.setRecordInStereo(isChecked);
 			}
 		});
 		presenter = ARApplication.getInjector().provideSettingsPresenter();
@@ -122,7 +131,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		};
 		colorMap.addOnThemeColorChangeListener(onThemeColorChangeListener);
 
-		spinner.setSelection(colorMap.getSelected());
+		if (colorMap.getSelected() > 0) {
+			spinner.setSelection(colorMap.getSelected());
+		}
 		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				colorMap.updateColorMap(position);

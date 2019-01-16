@@ -32,4 +32,7 @@ public interface Prefs {
 
 	void setAppThemeColor(int colorMapPosition);
 	int getThemeColor();
+
+	void setRecordInStereo(boolean stereo);
+	int getRecordChannelCount();
 }

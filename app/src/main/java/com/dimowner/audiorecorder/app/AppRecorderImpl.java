@@ -184,7 +184,7 @@ public class AppRecorderImpl implements AppRecorder {
 	@Override
 	public void startRecording(String filePath) {
 		if (!audioRecorder.isRecording()) {
-			audioRecorder.prepare(filePath);
+			audioRecorder.prepare(filePath, prefs.getRecordChannelCount());
 		}
 	}
 

@@ -65,8 +65,6 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
-// TODO: Settings select Theme waveformColorRes
-// TODO: Settings select Record stereo/mono
 //	TODO: Setting keep screen on
 // TODO: Settings select Record quality
 // TODO: Fix WaveForm long record

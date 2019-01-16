@@ -19,6 +19,8 @@ package com.dimowner.audiorecorder.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.dimowner.audiorecorder.AppConstants;
+
 /**
  * App preferences implementation
  */
@@ -31,6 +33,9 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_ACTIVE_RECORD = "active_record";
 	private static final String PREF_KEY_RECORD_COUNTER = "record_counter";
 	private static final String PREF_KEY_THEME_COLORMAP_POSITION = "theme_color";
+
+	//Recording prefs.
+	private static final String PREF_KEY_RECORD_CHANNEL_COUNT = "record_channel_count";
 
 	private SharedPreferences sharedPreferences;
 
@@ -109,5 +114,17 @@ public class PrefsImpl implements Prefs {
 	@Override
 	public int getThemeColor() {
 		return sharedPreferences.getInt(PREF_KEY_THEME_COLORMAP_POSITION, -1);
+	}
+
+	@Override
+	public void setRecordInStereo(boolean stereo) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putInt(PREF_KEY_RECORD_CHANNEL_COUNT, stereo ? AppConstants.RECORD_AUDIO_STEREO : AppConstants.RECORD_AUDIO_MONO);
+		editor.apply();
+	}
+
+	@Override
+	public int getRecordChannelCount() {
+		return sharedPreferences.getInt(PREF_KEY_RECORD_CHANNEL_COUNT, AppConstants.RECORD_AUDIO_STEREO);
 	}
 }
