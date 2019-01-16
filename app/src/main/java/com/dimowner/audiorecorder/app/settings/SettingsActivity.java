@@ -39,10 +39,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
-import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
-import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.app.licences.LicenceActivity;
 
 import java.util.ArrayList;
@@ -57,6 +55,10 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private TextView txtTotalDuration;
 	private TextView txtRecordsCount;
 	private TextView txtAvailableSpace;
+
+	private Switch swPublicDir;
+	private Switch swRecordInStereo;
+	private Switch swKeepScreenOn;
 
 	private SettingsContract.UserActionsListener presenter;
 	private ColorMap colorMap;
@@ -86,28 +88,34 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		btnDeleteAll.setOnClickListener(this);
 		btnLicences.setOnClickListener(this);
 		btnRate.setOnClickListener(this);
-		Switch swPublicDir = findViewById(R.id.swPublicDir);
-		Switch swRecordInStereo = findViewById(R.id.swRecordInStereo);
+		swPublicDir = findViewById(R.id.swPublicDir);
+		swRecordInStereo = findViewById(R.id.swRecordInStereo);
+		swKeepScreenOn = findViewById(R.id.swKeepScreenOn);
 
 		txtRecordsCount = findViewById(R.id.txt_records_count);
 		txtTotalDuration= findViewById(R.id.txt_total_duration);
 		txtAvailableSpace = findViewById(R.id.txt_available_space);
 
-		final Prefs prefs = ARApplication.getInjector().providePrefs();
-		swPublicDir.setChecked(prefs.isStoreDirPublic());
 		swPublicDir.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
-				prefs.setStoreDirPublic(isChecked);
+				presenter.storeInPublicDir(isChecked);
 			}
 		});
-		swRecordInStereo.setChecked(prefs.getRecordChannelCount() == AppConstants.RECORD_AUDIO_STEREO);
 		swRecordInStereo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
-				prefs.setRecordInStereo(isChecked);
+				presenter.recordInStereo(isChecked);
 			}
 		});
+
+		swKeepScreenOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
+				presenter.keepScreenOn(isChecked);
+			}
+		});
+
 		presenter = ARApplication.getInjector().provideSettingsPresenter();
 
 		final Spinner spinner = findViewById(R.id.themeColor);
@@ -246,17 +254,22 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	}
 
 	@Override
-	public void showSelectedThemeColor(int colorRes) {
+	public void showStoreInPublicDir(boolean b) {
+		swPublicDir.setChecked(b);
+	}
 
+	@Override
+	public void showKeepScreenOn(boolean b) {
+		swKeepScreenOn.setChecked(b);
+	}
+
+	@Override
+	public void showRecordInStereo(boolean b) {
+		swRecordInStereo.setChecked(b);
 	}
 
 	@Override
 	public void showRecordingQuality(int quality) {
-
-	}
-
-	@Override
-	public void showRecordingChannelsCount(int count) {
 
 	}
 

@@ -35,4 +35,7 @@ public interface Prefs {
 
 	void setRecordInStereo(boolean stereo);
 	int getRecordChannelCount();
+
+	void setKeepScreenOn(boolean on);
+	boolean isKeepScreenOn();
 }

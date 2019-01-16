@@ -55,20 +55,28 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 				});
 			}
 		});
+		view.showStoreInPublicDir(prefs.isStoreDirPublic());
+		view.showRecordInStereo(prefs.getRecordChannelCount() == AppConstants.RECORD_AUDIO_STEREO);
+		view.showKeepScreenOn(prefs.isKeepScreenOn());
 	}
 
 	@Override
-	public void setThemeColor(int colorRes) {
+	public void storeInPublicDir(boolean b) {
+		prefs.setStoreDirPublic(b);
+	}
 
+	@Override
+	public void keepScreenOn(boolean keep) {
+		prefs.setKeepScreenOn(keep);
+	}
+
+	@Override
+	public void recordInStereo(boolean stereo) {
+		prefs.setRecordInStereo(stereo);
 	}
 
 	@Override
 	public void setRecordingQuality(int quality) {
-
-	}
-
-	@Override
-	public void setRecordingChannelCount(int count) {
 
 	}
 

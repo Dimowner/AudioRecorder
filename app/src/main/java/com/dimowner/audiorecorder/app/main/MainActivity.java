@@ -30,12 +30,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.v4.content.FileProvider;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -273,6 +275,15 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == REQ_CODE_IMPORT_AUDIO && resultCode == RESULT_OK){
 			presenter.importAudioFile(getApplicationContext(), data.getData());
+		}
+	}
+
+	@Override
+	public void keepScreenOn(boolean on) {
+		if (on) {
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		} else {
+			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		}
 	}
 

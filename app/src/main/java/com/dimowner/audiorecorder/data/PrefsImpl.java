@@ -33,6 +33,7 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_ACTIVE_RECORD = "active_record";
 	private static final String PREF_KEY_RECORD_COUNTER = "record_counter";
 	private static final String PREF_KEY_THEME_COLORMAP_POSITION = "theme_color";
+	private static final String PREF_KEY_KEEP_SCREEN_ON = "keep_screen_on";
 
 	//Recording prefs.
 	private static final String PREF_KEY_RECORD_CHANNEL_COUNT = "record_channel_count";
@@ -126,5 +127,17 @@ public class PrefsImpl implements Prefs {
 	@Override
 	public int getRecordChannelCount() {
 		return sharedPreferences.getInt(PREF_KEY_RECORD_CHANNEL_COUNT, AppConstants.RECORD_AUDIO_STEREO);
+	}
+
+	@Override
+	public void setKeepScreenOn(boolean on) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putBoolean(PREF_KEY_KEEP_SCREEN_ON, on);
+		editor.apply();
+	}
+
+	@Override
+	public boolean isKeepScreenOn() {
+		return sharedPreferences.getBoolean(PREF_KEY_KEEP_SCREEN_ON, false);
 	}
 }

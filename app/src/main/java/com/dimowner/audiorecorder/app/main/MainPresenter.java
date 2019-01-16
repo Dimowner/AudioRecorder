@@ -95,9 +95,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 		if (appRecorder.isRecording()) {
 			view.showRecordingStart();
+			view.keepScreenOn(prefs.isKeepScreenOn());
 			view.updateRecordingView(appRecorder.getRecordingData());
 		} else {
 			view.showRecordingStop();
+			view.keepScreenOn(false);
 		}
 
 		if (appRecorderCallback == null) {
@@ -106,12 +108,14 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				public void onRecordingStarted() {
 					Timber.v("onStartRecord");
 					view.showRecordingStart();
+					view.keepScreenOn(prefs.isKeepScreenOn());
 					view.showName("");
 					view.startRecordingService();
 				}
 
 				@Override
 				public void onRecordingPaused() {
+					view.keepScreenOn(false);
 				}
 
 				@Override
@@ -127,6 +131,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				@Override
 				public void onRecordingStopped(long id, File file) {
 					if (view != null) {
+						view.keepScreenOn(false);
 						view.stopRecordingService();
 						view.hideProgress();
 						view.showRecordingStop();

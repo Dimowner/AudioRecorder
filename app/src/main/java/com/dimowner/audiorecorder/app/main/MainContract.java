@@ -28,6 +28,7 @@ public interface MainContract {
 
 	interface View extends Contract.View {
 
+		void keepScreenOn(boolean on);
 		void showRecordingStart();
 		void showRecordingStop();
 		void onRecordingProgress(long mills, int amp);
