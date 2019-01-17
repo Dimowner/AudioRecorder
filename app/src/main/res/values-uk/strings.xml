@@ -1,0 +1,72 @@
+<resources>
+	<!--<string name="app_name">Audio Recorder</string>-->
+	<string name="app_name">Аудіо Рекордер</string>
+
+	<string name="records">Записи</string>
+	<string name="settings">Налаштування</string>
+	<string name="open_source_licences">Бібліотеки з відкритим кодом</string>
+	<string name="rate_app">Оцінити додаток</string>
+	<string name="store_records_public">Зберігати записи в публічному каталозі</string>
+	<string name="record_in_stereo">Записувати в Стерео</string>
+	<string name="keep_screen_on">Залишати екран увімкненим під час запису</string>
+	<string name="total_duration">Загальна тривалість записів: %s</string>
+	<string name="total_record_count">Загальна кількість записів: %d</string>
+	<string name="available_space">Доступне місце: %s</string>
+	<string name="delete_all">Видалити всі записи</string>
+	<string name="warning">Увага!</string>
+	<string name="delete_record">Видалити цей запис?</string>
+	<string name="delete_all_records">Видалити всі записи?</string>
+	<string name="all_records_deleted">Всі записи видалено успішно</string>
+	<string name="failed_to_delete_all_records">Помилка під час видалення всіх записів</string>
+	<string name="please_select_record_to_share">Будь-ласка, виберіть або запишіть аудіо файл для поширення</string>
+	<string name="record_name">Нове ім\'я</string>
+	<string name="recording">Запис: %s</string>
+	<string name="playback">Відтворення: %s</string>
+	<string name="zero_time">00:00</string>
+	<string name="no_records">Нема записів.</string>
+	<string name="no_bookmarks">Закладки порожні.</string>
+	<string name="share_record">Поділитися записом: %s</string>
+	<string name="import_progress">Імпортування аудіо файла&#8230;</string>
+	<string name="record_processing">Обробка запису для відображення&#8230;</string>
+
+	<string name="today">Сьогодні</string>
+	<string name="yesterday">Вчора</string>
+
+	<string name="btn_ok">Добре</string>
+	<string name="btn_save">Зберегти</string>
+	<string name="btn_cancel">Відмінити</string>
+	<string name="btn_yes">Так</string>
+	<string name="btn_no">Ні</string>
+	<string name="btn_play">Грати</string>
+
+	<string name="error_unknown">Неочікувана помилка</string>
+	<string name="error_cant_create_file">Не вдалося створити файл</string>
+	<string name="error_invalid_output_file">Направильний вихідний файл</string>
+	<string name="error_file_exists">Файл з таким ім\'ям вже існує!</string>
+	<string name="error_failed_to_rename">Не вдалося переіменувати запис!</string>
+	<string name="error_failed_to_init_recorder">Помилка під час ініціалізації Записувача!</string>
+	<string name="error_failed_to_init_player">Помилка під час ініціалізації Програвача</string>
+	<string name="error_player_data_source">Програвач не може зчитати запис</string>
+	<string name="error_unable_to_read_sound_file">Не вдалося зчитати аудіо файл</string>
+
+	<!-- Shown in the 'About' window of the app. -->
+	<string name="about_body"><![CDATA[
+    	<b>Аудіо Рекордер 2018</b><br>
+		Версія %s
+	]]></string>
+	<!--<a href="http://#/">Application site</a>-->
+
+	<string name="licences_description">Цей додаток використовує такі сторонні бібліотеки</string>
+
+	<string-array name="theme_colors">
+		<item>Тема Не вибрана</item>
+		<item>Тема Голуба</item>
+		<item>Тема Коричнева</item>
+		<item>Тема Темно Помаранчева</item>
+		<item>Тема Розова</item>
+		<item>Тема Темно Фіолетова</item>
+		<item>Тема Червона</item>
+		<item>Тема Бірюзова</item>
+	</string-array>
+
+</resources>

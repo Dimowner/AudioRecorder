@@ -494,9 +494,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 //					}
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override public void run() {
-							view.hideImportProgress();
-							audioPlayer.stop();
-							loadActiveRecord(); }
+							if (view != null) {
+								view.hideImportProgress();
+								audioPlayer.stop();
+								loadActiveRecord();
+							}
+						}
 					});
 				} catch (IOException e) {
 					Timber.e(e);
@@ -510,7 +513,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				}
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override public void run() {
-						view.hideImportProgress(); }});
+						if (view != null) { view.hideImportProgress(); }
+					}});
 			}
 		});
 	}
