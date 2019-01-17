@@ -29,8 +29,14 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -39,6 +45,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.PlaybackService;
@@ -47,8 +54,10 @@ import com.dimowner.audiorecorder.app.widget.TouchLayout;
 import com.dimowner.audiorecorder.app.widget.WaveformView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
+import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -132,6 +141,8 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		txtDuration = findViewById(R.id.txt_duration);
 		txtName = findViewById(R.id.txt_name);
 		waveformView = findViewById(R.id.record);
+
+		txtName.setOnClickListener(this);
 
 		playProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 			@Override
@@ -416,6 +427,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			case R.id.btn_bookmarks:
 				presenter.applyBookmarksFilter();
 				break;
+			case R.id.txt_name:
+				if (presenter.getActiveRecordId() != -1) {
+					setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()));
+				}
+				break;
 		}
 	}
 
@@ -620,5 +636,78 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	@Override
 	public void showError(int resId) {
 		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
+	}
+
+	public void setRecordName(final long recordId, File file) {
+		//Create dialog layout programmatically.
+		LinearLayout container = new LinearLayout(getApplicationContext());
+		container.setOrientation(LinearLayout.VERTICAL);
+		LinearLayout.LayoutParams containerLp = new LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.WRAP_CONTENT);
+		container.setLayoutParams(containerLp);
+
+		final EditText editText = new EditText(getApplicationContext());
+		ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT,
+				ViewGroup.LayoutParams.WRAP_CONTENT);
+		editText.setLayoutParams(lp);
+		editText.addTextChangedListener(new TextWatcher() {
+			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+			@Override public void afterTextChanged(Editable s) {
+				if (s.length() > AppConstants.MAX_RECORD_NAME_LENGTH) {
+					s.delete(s.length() - 1, s.length());
+				}
+			}
+			@Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+		});
+		editText.setTextColor(getResources().getColor(R.color.text_primary_light));
+		editText.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_medium));
+
+		int pad = (int) getResources().getDimension(R.dimen.spacing_normal);
+		ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(editText.getLayoutParams());
+		params.setMargins(pad, pad, pad, pad);
+		editText.setLayoutParams(params);
+		container.addView(editText);
+
+		final String fileName = FileUtil.removeFileExtension(file.getName());
+		editText.setText(fileName);
+
+		AlertDialog alertDialog = new AlertDialog.Builder(this)
+				.setTitle(R.string.record_name)
+				.setView(container)
+				.setPositiveButton(R.string.btn_save, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						String newName = editText.getText().toString();
+						if (!fileName.equalsIgnoreCase(newName)) {
+							presenter.renameRecord(recordId, newName);
+						}
+						hideKeyboard();
+						dialog.dismiss();
+					}
+				})
+				.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						hideKeyboard();
+						dialog.dismiss();
+					}
+				})
+				.create();
+		alertDialog.show();
+		editText.requestFocus();
+		editText.setSelection(editText.getText().length());
+		showKeyboard();
+	}
+
+	/** Show soft keyboard for a dialog. */
+	public void showKeyboard(){
+		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+	}
+
+	/** Hide soft keyboard after a dialog. */
+	public void hideKeyboard(){
+		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 	}
 }

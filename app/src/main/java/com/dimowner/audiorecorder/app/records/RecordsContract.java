@@ -74,6 +74,8 @@ public interface RecordsContract {
 
 		void deleteActiveRecord();
 
+		void renameRecord(long id, String name);
+
 		void loadRecords();
 
 		void applyBookmarksFilter();
@@ -85,6 +87,8 @@ public interface RecordsContract {
 		void setActiveRecord(long id, Callback callback);
 
 		long getActiveRecordId();
+
+		String getActiveRecordPath();
 
 		String getRecordName();
 	}

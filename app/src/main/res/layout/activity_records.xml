@@ -190,6 +190,8 @@
 						android:padding="@dimen/spacing_tiny"
 						android:textColor="@color/text_primary_light"
 						android:textSize="@dimen/text_xmedium"
+						android:maxLines="1"
+						android:drawableEnd="@drawable/ic_pencil"
 						tools:text="Record 2321"/>
 
 				<TextView

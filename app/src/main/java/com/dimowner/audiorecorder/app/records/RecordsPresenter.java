@@ -20,6 +20,7 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.Mapper;
+import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.AppRecorder;
 import com.dimowner.audiorecorder.app.AppRecorderCallback;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
@@ -238,6 +239,63 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	}
 
 	@Override
+	public void renameRecord(final long id, String n) {
+		if (id < 0 || n == null || n.isEmpty()) {
+			AndroidUtils.runOnUIThread(new Runnable() {
+				@Override public void run() { view.showError(R.string.error_failed_to_rename); }});
+			return;
+		}
+		view.showProgress();
+		final String name = FileUtil.removeUnallowedSignsFromName(n);
+		loadingTasks.postRunnable(new Runnable() {
+			@Override public void run() {
+//				TODO: This code need to be refactored!
+				Record r = localRepository.getRecord((int)id);
+				String nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.RECORD_FILE_EXTENSION;
+				File file = new File(r.getPath());
+				File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
+
+				if (renamed.exists()) {
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override public void run() { view.showError(R.string.error_file_exists); }});
+				} else {
+					if (fileRepository.renameFile(r.getPath(), name)) {
+						record = new Record(r.getId(), nameWithExt, r.getDuration(), r.getCreated(),
+								r.getAdded(), renamed.getAbsolutePath(), r.isBookmarked(),
+								r.isWaveformProcessed(), r.getAmps());
+						if (localRepository.updateRecord(record)) {
+							AndroidUtils.runOnUIThread(new Runnable() {
+								@Override public void run() {
+									view.hideProgress();
+									view.showRecordName(name);
+								}});
+						} else {
+							AndroidUtils.runOnUIThread(new Runnable() {
+								@Override public void run() { view.showError(R.string.error_failed_to_rename); }});
+							//Restore file name after fail update path in local database.
+							if (renamed.exists()) {
+								//Try to rename 3 times;
+								if (!renamed.renameTo(file)) {
+									if (!renamed.renameTo(file)) {
+										renamed.renameTo(file);
+									}
+								}
+							}
+						}
+
+					} else {
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override public void run() { view.showError(R.string.error_failed_to_rename); }});
+					}
+				}
+				AndroidUtils.runOnUIThread(new Runnable() {
+					@Override public void run() {
+						view.hideProgress();
+					}});
+			}});
+	}
+
+	@Override
 	public void loadRecords() {
 		if (view != null) {
 			view.showProgress();
@@ -411,7 +469,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 							@Override
 							public void run() {
 								view.showWaveForm(record.getAmps(), record.getDuration());
-//								view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
+								view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
 								view.showRecordName(FileUtil.removeFileExtension(record.getName()));
 								callback.onSuccess();
 								if (record.isBookmarked()) {
@@ -440,6 +498,15 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	@Override
 	public long getActiveRecordId() {
 		return prefs.getActiveRecord();
+	}
+
+	@Override
+	public String getActiveRecordPath() {
+		if (record != null) {
+			return record.getPath();
+		} else {
+			return null;
+		}
 	}
 
 	@Override
