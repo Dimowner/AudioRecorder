@@ -11,5 +11,6 @@ public interface AppRecorder {
 	void stopRecording();
 	List<Integer> getRecordingData();
 	boolean isRecording();
+	boolean isProcessing();
 	void release();
 }

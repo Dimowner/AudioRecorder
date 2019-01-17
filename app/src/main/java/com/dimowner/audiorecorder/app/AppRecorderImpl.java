@@ -28,6 +28,7 @@ public class AppRecorderImpl implements AppRecorder {
 	private final List<AppRecorderCallback> appCallbacks;
 	private final Prefs prefs;
 	private List<Integer> recordingData;
+	private boolean isProcessing = false;
 
 	private volatile static AppRecorderImpl instance;
 
@@ -122,6 +123,8 @@ public class AppRecorderImpl implements AppRecorder {
 											}
 										}
 									});
+								} else {
+									onRecordFinishProcessing();
 								}
 								recordingData.clear();
 							}
@@ -144,13 +147,13 @@ public class AppRecorderImpl implements AppRecorder {
 			int sampleCount = ARApplication.getLongWaveformSampleCount();
 			int[] waveForm = new int[sampleCount];
 			int scale = (int)((float)list.size()/(float) sampleCount);
-			for (int i = 0; i < sampleCount; i+=scale) {
-				int val = list.get(i);
-//				int val = 0;
-//				for (int j = 0; j < scale; j++) {
-//					val = list.get(i + j);
-//				}
-//				val = val/scale;
+			for (int i = 0; i < sampleCount; i++) {
+//				int val = list.get(i);
+				int val = 0;
+				for (int j = 0; j < scale; j++) {
+					val += list.get(i*scale + j);
+				}
+				val = (int)((float)val/scale);
 				waveForm[i] = convertAmp(val);
 			}
 			Timber.v("WAVE: " + Arrays.toString(waveForm));
@@ -219,6 +222,11 @@ public class AppRecorderImpl implements AppRecorder {
 		appCallbacks.clear();
 	}
 
+	@Override
+	public boolean isProcessing() {
+		return isProcessing;
+	}
+
 	private void onRecordingStarted() {
 		if (!appCallbacks.isEmpty()) {
 			for (int i = 0; i < appCallbacks.size(); i++) {
@@ -236,6 +244,7 @@ public class AppRecorderImpl implements AppRecorder {
 	}
 
 	private void onRecordProcessing() {
+		isProcessing = true;
 		if (!appCallbacks.isEmpty()) {
 			for (int i = 0; i < appCallbacks.size(); i++) {
 				appCallbacks.get(i).onRecordProcessing();
@@ -244,6 +253,7 @@ public class AppRecorderImpl implements AppRecorder {
 	}
 
 	private void onRecordFinishProcessing() {
+		isProcessing = false;
 		if (!appCallbacks.isEmpty()) {
 			for (int i = 0; i < appCallbacks.size(); i++) {
 				appCallbacks.get(i).onRecordFinishProcessing();

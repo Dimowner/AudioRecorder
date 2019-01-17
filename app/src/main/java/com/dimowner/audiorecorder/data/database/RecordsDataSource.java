@@ -57,6 +57,7 @@ public class RecordsDataSource extends DataSource<Record> {
 			values.put(SQLiteHelper.COLUMN_DATE_ADDED, item.getAdded());
 			values.put(SQLiteHelper.COLUMN_PATH, item.getPath());
 			values.put(SQLiteHelper.COLUMN_BOOKMARK, item.isBookmarked() ? 1 : 0);
+			values.put(SQLiteHelper.COLUMN_WAVEFORM_PROCESSED, item.isWaveformProcessed() ? 1 : 0);
 			values.put(SQLiteHelper.COLUMN_DATA, item.getData());
 			//TODO: Remove this field from database.
 			values.put(SQLiteHelper.COLUMN_DATA_STR, "");
@@ -77,6 +78,7 @@ public class RecordsDataSource extends DataSource<Record> {
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATE_ADDED)),
 				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_PATH)),
 				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_BOOKMARK)) != 0,
+				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_WAVEFORM_PROCESSED)) != 0,
 				cursor.getBlob(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATA))
 //				Record.stringToArray(
 //						cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATA_STR)))

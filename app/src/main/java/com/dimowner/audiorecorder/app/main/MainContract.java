@@ -49,6 +49,9 @@ public interface MainContract {
 		void showImportStart();
 		void hideImportProgress();
 
+		void showRecordProcessing();
+		void hideRecordProcessing();
+
 		void showWaveForm(int[] waveForm, long duration);
 		void showDuration(String duration);
 		void showName(String name);

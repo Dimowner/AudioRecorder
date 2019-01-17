@@ -68,9 +68,9 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
-//	TODO: Setting keep screen on
 // TODO: Settings select Record quality
 // TODO: Fix WaveForm long record
+// TODO: Fix WaveForm blinking when seek
 
 // TODO: Fix waveform adjustment
 // TODO: Add db flag that shows that audio record was processed.
@@ -107,6 +107,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ProgressBar progressBar;
 	private SeekBar playProgress;
 	private LinearLayout pnlImportProgress;
+	private LinearLayout pnlRecordProcessing;
 
 	private MainContract.UserActionsListener presenter;
 	private ServiceConnection serviceConnection;
@@ -137,6 +138,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		progressBar = findViewById(R.id.progress);
 		playProgress = findViewById(R.id.play_progress);
 		pnlImportProgress = findViewById(R.id.pnl_import_progress);
+		pnlRecordProcessing = findViewById(R.id.pnl_record_processing);
 
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 
@@ -481,6 +483,16 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void hideImportProgress() {
 		pnlImportProgress.setVisibility(View.INVISIBLE);
 		btnImport.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void showRecordProcessing() {
+		pnlRecordProcessing.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void hideRecordProcessing() {
+		pnlRecordProcessing.setVisibility(View.INVISIBLE);
 	}
 
 	public void setRecordName(final long recordId, File file) {

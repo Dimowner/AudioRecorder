@@ -62,6 +62,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private long songDuration = 0;
 	private float dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 	private Record record;
+	private boolean isProcessing = false;
 
 	/** Flag true defines that presenter called to show import progress when view was not bind.
 	 * And after view bind we need to show import progress.*/
@@ -101,6 +102,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			view.showRecordingStop();
 			view.keepScreenOn(false);
 		}
+		if (appRecorder.isProcessing()) {
+			view.showRecordProcessing();
+		} else {
+			view.hideRecordProcessing();
+		}
 
 		if (appRecorderCallback == null) {
 			appRecorderCallback = new AppRecorderCallback() {
@@ -121,10 +127,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				@Override
 				public void onRecordProcessing() {
 					view.showProgress();
+					view.showRecordProcessing();
 				}
 
 				@Override
 				public void onRecordFinishProcessing() {
+					view.hideRecordProcessing();
 					loadActiveRecord();
 				}
 
@@ -327,7 +335,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				} else {
 					if (fileRepository.renameFile(r.getPath(), name)) {
 						record = new Record(r.getId(), nameWithExt, r.getDuration(), r.getCreated(),
-								r.getAdded(), renamed.getAbsolutePath(), r.isBookmarked(), r.getAmps());
+								r.getAdded(), renamed.getAbsolutePath(), r.isBookmarked(),
+								r.isWaveformProcessed(), r.getAmps());
 						if (localRepository.updateRecord(record)) {
 							AndroidUtils.runOnUIThread(new Runnable() {
 								@Override public void run() {
@@ -374,20 +383,39 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override
 							public void run() {
-								view.showWaveForm(record.getAmps(), songDuration);
-								view.showName(FileUtil.removeFileExtension(record.getName()));
-								view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
-								view.hideProgress();
+								if (view != null) {
+									view.showWaveForm(record.getAmps(), songDuration);
+									view.showName(FileUtil.removeFileExtension(record.getName()));
+									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
+									view.hideProgress();
+								}
 							}
 						});
+						if (!record.isWaveformProcessed() && !isProcessing) {
+							try {
+								view.showRecordProcessing();
+								isProcessing = true;
+								localRepository.updateWaveform(record.getId());
+								AndroidUtils.runOnUIThread(new Runnable() {
+									@Override public void run() {
+										view.hideRecordProcessing();
+									}
+								});
+							} catch (IOException e) {
+								Timber.e(e);
+							}
+							isProcessing = false;
+						}
 					} else {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override
 							public void run() {
-								view.showWaveForm(new int[]{}, 0);
-								view.showName("");
-								view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
-								view.hideProgress();
+								if (view != null) {
+									view.showWaveForm(new int[]{}, 0);
+									view.showName("");
+									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
+									view.hideProgress();
+								}
 							}
 						});
 					}

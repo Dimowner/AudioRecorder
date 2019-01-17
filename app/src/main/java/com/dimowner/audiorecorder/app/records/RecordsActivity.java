@@ -518,6 +518,9 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		} else {
 			adapter.setData(records);
 			txtEmpty.setVisibility(View.GONE);
+			if (touchLayout.getVisibility() == View.VISIBLE) {
+				adapter.showFooter();
+			}
 		}
 	}
 

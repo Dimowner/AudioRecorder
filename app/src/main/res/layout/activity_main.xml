@@ -91,6 +91,35 @@
 				android:textColor="@color/white"
 				android:textSize="@dimen/text_small"
 				android:text="@string/import_progress"/>
+
+	</LinearLayout>
+
+	<LinearLayout
+			android:id="@+id/pnl_record_processing"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_horizontal"
+			android:visibility="invisible"
+			android:orientation="horizontal"
+			android:layout_marginBottom="@dimen/spacing_tiny"
+			tools:visibility="visible">
+
+		<ProgressBar
+				android:id="@+id/progress_record_processing"
+				style="?android:attr/progressBarStyleSmall"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"/>
+
+		<TextView
+				android:id="@+id/txt_record_processing"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="@dimen/spacing_small"
+				android:textColor="@color/white"
+				android:textSize="@dimen/text_small"
+				android:text="@string/record_processing"/>
+
 	</LinearLayout>
 
 	<LinearLayout

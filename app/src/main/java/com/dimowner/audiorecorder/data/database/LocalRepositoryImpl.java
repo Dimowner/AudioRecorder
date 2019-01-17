@@ -124,6 +124,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 						new Date().getTime(),
 						path,
 						false,
+						true,
 						soundFile.getFrameGains());
 				Record r = insertRecord(record);
 				if (r != null) {
@@ -152,6 +153,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 					file.lastModified(),
 					new Date().getTime(),
 					path,
+					false,
 					false,
 					waveform);
 			Record r = insertRecord(record);
@@ -182,6 +184,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 						record.getAdded(),
 						record.getPath(),
 						record.isBookmarked(),
+						true,
 						soundFile.getFrameGains());
 				boolean b = updateRecord(rec);
 				if (b) {

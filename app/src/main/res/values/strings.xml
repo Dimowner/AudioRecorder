@@ -27,6 +27,7 @@
 	<string name="no_bookmarks">Bookmarks is empty.</string>
 	<string name="share_record">Share record: %s</string>
 	<string name="import_progress">Audio file import&#8230;</string>
+	<string name="record_processing">Waveform processing&#8230;</string>
 
 	<string name="today">Today</string>
 	<string name="yesterday">Yesterday</string>
