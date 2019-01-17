@@ -4,6 +4,21 @@
 About 140kb takes the RecyclerView and NotificationCompat, about 100kb takes the Fabric.io analytics. The rest 130kb is the app source code.</br>
 Apk size can be optimized to 130kb if replace RecyclerView by ListView and remove Fabric.io analytics.</p>
 
+Very fast and lightweight Audio Recorder application
+
+Features:
+- Recording audio
+- Playback records
+- Record and Playback in background
+- Display record waveform
+- Rename record
+- Share record
+- Import audio files
+- Records list
+- Add selected record to bookmarks
+- Delete all records from settings
+- Colored themes
+
 ### License
 
 ```

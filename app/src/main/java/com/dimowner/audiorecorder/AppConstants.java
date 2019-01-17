@@ -58,7 +58,7 @@ public class AppConstants {
 	public final static int RECORD_AUDIO_CHANNELS_COUNT = 2;
 	public final static int RECORD_AUDIO_MONO = 1;
 	public final static int RECORD_AUDIO_STEREO = 2;
-	public final static int RECORD_MAX_DURATION = 7200000; // 120 min
+	public final static int RECORD_MAX_DURATION = 14400000; // 240 min 4 hours
 
 	/** Time interval for Recording progress visualisation. */
 	public final static int VISUALIZATION_INTERVAL = 1000/SHORT_RECORD_DP_PER_SECOND; //1000 mills/25 dp per sec
