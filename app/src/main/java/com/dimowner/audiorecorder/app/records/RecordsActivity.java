@@ -34,6 +34,7 @@ import android.view.ViewPropertyAnimator;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,7 +77,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private TouchLayout touchLayout;
 	private WaveformView waveformView;
 	private ProgressBar panelProgress;
-	private ProgressBar playProgress;
+	private SeekBar playProgress;
 
 	private RecordsContract.UserActionsListener presenter;
 	private ServiceConnection serviceConnection;
@@ -131,6 +132,19 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		txtDuration = findViewById(R.id.txt_duration);
 		txtName = findViewById(R.id.txt_name);
 		waveformView = findViewById(R.id.record);
+
+		playProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				if (fromUser) {
+					int val = (int)AndroidUtils.dpToPx(progress * waveformView.getWaveformLength() / 1000);
+					waveformView.seekPx(val);
+					presenter.seekPlayback(val);
+				}
+			}
+			@Override public void onStartTrackingTouch(SeekBar seekBar) { }
+			@Override public void onStopTrackingTouch(SeekBar seekBar) { }
+		});
 
 		touchLayout = findViewById(R.id.touch_layout);
 		touchLayout.setBackgroundResource(colorMap.getPlaybackPanelBackground());
@@ -222,7 +236,9 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			}
 			@Override
 			public void onSeeking(int px, long mills) {
-				playProgress.setProgress(1000*(int)AndroidUtils.pxToDp(px)/waveformView.getWaveformLength());
+				if (waveformView.getWaveformLength() > 0) {
+					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / waveformView.getWaveformLength());
+				}
 				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 			}
 		});

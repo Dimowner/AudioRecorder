@@ -128,7 +128,7 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:layout_gravity="center"
-						android:padding="@dimen/spacing_normal"
+						android:padding="@dimen/spacing_xsmall"
 						android:textColor="@color/text_primary_light"
 						android:textSize="@dimen/text_xlarge"
 						android:textStyle="bold"
@@ -149,13 +149,13 @@
 
 			<FrameLayout
 					android:layout_width="match_parent"
-					android:layout_height="120dp"
+					android:layout_height="100dp"
 					>
 
 				<com.dimowner.audiorecorder.app.widget.WaveformView
 						android:id="@+id/record"
 						android:layout_width="wrap_content"
-						android:layout_height="120dp"
+						android:layout_height="100dp"
 						android:layout_gravity="center"
 						/>
 
@@ -203,17 +203,14 @@
 						tools:text="34:56"/>
 
 			</FrameLayout>
-			<ProgressBar
+
+			<SeekBar
 					android:id="@+id/play_progress"
 					android:layout_width="match_parent"
-					android:layout_height="2dp"
-					android:indeterminate="false"
+					android:layout_height="wrap_content"
 					android:max="1000"
 					android:progress="20"
-					android:progressDrawable="@drawable/progress_drawable"
-					style="?android:attr/progressBarStyleHorizontal"
 					/>
-
 			<LinearLayout
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"

@@ -41,7 +41,7 @@ public interface MainContract {
 		void startPlaybackService(String name);
 		void stopPlaybackService();
 
-		void showPlayStart();
+		void showPlayStart(boolean animate);
 		void showPlayPause();
 		void showPlayStop();
 		void onPlayProgress(long mills, int px, int percent);

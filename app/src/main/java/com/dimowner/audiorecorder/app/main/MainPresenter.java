@@ -183,7 +183,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				@Override
 				public void onStartPlay() {
 					Timber.d("onStartPlay");
-					view.showPlayStart();
+					view.showPlayStart(true);
 					view.startPlaybackService(record.getName());
 				}
 
@@ -233,7 +233,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		this.audioPlayer.addPlayerCallback(playerCallback);
 
 		if (audioPlayer.isPlaying()) {
-			view.showPlayStart();
+			view.showPlayStart(false);
 		} else {
 			view.showPlayStop();
 		}
@@ -492,6 +492,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							prefs.setActiveRecord(id);
 						}
 //					}
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override public void run() {
+							view.hideImportProgress();
+							audioPlayer.stop();
+							loadActiveRecord(); }
+					});
 				} catch (IOException e) {
 					Timber.e(e);
 					AndroidUtils.runOnUIThread(new Runnable() {
@@ -504,10 +510,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				}
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override public void run() {
-						view.hideImportProgress();
-						audioPlayer.stop();
-						loadActiveRecord(); }
-				});
+						view.hideImportProgress(); }});
 			}
 		});
 	}

@@ -30,7 +30,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.support.v4.content.FileProvider;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -69,7 +68,6 @@ import timber.log.Timber;
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
 // TODO: Settings select Record quality
-// TODO: Fix WaveForm long record
 // TODO: Fix WaveForm blinking when seek
 
 // TODO: Fix waveform adjustment
@@ -391,17 +389,23 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void showPlayStart() {
+	public void showPlayStart(boolean animate) {
 		btnRecord.setEnabled(false);
-		AnimationUtil.viewAnimationX(btnPlay, -75f, new Animator.AnimatorListener() {
-			@Override public void onAnimationStart(Animator animation) { }
-			@Override public void onAnimationEnd(Animator animation) {
-				btnStop.setVisibility(View.VISIBLE);
-				btnPlay.setImageResource(R.drawable.ic_pause);
-			}
-			@Override public void onAnimationCancel(Animator animation) { }
-			@Override public void onAnimationRepeat(Animator animation) { }
-		});
+		if (animate) {
+			AnimationUtil.viewAnimationX(btnPlay, -75f, new Animator.AnimatorListener() {
+				@Override public void onAnimationStart(Animator animation) { }
+				@Override public void onAnimationEnd(Animator animation) {
+					btnStop.setVisibility(View.VISIBLE);
+					btnPlay.setImageResource(R.drawable.ic_pause);
+				}
+				@Override public void onAnimationCancel(Animator animation) { }
+				@Override public void onAnimationRepeat(Animator animation) { }
+			});
+		} else {
+			btnPlay.setTranslationX(-75f);
+			btnStop.setVisibility(View.VISIBLE);
+			btnPlay.setImageResource(R.drawable.ic_pause);
+		}
 	}
 
 	@Override
