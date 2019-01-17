@@ -90,7 +90,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		this.view = v;
 		if (showImportProgress) {
 			view.showImportStart();
-			showImportProgress = false;
+//			showImportProgress = false;
+		} else {
+			view.hideImportProgress();
 		}
 		this.localRepository.open();
 
@@ -465,9 +467,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	public void importAudioFile(final Context context, final Uri uri) {
 		if (view != null) {
 			view.showImportStart();
-		} else {
-			showImportProgress = true;
 		}
+		showImportProgress = true;
 
 		importTasks.postRunnable(new Runnable() {
 			long id = -1;
@@ -483,14 +484,14 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					File newFile = fileRepository.provideRecordFile(name);
 
 					Timber.v("COPY - Start!");
-						if (FileUtil.copyFile(fileDescriptor, newFile)) {
-							Timber.v("COPY - FINISH!");
-							Timber.v("Copy file %s succeed!", newFile.getAbsolutePath());
-							Timber.v("INSERT - START!");
-							id = localRepository.insertFile(newFile.getAbsolutePath());
-							Timber.v("INSERT - FINISH!");
-							prefs.setActiveRecord(id);
-						}
+					if (FileUtil.copyFile(fileDescriptor, newFile)) {
+						Timber.v("COPY - FINISH!");
+						Timber.v("Copy file %s succeed!", newFile.getAbsolutePath());
+						Timber.v("INSERT - START!");
+						id = localRepository.insertFile(newFile.getAbsolutePath());
+						Timber.v("INSERT - FINISH!");
+						prefs.setActiveRecord(id);
+					}
 //					}
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override public void run() {
@@ -515,6 +516,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					@Override public void run() {
 						if (view != null) { view.hideImportProgress(); }
 					}});
+				showImportProgress = false;
 			}
 		});
 	}
