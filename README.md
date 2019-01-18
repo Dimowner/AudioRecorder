@@ -4,6 +4,8 @@
 About 140kb takes the RecyclerView and NotificationCompat, about 100kb takes the Fabric.io analytics. The rest 130kb is the app source code.</br>
 Apk size can be optimized to 130kb if replace RecyclerView by ListView and remove Fabric.io analytics.</p>
 
+<a href='https://play.google.com/store/apps/details?id=com.dimowner.audiorecorder' target='_blank'><img height='80' style='border:0px;height:80px;' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' border='0' alt='GooglePlay Link' /></a>
+
 Very fast and lightweight Audio Recorder application
 
 Features:
@@ -18,6 +20,8 @@ Features:
 - Add selected record to bookmarks
 - Delete all records from settings
 - Colored themes
+
+![Audio Recorder Logo](https://github.com/Dimowner/AudioRecorder/blob/master/app/src/releaseConfig/res/mipmap-xxxhdpi/audio_recorder_logo.png)
 
 ### License
 
