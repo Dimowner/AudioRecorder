@@ -28,6 +28,9 @@
 	<string name="share_record">Поділитися записом: %s</string>
 	<string name="import_progress">Імпортування аудіо файла&#8230;</string>
 	<string name="record_processing">Обробка запису для відображення&#8230;</string>
+	<string name="request">Зворотній зв\'язок</string>
+	<string name="email_clients_not_found">Не знайдено жодного поштового клієнта</string>
+	<string name="send_email">Послати по електронній пошті&#8230;</string>
 
 	<string name="today">Сьогодні</string>
 	<string name="yesterday">Вчора</string>

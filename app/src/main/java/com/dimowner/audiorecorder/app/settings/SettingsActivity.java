@@ -39,6 +39,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.licences.LicenceActivity;
@@ -82,12 +83,14 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		TextView btnDeleteAll = findViewById(R.id.btnDeleteAll);
 		TextView btnLicences = findViewById(R.id.btnLicences);
 		TextView btnRate = findViewById(R.id.btnRate);
+		TextView btnRequest = findViewById(R.id.btnRequest);
 		TextView txtAbout = findViewById(R.id.txtAbout);
 		txtAbout.setText(getAboutContent());
 		btnBack.setOnClickListener(this);
 		btnDeleteAll.setOnClickListener(this);
 		btnLicences.setOnClickListener(this);
 		btnRate.setOnClickListener(this);
+		btnRequest.setOnClickListener(this);
 		swPublicDir = findViewById(R.id.swPublicDir);
 		swRecordInStereo = findViewById(R.id.swRecordInStereo);
 		swKeepScreenOn = findViewById(R.id.swKeepScreenOn);
@@ -205,6 +208,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 				AlertDialog alert = builder.create();
 				alert.show();
 				break;
+			case R.id.btnRequest:
+				requestFeature();
+				break;
 		}
 	}
 
@@ -221,6 +227,20 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		} catch (ActivityNotFoundException e) {
 			Intent rateIntent = rateIntentForUrl("https://play.google.com/store/apps/details");
 			startActivity(rateIntent);
+		}
+	}
+
+	private void requestFeature() {
+		Intent i = new Intent(Intent.ACTION_SEND);
+		i.setType("message/rfc822");
+		i.putExtra(Intent.EXTRA_EMAIL, new String[]{AppConstants.REQUESTS_RECEIVER});
+		i.putExtra(Intent.EXTRA_SUBJECT,
+				"[" + getResources().getString(R.string.app_name) + "] - " + getResources().getString(R.string.request)
+		);
+		try {
+			startActivity(Intent.createChooser(i, getResources().getString(R.string.send_email)));
+		} catch (android.content.ActivityNotFoundException ex) {
+			showError(R.string.email_clients_not_found);
 		}
 	}
 

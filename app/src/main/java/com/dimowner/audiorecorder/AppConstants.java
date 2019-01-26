@@ -21,6 +21,10 @@ package com.dimowner.audiorecorder;
  */
 public class AppConstants {
 
+	private AppConstants() {}
+
+	public static final String REQUESTS_RECEIVER = "dimmony@gmail.com";
+
 	public static final String APPLICATION_NAME = "AudioRecorder";
 	public static final String RECORDS_DIR = "records";
 	public static final String RECORD_FILE_EXTENSION = "m4a";

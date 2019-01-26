@@ -28,6 +28,9 @@
 	<string name="share_record">Share record: %s</string>
 	<string name="import_progress">Audio file import&#8230;</string>
 	<string name="record_processing">Waveform processing&#8230;</string>
+	<string name="request">Request or feedback</string>
+	<string name="email_clients_not_found">Not found any Email client</string>
+	<string name="send_email">Send by email&#8230;</string>
 
 	<string name="today">Today</string>
 	<string name="yesterday">Yesterday</string>
