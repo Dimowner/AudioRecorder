@@ -40,12 +40,14 @@ public class ThemeColorAdapter extends ArrayAdapter<ThemeColorAdapter.ThemeItem>
 		}
 		TextView txtColor = convertView.findViewById(R.id.txtColor);
 		txtColor.setText(data.get(position).getColorName());
-		txtColor.setBackgroundColor(data.get(position).getColor());
 		if (!showDrawable) {
 			txtColor.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0);
 			Resources r = getContext().getResources();
 			float n = r.getDimension(R.dimen.spacing_normal);
 			txtColor.setPadding((int)r.getDimension(R.dimen.spacing_huge), (int)n, (int)n, (int)n);
+			txtColor.setBackgroundColor(data.get(position).getColor());
+		} else {
+			txtColor.setBackgroundColor(getContext().getResources().getColor(R.color.transparent));
 		}
 		return txtColor;
 	}
