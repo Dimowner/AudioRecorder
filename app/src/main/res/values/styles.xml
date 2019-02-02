@@ -34,6 +34,10 @@
 		<item name="android:windowBackground">@drawable/gradient_teal</item>
 	</style>
 
+	<style name="AppTheme.Black" parent="AppTheme">
+		<item name="android:windowBackground">@drawable/gradient_black</item>
+	</style>
+
 	<style name="Text">
 		<item name="android:textColor">@color/text_primary_light</item>
 		<item name="android:fontFamily">sans-serif-light</item>

@@ -63,13 +63,14 @@
 
 	<string-array name="theme_colors">
 		<item>Тема Не вибрана</item>
-		<item>Тема Голуба</item>
+		<item>Тема Блакитна</item>
 		<item>Тема Коричнева</item>
 		<item>Тема Темно Помаранчева</item>
 		<item>Тема Розова</item>
 		<item>Тема Темно Фіолетова</item>
 		<item>Тема Червона</item>
 		<item>Тема Бірюзова</item>
+		<item>Тема Чорна</item>
 	</string-array>
 
 </resources>

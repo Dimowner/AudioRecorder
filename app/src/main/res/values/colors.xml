@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<!--<color name="colorPrimary">#ffffff</color>-->
-	<!--<color name="colorPrimaryDark">#eee</color>-->
 	<color name="colorAccent">#e23b74</color>
 
 	<color name="text_primary_dark">#de000000</color> <!-- 87% -->
@@ -15,13 +13,21 @@
 
 	<color name="dark_white">#eaeaea</color>
 	<color name="white">#ffffff</color>
-	<color name="grey">#545454</color>
 
 	<color name="icon_background">#f3f5f7</color>
 
 	<!--reds-->
+	<color name="md_red_50">#FFEBEE</color>
+	<color name="md_red_100">#FFCDD2</color>
+	<color name="md_red_200">#EF9A9A</color>
+	<color name="md_red_300">#E57373</color>
+	<color name="md_red_400">#EF5350</color>
+	<color name="md_red_400x">#F44336</color>
 	<color name="md_red_500">#e51c23</color>
 	<color name="md_red_700">#d01716</color>
+	<color name="md_red_900">#B71C1C</color>
+	<color name="md_red_900x">#9E1111</color>
+
 	<!-- pinks -->
 	<color name="md_pink_500">#e91e63</color>
 	<color name="md_pink_600">#D81B60</color>
@@ -68,6 +74,7 @@
 	<color name="md_grey_600">#757575</color>
 	<color name="md_grey_700">#616161</color>
 	<color name="md_grey_800">#424242</color>
+	<color name="md_grey_800xxx">#383838</color>
 	<color name="md_grey_900">#212121</color>
 	<color name="md_black_1000">#000000</color>
 	<color name="md_white_1000">#ffffff</color>

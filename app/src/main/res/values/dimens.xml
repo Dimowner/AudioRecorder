@@ -23,7 +23,7 @@
 	<dimen name="bottom_pnl_btn_size">84dp</dimen>
 	<dimen name="bottom_pnl_small_btn_size">54dp</dimen>
 
-	<dimen name="gradient_radius">300dp</dimen>
+	<dimen name="gradient_radius">320dp</dimen>
 	<dimen name="grid_view_height">40dp</dimen>
 	<dimen name="waveform_height">200dp</dimen>
 	<dimen name="item_waveform_height">80dp</dimen>

@@ -114,6 +114,7 @@ public class Injector {
 
 	public RecorderContract.Recorder provideAudioRecorder() {
 		return AudioRecorder.getInstance();
+//		return WavRecorder.getInstance();
 	}
 
 	public MainContract.UserActionsListener provideMainPresenter() {

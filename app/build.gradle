@@ -7,6 +7,7 @@ buildscript {
 		classpath 'io.fabric.tools:gradle:1.+'
 	}
 }
+
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
@@ -23,7 +24,7 @@ ext.versions = [
 
 def versionMajor = 0
 def versionMinor = 4
-def versionPatch = 10
+def versionPatch = 11
 
 android {
 	compileSdkVersion versions.targetSdkVersion

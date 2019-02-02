@@ -74,7 +74,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="1px"
 			android:elevation="@dimen/toolbar_elevation"
-			android:background="@color/grey"
+			android:background="@color/md_grey_800xxx"
 			android:layout_gravity="bottom"
 			/>
 
