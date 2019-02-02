@@ -13,6 +13,10 @@ public class SettingsContract {
 
 		void showRecordingQuality(int quality);
 
+		void showRecordingSampleRate(int rate);
+
+		void showRecordingFormat(int format);
+
 		void showAllRecordsDeleted();
 
 		void showFailDeleteAllRecords();
@@ -33,6 +37,10 @@ public class SettingsContract {
 		void recordInStereo(boolean stereo);
 
 		void setRecordingQuality(int quality);
+
+		void setRecordingFormat(int format);
+
+		void setSampleRate(int rate);
 
 		void deleteAllRecords();
 	}

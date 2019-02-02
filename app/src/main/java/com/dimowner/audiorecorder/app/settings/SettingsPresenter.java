@@ -42,14 +42,12 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 				for (int i = 0; i < durations.size(); i++) {
 					totalDuration += durations.get(i);
 				}
-				final long space = FileUtil.getFree(fileRepository.getRecordingDir());
-				final long timeSeconds = space/AppConstants.RECORD_BYTES_PER_SECOND;
 				final long finalTotalDuration = totalDuration;
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override public void run() {
 						view.showTotalRecordsDuration(TimeUtils.formatTimeIntervalHourMinSec(finalTotalDuration / 1000));
 						view.showRecordsCount(durations.size());
-						view.showAvailableSpace(TimeUtils.formatTimeIntervalHourMinSec(1000*timeSeconds));
+						updateAvailableSpace();
 						view.hideProgress();
 					}
 				});
@@ -58,6 +56,27 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		view.showStoreInPublicDir(prefs.isStoreDirPublic());
 		view.showRecordInStereo(prefs.getRecordChannelCount() == AppConstants.RECORD_AUDIO_STEREO);
 		view.showKeepScreenOn(prefs.isKeepScreenOn());
+		view.showRecordingFormat(prefs.getFormat());
+
+		int pos;
+		switch (prefs.getSampleRate()) {
+			case AppConstants.RECORD_SAMPLE_RATE_8000:
+				pos = 0;
+				break;
+			case AppConstants.RECORD_SAMPLE_RATE_16000:
+				pos = 1;
+				break;
+			case AppConstants.RECORD_SAMPLE_RATE_32000:
+				pos = 2;
+				break;
+			case AppConstants.RECORD_SAMPLE_RATE_48000:
+				pos = 4;
+				break;
+			case AppConstants.RECORD_SAMPLE_RATE_44100:
+			default:
+				pos = 3;
+		}
+		view.showRecordingSampleRate(pos);
 	}
 
 	@Override
@@ -73,11 +92,25 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	@Override
 	public void recordInStereo(boolean stereo) {
 		prefs.setRecordInStereo(stereo);
+		updateAvailableSpace();
 	}
 
 	@Override
 	public void setRecordingQuality(int quality) {
+		prefs.setQuality(quality);
+		updateAvailableSpace();
+	}
 
+	@Override
+	public void setRecordingFormat(int format) {
+		prefs.setFormat(format);
+		updateAvailableSpace();
+	}
+
+	@Override
+	public void setSampleRate(int rate) {
+		prefs.setSampleRate(rate);
+		updateAvailableSpace();
 	}
 
 	@Override
@@ -128,6 +161,22 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	public void clear() {
 		if (view != null) {
 			unbindView();
+		}
+	}
+
+	private void updateAvailableSpace() {
+		final long space = FileUtil.getFree(fileRepository.getRecordingDir());
+		final long time = spaceToTimeSecs(space, prefs.getFormat(), prefs.getSampleRate(), prefs.getRecordChannelCount());
+		view.showAvailableSpace(TimeUtils.formatTimeIntervalHourMinSec(time));
+	}
+
+	private long spaceToTimeSecs(long spaceBytes, int format, int sampleRate, int channels) {
+		if (format == AppConstants.RECORDING_FORMAT_M4A) {
+			return 1000 * (spaceBytes/(AppConstants.RECORD_ENCODING_BITRATE/8));
+		} else if (format == AppConstants.RECORDING_FORMAT_WAV) {
+			return 1000 * (spaceBytes/(sampleRate * channels * 2));
+		} else {
+			return 0;
 		}
 	}
 }

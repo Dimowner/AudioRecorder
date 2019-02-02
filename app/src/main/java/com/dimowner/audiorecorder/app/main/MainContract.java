@@ -20,6 +20,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.dimowner.audiorecorder.Contract;
+import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 
 import java.io.File;
 import java.util.List;
@@ -60,6 +61,8 @@ public interface MainContract {
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
+
+		void setAudioRecorder(RecorderContract.Recorder recorder);
 
 		void startRecording();
 		void stopRecording();

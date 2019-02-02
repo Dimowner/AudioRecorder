@@ -61,6 +61,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private Switch swRecordInStereo;
 	private Switch swKeepScreenOn;
 
+	private Spinner formatSelector;
+	private Spinner sampleRateSelector;
+
 	private SettingsContract.UserActionsListener presenter;
 	private ColorMap colorMap;
 	private ColorMap.OnThemeColorChangeListener onThemeColorChangeListener;
@@ -121,7 +124,71 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 		presenter = ARApplication.getInjector().provideSettingsPresenter();
 
-		final Spinner spinner = findViewById(R.id.themeColor);
+		sampleRateSelector = findViewById(R.id.sample_rate);
+		List<ThemeColorAdapter.ThemeItem> items2 = new ArrayList<>();
+		String values2[] = getResources().getStringArray(R.array.sample_rates);
+		for (int i = 0; i < values2.length; i++) {
+			items2.add(new ThemeColorAdapter.ThemeItem(values2[i],
+					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
+		}
+		ThemeColorAdapter adapter2 = new ThemeColorAdapter(SettingsActivity.this,
+				R.layout.list_item_spinner, R.id.txtItem, items2, R.drawable.ic_audiotrack);
+		sampleRateSelector.setAdapter(adapter2);
+
+		sampleRateSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//				Timber.v("onItemSelected = " + position);
+				int rate;
+				switch (position) {
+					case 0:
+						rate = AppConstants.RECORD_SAMPLE_RATE_8000;
+						break;
+					case 1:
+						rate = AppConstants.RECORD_SAMPLE_RATE_16000;
+						break;
+					case 2:
+						rate = AppConstants.RECORD_SAMPLE_RATE_32000;
+						break;
+					case 4:
+						rate = AppConstants.RECORD_SAMPLE_RATE_48000;
+						break;
+					case 3:
+					default:
+						rate = AppConstants.RECORD_SAMPLE_RATE_44100;
+				}
+				presenter.setSampleRate(rate);
+			}
+			@Override public void onNothingSelected(AdapterView<?> parent) {
+				Timber.v("onNothingSelected");
+			}
+		});
+
+		formatSelector = findViewById(R.id.format);
+		List<ThemeColorAdapter.ThemeItem> items1 = new ArrayList<>();
+		String values1[] = getResources().getStringArray(R.array.formats);
+		for (int i = 0; i < values1.length; i++) {
+			items1.add(new ThemeColorAdapter.ThemeItem(values1[i],
+					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
+		}
+		ThemeColorAdapter adapter1 = new ThemeColorAdapter(SettingsActivity.this,
+				R.layout.list_item_spinner, R.id.txtItem, items1, R.drawable.ic_audiotrack);
+		formatSelector.setAdapter(adapter1);
+
+		formatSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				Timber.v("onItemSelected = " + position);
+				if (position == 0) {
+					presenter.setRecordingFormat(AppConstants.RECORDING_FORMAT_M4A);
+				} else {
+					presenter.setRecordingFormat(AppConstants.RECORDING_FORMAT_WAV);
+				}
+			}
+			@Override public void onNothingSelected(AdapterView<?> parent) {
+				Timber.v("onNothingSelected");
+			}
+		});
+
+		final Spinner themeColor = findViewById(R.id.themeColor);
 		List<ThemeColorAdapter.ThemeItem> items = new ArrayList<>();
 		String values[] = getResources().getStringArray(R.array.theme_colors);
 		int[] colorRes = colorMap.getColorResources();
@@ -129,8 +196,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			items.add(new ThemeColorAdapter.ThemeItem(values[i], getApplicationContext().getResources().getColor(colorRes[i])));
 		}
 		ThemeColorAdapter adapter = new ThemeColorAdapter(SettingsActivity.this,
-				R.layout.list_item_spinner, R.id.txtColor, items);
-		spinner.setAdapter(adapter);
+				R.layout.list_item_spinner, R.id.txtItem, items, R.drawable.ic_color_lens);
+		themeColor.setAdapter(adapter);
 
 		onThemeColorChangeListener = new ColorMap.OnThemeColorChangeListener() {
 			@Override
@@ -143,9 +210,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		colorMap.addOnThemeColorChangeListener(onThemeColorChangeListener);
 
 		if (colorMap.getSelected() > 0) {
-			spinner.setSelection(colorMap.getSelected());
+			themeColor.setSelection(colorMap.getSelected());
 		}
-		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+		themeColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				colorMap.updateColorMap(position);
 			}
@@ -290,7 +357,16 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	@Override
 	public void showRecordingQuality(int quality) {
+	}
 
+	@Override
+	public void showRecordingSampleRate(int rate) {
+		sampleRateSelector.setSelection(rate);
+	}
+
+	@Override
+	public void showRecordingFormat(int format) {
+		formatSelector.setSelection(format);
 	}
 
 	@Override

@@ -34,6 +34,9 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_RECORD_COUNTER = "record_counter";
 	private static final String PREF_KEY_THEME_COLORMAP_POSITION = "theme_color";
 	private static final String PREF_KEY_KEEP_SCREEN_ON = "keep_screen_on";
+	private static final String PREF_KEY_FORMAT = "pref_format";
+	private static final String PREF_KEY_QUALITY = "pref_quality";
+	private static final String PREF_KEY_SAMPLE_RATE = "pref_sample_rate";
 
 	//Recording prefs.
 	private static final String PREF_KEY_RECORD_CHANNEL_COUNT = "record_channel_count";
@@ -139,5 +142,41 @@ public class PrefsImpl implements Prefs {
 	@Override
 	public boolean isKeepScreenOn() {
 		return sharedPreferences.getBoolean(PREF_KEY_KEEP_SCREEN_ON, false);
+	}
+
+	@Override
+	public void setFormat(int f) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putInt(PREF_KEY_FORMAT, f);
+		editor.apply();
+	}
+
+	@Override
+	public int getFormat() {
+		return sharedPreferences.getInt(PREF_KEY_FORMAT, AppConstants.RECORDING_FORMAT_M4A);
+	}
+
+	@Override
+	public void setQuality(int q) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putInt(PREF_KEY_QUALITY, q);
+		editor.apply();
+	}
+
+	@Override
+	public int getQuality() {
+		return sharedPreferences.getInt(PREF_KEY_QUALITY, AppConstants.RECORD_SAMPLE_RATE_44100);
+	}
+
+	@Override
+	public void setSampleRate(int rate) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putInt(PREF_KEY_SAMPLE_RATE, rate);
+		editor.apply();
+	}
+
+	@Override
+	public int getSampleRate() {
+		return sharedPreferences.getInt(PREF_KEY_SAMPLE_RATE, AppConstants.RECORD_SAMPLE_RATE_44100);
 	}
 }

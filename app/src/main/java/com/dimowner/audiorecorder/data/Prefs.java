@@ -38,4 +38,13 @@ public interface Prefs {
 
 	void setKeepScreenOn(boolean on);
 	boolean isKeepScreenOn();
+
+	void setFormat(int f);
+	int getFormat();
+
+	void setQuality(int q);
+	int getQuality();
+
+	void setSampleRate(int rate);
+	int getSampleRate();
 }

@@ -16,12 +16,14 @@ public class ThemeColorAdapter extends ArrayAdapter<ThemeColorAdapter.ThemeItem>
 
 	private LayoutInflater inflater;
 	private List<ThemeItem> data;
+	private int iconRes;
 
-	ThemeColorAdapter(Activity context, int res, int txtRes, List<ThemeItem> items){
+	ThemeColorAdapter(Activity context, int res, int txtRes, List<ThemeItem> items, int iconRes){
 
 		super(context, res, txtRes, items);
 		this.inflater = context.getLayoutInflater();
 		this.data = items;
+		this.iconRes = iconRes;
 	}
 
 	@Override
@@ -38,7 +40,7 @@ public class ThemeColorAdapter extends ArrayAdapter<ThemeColorAdapter.ThemeItem>
 		if(convertView == null){
 			convertView = inflater.inflate(R.layout.list_item_spinner, parent, false);
 		}
-		TextView txtColor = convertView.findViewById(R.id.txtColor);
+		TextView txtColor = convertView.findViewById(R.id.txtItem);
 		txtColor.setText(data.get(position).getColorName());
 		if (!showDrawable) {
 			txtColor.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0);
@@ -48,6 +50,12 @@ public class ThemeColorAdapter extends ArrayAdapter<ThemeColorAdapter.ThemeItem>
 			txtColor.setBackgroundColor(data.get(position).getColor());
 		} else {
 			txtColor.setBackgroundColor(getContext().getResources().getColor(R.color.transparent));
+			txtColor.setCompoundDrawablesRelativeWithIntrinsicBounds(iconRes, 0, 0, 0);
+			if (iconRes <= 0) {
+				Resources r = getContext().getResources();
+				float n = r.getDimension(R.dimen.spacing_normal);
+				txtColor.setPadding((int)r.getDimension(R.dimen.spacing_huge), (int)n, (int)n, (int)n);
+			}
 		}
 		return txtColor;
 	}

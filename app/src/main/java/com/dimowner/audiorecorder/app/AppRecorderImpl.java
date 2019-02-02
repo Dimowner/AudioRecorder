@@ -19,7 +19,7 @@ import timber.log.Timber;
 
 public class AppRecorderImpl implements AppRecorder {
 
-	private final RecorderContract.Recorder audioRecorder;
+	private RecorderContract.Recorder audioRecorder;
 	private final BackgroundQueue recordingsTasks;
 
 	private final BackgroundQueue processingTasks;
@@ -185,9 +185,14 @@ public class AppRecorderImpl implements AppRecorder {
 	}
 
 	@Override
+	public void setRecorder(RecorderContract.Recorder recorder) {
+		this.audioRecorder = recorder;
+	}
+
+	@Override
 	public void startRecording(String filePath) {
 		if (!audioRecorder.isRecording()) {
-			audioRecorder.prepare(filePath, prefs.getRecordChannelCount());
+			audioRecorder.prepare(filePath, prefs.getRecordChannelCount(), prefs.getSampleRate());
 		}
 	}
 

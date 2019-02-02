@@ -32,6 +32,9 @@ public class AppConstants {
 	public static final String BASE_RECORD_NAME = "Record-";
 	public static final int MAX_RECORD_NAME_LENGTH = 20;
 
+	public static final int RECORDING_FORMAT_M4A = 0;
+	public static final int RECORDING_FORMAT_WAV = 1;
+
 	//BEGINNING-------------- Waveform visualisation constants ----------------------------------
 
 	/** Density pixel count per one second of time.
@@ -57,7 +60,11 @@ public class AppConstants {
 
 	// recording and playback
 	public final static int PLAYBACK_SAMPLE_RATE = 44100;
-	public final static int RECORD_SAMPLE_RATE = 44100;
+	public final static int RECORD_SAMPLE_RATE_44100 = 44100;
+	public final static int RECORD_SAMPLE_RATE_8000 = 8000;
+	public final static int RECORD_SAMPLE_RATE_16000 = 16000;
+	public final static int RECORD_SAMPLE_RATE_32000 = 32000;
+	public final static int RECORD_SAMPLE_RATE_48000 = 48000;
 	public final static int RECORD_ENCODING_BITRATE = 48000;
 	public final static int RECORD_AUDIO_CHANNELS_COUNT = 2;
 	public final static int RECORD_AUDIO_MONO = 1;

@@ -86,7 +86,7 @@
 			android:layout_gravity="center"
 			android:layout_marginTop="24dp"
 			android:drawablePadding="@dimen/spacing_normal"
-			android:drawableTop="@drawable/ic_audiotrack"
+			android:drawableTop="@drawable/ic_audiotrack_64"
 			android:textSize="@dimen/text_large"
 			android:textColor="@color/text_primary_light"
 			android:text="@string/no_records"

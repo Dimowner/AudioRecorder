@@ -4,6 +4,7 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.exception.InvalidOutputFile;
 import com.dimowner.audiorecorder.exception.RecorderInitException;
 
@@ -21,7 +22,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 	private AudioRecord recorder = null;
 
 	private static final int RECORDER_BPP = 16; //bits per sample
-	private static final int RECORDER_SAMPLE_RATE = 44100;
+//	private static final int RECORDER_SAMPLE_RATE = 44100;
 
 	private File recordFile = null;
 	private int bufferSize = 0;
@@ -35,7 +36,10 @@ public class WavRecorder implements RecorderContract.Recorder {
 	private int chunksCount = 0;
 	private int lastVal = 0;
 
-	private static final int FRAMES_PER_VIS_INTERVAL = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/RECORDER_SAMPLE_RATE));
+	private int sampleRate = AppConstants.RECORD_SAMPLE_RATE_44100;
+
+//	private static final int framesPerVisInterval = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/RECORDER_SAMPLE_RATE));
+	private int framesPerVisInterval = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/sampleRate));
 
 	private RecorderContract.RecorderCallback recorderCallback;
 
@@ -57,19 +61,21 @@ public class WavRecorder implements RecorderContract.Recorder {
 	}
 
 	@Override
-	public void prepare(String outputFile, int channelCount) {
+	public void prepare(String outputFile, int channelCount, int sampleRate) {
 		Timber.v("prepare file: %s", outputFile + " channelCount = " + channelCount);
+		this.sampleRate = sampleRate;
+		this.framesPerVisInterval = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/sampleRate));
 		this.channelCount = channelCount;
 		recordFile = new File(outputFile);
 		if (recordFile.exists() && recordFile.isFile()) {
 			int channel = channelCount == 1 ? AudioFormat.CHANNEL_IN_MONO : AudioFormat.CHANNEL_IN_STEREO;
-			bufferSize = AudioRecord.getMinBufferSize(RECORDER_SAMPLE_RATE,
+			bufferSize = AudioRecord.getMinBufferSize(sampleRate,
 					channel,
 					AudioFormat.ENCODING_PCM_16BIT);
 
 			recorder = new AudioRecord(
 					MediaRecorder.AudioSource.MIC,
-					RECORDER_SAMPLE_RATE,
+					sampleRate,
 					channel,
 					AudioFormat.ENCODING_PCM_16BIT,
 					bufferSize
@@ -151,20 +157,20 @@ public class WavRecorder implements RecorderContract.Recorder {
 			recorder.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
 				@Override
 				public void onMarkerReached(AudioRecord recorder) {
-					int cur = (int)(chunksCount/(2*channelCount*RECORDER_SAMPLE_RATE)*1000f);
+					int cur = (int)(chunksCount/(2*channelCount*sampleRate)*1000f);
 					counter++;
-					recorder.setNotificationMarkerPosition(counter*FRAMES_PER_VIS_INTERVAL);
-					Timber.v("onMarkerReached curr = " + cur + " counter = " + counter + " frames = " + counter*FRAMES_PER_VIS_INTERVAL);
+					recorder.setNotificationMarkerPosition(counter* framesPerVisInterval);
+//					Timber.v("onMarkerReached curr = " + cur + " counter = " + counter + " frames = " + counter* framesPerVisInterval);
 
 					recorderCallback.onRecordProgress(cur, lastVal);
 				}
 
 				@Override
 				public void onPeriodicNotification(AudioRecord recorder) {
-					Timber.v("onPeriodicNotification");
+//					Timber.v("onPeriodicNotification");
 				}
 			});
-			recorder.setNotificationMarkerPosition(FRAMES_PER_VIS_INTERVAL);
+			recorder.setNotificationMarkerPosition(framesPerVisInterval);
 			counter++;
 			while (isRecording) {
 				chunksCount += recorder.read(data, 0, bufferSize);
@@ -196,13 +202,13 @@ public class WavRecorder implements RecorderContract.Recorder {
 		long fileSize = file.length();
 		long totalSize = fileSize + 36;
 		int channels = 2;
-		long byteRate = RECORDER_SAMPLE_RATE * channels * 2; //2 byte per 1 sample for 1 channel.
+		long byteRate = sampleRate * channels * 2; //2 byte per 1 sample for 1 channel.
 
 		Timber.v("File size: " + totalSize + " duration mills = " + (file.length()/(4*44.1)) + " chunksTime = " + (chunksCount/(4*44.1)));
 		try {
 			final RandomAccessFile wavFile = randomAccessFile(file);
 			wavFile.seek(0); // to the beginning
-			wavFile.write(generateHeader(fileSize, totalSize, RECORDER_SAMPLE_RATE, channels, byteRate));
+			wavFile.write(generateHeader(fileSize, totalSize, sampleRate, channels, byteRate));
 			wavFile.close();
 		} catch (FileNotFoundException e) {
 			Timber.e(e);

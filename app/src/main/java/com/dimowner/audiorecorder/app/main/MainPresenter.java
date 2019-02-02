@@ -29,6 +29,7 @@ import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.AppRecorder;
 import com.dimowner.audiorecorder.app.AppRecorderCallback;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
+import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
@@ -259,6 +260,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		appRecorder.release();
 		loadingTasks.close();
 		recordingsTasks.close();
+	}
+
+	@Override
+	public void setAudioRecorder(RecorderContract.Recorder recorder) {
+		appRecorder.setRecorder(recorder);
 	}
 
 	@Override

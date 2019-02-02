@@ -24,6 +24,7 @@ import com.dimowner.audiorecorder.audio.player.AudioPlayer;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
+import com.dimowner.audiorecorder.audio.recorder.WavRecorder;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.FileRepositoryImpl;
 import com.dimowner.audiorecorder.data.Prefs;
@@ -113,8 +114,11 @@ public class Injector {
 	}
 
 	public RecorderContract.Recorder provideAudioRecorder() {
-		return AudioRecorder.getInstance();
-//		return WavRecorder.getInstance();
+		if (providePrefs().getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
+			return WavRecorder.getInstance();
+		} else {
+			return AudioRecorder.getInstance();
+		}
 	}
 
 	public MainContract.UserActionsListener provideMainPresenter() {

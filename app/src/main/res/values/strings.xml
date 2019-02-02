@@ -73,4 +73,17 @@
 		<item>Theme Black</item>
 	</string-array>
 
+	<string-array name="formats">
+		<item>Record format: M4a</item>
+		<item>Record format: Wav</item>
+	</string-array>
+
+	<string-array name="sample_rates">
+		<item>Sample rate: 8000</item>
+		<item>Sample rate: 16000</item>
+		<item>Sample rate: 32000</item>
+		<item>Sample rate: 44100</item>
+		<item>Sample rate: 48000</item>
+	</string-array>
+
 </resources>

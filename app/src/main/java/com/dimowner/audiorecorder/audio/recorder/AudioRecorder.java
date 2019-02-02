@@ -28,10 +28,8 @@ import java.util.TimerTask;
 
 import timber.log.Timber;
 
-import static com.dimowner.audiorecorder.AppConstants.RECORD_AUDIO_CHANNELS_COUNT;
 import static com.dimowner.audiorecorder.AppConstants.RECORD_ENCODING_BITRATE;
 import static com.dimowner.audiorecorder.AppConstants.RECORD_MAX_DURATION;
-import static com.dimowner.audiorecorder.AppConstants.RECORD_SAMPLE_RATE;
 import static com.dimowner.audiorecorder.AppConstants.VISUALIZATION_INTERVAL;
 
 public class AudioRecorder implements RecorderContract.Recorder {
@@ -68,7 +66,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 	}
 
 	@Override
-	public void prepare(String outputFile, int channelCount) {
+	public void prepare(String outputFile, int channelCount, int sampleRate) {
 		Timber.v("prepare file: %s", outputFile + " channelCount = " + channelCount);
 		recordFile = new File(outputFile);
 		if (recordFile.exists() && recordFile.isFile()) {
@@ -77,7 +75,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 			recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 			recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 			recorder.setAudioChannels(channelCount);
-			recorder.setAudioSamplingRate(RECORD_SAMPLE_RATE);
+			recorder.setAudioSamplingRate(sampleRate);
 			recorder.setAudioEncodingBitRate(RECORD_ENCODING_BITRATE);
 			recorder.setMaxDuration(RECORD_MAX_DURATION);
 			recorder.setOutputFile(recordFile.getAbsolutePath());
