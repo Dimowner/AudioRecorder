@@ -187,6 +187,7 @@ public class AppRecorderImpl implements AppRecorder {
 	@Override
 	public void setRecorder(RecorderContract.Recorder recorder) {
 		this.audioRecorder = recorder;
+		this.audioRecorder.setRecorderCallback(recorderCallback);
 	}
 
 	@Override

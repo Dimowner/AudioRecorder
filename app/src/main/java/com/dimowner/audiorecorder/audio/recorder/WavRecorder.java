@@ -13,6 +13,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import timber.log.Timber;
 
 import static com.dimowner.audiorecorder.AppConstants.VISUALIZATION_INTERVAL;
@@ -22,23 +25,24 @@ public class WavRecorder implements RecorderContract.Recorder {
 	private AudioRecord recorder = null;
 
 	private static final int RECORDER_BPP = 16; //bits per sample
-//	private static final int RECORDER_SAMPLE_RATE = 44100;
 
 	private File recordFile = null;
 	private int bufferSize = 0;
+
 	private Thread recordingThread;
 
 	private boolean isRecording = false;
 
 	private int channelCount = 1;
 
-	private int counter = 0;
-	private int chunksCount = 0;
+	/** Value for recording used visualisation. */
 	private int lastVal = 0;
+
+	private Timer timerProgress;
+	private long progress = 0;
 
 	private int sampleRate = AppConstants.RECORD_SAMPLE_RATE_44100;
 
-//	private static final int framesPerVisInterval = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/RECORDER_SAMPLE_RATE));
 	private int framesPerVisInterval = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/sampleRate));
 
 	private RecorderContract.RecorderCallback recorderCallback;
@@ -111,6 +115,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 			}, "AudioRecorder Thread");
 
 			recordingThread.start();
+			startRecordingTimer();
 			if (recorderCallback != null) {
 				recorderCallback.onStartRecord();
 			}
@@ -124,8 +129,9 @@ public class WavRecorder implements RecorderContract.Recorder {
 
 	@Override
 	public void stopRecording() {
-		if (null != recorder) {
+		if (recorder != null) {
 			isRecording = false;
+			stopRecordingTimer();
 			if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
 				recorder.stop();
 			}
@@ -154,31 +160,16 @@ public class WavRecorder implements RecorderContract.Recorder {
 			fos = null;
 		}
 		if (null != fos) {
-			recorder.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
-				@Override
-				public void onMarkerReached(AudioRecord recorder) {
-					int cur = (int)(chunksCount/(2*channelCount*sampleRate)*1000f);
-					counter++;
-					recorder.setNotificationMarkerPosition(counter* framesPerVisInterval);
-//					Timber.v("onMarkerReached curr = " + cur + " counter = " + counter + " frames = " + counter* framesPerVisInterval);
-
-					recorderCallback.onRecordProgress(cur, lastVal);
-				}
-
-				@Override
-				public void onPeriodicNotification(AudioRecord recorder) {
-//					Timber.v("onPeriodicNotification");
-				}
-			});
-			recorder.setNotificationMarkerPosition(framesPerVisInterval);
-			counter++;
+			int chunksCount = 0;
 			while (isRecording) {
 				chunksCount += recorder.read(data, 0, bufferSize);
 				if (AudioRecord.ERROR_INVALID_OPERATION != chunksCount) {
-					lastVal = (Math.abs((data[0]<<8)+data[1])
-							+ Math.abs((data[2]<<8)+data[3]))/2;
+					lastVal = (Math.abs((data[0])+(data[1]<<8))
+							+ Math.abs((data[2])+(data[3]<<8)))
+							+ (Math.abs((data[4])+(data[5]<<8))
+							+ Math.abs((data[6])+(data[7]<<8)));
 //					Timber.v("Vale = " + lastVal + " 0 = " + data[0] + " 1 = " + data[1] + " 2 = " + data[2] + " 3 = " + data[3]
-//							+ " 0+ = " + (data[0]<<8) + " 2+ = " + (data[2]<<2));
+//							+ " 0+ = " + (data[0]<<8) + " 1+ = " + (data[1]<<8) + " 2+ = " + (data[2]<<8) + " 3+ = " + (data[3]<<8));
 					try {
 						fos.write(data);
 					} catch (IOException e) {
@@ -192,19 +183,17 @@ public class WavRecorder implements RecorderContract.Recorder {
 			} catch (IOException e) {
 				Timber.e(e);
 			}
-			setWaveFileHeader(recordFile);
+			setWaveFileHeader(recordFile, channelCount);
 			chunksCount = 0;
-			counter = 0;
 		}
 	}
 
-	private void setWaveFileHeader(File file) {
+	private void setWaveFileHeader(File file, int channels) {
 		long fileSize = file.length();
 		long totalSize = fileSize + 36;
-		int channels = 2;
 		long byteRate = sampleRate * channels * 2; //2 byte per 1 sample for 1 channel.
 
-		Timber.v("File size: " + totalSize + " duration mills = " + (file.length()/(4*44.1)) + " chunksTime = " + (chunksCount/(4*44.1)));
+		Timber.v("File size: " + totalSize + " duration mills = " + (file.length()/(4*44.1)));
 		try {
 			final RandomAccessFile wavFile = randomAccessFile(file);
 			wavFile.seek(0); // to the beginning
@@ -278,5 +267,24 @@ public class WavRecorder implements RecorderContract.Recorder {
 		header[42] = (byte) ((totalAudioLen >> 16) & 0xff);
 		header[43] = (byte) ((totalAudioLen >> 24) & 0xff);
 		return header;
+	}
+
+	private void startRecordingTimer() {
+		timerProgress = new Timer();
+		timerProgress.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				if (recorderCallback != null && recorder != null) {
+					recorderCallback.onRecordProgress(progress, lastVal);
+					progress += VISUALIZATION_INTERVAL;
+				}
+			}
+		}, 0, VISUALIZATION_INTERVAL);
+	}
+
+	private void stopRecordingTimer() {
+		timerProgress.cancel();
+		timerProgress.purge();
+		progress = 0;
 	}
 }
