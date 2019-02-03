@@ -42,8 +42,8 @@ public interface Prefs {
 	void setFormat(int f);
 	int getFormat();
 
-	void setQuality(int q);
-	int getQuality();
+	void setBitrate(int q);
+	int getBitrate();
 
 	void setSampleRate(int rate);
 	int getSampleRate();

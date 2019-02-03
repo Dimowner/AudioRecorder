@@ -65,8 +65,13 @@ public class AppConstants {
 	public final static int RECORD_SAMPLE_RATE_16000 = 16000;
 	public final static int RECORD_SAMPLE_RATE_32000 = 32000;
 	public final static int RECORD_SAMPLE_RATE_48000 = 48000;
-	public final static int RECORD_ENCODING_BITRATE = 48000;
-	public final static int RECORD_AUDIO_CHANNELS_COUNT = 2;
+
+	public final static int RECORD_ENCODING_BITRATE_48000 = 48000;
+	public final static int RECORD_ENCODING_BITRATE_96000 = 96000;
+	public final static int RECORD_ENCODING_BITRATE_128000 = 128000;
+	public final static int RECORD_ENCODING_BITRATE_192000 = 192000;
+
+//	public final static int RECORD_AUDIO_CHANNELS_COUNT = 2;
 	public final static int RECORD_AUDIO_MONO = 1;
 	public final static int RECORD_AUDIO_STEREO = 2;
 	public final static int RECORD_MAX_DURATION = 14400000; // 240 min 4 hours
@@ -74,6 +79,6 @@ public class AppConstants {
 	/** Time interval for Recording progress visualisation. */
 	public final static int VISUALIZATION_INTERVAL = 1000/SHORT_RECORD_DP_PER_SECOND; //1000 mills/25 dp per sec
 
-	public final static int RECORD_BYTES_PER_SECOND = RECORD_ENCODING_BITRATE/8; //bits per sec converted to bytes per sec.
+	public final static int RECORD_BYTES_PER_SECOND = RECORD_ENCODING_BITRATE_48000 /8; //bits per sec converted to bytes per sec.
 
 }

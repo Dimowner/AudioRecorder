@@ -24,7 +24,7 @@ ext.versions = [
 
 def versionMajor = 0
 def versionMinor = 4
-def versionPatch = 14
+def versionPatch = 15
 
 android {
 	compileSdkVersion versions.targetSdkVersion

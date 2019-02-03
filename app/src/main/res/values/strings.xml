@@ -32,6 +32,10 @@
 	<string name="email_clients_not_found">Not found any Email client</string>
 	<string name="send_email">Send by email&#8230;</string>
 
+	<string name="app_settings">App settings:</string>
+	<string name="recording_settings">Recording settings:</string>
+	<string name="other_settings">Other:</string>
+
 	<string name="today">Today</string>
 	<string name="yesterday">Yesterday</string>
 
@@ -74,8 +78,8 @@
 	</string-array>
 
 	<string-array name="formats">
-		<item>Record format: M4a</item>
-		<item>Record format: Wav</item>
+		<item>Format: M4a</item>
+		<item>Format: Wav</item>
 	</string-array>
 
 	<string-array name="sample_rates">
@@ -84,6 +88,13 @@
 		<item>Sample rate: 32000</item>
 		<item>Sample rate: 44100</item>
 		<item>Sample rate: 48000</item>
+	</string-array>
+
+	<string-array name="bit_rates">
+		<item>Bitrate: 48kbps</item>
+		<item>Bitrate: 96kbps</item>
+		<item>Bitrate: 128kbps</item>
+		<item>Bitrate: 192kbps</item>
 	</string-array>
 
 </resources>

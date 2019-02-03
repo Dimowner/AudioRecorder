@@ -56,6 +56,16 @@
 
 		</LinearLayout>
 
+		<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/app_settings"
+				android:textStyle="normal"
+				android:textSize="@dimen/text_medium"
+				android:layout_marginTop="@dimen/spacing_small"
+				android:layout_marginStart="@dimen/spacing_normal"
+				android:layout_marginEnd="@dimen/spacing_normal"
+				/>
 		<Spinner
 				android:id="@+id/themeColor"
 				android:layout_width="match_parent"
@@ -118,6 +128,18 @@
 					/>
 		</LinearLayout>
 
+
+		<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/recording_settings"
+				android:textStyle="normal"
+				android:textSize="@dimen/text_medium"
+				android:layout_marginTop="@dimen/spacing_small"
+				android:layout_marginStart="@dimen/spacing_normal"
+				android:layout_marginEnd="@dimen/spacing_normal"
+				/>
+
 		<Spinner
 				android:id="@+id/format"
 				android:layout_width="match_parent"
@@ -127,6 +149,13 @@
 
 		<Spinner
 				android:id="@+id/sample_rate"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:paddingStart="0dp"
+				android:paddingEnd="1dp"/>
+
+		<Spinner
+				android:id="@+id/bit_rate"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:paddingStart="0dp"
@@ -160,6 +189,17 @@
 					android:layout_gravity="top"
 					/>
 		</LinearLayout>
+
+		<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/other_settings"
+				android:textStyle="normal"
+				android:textSize="@dimen/text_medium"
+				android:layout_marginTop="@dimen/spacing_small"
+				android:layout_marginStart="@dimen/spacing_normal"
+				android:layout_marginEnd="@dimen/spacing_normal"
+				/>
 
 		<TextView
 				android:id="@+id/btnDeleteAll"
@@ -218,7 +258,7 @@
 				android:textColor="@color/text_primary_light"
 				android:fontFamily="sans-serif-light"
 				android:layout_marginTop="@dimen/spacing_normal"
-				android:layout_marginStart="@dimen/spacing_huge"
+				android:layout_marginStart="@dimen/spacing_normal"
 				android:textSize="@dimen/text_xmedium"
 				tools:text="@string/total_record_count"/>
 
@@ -229,7 +269,7 @@
 				android:gravity="start"
 				android:textColor="@color/text_primary_light"
 				android:fontFamily="sans-serif-light"
-				android:layout_marginStart="@dimen/spacing_huge"
+				android:layout_marginStart="@dimen/spacing_normal"
 				android:textSize="@dimen/text_xmedium"
 				tools:text="@string/total_duration"/>
 
@@ -240,7 +280,7 @@
 				android:gravity="start"
 				android:textColor="@color/text_primary_light"
 				android:fontFamily="sans-serif-light"
-				android:layout_marginStart="@dimen/spacing_huge"
+				android:layout_marginStart="@dimen/spacing_normal"
 				android:textSize="@dimen/text_xmedium"
 				android:layout_marginBottom="@dimen/spacing_normal"
 				tools:text="Available space: 34h:12m:22s "/>

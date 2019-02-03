@@ -63,6 +63,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	private Spinner formatSelector;
 	private Spinner sampleRateSelector;
+	private Spinner bitrateSelector;
 
 	private SettingsContract.UserActionsListener presenter;
 	private ColorMap colorMap;
@@ -124,70 +125,13 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 		presenter = ARApplication.getInjector().provideSettingsPresenter();
 
-		sampleRateSelector = findViewById(R.id.sample_rate);
-		List<ThemeColorAdapter.ThemeItem> items2 = new ArrayList<>();
-		String values2[] = getResources().getStringArray(R.array.sample_rates);
-		for (int i = 0; i < values2.length; i++) {
-			items2.add(new ThemeColorAdapter.ThemeItem(values2[i],
-					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
-		}
-		ThemeColorAdapter adapter2 = new ThemeColorAdapter(SettingsActivity.this,
-				R.layout.list_item_spinner, R.id.txtItem, items2, R.drawable.ic_audiotrack);
-		sampleRateSelector.setAdapter(adapter2);
+		initThemeColorSelector();
+		initFormatSelector();
+		initSampleRateSelector();
+		initBitrateSelector();
+	}
 
-		sampleRateSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//				Timber.v("onItemSelected = " + position);
-				int rate;
-				switch (position) {
-					case 0:
-						rate = AppConstants.RECORD_SAMPLE_RATE_8000;
-						break;
-					case 1:
-						rate = AppConstants.RECORD_SAMPLE_RATE_16000;
-						break;
-					case 2:
-						rate = AppConstants.RECORD_SAMPLE_RATE_32000;
-						break;
-					case 4:
-						rate = AppConstants.RECORD_SAMPLE_RATE_48000;
-						break;
-					case 3:
-					default:
-						rate = AppConstants.RECORD_SAMPLE_RATE_44100;
-				}
-				presenter.setSampleRate(rate);
-			}
-			@Override public void onNothingSelected(AdapterView<?> parent) {
-				Timber.v("onNothingSelected");
-			}
-		});
-
-		formatSelector = findViewById(R.id.format);
-		List<ThemeColorAdapter.ThemeItem> items1 = new ArrayList<>();
-		String values1[] = getResources().getStringArray(R.array.formats);
-		for (int i = 0; i < values1.length; i++) {
-			items1.add(new ThemeColorAdapter.ThemeItem(values1[i],
-					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
-		}
-		ThemeColorAdapter adapter1 = new ThemeColorAdapter(SettingsActivity.this,
-				R.layout.list_item_spinner, R.id.txtItem, items1, R.drawable.ic_audiotrack);
-		formatSelector.setAdapter(adapter1);
-
-		formatSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				Timber.v("onItemSelected = " + position);
-				if (position == 0) {
-					presenter.setRecordingFormat(AppConstants.RECORDING_FORMAT_M4A);
-				} else {
-					presenter.setRecordingFormat(AppConstants.RECORDING_FORMAT_WAV);
-				}
-			}
-			@Override public void onNothingSelected(AdapterView<?> parent) {
-				Timber.v("onNothingSelected");
-			}
-		});
-
+	private void initThemeColorSelector() {
 		final Spinner themeColor = findViewById(R.id.themeColor);
 		List<ThemeColorAdapter.ThemeItem> items = new ArrayList<>();
 		String values[] = getResources().getStringArray(R.array.theme_colors);
@@ -202,7 +146,6 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		onThemeColorChangeListener = new ColorMap.OnThemeColorChangeListener() {
 			@Override
 			public void onThemeColorChange(int pos) {
-				Timber.v("onThemeColorChange pos = " + pos);
 				setTheme(colorMap.getAppThemeResource());
 				recreate();
 			}
@@ -217,6 +160,73 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 				colorMap.updateColorMap(position);
 			}
 			@Override public void onNothingSelected(AdapterView<?> parent) { }
+		});
+	}
+
+	private void initFormatSelector() {
+		formatSelector = findViewById(R.id.format);
+		List<ThemeColorAdapter.ThemeItem> items = new ArrayList<>();
+		String values[] = getResources().getStringArray(R.array.formats);
+		for (int i = 0; i < values.length; i++) {
+			items.add(new ThemeColorAdapter.ThemeItem(values[i],
+					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
+		}
+		ThemeColorAdapter adapter = new ThemeColorAdapter(SettingsActivity.this,
+				R.layout.list_item_spinner, R.id.txtItem, items, R.drawable.ic_audiotrack);
+		formatSelector.setAdapter(adapter);
+
+		formatSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				if (position == 0) {
+					presenter.setRecordingFormat(AppConstants.RECORDING_FORMAT_M4A);
+				} else {
+					presenter.setRecordingFormat(AppConstants.RECORDING_FORMAT_WAV);
+				}
+			}
+			@Override public void onNothingSelected(AdapterView<?> parent) { }
+		});
+	}
+
+	private void initSampleRateSelector() {
+		sampleRateSelector = findViewById(R.id.sample_rate);
+		List<ThemeColorAdapter.ThemeItem> items = new ArrayList<>();
+		String values[] = getResources().getStringArray(R.array.sample_rates);
+		for (int i = 0; i < values.length; i++) {
+			items.add(new ThemeColorAdapter.ThemeItem(values[i],
+					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
+		}
+		ThemeColorAdapter adapter = new ThemeColorAdapter(SettingsActivity.this,
+				R.layout.list_item_spinner, R.id.txtItem, items, R.drawable.ic_audiotrack);
+		sampleRateSelector.setAdapter(adapter);
+
+		sampleRateSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				presenter.setSampleRate(position);
+			}
+			@Override public void onNothingSelected(AdapterView<?> parent) { }
+		});
+	}
+
+	private void initBitrateSelector() {
+		bitrateSelector = findViewById(R.id.bit_rate);
+		List<ThemeColorAdapter.ThemeItem> items3 = new ArrayList<>();
+		String values3[] = getResources().getStringArray(R.array.bit_rates);
+		for (int i = 0; i < values3.length; i++) {
+			items3.add(new ThemeColorAdapter.ThemeItem(values3[i],
+					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
+		}
+		ThemeColorAdapter adapter3 = new ThemeColorAdapter(SettingsActivity.this,
+				R.layout.list_item_spinner, R.id.txtItem, items3, R.drawable.ic_audiotrack);
+		bitrateSelector.setAdapter(adapter3);
+
+		bitrateSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				Timber.v("onItemSelected = " + position);
+				presenter.setRecordingBitrate(position);
+			}
+			@Override public void onNothingSelected(AdapterView<?> parent) {
+				Timber.v("onNothingSelected");
+			}
 		});
 	}
 
@@ -356,7 +366,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	}
 
 	@Override
-	public void showRecordingQuality(int quality) {
+	public void showRecordingBitrate(int bitrate) {
+		bitrateSelector.setSelection(bitrate);
 	}
 
 	@Override
@@ -392,6 +403,16 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	@Override
 	public void showAvailableSpace(String space) {
 		txtAvailableSpace.setText(getResources().getString(R.string.available_space, space));
+	}
+
+	@Override
+	public void showBitrateSelector() {
+		bitrateSelector.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void hideBitrateSelector() {
+		bitrateSelector.setVisibility(View.GONE);
 	}
 
 	@Override

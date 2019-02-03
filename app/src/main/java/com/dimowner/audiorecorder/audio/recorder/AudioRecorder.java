@@ -28,7 +28,6 @@ import java.util.TimerTask;
 
 import timber.log.Timber;
 
-import static com.dimowner.audiorecorder.AppConstants.RECORD_ENCODING_BITRATE;
 import static com.dimowner.audiorecorder.AppConstants.RECORD_MAX_DURATION;
 import static com.dimowner.audiorecorder.AppConstants.VISUALIZATION_INTERVAL;
 
@@ -66,7 +65,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 	}
 
 	@Override
-	public void prepare(String outputFile, int channelCount, int sampleRate) {
+	public void prepare(String outputFile, int channelCount, int sampleRate, int bitrate) {
 		Timber.v("prepare file: %s", outputFile + " channelCount = " + channelCount);
 		recordFile = new File(outputFile);
 		if (recordFile.exists() && recordFile.isFile()) {
@@ -76,7 +75,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 			recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 			recorder.setAudioChannels(channelCount);
 			recorder.setAudioSamplingRate(sampleRate);
-			recorder.setAudioEncodingBitRate(RECORD_ENCODING_BITRATE);
+			recorder.setAudioEncodingBitRate(bitrate);
 			recorder.setMaxDuration(RECORD_MAX_DURATION);
 			recorder.setOutputFile(recordFile.getAbsolutePath());
 			try {

@@ -33,7 +33,7 @@ public interface RecorderContract {
 
 	interface Recorder {
 		void setRecorderCallback(RecorderCallback callback);
-		void prepare(String outputFile, int channelCount, int sampleRate);
+		void prepare(String outputFile, int channelCount, int sampleRate, int bitrate);
 		void startRecording();
 		void pauseRecording();
 		void stopRecording();

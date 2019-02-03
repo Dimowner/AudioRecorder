@@ -65,7 +65,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 	}
 
 	@Override
-	public void prepare(String outputFile, int channelCount, int sampleRate) {
+	public void prepare(String outputFile, int channelCount, int sampleRate, int bitrate) {
 		Timber.v("prepare file: %s", outputFile + " channelCount = " + channelCount);
 		this.sampleRate = sampleRate;
 //		this.framesPerVisInterval = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/sampleRate));

@@ -35,7 +35,7 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_THEME_COLORMAP_POSITION = "theme_color";
 	private static final String PREF_KEY_KEEP_SCREEN_ON = "keep_screen_on";
 	private static final String PREF_KEY_FORMAT = "pref_format";
-	private static final String PREF_KEY_QUALITY = "pref_quality";
+	private static final String PREF_KEY_BITRATE = "pref_bitrate";
 	private static final String PREF_KEY_SAMPLE_RATE = "pref_sample_rate";
 
 	//Recording prefs.
@@ -157,15 +157,15 @@ public class PrefsImpl implements Prefs {
 	}
 
 	@Override
-	public void setQuality(int q) {
+	public void setBitrate(int q) {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.putInt(PREF_KEY_QUALITY, q);
+		editor.putInt(PREF_KEY_BITRATE, q);
 		editor.apply();
 	}
 
 	@Override
-	public int getQuality() {
-		return sharedPreferences.getInt(PREF_KEY_QUALITY, AppConstants.RECORD_SAMPLE_RATE_44100);
+	public int getBitrate() {
+		return sharedPreferences.getInt(PREF_KEY_BITRATE, AppConstants.RECORD_ENCODING_BITRATE_48000);
 	}
 
 	@Override

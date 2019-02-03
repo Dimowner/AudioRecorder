@@ -11,7 +11,7 @@ public class SettingsContract {
 		void showKeepScreenOn(boolean b);
 		void showRecordInStereo(boolean b);
 
-		void showRecordingQuality(int quality);
+		void showRecordingBitrate(int bitrate);
 
 		void showRecordingSampleRate(int rate);
 
@@ -24,6 +24,9 @@ public class SettingsContract {
 		void showTotalRecordsDuration(String duration);
 		void showRecordsCount(int count);
 		void showAvailableSpace(String space);
+
+		void showBitrateSelector();
+		void hideBitrateSelector();
 	}
 
 	public interface UserActionsListener extends Contract.UserActionsListener<SettingsContract.View> {
@@ -36,7 +39,7 @@ public class SettingsContract {
 
 		void recordInStereo(boolean stereo);
 
-		void setRecordingQuality(int quality);
+		void setRecordingBitrate(int bitrate);
 
 		void setRecordingFormat(int format);
 
