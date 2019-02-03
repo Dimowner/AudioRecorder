@@ -43,7 +43,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 
 	private int sampleRate = AppConstants.RECORD_SAMPLE_RATE_44100;
 
-	private int framesPerVisInterval = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/sampleRate));
+//	private int framesPerVisInterval = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/sampleRate));
 
 	private RecorderContract.RecorderCallback recorderCallback;
 
@@ -68,7 +68,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 	public void prepare(String outputFile, int channelCount, int sampleRate) {
 		Timber.v("prepare file: %s", outputFile + " channelCount = " + channelCount);
 		this.sampleRate = sampleRate;
-		this.framesPerVisInterval = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/sampleRate));
+//		this.framesPerVisInterval = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/sampleRate));
 		this.channelCount = channelCount;
 		recordFile = new File(outputFile);
 		if (recordFile.exists() && recordFile.isFile()) {

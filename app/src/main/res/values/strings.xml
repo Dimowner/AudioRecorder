@@ -63,14 +63,14 @@
 
 	<string-array name="theme_colors">
 		<item>Theme Not selected</item>
-		<item>Theme Blue</item>
-		<item>Theme Brown</item>
-		<item>Theme Deep Orange</item>
-		<item>Theme Pink</item>
-		<item>Theme Deep Purple</item>
-		<item>Theme Red</item>
-		<item>Theme Teal</item>
 		<item>Theme Black</item>
+		<item>Theme Teal</item>
+		<item>Theme Blue</item>
+		<item>Theme Deep Purple</item>
+		<item>Theme Pink</item>
+		<item>Theme Deep Orange</item>
+		<item>Theme Red</item>
+		<item>Theme Brown</item>
 	</string-array>
 
 	<string-array name="formats">

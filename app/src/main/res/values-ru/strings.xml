@@ -63,14 +63,27 @@
 
 	<string-array name="theme_colors">
 		<item>Тама Не выбрано</item>
-		<item>Тема Голубая</item>
-		<item>Тема Коричневая</item>
-		<item>Тема Темно Оранжевая</item>
-		<item>Тема Розовая</item>
-		<item>Тема Темно Фиолетовая</item>
-		<item>Тема Красная</item>
-		<item>Тема Бирюзовая</item>
 		<item>Тема Черная</item>
+		<item>Тема Бирюзовая</item>
+		<item>Тема Голубая</item>
+		<item>Тема Темно Фиолетовая</item>
+		<item>Тема Розовая</item>
+		<item>Тема Темно Оранжевая</item>
+		<item>Тема Красная</item>
+		<item>Тема Коричневая</item>
+	</string-array>
+
+	<string-array name="formats">
+		<item>Формат записи: M4a</item>
+		<item>Формат записи: Wav</item>
+	</string-array>
+
+	<string-array name="sample_rates">
+		<item>Частота записи: 8000</item>
+		<item>Частота записи: 16000</item>
+		<item>Частота записи: 32000</item>
+		<item>Частота записи: 44100</item>
+		<item>Частота записи: 48000</item>
 	</string-array>
 
 </resources>
