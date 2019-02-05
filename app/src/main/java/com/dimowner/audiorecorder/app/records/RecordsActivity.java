@@ -83,6 +83,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private TextView txtDuration;
 	private TextView txtName;
 	private TextView txtEmpty;
+	private TextView txtTitle;
 	private TouchLayout touchLayout;
 	private WaveformView waveformView;
 	private ProgressBar panelProgress;
@@ -128,6 +129,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnBookmarks = findViewById(R.id.btn_bookmarks);
 		btnCheckBookmark = findViewById(R.id.btn_check_bookmark);
 		txtEmpty = findViewById(R.id.txtEmpty);
+		txtTitle = findViewById(R.id.txt_title);
 		btnPlay.setOnClickListener(this);
 		btnStop.setOnClickListener(this);
 		btnNext.setOnClickListener(this);
@@ -611,11 +613,13 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	@Override
 	public void bookmarksSelected() {
 		btnBookmarks.setImageResource(R.drawable.ic_bookmark);
+		txtTitle.setText(R.string.bookmarks);
 	}
 
 	@Override
 	public void bookmarksUnselected() {
 		btnBookmarks.setImageResource(R.drawable.ic_bookmark_bordered);
+		txtTitle.setText(R.string.records);
 	}
 
 	@Override
