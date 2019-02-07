@@ -8,7 +8,6 @@
 				  android:background="@color/md_blue_500">
 
 	<ImageButton
-			android:id="@+id/app_icon"
 			android:layout_width="@dimen/bottom_pnl_small_btn_size"
 			android:layout_height="@dimen/bottom_pnl_small_btn_size"
 			android:adjustViewBounds="true"

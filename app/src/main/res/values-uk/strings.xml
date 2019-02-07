@@ -4,7 +4,6 @@
 
 	<string name="records">Записи</string>
 	<string name="settings">Налаштування</string>
-	<string name="open_source_licences">Бібліотеки з відкритим кодом</string>
 	<string name="rate_app">Оцінити додаток</string>
 	<string name="store_records_public">Зберігати записи в публічному каталозі</string>
 	<string name="record_in_stereo">Записувати в Стерео</string>
@@ -40,7 +39,6 @@
 	<string name="today">Сьогодні</string>
 	<string name="yesterday">Вчора</string>
 
-	<string name="btn_ok">Добре</string>
 	<string name="btn_save">Зберегти</string>
 	<string name="btn_cancel">Відмінити</string>
 	<string name="btn_yes">Так</string>
@@ -63,8 +61,6 @@
 		Версія %s
 	]]></string>
 	<!--<a href="http://#/">Application site</a>-->
-
-	<string name="licences_description">Цей додаток використовує такі сторонні бібліотеки</string>
 
 	<string-array name="theme_colors">
 		<item>Тема Не вибрана</item>

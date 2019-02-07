@@ -79,7 +79,6 @@
 				android:orientation="horizontal">
 
 			<TextView
-					android:id="@+id/publicFiles"
 					style="@style/Text.NormalLabel"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
@@ -105,7 +104,6 @@
 				android:orientation="horizontal">
 
 			<TextView
-					android:id="@+id/txtKeepScreenOn"
 					style="@style/Text.NormalLabel"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
@@ -167,7 +165,6 @@
 				android:orientation="horizontal">
 
 			<TextView
-					android:id="@+id/txtRecordInStereo"
 					style="@style/Text.NormalLabel"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
@@ -211,19 +208,6 @@
 				android:background="?android:selectableItemBackground"
 				android:padding="@dimen/spacing_normal"
 				android:drawablePadding="@dimen/spacing_double"
-				/>
-
-		<TextView
-				android:id="@+id/btnLicences"
-				style="@style/Text.NormalLabel"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/open_source_licences"
-				android:drawableStart="@drawable/ic_dna"
-				android:background="?android:selectableItemBackground"
-				android:padding="@dimen/spacing_normal"
-				android:drawablePadding="@dimen/spacing_double"
-				android:visibility="gone"
 				/>
 
 		<TextView

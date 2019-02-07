@@ -40,12 +40,6 @@
 		<activity android:name="com.dimowner.audiorecorder.app.settings.SettingsActivity"
 					 android:screenOrientation="portrait"/>
 
-		<activity android:name=".app.licences.LicenceActivity"
-					 android:label="@string/open_source_licences"
-					 android:screenOrientation="portrait"/>
-		<activity android:name=".app.licences.LicenceDetail"
-					 android:screenOrientation="portrait"/>
-
 		<service android:name="com.dimowner.audiorecorder.app.RecordingService" />
 		<service android:name="com.dimowner.audiorecorder.app.PlaybackService" />
 

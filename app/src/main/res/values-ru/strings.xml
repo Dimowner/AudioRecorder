@@ -4,7 +4,6 @@
 
 	<string name="records">Записи</string>
 	<string name="settings">Настройки</string>
-	<string name="open_source_licences">Библиотеки с открытым исходным кодом</string>
 	<string name="rate_app">Оценить приложение</string>
 	<string name="store_records_public">Хранить записи в публичной директории</string>
 	<string name="record_in_stereo">Записывать в Стерео</string>
@@ -40,7 +39,6 @@
 	<string name="today">Сегодня</string>
 	<string name="yesterday">Вчера</string>
 
-	<string name="btn_ok">Хорошо</string>
 	<string name="btn_save">Сохранить</string>
 	<string name="btn_cancel">Отменить</string>
 	<string name="btn_yes">Да</string>
@@ -63,8 +61,6 @@
 		Версия %s
 	]]></string>
 	<!--<a href="http://#/">Application site</a>-->
-
-	<string name="licences_description">Это приложение использует следующие сторонние библиотеки</string>
 
 	<string-array name="theme_colors">
 		<item>Тама Не выбрано</item>

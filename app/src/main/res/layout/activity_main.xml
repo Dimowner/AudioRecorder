@@ -77,14 +77,12 @@
 			tools:visibility="visible">
 
 		<ProgressBar
-				android:id="@+id/import_progress"
 				style="?android:attr/progressBarStyleSmall"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="center"/>
 
 		<TextView
-				android:id="@+id/txt_import"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_marginStart="@dimen/spacing_small"
@@ -105,14 +103,12 @@
 			tools:visibility="visible">
 
 		<ProgressBar
-				android:id="@+id/progress_record_processing"
 				style="?android:attr/progressBarStyleSmall"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="center"/>
 
 		<TextView
-				android:id="@+id/txt_record_processing"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_marginStart="@dimen/spacing_small"
@@ -242,7 +238,6 @@
 			/>
 
 	<FrameLayout
-			android:id="@+id/control_panel"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginBottom="@dimen/spacing_small">

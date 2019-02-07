@@ -42,7 +42,6 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
-import com.dimowner.audiorecorder.app.licences.LicenceActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,14 +84,12 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 		ImageButton btnBack = findViewById(R.id.btn_back);
 		TextView btnDeleteAll = findViewById(R.id.btnDeleteAll);
-		TextView btnLicences = findViewById(R.id.btnLicences);
 		TextView btnRate = findViewById(R.id.btnRate);
 		TextView btnRequest = findViewById(R.id.btnRequest);
 		TextView txtAbout = findViewById(R.id.txtAbout);
 		txtAbout.setText(getAboutContent());
 		btnBack.setOnClickListener(this);
 		btnDeleteAll.setOnClickListener(this);
-		btnLicences.setOnClickListener(this);
 		btnRate.setOnClickListener(this);
 		btnRequest.setOnClickListener(this);
 		swPublicDir = findViewById(R.id.swPublicDir);
@@ -257,9 +254,6 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			case R.id.btn_back:
 				ARApplication.getInjector().releaseSettingsPresenter();
 				finish();
-				break;
-			case R.id.btnLicences:
-				startActivity(new Intent(getApplicationContext(), LicenceActivity.class));
 				break;
 			case R.id.btnRate:
 				rateApp();

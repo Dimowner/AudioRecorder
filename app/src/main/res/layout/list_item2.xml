@@ -36,7 +36,6 @@
 			android:layout_gravity="start"/>
 
 	<ImageView
-			android:id="@+id/list_item_image"
 			android:layout_width="64dp"
 			android:layout_height="64dp"
 			android:layout_gravity="center_vertical"
