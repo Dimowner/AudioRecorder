@@ -115,11 +115,13 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			appRecorderCallback = new AppRecorderCallback() {
 				@Override
 				public void onRecordingStarted() {
-					Timber.v("onStartRecord");
-					view.showRecordingStart();
-					view.keepScreenOn(prefs.isKeepScreenOn());
-					view.showName("");
-					view.startRecordingService();
+//					Timber.v("onStartRecord");
+					if (view != null) {
+						view.showRecordingStart();
+						view.keepScreenOn(prefs.isKeepScreenOn());
+						view.showName("");
+						view.startRecordingService();
+					}
 				}
 
 				@Override
@@ -129,14 +131,18 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 				@Override
 				public void onRecordProcessing() {
-					view.showProgress();
-					view.showRecordProcessing();
+					if (view != null) {
+						view.showProgress();
+						view.showRecordProcessing();
+					}
 				}
 
 				@Override
 				public void onRecordFinishProcessing() {
-					view.hideRecordProcessing();
-					loadActiveRecord();
+					if (view != null) {
+						view.hideRecordProcessing();
+						loadActiveRecord();
+					}
 				}
 
 				@Override
@@ -180,14 +186,16 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			playerCallback = new PlayerContract.PlayerCallback() {
 				@Override
 				public void onPreparePlay() {
-					Timber.d("onPreparePlay");
+//					Timber.d("onPreparePlay");
 				}
 
 				@Override
 				public void onStartPlay() {
-					Timber.d("onStartPlay");
-					view.showPlayStart(true);
-					view.startPlaybackService(record.getName());
+//					Timber.d("onStartPlay");
+					if (view != null) {
+						view.showPlayStart(true);
+						view.startPlaybackService(record.getName());
+					}
 				}
 
 				@Override
@@ -207,20 +215,22 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				public void onStopPlay() {
 					if (view != null) {
 						view.showPlayStop();
-						Timber.d("onStopPlay");
+//						Timber.d("onStopPlay");
 						view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
 					}
 				}
 
 				@Override
 				public void onPausePlay() {
-					view.showPlayPause();
-					Timber.d("onPausePlay");
+					if (view != null) {
+						view.showPlayPause();
+//						Timber.d("onPausePlay");
+					}
 				}
 
 				@Override
 				public void onSeek(long mills) {
-					Timber.d("onSeek = " + mills);
+//					Timber.d("onSeek = " + mills);
 				}
 
 				@Override
@@ -277,7 +287,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			try {
 				appRecorder.startRecording(fileRepository.provideRecordFile().getAbsolutePath());
 			} catch (CantCreateFileException e) {
-				view.showError(ErrorParser.parseException(e));
+				if (view != null) {
+					view.showError(ErrorParser.parseException(e));
+				}
 			}
 		} else {
 			appRecorder.pauseRecording();
@@ -324,10 +336,16 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	public void renameRecord(final long id, final String n) {
 		if (id < 0 || n == null || n.isEmpty()) {
 			AndroidUtils.runOnUIThread(new Runnable() {
-				@Override public void run() { view.showError(R.string.error_failed_to_rename); }});
+				@Override public void run() {
+					if (view != null) {
+						view.showError(R.string.error_failed_to_rename);
+					}
+				}});
 			return;
 		}
-		view.showProgress();
+		if (view != null) {
+			view.showProgress();
+		}
 		final String name = FileUtil.removeUnallowedSignsFromName(n);
 		loadingTasks.postRunnable(new Runnable() {
 			@Override public void run() {
@@ -339,7 +357,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 				if (renamed.exists()) {
 					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override public void run() { view.showError(R.string.error_file_exists); }});
+						@Override public void run() {
+							if (view != null) {
+								view.showError(R.string.error_file_exists);
+							}
+						}});
 				} else {
 					if (fileRepository.renameFile(r.getPath(), name)) {
 						record = new Record(r.getId(), nameWithExt, r.getDuration(), r.getCreated(),
@@ -348,8 +370,10 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						if (localRepository.updateRecord(record)) {
 							AndroidUtils.runOnUIThread(new Runnable() {
 								@Override public void run() {
-									view.hideProgress();
-									view.showName(name);
+									if (view != null) {
+										view.hideProgress();
+										view.showName(name);
+									}
 								}});
 						} else {
 							AndroidUtils.runOnUIThread(new Runnable() {
@@ -367,12 +391,18 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 					} else {
 						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override public void run() { view.showError(R.string.error_failed_to_rename); }});
+							@Override public void run() {
+								if (view != null) {
+									view.showError(R.string.error_failed_to_rename);
+								}
+							}});
 					}
 				}
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override public void run() {
-						view.hideProgress();
+						if (view != null) {
+							view.hideProgress();
+						}
 					}});
 			}});
 	}
@@ -401,14 +431,19 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						});
 						if (!record.isWaveformProcessed() && !isProcessing) {
 							try {
-								view.showRecordProcessing();
-								isProcessing = true;
-								localRepository.updateWaveform(record.getId());
-								AndroidUtils.runOnUIThread(new Runnable() {
-									@Override public void run() {
-										view.hideRecordProcessing();
-									}
-								});
+								if (view != null) {
+									view.showRecordProcessing();
+									isProcessing = true;
+									localRepository.updateWaveform(record.getId());
+									AndroidUtils.runOnUIThread(new Runnable() {
+										@Override
+										public void run() {
+											if (view != null) {
+												view.hideRecordProcessing();
+											}
+										}
+									});
+								}
 							} catch (IOException e) {
 								Timber.e(e);
 							}

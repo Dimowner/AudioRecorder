@@ -165,7 +165,7 @@ public class PrefsImpl implements Prefs {
 
 	@Override
 	public int getBitrate() {
-		return sharedPreferences.getInt(PREF_KEY_BITRATE, AppConstants.RECORD_ENCODING_BITRATE_48000);
+		return sharedPreferences.getInt(PREF_KEY_BITRATE, AppConstants.RECORD_ENCODING_BITRATE_128000);
 	}
 
 	@Override

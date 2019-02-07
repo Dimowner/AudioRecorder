@@ -109,9 +109,11 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 				@Override
 				public void onStartPlay() {
-					Timber.d("onStartPlay");
-					view.showPlayStart();
-					view.startPlaybackService();
+//					Timber.d("onStartPlay");
+					if (view != null) {
+						view.showPlayStart();
+						view.startPlaybackService();
+					}
 				}
 
 				@Override
@@ -133,18 +135,20 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 						view.showPlayStop();
 //						view.stopPlaybackService();
 					}
-					Timber.d("onStopPlay");
+//					Timber.d("onStopPlay");
 				}
 
 				@Override
 				public void onPausePlay() {
-					view.showPlayPause();
-					Timber.d("onPausePlay");
+					if (view != null) {
+						view.showPlayPause();
+					}
+//					Timber.d("onPausePlay");
 				}
 
 				@Override
 				public void onSeek(long mills) {
-					Timber.d("onSeek = " + mills);
+//					Timber.d("onSeek = " + mills);
 				}
 
 				@Override
@@ -158,8 +162,10 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		}
 		audioPlayer.addPlayerCallback(playerCallback);
 		if (audioPlayer.isPlaying()) {
-			view.showPlayerPanel();
-			view.showPlayStart();
+			if (view != null) {
+				view.showPlayerPanel();
+				view.showPlayStart();
+			}
 		}
 	}
 
@@ -232,7 +238,9 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override public void run() {
-						view.onDeleteRecord(id);
+						if (view != null) {
+							view.onDeleteRecord(id);
+						}
 					}});
 			}
 		});
@@ -242,7 +250,11 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	public void renameRecord(final long id, String n) {
 		if (id < 0 || n == null || n.isEmpty()) {
 			AndroidUtils.runOnUIThread(new Runnable() {
-				@Override public void run() { view.showError(R.string.error_failed_to_rename); }});
+				@Override public void run() {
+					if (view != null) {
+						view.showError(R.string.error_failed_to_rename);
+					}
+				}});
 			return;
 		}
 		view.showProgress();
@@ -257,7 +269,11 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 				if (renamed.exists()) {
 					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override public void run() { view.showError(R.string.error_file_exists); }});
+						@Override public void run() {
+							if (view != null) {
+								view.showError(R.string.error_file_exists);
+							}
+						}});
 				} else {
 					if (fileRepository.renameFile(r.getPath(), name)) {
 						record = new Record(r.getId(), nameWithExt, r.getDuration(), r.getCreated(),
@@ -266,12 +282,18 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 						if (localRepository.updateRecord(record)) {
 							AndroidUtils.runOnUIThread(new Runnable() {
 								@Override public void run() {
-									view.hideProgress();
-									view.showRecordName(name);
+									if (view != null) {
+										view.hideProgress();
+										view.showRecordName(name);
+									}
 								}});
 						} else {
 							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override public void run() { view.showError(R.string.error_failed_to_rename); }});
+								@Override public void run() {
+									if (view != null) {
+										view.showError(R.string.error_failed_to_rename);
+									}
+								}});
 							//Restore file name after fail update path in local database.
 							if (renamed.exists()) {
 								//Try to rename 3 times;
@@ -285,12 +307,18 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 					} else {
 						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override public void run() { view.showError(R.string.error_failed_to_rename); }});
+							@Override public void run() {
+								if (view != null) {
+									view.showError(R.string.error_failed_to_rename);
+								}
+							}});
 					}
 				}
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override public void run() {
-						view.hideProgress();
+						if (view != null) {
+							view.hideProgress();
+						}
 					}});
 			}});
 	}
@@ -458,7 +486,9 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		if (id >= 0 && !appRecorder.isRecording()) {
 //			view.showProgress();
 			prefs.setActiveRecord(id);
-			view.showPanelProgress();
+			if (view != null) {
+				view.showPanelProgress();
+			}
 			loadingTasks.postRunnable(new Runnable() {
 				@Override
 				public void run() {
@@ -468,17 +498,19 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override
 							public void run() {
-								view.showWaveForm(record.getAmps(), record.getDuration());
-								view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
-								view.showRecordName(FileUtil.removeFileExtension(record.getName()));
-								callback.onSuccess();
-								if (record.isBookmarked()) {
-									view.addedToBookmarks(record.getId(), true);
-								} else {
-									view.removedFromBookmarks(record.getId(), true);
+								if (view != null) {
+									view.showWaveForm(record.getAmps(), record.getDuration());
+									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
+									view.showRecordName(FileUtil.removeFileExtension(record.getName()));
+									callback.onSuccess();
+									if (record.isBookmarked()) {
+										view.addedToBookmarks(record.getId(), true);
+									} else {
+										view.removedFromBookmarks(record.getId(), true);
+									}
+									view.hidePanelProgress();
+									view.showPlayerPanel();
 								}
-								view.hidePanelProgress();
-								view.showPlayerPanel();
 							}
 						});
 					} else {
@@ -486,7 +518,9 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 							@Override
 							public void run() {
 								callback.onError(new Exception("Record is NULL!"));
-								view.hidePanelProgress();
+								if (view != null) {
+									view.hidePanelProgress();
+								}
 							}
 						});
 					}

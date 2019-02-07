@@ -33,7 +33,9 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 
 	@Override
 	public void loadSettings() {
-		view.showProgress();
+		if (view != null) {
+			view.showProgress();
+		}
 		loadingTasks.postRunnable(new Runnable() {
 			@Override
 			public void run() {
@@ -45,23 +47,27 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 				final long finalTotalDuration = totalDuration;
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override public void run() {
-						view.showTotalRecordsDuration(TimeUtils.formatTimeIntervalHourMinSec(finalTotalDuration / 1000));
-						view.showRecordsCount(durations.size());
-						updateAvailableSpace();
-						view.hideProgress();
+						if (view != null) {
+							view.showTotalRecordsDuration(TimeUtils.formatTimeIntervalHourMinSec(finalTotalDuration / 1000));
+							view.showRecordsCount(durations.size());
+							updateAvailableSpace();
+							view.hideProgress();
+						}
 					}
 				});
 			}
 		});
-		view.showStoreInPublicDir(prefs.isStoreDirPublic());
-		view.showRecordInStereo(prefs.getRecordChannelCount() == AppConstants.RECORD_AUDIO_STEREO);
-		view.showKeepScreenOn(prefs.isKeepScreenOn());
-		int format = prefs.getFormat();
-		view.showRecordingFormat(format);
-		if (format == AppConstants.RECORDING_FORMAT_WAV) {
-			view.hideBitrateSelector();
-		} else {
-			view.showBitrateSelector();
+		if (view != null) {
+			view.showStoreInPublicDir(prefs.isStoreDirPublic());
+			view.showRecordInStereo(prefs.getRecordChannelCount() == AppConstants.RECORD_AUDIO_STEREO);
+			view.showKeepScreenOn(prefs.isKeepScreenOn());
+			int format = prefs.getFormat();
+			view.showRecordingFormat(format);
+			if (format == AppConstants.RECORDING_FORMAT_WAV) {
+				view.hideBitrateSelector();
+			} else {
+				view.showBitrateSelector();
+			}
 		}
 
 
@@ -83,7 +89,9 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 			default:
 				pos = 3;
 		}
-		view.showRecordingSampleRate(pos);
+		if (view != null) {
+			view.showRecordingSampleRate(pos);
+		}
 
 		switch (prefs.getBitrate()) {
 			case AppConstants.RECORD_ENCODING_BITRATE_48000:
@@ -100,7 +108,9 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 				pos = 3;
 				break;
 		}
-		view.showRecordingBitrate(pos);
+		if (view != null) {
+			view.showRecordingBitrate(pos);
+		}
 	}
 
 	@Override
@@ -230,7 +240,9 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	private void updateAvailableSpace() {
 		final long space = FileUtil.getFree(fileRepository.getRecordingDir());
 		final long time = spaceToTimeSecs(space, prefs.getFormat(), prefs.getSampleRate(), prefs.getRecordChannelCount());
-		view.showAvailableSpace(TimeUtils.formatTimeIntervalHourMinSec(time));
+		if (view != null) {
+			view.showAvailableSpace(TimeUtils.formatTimeIntervalHourMinSec(time));
+		}
 	}
 
 	private long spaceToTimeSecs(long spaceBytes, int format, int sampleRate, int channels) {
