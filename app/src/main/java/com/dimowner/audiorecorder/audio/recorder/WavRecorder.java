@@ -105,19 +105,26 @@ public class WavRecorder implements RecorderContract.Recorder {
 	@Override
 	public void startRecording() {
 		if (recorder != null && recorder.getState() == AudioRecord.STATE_INITIALIZED) {
-			recorder.startRecording();
-			isRecording = true;
-			recordingThread = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					writeAudioDataToFile();
-				}
-			}, "AudioRecorder Thread");
+			try {
+				recorder.startRecording();
+				isRecording = true;
+				recordingThread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						writeAudioDataToFile();
+					}
+				}, "AudioRecorder Thread");
 
-			recordingThread.start();
-			startRecordingTimer();
-			if (recorderCallback != null) {
-				recorderCallback.onStartRecord();
+				recordingThread.start();
+				startRecordingTimer();
+				if (recorderCallback != null) {
+					recorderCallback.onStartRecord();
+				}
+			} catch (IllegalStateException e) {
+				Timber.e(e, "startRecording() failed");
+				if (recorderCallback != null) {
+					recorderCallback.onError(new RecorderInitException());
+				}
 			}
 		}
 	}
@@ -133,7 +140,11 @@ public class WavRecorder implements RecorderContract.Recorder {
 			isRecording = false;
 			stopRecordingTimer();
 			if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
-				recorder.stop();
+				try {
+					recorder.stop();
+				} catch (IllegalStateException e) {
+					Timber.e(e, "stopRecording() problems");
+				}
 			}
 			recorder.release();
 //			recorder = null;
@@ -184,7 +195,6 @@ public class WavRecorder implements RecorderContract.Recorder {
 				Timber.e(e);
 			}
 			setWaveFileHeader(recordFile, channelCount);
-			chunksCount = 0;
 		}
 	}
 

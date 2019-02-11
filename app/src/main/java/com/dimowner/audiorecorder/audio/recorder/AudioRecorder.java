@@ -84,7 +84,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 				if (recorderCallback != null) {
 					recorderCallback.onPrepareRecord();
 				}
-			} catch (IOException e) {
+			} catch (IOException | IllegalStateException e) {
 				Timber.e(e, "prepare() failed");
 				if (recorderCallback != null) {
 					recorderCallback.onError(new RecorderInitException());
@@ -101,11 +101,18 @@ public class AudioRecorder implements RecorderContract.Recorder {
 	public void startRecording() {
 		Timber.v("startRecording");
 		if (isPrepared) {
-			recorder.start();
-			isRecording = true;
-			startRecordingTimer();
-			if (recorderCallback != null) {
-				recorderCallback.onStartRecord();
+			try {
+				recorder.start();
+				isRecording = true;
+				startRecordingTimer();
+				if (recorderCallback != null) {
+					recorderCallback.onStartRecord();
+				}
+			} catch (IllegalStateException e) {
+				Timber.e(e, "startRecording() failed");
+				if (recorderCallback != null) {
+					recorderCallback.onError(new RecorderInitException());
+				}
 			}
 		} else {
 			Timber.e("Recorder is not prepared!!!");
@@ -126,7 +133,11 @@ public class AudioRecorder implements RecorderContract.Recorder {
 		Timber.v("stopRecording");
 		if (isRecording) {
 			stopRecordingTimer();
-			recorder.stop();
+			try {
+				recorder.stop();
+			} catch (IllegalStateException e) {
+				Timber.e(e, "stopRecording() problems");
+			}
 			recorder.release();
 			if (recorderCallback != null) {
 				recorderCallback.onStopRecord(recordFile);
