@@ -6,6 +6,8 @@
 <p><b>Audio recorder (Voice recorder, Sound recorder)</b> - an application makes an easy audio recording experience. 
 App optimized for the fastest start as possible and helps not to miss important sound for the user.</p>
 
+<a href='https://play.google.com/store/apps/details?id=com.dimowner.audiorecorder' target='_blank'><img height='80' style='border:0px;height:80px;' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' border='0' alt='GooglePlay Link' /></a>
+
 <b>There are available two recording formats:</b>
  - Advanced Audio Coding (AAC)
  - Waveform Audio File Format (WAVE, or WAV)
@@ -14,8 +16,6 @@ In settings, select sample rate, bitrate (for AAC only) and stereo or mono.
 Selected preferences directly affect on record file size.
 
 With colorful themes, customize app looking, and make the experience better.
-
-<a href='https://play.google.com/store/apps/details?id=com.dimowner.audiorecorder' target='_blank'><img height='80' style='border:0px;height:80px;' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' border='0' alt='GooglePlay Link' /></a>
 
 <b>Features:</b>
 - Recording audio
