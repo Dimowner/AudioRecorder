@@ -1,32 +1,41 @@
+
+![Audio Recorder Logo](https://github.com/Dimowner/AudioRecorder/blob/master/app/src/releaseConfig/res/mipmap-xxxhdpi/audio_recorder_logo.png)
+
 # Audio Recorder
-<p>Audio Recorder application</p>
-<p>This application shows how small can be Android app. Apk file about ~370kb size.</br>
-About 140kb takes the RecyclerView and NotificationCompat, about 100kb takes the Fabric.io analytics. The rest 130kb is the app source code.</br>
-Apk size can be optimized to 130kb if replace RecyclerView by ListView and remove Fabric.io analytics.</p>
+
+<p><b>Audio recorder (Voice recorder, Sound recorder)</b> - an application makes an easy audio recording experience. 
+App optimized for the fastest start as possible and helps not to miss important sound for the user.</p>
+
+<b>There are available two recording formats:</b>
+ - Advanced Audio Coding (AAC)
+ - Waveform Audio File Format (WAVE, or WAV)
+
+In settings, select sample rate, bitrate (for AAC only) and stereo or mono.
+Selected preferences directly affect on record file size.
+
+With colorful themes, customize app looking, and make the experience better.
 
 <a href='https://play.google.com/store/apps/details?id=com.dimowner.audiorecorder' target='_blank'><img height='80' style='border:0px;height:80px;' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' border='0' alt='GooglePlay Link' /></a>
 
-Very fast and lightweight Audio Recorder application
-
-Features:
+<b>Features:</b>
 - Recording audio
 - Playback records
+- Select recording format AAC or WAV
+- Set sample rate and bitrate
 - Record and Playback in background
 - Display record waveform
 - Rename record
 - Share record
 - Import audio files
 - Records list
-- Add selected record to bookmarks
+- Add the selected record to bookmarks
 - Delete all records from settings
 - Colored themes
-
-![Audio Recorder Logo](https://github.com/Dimowner/AudioRecorder/blob/master/app/src/releaseConfig/res/mipmap-xxxhdpi/audio_recorder_logo.png)
 
 ### License
 
 ```
-Copyright 2018 Dmitriy Ponomarenko
+Copyright 2019 Dmitriy Ponomarenko
 
 Licensed to the Apache Software Foundation (ASF) under one or more contributor
 license agreements. See the NOTICE file distributed with this work for
