@@ -67,22 +67,15 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
-// TODO: Settings select Record quality
 // TODO: Fix WaveForm blinking when seek
-
-// TODO: Fix waveform adjustment
-// TODO: Add db flag that shows that audio record was processed.
 // TODO: Show Record info
 // TODO: Ability to delete record by swipe left
 // TODO: Ability to scroll up from the bottom of the list
 // TODO: Ability to search by record name in list
-// TODO: Add ViewPager to swipe to Settings or Records list
 // TODO: Add pagination for records list
 // TODO: Welcome screen
 // TODO: Guidelines
 // TODO: Check how work max recording duration
-// TODO: Move into 1 class same logic for Recording and Playback services
-
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
