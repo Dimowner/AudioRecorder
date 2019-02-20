@@ -62,7 +62,6 @@ public class PlaybackService extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {
-//		throw new UnsupportedOperationException("Not yet implemented");
 		return new PlaybackBinder();
 	}
 
@@ -85,27 +84,21 @@ public class PlaybackService extends Service {
 			if (action != null && !action.isEmpty()) {
 				switch (action) {
 					case ACTION_START_PLAYBACK_SERVICE:
-						Timber.v("ACTION_START_PLAYBACK_SERVICE");
 						startForegroundService();
 						break;
 					case ACTION_STOP_PLAYBACK_SERVICE:
-						Timber.v("ACTION_STOP_PLAYBACK_SERVICE");
 						stopForegroundService();
 						break;
 					case ACTION_PAUSE_PLAYBACK:
-						Timber.v("ACTION_PAUSE_PLAYBACK");
 						audioPlayer.playOrPause();
 						break;
 					case ACTION_CLOSE:
-						Timber.v("ACTION_CLOSE");
 						audioPlayer.stop();
 						stopForegroundService();
 						break;
 					case ACTION_PLAY_NEXT:
-						Timber.v("ACTION_PLAY_NEXT");
 						break;
 					case ACTION_PLAY_PREV:
-						Timber.v("ACTION_PLAY_PREV");
 						if (audioPlayer.isPlaying()) {
 							audioPlayer.pause();
 						}
@@ -154,18 +147,12 @@ public class PlaybackService extends Service {
 		remoteViewsSmall = new RemoteViews(getPackageName(), R.layout.layout_play_notification_small);
 		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_pause, getPendingSelfIntent(getApplicationContext(), ACTION_PAUSE_PLAYBACK));
 		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_close, getPendingSelfIntent(getApplicationContext(), ACTION_CLOSE));
-//		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_next, getPendingSelfIntent(getApplicationContext(), ACTION_PLAY_NEXT));
-//		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_prev, getPendingSelfIntent(getApplicationContext(), ACTION_PLAY_PREV));
-//		remoteViewsSmall.setTextViewText(R.id.txt_playback_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
 		remoteViewsSmall.setTextViewText(R.id.txt_name, FileUtil.removeFileExtension(recordName));
 		remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
 		remoteViewsBig = new RemoteViews(getPackageName(), R.layout.layout_play_notification_big);
 		remoteViewsBig.setOnClickPendingIntent(R.id.btn_pause, getPendingSelfIntent(getApplicationContext(), ACTION_PAUSE_PLAYBACK));
 		remoteViewsBig.setOnClickPendingIntent(R.id.btn_close, getPendingSelfIntent(getApplicationContext(), ACTION_CLOSE));
-//		remoteViewsBig.setOnClickPendingIntent(R.id.btn_next, getPendingSelfIntent(getApplicationContext(), ACTION_PLAY_NEXT));
-//		remoteViewsBig.setOnClickPendingIntent(R.id.btn_prev, getPendingSelfIntent(getApplicationContext(), ACTION_PLAY_PREV));
-//		remoteViewsBig.setTextViewText(R.id.txt_playback_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
 		remoteViewsBig.setTextViewText(R.id.txt_name, FileUtil.removeFileExtension(recordName));
 		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
@@ -195,7 +182,6 @@ public class PlaybackService extends Service {
 
 	public void stopForegroundService() {
 		audioPlayer.removePlayerCallback(playerCallback);
-//		audioPlayer = null;
 		stopForeground(true);
 		stopSelf();
 	}
@@ -210,7 +196,6 @@ public class PlaybackService extends Service {
 	private String createNotificationChannel(String channelId, String channelName) {
 		NotificationChannel channel = notificationManager.getNotificationChannel(channelId);
 		if (channel == null) {
-			Timber.v("Create notification channel: " + CHANNEL_ID);
 			NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
 			chan.setLightColor(Color.BLUE);
 			chan.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
@@ -226,23 +211,20 @@ public class PlaybackService extends Service {
 	}
 
 	public void onPausePlayback() {
-		Timber.v("onPausePlayback");
 		if (remoteViewsBig != null && remoteViewsSmall != null) {
-//		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 			remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_play);
 			remoteViewsSmall.setImageViewResource(R.id.btn_pause, R.drawable.ic_play);
 			builder.setOngoing(false);
-			notificationManager.notify(NOTIF_ID, builder.build());
+			notificationManager.notify(NOTIF_ID, notification);
 		}
 	}
 
 	public void onStartPlayback() {
-		Timber.v("onStartPlayback");
 		if (remoteViewsBig != null && remoteViewsSmall != null) {
 			remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_pause);
 			remoteViewsSmall.setImageViewResource(R.id.btn_pause, R.drawable.ic_pause);
 			builder.setOngoing(true);
-			notificationManager.notify(NOTIF_ID, builder.build());
+			notificationManager.notify(NOTIF_ID, notification);
 		}
 	}
 

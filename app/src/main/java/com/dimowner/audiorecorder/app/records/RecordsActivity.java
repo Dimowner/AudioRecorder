@@ -178,7 +178,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		recyclerView.setHasFixedSize(true);
 		layoutManager = new LinearLayoutManager(getApplicationContext());
 		recyclerView.setLayoutManager(layoutManager);
-//		recyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
 
 		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
@@ -196,9 +195,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 							@Override public void onAnimationRepeat(Animator animation) { }
 						});
 					}
-//					else {
-//						AnimationUtil.viewElevationAnimation(toolbar, getResources().getDimension(R.dimen.toolbar_elevation));
-//					}
 				}
 				if (adapter.getItemCount() < 5 || isListOnBottom()) {
 					bottomDivider.setVisibility(View.GONE);
@@ -223,7 +219,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 						Timber.e(e);
 					}
 				});
-//				showPlayerPanel();
 			}
 		});
 		adapter.setOnAddToBookmarkListener(new RecordsAdapter.OnAddToBookmarkListener() {
@@ -290,19 +285,18 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	@Override
 	public void startPlaybackService() {
 		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
-//		intent.setAction(PlaybackService.ACTION_START_PLAYBACK_SERVICE);
-//		intent.putExtra(PlaybackService.EXTRAS_KEY_RECORD_NAME, presenter.getRecordName());
 		startService(intent);
 		serviceConnection = new ServiceConnection() {
-			@Override public void onServiceConnected(ComponentName n, IBinder service) {
-				Timber.v("onServiceConnected nam: %s", n);
+			@Override
+			public void onServiceConnected(ComponentName n, IBinder service) {
 				PlaybackService.PlaybackBinder pb = (PlaybackService.PlaybackBinder) service;
 				playbackService = pb.getService();
 				playbackService.startForeground(presenter.getRecordName());
 				isBound = true;
 			}
-			@Override public void onServiceDisconnected(ComponentName n) {
-				Timber.v("onServiceDisconnected name: %s", n);
+
+			@Override
+			public void onServiceDisconnected(ComponentName n) {
 				isBound = false;
 			}
 		};
@@ -312,10 +306,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	public void stopPlaybackService() {
-		Timber.v("stopPlaybackService");
-//		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
-//		intent.setAction(PlaybackService.ACTION_STOP_PLAYBACK_SERVICE);
-//		startService(intent);
 		if (isBound && serviceConnection != null) {
 			unbindService(serviceConnection);
 			isBound = false;
@@ -333,7 +323,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 						@Override public void onAnimationStart(Animator animation) { }
 						@Override public void onAnimationEnd(Animator animation) {
 							touchLayout.setVisibility(View.GONE);
-//							recyclerView.smoothScrollBy(0, -touchLayout.getHeight());
 							animator.setListener(null);
 						}
 						@Override public void onAnimationCancel(Animator animation) { }
@@ -536,7 +525,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-//				Timber.v("onPlayProgress: " + px);
 				waveformView.setPlayback(px);
 				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 				playProgress.setProgress(percent);

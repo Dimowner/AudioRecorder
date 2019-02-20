@@ -108,7 +108,6 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 				@Override
 				public void onStartPlay() {
-//					Timber.d("onStartPlay");
 					if (view != null) {
 						view.showPlayStart();
 						view.startPlaybackService();
@@ -132,9 +131,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				public void onStopPlay() {
 					if (view != null) {
 						view.showPlayStop();
-//						view.stopPlaybackService();
 					}
-//					Timber.d("onStopPlay");
 				}
 
 				@Override
@@ -142,12 +139,10 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 					if (view != null) {
 						view.showPlayPause();
 					}
-//					Timber.d("onPausePlay");
 				}
 
 				@Override
 				public void onSeek(long mills) {
-//					Timber.d("onSeek = " + mills);
 				}
 
 				@Override
@@ -182,8 +177,6 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		if (view != null) {
 			unbindView();
 		}
-//		audioPlayer.release();
-//		loadingTasks.close();
 	}
 
 	@Override
@@ -217,12 +210,10 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	@Override
 	public void playNext() {
-
 	}
 
 	@Override
 	public void playPrev() {
-
 	}
 
 	@Override
@@ -484,7 +475,6 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	@Override
 	public void setActiveRecord(final long id, final RecordsContract.Callback callback) {
 		if (id >= 0 && !appRecorder.isRecording()) {
-//			view.showProgress();
 			prefs.setActiveRecord(id);
 			if (view != null) {
 				view.showPanelProgress();
@@ -545,7 +535,6 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	@Override
 	public String getRecordName() {
-		Timber.v("getRecordName");
 		if (record != null) {
 			return record.getName();
 		} else {

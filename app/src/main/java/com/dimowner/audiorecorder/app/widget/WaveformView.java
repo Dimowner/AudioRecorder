@@ -36,8 +36,6 @@ import com.dimowner.audiorecorder.util.TimeUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import timber.log.Timber;
-
 public class WaveformView extends View {
 
 	private static final int DEFAULT_PIXEL_PER_SECOND = (int) AndroidUtils.dpToPx(AppConstants.SHORT_RECORD_DP_PER_SECOND);
@@ -119,10 +117,6 @@ public class WaveformView extends View {
 		scrubberPaint.setStrokeWidth(AndroidUtils.dpToPx(2));
 		scrubberPaint.setColor(context.getResources().getColor(R.color.md_yellow_A700));
 
-//		selectPaint = new Paint();
-//		selectPaint.setStyle(Paint.Style.FILL);
-//		selectPaint.setColor(context.getResources().getColor(R.color.text_disabled_light));
-
 		gridPaint = new Paint();
 		gridPaint.setColor(context.getResources().getColor(R.color.md_grey_100));
 		gridPaint.setStrokeWidth(AndroidUtils.dpToPx(1)/2);
@@ -163,13 +157,10 @@ public class WaveformView extends View {
 				if (!showRecording) {
 					switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
 						case MotionEvent.ACTION_DOWN:
-							Timber.v("DOWN");
 							readPlayProgress = false;
 							startX = motionEvent.getX();
 							break;
 						case MotionEvent.ACTION_MOVE:
-//						Timber.v("MOVE: screenShift = " + screenShift + " waveShift = " + waveformShift + " x = " + motionEvent.getX()
-//								+ " start = " + startX + " length px = " + AndroidUtils.dpToPx(waveformData.length));
 							int shift = (int) (prevScreenShift + (motionEvent.getX()) - startX);
 							//Right waveform move edge
 							if (shift <= -AndroidUtils.dpToPx(waveformData.length)) {
@@ -187,7 +178,6 @@ public class WaveformView extends View {
 							invalidate();
 							break;
 						case MotionEvent.ACTION_UP:
-							Timber.v("UP");
 							if (onSeekListener != null) {
 								onSeekListener.onSeek(-screenShift);
 							}
@@ -205,10 +195,8 @@ public class WaveformView extends View {
 	public void setPlayback(long px) {
 		if (readPlayProgress) {
 			playProgressPx = px;
-//			Timber.v("setPlayback px: " + playProgressPx + " shift = " + waveformShift + " screenShift: " + screenShift);
 			updateShifts((int)-playProgressPx);
 			prevScreenShift = screenShift;
-//			Timber.v("setPlayback new shift = " + screenShift + " waveShift = " + waveformShift);
 			invalidate();
 		}
 	}
@@ -218,7 +206,6 @@ public class WaveformView extends View {
 	 * @param mills time interval.
 	 */
 	public void rewindMills(long mills) {
-		Timber.v("rewindMills mills: " + mills);
 		playProgressPx += AndroidUtils.convertMillsToPx(mills, pxPerSecond);
 		updateShifts((int)-playProgressPx);
 		prevScreenShift = screenShift;
@@ -233,7 +220,6 @@ public class WaveformView extends View {
 	 * @param px value.
 	 */
 	public void seekPx(int px) {
-		Timber.v("seekPx px: " + px);
 		playProgressPx = px;
 		updateShifts((int)-playProgressPx);
 		prevScreenShift = screenShift;
@@ -355,7 +341,6 @@ public class WaveformView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-//		Timber.v("DRAW: screenShift" + screenShift + " waveShift = " + waveformShift + " start = " + startX + " length = " + waveformData.length);
 		if (waveformData == null && recordingData.size() == 0) {
 			return;
 		}

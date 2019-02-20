@@ -55,9 +55,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 		return RecorderSingletonHolder.getSingleton();
 	}
 
-//	public void setActionsListener(RecorderContract.RecorderCallback recorderCallback) {
-//		this.recorderCallback = recorderCallback;
-//	}
+	private AudioRecorder() { }
 
 	@Override
 	public void setRecorderCallback(RecorderContract.RecorderCallback callback) {
@@ -66,7 +64,6 @@ public class AudioRecorder implements RecorderContract.Recorder {
 
 	@Override
 	public void prepare(String outputFile, int channelCount, int sampleRate, int bitrate) {
-		Timber.v("prepare file: %s", outputFile + " channelCount = " + channelCount);
 		recordFile = new File(outputFile);
 		if (recordFile.exists() && recordFile.isFile()) {
 			recorder = new MediaRecorder();
@@ -99,7 +96,6 @@ public class AudioRecorder implements RecorderContract.Recorder {
 
 	@Override
 	public void startRecording() {
-		Timber.v("startRecording");
 		if (isPrepared) {
 			try {
 				recorder.start();
@@ -130,7 +126,6 @@ public class AudioRecorder implements RecorderContract.Recorder {
 
 	@Override
 	public void stopRecording() {
-		Timber.v("stopRecording");
 		if (isRecording) {
 			stopRecordingTimer();
 			try {

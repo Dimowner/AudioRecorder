@@ -88,15 +88,12 @@ public class RecordingService extends Service {
 			if (action != null && !action.isEmpty()) {
 				switch (action) {
 					case ACTION_START_RECORDING_SERVICE:
-						Timber.v("ACTION_START_RECORDING_SERVICE");
 						startForegroundService();
 						break;
 					case ACTION_STOP_RECORDING_SERVICE:
-						Timber.v("ACTION_STOP_RECORDING_SERVICE");
 						stopForegroundService();
 						break;
 					case ACTION_STOP_RECORDING:
-						Timber.v("ACTION_STOP_RECORDING");
 						appRecorder.stopRecording();
 						stopForegroundService();
 						break;

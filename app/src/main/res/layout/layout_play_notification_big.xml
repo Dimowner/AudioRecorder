@@ -44,27 +44,7 @@
 				android:textSize="@dimen/text_xmedium"
 				tools:text="Record-15"/>
 
-		<!--<TextView-->
-				<!--android:id="@+id/txt_playback_progress"-->
-				<!--android:layout_width="wrap_content"-->
-				<!--android:layout_height="wrap_content"-->
-				<!--android:textSize="@dimen/text_medium"-->
-				<!--android:textColor="@color/text_secondary_light"-->
-				<!--android:layout_marginBottom="@dimen/spacing_normal"-->
-				<!--tools:text="Playback: 00:01:24"/>-->
 	</LinearLayout>
-
-	<!--<ImageButton-->
-			<!--android:id="@+id/btn_prev"-->
-			<!--android:layout_width="@dimen/bottom_pnl_small_btn_size"-->
-			<!--android:layout_height="match_parent"-->
-			<!--android:adjustViewBounds="true"-->
-			<!--android:background="?android:selectableItemBackgroundBorderless"-->
-			<!--android:contentDescription="@null"-->
-			<!--android:padding="@dimen/spacing_normal"-->
-			<!--android:layout_gravity="center_vertical"-->
-			<!--android:scaleType="center"-->
-			<!--android:src="@drawable/ic_skip_previous"/>-->
 
 	<ImageButton
 			android:id="@+id/btn_pause"
@@ -89,17 +69,5 @@
 			android:layout_gravity="center_vertical"
 			android:scaleType="center"
 			android:src="@drawable/ic_round_close"/>
-
-	<!--<ImageButton-->
-			<!--android:id="@+id/btn_next"-->
-			<!--android:layout_width="@dimen/bottom_pnl_small_btn_size"-->
-			<!--android:layout_height="match_parent"-->
-			<!--android:adjustViewBounds="true"-->
-			<!--android:background="?android:selectableItemBackgroundBorderless"-->
-			<!--android:contentDescription="@null"-->
-			<!--android:padding="@dimen/spacing_normal"-->
-			<!--android:layout_gravity="center_vertical"-->
-			<!--android:scaleType="center"-->
-			<!--android:src="@drawable/ic_skip_next"/>-->
 
 </LinearLayout>

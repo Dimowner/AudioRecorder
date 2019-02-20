@@ -12,13 +12,13 @@ import com.dimowner.audiorecorder.R;
 
 import java.util.List;
 
-public class ThemeColorAdapter extends ArrayAdapter<ThemeColorAdapter.ThemeItem> {
+public class AppSpinnerAdapter extends ArrayAdapter<AppSpinnerAdapter.ThemeItem> {
 
 	private LayoutInflater inflater;
 	private List<ThemeItem> data;
 	private int iconRes;
 
-	ThemeColorAdapter(Activity context, int res, int txtRes, List<ThemeItem> items, int iconRes){
+	AppSpinnerAdapter(Activity context, int res, int txtRes, List<ThemeItem> items, int iconRes){
 
 		super(context, res, txtRes, items);
 		this.inflater = context.getLayoutInflater();

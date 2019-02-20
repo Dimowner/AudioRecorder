@@ -22,7 +22,6 @@ import android.media.MediaPlayer;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.exception.PlayerDataSourceException;
-import com.dimowner.audiorecorder.util.AndroidUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,11 +53,7 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 		return SingletonHolder.getSingleton();
 	}
 
-//	public AudioPlayer() {}
-//
-//	public AudioPlayer(PlayerContract.PlayerCallback playerCallback) {
-//		this.actionsListeners.add(playerCallback);
-//	}
+	private AudioPlayer() {}
 
 	@Override
 	public void addPlayerCallback(PlayerContract.PlayerCallback callback) {
@@ -108,48 +103,39 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 			if (mediaPlayer.isPlaying()) {
 				pause();
 			} else {
-//				try {
-					if (!isPrepared) {
-						try {
-							mediaPlayer.setOnPreparedListener(this);
-							mediaPlayer.prepareAsync();
-//						onPreparePlay();
-//						isPrepared = true;
-						} catch (IllegalStateException ex) {
-							Timber.e(ex);
-							restartPlayer();
-							mediaPlayer.setOnPreparedListener(this);
-							mediaPlayer.prepareAsync();
-						}
-					} else {
-
-						mediaPlayer.start();
-						mediaPlayer.seekTo((int) seekPos);
-						onStartPlay();
-						mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-							@Override
-							public void onCompletion(MediaPlayer mp) {
-								stop();
-								onStopPlay();
-							}
-						});
-
-						timerProgress = new Timer();
-						timerProgress.schedule(new TimerTask() {
-							@Override
-							public void run() {
-								if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-									int curPos = mediaPlayer.getCurrentPosition();
-//								Timber.v( "CurPos = " + curPos);
-									onPlayProgress(curPos);
-								}
-							}
-						}, 0, AppConstants.VISUALIZATION_INTERVAL);
+				if (!isPrepared) {
+					try {
+						mediaPlayer.setOnPreparedListener(this);
+						mediaPlayer.prepareAsync();
+					} catch (IllegalStateException ex) {
+						Timber.e(ex);
+						restartPlayer();
+						mediaPlayer.setOnPreparedListener(this);
+						mediaPlayer.prepareAsync();
 					}
-//				} catch (IOException e) {
-//					Timber.e(e);
-//					onError(new PlayerInitException());
-//				}
+				} else {
+					mediaPlayer.start();
+					mediaPlayer.seekTo((int) seekPos);
+					onStartPlay();
+					mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+						@Override
+						public void onCompletion(MediaPlayer mp) {
+							stop();
+							onStopPlay();
+						}
+					});
+
+					timerProgress = new Timer();
+					timerProgress.schedule(new TimerTask() {
+						@Override
+						public void run() {
+							if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+								int curPos = mediaPlayer.getCurrentPosition();
+								onPlayProgress(curPos);
+							}
+						}
+					}, 0, AppConstants.VISUALIZATION_INTERVAL);
+				}
 			}
 		}
 	}
@@ -180,7 +166,6 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 			public void run() {
 				if (mediaPlayer != null && mediaPlayer.isPlaying()) {
 					int curPos = mediaPlayer.getCurrentPosition();
-//								Timber.v( "CurPos = " + curPos);
 					onPlayProgress(curPos);
 				}
 			}
@@ -191,7 +176,6 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 	public void seek(long mills) {
 		seekPos = mills;
 		if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-			Timber.v("seekPlayback mills: " + seekPos);
 			mediaPlayer.seekTo((int) seekPos);
 			onSeek((int) seekPos);
 		}
@@ -256,7 +240,6 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 	private  void onStartPlay() {
 		if (!actionsListeners.isEmpty()) {
 			for (int i = 0; i < actionsListeners.size(); i++) {
-				Timber.v("onStartPlay i = " + i);
 				actionsListeners.get(i).onStartPlay();
 			}
 		}
@@ -273,7 +256,6 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 	private void onStopPlay() {
 		if (!actionsListeners.isEmpty()) {
 			for (int i = actionsListeners.size()-1; i >= 0; i--) {
-				Timber.v("onStopPlay i = " + i);
 				actionsListeners.get(i).onStopPlay();
 			}
 		}
@@ -290,7 +272,6 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 	private void onSeek(long mills) {
 		if (!actionsListeners.isEmpty()) {
 			for (int i = 0; i < actionsListeners.size(); i++) {
-				Timber.v("onSeek i = " + i);
 				actionsListeners.get(i).onSeek(mills);
 			}
 		}

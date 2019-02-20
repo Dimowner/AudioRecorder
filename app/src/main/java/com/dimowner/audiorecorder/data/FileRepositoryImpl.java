@@ -29,8 +29,6 @@ import com.dimowner.audiorecorder.util.FileUtil;
 
 public class FileRepositoryImpl implements FileRepository {
 
-	public static final String PRIVATE_DIR_NAME = "records";
-
 	private File recordDirectory;
 	private Prefs prefs;
 
@@ -57,7 +55,6 @@ public class FileRepositoryImpl implements FileRepository {
 		prefs.incrementRecordCounter();
 		File recordFile = FileUtil.createFile(recordDirectory, FileUtil.generateRecordNameCounted(prefs.getRecordCounter()));
 		if (recordFile != null) {
-			Timber.v("provideRecordFile: %s", recordFile.getAbsolutePath() + " isExists = " + recordFile.exists() + " isDir = " + recordFile.isDirectory());
 			return recordFile;
 		}
 		throw new CantCreateFileException();
@@ -67,7 +64,6 @@ public class FileRepositoryImpl implements FileRepository {
 	public File provideRecordFile(String name) throws CantCreateFileException {
 		File recordFile = FileUtil.createFile(recordDirectory, name);
 		if (recordFile != null) {
-			Timber.v("provideRecordFile: %s", recordFile.getAbsolutePath() + " isExists = " + recordFile.exists() + " isDir = " + recordFile.isDirectory());
 			return recordFile;
 		}
 		throw new CantCreateFileException();
@@ -138,6 +134,5 @@ public class FileRepositoryImpl implements FileRepository {
 				}
 			}
 		}
-		Timber.v("updateRecordingDir: " + recordDirectory.getAbsolutePath());
 	}
 }

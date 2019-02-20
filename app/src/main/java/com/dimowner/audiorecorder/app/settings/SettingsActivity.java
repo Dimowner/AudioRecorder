@@ -46,8 +46,6 @@ import com.dimowner.audiorecorder.R;
 import java.util.ArrayList;
 import java.util.List;
 
-import timber.log.Timber;
-
 public class SettingsActivity extends Activity implements SettingsContract.View, View.OnClickListener {
 
 	private static final String VERSION_UNAVAILABLE = "N/A";
@@ -130,13 +128,13 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	private void initThemeColorSelector() {
 		final Spinner themeColor = findViewById(R.id.themeColor);
-		List<ThemeColorAdapter.ThemeItem> items = new ArrayList<>();
+		List<AppSpinnerAdapter.ThemeItem> items = new ArrayList<>();
 		String values[] = getResources().getStringArray(R.array.theme_colors);
 		int[] colorRes = colorMap.getColorResources();
 		for (int i = 0; i < values.length; i++) {
-			items.add(new ThemeColorAdapter.ThemeItem(values[i], getApplicationContext().getResources().getColor(colorRes[i])));
+			items.add(new AppSpinnerAdapter.ThemeItem(values[i], getApplicationContext().getResources().getColor(colorRes[i])));
 		}
-		ThemeColorAdapter adapter = new ThemeColorAdapter(SettingsActivity.this,
+		AppSpinnerAdapter adapter = new AppSpinnerAdapter(SettingsActivity.this,
 				R.layout.list_item_spinner, R.id.txtItem, items, R.drawable.ic_color_lens);
 		themeColor.setAdapter(adapter);
 
@@ -162,13 +160,13 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	private void initFormatSelector() {
 		formatSelector = findViewById(R.id.format);
-		List<ThemeColorAdapter.ThemeItem> items = new ArrayList<>();
+		List<AppSpinnerAdapter.ThemeItem> items = new ArrayList<>();
 		String values[] = getResources().getStringArray(R.array.formats);
 		for (int i = 0; i < values.length; i++) {
-			items.add(new ThemeColorAdapter.ThemeItem(values[i],
+			items.add(new AppSpinnerAdapter.ThemeItem(values[i],
 					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
 		}
-		ThemeColorAdapter adapter = new ThemeColorAdapter(SettingsActivity.this,
+		AppSpinnerAdapter adapter = new AppSpinnerAdapter(SettingsActivity.this,
 				R.layout.list_item_spinner, R.id.txtItem, items, R.drawable.ic_audiotrack);
 		formatSelector.setAdapter(adapter);
 
@@ -186,13 +184,13 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	private void initSampleRateSelector() {
 		sampleRateSelector = findViewById(R.id.sample_rate);
-		List<ThemeColorAdapter.ThemeItem> items = new ArrayList<>();
+		List<AppSpinnerAdapter.ThemeItem> items = new ArrayList<>();
 		String values[] = getResources().getStringArray(R.array.sample_rates);
 		for (int i = 0; i < values.length; i++) {
-			items.add(new ThemeColorAdapter.ThemeItem(values[i],
+			items.add(new AppSpinnerAdapter.ThemeItem(values[i],
 					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
 		}
-		ThemeColorAdapter adapter = new ThemeColorAdapter(SettingsActivity.this,
+		AppSpinnerAdapter adapter = new AppSpinnerAdapter(SettingsActivity.this,
 				R.layout.list_item_spinner, R.id.txtItem, items, R.drawable.ic_audiotrack);
 		sampleRateSelector.setAdapter(adapter);
 
@@ -206,23 +204,23 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	private void initBitrateSelector() {
 		bitrateSelector = findViewById(R.id.bit_rate);
-		List<ThemeColorAdapter.ThemeItem> items3 = new ArrayList<>();
+		List<AppSpinnerAdapter.ThemeItem> items3 = new ArrayList<>();
 		String values3[] = getResources().getStringArray(R.array.bit_rates);
 		for (int i = 0; i < values3.length; i++) {
-			items3.add(new ThemeColorAdapter.ThemeItem(values3[i],
+			items3.add(new AppSpinnerAdapter.ThemeItem(values3[i],
 					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
 		}
-		ThemeColorAdapter adapter3 = new ThemeColorAdapter(SettingsActivity.this,
+		AppSpinnerAdapter adapter3 = new AppSpinnerAdapter(SettingsActivity.this,
 				R.layout.list_item_spinner, R.id.txtItem, items3, R.drawable.ic_audiotrack);
 		bitrateSelector.setAdapter(adapter3);
 
 		bitrateSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				Timber.v("onItemSelected = " + position);
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				presenter.setRecordingBitrate(position);
 			}
-			@Override public void onNothingSelected(AdapterView<?> parent) {
-				Timber.v("onNothingSelected");
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
 			}
 		});
 	}

@@ -159,7 +159,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
 			@Override
 			public void onSeek(int px) {
-				Timber.v("onSeek: " + px);
 				presenter.seekPlayback(px);
 			}
 			@Override
@@ -218,7 +217,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				break;
 			case R.id.btn_stop:
 				presenter.stopPlayback();
-//				presenter.stopRecording();
 				break;
 			case R.id.btn_records_list:
 				startActivity(RecordsActivity.getStartIntent(getApplicationContext()));
@@ -352,8 +350,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void startPlaybackService(final String name) {
 		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
-//		intent.setAction(PlaybackService.ACTION_START_PLAYBACK_SERVICE);
-//		intent.putExtra(PlaybackService.EXTRAS_KEY_RECORD_NAME, name);
 		startService(intent);
 		serviceConnection = new ServiceConnection() {
 			@Override public void onServiceConnected(ComponentName n, IBinder service) {
@@ -373,9 +369,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void stopPlaybackService() {
-//		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
-//		intent.setAction(PlaybackService.ACTION_STOP_PLAYBACK_SERVICE);
-//		startService(intent);
 		if (isBound && serviceConnection != null) {
 			unbindService(serviceConnection);
 			isBound = false;
@@ -453,11 +446,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		}
 		txtName.setText(name);
 	}
-
-//	@Override
-//	public void stopForeground() {
-//		playbackService.stopForegroundService();
-//	}
 
 	@Override
 	public void updateRecordingView(List<Integer> data) {

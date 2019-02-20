@@ -50,7 +50,6 @@ public class AndroidUtils {
 	 * @return Converted value in pixels.
 	 */
 	public static float dpToPx(int dp) {
-//		return (dp * Resources.getSystem().getDisplayMetrics().density);
 		return dpToPx((float) dp);
 	}
 
@@ -69,7 +68,6 @@ public class AndroidUtils {
 	 * @return Converted value in pixels.
 	 */
 	public static float pxToDp(int px) {
-//		return (px / Resources.getSystem().getDisplayMetrics().density);
 		return pxToDp((float) px);
 	}
 
@@ -92,12 +90,10 @@ public class AndroidUtils {
 
 	public static int convertMillsToPx(long mills, float pxPerSec) {
 		// 1000 is 1 second evaluated in milliseconds
-//		return (int) (mills * AndroidUtils.dpToPx(AppConstants.PIXELS_PER_SECOND) / 1000);
 		return (int) (mills * pxPerSec / 1000);
 	}
 
 	public static int convertPxToMills(long px, float pxPerSecond) {
-//		return (int) (1000 * px / AndroidUtils.dpToPx(AppConstants.PIXELS_PER_SECOND));
 		return (int) (1000 * px / pxPerSecond);
 	}
 

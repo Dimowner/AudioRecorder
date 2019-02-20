@@ -43,8 +43,6 @@ public class WavRecorder implements RecorderContract.Recorder {
 
 	private int sampleRate = AppConstants.RECORD_SAMPLE_RATE_44100;
 
-//	private int framesPerVisInterval = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/sampleRate));
-
 	private RecorderContract.RecorderCallback recorderCallback;
 
 	private static class WavRecorderSingletonHolder {
@@ -58,6 +56,8 @@ public class WavRecorder implements RecorderContract.Recorder {
 	public static WavRecorder getInstance() {
 		return WavRecorderSingletonHolder.getSingleton();
 	}
+
+	private WavRecorder() { }
 
 	@Override
 	public void setRecorderCallback(RecorderContract.RecorderCallback callback) {
@@ -147,7 +147,6 @@ public class WavRecorder implements RecorderContract.Recorder {
 				}
 			}
 			recorder.release();
-//			recorder = null;
 			recordingThread.interrupt();
 			if (recorderCallback != null) {
 				recorderCallback.onStopRecord(recordFile);
@@ -179,8 +178,6 @@ public class WavRecorder implements RecorderContract.Recorder {
 							+ Math.abs((data[2])+(data[3]<<8)))
 							+ (Math.abs((data[4])+(data[5]<<8))
 							+ Math.abs((data[6])+(data[7]<<8)));
-//					Timber.v("Vale = " + lastVal + " 0 = " + data[0] + " 1 = " + data[1] + " 2 = " + data[2] + " 3 = " + data[3]
-//							+ " 0+ = " + (data[0]<<8) + " 1+ = " + (data[1]<<8) + " 2+ = " + (data[2]<<8) + " 3+ = " + (data[3]<<8));
 					try {
 						fos.write(data);
 					} catch (IOException e) {
@@ -203,7 +200,6 @@ public class WavRecorder implements RecorderContract.Recorder {
 		long totalSize = fileSize + 36;
 		long byteRate = sampleRate * channels * 2; //2 byte per 1 sample for 1 channel.
 
-		Timber.v("File size: " + totalSize + " duration mills = " + (file.length()/(4*44.1)));
 		try {
 			final RandomAccessFile wavFile = randomAccessFile(file);
 			wavFile.seek(0); // to the beginning

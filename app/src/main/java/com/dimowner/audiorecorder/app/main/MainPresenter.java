@@ -91,7 +91,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		this.view = v;
 		if (showImportProgress) {
 			view.showImportStart();
-//			showImportProgress = false;
 		} else {
 			view.hideImportProgress();
 		}
@@ -114,7 +113,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			appRecorderCallback = new AppRecorderCallback() {
 				@Override
 				public void onRecordingStarted() {
-//					Timber.v("onStartRecord");
 					if (view != null) {
 						view.showRecordingStart();
 						view.keepScreenOn(prefs.isKeepScreenOn());
@@ -185,12 +183,10 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			playerCallback = new PlayerContract.PlayerCallback() {
 				@Override
 				public void onPreparePlay() {
-//					Timber.d("onPreparePlay");
 				}
 
 				@Override
 				public void onStartPlay() {
-//					Timber.d("onStartPlay");
 					if (view != null) {
 						view.showPlayStart(true);
 						view.startPlaybackService(record.getName());
@@ -214,7 +210,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				public void onStopPlay() {
 					if (view != null) {
 						view.showPlayStop();
-//						Timber.d("onStopPlay");
 						view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
 					}
 				}
@@ -223,13 +218,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				public void onPausePlay() {
 					if (view != null) {
 						view.showPlayPause();
-//						Timber.d("onPausePlay");
 					}
 				}
 
 				@Override
 				public void onSeek(long mills) {
-//					Timber.d("onSeek = " + mills);
 				}
 
 				@Override
@@ -280,7 +273,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void startRecording() {
-		Timber.v("startRecording");
 		if (audioPlayer.isPlaying()) {
 			audioPlayer.stop();
 		}
@@ -299,7 +291,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void stopRecording() {
-		Timber.v("stopRecording");
 		if (appRecorder.isRecording()) {
 			appRecorder.stopRecording();
 		}
@@ -307,7 +298,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void startPlayback() {
-		Timber.v("startPlayback: rec: " + record.toString());
 		if (record != null) {
 			if (!audioPlayer.isPlaying()) {
 				audioPlayer.setData(record.getPath());
@@ -517,24 +507,16 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 			@Override
 			public void run() {
-				Timber.v("importAudioFile uri: " + uri.getPath());
 				try {
 					ParcelFileDescriptor parcelFileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
 					FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
 					String name = extractFileName(context, uri);
 
 					File newFile = fileRepository.provideRecordFile(name);
-
-					Timber.v("COPY - Start!");
 					if (FileUtil.copyFile(fileDescriptor, newFile)) {
-						Timber.v("COPY - FINISH!");
-						Timber.v("Copy file %s succeed!", newFile.getAbsolutePath());
-						Timber.v("INSERT - START!");
 						id = localRepository.insertFile(newFile.getAbsolutePath());
-						Timber.v("INSERT - FINISH!");
 						prefs.setActiveRecord(id);
 					}
-//					}
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override public void run() {
 							if (view != null) {

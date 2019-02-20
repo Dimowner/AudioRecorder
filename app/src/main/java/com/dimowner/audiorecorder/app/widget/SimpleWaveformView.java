@@ -26,8 +26,6 @@ import android.view.View;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 
-import timber.log.Timber;
-
 public class SimpleWaveformView extends View {
 
 	private static int waveformColorRes;
@@ -114,8 +112,6 @@ public class SimpleWaveformView extends View {
 		// Reconcile the measured dimensions with the this view's constraints and
 		// set the final measured width and height.
 		int width = MeasureSpec.getSize(widthMeasureSpec);
-
-		Timber.v("onMeasure width: " + width + " measuredSpecWidth: " + widthMeasureSpec);
 
 		setMeasuredDimension(
 				resolveSize(width, widthMeasureSpec),

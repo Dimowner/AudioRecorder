@@ -59,32 +59,27 @@ public class AppRecorderImpl implements AppRecorder {
 		recorderCallback = new RecorderContract.RecorderCallback() {
 			@Override
 			public void onPrepareRecord() {
-				Timber.v("onPrepareRecord");
 				audioRecorder.startRecording();
 			}
 
 			@Override
 			public void onStartRecord() {
-				Timber.v("onStartRecord");
 				onRecordingStarted();
 			}
 
 			@Override
 			public void onPauseRecord() {
-				Timber.v("onPauseRecord");
 				onRecordingPaused();
 			}
 
 			@Override
 			public void onRecordProgress(final long mills, final int amplitude) {
-				Timber.v("onRecordProgress time = %d, apm = %d, sampleCount = %d", mills, amplitude, recordingData.size());
 				onRecordingProgress(mills, amplitude);
 				recordingData.add(amplitude);
 			}
 
 			@Override
 			public void onStopRecord(final File output) {
-				Timber.v("onStopRecord file = %s", output.getAbsolutePath());
 				onRecordProcessing();
 				recordingsTasks.postRunnable(new Runnable() {
 					long id = -1;
@@ -148,7 +143,6 @@ public class AppRecorderImpl implements AppRecorder {
 			int[] waveForm = new int[sampleCount];
 			int scale = (int)((float)list.size()/(float) sampleCount);
 			for (int i = 0; i < sampleCount; i++) {
-//				int val = list.get(i);
 				int val = 0;
 				for (int j = 0; j < scale; j++) {
 					val += list.get(i*scale + j);
@@ -156,7 +150,6 @@ public class AppRecorderImpl implements AppRecorder {
 				val = (int)((float)val/scale);
 				waveForm[i] = convertAmp(val);
 			}
-			Timber.v("WAVE: " + Arrays.toString(waveForm));
 			return waveForm;
 		} else {
 			int[] waveForm = new int[recordingData.size()];
