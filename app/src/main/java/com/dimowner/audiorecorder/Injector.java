@@ -149,7 +149,6 @@ public class Injector {
 
 	public void releaseRecordsPresenter() {
 		if (recordsPresenter != null) {
-			recordsPresenter.unbindView();
 			recordsPresenter.clear();
 			recordsPresenter = null;
 		}
@@ -157,7 +156,6 @@ public class Injector {
 
 	public void releaseMainPresenter() {
 		if (mainPresenter != null) {
-			mainPresenter.unbindView();
 			mainPresenter.clear();
 			mainPresenter = null;
 		}
@@ -165,7 +163,6 @@ public class Injector {
 
 	public void releaseSettingsPresenter() {
 		if (settingsPresenter != null) {
-			settingsPresenter.unbindView();
 			settingsPresenter.clear();
 			settingsPresenter = null;
 		}

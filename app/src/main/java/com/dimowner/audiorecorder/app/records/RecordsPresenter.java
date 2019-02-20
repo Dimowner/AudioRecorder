@@ -71,7 +71,6 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	@Override
 	public void bindView(final RecordsContract.View v) {
 		this.view = v;
-		this.localRepository.open();
 
 		if (appRecorderCallback == null) {
 			appRecorderCallback = new AppRecorderCallback() {
@@ -171,10 +170,11 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	@Override
 	public void unbindView() {
-		this.localRepository.close();
-		audioPlayer.removePlayerCallback(playerCallback);
-		appRecorder.removeRecordingCallback(appRecorderCallback);
-		this.view = null;
+		if (view != null) {
+			audioPlayer.removePlayerCallback(playerCallback);
+			appRecorder.removeRecordingCallback(appRecorderCallback);
+			this.view = null;
+		}
 	}
 
 	@Override

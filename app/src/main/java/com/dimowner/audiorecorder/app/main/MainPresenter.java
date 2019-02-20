@@ -95,7 +95,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		} else {
 			view.hideImportProgress();
 		}
-		this.localRepository.open();
 
 		if (appRecorder.isRecording()) {
 			view.showRecordingStart();
@@ -254,11 +253,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void unbindView() {
-		this.localRepository.close();
-		audioPlayer.removePlayerCallback(playerCallback);
-		appRecorder.removeRecordingCallback(appRecorderCallback);
-		this.view.stopPlaybackService();
-		this.view = null;
+		if (view != null) {
+			audioPlayer.removePlayerCallback(playerCallback);
+			appRecorder.removeRecordingCallback(appRecorderCallback);
+			this.view.stopPlaybackService();
+			this.view = null;
+		}
 	}
 
 	@Override
@@ -266,6 +266,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		if (view != null) {
 			unbindView();
 		}
+		localRepository.close();
 		audioPlayer.release();
 		appRecorder.release();
 		loadingTasks.close();

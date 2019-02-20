@@ -76,7 +76,6 @@ public class LocalRepositoryImpl implements LocalRepository {
 		dataSource.close();
 	}
 
-
 	public Record getRecord(int id) {
 		if (!dataSource.isOpen()) {
 			dataSource.open();
@@ -218,7 +217,6 @@ public class LocalRepositoryImpl implements LocalRepository {
 
 	@Override
 	public Record getLastRecord() {
-		Timber.v("getActiveRecord");
 		if (!dataSource.isOpen()) {
 			dataSource.open();
 		}

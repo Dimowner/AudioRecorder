@@ -157,7 +157,11 @@ public class AudioRecorder implements RecorderContract.Recorder {
 			@Override
 			public void run() {
 				if (recorderCallback != null && recorder != null) {
-					recorderCallback.onRecordProgress(progress, recorder.getMaxAmplitude());
+					try {
+						recorderCallback.onRecordProgress(progress, recorder.getMaxAmplitude());
+					} catch (IllegalStateException e) {
+						Timber.e(e);
+					}
 					progress += VISUALIZATION_INTERVAL;
 				}
 			}

@@ -183,7 +183,7 @@ public class RecordingService extends Service {
 			remoteViewsBig.setTextViewText(R.id.txt_recording_progress,
 					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
 
-			notificationManager.notify(NOTIF_ID, builder.build());
+			notificationManager.notify(NOTIF_ID, notification);
 		}
 	}
 

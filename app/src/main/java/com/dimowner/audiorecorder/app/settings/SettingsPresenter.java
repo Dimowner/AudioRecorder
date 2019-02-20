@@ -221,13 +221,13 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	@Override
 	public void bindView(SettingsContract.View view) {
 		this.view = view;
-		this.localRepository.open();
 	}
 
 	@Override
 	public void unbindView() {
-		this.localRepository.close();
-		this.view = null;
+		if (view != null) {
+			this.view = null;
+		}
 	}
 
 	@Override
