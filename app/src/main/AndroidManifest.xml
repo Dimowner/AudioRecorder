@@ -45,7 +45,7 @@
 
 	    <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="a911efb38fc3ed01944c7ea4410acde51d847864" />
+            android:value="@string/fabric_api_key" />
 
 		<receiver android:name=".app.RecordingService$StopRecordingReceiver" />
 		<receiver android:name=".app.PlaybackService$StopPlaybackReceiver" />
