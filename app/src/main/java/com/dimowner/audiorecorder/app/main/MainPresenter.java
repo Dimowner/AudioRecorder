@@ -423,7 +423,14 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						if (!record.isWaveformProcessed() && !isProcessing) {
 							try {
 								if (view != null) {
-									view.showRecordProcessing();
+									AndroidUtils.runOnUIThread(new Runnable() {
+										@Override
+										public void run() {
+											if (view != null) {
+												view.showRecordProcessing();
+											}
+										}
+									});
 									isProcessing = true;
 									localRepository.updateWaveform(record.getId());
 									AndroidUtils.runOnUIThread(new Runnable() {

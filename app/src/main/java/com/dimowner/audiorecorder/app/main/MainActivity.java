@@ -557,8 +557,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private boolean checkStoragePermission() {
 		if (presenter.isStorePublic()) {
 			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-					requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQ_CODE_READ_EXTERNAL_STORAGE);
+				if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+						&& checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+					requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQ_CODE_READ_EXTERNAL_STORAGE);
 					return false;
 				}
 			}
@@ -571,11 +572,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 				if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
 						&& checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-					requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL);
+					requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO,
+							Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL);
 					return false;
 				} else if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
 						&& checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-					requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQ_CODE_WRITE_EXTERNAL_STORAGE);
+					requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQ_CODE_WRITE_EXTERNAL_STORAGE);
 					return false;
 				} else if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
 						&& checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -598,16 +600,19 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 		if (requestCode == REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL && grantResults.length > 0
 					&& grantResults[0] == PackageManager.PERMISSION_GRANTED
-					&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+					&& grantResults[1] == PackageManager.PERMISSION_GRANTED
+					&& grantResults[2] == PackageManager.PERMISSION_GRANTED) {
 			presenter.startRecording();
 		} else if (requestCode == REQ_CODE_RECORD_AUDIO && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 			presenter.startRecording();
 		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.length > 0
-				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
+				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 			presenter.startRecording();
 		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE && grantResults.length > 0
-				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
+				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 			startFileSelector();
 		}
 	}
