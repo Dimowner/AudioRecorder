@@ -130,7 +130,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 			stopRecordingTimer();
 			try {
 				recorder.stop();
-			} catch (IllegalStateException e) {
+			} catch (RuntimeException e) {
 				Timber.e(e, "stopRecording() problems");
 			}
 			recorder.release();
