@@ -533,6 +533,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							}
 						}
 					});
+				} catch (SecurityException e) {
+					Timber.e(e);
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override public void run() { if (view != null) view.showError(R.string.error_permission_denied); }
+					});
 				} catch (IOException e) {
 					Timber.e(e);
 					AndroidUtils.runOnUIThread(new Runnable() {
