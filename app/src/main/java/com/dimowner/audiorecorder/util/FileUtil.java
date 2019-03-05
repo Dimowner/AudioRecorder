@@ -326,8 +326,9 @@ public class FileUtil {
 	}
 
 	public static String removeUnallowedSignsFromName(String name) {
-		String str = name.replaceAll("[^a-zA-Z0-9\\.\\-\\_]", "_");
-		return str;
+//		String str = name.replaceAll("[^a-zA-Z0-9\\.\\-\\_]", "_");
+//		return str.trim();
+		return name.trim();
 	}
 
 	/**
