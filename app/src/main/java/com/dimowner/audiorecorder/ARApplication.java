@@ -35,6 +35,8 @@ public class ARApplication extends Application {
 
 	public static Injector injector;
 
+	private static boolean isRecording = false;
+
 	public static Injector getInjector() {
 		return injector;
 	}
@@ -87,5 +89,13 @@ public class ARApplication extends Application {
 		Timber.v("onTerminate");
 		injector.releaseMainPresenter();
 		injector.closeTasks();
+	}
+
+	public static boolean isRecording() {
+		return isRecording;
+	}
+
+	public static void setRecording(boolean recording) {
+		ARApplication.isRecording = recording;
 	}
 }
