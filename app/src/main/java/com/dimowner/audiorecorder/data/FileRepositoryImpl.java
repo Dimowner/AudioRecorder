@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import timber.log.Timber;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.exception.CantCreateFileException;
 import com.dimowner.audiorecorder.util.FileUtil;
 
@@ -53,7 +54,14 @@ public class FileRepositoryImpl implements FileRepository {
 	@Override
 	public File provideRecordFile() throws CantCreateFileException {
 		prefs.incrementRecordCounter();
-		File recordFile = FileUtil.createFile(recordDirectory, FileUtil.generateRecordNameCounted(prefs.getRecordCounter()));
+		File recordFile;
+		if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
+			recordFile = FileUtil.createFile(recordDirectory,
+					FileUtil.generateRecordNameCounted(prefs.getRecordCounter(), AppConstants.WAV_EXTENSION));
+		} else {
+			recordFile = FileUtil.createFile(recordDirectory,
+					FileUtil.generateRecordNameCounted(prefs.getRecordCounter(), AppConstants.M4A_EXTENSION));
+		}
 		if (recordFile != null) {
 			return recordFile;
 		}
@@ -70,8 +78,8 @@ public class FileRepositoryImpl implements FileRepository {
 	}
 
 	@Override
-	public File getRecordFileByName(String name) {
-		File recordFile = new File(recordDirectory.getAbsolutePath() + File.separator + FileUtil.generateRecordNameCounted(prefs.getRecordCounter()));
+	public File getRecordFileByName(String name, String extension) {
+		File recordFile = new File(recordDirectory.getAbsolutePath() + File.separator + FileUtil.generateRecordNameCounted(prefs.getRecordCounter(), extension));
 		if (recordFile.exists() && recordFile.isFile()) {
 			return recordFile;
 		}
@@ -82,12 +90,6 @@ public class FileRepositoryImpl implements FileRepository {
 	@Override
 	public File getRecordingDir() {
 		return recordDirectory;
-	}
-
-	@Override
-	public boolean deleteRecordFileByName(String name) {
-		File recordFile = new File(recordDirectory.getAbsolutePath() + File.separator + FileUtil.generateRecordNameCounted(prefs.getRecordCounter()));
-		return FileUtil.deleteFile(recordFile);
 	}
 
 	@Override
@@ -104,8 +106,8 @@ public class FileRepositoryImpl implements FileRepository {
 	}
 
 	@Override
-	public boolean renameFile(String path, String newName) {
-		return FileUtil.renameFile(new File(path), newName);
+	public boolean renameFile(String path, String newName, String extension) {
+		return FileUtil.renameFile(new File(path), newName, extension);
 	}
 
 	public void updateRecordingDir(Context context, Prefs prefs) {

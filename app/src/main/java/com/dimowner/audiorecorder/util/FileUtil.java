@@ -63,13 +63,13 @@ public class FileUtil {
 		return dir;
 	}
 
-	public static String generateRecordName() {
+	public static String generateRecordName(String extension) {
 		long time = System.currentTimeMillis();
-		return AppConstants.BASE_RECORD_NAME + time/100 + AppConstants.EXTENSION_SEPARATOR + AppConstants.RECORD_FILE_EXTENSION;
+		return AppConstants.BASE_RECORD_NAME + time/100 + AppConstants.EXTENSION_SEPARATOR + extension;
 	}
 
-	public static String generateRecordNameCounted(long counter) {
-		return AppConstants.BASE_RECORD_NAME + counter + AppConstants.EXTENSION_SEPARATOR + AppConstants.RECORD_FILE_EXTENSION;
+	public static String generateRecordNameCounted(long counter, String extension) {
+		return AppConstants.BASE_RECORD_NAME + counter + AppConstants.EXTENSION_SEPARATOR + extension;
 	}
 
 	/**
@@ -309,12 +309,12 @@ public class FileUtil {
 		return null;
 	}
 
-	public static boolean renameFile(File file, String newName) {
+	public static boolean renameFile(File file, String newName, String extension) {
 		if (!file.exists()) {
 			return false;
 		}
 		Timber.v("old File: " + file.getAbsolutePath());
-		File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + newName + AppConstants.EXTENSION_SEPARATOR + AppConstants.RECORD_FILE_EXTENSION);
+		File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + newName + AppConstants.EXTENSION_SEPARATOR + extension);
 		Timber.v("new File: " + renamed.getAbsolutePath());
 
 		if (!file.renameTo(renamed)) {
