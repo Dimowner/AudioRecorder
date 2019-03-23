@@ -180,6 +180,10 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			}
 			@Override public void onNothingSelected(AdapterView<?> parent) { }
 		});
+		if (ARApplication.isRecording()) {
+			formatSelector.setEnabled(false);
+			formatSelector.setClickable(false);
+		}
 	}
 
 	private void initSampleRateSelector() {

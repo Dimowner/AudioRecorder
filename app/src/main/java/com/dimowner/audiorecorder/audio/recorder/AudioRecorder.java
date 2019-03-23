@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.audio.recorder;
 
 import android.media.MediaRecorder;
 
+import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.exception.InvalidOutputFile;
 import com.dimowner.audiorecorder.exception.RecorderInitException;
 
@@ -100,6 +101,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 			try {
 				recorder.start();
 				isRecording = true;
+				ARApplication.setRecording(true);
 				startRecordingTimer();
 				if (recorderCallback != null) {
 					recorderCallback.onStartRecord();
@@ -130,7 +132,8 @@ public class AudioRecorder implements RecorderContract.Recorder {
 			stopRecordingTimer();
 			try {
 				recorder.stop();
-			} catch (IllegalStateException e) {
+				ARApplication.setRecording(false);
+			} catch (RuntimeException e) {
 				Timber.e(e, "stopRecording() problems");
 			}
 			recorder.release();

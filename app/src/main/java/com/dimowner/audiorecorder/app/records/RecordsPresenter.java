@@ -254,7 +254,13 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			@Override public void run() {
 //				TODO: This code need to be refactored!
 				Record r = localRepository.getRecord((int)id);
-				String nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.RECORD_FILE_EXTENSION;
+//				String nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.M4A_EXTENSION;
+				String nameWithExt;
+				if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
+					nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.WAV_EXTENSION;
+				} else {
+					nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.M4A_EXTENSION;
+				}
 				File file = new File(r.getPath());
 				File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
 
@@ -266,7 +272,13 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 							}
 						}});
 				} else {
-					if (fileRepository.renameFile(r.getPath(), name)) {
+					String ext;
+					if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
+						ext = AppConstants.WAV_EXTENSION;
+					} else {
+						ext = AppConstants.M4A_EXTENSION;
+					}
+					if (fileRepository.renameFile(r.getPath(), name, ext)) {
 						record = new Record(r.getId(), nameWithExt, r.getDuration(), r.getCreated(),
 								r.getAdded(), renamed.getAbsolutePath(), r.isBookmarked(),
 								r.isWaveformProcessed(), r.getAmps());

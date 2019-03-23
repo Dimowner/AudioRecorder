@@ -121,7 +121,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			holder.bookmark.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					if (onAddToBookmarkListener != null) {
+					if (onAddToBookmarkListener != null && data.size() > p) {
 						if(data.get(p).isBookmarked()) {
 							onAddToBookmarkListener.onRemoveFromBookmarks((int) data.get(p).getId());
 						} else {
@@ -134,7 +134,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 			holder.view.setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View v) {
-					if (itemClickListener != null) {
+					if (itemClickListener != null && data.size() > p) {
 						int lpos = viewHolder.getLayoutPosition();
 						itemClickListener.onItemClick(v, data.get(lpos).getId(), data.get(lpos).getPath(), lpos);
 					}

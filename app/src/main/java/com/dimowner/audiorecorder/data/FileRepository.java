@@ -28,17 +28,15 @@ public interface FileRepository {
 
 	File provideRecordFile(String name) throws CantCreateFileException;
 
-	File getRecordFileByName(String name);
+	File getRecordFileByName(String name, String extension);
 
 	File getRecordingDir();
-
-	boolean deleteRecordFileByName(String name);
 
 	boolean deleteRecordFile(String path);
 
 	boolean deleteAllRecords();
 
-	boolean renameFile(String path, String newName);
+	boolean renameFile(String path, String newName, String extension);
 
 	void updateRecordingDir(Context context, Prefs prefs);
 

@@ -27,7 +27,8 @@ public class AppConstants {
 
 	public static final String APPLICATION_NAME = "AudioRecorder";
 	public static final String RECORDS_DIR = "records";
-	public static final String RECORD_FILE_EXTENSION = "m4a";
+	public static final String M4A_EXTENSION = "m4a";
+	public static final String WAV_EXTENSION = "wav";
 	public static final String EXTENSION_SEPARATOR = ".";
 	public static final String BASE_RECORD_NAME = "Record-";
 	public static final int MAX_RECORD_NAME_LENGTH = 20;

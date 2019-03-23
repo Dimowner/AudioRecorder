@@ -49,7 +49,7 @@ public class PlaybackService extends Service {
 	private NotificationCompat.Builder builder;
 	private NotificationManager notificationManager;
 	private RemoteViews remoteViewsSmall;
-	private RemoteViews remoteViewsBig;
+//	private RemoteViews remoteViewsBig;
 	private Notification notification;
 	private String recordName = "";
 
@@ -150,16 +150,16 @@ public class PlaybackService extends Service {
 		remoteViewsSmall.setTextViewText(R.id.txt_name, FileUtil.removeFileExtension(recordName));
 		remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
-		remoteViewsBig = new RemoteViews(getPackageName(), R.layout.layout_play_notification_big);
-		remoteViewsBig.setOnClickPendingIntent(R.id.btn_pause, getPendingSelfIntent(getApplicationContext(), ACTION_PAUSE_PLAYBACK));
-		remoteViewsBig.setOnClickPendingIntent(R.id.btn_close, getPendingSelfIntent(getApplicationContext(), ACTION_CLOSE));
-		remoteViewsBig.setTextViewText(R.id.txt_name, FileUtil.removeFileExtension(recordName));
-		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
+//		remoteViewsBig = new RemoteViews(getPackageName(), R.layout.layout_play_notification_big);
+//		remoteViewsBig.setOnClickPendingIntent(R.id.btn_pause, getPendingSelfIntent(getApplicationContext(), ACTION_PAUSE_PLAYBACK));
+//		remoteViewsBig.setOnClickPendingIntent(R.id.btn_close, getPendingSelfIntent(getApplicationContext(), ACTION_CLOSE));
+//		remoteViewsBig.setTextViewText(R.id.txt_name, FileUtil.removeFileExtension(recordName));
+//		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
 		// Create notification default intent.
-		Intent intent = new Intent(this, MainActivity.class);
+		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
-		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+		PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 
 		// Create notification builder.
 		builder = new NotificationCompat.Builder(this, CHANNEL_ID);
@@ -171,7 +171,7 @@ public class PlaybackService extends Service {
 		// Make head-up notification.
 		builder.setContentIntent(pendingIntent);
 		builder.setCustomContentView(remoteViewsSmall);
-		builder.setCustomBigContentView(remoteViewsBig);
+//		builder.setCustomBigContentView(remoteViewsBig);
 		builder.setOngoing(true);
 		builder.setOnlyAlertOnce(true);
 		builder.setDefaults(0);
@@ -211,8 +211,9 @@ public class PlaybackService extends Service {
 	}
 
 	public void onPausePlayback() {
-		if (remoteViewsBig != null && remoteViewsSmall != null) {
-			remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_play);
+//		if (remoteViewsBig != null && remoteViewsSmall != null) {
+		if (remoteViewsSmall != null) {
+//			remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_play);
 			remoteViewsSmall.setImageViewResource(R.id.btn_pause, R.drawable.ic_play);
 			builder.setOngoing(false);
 			notificationManager.notify(NOTIF_ID, notification);
@@ -220,8 +221,9 @@ public class PlaybackService extends Service {
 	}
 
 	public void onStartPlayback() {
-		if (remoteViewsBig != null && remoteViewsSmall != null) {
-			remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_pause);
+//		if (remoteViewsBig != null && remoteViewsSmall != null) {
+		if (remoteViewsSmall != null) {
+//			remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_pause);
 			remoteViewsSmall.setImageViewResource(R.id.btn_pause, R.drawable.ic_pause);
 			builder.setOngoing(true);
 			notificationManager.notify(NOTIF_ID, notification);

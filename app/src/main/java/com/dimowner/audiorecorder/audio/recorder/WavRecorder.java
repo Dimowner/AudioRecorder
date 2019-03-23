@@ -4,6 +4,7 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 
+import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.exception.InvalidOutputFile;
 import com.dimowner.audiorecorder.exception.RecorderInitException;
@@ -120,6 +121,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 				if (recorderCallback != null) {
 					recorderCallback.onStartRecord();
 				}
+				ARApplication.setRecording(true);
 			} catch (IllegalStateException e) {
 				Timber.e(e, "startRecording() failed");
 				if (recorderCallback != null) {
@@ -142,6 +144,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 			if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
 				try {
 					recorder.stop();
+					ARApplication.setRecording(false);
 				} catch (IllegalStateException e) {
 					Timber.e(e, "stopRecording() problems");
 				}

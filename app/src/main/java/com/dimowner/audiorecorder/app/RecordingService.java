@@ -41,7 +41,7 @@ public class RecordingService extends Service {
 	private NotificationCompat.Builder builder;
 	private NotificationManager notificationManager;
 	private RemoteViews remoteViewsSmall;
-	private RemoteViews remoteViewsBig;
+//	private RemoteViews remoteViewsBig;
 	private Notification notification;
 
 	private AppRecorder appRecorder;
@@ -115,15 +115,15 @@ public class RecordingService extends Service {
 		remoteViewsSmall.setTextViewText(R.id.txt_recording_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
 		remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
-		remoteViewsBig = new RemoteViews(getPackageName(), R.layout.layout_record_notification_big);
-		remoteViewsBig.setOnClickPendingIntent(R.id.btn_recording_stop, getPendingSelfIntent(getApplicationContext(), ACTION_STOP_RECORDING));
-		remoteViewsBig.setTextViewText(R.id.txt_recording_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
-		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
+//		remoteViewsBig = new RemoteViews(getPackageName(), R.layout.layout_record_notification_big);
+//		remoteViewsBig.setOnClickPendingIntent(R.id.btn_recording_stop, getPendingSelfIntent(getApplicationContext(), ACTION_STOP_RECORDING));
+//		remoteViewsBig.setTextViewText(R.id.txt_recording_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
+//		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
 		// Create notification default intent.
-		Intent intent = new Intent(this, MainActivity.class);
+		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
-		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+		PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 
 		// Create notification builder.
 		builder = new NotificationCompat.Builder(this, CHANNEL_ID);
@@ -134,7 +134,7 @@ public class RecordingService extends Service {
 		// Make head-up notification.
 		builder.setContentIntent(pendingIntent);
 		builder.setCustomContentView(remoteViewsSmall);
-		builder.setCustomBigContentView(remoteViewsBig);
+//		builder.setCustomBigContentView(remoteViewsBig);
 		builder.setOnlyAlertOnce(true);
 		builder.setDefaults(0);
 		builder.setSound(null);
@@ -163,7 +163,7 @@ public class RecordingService extends Service {
 			NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
 			chan.setLightColor(Color.BLUE);
 			chan.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-			chan.setSound(null,null);
+			chan.setSound(null, null);
 			chan.enableLights(false);
 			chan.enableVibration(false);
 
@@ -173,12 +173,12 @@ public class RecordingService extends Service {
 	}
 
 	private void updateNotification(long mills) {
-		if (started) {
+		if (started && remoteViewsSmall != null) {
 			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress,
 					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
 
-			remoteViewsBig.setTextViewText(R.id.txt_recording_progress,
-					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
+//			remoteViewsBig.setTextViewText(R.id.txt_recording_progress,
+//					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
 
 			notificationManager.notify(NOTIF_ID, notification);
 		}

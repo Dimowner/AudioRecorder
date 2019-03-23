@@ -35,7 +35,7 @@ public class TimeUtils {
 	private static SimpleDateFormat dateTimeFormat24H = new SimpleDateFormat("MMM dd, HH:mm", Locale.US);
 
 	/** Date format: May 16 */
-	private static SimpleDateFormat dateFormat24H = new SimpleDateFormat("MMM dd", Locale.US);
+	private static SimpleDateFormat dateFormat24H = new SimpleDateFormat("MMM dd", Locale.getDefault());
 
 	/** Date format: 22.11.2018, 11:30 */
 	private static SimpleDateFormat dateTimeFormatEU = new SimpleDateFormat("dd.mm.yyyy, HH:mm", Locale.FRANCE);
@@ -44,7 +44,7 @@ public class TimeUtils {
 	private static SimpleDateFormat timeFormatEU = new SimpleDateFormat("HH:mm", Locale.FRANCE);
 
 	/** Time format: 22.11.2018 */
-	private static SimpleDateFormat dateFormatEU = new SimpleDateFormat("dd.mm.yyyy", Locale.FRANCE);
+	private static SimpleDateFormat dateFormatEU = new SimpleDateFormat("dd.MM.yyyy", Locale.FRANCE);
 
 	private TimeUtils() {
 	}
@@ -114,6 +114,7 @@ public class TimeUtils {
 					return ctx.getResources().getString(R.string.yesterday);
 				} else {
 					return dateFormat24H.format(new Date(time));
+//					return dateFormatEU.format(new Date(time));
 				}
 			}
 		} else {
