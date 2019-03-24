@@ -112,7 +112,7 @@ public class RecordingService extends Service {
 
 		remoteViewsSmall = new RemoteViews(getPackageName(), R.layout.layout_record_notification_small);
 		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_recording_stop, getPendingSelfIntent(getApplicationContext(), ACTION_STOP_RECORDING));
-		remoteViewsSmall.setTextViewText(R.id.txt_recording_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
+		remoteViewsSmall.setTextViewText(R.id.txt_recording_progress, getResources().getString(R.string.recording_is_on));
 		remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
 //		remoteViewsBig = new RemoteViews(getPackageName(), R.layout.layout_record_notification_big);
@@ -173,15 +173,16 @@ public class RecordingService extends Service {
 	}
 
 	private void updateNotification(long mills) {
-		if (started && remoteViewsSmall != null) {
-			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress,
-					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
-
-//			remoteViewsBig.setTextViewText(R.id.txt_recording_progress,
+//		Timber.v("updateNotification mills = %s", mills);
+//		if (started && remoteViewsSmall != null) {
+//			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress,
 //					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
-
-			notificationManager.notify(NOTIF_ID, notification);
-		}
+//
+////			remoteViewsBig.setTextViewText(R.id.txt_recording_progress,
+////					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
+//
+//			notificationManager.notify(NOTIF_ID, notification);
+//		}
 	}
 
 	public static class StopRecordingReceiver extends BroadcastReceiver {

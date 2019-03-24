@@ -279,12 +279,14 @@ public class WaveformView extends View {
 	}
 
 	public void setRecordingData(List<Integer> data) {
-		recordingData.clear();
-		for (int i = 0; i < data.size(); i++) {
-			recordingData.add(convertAmp(data.get(i)));
+		if (data != null) {
+			recordingData.clear();
+			for (int i = 0; i < data.size(); i++) {
+				recordingData.add(convertAmp(data.get(i)));
+			}
+			updateShifts((int) -AndroidUtils.dpToPx(recordingData.size()));
+			invalidate();
 		}
-		updateShifts((int) -AndroidUtils.dpToPx(recordingData.size()));
-		invalidate();
 	}
 
 	/**
