@@ -16,15 +16,15 @@ ext.versions = [
 		targetSdkVersion: 28,
 		minSdkVersion   : 21,
 		buildtools      : "28.0.3",
-		support         : "27.1.1",
+		support         : "28.0.0",
 
 		//Timber
-		timber          : "4.6.0",
+		timber          : "4.7.0",
 ]
 
 def versionMajor = 0
 def versionMinor = 5
-def versionPatch = 14
+def versionPatch = 16
 
 android {
 	compileSdkVersion versions.targetSdkVersion
@@ -59,8 +59,8 @@ android {
 
 	buildTypes {
 		release {
-			minifyEnabled true
-			shrinkResources true
+			minifyEnabled false
+			shrinkResources false
 			useProguard false
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 		}

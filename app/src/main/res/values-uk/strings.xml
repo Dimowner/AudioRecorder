@@ -20,6 +20,7 @@
 	<string name="please_select_record_to_share">Будь-ласка, виберіть або запишіть аудіо файл для поширення</string>
 	<string name="record_name">Нове ім\'я</string>
 	<string name="recording">Запис: %s</string>
+	<string name="recording_is_on">Запис увімкнено</string>
 	<string name="playback">Відтворення: %s</string>
 	<string name="zero_time">00:00</string>
 	<string name="no_records">Нема записів.</string>

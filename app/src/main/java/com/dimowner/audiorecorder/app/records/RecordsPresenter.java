@@ -221,18 +221,22 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		audioPlayer.stop();
 		recordingsTasks.postRunnable(new Runnable() {
 			@Override public void run() {
-				localRepository.deleteRecord(record.getId());
-				fileRepository.deleteRecordFile(record.getPath());
-				prefs.setActiveRecord(-1);
-				final long id = record.getId();
-				record = null;
-				dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override public void run() {
-						if (view != null) {
-							view.onDeleteRecord(id);
+				if (record != null) {
+					localRepository.deleteRecord(record.getId());
+					fileRepository.deleteRecordFile(record.getPath());
+					prefs.setActiveRecord(-1);
+					final long id = record.getId();
+					record = null;
+					dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							if (view != null) {
+								view.onDeleteRecord(id);
+							}
 						}
-					}});
+					});
+				}
 			}
 		});
 	}
