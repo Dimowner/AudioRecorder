@@ -174,8 +174,10 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				if (position == 0) {
 					presenter.setRecordingFormat(AppConstants.RECORDING_FORMAT_M4A);
+					showBitrateSelector();
 				} else {
 					presenter.setRecordingFormat(AppConstants.RECORDING_FORMAT_WAV);
+					hideBitrateSelector();
 				}
 			}
 			@Override public void onNothingSelected(AdapterView<?> parent) { }

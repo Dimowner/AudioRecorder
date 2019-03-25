@@ -155,10 +155,12 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	public void setRecordingFormat(int format) {
 		prefs.setFormat(format);
 		updateAvailableSpace();
-		if (format == AppConstants.RECORDING_FORMAT_WAV) {
-			view.hideBitrateSelector();
-		} else {
-			view.showBitrateSelector();
+		if (view != null) {
+			if (format == AppConstants.RECORDING_FORMAT_WAV) {
+				view.hideBitrateSelector();
+			} else {
+				view.showBitrateSelector();
+			}
 		}
 	}
 

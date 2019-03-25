@@ -499,8 +499,8 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				@Override
 				public void run() {
 					record = localRepository.getRecord((int) id);
-					dpPerSecond = ARApplication.getDpPerSecond((float) record.getDuration()/1000000f);
 					if (record != null) {
+						dpPerSecond = ARApplication.getDpPerSecond((float) record.getDuration()/1000000f);
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override
 							public void run() {
