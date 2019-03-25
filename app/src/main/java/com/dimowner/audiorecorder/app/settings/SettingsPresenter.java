@@ -94,18 +94,21 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		}
 
 		switch (prefs.getBitrate()) {
-			case AppConstants.RECORD_ENCODING_BITRATE_48000:
-			default:
+			case AppConstants.RECORD_ENCODING_BITRATE_24000:
 				pos = 0;
 				break;
-			case AppConstants.RECORD_ENCODING_BITRATE_96000:
+			case AppConstants.RECORD_ENCODING_BITRATE_48000:
+			default:
 				pos = 1;
 				break;
-			case AppConstants.RECORD_ENCODING_BITRATE_128000:
+			case AppConstants.RECORD_ENCODING_BITRATE_96000:
 				pos = 2;
 				break;
-			case AppConstants.RECORD_ENCODING_BITRATE_192000:
+			case AppConstants.RECORD_ENCODING_BITRATE_128000:
 				pos = 3;
+				break;
+			case AppConstants.RECORD_ENCODING_BITRATE_192000:
+				pos = 4;
 				break;
 		}
 		if (view != null) {
@@ -134,16 +137,19 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		int rate;
 		switch (pos) {
 			case 0:
+				rate = AppConstants.RECORD_ENCODING_BITRATE_24000;
+				break;
+			case 1:
 			default:
 				rate = AppConstants.RECORD_ENCODING_BITRATE_48000;
 				break;
-			case 1:
+			case 2:
 				rate = AppConstants.RECORD_ENCODING_BITRATE_96000;
 				break;
-			case 2:
+			case 3:
 				rate = AppConstants.RECORD_ENCODING_BITRATE_128000;
 				break;
-			case 3:
+			case 4:
 				rate = AppConstants.RECORD_ENCODING_BITRATE_192000;
 				break;
 		}

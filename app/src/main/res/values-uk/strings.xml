@@ -90,6 +90,7 @@
 	</string-array>
 
 	<string-array name="bit_rates">
+		<item>Бітрейт: 24 кбіт/с</item>
 		<item>Бітрейт: 48 кбіт/с</item>
 		<item>Бітрейт: 96 кбіт/с</item>
 		<item>Бітрейт: 128 кбіт/с</item>
