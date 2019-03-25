@@ -38,23 +38,23 @@ android {
 //		vectorDrawables.useSupportLibrary = true
 	}
 
-	def keystorePropertiesFile = rootProject.file("keystore.properties")
-	def keystoreProperties = new Properties()
-	keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+//	def keystorePropertiesFile = rootProject.file("keystore.properties")
+//	def keystoreProperties = new Properties()
+//	keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 	signingConfigs {
 		dev {
-			storeFile file(keystoreProperties['storeFile'])
-			storePassword keystoreProperties['storePassword']
-			keyAlias keystoreProperties['keyAlias']
-			keyPassword keystoreProperties['keyPassword']
+			storeFile file('key/debug/debug.keystore')
+			storePassword 'android'
+			keyAlias 'androiddebugkey'
+			keyPassword 'android'
 		}
-		release {
-			storeFile file(keystoreProperties['prodStoreFile'])
-			storePassword keystoreProperties['prodStorePassword']
-			keyAlias keystoreProperties['prodKeyAlias']
-			keyPassword keystoreProperties['prodKeyPassword']
-		}
+//		release {
+//			storeFile file(keystoreProperties['prodStoreFile'])
+//			storePassword keystoreProperties['prodStorePassword']
+//			keyAlias keystoreProperties['prodKeyAlias']
+//			keyPassword keystoreProperties['prodKeyPassword']
+//		}
 	}
 
 	buildTypes {
@@ -81,7 +81,7 @@ android {
 		}
 		releaseConfig {
 			dimension "default"
-			signingConfig = signingConfigs.release
+			signingConfig = signingConfigs.dev
 			applicationId "com.dimowner.audiorecorder"
 			minSdkVersion versions.minSdkVersion
 			targetSdkVersion versions.targetSdkVersion
