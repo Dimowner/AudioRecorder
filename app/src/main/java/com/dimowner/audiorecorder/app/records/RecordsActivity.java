@@ -178,6 +178,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		recyclerView.setHasFixedSize(true);
 		layoutManager = new LinearLayoutManager(getApplicationContext());
 		recyclerView.setLayoutManager(layoutManager);
+		recyclerView.addOnScrollListener(new MyScrollListener(layoutManager));
 
 		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
@@ -535,7 +536,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	@Override
 	public void showRecords(List<ListItem> records) {
 		if (records.size() == 0) {
-			txtEmpty.setVisibility(View.VISIBLE);
+//			txtEmpty.setVisibility(View.VISIBLE);
 			adapter.setData(new ArrayList<ListItem>());
 		} else {
 			adapter.setData(records);
@@ -543,6 +544,15 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			if (touchLayout.getVisibility() == View.VISIBLE) {
 				adapter.showFooter();
 			}
+		}
+	}
+
+	@Override
+	public void addRecords(List<ListItem> records) {
+		adapter.addData(records);
+		txtEmpty.setVisibility(View.GONE);
+		if (touchLayout.getVisibility() == View.VISIBLE) {
+			adapter.showFooter();
 		}
 	}
 
@@ -701,5 +711,18 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	public void hideKeyboard(){
 		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 		inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+	}
+
+	public class MyScrollListener extends EndlessRecyclerViewScrollListener {
+
+		public <L extends RecyclerView.LayoutManager> MyScrollListener(L layoutManager) {
+			super(layoutManager);
+		}
+
+		@Override
+		public void onLoadMore(int page, int totalItemsCount) {
+//			Timber.v("onLoadMore page = " + page + " count = " + totalItemsCount);
+			presenter.loadRecordsPage(page);
+		}
 	}
 }

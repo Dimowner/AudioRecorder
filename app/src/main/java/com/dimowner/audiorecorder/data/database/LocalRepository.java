@@ -29,6 +29,8 @@ public interface LocalRepository {
 
 	List<Record> getAllRecords();
 
+	List<Record> getRecords(int page);
+
 	boolean deleteAllRecords();
 
 	Record getLastRecord();

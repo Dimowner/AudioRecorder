@@ -338,7 +338,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			loadingTasks.postRunnable(new Runnable() {
 				@Override
 				public void run() {
-					final List<Record> recordList = localRepository.getAllRecords();
+					final List<Record> recordList = localRepository.getRecords(0);
 					record = localRepository.getRecord((int) prefs.getActiveRecord());
 					if (record != null) {
 						dpPerSecond = ARApplication.getDpPerSecond((float) record.getDuration() / 1000000f);
@@ -364,6 +364,45 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 								if (recordList.size() == 0) {
 									view.showEmptyList();
 								}
+							}
+						}
+					});
+				}
+			});
+		}
+	}
+
+	@Override
+	public void loadRecordsPage(final int page) {
+		if (view != null) {
+			view.showProgress();
+			view.showPanelProgress();
+			loadingTasks.postRunnable(new Runnable() {
+				@Override
+				public void run() {
+					final List<Record> recordList = localRepository.getRecords(page);
+					record = localRepository.getRecord((int) prefs.getActiveRecord());
+					if (record != null) {
+						dpPerSecond = ARApplication.getDpPerSecond((float) record.getDuration() / 1000000f);
+					}
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							if (view != null) {
+								view.addRecords(Mapper.recordsToListItems(recordList));
+								if (record != null) {
+									view.showWaveForm(record.getAmps(), record.getDuration());
+									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration() / 1000));
+									view.showRecordName(FileUtil.removeFileExtension(record.getName()));
+									if (record.isBookmarked()) {
+										view.bookmarksSelected();
+									} else {
+										view.bookmarksUnselected();
+									}
+								}
+								view.hideProgress();
+								view.hidePanelProgress();
+								view.bookmarksUnselected();
 							}
 						}
 					});

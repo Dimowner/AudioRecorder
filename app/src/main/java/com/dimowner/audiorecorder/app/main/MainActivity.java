@@ -311,6 +311,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnImport.setEnabled(false);
 		btnShare.setEnabled(false);
 		playProgress.setProgress(0);
+		playProgress.setEnabled(false);
 		txtDuration.setText(R.string.zero_time);
 		waveformView.showRecording();
 	}
@@ -321,6 +322,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnPlay.setEnabled(true);
 		btnImport.setEnabled(true);
 		btnShare.setEnabled(true);
+		playProgress.setEnabled(true);
 		waveformView.hideRecording();
 		waveformView.clearRecordingData();
 	}

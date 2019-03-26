@@ -183,26 +183,34 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	public void setData(List<ListItem> data) {
 		this.data = data;
 		if (showDateHeaders) {
-			addDateHeaders();
+			this.data = addDateHeaders(data);
 		}
 		this.data.add(0, ListItem.createHeaderItem());
 		notifyDataSetChanged();
 	}
 
-	private void addDateHeaders() {
+	public void addData(List<ListItem> d) {
+		this.data.addAll(addDateHeaders(d));
+		notifyItemRangeInserted(data.size() - d.size() - 1, d.size());
+	}
+
+	private List<ListItem> addDateHeaders(List<ListItem> data) {
 		if (data.size() > 0) {
-			data.add(0, ListItem.createDateItem(data.get(0).getAdded()));
+			if (!hasDateHeader(data.get(0).getAdded())) {
+				data.add(0, ListItem.createDateItem(data.get(0).getAdded()));
+			}
 			Calendar d1 = Calendar.getInstance();
 			d1.setTimeInMillis(data.get(0).getAdded());
 			Calendar d2 = Calendar.getInstance();
 			for (int i = 1; i < data.size(); i++) {
 				d1.setTimeInMillis(data.get(i - 1).getAdded());
 				d2.setTimeInMillis(data.get(i).getAdded());
-				if (!TimeUtils.isSameDay(d1, d2)) {
+				if (!TimeUtils.isSameDay(d1, d2) && !hasDateHeader(data.get(i).getAdded())) {
 					data.add(i, ListItem.createDateItem(data.get(i).getAdded()));
 				}
 			}
 		}
+		return data;
 	}
 
 	public void deleteItem(long id) {
@@ -299,6 +307,21 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 				notifyItemChanged(i);
 			}
 		}
+	}
+
+	private boolean hasDateHeader(long time) {
+		for (int i = data.size()-1; i>= 0; i--) {
+			if (data.get(i).getType() == ListItem.ITEM_TYPE_DATE) {
+				Calendar d1 = Calendar.getInstance();
+				d1.setTimeInMillis(data.get(i).getAdded());
+				Calendar d2 = Calendar.getInstance();
+				d2.setTimeInMillis(time);
+				if (TimeUtils.isSameDay(d1, d2)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public void setItemClickListener(ItemClickListener itemClickListener) {

@@ -41,6 +41,7 @@ public interface RecordsContract {
 		void showDuration(String duration);
 
 		void showRecords(List<ListItem> records);
+		void addRecords(List<ListItem> records);
 		void showEmptyList();
 		void showEmptyBookmarksList();
 
@@ -77,6 +78,8 @@ public interface RecordsContract {
 		void renameRecord(long id, String name);
 
 		void loadRecords();
+
+		void loadRecordsPage(int page);
 
 		void applyBookmarksFilter();
 		void checkBookmarkActiveRecord();

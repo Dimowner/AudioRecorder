@@ -216,6 +216,21 @@ public class LocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
+	public List<Record> getRecords(int page) {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		List<Record> list = dataSource.getRecords(page);
+		//Remove not records with not existing audio files (which was lost or deleted)
+		for (int i = 0; i < list.size(); i++) {
+			if (!isFileExists(list.get(i).getPath())) {
+				dataSource.deleteItem(list.get(i).getId());
+			}
+		}
+		return list;
+	}
+
+	@Override
 	public Record getLastRecord() {
 		if (!dataSource.isOpen()) {
 			dataSource.open();

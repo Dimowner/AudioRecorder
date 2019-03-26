@@ -26,6 +26,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BuildConfig;
 
 /**
@@ -132,6 +133,18 @@ public abstract class DataSource<T> {
 	 */
 	public ArrayList<T> getAll() {
 		Cursor cursor = queryLocal("SELECT * FROM " + tableName + " ORDER BY " + SQLiteHelper.COLUMN_DATE_ADDED + " DESC");
+		return convertCursor(cursor);
+	}
+
+	/**
+	 * Get records from database for table T.
+	 * @return List that contains all records of table T.
+	 */
+	public ArrayList<T> getRecords(int page) {
+		Cursor cursor = queryLocal("SELECT * FROM " + tableName
+				+ " ORDER BY " + SQLiteHelper.COLUMN_DATE_ADDED + " DESC"
+				+ " LIMIT " + AppConstants.DEFAULT_PER_PAGE
+				+ " OFFSET " + (page-1) * AppConstants.DEFAULT_PER_PAGE);
 		return convertCursor(cursor);
 	}
 

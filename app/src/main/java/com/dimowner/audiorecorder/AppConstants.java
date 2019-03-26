@@ -36,6 +36,8 @@ public class AppConstants {
 	public static final int RECORDING_FORMAT_M4A = 0;
 	public static final int RECORDING_FORMAT_WAV = 1;
 
+	public static final int DEFAULT_PER_PAGE = 50;
+
 	//BEGINNING-------------- Waveform visualisation constants ----------------------------------
 
 	/** Density pixel count per one second of time.
