@@ -76,6 +76,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Welcome screen
 // TODO: Guidelines
 // TODO: Check how work max recording duration
+// TODO: Add scroll animation to start when stop playback
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -258,7 +259,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private void startFileSelector() {
 		Intent intent_upload = new Intent();
 		intent_upload.setType("audio/*");
-		intent_upload.setAction(Intent.ACTION_GET_CONTENT);
+		intent_upload.addCategory(Intent.CATEGORY_OPENABLE);
+//		intent_upload.setAction(Intent.ACTION_GET_CONTENT);
+		intent_upload.setAction(Intent.ACTION_OPEN_DOCUMENT);
 		startActivityForResult(intent_upload, REQ_CODE_IMPORT_AUDIO);
 	}
 

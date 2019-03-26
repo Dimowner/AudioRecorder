@@ -12,7 +12,6 @@ import com.dimowner.audiorecorder.util.AndroidUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import timber.log.Timber;

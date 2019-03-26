@@ -478,7 +478,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override
 						public void run() {
-							if (view != null) {
+							if (view != null && record != null) {
 								view.removedFromBookmarks(r.getId(), r.getId() == record.getId());
 							}
 						}
