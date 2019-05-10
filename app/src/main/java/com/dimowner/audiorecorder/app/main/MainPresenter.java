@@ -268,6 +268,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
+	public void executeFirstRun() {
+		prefs.firstRunExecuted();
+	}
+
+	@Override
 	public void setAudioRecorder(RecorderContract.Recorder recorder) {
 		appRecorder.setRecorder(recorder);
 	}

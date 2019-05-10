@@ -99,44 +99,57 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 
 	@Override
 	public void playOrPause() {
-		if (mediaPlayer != null) {
-			if (mediaPlayer.isPlaying()) {
-				pause();
-			} else {
-				if (!isPrepared) {
-					try {
-						mediaPlayer.setOnPreparedListener(this);
-						mediaPlayer.prepareAsync();
-					} catch (IllegalStateException ex) {
-						Timber.e(ex);
-						restartPlayer();
-						mediaPlayer.setOnPreparedListener(this);
-						mediaPlayer.prepareAsync();
-					}
+		try {
+			if (mediaPlayer != null) {
+				if (mediaPlayer.isPlaying()) {
+					pause();
 				} else {
-					mediaPlayer.start();
-					mediaPlayer.seekTo((int) seekPos);
-					onStartPlay();
-					mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-						@Override
-						public void onCompletion(MediaPlayer mp) {
-							stop();
-							onStopPlay();
-						}
-					});
-
-					timerProgress = new Timer();
-					timerProgress.schedule(new TimerTask() {
-						@Override
-						public void run() {
-							if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-								int curPos = mediaPlayer.getCurrentPosition();
-								onPlayProgress(curPos);
+					if (!isPrepared) {
+						try {
+							mediaPlayer.setOnPreparedListener(this);
+							mediaPlayer.prepareAsync();
+						} catch (IllegalStateException ex) {
+							Timber.e(ex);
+							restartPlayer();
+							mediaPlayer.setOnPreparedListener(this);
+							try {
+								mediaPlayer.prepareAsync();
+							} catch (IllegalStateException e) {
+								Timber.e(e);
+								restartPlayer();
 							}
 						}
-					}, 0, AppConstants.VISUALIZATION_INTERVAL);
+					} else {
+						mediaPlayer.start();
+						mediaPlayer.seekTo((int) seekPos);
+						onStartPlay();
+						mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+							@Override
+							public void onCompletion(MediaPlayer mp) {
+								stop();
+								onStopPlay();
+							}
+						});
+
+						timerProgress = new Timer();
+						timerProgress.schedule(new TimerTask() {
+							@Override
+							public void run() {
+								try {
+									if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+										int curPos = mediaPlayer.getCurrentPosition();
+										onPlayProgress(curPos);
+									}
+								} catch(IllegalStateException e){
+									Timber.e(e, "Player is not initialized!");
+								}
+							}
+						}, 0, AppConstants.VISUALIZATION_INTERVAL);
+					}
 				}
 			}
+		} catch(IllegalStateException e){
+			Timber.e(e, "Player is not initialized!");
 		}
 	}
 
@@ -164,9 +177,13 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 		timerProgress.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-					int curPos = mediaPlayer.getCurrentPosition();
-					onPlayProgress(curPos);
+				try {
+					if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+						int curPos = mediaPlayer.getCurrentPosition();
+						onPlayProgress(curPos);
+					}
+				} catch(IllegalStateException e){
+					Timber.e(e, "Player is not initialized!");
 				}
 			}
 		}, 0, AppConstants.VISUALIZATION_INTERVAL);
@@ -175,9 +192,13 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 	@Override
 	public void seek(long mills) {
 		seekPos = mills;
-		if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-			mediaPlayer.seekTo((int) seekPos);
-			onSeek((int) seekPos);
+		try {
+			if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+				mediaPlayer.seekTo((int) seekPos);
+				onSeek((int) seekPos);
+			}
+		} catch(IllegalStateException e){
+			Timber.e(e, "Player is not initialized!");
 		}
 	}
 
@@ -214,7 +235,12 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 
 	@Override
 	public boolean isPlaying() {
-		return mediaPlayer != null && mediaPlayer.isPlaying();
+		try {
+			return mediaPlayer != null && mediaPlayer.isPlaying();
+		} catch(IllegalStateException e){
+			Timber.e(e, "Player is not initialized!");
+		}
+		return false;
 	}
 
 	@Override

@@ -31,6 +31,8 @@ import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.util.Arrays;
 
+import timber.log.Timber;
+
 /**
  * This class taken from Ringdroid app.
  * https://github.com/google/ringdroid
@@ -126,11 +128,15 @@ public class SoundFile {
 		mChannels = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
 		mSampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
 		// Expected total number of samples per channel.
-		int expectedNumSamples =
-				(int) ((format.getLong(MediaFormat.KEY_DURATION) / 1000000.f) * mSampleRate + 0.5f);
+		int expectedNumSamples = 0;
+		try {
+			expectedNumSamples = (int) ((format.getLong(MediaFormat.KEY_DURATION) / 1000000.f) * mSampleRate + 0.5f);
 
-		//SoundFile duration.
-		duration = format.getLong(MediaFormat.KEY_DURATION);
+			//SoundFile duration.
+			duration = format.getLong(MediaFormat.KEY_DURATION);
+		} catch (Exception e) {
+			Timber.e(e);
+		}
 		dpPerSec = ARApplication.getDpPerSecond((float) duration/1000000f);
 
 		MediaCodec codec = MediaCodec.createDecoderByType(format.getString(MediaFormat.KEY_MIME));

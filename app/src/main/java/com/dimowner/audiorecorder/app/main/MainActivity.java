@@ -156,6 +156,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		});
 
 		presenter = ARApplication.getInjector().provideMainPresenter();
+		presenter.executeFirstRun();
 
 		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
 			@Override

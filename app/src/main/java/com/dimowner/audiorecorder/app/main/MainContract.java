@@ -62,6 +62,8 @@ public interface MainContract {
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
 
+		void executeFirstRun();
+
 		void setAudioRecorder(RecorderContract.Recorder recorder);
 
 		void startRecording();
