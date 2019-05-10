@@ -74,19 +74,30 @@ public class WavRecorder implements RecorderContract.Recorder {
 		recordFile = new File(outputFile);
 		if (recordFile.exists() && recordFile.isFile()) {
 			int channel = channelCount == 1 ? AudioFormat.CHANNEL_IN_MONO : AudioFormat.CHANNEL_IN_STEREO;
-			bufferSize = AudioRecord.getMinBufferSize(sampleRate,
-					channel,
-					AudioFormat.ENCODING_PCM_16BIT);
-
-			recorder = new AudioRecord(
-					MediaRecorder.AudioSource.MIC,
-					sampleRate,
-					channel,
-					AudioFormat.ENCODING_PCM_16BIT,
-					bufferSize
+			try {
+				bufferSize = AudioRecord.getMinBufferSize(sampleRate,
+						channel,
+						AudioFormat.ENCODING_PCM_16BIT);
+				Timber.v("buffer size = %s", bufferSize);
+				if (bufferSize == AudioRecord.ERROR || bufferSize == AudioRecord.ERROR_BAD_VALUE) {
+					bufferSize = AudioRecord.getMinBufferSize(sampleRate,
+							channel,
+							AudioFormat.ENCODING_PCM_16BIT);
+				}
+				recorder = new AudioRecord(
+						MediaRecorder.AudioSource.MIC,
+						sampleRate,
+						channel,
+						AudioFormat.ENCODING_PCM_16BIT,
+						bufferSize
 				);
-
-			if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
+			} catch (IllegalArgumentException e) {
+				Timber.e(e, "sampleRate = " + sampleRate + " channel = " + channel + " bufferSize = " + bufferSize);
+				if (recorder != null) {
+					recorder.release();
+				}
+			}
+			if (recorder != null && recorder.getState() == AudioRecord.STATE_INITIALIZED) {
 				if (recorderCallback != null) {
 					recorderCallback.onPrepareRecord();
 				}

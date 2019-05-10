@@ -119,7 +119,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 					if (view != null) {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override public void run() {
-								if (view != null && record != null) {
+								if (view != null && record != null && record.getDuration() > 0) {
 									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
 											AndroidUtils.dpToPx(dpPerSecond)), (int)(1000 * mills/(record.getDuration()/1000)));
 								}
@@ -462,25 +462,27 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		recordingsTasks.postRunnable(new Runnable() {
 			@Override
 			public void run() {
-				if (record.isBookmarked()) {
-					localRepository.removeFromBookmarks(record.getId());
-				} else {
-					localRepository.addToBookmarks(record.getId());
-				}
-				record.setBookmark(!record.isBookmarked());
+				if (record != null) {
+					if (record.isBookmarked()) {
+						localRepository.removeFromBookmarks(record.getId());
+					} else {
+						localRepository.addToBookmarks(record.getId());
+					}
+					record.setBookmark(!record.isBookmarked());
 
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override
-					public void run() {
-						if (view != null) {
-							if (record.isBookmarked()) {
-								view.addedToBookmarks(record.getId(), true);
-							} else {
-								view.removedFromBookmarks(record.getId(), true);
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							if (view != null && record != null) {
+								if (record.isBookmarked()) {
+									view.addedToBookmarks(record.getId(), true);
+								} else {
+									view.removedFromBookmarks(record.getId(), true);
+								}
 							}
 						}
-					}
-				});
+					});
+				}
 			}
 		});
 	}
