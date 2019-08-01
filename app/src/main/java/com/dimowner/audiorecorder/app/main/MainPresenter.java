@@ -200,8 +200,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override public void run() {
 								if (view != null) {
-									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
-											AndroidUtils.dpToPx(dpPerSecond)), (int)(1000 * mills/(songDuration/1000)));
+									long duration = songDuration/1000;
+									if (duration > 0) {
+										view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
+												AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * mills / duration));
+									}
 								}
 							}});
 					}
@@ -462,7 +465,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 								}
 							} catch (IOException | OutOfMemoryError e) {
 								Timber.e(e);
-//								TODO: handle errors here
+								view.showError(R.string.error_process_waveform);
 							}
 							isProcessing = false;
 						}
@@ -609,11 +612,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 										}
 									});
 								}
-							} catch (IOException e) {
+							} catch (IOException | OutOfMemoryError e) {
 								Timber.e(e);
 								if (view != null) {
-									//TODO: show error on display
 									view.hideRecordProcessing();
+									view.showError(R.string.error_process_waveform);
 								}
 							}
 							isProcessing = false;

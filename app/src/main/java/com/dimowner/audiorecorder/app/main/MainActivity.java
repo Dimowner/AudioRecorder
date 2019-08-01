@@ -165,8 +165,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			}
 			@Override
 			public void onSeeking(int px, long mills) {
-				if (waveformView.getWaveformLength() > 0) {
-					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / waveformView.getWaveformLength());
+				int length = waveformView.getWaveformLength();
+				if (length > 0) {
+					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / length);
 				}
 				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 			}

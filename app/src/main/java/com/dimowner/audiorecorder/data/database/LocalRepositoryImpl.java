@@ -169,7 +169,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
-	public boolean updateWaveform(int id) throws IOException {
+	public boolean updateWaveform(int id) throws IOException, OutOfMemoryError {
 		Record record = getRecord(id);
 		String path = record.getPath();
 		if (path != null && !path.isEmpty()) {

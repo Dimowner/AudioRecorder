@@ -104,7 +104,7 @@ public class SoundFile {
 		return mFrameGains;
 	}
 
-	private void readFile(File inputFile) throws IOException {
+	private void readFile(File inputFile) throws IOException, OutOfMemoryError {
 		MediaExtractor extractor = new MediaExtractor();
 		MediaFormat format = null;
 		int i;
@@ -157,7 +157,13 @@ public class SoundFile {
 		// For longer streams, the buffer size will be increased later on, calculating a rough
 		// estimate of the total size needed to store all the samples in order to resize the buffer
 		// only once.
-		mDecodedBytes = ByteBuffer.allocate(1 << 20);
+		try {
+			mDecodedBytes = ByteBuffer.allocate(1 << 20);
+		} catch (IllegalArgumentException e) {
+			Timber.e(e);
+			mDecodedBytes = ByteBuffer.allocate(1 << 10);
+		}
+
 		Boolean firstSampleData = true;
 		while (true) {
 			// read data from file and feed it to the decoder input buffers.

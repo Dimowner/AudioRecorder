@@ -7,6 +7,7 @@ import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.exception.AppException;
+import com.dimowner.audiorecorder.exception.CantProcessRecord;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 
 import java.io.File;
@@ -112,7 +113,12 @@ public class AppRecorderImpl implements AppRecorder {
 														onRecordFinishProcessing();
 													}
 												});
-											} catch (IOException e) {
+											} catch (IOException | OutOfMemoryError e) {
+												AndroidUtils.runOnUIThread(new Runnable() {
+													@Override public void run() {
+														onError(new CantProcessRecord());
+													}
+												});
 												Timber.e(e);
 											}
 										}

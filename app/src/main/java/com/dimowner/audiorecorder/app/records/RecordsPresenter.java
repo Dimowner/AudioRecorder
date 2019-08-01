@@ -119,9 +119,12 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 					if (view != null) {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override public void run() {
-								if (view != null && activeRecord != null && (activeRecord.getDuration()/1000) > 0) {
-									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
-											AndroidUtils.dpToPx(dpPerSecond)), (int)(1000 * mills/(activeRecord.getDuration()/1000)));
+								if (view != null && activeRecord != null) {
+									long duration = activeRecord.getDuration()/1000;
+									if (duration > 0) {
+										view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
+												AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * mills / duration));
+									}
 								}
 							}});
 					}
