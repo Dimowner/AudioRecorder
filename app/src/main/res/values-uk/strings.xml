@@ -32,6 +32,7 @@
 	<string name="request">Зворотній зв\'язок</string>
 	<string name="email_clients_not_found">Не знайдено жодного поштового клієнта</string>
 	<string name="send_email">Надіслати по електронній пошті&#8230;</string>
+	<string name="info">Інформація</string>
 
 	<string name="app_settings">Налаштування додатка:</string>
 	<string name="recording_settings">Налаштування запису:</string>

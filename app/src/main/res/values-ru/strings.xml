@@ -32,6 +32,7 @@
 	<string name="request">Обратная связь</string>
 	<string name="email_clients_not_found">Не найдено ни одного почтового клиента</string>
 	<string name="send_email">Послать по электронной почте&#8230;</string>
+	<string name="info">Информация</string>
 
 	<string name="app_settings">Настройки приложения:</string>
 	<string name="recording_settings">Настройки записи:</string>
