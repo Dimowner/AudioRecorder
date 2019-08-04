@@ -113,17 +113,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		getWindow().setFlags(
-				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-		LinearLayout toolbar = findViewById(R.id.toolbar);
-		toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
-
-		View space = findViewById(R.id.space);
-		ViewGroup.LayoutParams params = space.getLayoutParams();
-		params.height = AndroidUtils.getNavigationBarHeight(getApplicationContext());
-		space.setLayoutParams(params);
-
 		waveformView = findViewById(R.id.record);
 		txtProgress = findViewById(R.id.txt_progress);
 		txtDuration = findViewById(R.id.txt_duration);

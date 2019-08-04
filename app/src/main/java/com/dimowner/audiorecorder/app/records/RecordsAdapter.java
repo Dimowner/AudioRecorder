@@ -64,11 +64,11 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 			View view = new View(viewGroup.getContext());
 			int height;
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-				height = AndroidUtils.getStatusBarHeight(viewGroup.getContext()) + (int) viewGroup.getContext().getResources().getDimension(R.dimen.toolbar_height);
-			} else {
+//			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//				height = AndroidUtils.getStatusBarHeight(viewGroup.getContext()) + (int) viewGroup.getContext().getResources().getDimension(R.dimen.toolbar_height);
+//			} else {
 				height = (int) viewGroup.getContext().getResources().getDimension(R.dimen.toolbar_height);
-			}
+//			}
 
 			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
 					LinearLayout.LayoutParams.MATCH_PARENT, height);
@@ -77,14 +77,6 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		} else if (type == ListItem.ITEM_TYPE_FOOTER) {
 			View view = new View(viewGroup.getContext());
 			int height = (int) viewGroup.getContext().getResources().getDimension(R.dimen.panel_height);
-
-			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-					LinearLayout.LayoutParams.MATCH_PARENT, height);
-			view.setLayoutParams(lp);
-			return new UniversalViewHolder(view);
-		} else if (type == ListItem.ITEM_TYPE_FOOTER_SMALL) {
-			View view = new View(viewGroup.getContext());
-			int height = AndroidUtils.getNavigationBarHeight(viewGroup.getContext());
 
 			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
 					LinearLayout.LayoutParams.MATCH_PARENT, height);
@@ -222,7 +214,6 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			data = addDateHeaders(d);
 		}
 		data.add(0, ListItem.createHeaderItem());
-		data.add(ListItem.createFooterSmallItem());
 		notifyDataSetChanged();
 	}
 
@@ -232,8 +223,12 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 //	}
 
 	void addData(List<ListItem> d) {
-		if (data.size() > 0 && (findFooter() >= 0 || findFooterSmall() >= 0)) {
-			data.addAll(data.size() - 1, addDateHeaders(d));
+		if (data.size() > 0) {
+			if (findFooter() >= 0) {
+				data.addAll(data.size() - 1, addDateHeaders(d));
+			} else {
+				data.addAll(addDateHeaders(d));
+			}
 			notifyItemRangeInserted(data.size() - d.size(), d.size());
 		}
 	}
@@ -285,25 +280,18 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		return count;
 	}
 
-	void showFooter() {
-		if (data.size() > 0 && findFooterSmall() >= 0) {
-			data.remove(data.size() - 1);
-			data.add(ListItem.createFooterItem());
-			notifyItemChanged(data.size()-1);
-		} else {
-			data.add(ListItem.createFooterItem());
+	public void showFooter() {
+		if (findFooter() == -1) {
+			this.data.add(ListItem.createFooterItem());
 			notifyItemInserted(data.size()-1);
 		}
 	}
 
-	void hideFooter() {
-		if (data.size() > 0 && findFooter() >= 0) {
-			data.remove(data.size() - 1);
-			data.add(ListItem.createFooterSmallItem());
-			notifyItemChanged(data.size() - 1);
-		} else {
-			data.add(ListItem.createFooterSmallItem());
-			notifyItemInserted(data.size() - 1);
+	public void hideFooter() {
+		int pos = findFooter();
+		if (pos != -1) {
+			this.data.remove(pos);
+			notifyItemRemoved(pos);
 		}
 	}
 
@@ -340,15 +328,6 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	private int findFooter() {
 		for (int i = data.size()-1; i>= 0; i--) {
 			if (data.get(i).getType() == ListItem.ITEM_TYPE_FOOTER) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	private int findFooterSmall() {
-		for (int i = data.size()-1; i>= 0; i--) {
-			if (data.get(i).getType() == ListItem.ITEM_TYPE_FOOTER_SMALL) {
 				return i;
 			}
 		}

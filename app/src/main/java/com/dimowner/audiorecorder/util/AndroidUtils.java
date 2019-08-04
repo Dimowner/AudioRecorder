@@ -318,7 +318,10 @@ public class AndroidUtils {
 			share.setType("audio/*");
 			share.putExtra(Intent.EXTRA_STREAM, fileUri);
 			share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-			context.startActivity(Intent.createChooser(share, context.getResources().getString(R.string.share_record, name)));
+
+			Intent chooser = Intent.createChooser(share, context.getResources().getString(R.string.share_record, name));
+			chooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			context.startActivity(chooser);
 		} else {
 			Timber.e("There no record selected!");
 			Toast.makeText(context, R.string.please_select_record_to_share, Toast.LENGTH_LONG).show();
@@ -335,7 +338,10 @@ public class AndroidUtils {
 			Intent intent = new Intent(Intent.ACTION_VIEW);
 			intent.setDataAndType(fileUri, "audio/*");
 			intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-			context.startActivity(Intent.createChooser(intent, context.getResources().getString(R.string.open_record_with, name)));
+
+			Intent chooser = Intent.createChooser(intent, context.getResources().getString(R.string.open_record_with, name));
+			chooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			context.startActivity(chooser);
 		} else {
 			Timber.e("There no record selected!");
 			Toast.makeText(context, R.string.error_unknown, Toast.LENGTH_LONG).show();

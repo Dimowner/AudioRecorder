@@ -336,7 +336,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 				"[" + getResources().getString(R.string.app_name) + "] - " + getResources().getString(R.string.request)
 		);
 		try {
-			startActivity(Intent.createChooser(i, getResources().getString(R.string.send_email)));
+			Intent chooser = Intent.createChooser(i, getResources().getString(R.string.send_email));
+			chooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(chooser);
 		} catch (android.content.ActivityNotFoundException ex) {
 			showError(R.string.email_clients_not_found);
 		}

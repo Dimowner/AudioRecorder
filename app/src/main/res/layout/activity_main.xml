@@ -313,11 +313,4 @@
 
 	</FrameLayout>
 
-	<View
-			android:id="@+id/space"
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/spacing_small"
-			android:elevation="@dimen/toolbar_elevation"
-			/>
-
 </LinearLayout>

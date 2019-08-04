@@ -36,7 +36,6 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -110,11 +109,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_records);
 
-		getWindow().setFlags(
-				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 		toolbar = findViewById(R.id.toolbar);
-		toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
 //		AndroidUtils.setTranslucent(this, true);
 
 		ImageButton btnBack = findViewById(R.id.btn_back);
@@ -312,7 +307,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			}
 			adapter.showFooter();
 			final ViewPropertyAnimator animator = touchLayout.animate();
-			animator.translationY(-AndroidUtils.getNavigationBarHeight(getApplicationContext()))
+			animator.translationY(0)
 					.setDuration(200)
 					.setListener(new Animator.AnimatorListener() {
 						@Override public void onAnimationStart(Animator animation) { }
@@ -500,11 +495,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private void handleToolbarScroll(int dy) {
 		float inset = toolbar.getTranslationY() - dy;
 		int height;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			height = toolbar.getHeight() + AndroidUtils.getStatusBarHeight(getApplicationContext());
-		} else {
+//		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//			height = toolbar.getHeight() + AndroidUtils.getStatusBarHeight(getApplicationContext());
+//		} else {
 			height = toolbar.getHeight();
-		}
+//		}
 
 		if (inset < -height) {
 			inset = -height;
