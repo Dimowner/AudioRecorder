@@ -36,6 +36,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -109,7 +110,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_records);
 
-		AndroidUtils.setTranslucent(this, true);
+		getWindow().setFlags(
+				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+		toolbar = findViewById(R.id.toolbar);
+		toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
+//		AndroidUtils.setTranslucent(this, true);
 
 		ImageButton btnBack = findViewById(R.id.btn_back);
 		btnBack.setOnClickListener(new View.OnClickListener() {
@@ -117,7 +123,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				finish();
 				ARApplication.getInjector().releaseRecordsPresenter();
 			}});
-		toolbar = findViewById(R.id.toolbar);
 
 		bottomDivider = findViewById(R.id.bottomDivider);
 		progressBar = findViewById(R.id.progress);
@@ -275,10 +280,10 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		});
 		recyclerView.setAdapter(adapter);
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			// Set the padding to match the Status Bar height
-			toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
-		}
+//		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//			// Set the padding to match the Status Bar height
+//			toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
+//		}
 		presenter = ARApplication.getInjector().provideRecordsPresenter();
 
 		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
@@ -307,7 +312,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			}
 			adapter.showFooter();
 			final ViewPropertyAnimator animator = touchLayout.animate();
-			animator.translationY(0)
+			animator.translationY(-AndroidUtils.getNavigationBarHeight(getApplicationContext()))
 					.setDuration(200)
 					.setListener(new Animator.AnimatorListener() {
 						@Override public void onAnimationStart(Animator animation) { }
@@ -594,9 +599,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	public void addRecords(List<ListItem> records) {
 		adapter.addData(records);
 		txtEmpty.setVisibility(View.GONE);
-		if (touchLayout.getVisibility() == View.VISIBLE) {
-			adapter.showFooter();
-		}
 	}
 
 	@Override

@@ -32,6 +32,8 @@ import android.support.v4.content.FileProvider;
 import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
 import android.view.Display;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
@@ -118,6 +120,38 @@ public class AndroidUtils {
 			result = context.getResources().getDimensionPixelSize(resourceId);
 		}
 		return result;
+	}
+
+	// A method to find height of the navigation bar
+	public static int getNavigationBarHeight(Context context) {
+		int result = 0;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+			try {
+				if (hasNavBar(context)) {
+					int resourceId = context.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+					if (resourceId > 0) {
+						result = context.getResources().getDimensionPixelSize(resourceId);
+					}
+				}
+			} catch (Resources.NotFoundException e) {
+				Timber.e(e);
+				return 0;
+			}
+		}
+		return result;
+	}
+
+	//This method works not correctly
+	public static boolean hasNavBar (Context context) {
+//		int id = context.getResources().getIdentifier("config_showNavigationBar", "bool", "android");
+//		return id > 0 && context.getResources().getBoolean(id);
+//		boolean hasMenuKey = ViewConfiguration.get(context).hasPermanentMenuKey();
+//		boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
+//		return !hasMenuKey && !hasBackKey;
+
+		boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
+		boolean hasHomeKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_HOME);
+		return !hasHomeKey && !hasBackKey;
 	}
 
 	public static void setTranslucent(Activity activity, boolean translucent) {

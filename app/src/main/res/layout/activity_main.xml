@@ -35,7 +35,7 @@
 				android:layout_height="wrap_content"
 				android:contentDescription="@null"
 				android:layout_gravity="start"
-				android:background="?android:selectableItemBackground"
+				android:background="?android:selectableItemBackgroundBorderless"
 				android:padding="@dimen/spacing_normal"
 				android:src="@drawable/ic_import"/>
 
@@ -312,5 +312,12 @@
 				android:src="@drawable/ic_list"/>
 
 	</FrameLayout>
+
+	<View
+			android:id="@+id/space"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/spacing_small"
+			android:elevation="@dimen/toolbar_elevation"
+			/>
 
 </LinearLayout>

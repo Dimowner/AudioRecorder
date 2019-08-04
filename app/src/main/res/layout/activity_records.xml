@@ -38,7 +38,7 @@
 				android:layout_height="wrap_content"
 				android:contentDescription="@null"
 				android:layout_gravity="start"
-				android:background="?android:selectableItemBackground"
+				android:background="?android:selectableItemBackgroundBorderless"
 				android:padding="@dimen/spacing_normal"
 				android:src="@drawable/ic_arrow_back"/>
 
@@ -59,13 +59,12 @@
 
 		<ImageButton
 				android:id="@+id/btn_bookmarks"
-				android:layout_width="@dimen/bottom_pnl_small_btn_size"
-				android:layout_height="@dimen/bottom_pnl_small_btn_size"
-				android:adjustViewBounds="true"
-				android:background="?android:selectableItemBackgroundBorderless"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
 				android:contentDescription="@null"
 				android:layout_gravity="center_vertical|end"
-				android:scaleType="center"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:padding="@dimen/spacing_normal"
 				android:src="@drawable/ic_bookmark_bordered"/>
 
 	</LinearLayout>

@@ -30,9 +30,12 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -42,6 +45,7 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.util.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,6 +84,17 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
+
+		getWindow().setFlags(
+				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+		LinearLayout toolbar = findViewById(R.id.toolbar);
+		toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
+
+		View space = findViewById(R.id.space);
+		ViewGroup.LayoutParams params = space.getLayoutParams();
+		params.height = AndroidUtils.getNavigationBarHeight(getApplicationContext());
+		space.setLayoutParams(params);
 
 		ImageButton btnBack = findViewById(R.id.btn_back);
 //		TextView btnDeleteAll = findViewById(R.id.btnDeleteAll);

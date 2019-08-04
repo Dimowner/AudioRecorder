@@ -28,6 +28,7 @@ public class ListItem implements Parcelable {
 	public final static int ITEM_TYPE_HEADER = 2;
 	public final static int ITEM_TYPE_DATE   = 3;
 	public final static int ITEM_TYPE_FOOTER = 4;
+	public final static int ITEM_TYPE_FOOTER_SMALL = 5;
 
 	private final long id;
 	private final int type;
@@ -69,6 +70,10 @@ public class ListItem implements Parcelable {
 
 	public static ListItem createFooterItem() {
 		return new ListItem(-1, ListItem.ITEM_TYPE_FOOTER, "FOOTER", "", 0, 0, 0, "", false, null);
+	}
+
+	public static ListItem createFooterSmallItem() {
+		return new ListItem(-1, ListItem.ITEM_TYPE_FOOTER_SMALL, "FOOTER_SMALL", "", 0, 0, 0, "", false, null);
 	}
 
 	public static ListItem createDateItem(long date) {

@@ -20,8 +20,6 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 	<LinearLayout
-			xmlns:android="http://schemas.android.com/apk/res/android"
-			xmlns:tools="http://schemas.android.com/tools"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical">
@@ -38,7 +36,7 @@
 					android:layout_height="wrap_content"
 					android:contentDescription="@null"
 					android:layout_gravity="start"
-					android:background="?android:selectableItemBackground"
+					android:background="?android:selectableItemBackgroundBorderless"
 					android:padding="@dimen/spacing_normal"
 					android:src="@drawable/ic_arrow_back"/>
 
@@ -309,5 +307,11 @@
 				android:drawablePadding="@dimen/spacing_double"
 				/>
 
+		<View
+				android:id="@+id/space"
+				android:layout_width="match_parent"
+				android:layout_height="@dimen/spacing_normal"
+				android:elevation="@dimen/toolbar_elevation"
+				/>
 	</LinearLayout>
 </ScrollView>
