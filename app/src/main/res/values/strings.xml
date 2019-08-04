@@ -32,7 +32,14 @@
 	<string name="request">Request or feedback</string>
 	<string name="email_clients_not_found">Not found any Email client</string>
 	<string name="send_email">Send by email&#8230;</string>
+	<string name="open_record_with">Open %s with</string>
+	<string name="delete">Delete</string>
 	<string name="info">Information</string>
+	<string name="rename">Rename</string>
+	<string name="open_with">Open with&#823;</string>
+	<string name="download">Download</string>
+	<string name="share">Share</string>
+	<string name="ask_to_rename">Show renaming dialog after stop recording</string>
 
 	<string name="app_settings">App settings:</string>
 	<string name="recording_settings">Recording settings:</string>

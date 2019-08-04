@@ -210,7 +210,7 @@
 				android:textColor="@color/text_primary_light"
 				android:maxLines="1"
 				android:textSize="@dimen/text_large"
-				android:drawableEnd="@drawable/ic_pencil"
+				android:drawableEnd="@drawable/ic_pencil_small"
 				android:visibility="invisible"
 				tools:text="@string/app_name"
 				/>

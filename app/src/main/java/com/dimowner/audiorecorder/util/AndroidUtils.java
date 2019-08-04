@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -25,7 +26,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
+import android.net.Uri;
 import android.os.Build;
+import android.support.v4.content.FileProvider;
 import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
 import android.view.Display;
@@ -34,6 +37,7 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
@@ -267,5 +271,40 @@ public class AndroidUtils {
 		// Set the icon to null just in case, on some weird devices, they've customized Android to display
 		// the icon in the menu... we don't want two icons to appear.
 		menuItem.setIcon(null);
+	}
+
+	public static void shareAudioFile(Context context, String sharePath, String name) {
+		if (sharePath != null) {
+			Uri fileUri = FileProvider.getUriForFile(
+					context,
+					context.getApplicationContext().getPackageName() + ".app_file_provider",
+					new File(sharePath)
+			);
+			Intent share = new Intent(Intent.ACTION_SEND);
+			share.setType("audio/*");
+			share.putExtra(Intent.EXTRA_STREAM, fileUri);
+			share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+			context.startActivity(Intent.createChooser(share, context.getResources().getString(R.string.share_record, name)));
+		} else {
+			Timber.e("There no record selected!");
+			Toast.makeText(context, R.string.please_select_record_to_share, Toast.LENGTH_LONG).show();
+		}
+	}
+
+	public static void openAudioFile(Context context, String sharePath, String name) {
+		if (sharePath != null) {
+			Uri fileUri = FileProvider.getUriForFile(
+					context,
+					context.getApplicationContext().getPackageName() + ".app_file_provider",
+					new File(sharePath)
+			);
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setDataAndType(fileUri, "audio/*");
+			intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+			context.startActivity(Intent.createChooser(intent, context.getResources().getString(R.string.open_record_with, name)));
+		} else {
+			Timber.e("There no record selected!");
+			Toast.makeText(context, R.string.error_unknown, Toast.LENGTH_LONG).show();
+		}
 	}
 }

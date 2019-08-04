@@ -11,6 +11,8 @@ public class SettingsContract {
 		void showKeepScreenOn(boolean b);
 		void showRecordInStereo(boolean b);
 
+		void showAskToRenameAfterRecordingStop(boolean b);
+
 		void showRecordingBitrate(int bitrate);
 
 		void showRecordingSampleRate(int rate);
@@ -36,6 +38,8 @@ public class SettingsContract {
 		void storeInPublicDir(boolean b);
 
 		void keepScreenOn(boolean b);
+
+		void askToRenameAfterRecordingStop(boolean b);
 
 		void recordInStereo(boolean stereo);
 

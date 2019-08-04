@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.app.records;
 
+import android.os.Environment;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
@@ -35,6 +36,7 @@ import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import timber.log.Timber;
 
@@ -47,6 +49,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	private AppRecorderCallback appRecorderCallback;
 	private final BackgroundQueue loadingTasks;
 	private final BackgroundQueue recordingsTasks;
+	private final BackgroundQueue copyTasks;
 	private final FileRepository fileRepository;
 	private final LocalRepository localRepository;
 	private final Prefs prefs;
@@ -56,12 +59,13 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	private boolean showBookmarks = false;
 
 	public RecordsPresenter(final LocalRepository localRepository, FileRepository fileRepository,
-									BackgroundQueue loadingTasks, BackgroundQueue recordingsTasks,
+									BackgroundQueue loadingTasks, BackgroundQueue recordingsTasks, BackgroundQueue copyTasks,
 									PlayerContract.Player player, AppRecorder appRecorder, Prefs prefs) {
 		this.localRepository = localRepository;
 		this.fileRepository = fileRepository;
 		this.loadingTasks = loadingTasks;
 		this.recordingsTasks = recordingsTasks;
+		this.copyTasks = copyTasks;
 		this.audioPlayer = player;
 		this.appRecorder = appRecorder;
 		this.playerCallback = null;
@@ -221,25 +225,36 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	@Override
 	public void deleteActiveRecord() {
-		audioPlayer.stop();
+		if (activeRecord != null) {
+			deleteRecord(activeRecord.getId(), activeRecord.getPath());
+		}
+	}
+
+	@Override
+	public void deleteRecord(final long id, final String path) {
+		if (activeRecord != null && activeRecord.getId() == id) {
+			audioPlayer.stop();
+		}
 		recordingsTasks.postRunnable(new Runnable() {
 			@Override public void run() {
-				if (activeRecord != null) {
-					localRepository.deleteRecord(activeRecord.getId());
-					fileRepository.deleteRecordFile(activeRecord.getPath());
+				localRepository.deleteRecord((int)id);
+				fileRepository.deleteRecordFile(path);
+				if (activeRecord != null && activeRecord.getId() == id) {
 					prefs.setActiveRecord(-1);
-					final long id = activeRecord.getId();
-					activeRecord = null;
 					dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							if (view != null) {
-								view.onDeleteRecord(id);
+				}
+				AndroidUtils.runOnUIThread(new Runnable() {
+					@Override
+					public void run() {
+						if (view != null) {
+							view.onDeleteRecord(id);
+							if (activeRecord != null && activeRecord.getId() == id) {
+								view.hidePlayPanel();
+								activeRecord = null;
 							}
 						}
-					});
-				}
+					}
+				});
 			}
 		});
 	}
@@ -331,6 +346,26 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 						}
 					}});
 			}});
+	}
+
+	@Override
+	public void copyToDownloads(final String path, final String name) {
+		if (view != null) {
+			//TODO: show copy progress
+			copyTasks.postRunnable(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						FileUtil.copyFile(new File(path), FileUtil.createFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), name));
+						//TODO: show success result
+					} catch (IOException e) {
+						Timber.v(e);
+						//TODO: show copy error
+					}
+					//TODO:hide progress
+				}
+			});
+		}
 	}
 
 	@Override

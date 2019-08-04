@@ -16,33 +16,21 @@
 
 package com.dimowner.audiorecorder.app.records;
 
-import android.app.Activity;
-import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.v4.widget.PopupMenuCompat;
 import android.support.v7.widget.RecyclerView;
-import android.text.SpannableStringBuilder;
-import android.text.style.ImageSpan;
 import android.util.TypedValue;
-import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.dimowner.audiorecorder.R;
@@ -54,8 +42,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import timber.log.Timber;
-
 public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 	private List<ListItem> data;
@@ -65,6 +51,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 	private ItemClickListener itemClickListener;
 	private OnAddToBookmarkListener onAddToBookmarkListener = null;
+	private OnItemOptionListener onItemOptionListener = null;
 
 	public RecordsAdapter() {
 		this.data = new ArrayList<>();
@@ -118,9 +105,10 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder viewHolder, final int p) {
+	public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder viewHolder, final int pos) {
 		if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_NORMAL) {
 			final ItemViewHolder holder = (ItemViewHolder) viewHolder;
+			final int p = holder.getAdapterPosition();
 			holder.name.setText(data.get(p).getName());
 			holder.description.setText(data.get(p).getDurationStr());
 			holder.created.setText(data.get(p).getAddedTimeStr());
@@ -150,8 +138,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			holder.btnMore.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					Timber.v("ONCLICK btnMore");
-					showMenu(v);
+					showMenu(v, p);
 				}
 			});
 			holder.waveformView.setWaveform(data.get(p).getAmps());
@@ -165,19 +152,21 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 				}});
 		} else if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_DATE) {
 			UniversalViewHolder holder = (UniversalViewHolder) viewHolder;
-			((TextView)holder.view).setText(TimeUtils.formatDateSmart(data.get(p).getAdded(), holder.view.getContext()));
+			((TextView)holder.view).setText(TimeUtils.formatDateSmart(data.get(viewHolder.getAdapterPosition()).getAdded(), holder.view.getContext()));
 		}
 	}
 
-	public void showMenu(View v) {
+	public void showMenu(View v, final int pos) {
 		PopupMenu popup = new PopupMenu(v.getContext(), v);
 		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
-				Timber.v("onMenuItemClick");
-				return false;
+			if (onItemOptionListener != null) {
+				onItemOptionListener.onItemOptionSelected(item.getItemId(), data.get(pos));
 			}
-		});// to implement on click event on items of menu
+			return false;
+			}
+		});
 		MenuInflater inflater = popup.getMenuInflater();
 		inflater.inflate(R.menu.menu_more, popup.getMenu());
 		AndroidUtils.insertMenuItemIcons(v.getContext(), popup);
@@ -232,6 +221,10 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	public void addData(List<ListItem> d) {
 		this.data.addAll(addDateHeaders(d));
 		notifyItemRangeInserted(data.size() - d.size() - 1, d.size());
+	}
+
+	public ListItem getItem(int pos) {
+		return data.get(pos);
 	}
 
 	private List<ListItem> addDateHeaders(List<ListItem> data) {
@@ -376,18 +369,23 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		void onItemClick(View view, long id, String path, int position);
 	}
 
+	public void setOnItemOptionListener(OnItemOptionListener onItemOptionListener) {
+		this.onItemOptionListener = onItemOptionListener;
+	}
 
 	public interface OnAddToBookmarkListener {
 		void onAddToBookmarks(int id);
 		void onRemoveFromBookmarks(int id);
 	}
 
+	public interface OnItemOptionListener {
+		void onItemOptionSelected(int menuId, ListItem item);
+	}
+
 	public class ItemViewHolder extends RecyclerView.ViewHolder {
-//			implements View.OnCreateContextMenuListener {
 		TextView name;
 		TextView description;
 		TextView created;
-		//		ImageView image;
 		ImageButton btnBookmark;
 		ImageButton btnMore;
 		SimpleWaveformView waveformView;
@@ -399,19 +397,10 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			name = itemView.findViewById(R.id.list_item_name);
 			description = itemView.findViewById(R.id.list_item_description);
 			created = itemView.findViewById(R.id.list_item_date);
-//			this.image = itemView.findViewById(R.id.list_item_image);
 			btnBookmark = itemView.findViewById(R.id.list_item_bookmark);
 			waveformView = itemView.findViewById(R.id.list_item_waveform);
 			btnMore = itemView.findViewById(R.id.list_item_more);
-//			btnMore.setOnCreateContextMenuListener(this);
 		}
-
-//		@Override
-//		public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-//			Timber.v("onCreateContextMenu");
-//			menu.add(Menu.NONE, 22, Menu.NONE, R.string.delete_record);
-//			menu.add(Menu.NONE, 33, Menu.NONE, R.string.app_name);
-//		}
 	}
 
 	public class UniversalViewHolder extends RecyclerView.ViewHolder {

@@ -52,6 +52,8 @@ public interface RecordsContract {
 
 		void onDeleteRecord(long id);
 
+		void hidePlayPanel();
+
 		void addedToBookmarks(int id, boolean isActive);
 		void removedFromBookmarks(int id, boolean isActive);
 
@@ -75,7 +77,11 @@ public interface RecordsContract {
 
 		void deleteActiveRecord();
 
+		void deleteRecord(long id, String path);
+
 		void renameRecord(long id, String name);
+
+		void copyToDownloads(String path, String name);
 
 		void loadRecords();
 

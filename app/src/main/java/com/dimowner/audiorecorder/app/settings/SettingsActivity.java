@@ -57,6 +57,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private Switch swPublicDir;
 	private Switch swRecordInStereo;
 	private Switch swKeepScreenOn;
+	private Switch swAskToRename;
 
 	private Spinner formatSelector;
 	private Spinner sampleRateSelector;
@@ -81,18 +82,19 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		setContentView(R.layout.activity_settings);
 
 		ImageButton btnBack = findViewById(R.id.btn_back);
-		TextView btnDeleteAll = findViewById(R.id.btnDeleteAll);
+//		TextView btnDeleteAll = findViewById(R.id.btnDeleteAll);
 		TextView btnRate = findViewById(R.id.btnRate);
 		TextView btnRequest = findViewById(R.id.btnRequest);
 		TextView txtAbout = findViewById(R.id.txtAbout);
 		txtAbout.setText(getAboutContent());
 		btnBack.setOnClickListener(this);
-		btnDeleteAll.setOnClickListener(this);
+//		btnDeleteAll.setOnClickListener(this);
 		btnRate.setOnClickListener(this);
 		btnRequest.setOnClickListener(this);
 		swPublicDir = findViewById(R.id.swPublicDir);
 		swRecordInStereo = findViewById(R.id.swRecordInStereo);
 		swKeepScreenOn = findViewById(R.id.swKeepScreenOn);
+		swAskToRename = findViewById(R.id.swAskToRename);
 
 		txtRecordsCount = findViewById(R.id.txt_records_count);
 		txtTotalDuration= findViewById(R.id.txt_total_duration);
@@ -115,6 +117,12 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			@Override
 			public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
 				presenter.keepScreenOn(isChecked);
+			}
+		});
+		swAskToRename.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
+				presenter.askToRenameAfterRecordingStop(isChecked);
 			}
 		});
 
@@ -262,27 +270,27 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			case R.id.btnRate:
 				rateApp();
 				break;
-			case R.id.btnDeleteAll:
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle(R.string.warning)
-						.setIcon(R.drawable.ic_delete_forever)
-						.setMessage(R.string.delete_all_records)
-						.setCancelable(false)
-						.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								presenter.deleteAllRecords();
-								dialog.dismiss();
-							}
-						})
-						.setNegativeButton(R.string.btn_no,
-								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int id) {
-										dialog.dismiss();
-									}
-								});
-				AlertDialog alert = builder.create();
-				alert.show();
-				break;
+//			case R.id.btnDeleteAll:
+//				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//				builder.setTitle(R.string.warning)
+//						.setIcon(R.drawable.ic_delete_forever)
+//						.setMessage(R.string.delete_all_records)
+//						.setCancelable(false)
+//						.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
+//							public void onClick(DialogInterface dialog, int id) {
+//								presenter.deleteAllRecords();
+//								dialog.dismiss();
+//							}
+//						})
+//						.setNegativeButton(R.string.btn_no,
+//								new DialogInterface.OnClickListener() {
+//									public void onClick(DialogInterface dialog, int id) {
+//										dialog.dismiss();
+//									}
+//								});
+//				AlertDialog alert = builder.create();
+//				alert.show();
+//				break;
 			case R.id.btnRequest:
 				requestFeature();
 				break;
@@ -361,6 +369,11 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	@Override
 	public void showRecordInStereo(boolean b) {
 		swRecordInStereo.setChecked(b);
+	}
+
+	@Override
+	public void showAskToRenameAfterRecordingStop(boolean b) {
+		swAskToRename.setChecked(b);
 	}
 
 	@Override

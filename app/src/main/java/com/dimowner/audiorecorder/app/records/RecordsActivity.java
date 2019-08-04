@@ -27,6 +27,7 @@ import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -182,7 +183,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
-			public void onScrolled(RecyclerView rv, int dx, int dy) {
+			public void onScrolled(@NonNull RecyclerView rv, int dx, int dy) {
 				super.onScrolled(rv, dx, dy);
 				handleToolbarScroll(dy);
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -228,6 +229,48 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			}
 			@Override public void onRemoveFromBookmarks(int id) {
 				presenter.removeFromBookmarks(id);
+			}
+		});
+		adapter.setOnItemOptionListener(new RecordsAdapter.OnItemOptionListener() {
+			@Override
+			public void onItemOptionSelected(int menuId, final ListItem item) {
+				switch (menuId) {
+					case R.id.menu_share:
+						AndroidUtils.shareAudioFile(getApplicationContext(), item.getPath(), item.getName());
+						break;
+//					case R.id.menu_info:
+//						break;
+					case R.id.menu_rename:
+						setRecordName(item.getId(), new File(item.getPath()));
+						break;
+					case R.id.menu_open_with:
+						AndroidUtils.openAudioFile(getApplicationContext(), item.getPath(), item.getName());
+						break;
+//					case R.id.menu_download:
+//						presenter.copyToDownloads(item.getPath(), item.getName());
+//						break;
+					case R.id.menu_delete:
+						AlertDialog.Builder builder = new AlertDialog.Builder(RecordsActivity.this);
+						builder.setTitle(R.string.warning)
+								.setIcon(R.drawable.ic_delete_forever)
+								.setMessage(R.string.delete_record)
+								.setCancelable(false)
+								.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog, int id) {
+										presenter.deleteRecord(item.getId(), item.getPath());
+										dialog.dismiss();
+									}
+								})
+								.setNegativeButton(R.string.btn_no,
+										new DialogInterface.OnClickListener() {
+											public void onClick(DialogInterface dialog, int id) {
+												dialog.dismiss();
+											}
+										});
+						AlertDialog alert = builder.create();
+						alert.show();
+						break;
+				}
 			}
 		});
 		recyclerView.setAdapter(adapter);
@@ -585,10 +628,15 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	public void onDeleteRecord(long id) {
-		adapter.deleteItem(id);
+//		adapter.deleteItem(id);
+		presenter.loadRecords();
 		if (adapter.getAudioRecordsCount() == 0) {
 			showEmptyList();
 		}
+	}
+
+	@Override
+	public void hidePlayPanel() {
 		hidePanel();
 	}
 
@@ -683,6 +731,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 						String newName = editText.getText().toString();
 						if (!fileName.equalsIgnoreCase(newName)) {
 							presenter.renameRecord(recordId, newName);
+							presenter.loadRecords();
 						}
 						hideKeyboard();
 						dialog.dismiss();

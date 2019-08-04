@@ -192,7 +192,7 @@
 						android:textColor="@color/text_primary_light"
 						android:textSize="@dimen/text_xmedium"
 						android:maxLines="1"
-						android:drawableEnd="@drawable/ic_pencil"
+						android:drawableEnd="@drawable/ic_pencil_small"
 						tools:text="Record 2321"/>
 
 				<TextView

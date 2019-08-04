@@ -26,11 +26,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.content.FileProvider;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
@@ -72,7 +71,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Ability to delete record by swipe left
 // TODO: Ability to scroll up from the bottom of the list
 // TODO: Ability to search by record name in list
-// TODO: Add pagination for records list
 // TODO: Welcome screen
 // TODO: Guidelines
 // TODO: Check how work max recording duration
@@ -228,22 +226,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				startActivity(SettingsActivity.getStartIntent(getApplicationContext()));
 				break;
 			case R.id.btn_share:
-				String sharePath = presenter.getActiveRecordPath();
-				if (sharePath != null) {
-					Uri photoURI = FileProvider.getUriForFile(
-							getApplicationContext(),
-							getApplicationContext().getApplicationContext().getPackageName() + ".app_file_provider",
-							new File(sharePath)
-					);
-					Intent share = new Intent(Intent.ACTION_SEND);
-					share.setType("audio/*");
-					share.putExtra(Intent.EXTRA_STREAM, photoURI);
-					share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-					startActivity(Intent.createChooser(share, getResources().getString(R.string.share_record, presenter.getActiveRecordName())));
-				} else {
-					Timber.e("There no active record selected!");
-					Toast.makeText(getApplicationContext(), R.string.please_select_record_to_share, Toast.LENGTH_LONG).show();
-				}
+				AndroidUtils.shareAudioFile(getApplicationContext(), presenter.getActiveRecordPath(), presenter.getActiveRecordName());
 				break;
 			case R.id.btn_import:
 				if (checkStoragePermission()) {
@@ -604,7 +587,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+	public void onRequestPermissionsResult(int requestCode,  @NonNull String[] permissions, @NonNull int[] grantResults) {
 		if (requestCode == REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL && grantResults.length > 0
 					&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 					&& grantResults[1] == PackageManager.PERMISSION_GRANTED
@@ -621,6 +604,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 			startFileSelector();
+		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE
+				&& grantResults[0] == PackageManager.PERMISSION_DENIED) {
+			Timber.v("WRITE_EXTERNAL_STORAGE DENIED");
+			//TODO: show message that app cant write into private directory and record will be written in private
 		}
 	}
 }

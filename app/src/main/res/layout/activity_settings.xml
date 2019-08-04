@@ -126,6 +126,33 @@
 					/>
 		</LinearLayout>
 
+		<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
+
+			<TextView
+					style="@style/Text.NormalLabel"
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:text="@string/ask_to_rename"
+					android:layout_marginTop="@dimen/spacing_normal"
+					android:layout_marginBottom="@dimen/spacing_normal"
+					android:layout_marginEnd="@dimen/spacing_normal"
+					android:layout_marginStart="@dimen/spacing_normal"
+					android:drawableStart="@drawable/ic_pencil"
+					android:drawablePadding="@dimen/spacing_double"
+					/>
+
+			<Switch
+					android:id="@+id/swAskToRename"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_margin="@dimen/spacing_normal"
+					android:layout_gravity="top"
+					/>
+		</LinearLayout>
 
 		<TextView
 				android:layout_width="match_parent"
@@ -198,17 +225,17 @@
 				android:layout_marginEnd="@dimen/spacing_normal"
 				/>
 
-		<TextView
-				android:id="@+id/btnDeleteAll"
-				style="@style/Text.NormalLabel"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/delete_all"
-				android:drawableStart="@drawable/ic_delete_forever"
-				android:background="?android:selectableItemBackground"
-				android:padding="@dimen/spacing_normal"
-				android:drawablePadding="@dimen/spacing_double"
-				/>
+		<!--<TextView-->
+				<!--android:id="@+id/btnDeleteAll"-->
+				<!--style="@style/Text.NormalLabel"-->
+				<!--android:layout_width="match_parent"-->
+				<!--android:layout_height="wrap_content"-->
+				<!--android:text="@string/delete_all"-->
+				<!--android:drawableStart="@drawable/ic_delete_forever"-->
+				<!--android:background="?android:selectableItemBackground"-->
+				<!--android:padding="@dimen/spacing_normal"-->
+				<!--android:drawablePadding="@dimen/spacing_double"-->
+				<!--/>-->
 
 		<TextView
 				android:id="@+id/btnRate"

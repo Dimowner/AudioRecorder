@@ -32,7 +32,14 @@
 	<string name="request">Обратная связь</string>
 	<string name="email_clients_not_found">Не найдено ни одного почтового клиента</string>
 	<string name="send_email">Послать по электронной почте&#8230;</string>
+	<string name="open_record_with">Открыть %s с помощью</string>
+	<string name="delete">Удалить</string>
 	<string name="info">Информация</string>
+	<string name="rename">Переименовать</string>
+	<string name="open_with">Открыть с помощью&#823;</string>
+	<string name="download">Скачать</string>
+	<string name="share">Поделиться</string>
+	<string name="ask_to_rename">Показывать диалог переименования после завершения записи</string>
 
 	<string name="app_settings">Настройки приложения:</string>
 	<string name="recording_settings">Настройки записи:</string>

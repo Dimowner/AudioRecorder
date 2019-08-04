@@ -151,7 +151,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						view.hideProgress();
 						view.showRecordingStop();
 						loadActiveRecord();
-						view.askRecordingNewName(id, file);
+						if (prefs.isAskToRenameAfterStopRecording()) {
+							view.askRecordingNewName(id, file);
+						}
 					}
 				}
 
