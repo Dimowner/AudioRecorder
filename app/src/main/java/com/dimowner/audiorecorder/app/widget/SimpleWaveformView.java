@@ -19,7 +19,6 @@ package com.dimowner.audiorecorder.app.widget;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -67,7 +66,9 @@ public class SimpleWaveformView extends View {
 		setFocusable(false);
 
 		waveformPaint = new Paint();
-		waveformPaint.setStyle(Paint.Style.FILL);
+		waveformPaint.setStyle(Paint.Style.STROKE);
+		waveformPaint.setStrokeWidth(AndroidUtils.dpToPx(1));
+		waveformPaint.setStrokeJoin(Paint.Join.ROUND);
 		waveformPaint.setAntiAlias(true);
 		waveformPaint.setColor(context.getResources().getColor(waveformColorRes));
 
@@ -147,19 +148,36 @@ public class SimpleWaveformView extends View {
 			width = getMeasuredWidth();
 		}
 
-		Path path = new Path();
-		path.moveTo(0, half);
-		path.lineTo(0, half);
+//		Path path = new Path();
+//		path.moveTo(0, half);
+//		path.lineTo(0, half);
+//		float dpi = AndroidUtils.dpToPx(1);
+//		for (int i = 1; i < width; i++) {
+//			path.lineTo(i * dpi, half - waveformData[i]);
+//		}
+//		for (int i = width - 1; i >= 0; i--) {
+//			path.lineTo(i * dpi, half + 1 + waveformData[i]);
+//		}
+//		path.lineTo(0, half);
+//		path.close();
+//		canvas.drawPath(path, waveformPaint);
+
 		float dpi = AndroidUtils.dpToPx(1);
-		for (int i = 1; i < width; i++) {
-			path.lineTo(i * dpi, half - waveformData[i]);
+		float[] lines = new float[width*4+4];
+		int step = 0;
+		for (int i = 0; i < width; i++) {
+			lines[step] = i*dpi;
+			lines[step+1] = half + waveformData[i];
+			lines[step+2] = i*dpi;
+			lines[step+3] = half - waveformData[i];
+			step +=4;
 		}
-		for (int i = width - 1; i >= 0; i--) {
-			path.lineTo(i * dpi, half + 1 + waveformData[i]);
-		}
-		path.lineTo(0, half);
-		path.close();
-		canvas.drawPath(path, waveformPaint);
+		//Horizontal zero line
+		lines[step] = 0;
+		lines[step+1] = half;
+		lines[step+2] = width*dpi;
+		lines[step+3] = half;
+		canvas.drawLines(lines, 0, lines.length, waveformPaint);
 	}
 
 	/**
