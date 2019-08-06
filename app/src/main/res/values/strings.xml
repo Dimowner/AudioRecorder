@@ -41,6 +41,9 @@
 	<string name="share">Share</string>
 	<string name="ask_to_rename">Show renaming dialog after stop recording</string>
 	<string name="record_deleted_successfully">Record deleted successfully</string>
+	<string name="by_date">By date</string>
+	<string name="by_name">By name</string>
+	<string name="by_duration">By duration</string>
 
 	<string name="app_settings">App settings:</string>
 	<string name="recording_settings">Recording settings:</string>

@@ -41,6 +41,9 @@
 	<string name="share">Поділитися</string>
 	<string name="ask_to_rename">Показувати діалог перейменування після завершення звукозапису</string>
 	<string name="record_deleted_successfully">Запис %s видалено успішно</string>
+	<string name="by_date">По даті</string>
+	<string name="by_name">По імені</string>
+	<string name="by_duration">По тривалості</string>
 
 	<string name="app_settings">Налаштування додатка:</string>
 	<string name="recording_settings">Налаштування запису:</string>

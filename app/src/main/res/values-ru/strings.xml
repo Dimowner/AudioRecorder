@@ -41,6 +41,9 @@
 	<string name="share">Поделиться</string>
 	<string name="ask_to_rename">Показывать диалог переименования после завершения записи</string>
 	<string name="record_deleted_successfully">Запись удалена успешно</string>
+	<string name="by_date">По дате</string>
+	<string name="by_name">По имени</string>
+	<string name="by_duration">По длительности</string>
 
 	<string name="app_settings">Настройки приложения:</string>
 	<string name="recording_settings">Настройки записи:</string>

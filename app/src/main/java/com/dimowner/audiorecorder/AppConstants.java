@@ -75,6 +75,10 @@ public class AppConstants {
 	public final static int RECORD_ENCODING_BITRATE_128000 = 128000;
 	public final static int RECORD_ENCODING_BITRATE_192000 = 192000;
 
+	public static final int ORDER_DATE = 1;
+	public static final int ORDER_NAME = 2;
+	public static final int ORDER_DURATION = 3;
+
 //	public final static int RECORD_AUDIO_CHANNELS_COUNT = 2;
 	public final static int RECORD_AUDIO_MONO = 1;
 	public final static int RECORD_AUDIO_STEREO = 2;

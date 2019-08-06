@@ -50,4 +50,7 @@ public interface Prefs {
 
 	void setSampleRate(int rate);
 	int getSampleRate();
+
+	void setRecordOrder(int order);
+	int getRecordsOrder();
 }

@@ -149,6 +149,18 @@ public abstract class DataSource<T> {
 	}
 
 	/**
+	 * Get records from database for table T.
+	 * @return List that contains all records of table T.
+	 */
+	public ArrayList<T> getRecords(int page, String order) {
+		Cursor cursor = queryLocal("SELECT * FROM " + tableName
+				+ " ORDER BY " + order
+				+ " LIMIT " + AppConstants.DEFAULT_PER_PAGE
+				+ " OFFSET " + (page-1) * AppConstants.DEFAULT_PER_PAGE);
+		return convertCursor(cursor);
+	}
+
+	/**
 	 * Delete all records from the table
 	 * @throws SQLException on error
 	 */

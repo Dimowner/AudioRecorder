@@ -33,6 +33,8 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
@@ -40,6 +42,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -79,6 +82,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private ImageButton btnPrev;
 	private ImageButton btnDelete;
 	private ImageButton btnBookmarks;
+	private ImageButton btnSort;
 	private ImageButton btnCheckBookmark;
 	private TextView txtProgress;
 	private TextView txtDuration;
@@ -128,6 +132,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnPrev = findViewById(R.id.btn_prev);
 		btnDelete = findViewById(R.id.btn_delete);
 		btnBookmarks = findViewById(R.id.btn_bookmarks);
+		btnSort = findViewById(R.id.btn_sort);
 		btnCheckBookmark = findViewById(R.id.btn_check_bookmark);
 		txtEmpty = findViewById(R.id.txtEmpty);
 		txtTitle = findViewById(R.id.txt_title);
@@ -138,6 +143,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnDelete.setOnClickListener(this);
 		btnBookmarks.setOnClickListener(this);
 		btnCheckBookmark.setOnClickListener(this);
+		btnSort.setOnClickListener(this);
 
 		playProgress = findViewById(R.id.play_progress);
 		txtProgress = findViewById(R.id.txt_progress);
@@ -462,12 +468,40 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			case R.id.btn_bookmarks:
 				presenter.applyBookmarksFilter();
 				break;
+			case R.id.btn_sort:
+				showMenu(view);
+				break;
 			case R.id.txt_name:
 				if (presenter.getActiveRecordId() != -1) {
 					setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()));
 				}
 				break;
 		}
+	}
+
+	private void showMenu(View v) {
+		PopupMenu popup = new PopupMenu(v.getContext(), v);
+		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				switch (item.getItemId()) {
+					case R.id.menu_date:
+						presenter.updateRecordsOrder(AppConstants.ORDER_DATE);
+						break;
+					case R.id.menu_name:
+						presenter.updateRecordsOrder(AppConstants.ORDER_NAME);
+						break;
+					case R.id.menu_duration:
+						presenter.updateRecordsOrder(AppConstants.ORDER_DURATION);
+						break;
+				}
+				return false;
+			}
+		});
+		MenuInflater inflater = popup.getMenuInflater();
+		inflater.inflate(R.menu.menu_sort, popup.getMenu());
+		AndroidUtils.insertMenuItemIcons(v.getContext(), popup);
+		popup.show();
 	}
 
 	@Override
@@ -577,12 +611,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
-	public void showRecords(List<ListItem> records) {
+	public void showRecords(List<ListItem> records, int order) {
 		if (records.size() == 0) {
 //			txtEmpty.setVisibility(View.VISIBLE);
-			adapter.setData(new ArrayList<ListItem>());
+			adapter.setData(new ArrayList<ListItem>(), order);
 		} else {
-			adapter.setData(records);
+			adapter.setData(records, order);
 			txtEmpty.setVisibility(View.GONE);
 			if (touchLayout.getVisibility() == View.VISIBLE) {
 				adapter.showFooter();
@@ -591,8 +625,8 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
-	public void addRecords(List<ListItem> records) {
-		adapter.addData(records);
+	public void addRecords(List<ListItem> records, int order) {
+		adapter.addData(records, order);
 		txtEmpty.setVisibility(View.GONE);
 	}
 
@@ -657,12 +691,14 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	public void bookmarksSelected() {
 		btnBookmarks.setImageResource(R.drawable.ic_bookmark);
 		txtTitle.setText(R.string.bookmarks);
+		btnSort.setVisibility(View.GONE);
 	}
 
 	@Override
 	public void bookmarksUnselected() {
 		btnBookmarks.setImageResource(R.drawable.ic_bookmark_bordered);
 		txtTitle.setText(R.string.records);
+		btnSort.setVisibility(View.VISIBLE);
 	}
 
 	@Override

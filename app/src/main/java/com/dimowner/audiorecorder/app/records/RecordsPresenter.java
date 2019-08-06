@@ -377,7 +377,8 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			loadingTasks.postRunnable(new Runnable() {
 				@Override
 				public void run() {
-					final List<Record> recordList = localRepository.getRecords(0);
+					final int order = prefs.getRecordsOrder();
+					final List<Record> recordList = localRepository.getRecords(0, order);
 					activeRecord = localRepository.getRecord((int) prefs.getActiveRecord());
 					if (activeRecord != null) {
 						dpPerSecond = ARApplication.getDpPerSecond((float) activeRecord.getDuration() / 1000000f);
@@ -386,7 +387,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 						@Override
 						public void run() {
 							if (view != null) {
-								view.showRecords(Mapper.recordsToListItems(recordList));
+								view.showRecords(Mapper.recordsToListItems(recordList), order);
 								if (activeRecord != null) {
 									view.showWaveForm(activeRecord.getAmps(), activeRecord.getDuration());
 									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(activeRecord.getDuration() / 1000));
@@ -412,6 +413,12 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	}
 
 	@Override
+	public void updateRecordsOrder(int order) {
+		prefs.setRecordOrder(order);
+		loadRecords();
+	}
+
+	@Override
 	public void loadRecordsPage(final int page) {
 		if (view != null) {
 			view.showProgress();
@@ -419,7 +426,8 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			loadingTasks.postRunnable(new Runnable() {
 				@Override
 				public void run() {
-					final List<Record> recordList = localRepository.getRecords(page);
+					final int order = prefs.getRecordsOrder();
+					final List<Record> recordList = localRepository.getRecords(page, order);
 					activeRecord = localRepository.getRecord((int) prefs.getActiveRecord());
 					if (activeRecord != null) {
 						dpPerSecond = ARApplication.getDpPerSecond((float) activeRecord.getDuration() / 1000000f);
@@ -428,7 +436,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 						@Override
 						public void run() {
 							if (view != null) {
-								view.addRecords(Mapper.recordsToListItems(recordList));
+								view.addRecords(Mapper.recordsToListItems(recordList), order);
 								if (activeRecord != null) {
 									view.showWaveForm(activeRecord.getAmps(), activeRecord.getDuration());
 									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(activeRecord.getDuration() / 1000));
@@ -469,7 +477,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 							@Override
 							public void run() {
 								if (view != null) {
-									view.showRecords(Mapper.recordsToListItems(recordList));
+									view.showRecords(Mapper.recordsToListItems(recordList), AppConstants.ORDER_DATE);
 									if (activeRecord != null) {
 										view.showWaveForm(activeRecord.getAmps(), activeRecord.getDuration());
 										view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(activeRecord.getDuration() / 1000));

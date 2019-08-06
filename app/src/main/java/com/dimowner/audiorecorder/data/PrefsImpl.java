@@ -38,6 +38,7 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_FORMAT = "pref_format";
 	private static final String PREF_KEY_BITRATE = "pref_bitrate";
 	private static final String PREF_KEY_SAMPLE_RATE = "pref_sample_rate";
+	private static final String PREF_KEY_RECORDS_ORDER = "pref_records_order";
 
 	//Recording prefs.
 	private static final String PREF_KEY_RECORD_CHANNEL_COUNT = "record_channel_count";
@@ -194,5 +195,17 @@ public class PrefsImpl implements Prefs {
 	@Override
 	public int getSampleRate() {
 		return sharedPreferences.getInt(PREF_KEY_SAMPLE_RATE, AppConstants.RECORD_SAMPLE_RATE_44100);
+	}
+
+	@Override
+	public void setRecordOrder(int order) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putInt(PREF_KEY_RECORDS_ORDER, order);
+		editor.apply();
+	}
+
+	@Override
+	public int getRecordsOrder() {
+		return sharedPreferences.getInt(PREF_KEY_RECORDS_ORDER, AppConstants.ORDER_DATE);
 	}
 }

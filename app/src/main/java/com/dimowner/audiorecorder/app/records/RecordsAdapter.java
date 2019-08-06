@@ -17,7 +17,6 @@
 package com.dimowner.audiorecorder.app.records;
 
 import android.graphics.Typeface;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -33,6 +32,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.widget.SimpleWaveformView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
@@ -208,10 +208,12 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		return data.get(position).getType();
 	}
 
-	void setData(List<ListItem> d) {
-		data = d;
+	void setData(List<ListItem> d, int order) {
+		updateShowHeader(order);
 		if (showDateHeaders) {
 			data = addDateHeaders(d);
+		} else {
+			data = d;
 		}
 		data.add(0, ListItem.createHeaderItem());
 		notifyDataSetChanged();
@@ -222,14 +224,31 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 //		notifyItemRangeInserted(data.size() - d.size(), d.size());
 //	}
 
-	void addData(List<ListItem> d) {
+	void addData(List<ListItem> d, int order) {
 		if (data.size() > 0) {
-			if (findFooter() >= 0) {
-				data.addAll(data.size() - 1, addDateHeaders(d));
+			updateShowHeader(order);
+			if (showDateHeaders) {
+				if (findFooter() >= 0) {
+					data.addAll(data.size() - 1, addDateHeaders(d));
+				} else {
+					data.addAll(addDateHeaders(d));
+				}
 			} else {
-				data.addAll(addDateHeaders(d));
+				if (findFooter() >= 0) {
+					data.addAll(data.size() - 1, d);
+				} else {
+					data.addAll(d);
+				}
 			}
 			notifyItemRangeInserted(data.size() - d.size(), d.size());
+		}
+	}
+
+	private void updateShowHeader(int order) {
+		if (order == AppConstants.ORDER_DATE) {
+			showDateHeaders = true;
+		} else {
+			showDateHeaders = false;
 		}
 	}
 

@@ -19,6 +19,7 @@ package com.dimowner.audiorecorder.data.database;
 import android.database.Cursor;
 import android.database.SQLException;
 
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.audio.SoundFile;
 
 import java.io.File;
@@ -221,6 +222,33 @@ public class LocalRepositoryImpl implements LocalRepository {
 			dataSource.open();
 		}
 		List<Record> list = dataSource.getRecords(page);
+		//Remove not records with not existing audio files (which was lost or deleted)
+		for (int i = 0; i < list.size(); i++) {
+			if (!isFileExists(list.get(i).getPath())) {
+				dataSource.deleteItem(list.get(i).getId());
+			}
+		}
+		return list;
+	}
+
+	@Override
+	public List<Record> getRecords(int page, int order) {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		String orderStr;
+		switch (order) {
+			case AppConstants.ORDER_NAME:
+				orderStr = SQLiteHelper.COLUMN_NAME + " ASC";
+				break;
+			case AppConstants.ORDER_DURATION:
+				orderStr = SQLiteHelper.COLUMN_DURATION + " DESC";
+				break;
+			case AppConstants.ORDER_DATE:
+			default:
+				orderStr = SQLiteHelper.COLUMN_DATE_ADDED + " DESC";
+		}
+		List<Record> list = dataSource.getRecords(page, orderStr);
 		//Remove not records with not existing audio files (which was lost or deleted)
 		for (int i = 0; i < list.size(); i++) {
 			if (!isFileExists(list.get(i).getPath())) {

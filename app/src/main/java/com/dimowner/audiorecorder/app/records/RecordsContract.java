@@ -40,8 +40,9 @@ public interface RecordsContract {
 		void showWaveForm(int[] waveForm, long duration);
 		void showDuration(String duration);
 
-		void showRecords(List<ListItem> records);
-		void addRecords(List<ListItem> records);
+		void showRecords(List<ListItem> records, int order);
+		void addRecords(List<ListItem> records, int order);
+
 		void showEmptyList();
 		void showEmptyBookmarksList();
 
@@ -84,6 +85,8 @@ public interface RecordsContract {
 		void copyToDownloads(String path, String name);
 
 		void loadRecords();
+
+		void updateRecordsOrder(int order);
 
 		void loadRecordsPage(int page);
 

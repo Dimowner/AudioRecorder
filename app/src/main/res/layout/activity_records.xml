@@ -58,6 +58,16 @@
 				/>
 
 		<ImageButton
+				android:id="@+id/btn_sort"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@null"
+				android:layout_gravity="center_vertical|end"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:padding="@dimen/spacing_normal"
+				android:src="@drawable/ic_filter_list"/>
+
+		<ImageButton
 				android:id="@+id/btn_bookmarks"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
