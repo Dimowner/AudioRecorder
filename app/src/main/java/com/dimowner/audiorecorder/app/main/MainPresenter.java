@@ -527,6 +527,36 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
+	public void deleteActiveRecord() {
+		if (record != null) {
+			audioPlayer.stop();
+		}
+		recordingsTasks.postRunnable(new Runnable() {
+			@Override public void run() {
+				localRepository.deleteRecord(record.getId());
+				fileRepository.deleteRecordFile(record.getPath());
+				if (record != null) {
+					prefs.setActiveRecord(-1);
+					dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
+				}
+				AndroidUtils.runOnUIThread(new Runnable() {
+					@Override
+					public void run() {
+						if (view != null) {
+							view.showWaveForm(new int[]{}, 0);
+							view.showName("");
+							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
+							view.showMessage(R.string.record_deleted_successfully);
+							view.hideProgress();
+							record = null;
+						}
+					}
+				});
+			}
+		});
+	}
+
+	@Override
 	public void importAudioFile(final Context context, final Uri uri) {
 		if (view != null) {
 			view.showImportStart();

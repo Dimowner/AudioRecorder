@@ -122,6 +122,6 @@
 			android:paddingEnd="@dimen/spacing_tiny"
 			android:paddingStart="@dimen/spacing_zero"
 			android:layout_gravity="center_vertical|end"
-			android:src="@drawable/ic_more_vert"/>
+			android:src="@drawable/ic_more_vert_transparent"/>
 
 </FrameLayout>

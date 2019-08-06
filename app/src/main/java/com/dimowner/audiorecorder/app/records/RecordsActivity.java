@@ -685,6 +685,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
 	}
 
+	@Override
+	public void showMessage(int resId) {
+		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
+	}
+
 	public void setRecordName(final long recordId, File file) {
 		//Create dialog layout programmatically.
 		LinearLayout container = new LinearLayout(getApplicationContext());

@@ -33,6 +33,8 @@ import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -40,6 +42,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -226,7 +229,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				startActivity(SettingsActivity.getStartIntent(getApplicationContext()));
 				break;
 			case R.id.btn_share:
-				AndroidUtils.shareAudioFile(getApplicationContext(), presenter.getActiveRecordPath(), presenter.getActiveRecordName());
+//				AndroidUtils.shareAudioFile(getApplicationContext(), presenter.getActiveRecordPath(), presenter.getActiveRecordName());
+				showMenu(view);
 				break;
 			case R.id.btn_import:
 				if (checkStoragePermission()) {
@@ -286,6 +290,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showError(int resId) {
+		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void showMessage(int resId) {
 		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
 	}
 
@@ -469,6 +478,57 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void hideRecordProcessing() {
 		pnlRecordProcessing.setVisibility(View.INVISIBLE);
+	}
+
+	private void showMenu(View v) {
+		PopupMenu popup = new PopupMenu(v.getContext(), v);
+		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				switch (item.getItemId()) {
+					case R.id.menu_share:
+						AndroidUtils.shareAudioFile(getApplicationContext(), presenter.getActiveRecordPath(), presenter.getActiveRecordName());
+						break;
+//					case R.id.menu_info:
+//						break;
+					case R.id.menu_rename:
+						setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()));
+						break;
+					case R.id.menu_open_with:
+						AndroidUtils.openAudioFile(getApplicationContext(), presenter.getActiveRecordPath(), presenter.getActiveRecordName());
+						break;
+//					case R.id.menu_download:
+//						presenter.copyToDownloads(item.getPath(), item.getName());
+//						break;
+					case R.id.menu_delete:
+						AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+						builder.setTitle(R.string.warning)
+								.setIcon(R.drawable.ic_delete_forever)
+								.setMessage(R.string.delete_record)
+								.setCancelable(false)
+								.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog, int id) {
+										presenter.deleteActiveRecord();
+										dialog.dismiss();
+									}
+								})
+								.setNegativeButton(R.string.btn_no,
+										new DialogInterface.OnClickListener() {
+											public void onClick(DialogInterface dialog, int id) {
+												dialog.dismiss();
+											}
+										});
+						AlertDialog alert = builder.create();
+						alert.show();
+						break;
+				}
+				return false;
+			}
+		});
+		MenuInflater inflater = popup.getMenuInflater();
+		inflater.inflate(R.menu.menu_more, popup.getMenu());
+		AndroidUtils.insertMenuItemIcons(v.getContext(), popup);
+		popup.show();
 	}
 
 	public void setRecordName(final long recordId, File file) {

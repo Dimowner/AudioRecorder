@@ -62,7 +62,7 @@
 				android:contentDescription="@null"
 				android:layout_gravity="end"
 				android:scaleType="center"
-				android:src="@drawable/ic_share"/>
+				android:src="@drawable/ic_more_vert"/>
 
 	</LinearLayout>
 

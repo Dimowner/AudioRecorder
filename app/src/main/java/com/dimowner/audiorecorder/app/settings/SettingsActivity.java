@@ -462,4 +462,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	public void showError(int resId) {
 		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
 	}
+
+	@Override
+	public void showMessage(int resId) {
+		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
+	}
 }

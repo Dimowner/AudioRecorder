@@ -90,5 +90,7 @@ public interface MainContract {
 		String getActiveRecordName();
 
 		int getActiveRecordId();
+
+		void deleteActiveRecord();
 	}
 }

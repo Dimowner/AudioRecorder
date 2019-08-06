@@ -250,6 +250,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 							view.onDeleteRecord(id);
 							if (activeRecord != null && activeRecord.getId() == id) {
 								view.hidePlayPanel();
+								view.showMessage(R.string.record_deleted_successfully);
 								activeRecord = null;
 							}
 						}
