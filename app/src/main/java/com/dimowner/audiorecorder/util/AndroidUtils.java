@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.util;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -36,9 +37,12 @@ import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
@@ -346,5 +350,52 @@ public class AndroidUtils {
 			Timber.e("There no record selected!");
 			Toast.makeText(context, R.string.error_unknown, Toast.LENGTH_LONG).show();
 		}
+	}
+
+	public static void showDialog(Activity activity, int resTitle, int resContent,
+											View.OnClickListener positiveBtnListener, View.OnClickListener negativeBtnListener){
+		showDialog(activity, -1, -1, resTitle, resContent, positiveBtnListener, negativeBtnListener);
+	}
+
+	public static void showDialog(Activity activity, int positiveBtnTextRes, int negativeBtnTextRes, int resTitle, int resContent,
+											final View.OnClickListener positiveBtnListener, final View.OnClickListener negativeBtnListener){
+		final Dialog dialog = new Dialog(activity);
+		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		dialog.setCancelable(false);
+		View view = activity.getLayoutInflater().inflate(R.layout.dialog_layout, null, false);
+		((TextView)view.findViewById(R.id.dialog_title)).setText(resTitle);
+		((TextView)view.findViewById(R.id.dialog_content)).setText(resContent);
+		if (negativeBtnListener != null) {
+			Button negativeBtn = view.findViewById(R.id.dialog_negative_btn);
+			if (negativeBtnTextRes >=0) {
+				negativeBtn.setText(negativeBtnTextRes);
+			}
+			negativeBtn.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					negativeBtnListener.onClick(v);
+					dialog.dismiss();
+				}
+			});
+		} else {
+			view.findViewById(R.id.dialog_negative_btn).setVisibility(View.GONE);
+		}
+		if (positiveBtnListener != null) {
+			Button positiveBtn = view.findViewById(R.id.dialog_positive_btn);
+			if (positiveBtnTextRes >=0) {
+				positiveBtn.setText(positiveBtnTextRes);
+			}
+			positiveBtn.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					positiveBtnListener.onClick(v);
+					dialog.dismiss();
+				}
+			});
+		} else {
+			view.findViewById(R.id.dialog_positive_btn).setVisibility(View.GONE);
+		}
+		dialog.setContentView(view);
+		dialog.show();
 	}
 }

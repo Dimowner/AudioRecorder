@@ -214,9 +214,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				presenter.startPlayback();
 				break;
 			case R.id.btn_record:
-				if (checkRecordPermission()) {
-					//Start or stop recording
-					presenter.startRecording();
+				if (checkRecordPermission2()) {
+					if (checkStoragePermission2()) {
+						//Start or stop recording
+						presenter.startRecording();
+					}
 				}
 				break;
 			case R.id.btn_stop:
@@ -617,6 +619,42 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		return true;
 	}
 
+	private boolean checkRecordPermission2() {
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+				requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_CODE_RECORD_AUDIO);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean checkStoragePermission2() {
+		if (presenter.isStorePublic()) {
+			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+					AndroidUtils.showDialog(this, R.string.warning, R.string.need_write_permission,
+							new View.OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQ_CODE_WRITE_EXTERNAL_STORAGE);
+								}
+							},
+							new View.OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									presenter.setStoragePrivate(getApplicationContext());
+									presenter.startRecording();
+								}
+							}
+					);
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	private boolean checkRecordPermission() {
 		if (presenter.isStorePublic()) {
 			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -655,19 +693,24 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			presenter.startRecording();
 		} else if (requestCode == REQ_CODE_RECORD_AUDIO && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-			presenter.startRecording();
+			if (checkStoragePermission2()) {
+				presenter.startRecording();
+			}
 		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-			presenter.startRecording();
+			if (checkRecordPermission2()) {
+				presenter.startRecording();
+			}
 		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 			startFileSelector();
 		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE
-				&& grantResults[0] == PackageManager.PERMISSION_DENIED) {
-			Timber.v("WRITE_EXTERNAL_STORAGE DENIED");
-			//TODO: show message that app cant write into private directory and record will be written in private
+				&& (grantResults[0] == PackageManager.PERMISSION_DENIED
+				|| grantResults[1] == PackageManager.PERMISSION_DENIED)) {
+			presenter.setStoragePrivate(getApplicationContext());
+			presenter.startRecording();
 		}
 	}
 }

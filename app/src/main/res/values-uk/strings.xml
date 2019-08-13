@@ -44,6 +44,7 @@
 	<string name="by_date">По даті</string>
 	<string name="by_name">По імені</string>
 	<string name="by_duration">По тривалості</string>
+	<string name="need_write_permission">Додатку потрібно дозвіл на запис в публічне сховище. Якщо не дозволити, записи будуть зберігатися в приватному каталозі додатка</string>
 
 	<string name="app_settings">Налаштування додатка:</string>
 	<string name="recording_settings">Налаштування запису:</string>
@@ -55,8 +56,10 @@
 	<string name="btn_save">Зберегти</string>
 	<string name="btn_cancel">Відмінити</string>
 	<string name="btn_yes">Так</string>
+	<string name="btn_ok">Добре</string>
 	<string name="btn_no">Ні</string>
 	<string name="btn_play">Грати</string>
+	<string name="btn_deny">Заборонити</string>
 
 	<string name="error_unknown">Неочікувана помилка</string>
 	<string name="error_cant_create_file">Не вдалося створити файл</string>

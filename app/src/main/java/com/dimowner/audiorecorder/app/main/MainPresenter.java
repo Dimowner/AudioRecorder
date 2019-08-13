@@ -491,7 +491,13 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void updateRecordingDir(Context context) {
-		this.fileRepository.updateRecordingDir(context, prefs);
+		fileRepository.updateRecordingDir(context, prefs);
+	}
+
+	@Override
+	public void setStoragePrivate(Context context) {
+		prefs.setStoreDirPublic(false);
+		fileRepository.updateRecordingDir(context, prefs);
 	}
 
 	@Override

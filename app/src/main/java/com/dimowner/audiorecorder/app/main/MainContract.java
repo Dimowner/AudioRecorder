@@ -82,6 +82,8 @@ public interface MainContract {
 
 		void updateRecordingDir(Context context);
 
+		void setStoragePrivate(Context context);
+
 		//TODO: Remove this getters
 		boolean isStorePublic();
 

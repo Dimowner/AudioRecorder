@@ -44,6 +44,7 @@
 	<string name="by_date">По дате</string>
 	<string name="by_name">По имени</string>
 	<string name="by_duration">По длительности</string>
+	<string name="need_write_permission">Приложению требуется разрешение на запись в публичное хранилище. Если не разрешить, записи будут сохраняться в приватном каталоге приложения</string>
 
 	<string name="app_settings">Настройки приложения:</string>
 	<string name="recording_settings">Настройки записи:</string>
@@ -55,8 +56,10 @@
 	<string name="btn_save">Сохранить</string>
 	<string name="btn_cancel">Отменить</string>
 	<string name="btn_yes">Да</string>
+	<string name="btn_ok">Хорошо</string>
 	<string name="btn_no">Нет</string>
 	<string name="btn_play">Играть</string>
+	<string name="btn_deny">Запретить</string>
 
 	<string name="error_unknown">Неожиданная ошибка</string>
 	<string name="error_cant_create_file">Не удалось создать файл</string>
