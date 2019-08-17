@@ -274,7 +274,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void executeFirstRun() {
-		prefs.firstRunExecuted();
+		if (prefs.isFirstRun()) {
+			prefs.firstRunExecuted();
+		}
 	}
 
 	@Override
@@ -560,6 +562,19 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				});
 			}
 		});
+	}
+
+	@Override
+	public void onRecordInfo() {
+		String format;
+		if (record.getPath().contains(AppConstants.M4A_EXTENSION)) {
+			format = AppConstants.M4A_EXTENSION;
+		} else if (record.getPath().contains(AppConstants.WAV_EXTENSION)) {
+			format = AppConstants.WAV_EXTENSION;
+		} else {
+			format = "";
+		}
+		view.showRecordInfo(record.getName(), format, record.getDuration()/1000, new File(record.getPath()).length(), record.getPath());
 	}
 
 	@Override

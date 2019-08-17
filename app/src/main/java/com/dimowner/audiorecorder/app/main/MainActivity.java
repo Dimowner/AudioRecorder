@@ -54,6 +54,7 @@ import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.RecordingService;
+import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.records.RecordsActivity;
 import com.dimowner.audiorecorder.app.settings.SettingsActivity;
 import com.dimowner.audiorecorder.app.widget.WaveformView;
@@ -455,6 +456,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
+	public void showRecordInfo(String name, String format, long duration, long size, String location) {
+		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), name, format, duration, size, location));
+	}
+
+	@Override
 	public void updateRecordingView(List<Integer> data) {
 		waveformView.setRecordingData(data);
 	}
@@ -497,8 +503,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 					case R.id.menu_share:
 						AndroidUtils.shareAudioFile(getApplicationContext(), presenter.getActiveRecordPath(), presenter.getActiveRecordName());
 						break;
-//					case R.id.menu_info:
-//						break;
+					case R.id.menu_info:
+						presenter.onRecordInfo();
+						break;
 					case R.id.menu_rename:
 						setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()));
 						break;
@@ -583,18 +590,22 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 						if (!fileName.equalsIgnoreCase(newName)) {
 							presenter.renameRecord(recordId, newName);
 						}
-						hideKeyboard();
 						dialog.dismiss();
 					}
 				})
 				.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
-						hideKeyboard();
 						dialog.dismiss();
 					}
 				})
 				.create();
 		alertDialog.show();
+		alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+			@Override
+			public void onDismiss(DialogInterface dialog) {
+				hideKeyboard();
+			}
+		});
 		editText.requestFocus();
 		editText.setSelection(editText.getText().length());
 		showKeyboard();

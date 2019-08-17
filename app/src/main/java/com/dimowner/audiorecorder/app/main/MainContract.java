@@ -57,6 +57,8 @@ public interface MainContract {
 		void showDuration(String duration);
 		void showName(String name);
 
+		void showRecordInfo(String name, String format, long duration, long size, String location);
+
 		void updateRecordingView(List<Integer> data);
 	}
 
@@ -94,5 +96,7 @@ public interface MainContract {
 		int getActiveRecordId();
 
 		void deleteActiveRecord();
+
+		void onRecordInfo();
 	}
 }

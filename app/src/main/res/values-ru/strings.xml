@@ -45,6 +45,11 @@
 	<string name="by_name">По имени</string>
 	<string name="by_duration">По длительности</string>
 	<string name="need_write_permission">Приложению требуется разрешение на запись в публичное хранилище. Если не разрешить, записи будут сохраняться в приватном каталоге приложения</string>
+	<string name="rec_name">Название:</string>
+	<string name="rec_format">Формат:</string>
+	<string name="rec_duration">Длительность:</string>
+	<string name="rec_size">Размер:</string>
+	<string name="rec_location">Расположение файла:</string>
 
 	<string name="app_settings">Настройки приложения:</string>
 	<string name="recording_settings">Настройки записи:</string>

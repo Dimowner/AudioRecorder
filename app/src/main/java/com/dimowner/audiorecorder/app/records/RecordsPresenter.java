@@ -649,4 +649,17 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			return "Record";
 		}
 	}
+
+	@Override
+	public void onRecordInfo(String name, long duration, String location) {
+		String format;
+		if (location.contains(AppConstants.M4A_EXTENSION)) {
+			format = AppConstants.M4A_EXTENSION;
+		} else if (location.contains(AppConstants.WAV_EXTENSION)) {
+			format = AppConstants.WAV_EXTENSION;
+		} else {
+			format = "";
+		}
+		view.showRecordInfo(name, format, duration, new File(location).length(), location);
+	}
 }

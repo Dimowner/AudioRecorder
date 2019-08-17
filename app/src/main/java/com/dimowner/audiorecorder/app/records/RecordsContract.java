@@ -62,6 +62,8 @@ public interface RecordsContract {
 
 		void bookmarksSelected();
 		void bookmarksUnselected();
+
+		void showRecordInfo(String name, String format, long duration, long size, String location);
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<RecordsContract.View> {
@@ -105,6 +107,8 @@ public interface RecordsContract {
 		String getActiveRecordPath();
 
 		String getRecordName();
+
+		void onRecordInfo(String name, long duration, String location);
 	}
 
 	interface Callback {

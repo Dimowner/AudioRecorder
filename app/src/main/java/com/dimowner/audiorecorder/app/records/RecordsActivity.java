@@ -55,6 +55,7 @@ import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.PlaybackService;
+import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.widget.SimpleWaveformView;
 import com.dimowner.audiorecorder.app.widget.TouchLayout;
 import com.dimowner.audiorecorder.app.widget.WaveformView;
@@ -251,8 +252,9 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 					case R.id.menu_share:
 						AndroidUtils.shareAudioFile(getApplicationContext(), item.getPath(), item.getName());
 						break;
-//					case R.id.menu_info:
-//						break;
+					case R.id.menu_info:
+						presenter.onRecordInfo(item.getName(), item.getDuration(), item.getPath());
+						break;
 					case R.id.menu_rename:
 						setRecordName(item.getId(), new File(item.getPath()));
 						break;
@@ -741,6 +743,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
+	public void showRecordInfo(String name, String format, long duration, long size, String location) {
+		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), name, format, duration, size, location));
+	}
+
+	@Override
 	public void showProgress() {
 		progressBar.setVisibility(View.VISIBLE);
 	}
@@ -810,18 +817,22 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 							presenter.renameRecord(recordId, newName);
 							presenter.loadRecords();
 						}
-						hideKeyboard();
 						dialog.dismiss();
 					}
 				})
 				.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
-						hideKeyboard();
 						dialog.dismiss();
 					}
 				})
 				.create();
 		alertDialog.show();
+		alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+			@Override
+			public void onDismiss(DialogInterface dialog) {
+				hideKeyboard();
+			}
+		});
 		editText.requestFocus();
 		editText.setSelection(editText.getText().length());
 		showKeyboard();

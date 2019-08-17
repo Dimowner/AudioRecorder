@@ -45,6 +45,11 @@
 	<string name="by_name">По імені</string>
 	<string name="by_duration">По тривалості</string>
 	<string name="need_write_permission">Додатку потрібно дозвіл на запис в публічне сховище. Якщо не дозволити, записи будуть зберігатися в приватному каталозі додатка</string>
+	<string name="rec_name">Назва:</string>
+	<string name="rec_format">Формат:</string>
+	<string name="rec_duration">Тривалість:</string>
+	<string name="rec_size">Розмір:</string>
+	<string name="rec_location">Розташування файлу:</string>
 
 	<string name="app_settings">Налаштування додатка:</string>
 	<string name="recording_settings">Налаштування запису:</string>

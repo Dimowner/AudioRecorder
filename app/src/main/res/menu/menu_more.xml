@@ -7,10 +7,10 @@
 			android:id="@+id/menu_share"
 			android:icon="@drawable/ic_share"
 			android:title="@string/share" />
-	<!--<item-->
-			<!--android:id="@+id/menu_info"-->
-			<!--android:icon="@drawable/ic_info"-->
-			<!--android:title="@string/info" />-->
+	<item
+			android:id="@+id/menu_info"
+			android:icon="@drawable/ic_info"
+			android:title="@string/info" />
 	<item
 			android:id="@+id/menu_rename"
 			android:icon="@drawable/ic_pencil"

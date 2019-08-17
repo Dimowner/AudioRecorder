@@ -52,6 +52,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.text.DecimalFormat;
 
 import timber.log.Timber;
 
@@ -397,5 +398,10 @@ public class AndroidUtils {
 		}
 		dialog.setContentView(view);
 		dialog.show();
+	}
+
+	public static String formatSize(long size) {
+		DecimalFormat formatter = new DecimalFormat("#.##");
+		return formatter.format((float)size/(1024*1024)) + " Mb";
 	}
 }

@@ -258,7 +258,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 	private List<ListItem> addDateHeaders(List<ListItem> data) {
 		if (data.size() > 0) {
-			if (!hasDateHeader(data.get(0).getAdded())) {
+			if (!hasDateHeader(data, data.get(0).getAdded())) {
 				data.add(0, ListItem.createDateItem(data.get(0).getAdded()));
 			}
 			Calendar d1 = Calendar.getInstance();
@@ -267,7 +267,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			for (int i = 1; i < data.size(); i++) {
 				d1.setTimeInMillis(data.get(i - 1).getAdded());
 				d2.setTimeInMillis(data.get(i).getAdded());
-				if (!TimeUtils.isSameDay(d1, d2) && !hasDateHeader(data.get(i).getAdded())) {
+				if (!TimeUtils.isSameDay(d1, d2) && !hasDateHeader(data, data.get(i).getAdded())) {
 					data.add(i, ListItem.createDateItem(data.get(i).getAdded()));
 				}
 			}
@@ -371,7 +371,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		}
 	}
 
-	private boolean hasDateHeader(long time) {
+	private boolean hasDateHeader(List<ListItem> data, long time) {
 		for (int i = data.size()-1; i>= 0; i--) {
 			if (data.get(i).getType() == ListItem.ITEM_TYPE_DATE) {
 				Calendar d1 = Calendar.getInstance();
