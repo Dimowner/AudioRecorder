@@ -206,6 +206,6 @@ public class PrefsImpl implements Prefs {
 
 	@Override
 	public int getRecordsOrder() {
-		return sharedPreferences.getInt(PREF_KEY_RECORDS_ORDER, AppConstants.ORDER_DATE);
+		return sharedPreferences.getInt(PREF_KEY_RECORDS_ORDER, AppConstants.SORT_DATE);
 	}
 }

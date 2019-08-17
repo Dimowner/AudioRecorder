@@ -89,6 +89,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private TextView txtName;
 	private TextView txtEmpty;
 	private TextView txtTitle;
+	private TextView txtSubTitle;
 	private TouchLayout touchLayout;
 	private WaveformView waveformView;
 	private ProgressBar panelProgress;
@@ -136,6 +137,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnCheckBookmark = findViewById(R.id.btn_check_bookmark);
 		txtEmpty = findViewById(R.id.txtEmpty);
 		txtTitle = findViewById(R.id.txt_title);
+		txtSubTitle = findViewById(R.id.txt_sub_title);
 		btnPlay.setOnClickListener(this);
 		btnStop.setOnClickListener(this);
 		btnNext.setOnClickListener(this);
@@ -486,13 +488,13 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			public boolean onMenuItemClick(MenuItem item) {
 				switch (item.getItemId()) {
 					case R.id.menu_date:
-						presenter.updateRecordsOrder(AppConstants.ORDER_DATE);
+						presenter.updateRecordsOrder(AppConstants.SORT_DATE);
 						break;
 					case R.id.menu_name:
-						presenter.updateRecordsOrder(AppConstants.ORDER_NAME);
+						presenter.updateRecordsOrder(AppConstants.SORT_NAME);
 						break;
 					case R.id.menu_duration:
-						presenter.updateRecordsOrder(AppConstants.ORDER_DURATION);
+						presenter.updateRecordsOrder(AppConstants.SORT_DURATION);
 						break;
 				}
 				return false;
@@ -688,10 +690,26 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
+	public void showSortType(int type) {
+		switch (type) {
+			case AppConstants.SORT_DATE:
+				txtSubTitle.setText(R.string.by_date);
+				break;
+			case AppConstants.SORT_NAME:
+				txtSubTitle.setText(R.string.by_name);
+				break;
+			case AppConstants.SORT_DURATION:
+				txtSubTitle.setText(R.string.by_duration);
+				break;
+		}
+	}
+
+	@Override
 	public void bookmarksSelected() {
 		btnBookmarks.setImageResource(R.drawable.ic_bookmark);
 		txtTitle.setText(R.string.bookmarks);
 		btnSort.setVisibility(View.GONE);
+		txtSubTitle.setVisibility(View.GONE);
 	}
 
 	@Override
@@ -699,6 +717,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnBookmarks.setImageResource(R.drawable.ic_bookmark_bordered);
 		txtTitle.setText(R.string.records);
 		btnSort.setVisibility(View.VISIBLE);
+		txtSubTitle.setVisibility(View.VISIBLE);
 	}
 
 	@Override

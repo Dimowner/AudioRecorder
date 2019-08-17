@@ -238,13 +238,13 @@ public class LocalRepositoryImpl implements LocalRepository {
 		}
 		String orderStr;
 		switch (order) {
-			case AppConstants.ORDER_NAME:
+			case AppConstants.SORT_NAME:
 				orderStr = SQLiteHelper.COLUMN_NAME + " ASC";
 				break;
-			case AppConstants.ORDER_DURATION:
+			case AppConstants.SORT_DURATION:
 				orderStr = SQLiteHelper.COLUMN_DURATION + " DESC";
 				break;
-			case AppConstants.ORDER_DATE:
+			case AppConstants.SORT_DATE:
 			default:
 				orderStr = SQLiteHelper.COLUMN_DATE_ADDED + " DESC";
 		}

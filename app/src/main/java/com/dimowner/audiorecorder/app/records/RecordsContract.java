@@ -58,6 +58,8 @@ public interface RecordsContract {
 		void addedToBookmarks(int id, boolean isActive);
 		void removedFromBookmarks(int id, boolean isActive);
 
+		void showSortType(int type);
+
 		void bookmarksSelected();
 		void bookmarksUnselected();
 	}

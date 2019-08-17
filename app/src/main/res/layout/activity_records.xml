@@ -42,20 +42,39 @@
 				android:padding="@dimen/spacing_normal"
 				android:src="@drawable/ic_arrow_back"/>
 
-		<TextView
-				style="@style/Text.SectionLabel"
-				android:id="@+id/txt_title"
+		<LinearLayout
+				android:id="@+id/title"
 				android:layout_width="0dp"
-				android:layout_height="@dimen/toolbar_height"
+				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:gravity="center_vertical"
-				android:paddingStart="@dimen/spacing_normal"
-				android:paddingLeft="@dimen/spacing_normal"
-				android:paddingEnd="@dimen/spacing_normal"
-				android:paddingRight="@dimen/spacing_normal"
-				android:textColor="@color/text_primary_light"
-				android:text="@string/records"
-				/>
+				android:orientation="vertical">
+			<TextView
+					style="@style/Text.SectionLabel"
+					android:id="@+id/txt_title"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:gravity="center_vertical"
+					android:paddingStart="@dimen/spacing_normal"
+					android:paddingLeft="@dimen/spacing_normal"
+					android:paddingEnd="@dimen/spacing_normal"
+					android:paddingRight="@dimen/spacing_normal"
+					android:textColor="@color/text_primary_light"
+					android:text="@string/records"
+					/>
+			<TextView
+					style="@style/Text"
+					android:id="@+id/txt_sub_title"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textSize="@dimen/text_medium"
+					android:gravity="center_vertical"
+					android:layout_marginStart="@dimen/spacing_normal"
+					android:layout_marginBottom="@dimen/spacing_small"
+					android:textColor="@color/text_primary_light"
+					tools:text="@string/records"
+					/>
+		</LinearLayout>
 
 		<ImageButton
 				android:id="@+id/btn_sort"
@@ -65,7 +84,7 @@
 				android:layout_gravity="center_vertical|end"
 				android:background="?android:selectableItemBackgroundBorderless"
 				android:padding="@dimen/spacing_normal"
-				android:src="@drawable/ic_filter_list"/>
+				android:src="@drawable/ic_sort"/>
 
 		<ImageButton
 				android:id="@+id/btn_bookmarks"

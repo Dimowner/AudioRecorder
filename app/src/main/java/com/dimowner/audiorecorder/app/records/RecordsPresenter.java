@@ -168,6 +168,9 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				view.showPlayStart();
 			}
 		}
+		if (view != null) {
+			view.showSortType(prefs.getRecordsOrder());
+		}
 	}
 
 	@Override
@@ -415,6 +418,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	@Override
 	public void updateRecordsOrder(int order) {
 		prefs.setRecordOrder(order);
+		view.showSortType(order);
 		loadRecords();
 	}
 
@@ -477,7 +481,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 							@Override
 							public void run() {
 								if (view != null) {
-									view.showRecords(Mapper.recordsToListItems(recordList), AppConstants.ORDER_DATE);
+									view.showRecords(Mapper.recordsToListItems(recordList), AppConstants.SORT_DATE);
 									if (activeRecord != null) {
 										view.showWaveForm(activeRecord.getAmps(), activeRecord.getDuration());
 										view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(activeRecord.getDuration() / 1000));
