@@ -96,6 +96,10 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			view.hideImportProgress();
 		}
 
+		if (!prefs.hasAskToRenameAfterStopRecordingSetting()) {
+			prefs.setAskToRenameAfterStopRecording(true);
+		}
+
 		if (appRecorder.isRecording()) {
 			view.showRecordingStart();
 			view.keepScreenOn(prefs.isKeepScreenOn());
@@ -441,6 +445,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 									view.showWaveForm(record.getAmps(), songDuration);
 									view.showName(FileUtil.removeFileExtension(record.getName()));
 									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
+									view.showOptionsMenu();
 									view.hideProgress();
 								}
 							}
@@ -482,6 +487,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 									view.showName("");
 									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
 									view.hideProgress();
+									view.hideOptionsMenu();
 								}
 							}
 						});

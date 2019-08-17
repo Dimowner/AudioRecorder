@@ -485,6 +485,16 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
+	public void showOptionsMenu() {
+		btnShare.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void hideOptionsMenu() {
+		btnShare.setVisibility(View.INVISIBLE);
+	}
+
+	@Override
 	public void showRecordProcessing() {
 		pnlRecordProcessing.setVisibility(View.VISIBLE);
 	}

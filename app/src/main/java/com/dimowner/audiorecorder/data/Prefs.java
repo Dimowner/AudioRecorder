@@ -25,6 +25,7 @@ public interface Prefs {
 	void setStoreDirPublic(boolean b);
 
 	boolean isAskToRenameAfterStopRecording();
+	boolean hasAskToRenameAfterStopRecordingSetting();
 	void setAskToRenameAfterStopRecording(boolean b);
 
 	long getActiveRecord();

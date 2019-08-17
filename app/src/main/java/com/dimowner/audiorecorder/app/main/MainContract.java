@@ -50,6 +50,9 @@ public interface MainContract {
 		void showImportStart();
 		void hideImportProgress();
 
+		void showOptionsMenu();
+		void hideOptionsMenu();
+
 		void showRecordProcessing();
 		void hideRecordProcessing();
 

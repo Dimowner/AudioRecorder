@@ -72,7 +72,6 @@ public class PrefsImpl implements Prefs {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putBoolean(PREF_KEY_IS_FIRST_RUN, false);
 		editor.putBoolean(PREF_KEY_IS_STORE_DIR_PUBLIC, true);
-		editor.putBoolean(PREF_KEY_IS_ASK_TO_RENAME_AFTER_STOP_RECORDING, true);
 		editor.apply();
 //		setStoreDirPublic(true);
 	}
@@ -92,6 +91,11 @@ public class PrefsImpl implements Prefs {
 	@Override
 	public boolean isAskToRenameAfterStopRecording() {
 		return sharedPreferences.contains(PREF_KEY_IS_ASK_TO_RENAME_AFTER_STOP_RECORDING) && sharedPreferences.getBoolean(PREF_KEY_IS_ASK_TO_RENAME_AFTER_STOP_RECORDING, true);
+	}
+
+	@Override
+	public boolean hasAskToRenameAfterStopRecordingSetting() {
+		return sharedPreferences.contains(PREF_KEY_IS_ASK_TO_RENAME_AFTER_STOP_RECORDING);
 	}
 
 	@Override
