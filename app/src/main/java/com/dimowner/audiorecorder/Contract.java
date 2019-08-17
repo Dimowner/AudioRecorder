@@ -26,6 +26,8 @@ public interface Contract {
 		void showError(String message);
 
 		void showError(int resId);
+
+		void showMessage(int resId);
 	}
 
 	interface UserActionsListener<T extends View> {

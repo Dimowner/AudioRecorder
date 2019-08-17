@@ -33,6 +33,10 @@ public class ErrorParser {
 			return R.string.error_player_data_source;
 		} else if (e.getType() == AppException.PLAYER_INIT_EXCEPTION) {
 			return R.string.error_failed_to_init_player;
+		} else if (e.getType() == AppException.CANT_PROCESS_RECORD) {
+			return R.string.error_process_waveform;
+		} else if (e.getType() == AppException.READ_PERMISSION_DENIED) {
+			return R.string.error_permission_denied;
 		}
 		return R.string.error_unknown;
 	}

@@ -30,9 +30,12 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -42,6 +45,7 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.util.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +61,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private Switch swPublicDir;
 	private Switch swRecordInStereo;
 	private Switch swKeepScreenOn;
+	private Switch swAskToRename;
 
 	private Spinner formatSelector;
 	private Spinner sampleRateSelector;
@@ -80,19 +85,31 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
 
+		getWindow().setFlags(
+				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+		LinearLayout toolbar = findViewById(R.id.toolbar);
+		toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
+
+		View space = findViewById(R.id.space);
+		ViewGroup.LayoutParams params = space.getLayoutParams();
+		params.height = AndroidUtils.getNavigationBarHeight(getApplicationContext());
+		space.setLayoutParams(params);
+
 		ImageButton btnBack = findViewById(R.id.btn_back);
-		TextView btnDeleteAll = findViewById(R.id.btnDeleteAll);
+//		TextView btnDeleteAll = findViewById(R.id.btnDeleteAll);
 		TextView btnRate = findViewById(R.id.btnRate);
 		TextView btnRequest = findViewById(R.id.btnRequest);
 		TextView txtAbout = findViewById(R.id.txtAbout);
 		txtAbout.setText(getAboutContent());
 		btnBack.setOnClickListener(this);
-		btnDeleteAll.setOnClickListener(this);
+//		btnDeleteAll.setOnClickListener(this);
 		btnRate.setOnClickListener(this);
 		btnRequest.setOnClickListener(this);
 		swPublicDir = findViewById(R.id.swPublicDir);
 		swRecordInStereo = findViewById(R.id.swRecordInStereo);
 		swKeepScreenOn = findViewById(R.id.swKeepScreenOn);
+		swAskToRename = findViewById(R.id.swAskToRename);
 
 		txtRecordsCount = findViewById(R.id.txt_records_count);
 		txtTotalDuration= findViewById(R.id.txt_total_duration);
@@ -115,6 +132,12 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			@Override
 			public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
 				presenter.keepScreenOn(isChecked);
+			}
+		});
+		swAskToRename.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
+				presenter.askToRenameAfterRecordingStop(isChecked);
 			}
 		});
 
@@ -262,27 +285,27 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			case R.id.btnRate:
 				rateApp();
 				break;
-			case R.id.btnDeleteAll:
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle(R.string.warning)
-						.setIcon(R.drawable.ic_delete_forever)
-						.setMessage(R.string.delete_all_records)
-						.setCancelable(false)
-						.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								presenter.deleteAllRecords();
-								dialog.dismiss();
-							}
-						})
-						.setNegativeButton(R.string.btn_no,
-								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int id) {
-										dialog.dismiss();
-									}
-								});
-				AlertDialog alert = builder.create();
-				alert.show();
-				break;
+//			case R.id.btnDeleteAll:
+//				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//				builder.setTitle(R.string.warning)
+//						.setIcon(R.drawable.ic_delete_forever)
+//						.setMessage(R.string.delete_all_records)
+//						.setCancelable(false)
+//						.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
+//							public void onClick(DialogInterface dialog, int id) {
+//								presenter.deleteAllRecords();
+//								dialog.dismiss();
+//							}
+//						})
+//						.setNegativeButton(R.string.btn_no,
+//								new DialogInterface.OnClickListener() {
+//									public void onClick(DialogInterface dialog, int id) {
+//										dialog.dismiss();
+//									}
+//								});
+//				AlertDialog alert = builder.create();
+//				alert.show();
+//				break;
 			case R.id.btnRequest:
 				requestFeature();
 				break;
@@ -313,7 +336,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 				"[" + getResources().getString(R.string.app_name) + "] - " + getResources().getString(R.string.request)
 		);
 		try {
-			startActivity(Intent.createChooser(i, getResources().getString(R.string.send_email)));
+			Intent chooser = Intent.createChooser(i, getResources().getString(R.string.send_email));
+			chooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(chooser);
 		} catch (android.content.ActivityNotFoundException ex) {
 			showError(R.string.email_clients_not_found);
 		}
@@ -361,6 +386,11 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	@Override
 	public void showRecordInStereo(boolean b) {
 		swRecordInStereo.setChecked(b);
+	}
+
+	@Override
+	public void showAskToRenameAfterRecordingStop(boolean b) {
+		swAskToRename.setChecked(b);
 	}
 
 	@Override
@@ -430,6 +460,11 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	@Override
 	public void showError(int resId) {
+		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void showMessage(int resId) {
 		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
 	}
 }

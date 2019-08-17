@@ -24,6 +24,9 @@ public interface Prefs {
 	boolean isStoreDirPublic();
 	void setStoreDirPublic(boolean b);
 
+	boolean isAskToRenameAfterStopRecording();
+	void setAskToRenameAfterStopRecording(boolean b);
+
 	long getActiveRecord();
 	void setActiveRecord(long id);
 
@@ -47,4 +50,7 @@ public interface Prefs {
 
 	void setSampleRate(int rate);
 	int getSampleRate();
+
+	void setRecordOrder(int order);
+	int getRecordsOrder();
 }

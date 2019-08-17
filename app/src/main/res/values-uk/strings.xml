@@ -32,6 +32,24 @@
 	<string name="request">Зворотній зв\'язок</string>
 	<string name="email_clients_not_found">Не знайдено жодного поштового клієнта</string>
 	<string name="send_email">Надіслати по електронній пошті&#8230;</string>
+	<string name="open_record_with">Відкрити %s з допомогою</string>
+	<string name="delete">Видалити</string>
+	<string name="info">Інформація</string>
+	<string name="rename">Перейменувати</string>
+	<string name="open_with">Відкрити з допомогою&#823;</string>
+	<string name="download">Скачати</string>
+	<string name="share">Поділитися</string>
+	<string name="ask_to_rename">Показувати діалог перейменування після завершення звукозапису</string>
+	<string name="record_deleted_successfully">Запис %s видалено успішно</string>
+	<string name="by_date">По даті</string>
+	<string name="by_name">По імені</string>
+	<string name="by_duration">По тривалості</string>
+	<string name="need_write_permission">Додатку потрібно дозвіл на запис в публічне сховище. Якщо не дозволити, записи будуть зберігатися в приватному каталозі додатка</string>
+	<string name="rec_name">Назва:</string>
+	<string name="rec_format">Формат:</string>
+	<string name="rec_duration">Тривалість:</string>
+	<string name="rec_size">Розмір:</string>
+	<string name="rec_location">Розташування файлу:</string>
 
 	<string name="app_settings">Налаштування додатка:</string>
 	<string name="recording_settings">Налаштування запису:</string>
@@ -43,8 +61,11 @@
 	<string name="btn_save">Зберегти</string>
 	<string name="btn_cancel">Відмінити</string>
 	<string name="btn_yes">Так</string>
+	<string name="btn_ok">Добре</string>
 	<string name="btn_no">Ні</string>
 	<string name="btn_play">Грати</string>
+	<string name="btn_deny">Заборонити</string>
+	<string name="btn_allow">Дозволити</string>
 
 	<string name="error_unknown">Неочікувана помилка</string>
 	<string name="error_cant_create_file">Не вдалося створити файл</string>
@@ -56,6 +77,7 @@
 	<string name="error_player_data_source">Програвач не може зчитати запис</string>
 	<string name="error_unable_to_read_sound_file">Не вдалося зчитати аудіо файл</string>
 	<string name="error_permission_denied">Доступ заборонено</string>
+	<string name="error_process_waveform">Не вдалося опрацювати аудіофайл</string>
 
 	<!-- Shown in the 'About' window of the app. -->
 	<string name="about_body"><![CDATA[

@@ -38,34 +38,62 @@
 				android:layout_height="wrap_content"
 				android:contentDescription="@null"
 				android:layout_gravity="start"
-				android:background="?android:selectableItemBackground"
+				android:background="?android:selectableItemBackgroundBorderless"
 				android:padding="@dimen/spacing_normal"
 				android:src="@drawable/ic_arrow_back"/>
 
-		<TextView
-				style="@style/Text.SectionLabel"
-				android:id="@+id/txt_title"
+		<LinearLayout
+				android:id="@+id/title"
 				android:layout_width="0dp"
-				android:layout_height="@dimen/toolbar_height"
+				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:gravity="center_vertical"
-				android:paddingStart="@dimen/spacing_normal"
-				android:paddingLeft="@dimen/spacing_normal"
-				android:paddingEnd="@dimen/spacing_normal"
-				android:paddingRight="@dimen/spacing_normal"
-				android:textColor="@color/text_primary_light"
-				android:text="@string/records"
-				/>
+				android:orientation="vertical">
+			<TextView
+					style="@style/Text.SectionLabel"
+					android:id="@+id/txt_title"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:gravity="center_vertical"
+					android:paddingStart="@dimen/spacing_normal"
+					android:paddingLeft="@dimen/spacing_normal"
+					android:paddingEnd="@dimen/spacing_normal"
+					android:paddingRight="@dimen/spacing_normal"
+					android:textColor="@color/text_primary_light"
+					android:text="@string/records"
+					/>
+			<TextView
+					style="@style/Text"
+					android:id="@+id/txt_sub_title"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textSize="@dimen/text_medium"
+					android:gravity="center_vertical"
+					android:layout_marginStart="@dimen/spacing_normal"
+					android:layout_marginBottom="@dimen/spacing_small"
+					android:textColor="@color/text_primary_light"
+					tools:text="@string/records"
+					/>
+		</LinearLayout>
+
+		<ImageButton
+				android:id="@+id/btn_sort"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@null"
+				android:layout_gravity="center_vertical|end"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:padding="@dimen/spacing_normal"
+				android:src="@drawable/ic_sort"/>
 
 		<ImageButton
 				android:id="@+id/btn_bookmarks"
-				android:layout_width="@dimen/bottom_pnl_small_btn_size"
-				android:layout_height="@dimen/bottom_pnl_small_btn_size"
-				android:adjustViewBounds="true"
-				android:background="?android:selectableItemBackgroundBorderless"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
 				android:contentDescription="@null"
 				android:layout_gravity="center_vertical|end"
-				android:scaleType="center"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:padding="@dimen/spacing_normal"
 				android:src="@drawable/ic_bookmark_bordered"/>
 
 	</LinearLayout>
@@ -192,7 +220,7 @@
 						android:textColor="@color/text_primary_light"
 						android:textSize="@dimen/text_xmedium"
 						android:maxLines="1"
-						android:drawableEnd="@drawable/ic_pencil"
+						android:drawableEnd="@drawable/ic_pencil_small"
 						tools:text="Record 2321"/>
 
 				<TextView

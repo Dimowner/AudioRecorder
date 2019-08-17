@@ -140,6 +140,38 @@ public class FileUtil {
 	}
 
 	/**
+	 * Copy file.
+	 * @param fileToCopy File to copy.
+	 * @param newFile File in which will contain copied data.
+	 * @return true if copy succeed, otherwise - false.
+	 */
+	public static boolean copyFile(File fileToCopy, File newFile) throws IOException {
+		Timber.v("copyFile toCOpy = " + fileToCopy.getAbsolutePath() + " newFile = " + newFile.getAbsolutePath());
+		FileInputStream in = null;
+		FileOutputStream out = null;
+		try {
+			in = new FileInputStream(fileToCopy);
+			out = new FileOutputStream(newFile);
+
+			if (copyLarge(in, out) > 0) {
+				return true;
+			}  else {
+				Timber.e("Nothing was copied!");
+				return false;
+			}
+		} catch (Exception e) {
+			return false;
+		} finally {
+			if (in != null) {
+				in.close();
+			}
+			if (out != null) {
+				out.close();
+			}
+		}
+	}
+
+	/**
 	 * Get free space for specified file
 	 * @param f Dir
 	 * @return Available space for specified file in bytes
@@ -285,6 +317,11 @@ public class FileUtil {
 		String state = Environment.getExternalStorageState();
 		return (Environment.MEDIA_MOUNTED.equals(state) ||
 				Environment.MEDIA_MOUNTED_READ_ONLY.equals(state));
+	}
+
+	public static boolean isFileInExternalStorage(String path) {
+		String external = Environment.getExternalStorageDirectory().getAbsolutePath();
+		return path.contains(external);
 	}
 
 	public static File getPublicMusicStorageDir(String albumName) {

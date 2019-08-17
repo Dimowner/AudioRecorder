@@ -26,14 +26,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.content.FileProvider;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -41,6 +42,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -52,6 +54,7 @@ import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.RecordingService;
+import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.records.RecordsActivity;
 import com.dimowner.audiorecorder.app.settings.SettingsActivity;
 import com.dimowner.audiorecorder.app.widget.WaveformView;
@@ -69,18 +72,18 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 // TODO: Fix WaveForm blinking when seek
 // TODO: Show Record info
-// TODO: Ability to delete record by swipe left
 // TODO: Ability to scroll up from the bottom of the list
 // TODO: Ability to search by record name in list
-// TODO: Add pagination for records list
 // TODO: Welcome screen
 // TODO: Guidelines
 // TODO: Check how work max recording duration
+// TODO: Add scroll animation to start when stop playback
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
 	public static final int REQ_CODE_WRITE_EXTERNAL_STORAGE = 404;
-	public static final int REQ_CODE_READ_EXTERNAL_STORAGE = 405;
+	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_IMPORT = 405;
+	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK = 406;
 	public static final int REQ_CODE_IMPORT_AUDIO = 11;
 
 	private WaveformView waveformView;
@@ -155,6 +158,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		});
 
 		presenter = ARApplication.getInjector().provideMainPresenter();
+		presenter.executeFirstRun();
 
 		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
 			@Override
@@ -163,8 +167,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			}
 			@Override
 			public void onSeeking(int px, long mills) {
-				if (waveformView.getWaveformLength() > 0) {
-					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / waveformView.getWaveformLength());
+				int length = waveformView.getWaveformLength();
+				if (length > 0) {
+					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / length);
 				}
 				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 			}
@@ -207,12 +212,20 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		switch (view.getId()) {
 			case R.id.btn_play:
 				//This method Starts or Pause playback.
-				presenter.startPlayback();
+				if (FileUtil.isFileInExternalStorage(presenter.getActiveRecordPath())) {
+					if (checkStoragePermissionPlayback()) {
+						presenter.startPlayback();
+					}
+				} else {
+					presenter.startPlayback();
+				}
 				break;
 			case R.id.btn_record:
-				if (checkRecordPermission()) {
-					//Start or stop recording
-					presenter.startRecording();
+				if (checkRecordPermission2()) {
+					if (checkStoragePermission2()) {
+						//Start or stop recording
+						presenter.startRecording();
+					}
 				}
 				break;
 			case R.id.btn_stop:
@@ -225,25 +238,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				startActivity(SettingsActivity.getStartIntent(getApplicationContext()));
 				break;
 			case R.id.btn_share:
-				String sharePath = presenter.getActiveRecordPath();
-				if (sharePath != null) {
-					Uri photoURI = FileProvider.getUriForFile(
-							getApplicationContext(),
-							getApplicationContext().getApplicationContext().getPackageName() + ".app_file_provider",
-							new File(sharePath)
-					);
-					Intent share = new Intent(Intent.ACTION_SEND);
-					share.setType("audio/*");
-					share.putExtra(Intent.EXTRA_STREAM, photoURI);
-					share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-					startActivity(Intent.createChooser(share, getResources().getString(R.string.share_record, presenter.getActiveRecordName())));
-				} else {
-					Timber.e("There no active record selected!");
-					Toast.makeText(getApplicationContext(), R.string.please_select_record_to_share, Toast.LENGTH_LONG).show();
-				}
+//				AndroidUtils.shareAudioFile(getApplicationContext(), presenter.getActiveRecordPath(), presenter.getActiveRecordName());
+				showMenu(view);
 				break;
 			case R.id.btn_import:
-				if (checkStoragePermission()) {
+				if (checkStoragePermissionImport()) {
 					startFileSelector();
 				}
 				break;
@@ -258,7 +257,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private void startFileSelector() {
 		Intent intent_upload = new Intent();
 		intent_upload.setType("audio/*");
-		intent_upload.setAction(Intent.ACTION_GET_CONTENT);
+		intent_upload.addCategory(Intent.CATEGORY_OPENABLE);
+//		intent_upload.setAction(Intent.ACTION_GET_CONTENT);
+		intent_upload.setAction(Intent.ACTION_OPEN_DOCUMENT);
 		startActivityForResult(intent_upload, REQ_CODE_IMPORT_AUDIO);
 	}
 
@@ -302,12 +303,18 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
+	public void showMessage(int resId) {
+		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
+	}
+
+	@Override
 	public void showRecordingStart() {
 		btnRecord.setImageResource(R.drawable.ic_record_rec);
 		btnPlay.setEnabled(false);
 		btnImport.setEnabled(false);
 		btnShare.setEnabled(false);
 		playProgress.setProgress(0);
+		playProgress.setEnabled(false);
 		txtDuration.setText(R.string.zero_time);
 		waveformView.showRecording();
 	}
@@ -318,6 +325,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnPlay.setEnabled(true);
 		btnImport.setEnabled(true);
 		btnShare.setEnabled(true);
+		playProgress.setEnabled(true);
 		waveformView.hideRecording();
 		waveformView.clearRecordingData();
 	}
@@ -448,6 +456,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
+	public void showRecordInfo(String name, String format, long duration, long size, String location) {
+		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), name, format, duration, size, location));
+	}
+
+	@Override
 	public void updateRecordingView(List<Integer> data) {
 		waveformView.setRecordingData(data);
 	}
@@ -479,6 +492,58 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void hideRecordProcessing() {
 		pnlRecordProcessing.setVisibility(View.INVISIBLE);
+	}
+
+	private void showMenu(View v) {
+		PopupMenu popup = new PopupMenu(v.getContext(), v);
+		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				switch (item.getItemId()) {
+					case R.id.menu_share:
+						AndroidUtils.shareAudioFile(getApplicationContext(), presenter.getActiveRecordPath(), presenter.getActiveRecordName());
+						break;
+					case R.id.menu_info:
+						presenter.onRecordInfo();
+						break;
+					case R.id.menu_rename:
+						setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()));
+						break;
+					case R.id.menu_open_with:
+						AndroidUtils.openAudioFile(getApplicationContext(), presenter.getActiveRecordPath(), presenter.getActiveRecordName());
+						break;
+//					case R.id.menu_download:
+//						presenter.copyToDownloads(item.getPath(), item.getName());
+//						break;
+					case R.id.menu_delete:
+						AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+						builder.setTitle(R.string.warning)
+								.setIcon(R.drawable.ic_delete_forever)
+								.setMessage(R.string.delete_record)
+								.setCancelable(false)
+								.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog, int id) {
+										presenter.deleteActiveRecord();
+										dialog.dismiss();
+									}
+								})
+								.setNegativeButton(R.string.btn_no,
+										new DialogInterface.OnClickListener() {
+											public void onClick(DialogInterface dialog, int id) {
+												dialog.dismiss();
+											}
+										});
+						AlertDialog alert = builder.create();
+						alert.show();
+						break;
+				}
+				return false;
+			}
+		});
+		MenuInflater inflater = popup.getMenuInflater();
+		inflater.inflate(R.menu.menu_more, popup.getMenu());
+		AndroidUtils.insertMenuItemIcons(v.getContext(), popup);
+		popup.show();
 	}
 
 	public void setRecordName(final long recordId, File file) {
@@ -525,18 +590,22 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 						if (!fileName.equalsIgnoreCase(newName)) {
 							presenter.renameRecord(recordId, newName);
 						}
-						hideKeyboard();
 						dialog.dismiss();
 					}
 				})
 				.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
-						hideKeyboard();
 						dialog.dismiss();
 					}
 				})
 				.create();
 		alertDialog.show();
+		alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+			@Override
+			public void onDismiss(DialogInterface dialog) {
+				hideKeyboard();
+			}
+		});
 		editText.requestFocus();
 		editText.setSelection(editText.getText().length());
 		showKeyboard();
@@ -554,12 +623,71 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 	}
 
-	private boolean checkStoragePermission() {
+	private boolean checkStoragePermissionImport() {
 		if (presenter.isStorePublic()) {
 			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 				if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
 						&& checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-					requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQ_CODE_READ_EXTERNAL_STORAGE);
+					requestPermissions(
+							new String[]{
+									Manifest.permission.WRITE_EXTERNAL_STORAGE,
+									Manifest.permission.READ_EXTERNAL_STORAGE},
+							REQ_CODE_READ_EXTERNAL_STORAGE_IMPORT);
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	private boolean checkStoragePermissionPlayback() {
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+					&& checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+				requestPermissions(
+						new String[]{
+								Manifest.permission.WRITE_EXTERNAL_STORAGE,
+								Manifest.permission.READ_EXTERNAL_STORAGE},
+						REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean checkRecordPermission2() {
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+				requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_CODE_RECORD_AUDIO);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean checkStoragePermission2() {
+		if (presenter.isStorePublic()) {
+			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+					AndroidUtils.showDialog(this, R.string.warning, R.string.need_write_permission,
+							new View.OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									requestPermissions(
+											new String[]{
+													Manifest.permission.WRITE_EXTERNAL_STORAGE,
+													Manifest.permission.READ_EXTERNAL_STORAGE},
+											REQ_CODE_WRITE_EXTERNAL_STORAGE);
+								}
+							},
+							new View.OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									presenter.setStoragePrivate(getApplicationContext());
+									presenter.startRecording();
+								}
+							}
+					);
 					return false;
 				}
 			}
@@ -597,7 +725,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+	public void onRequestPermissionsResult(int requestCode,  @NonNull String[] permissions, @NonNull int[] grantResults) {
 		if (requestCode == REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL && grantResults.length > 0
 					&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 					&& grantResults[1] == PackageManager.PERMISSION_GRANTED
@@ -605,15 +733,28 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			presenter.startRecording();
 		} else if (requestCode == REQ_CODE_RECORD_AUDIO && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-			presenter.startRecording();
+			if (checkStoragePermission2()) {
+				presenter.startRecording();
+			}
 		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-			presenter.startRecording();
-		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE && grantResults.length > 0
+			if (checkRecordPermission2()) {
+				presenter.startRecording();
+			}
+		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE_IMPORT && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 			startFileSelector();
+		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK && grantResults.length > 0
+				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
+				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+			presenter.startPlayback();
+		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE
+				&& (grantResults[0] == PackageManager.PERMISSION_DENIED
+				|| grantResults[1] == PackageManager.PERMISSION_DENIED)) {
+			presenter.setStoragePrivate(getApplicationContext());
+			presenter.startRecording();
 		}
 	}
 }

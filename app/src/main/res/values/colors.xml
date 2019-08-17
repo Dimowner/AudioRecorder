@@ -5,11 +5,14 @@
 	<color name="text_primary_light2">#ccffffff</color>
 	<color name="text_secondary_light">#b3ffffff</color> <!-- 70% -->
 	<color name="selected_item_color">#30ffffff</color>
+	<color name="text_primary_dark">#de000000</color> <!-- 87% -->
+	<color name="text_secondary_dark">#8a000000</color> <!-- 54% -->
 
 	<color name="dark_white">#eaeaea</color>
 	<color name="white">#ffffff</color>
 
 	<color name="icon_background">#f3f5f7</color>
+	<color name="highlight_light">#A1FFFFFF</color>
 
 	<!--reds-->
 	<color name="md_red_500">#e51c23</color>

@@ -30,6 +30,7 @@ public class PrefsImpl implements Prefs {
 
 	private static final String PREF_KEY_IS_FIRST_RUN = "is_first_run";
 	private static final String PREF_KEY_IS_STORE_DIR_PUBLIC = "is_store_dir_public";
+	private static final String PREF_KEY_IS_ASK_TO_RENAME_AFTER_STOP_RECORDING = "is_ask_rename_after_stop_recording";
 	private static final String PREF_KEY_ACTIVE_RECORD = "active_record";
 	private static final String PREF_KEY_RECORD_COUNTER = "record_counter";
 	private static final String PREF_KEY_THEME_COLORMAP_POSITION = "theme_color";
@@ -37,6 +38,7 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_FORMAT = "pref_format";
 	private static final String PREF_KEY_BITRATE = "pref_bitrate";
 	private static final String PREF_KEY_SAMPLE_RATE = "pref_sample_rate";
+	private static final String PREF_KEY_RECORDS_ORDER = "pref_records_order";
 
 	//Recording prefs.
 	private static final String PREF_KEY_RECORD_CHANNEL_COUNT = "record_channel_count";
@@ -69,18 +71,33 @@ public class PrefsImpl implements Prefs {
 	public void firstRunExecuted() {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putBoolean(PREF_KEY_IS_FIRST_RUN, false);
+		editor.putBoolean(PREF_KEY_IS_STORE_DIR_PUBLIC, true);
+		editor.putBoolean(PREF_KEY_IS_ASK_TO_RENAME_AFTER_STOP_RECORDING, true);
 		editor.apply();
+//		setStoreDirPublic(true);
 	}
 
 	@Override
 	public boolean isStoreDirPublic() {
-		return sharedPreferences.contains(PREF_KEY_IS_STORE_DIR_PUBLIC) && sharedPreferences.getBoolean(PREF_KEY_IS_STORE_DIR_PUBLIC, false);
+		return sharedPreferences.contains(PREF_KEY_IS_STORE_DIR_PUBLIC) && sharedPreferences.getBoolean(PREF_KEY_IS_STORE_DIR_PUBLIC, true);
 	}
 
 	@Override
 	public void setStoreDirPublic(boolean b) {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putBoolean(PREF_KEY_IS_STORE_DIR_PUBLIC, b);
+		editor.apply();
+	}
+
+	@Override
+	public boolean isAskToRenameAfterStopRecording() {
+		return sharedPreferences.contains(PREF_KEY_IS_ASK_TO_RENAME_AFTER_STOP_RECORDING) && sharedPreferences.getBoolean(PREF_KEY_IS_ASK_TO_RENAME_AFTER_STOP_RECORDING, true);
+	}
+
+	@Override
+	public void setAskToRenameAfterStopRecording(boolean b) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putBoolean(PREF_KEY_IS_ASK_TO_RENAME_AFTER_STOP_RECORDING, b);
 		editor.apply();
 	}
 
@@ -178,5 +195,17 @@ public class PrefsImpl implements Prefs {
 	@Override
 	public int getSampleRate() {
 		return sharedPreferences.getInt(PREF_KEY_SAMPLE_RATE, AppConstants.RECORD_SAMPLE_RATE_44100);
+	}
+
+	@Override
+	public void setRecordOrder(int order) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putInt(PREF_KEY_RECORDS_ORDER, order);
+		editor.apply();
+	}
+
+	@Override
+	public int getRecordsOrder() {
+		return sharedPreferences.getInt(PREF_KEY_RECORDS_ORDER, AppConstants.SORT_DATE);
 	}
 }

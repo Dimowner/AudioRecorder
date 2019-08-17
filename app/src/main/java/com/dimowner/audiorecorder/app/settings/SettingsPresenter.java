@@ -59,6 +59,7 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		});
 		if (view != null) {
 			view.showStoreInPublicDir(prefs.isStoreDirPublic());
+			view.showAskToRenameAfterRecordingStop(prefs.isAskToRenameAfterStopRecording());
 			view.showRecordInStereo(prefs.getRecordChannelCount() == AppConstants.RECORD_AUDIO_STEREO);
 			view.showKeepScreenOn(prefs.isKeepScreenOn());
 			int format = prefs.getFormat();
@@ -124,6 +125,11 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	@Override
 	public void keepScreenOn(boolean keep) {
 		prefs.setKeepScreenOn(keep);
+	}
+
+	@Override
+	public void askToRenameAfterRecordingStop(boolean b) {
+		prefs.setAskToRenameAfterStopRecording(b);
 	}
 
 	@Override

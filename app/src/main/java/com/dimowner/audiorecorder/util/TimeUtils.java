@@ -71,7 +71,7 @@ public class TimeUtils {
 		if (numHour == 0) {
 			return String.format(Locale.getDefault(), "%02d:%02d", numMinutes, numSeconds % 60);
 		} else {
-			return String.format(Locale.getDefault(), "%02d:%02d:%02d", numHour, numMinutes, numSeconds % 60);
+			return String.format(Locale.getDefault(), "%02d:%02d:%02d", numHour, numMinutes % 60, numSeconds % 60);
 		}
 	}
 

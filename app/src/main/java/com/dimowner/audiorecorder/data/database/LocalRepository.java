@@ -29,6 +29,10 @@ public interface LocalRepository {
 
 	List<Record> getAllRecords();
 
+	List<Record> getRecords(int page);
+
+	List<Record> getRecords(int page, int order);
+
 	boolean deleteAllRecords();
 
 	Record getLastRecord();
@@ -41,7 +45,7 @@ public interface LocalRepository {
 
 	long insertFile(String filePath, long duration, int[] waveform) throws IOException;
 
-	boolean updateWaveform(int id) throws IOException;
+	boolean updateWaveform(int id) throws IOException, OutOfMemoryError;
 
 	void deleteRecord(int id);
 

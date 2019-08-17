@@ -35,7 +35,7 @@
 				android:layout_height="wrap_content"
 				android:contentDescription="@null"
 				android:layout_gravity="start"
-				android:background="?android:selectableItemBackground"
+				android:background="?android:selectableItemBackgroundBorderless"
 				android:padding="@dimen/spacing_normal"
 				android:src="@drawable/ic_import"/>
 
@@ -62,7 +62,7 @@
 				android:contentDescription="@null"
 				android:layout_gravity="end"
 				android:scaleType="center"
-				android:src="@drawable/ic_share"/>
+				android:src="@drawable/ic_more_vert"/>
 
 	</LinearLayout>
 
@@ -210,7 +210,7 @@
 				android:textColor="@color/text_primary_light"
 				android:maxLines="1"
 				android:textSize="@dimen/text_large"
-				android:drawableEnd="@drawable/ic_pencil"
+				android:drawableEnd="@drawable/ic_pencil_small"
 				android:visibility="invisible"
 				tools:text="@string/app_name"
 				/>

@@ -36,6 +36,8 @@ public class AppConstants {
 	public static final int RECORDING_FORMAT_M4A = 0;
 	public static final int RECORDING_FORMAT_WAV = 1;
 
+	public static final int DEFAULT_PER_PAGE = 50;
+
 	//BEGINNING-------------- Waveform visualisation constants ----------------------------------
 
 	/** Density pixel count per one second of time.
@@ -72,6 +74,10 @@ public class AppConstants {
 	public final static int RECORD_ENCODING_BITRATE_96000 = 96000;
 	public final static int RECORD_ENCODING_BITRATE_128000 = 128000;
 	public final static int RECORD_ENCODING_BITRATE_192000 = 192000;
+
+	public static final int SORT_DATE = 1;
+	public static final int SORT_NAME = 2;
+	public static final int SORT_DURATION = 3;
 
 //	public final static int RECORD_AUDIO_CHANNELS_COUNT = 2;
 	public final static int RECORD_AUDIO_MONO = 1;

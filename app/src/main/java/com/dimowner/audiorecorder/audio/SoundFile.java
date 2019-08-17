@@ -31,6 +31,8 @@ import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.util.Arrays;
 
+import timber.log.Timber;
+
 /**
  * This class taken from Ringdroid app.
  * https://github.com/google/ringdroid
@@ -38,6 +40,8 @@ import java.util.Arrays;
 public class SoundFile {
 
 	private File mInputFile = null;
+
+	private boolean isFailed = false;
 
 	private float dpPerSec = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 	private int mFileSize;
@@ -62,7 +66,7 @@ public class SoundFile {
 	}
 
 	// Create and return a SoundFile object using the file fileName.
-	public static SoundFile create(String fileName) throws IOException, FileNotFoundException {
+	public static SoundFile create(String fileName) throws IOException, OutOfMemoryError, FileNotFoundException {
 		// First check that the file exists and that its extension is supported.
 		File f = new File(fileName);
 		if (!f.exists()) {
@@ -100,7 +104,7 @@ public class SoundFile {
 		return mFrameGains;
 	}
 
-	private void readFile(File inputFile) throws IOException {
+	private void readFile(File inputFile) throws IOException, OutOfMemoryError {
 		MediaExtractor extractor = new MediaExtractor();
 		MediaFormat format = null;
 		int i;
@@ -124,11 +128,15 @@ public class SoundFile {
 		mChannels = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
 		mSampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
 		// Expected total number of samples per channel.
-		int expectedNumSamples =
-				(int) ((format.getLong(MediaFormat.KEY_DURATION) / 1000000.f) * mSampleRate + 0.5f);
+		int expectedNumSamples = 0;
+		try {
+			expectedNumSamples = (int) ((format.getLong(MediaFormat.KEY_DURATION) / 1000000.f) * mSampleRate + 0.5f);
 
-		//SoundFile duration.
-		duration = format.getLong(MediaFormat.KEY_DURATION);
+			//SoundFile duration.
+			duration = format.getLong(MediaFormat.KEY_DURATION);
+		} catch (Exception e) {
+			Timber.e(e);
+		}
 		dpPerSec = ARApplication.getDpPerSecond((float) duration/1000000f);
 
 		MediaCodec codec = MediaCodec.createDecoderByType(format.getString(MediaFormat.KEY_MIME));
@@ -149,7 +157,13 @@ public class SoundFile {
 		// For longer streams, the buffer size will be increased later on, calculating a rough
 		// estimate of the total size needed to store all the samples in order to resize the buffer
 		// only once.
-		mDecodedBytes = ByteBuffer.allocate(1 << 20);
+		try {
+			mDecodedBytes = ByteBuffer.allocate(1 << 20);
+		} catch (IllegalArgumentException e) {
+			Timber.e(e);
+			mDecodedBytes = ByteBuffer.allocate(1 << 10);
+		}
+
 		Boolean firstSampleData = true;
 		while (true) {
 			// read data from file and feed it to the decoder input buffers.
@@ -215,6 +229,8 @@ public class SoundFile {
 					if (retry == 0) {
 						// Failed to allocate memory... Stop reading more data and finalize the
 						// instance with the data decoded so far.
+						mFrameGains = new int[ARApplication.getLongWaveformSampleCount()];
+						isFailed = true;
 						break;
 					}
 					//ByteBuffer newDecodedBytes = ByteBuffer.allocate(newSize);
@@ -257,31 +273,33 @@ public class SoundFile {
 		codec.release();
 		codec = null;
 
-		// Temporary hack to make it work with the old version.
-		mNumFrames = mNumSamples / getSamplesPerFrame();
-		if (mNumSamples % getSamplesPerFrame() != 0) {
-			mNumFrames++;
-		}
-		mFrameGains = new int[mNumFrames];
-		int j;
-		int gain, value;
-		for (i = 0; i < mNumFrames; i++) {
-			gain = -1;
-			for (j = 0; j < getSamplesPerFrame(); j++) {
-				value = 0;
-				for (int k = 0; k < mChannels; k++) {
-					if (mDecodedSamples.remaining() > 0) {
-						value += Math.abs(mDecodedSamples.get());
+		if (!isFailed) {
+			// Temporary hack to make it work with the old version.
+			mNumFrames = mNumSamples / getSamplesPerFrame();
+			if (mNumSamples % getSamplesPerFrame() != 0) {
+				mNumFrames++;
+			}
+			mFrameGains = new int[mNumFrames];
+			int j;
+			int gain, value;
+			for (i = 0; i < mNumFrames; i++) {
+				gain = -1;
+				for (j = 0; j < getSamplesPerFrame(); j++) {
+					value = 0;
+					for (int k = 0; k < mChannels; k++) {
+						if (mDecodedSamples.remaining() > 0) {
+							value += Math.abs(mDecodedSamples.get());
+						}
+					}
+					value /= mChannels;
+					if (gain < value) {
+						gain = value;
 					}
 				}
-				value /= mChannels;
-				if (gain < value) {
-					gain = value;
-				}
+				mFrameGains[i] = (int) Math.sqrt(gain);  // here gain = sqrt(max value of 1st channel)...
 			}
-			mFrameGains[i] = (int) Math.sqrt(gain);  // here gain = sqrt(max value of 1st channel)...
+			mDecodedSamples.rewind();
+			// DumpSamples();  // Uncomment this line to dump the samples in a TSV file.
 		}
-		mDecodedSamples.rewind();
-		// DumpSamples();  // Uncomment this line to dump the samples in a TSV file.
 	}
 }

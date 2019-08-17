@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.app.records;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -24,14 +25,18 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
@@ -39,6 +44,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -49,6 +55,7 @@ import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.PlaybackService;
+import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.widget.SimpleWaveformView;
 import com.dimowner.audiorecorder.app.widget.TouchLayout;
 import com.dimowner.audiorecorder.app.widget.WaveformView;
@@ -65,6 +72,8 @@ import timber.log.Timber;
 
 public class RecordsActivity extends Activity implements RecordsContract.View, View.OnClickListener {
 
+	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK = 406;
+
 	private RecyclerView recyclerView;
 	private LinearLayoutManager layoutManager;
 	private RecordsAdapter adapter;
@@ -78,12 +87,14 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private ImageButton btnPrev;
 	private ImageButton btnDelete;
 	private ImageButton btnBookmarks;
+	private ImageButton btnSort;
 	private ImageButton btnCheckBookmark;
 	private TextView txtProgress;
 	private TextView txtDuration;
 	private TextView txtName;
 	private TextView txtEmpty;
 	private TextView txtTitle;
+	private TextView txtSubTitle;
 	private TouchLayout touchLayout;
 	private WaveformView waveformView;
 	private ProgressBar panelProgress;
@@ -108,7 +119,8 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_records);
 
-		AndroidUtils.setTranslucent(this, true);
+		toolbar = findViewById(R.id.toolbar);
+//		AndroidUtils.setTranslucent(this, true);
 
 		ImageButton btnBack = findViewById(R.id.btn_back);
 		btnBack.setOnClickListener(new View.OnClickListener() {
@@ -116,7 +128,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				finish();
 				ARApplication.getInjector().releaseRecordsPresenter();
 			}});
-		toolbar = findViewById(R.id.toolbar);
 
 		bottomDivider = findViewById(R.id.bottomDivider);
 		progressBar = findViewById(R.id.progress);
@@ -127,9 +138,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnPrev = findViewById(R.id.btn_prev);
 		btnDelete = findViewById(R.id.btn_delete);
 		btnBookmarks = findViewById(R.id.btn_bookmarks);
+		btnSort = findViewById(R.id.btn_sort);
 		btnCheckBookmark = findViewById(R.id.btn_check_bookmark);
 		txtEmpty = findViewById(R.id.txtEmpty);
 		txtTitle = findViewById(R.id.txt_title);
+		txtSubTitle = findViewById(R.id.txt_sub_title);
 		btnPlay.setOnClickListener(this);
 		btnStop.setOnClickListener(this);
 		btnNext.setOnClickListener(this);
@@ -137,6 +150,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnDelete.setOnClickListener(this);
 		btnBookmarks.setOnClickListener(this);
 		btnCheckBookmark.setOnClickListener(this);
+		btnSort.setOnClickListener(this);
 
 		playProgress = findViewById(R.id.play_progress);
 		txtProgress = findViewById(R.id.txt_progress);
@@ -178,10 +192,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		recyclerView.setHasFixedSize(true);
 		layoutManager = new LinearLayoutManager(getApplicationContext());
 		recyclerView.setLayoutManager(layoutManager);
+		recyclerView.addOnScrollListener(new MyScrollListener(layoutManager));
 
 		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
-			public void onScrolled(RecyclerView rv, int dx, int dy) {
+			public void onScrolled(@NonNull RecyclerView rv, int dx, int dy) {
 				super.onScrolled(rv, dx, dy);
 				handleToolbarScroll(dy);
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -212,8 +227,9 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				presenter.setActiveRecord(id, new RecordsContract.Callback() {
 					@Override public void onSuccess() {
 						presenter.stopPlayback();
-						presenter.startPlayback();
-						adapter.setActiveItem(position);
+						if (startPlayback()) {
+							adapter.setActiveItem(position);
+						}
 					}
 					@Override public void onError(Exception e) {
 						Timber.e(e);
@@ -229,12 +245,55 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				presenter.removeFromBookmarks(id);
 			}
 		});
+		adapter.setOnItemOptionListener(new RecordsAdapter.OnItemOptionListener() {
+			@Override
+			public void onItemOptionSelected(int menuId, final ListItem item) {
+				switch (menuId) {
+					case R.id.menu_share:
+						AndroidUtils.shareAudioFile(getApplicationContext(), item.getPath(), item.getName());
+						break;
+					case R.id.menu_info:
+						presenter.onRecordInfo(item.getName(), item.getDuration(), item.getPath());
+						break;
+					case R.id.menu_rename:
+						setRecordName(item.getId(), new File(item.getPath()));
+						break;
+					case R.id.menu_open_with:
+						AndroidUtils.openAudioFile(getApplicationContext(), item.getPath(), item.getName());
+						break;
+//					case R.id.menu_download:
+//						presenter.copyToDownloads(item.getPath(), item.getName());
+//						break;
+					case R.id.menu_delete:
+						AlertDialog.Builder builder = new AlertDialog.Builder(RecordsActivity.this);
+						builder.setTitle(R.string.warning)
+								.setIcon(R.drawable.ic_delete_forever)
+								.setMessage(R.string.delete_record)
+								.setCancelable(false)
+								.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog, int id) {
+										presenter.deleteRecord(item.getId(), item.getPath());
+										dialog.dismiss();
+									}
+								})
+								.setNegativeButton(R.string.btn_no,
+										new DialogInterface.OnClickListener() {
+											public void onClick(DialogInterface dialog, int id) {
+												dialog.dismiss();
+											}
+										});
+						AlertDialog alert = builder.create();
+						alert.show();
+						break;
+				}
+			}
+		});
 		recyclerView.setAdapter(adapter);
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			// Set the padding to match the Status Bar height
-			toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
-		}
+//		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//			// Set the padding to match the Status Bar height
+//			toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
+//		}
 		presenter = ARApplication.getInjector().provideRecordsPresenter();
 
 		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
@@ -336,12 +395,25 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		AnimationUtil.viewAnimationY(toolbar, 0f, null);
 	}
 
+	private boolean startPlayback() {
+		if (FileUtil.isFileInExternalStorage(presenter.getActiveRecordPath())) {
+			if (checkStoragePermissionPlayback()) {
+				presenter.startPlayback();
+				return true;
+			}
+		} else {
+			presenter.startPlayback();
+			return true;
+		}
+		return false;
+	}
+
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
 			case R.id.btn_play:
 				//This method Starts or Pause playback.
-				presenter.startPlayback();
+				startPlayback();
 				break;
 			case R.id.btn_stop:
 				presenter.stopPlayback();
@@ -353,18 +425,19 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				presenter.setActiveRecord(id, new RecordsContract.Callback() {
 					@Override public void onSuccess() {
 						presenter.stopPlayback();
-						presenter.startPlayback();
-						int pos = adapter.findPositionById(id);
-						if (pos >= 0) {
-							recyclerView.scrollToPosition(pos);
-							int o = recyclerView.computeVerticalScrollOffset();
-							if (o > 0) {
-								if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-									toolbar.setTranslationZ(getResources().getDimension(R.dimen.toolbar_elevation));
-									toolbar.setBackgroundResource(colorMap.getPrimaryColorRes());
+						if (startPlayback()) {
+							int pos = adapter.findPositionById(id);
+							if (pos >= 0) {
+								recyclerView.scrollToPosition(pos);
+								int o = recyclerView.computeVerticalScrollOffset();
+								if (o > 0) {
+									if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+										toolbar.setTranslationZ(getResources().getDimension(R.dimen.toolbar_elevation));
+										toolbar.setBackgroundResource(colorMap.getPrimaryColorRes());
+									}
 								}
+								adapter.setActiveItem(pos);
 							}
-							adapter.setActiveItem(pos);
 						}
 					}
 					@Override public void onError(Exception e) {
@@ -378,11 +451,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				presenter.setActiveRecord(id2, new RecordsContract.Callback() {
 					@Override public void onSuccess() {
 						presenter.stopPlayback();
-						presenter.startPlayback();
-						int pos2 = adapter.findPositionById(id2);
-						if (pos2 >= 0) {
-							recyclerView.scrollToPosition(pos2);
-							adapter.setActiveItem(pos2);
+						if (startPlayback()) {
+							int pos2 = adapter.findPositionById(id2);
+							if (pos2 >= 0) {
+								recyclerView.scrollToPosition(pos2);
+								adapter.setActiveItem(pos2);
+							}
 						}
 					}
 					@Override public void onError(Exception e) {
@@ -418,12 +492,40 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			case R.id.btn_bookmarks:
 				presenter.applyBookmarksFilter();
 				break;
+			case R.id.btn_sort:
+				showMenu(view);
+				break;
 			case R.id.txt_name:
 				if (presenter.getActiveRecordId() != -1) {
 					setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()));
 				}
 				break;
 		}
+	}
+
+	private void showMenu(View v) {
+		PopupMenu popup = new PopupMenu(v.getContext(), v);
+		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				switch (item.getItemId()) {
+					case R.id.menu_date:
+						presenter.updateRecordsOrder(AppConstants.SORT_DATE);
+						break;
+					case R.id.menu_name:
+						presenter.updateRecordsOrder(AppConstants.SORT_NAME);
+						break;
+					case R.id.menu_duration:
+						presenter.updateRecordsOrder(AppConstants.SORT_DURATION);
+						break;
+				}
+				return false;
+			}
+		});
+		MenuInflater inflater = popup.getMenuInflater();
+		inflater.inflate(R.menu.menu_sort, popup.getMenu());
+		AndroidUtils.insertMenuItemIcons(v.getContext(), popup);
+		popup.show();
 	}
 
 	@Override
@@ -451,11 +553,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private void handleToolbarScroll(int dy) {
 		float inset = toolbar.getTranslationY() - dy;
 		int height;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			height = toolbar.getHeight() + AndroidUtils.getStatusBarHeight(getApplicationContext());
-		} else {
+//		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//			height = toolbar.getHeight() + AndroidUtils.getStatusBarHeight(getApplicationContext());
+//		} else {
 			height = toolbar.getHeight();
-		}
+//		}
 
 		if (inset < -height) {
 			inset = -height;
@@ -533,17 +635,23 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
-	public void showRecords(List<ListItem> records) {
+	public void showRecords(List<ListItem> records, int order) {
 		if (records.size() == 0) {
-			txtEmpty.setVisibility(View.VISIBLE);
-			adapter.setData(new ArrayList<ListItem>());
+//			txtEmpty.setVisibility(View.VISIBLE);
+			adapter.setData(new ArrayList<ListItem>(), order);
 		} else {
-			adapter.setData(records);
+			adapter.setData(records, order);
 			txtEmpty.setVisibility(View.GONE);
 			if (touchLayout.getVisibility() == View.VISIBLE) {
 				adapter.showFooter();
 			}
 		}
+	}
+
+	@Override
+	public void addRecords(List<ListItem> records, int order) {
+		adapter.addData(records, order);
+		txtEmpty.setVisibility(View.GONE);
 	}
 
 	@Override
@@ -575,10 +683,15 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	public void onDeleteRecord(long id) {
-		adapter.deleteItem(id);
+//		adapter.deleteItem(id);
+		presenter.loadRecords();
 		if (adapter.getAudioRecordsCount() == 0) {
 			showEmptyList();
 		}
+	}
+
+	@Override
+	public void hidePlayPanel() {
 		hidePanel();
 	}
 
@@ -599,15 +712,39 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
+	public void showSortType(int type) {
+		switch (type) {
+			case AppConstants.SORT_DATE:
+				txtSubTitle.setText(R.string.by_date);
+				break;
+			case AppConstants.SORT_NAME:
+				txtSubTitle.setText(R.string.by_name);
+				break;
+			case AppConstants.SORT_DURATION:
+				txtSubTitle.setText(R.string.by_duration);
+				break;
+		}
+	}
+
+	@Override
 	public void bookmarksSelected() {
 		btnBookmarks.setImageResource(R.drawable.ic_bookmark);
 		txtTitle.setText(R.string.bookmarks);
+		btnSort.setVisibility(View.GONE);
+		txtSubTitle.setVisibility(View.GONE);
 	}
 
 	@Override
 	public void bookmarksUnselected() {
 		btnBookmarks.setImageResource(R.drawable.ic_bookmark_bordered);
 		txtTitle.setText(R.string.records);
+		btnSort.setVisibility(View.VISIBLE);
+		txtSubTitle.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void showRecordInfo(String name, String format, long duration, long size, String location) {
+		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), name, format, duration, size, location));
 	}
 
 	@Override
@@ -627,6 +764,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	public void showError(int resId) {
+		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void showMessage(int resId) {
 		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
 	}
 
@@ -673,19 +815,24 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 						String newName = editText.getText().toString();
 						if (!fileName.equalsIgnoreCase(newName)) {
 							presenter.renameRecord(recordId, newName);
+							presenter.loadRecords();
 						}
-						hideKeyboard();
 						dialog.dismiss();
 					}
 				})
 				.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
-						hideKeyboard();
 						dialog.dismiss();
 					}
 				})
 				.create();
 		alertDialog.show();
+		alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+			@Override
+			public void onDismiss(DialogInterface dialog) {
+				hideKeyboard();
+			}
+		});
 		editText.requestFocus();
 		editText.setSelection(editText.getText().length());
 		showKeyboard();
@@ -701,5 +848,42 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	public void hideKeyboard(){
 		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 		inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+	}
+
+	private boolean checkStoragePermissionPlayback() {
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+					&& checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+				requestPermissions(
+						new String[]{
+								Manifest.permission.WRITE_EXTERNAL_STORAGE,
+								Manifest.permission.READ_EXTERNAL_STORAGE},
+						REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode,  @NonNull String[] permissions, @NonNull int[] grantResults) {
+		if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK && grantResults.length > 0
+				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
+				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+			presenter.startPlayback();
+		}
+	}
+
+	public class MyScrollListener extends EndlessRecyclerViewScrollListener {
+
+		public <L extends RecyclerView.LayoutManager> MyScrollListener(L layoutManager) {
+			super(layoutManager);
+		}
+
+		@Override
+		public void onLoadMore(int page, int totalItemsCount) {
+//			Timber.v("onLoadMore page = " + page + " count = " + totalItemsCount);
+			presenter.loadRecordsPage(page);
+		}
 	}
 }

@@ -49,8 +49,8 @@
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
 			android:layout_marginStart="80dp"
+			android:layout_marginEnd="36dp"
 			android:layout_gravity="center_vertical">
-
 
 		<FrameLayout
 				android:layout_width="match_parent"
@@ -71,15 +71,14 @@
 					/>
 
 			<ImageButton
-					android:id="@+id/bookmark"
-					android:layout_width="40dp"
-					android:layout_height="40dp"
+					android:id="@+id/list_item_bookmark"
+					android:layout_width="36dp"
+					android:layout_height="36dp"
 					android:adjustViewBounds="true"
 					android:background="?android:selectableItemBackgroundBorderless"
 					android:contentDescription="@null"
 					android:layout_gravity="bottom|end"
 					android:scaleType="center"
-					android:layout_marginEnd="@dimen/spacing_tiny"
 					android:src="@drawable/ic_bookmark_bordered_small"/>
 		</FrameLayout>
 
@@ -109,9 +108,20 @@
 					tools:text="@string/app_name"
 					android:layout_gravity="end"
 					android:paddingStart="@dimen/spacing_tiny"
-					android:paddingEnd="@dimen/spacing_normal"
+					android:paddingEnd="@dimen/spacing_xsmall"
 					android:maxLines="1"/>
 		</FrameLayout>
 	</LinearLayout>
+
+	<ImageButton
+			android:id="@+id/list_item_more"
+			android:layout_width="36dp"
+			android:layout_height="match_parent"
+			android:background="?android:selectableItemBackgroundBorderless"
+			android:contentDescription="@null"
+			android:paddingEnd="@dimen/spacing_tiny"
+			android:paddingStart="@dimen/spacing_zero"
+			android:layout_gravity="center_vertical|end"
+			android:src="@drawable/ic_more_vert_transparent"/>
 
 </FrameLayout>

@@ -40,7 +40,9 @@ public interface RecordsContract {
 		void showWaveForm(int[] waveForm, long duration);
 		void showDuration(String duration);
 
-		void showRecords(List<ListItem> records);
+		void showRecords(List<ListItem> records, int order);
+		void addRecords(List<ListItem> records, int order);
+
 		void showEmptyList();
 		void showEmptyBookmarksList();
 
@@ -51,11 +53,17 @@ public interface RecordsContract {
 
 		void onDeleteRecord(long id);
 
+		void hidePlayPanel();
+
 		void addedToBookmarks(int id, boolean isActive);
 		void removedFromBookmarks(int id, boolean isActive);
 
+		void showSortType(int type);
+
 		void bookmarksSelected();
 		void bookmarksUnselected();
+
+		void showRecordInfo(String name, String format, long duration, long size, String location);
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<RecordsContract.View> {
@@ -74,9 +82,17 @@ public interface RecordsContract {
 
 		void deleteActiveRecord();
 
+		void deleteRecord(long id, String path);
+
 		void renameRecord(long id, String name);
 
+		void copyToDownloads(String path, String name);
+
 		void loadRecords();
+
+		void updateRecordsOrder(int order);
+
+		void loadRecordsPage(int page);
 
 		void applyBookmarksFilter();
 		void checkBookmarkActiveRecord();
@@ -91,6 +107,8 @@ public interface RecordsContract {
 		String getActiveRecordPath();
 
 		String getRecordName();
+
+		void onRecordInfo(String name, long duration, String location);
 	}
 
 	interface Callback {

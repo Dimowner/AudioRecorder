@@ -32,4 +32,5 @@
 
 	<dimen name="panel_height">316dp</dimen>
 
+	<dimen name="menu_item_icon_size">24dp</dimen>
 </resources>

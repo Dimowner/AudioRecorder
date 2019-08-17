@@ -23,8 +23,8 @@ ext.versions = [
 ]
 
 def versionMajor = 0
-def versionMinor = 5
-def versionPatch = 18
+def versionMinor = 6
+def versionPatch = 2
 
 android {
 	compileSdkVersion versions.targetSdkVersion
@@ -59,9 +59,9 @@ android {
 
 	buildTypes {
 		release {
-			minifyEnabled false
-			shrinkResources false
-			useProguard false
+			minifyEnabled true
+			shrinkResources true
+			useProguard true
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 		}
 		debug {
@@ -98,9 +98,9 @@ android {
 	}
 }
 
-//repositories {
-//	maven { url 'https://maven.fabric.io/public' }
-//}
+repositories {
+	maven { url 'https://maven.fabric.io/public' }
+}
 
 // Remove not needed buildVariants.
 android.variantFilter { variant ->

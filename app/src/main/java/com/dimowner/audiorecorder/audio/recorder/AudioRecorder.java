@@ -106,7 +106,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 				if (recorderCallback != null) {
 					recorderCallback.onStartRecord();
 				}
-			} catch (IllegalStateException e) {
+			} catch (RuntimeException e) {
 				Timber.e(e, "startRecording() failed");
 				if (recorderCallback != null) {
 					recorderCallback.onError(new RecorderInitException());

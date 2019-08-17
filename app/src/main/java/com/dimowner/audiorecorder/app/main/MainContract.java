@@ -57,10 +57,14 @@ public interface MainContract {
 		void showDuration(String duration);
 		void showName(String name);
 
+		void showRecordInfo(String name, String format, long duration, long size, String location);
+
 		void updateRecordingView(List<Integer> data);
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
+
+		void executeFirstRun();
 
 		void setAudioRecorder(RecorderContract.Recorder recorder);
 
@@ -80,6 +84,8 @@ public interface MainContract {
 
 		void updateRecordingDir(Context context);
 
+		void setStoragePrivate(Context context);
+
 		//TODO: Remove this getters
 		boolean isStorePublic();
 
@@ -88,5 +94,9 @@ public interface MainContract {
 		String getActiveRecordName();
 
 		int getActiveRecordId();
+
+		void deleteActiveRecord();
+
+		void onRecordInfo();
 	}
 }

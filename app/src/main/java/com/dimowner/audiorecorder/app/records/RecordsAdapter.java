@@ -17,19 +17,22 @@
 package com.dimowner.audiorecorder.app.records;
 
 import android.graphics.Typeface;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.widget.SimpleWaveformView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
@@ -48,8 +51,9 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 	private ItemClickListener itemClickListener;
 	private OnAddToBookmarkListener onAddToBookmarkListener = null;
+	private OnItemOptionListener onItemOptionListener = null;
 
-	public RecordsAdapter() {
+	RecordsAdapter() {
 		this.data = new ArrayList<>();
 	}
 
@@ -60,11 +64,11 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 			View view = new View(viewGroup.getContext());
 			int height;
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-				height = AndroidUtils.getStatusBarHeight(viewGroup.getContext()) + (int) viewGroup.getContext().getResources().getDimension(R.dimen.toolbar_height);
-			} else {
+//			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//				height = AndroidUtils.getStatusBarHeight(viewGroup.getContext()) + (int) viewGroup.getContext().getResources().getDimension(R.dimen.toolbar_height);
+//			} else {
 				height = (int) viewGroup.getContext().getResources().getDimension(R.dimen.toolbar_height);
-			}
+//			}
 
 			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
 					LinearLayout.LayoutParams.MATCH_PARENT, height);
@@ -101,16 +105,17 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder viewHolder, final int p) {
+	public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder viewHolder, final int pos) {
 		if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_NORMAL) {
 			final ItemViewHolder holder = (ItemViewHolder) viewHolder;
+			final int p = holder.getAdapterPosition();
 			holder.name.setText(data.get(p).getName());
 			holder.description.setText(data.get(p).getDurationStr());
 			holder.created.setText(data.get(p).getAddedTimeStr());
 			if (data.get(p).isBookmarked()) {
-				holder.bookmark.setImageResource(R.drawable.ic_bookmark_small);
+				holder.btnBookmark.setImageResource(R.drawable.ic_bookmark_small);
 			} else {
-				holder.bookmark.setImageResource(R.drawable.ic_bookmark_bordered_small);
+				holder.btnBookmark.setImageResource(R.drawable.ic_bookmark_bordered_small);
 			}
 			if (viewHolder.getLayoutPosition() == activeItem) {
 				holder.view.setBackgroundResource(R.color.selected_item_color);
@@ -118,7 +123,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 				holder.view.setBackgroundResource(android.R.color.transparent);
 			}
 
-			holder.bookmark.setOnClickListener(new View.OnClickListener() {
+			holder.btnBookmark.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					if (onAddToBookmarkListener != null && data.size() > p) {
@@ -128,6 +133,12 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 							onAddToBookmarkListener.onAddToBookmarks((int) data.get(p).getId());
 						}
 					}
+				}
+			});
+			holder.btnMore.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					showMenu(v, p);
 				}
 			});
 			holder.waveformView.setWaveform(data.get(p).getAmps());
@@ -141,25 +152,42 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 				}});
 		} else if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_DATE) {
 			UniversalViewHolder holder = (UniversalViewHolder) viewHolder;
-			((TextView)holder.view).setText(TimeUtils.formatDateSmart(data.get(p).getAdded(), holder.view.getContext()));
+			((TextView)holder.view).setText(TimeUtils.formatDateSmart(data.get(viewHolder.getAdapterPosition()).getAdded(), holder.view.getContext()));
 		}
 	}
 
-	public void setActiveItem(int activeItem) {
+	private void showMenu(View v, final int pos) {
+		PopupMenu popup = new PopupMenu(v.getContext(), v);
+		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+			if (onItemOptionListener != null) {
+				onItemOptionListener.onItemOptionSelected(item.getItemId(), data.get(pos));
+			}
+			return false;
+			}
+		});
+		MenuInflater inflater = popup.getMenuInflater();
+		inflater.inflate(R.menu.menu_more, popup.getMenu());
+		AndroidUtils.insertMenuItemIcons(v.getContext(), popup);
+		popup.show();
+	}
+
+	void setActiveItem(int activeItem) {
 		int prev = this.activeItem;
 		this.activeItem = activeItem;
 		notifyItemChanged(prev);
 		notifyItemChanged(activeItem);
 	}
 
-	public void setActiveItemById(long id) {
-		int pos = findPositionById(id);
-		if (pos >= 0) {
-			setActiveItem(pos);
-		}
-	}
+//	public void setActiveItemById(long id) {
+//		int pos = findPositionById(id);
+//		if (pos >= 0) {
+//			setActiveItem(pos);
+//		}
+//	}
 
-	public int findPositionById(long id) {
+	int findPositionById(long id) {
 		if (id >= 0) {
 			for (int i = 0; i < data.size() - 1; i++) {
 				if (data.get(i).getId() == id) {
@@ -180,46 +208,88 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		return data.get(position).getType();
 	}
 
-	public void setData(List<ListItem> data) {
-		this.data = data;
+	void setData(List<ListItem> d, int order) {
+		updateShowHeader(order);
 		if (showDateHeaders) {
-			addDateHeaders();
+			data = addDateHeaders(d);
+		} else {
+			data = d;
 		}
-		this.data.add(0, ListItem.createHeaderItem());
+		data.add(0, ListItem.createHeaderItem());
 		notifyDataSetChanged();
 	}
 
-	private void addDateHeaders() {
+//	public void addData(List<ListItem> d) {
+//		this.data.addAll(addDateHeaders(d));
+//		notifyItemRangeInserted(data.size() - d.size(), d.size());
+//	}
+
+	void addData(List<ListItem> d, int order) {
 		if (data.size() > 0) {
-			data.add(0, ListItem.createDateItem(data.get(0).getAdded()));
+			updateShowHeader(order);
+			if (showDateHeaders) {
+				if (findFooter() >= 0) {
+					data.addAll(data.size() - 1, addDateHeaders(d));
+				} else {
+					data.addAll(addDateHeaders(d));
+				}
+			} else {
+				if (findFooter() >= 0) {
+					data.addAll(data.size() - 1, d);
+				} else {
+					data.addAll(d);
+				}
+			}
+			notifyItemRangeInserted(data.size() - d.size(), d.size());
+		}
+	}
+
+	private void updateShowHeader(int order) {
+		if (order == AppConstants.SORT_DATE) {
+			showDateHeaders = true;
+		} else {
+			showDateHeaders = false;
+		}
+	}
+
+	public ListItem getItem(int pos) {
+		return data.get(pos);
+	}
+
+	private List<ListItem> addDateHeaders(List<ListItem> data) {
+		if (data.size() > 0) {
+			if (!hasDateHeader(data, data.get(0).getAdded())) {
+				data.add(0, ListItem.createDateItem(data.get(0).getAdded()));
+			}
 			Calendar d1 = Calendar.getInstance();
 			d1.setTimeInMillis(data.get(0).getAdded());
 			Calendar d2 = Calendar.getInstance();
 			for (int i = 1; i < data.size(); i++) {
 				d1.setTimeInMillis(data.get(i - 1).getAdded());
 				d2.setTimeInMillis(data.get(i).getAdded());
-				if (!TimeUtils.isSameDay(d1, d2)) {
+				if (!TimeUtils.isSameDay(d1, d2) && !hasDateHeader(data, data.get(i).getAdded())) {
 					data.add(i, ListItem.createDateItem(data.get(i).getAdded()));
 				}
 			}
 		}
+		return data;
 	}
 
-	public void deleteItem(long id) {
-		for (int i = 0; i < data.size(); i++) {
-			if (data.get(i).getId() == id) {
-				data.remove(i);
-				if (getAudioRecordsCount() == 0) {
-					data.clear();
-					notifyDataSetChanged();
-				} else {
-					notifyItemRemoved(i);
-				}
-			}
-		}
-	}
+//	public void deleteItem(long id) {
+//		for (int i = 0; i < data.size(); i++) {
+//			if (data.get(i).getId() == id) {
+//				data.remove(i);
+//				if (getAudioRecordsCount() == 0) {
+//					data.clear();
+//					notifyDataSetChanged();
+//				} else {
+//					notifyItemRemoved(i);
+//				}
+//			}
+//		}
+//	}
 
-	public int getAudioRecordsCount() {
+	int getAudioRecordsCount() {
 		int count = 0;
 		for (int i = 0; i < data.size(); i++) {
 			if (data.get(i).getType() == ListItem.ITEM_TYPE_NORMAL) {
@@ -244,7 +314,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		}
 	}
 
-	public long getNextTo(long id) {
+	long getNextTo(long id) {
 		if (id >= 0) {
 			for (int i = 0; i < data.size() - 1; i++) {
 				if (data.get(i).getId() == id) {
@@ -259,7 +329,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		return -1;
 	}
 
-	public long getPrevTo(long id) {
+	long getPrevTo(long id) {
 		if (id >= 0) {
 			for (int i = 1; i < data.size(); i++) {
 				if (data.get(i).getId() == id) {
@@ -283,7 +353,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		return -1;
 	}
 
-	public void markAddedToBookmarks(int id) {
+	void markAddedToBookmarks(int id) {
 		for (int i = 0; i < data.size(); i++) {
 			if (data.get(i).getId() == id) {
 				data.get(i).setBookmarked(true);
@@ -292,7 +362,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		}
 	}
 
-	public void markRemovedFromBookmarks(int id) {
+	void markRemovedFromBookmarks(int id) {
 		for (int i = 0; i < data.size(); i++) {
 			if (data.get(i).getId() == id) {
 				data.get(i).setBookmarked(false);
@@ -301,11 +371,26 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		}
 	}
 
-	public void setItemClickListener(ItemClickListener itemClickListener) {
+	private boolean hasDateHeader(List<ListItem> data, long time) {
+		for (int i = data.size()-1; i>= 0; i--) {
+			if (data.get(i).getType() == ListItem.ITEM_TYPE_DATE) {
+				Calendar d1 = Calendar.getInstance();
+				d1.setTimeInMillis(data.get(i).getAdded());
+				Calendar d2 = Calendar.getInstance();
+				d2.setTimeInMillis(time);
+				if (TimeUtils.isSameDay(d1, d2)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	void setItemClickListener(ItemClickListener itemClickListener) {
 		this.itemClickListener = itemClickListener;
 	}
 
-	public void setOnAddToBookmarkListener(OnAddToBookmarkListener onAddToBookmarkListener) {
+	void setOnAddToBookmarkListener(OnAddToBookmarkListener onAddToBookmarkListener) {
 		this.onAddToBookmarkListener = onAddToBookmarkListener;
 	}
 
@@ -313,37 +398,44 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		void onItemClick(View view, long id, String path, int position);
 	}
 
+	void setOnItemOptionListener(OnItemOptionListener onItemOptionListener) {
+		this.onItemOptionListener = onItemOptionListener;
+	}
 
 	public interface OnAddToBookmarkListener {
 		void onAddToBookmarks(int id);
 		void onRemoveFromBookmarks(int id);
 	}
 
+	public interface OnItemOptionListener {
+		void onItemOptionSelected(int menuId, ListItem item);
+	}
+
 	public class ItemViewHolder extends RecyclerView.ViewHolder {
 		TextView name;
 		TextView description;
 		TextView created;
-		//		ImageView image;
-		ImageButton bookmark;
+		ImageButton btnBookmark;
+		ImageButton btnMore;
 		SimpleWaveformView waveformView;
 		View view;
 
-		public ItemViewHolder(View itemView) {
+		ItemViewHolder(View itemView) {
 			super(itemView);
-			this.view = itemView;
-			this.name = itemView.findViewById(R.id.list_item_name);
-			this.description = itemView.findViewById(R.id.list_item_description);
-			this.created = itemView.findViewById(R.id.list_item_date);
-//			this.image = itemView.findViewById(R.id.list_item_image);
-			this.bookmark = itemView.findViewById(R.id.bookmark);
-			this.waveformView = itemView.findViewById(R.id.list_item_waveform);
+			view = itemView;
+			name = itemView.findViewById(R.id.list_item_name);
+			description = itemView.findViewById(R.id.list_item_description);
+			created = itemView.findViewById(R.id.list_item_date);
+			btnBookmark = itemView.findViewById(R.id.list_item_bookmark);
+			waveformView = itemView.findViewById(R.id.list_item_waveform);
+			btnMore = itemView.findViewById(R.id.list_item_more);
 		}
 	}
 
 	public class UniversalViewHolder extends RecyclerView.ViewHolder {
 		View view;
 
-		public UniversalViewHolder(View view) {
+		UniversalViewHolder(View view) {
 			super(view);
 			this.view = view;
 		}
