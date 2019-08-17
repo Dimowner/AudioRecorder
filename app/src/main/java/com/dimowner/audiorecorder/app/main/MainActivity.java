@@ -71,7 +71,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 // TODO: Fix WaveForm blinking when seek
 // TODO: Show Record info
-// TODO: Ability to delete record by swipe left
 // TODO: Ability to scroll up from the bottom of the list
 // TODO: Ability to search by record name in list
 // TODO: Welcome screen
@@ -82,7 +81,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
 	public static final int REQ_CODE_WRITE_EXTERNAL_STORAGE = 404;
-	public static final int REQ_CODE_READ_EXTERNAL_STORAGE = 405;
+	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_IMPORT = 405;
+	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK = 406;
 	public static final int REQ_CODE_IMPORT_AUDIO = 11;
 
 	private WaveformView waveformView;
@@ -211,7 +211,13 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		switch (view.getId()) {
 			case R.id.btn_play:
 				//This method Starts or Pause playback.
-				presenter.startPlayback();
+				if (FileUtil.isFileInExternalStorage(presenter.getActiveRecordPath())) {
+					if (checkStoragePermissionPlayback()) {
+						presenter.startPlayback();
+					}
+				} else {
+					presenter.startPlayback();
+				}
 				break;
 			case R.id.btn_record:
 				if (checkRecordPermission2()) {
@@ -235,7 +241,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				showMenu(view);
 				break;
 			case R.id.btn_import:
-				if (checkStoragePermission()) {
+				if (checkStoragePermissionImport()) {
 					startFileSelector();
 				}
 				break;
@@ -606,14 +612,33 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 	}
 
-	private boolean checkStoragePermission() {
+	private boolean checkStoragePermissionImport() {
 		if (presenter.isStorePublic()) {
 			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 				if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
 						&& checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-					requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQ_CODE_READ_EXTERNAL_STORAGE);
+					requestPermissions(
+							new String[]{
+									Manifest.permission.WRITE_EXTERNAL_STORAGE,
+									Manifest.permission.READ_EXTERNAL_STORAGE},
+							REQ_CODE_READ_EXTERNAL_STORAGE_IMPORT);
 					return false;
 				}
+			}
+		}
+		return true;
+	}
+
+	private boolean checkStoragePermissionPlayback() {
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+					&& checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+				requestPermissions(
+						new String[]{
+								Manifest.permission.WRITE_EXTERNAL_STORAGE,
+								Manifest.permission.READ_EXTERNAL_STORAGE},
+						REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK);
+				return false;
 			}
 		}
 		return true;
@@ -637,7 +662,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 							new View.OnClickListener() {
 								@Override
 								public void onClick(View v) {
-									requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQ_CODE_WRITE_EXTERNAL_STORAGE);
+									requestPermissions(
+											new String[]{
+													Manifest.permission.WRITE_EXTERNAL_STORAGE,
+													Manifest.permission.READ_EXTERNAL_STORAGE},
+											REQ_CODE_WRITE_EXTERNAL_STORAGE);
 								}
 							},
 							new View.OnClickListener() {
@@ -702,10 +731,14 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			if (checkRecordPermission2()) {
 				presenter.startRecording();
 			}
-		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE && grantResults.length > 0
+		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE_IMPORT && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 			startFileSelector();
+		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK && grantResults.length > 0
+				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
+				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+			presenter.startPlayback();
 		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE
 				&& (grantResults[0] == PackageManager.PERMISSION_DENIED
 				|| grantResults[1] == PackageManager.PERMISSION_DENIED)) {

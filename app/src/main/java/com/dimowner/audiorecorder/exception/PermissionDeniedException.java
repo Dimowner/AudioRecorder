@@ -16,15 +16,9 @@
 
 package com.dimowner.audiorecorder.exception;
 
-public abstract class AppException extends Exception {
-
-	public static final int CANT_CREATE_FILE = 1;
-	public static final int INVALID_OUTPUT_FILE = 2;
-	public static final int RECORDER_INIT_EXCEPTION = 3;
-	public static final int PLAYER_INIT_EXCEPTION = 4;
-	public static final int PLAYER_DATA_SOURCE_EXCEPTION = 5;
-	public static final int CANT_PROCESS_RECORD = 6;
-	public static final int READ_PERMISSION_DENIED = 7;
-
-	public abstract int getType();
+public class PermissionDeniedException extends AppException {
+	@Override
+	public int getType() {
+		return AppException.READ_PERMISSION_DENIED;
+	}
 }

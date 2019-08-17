@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.app.records;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -24,6 +25,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -68,6 +70,8 @@ import java.util.List;
 import timber.log.Timber;
 
 public class RecordsActivity extends Activity implements RecordsContract.View, View.OnClickListener {
+
+	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK = 406;
 
 	private RecyclerView recyclerView;
 	private LinearLayoutManager layoutManager;
@@ -222,8 +226,9 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				presenter.setActiveRecord(id, new RecordsContract.Callback() {
 					@Override public void onSuccess() {
 						presenter.stopPlayback();
-						presenter.startPlayback();
-						adapter.setActiveItem(position);
+						if (startPlayback()) {
+							adapter.setActiveItem(position);
+						}
 					}
 					@Override public void onError(Exception e) {
 						Timber.e(e);
@@ -388,12 +393,25 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		AnimationUtil.viewAnimationY(toolbar, 0f, null);
 	}
 
+	private boolean startPlayback() {
+		if (FileUtil.isFileInExternalStorage(presenter.getActiveRecordPath())) {
+			if (checkStoragePermissionPlayback()) {
+				presenter.startPlayback();
+				return true;
+			}
+		} else {
+			presenter.startPlayback();
+			return true;
+		}
+		return false;
+	}
+
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
 			case R.id.btn_play:
 				//This method Starts or Pause playback.
-				presenter.startPlayback();
+				startPlayback();
 				break;
 			case R.id.btn_stop:
 				presenter.stopPlayback();
@@ -405,18 +423,19 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				presenter.setActiveRecord(id, new RecordsContract.Callback() {
 					@Override public void onSuccess() {
 						presenter.stopPlayback();
-						presenter.startPlayback();
-						int pos = adapter.findPositionById(id);
-						if (pos >= 0) {
-							recyclerView.scrollToPosition(pos);
-							int o = recyclerView.computeVerticalScrollOffset();
-							if (o > 0) {
-								if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-									toolbar.setTranslationZ(getResources().getDimension(R.dimen.toolbar_elevation));
-									toolbar.setBackgroundResource(colorMap.getPrimaryColorRes());
+						if (startPlayback()) {
+							int pos = adapter.findPositionById(id);
+							if (pos >= 0) {
+								recyclerView.scrollToPosition(pos);
+								int o = recyclerView.computeVerticalScrollOffset();
+								if (o > 0) {
+									if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+										toolbar.setTranslationZ(getResources().getDimension(R.dimen.toolbar_elevation));
+										toolbar.setBackgroundResource(colorMap.getPrimaryColorRes());
+									}
 								}
+								adapter.setActiveItem(pos);
 							}
-							adapter.setActiveItem(pos);
 						}
 					}
 					@Override public void onError(Exception e) {
@@ -430,11 +449,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				presenter.setActiveRecord(id2, new RecordsContract.Callback() {
 					@Override public void onSuccess() {
 						presenter.stopPlayback();
-						presenter.startPlayback();
-						int pos2 = adapter.findPositionById(id2);
-						if (pos2 >= 0) {
-							recyclerView.scrollToPosition(pos2);
-							adapter.setActiveItem(pos2);
+						if (startPlayback()) {
+							int pos2 = adapter.findPositionById(id2);
+							if (pos2 >= 0) {
+								recyclerView.scrollToPosition(pos2);
+								adapter.setActiveItem(pos2);
+							}
 						}
 					}
 					@Override public void onError(Exception e) {
@@ -817,6 +837,30 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	public void hideKeyboard(){
 		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 		inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+	}
+
+	private boolean checkStoragePermissionPlayback() {
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+					&& checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+				requestPermissions(
+						new String[]{
+								Manifest.permission.WRITE_EXTERNAL_STORAGE,
+								Manifest.permission.READ_EXTERNAL_STORAGE},
+						REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode,  @NonNull String[] permissions, @NonNull int[] grantResults) {
+		if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK && grantResults.length > 0
+				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
+				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+			presenter.startPlayback();
+		}
 	}
 
 	public class MyScrollListener extends EndlessRecyclerViewScrollListener {

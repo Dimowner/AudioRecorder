@@ -319,6 +319,11 @@ public class FileUtil {
 				Environment.MEDIA_MOUNTED_READ_ONLY.equals(state));
 	}
 
+	public static boolean isFileInExternalStorage(String path) {
+		String external = Environment.getExternalStorageDirectory().getAbsolutePath();
+		return path.contains(external);
+	}
+
 	public static File getPublicMusicStorageDir(String albumName) {
 		File file = new File(Environment.getExternalStoragePublicDirectory(
 				Environment.DIRECTORY_MUSIC), albumName);
