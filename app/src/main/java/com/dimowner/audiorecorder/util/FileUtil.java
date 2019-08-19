@@ -320,8 +320,12 @@ public class FileUtil {
 	}
 
 	public static boolean isFileInExternalStorage(String path) {
-		String external = Environment.getExternalStorageDirectory().getAbsolutePath();
-		return path.contains(external);
+		if (path != null) {
+			String external = Environment.getExternalStorageDirectory().getAbsolutePath();
+			return path.contains(external);
+		} else {
+			return false;
+		}
 	}
 
 	public static File getPublicMusicStorageDir(String albumName) {

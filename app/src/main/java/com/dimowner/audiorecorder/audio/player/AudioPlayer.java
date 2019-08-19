@@ -58,12 +58,17 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 
 	@Override
 	public void addPlayerCallback(PlayerContract.PlayerCallback callback) {
-		actionsListeners.add(callback);
+		if (callback != null) {
+			actionsListeners.add(callback);
+		}
 	}
 
 	@Override
 	public boolean removePlayerCallback(PlayerContract.PlayerCallback callback) {
-		return actionsListeners.remove(callback);
+		if (callback != null) {
+			return actionsListeners.remove(callback);
+		}
+		return false;
 	}
 
 	@Override

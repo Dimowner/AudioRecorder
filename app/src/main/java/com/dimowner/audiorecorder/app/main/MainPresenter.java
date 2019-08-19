@@ -358,7 +358,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		loadingTasks.postRunnable(new Runnable() {
 			@Override public void run() {
 //				TODO: This code need to be refactored!
-				Record r = localRepository.getRecord((int)id);
+				Record record = localRepository.getRecord((int)id);
 				String nameWithExt;
 				if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
 					nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.WAV_EXTENSION;
@@ -366,7 +366,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.M4A_EXTENSION;
 				}
 
-				File file = new File(r.getPath());
+				File file = new File(record.getPath());
 				File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
 
 				if (renamed.exists()) {
@@ -383,11 +383,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					} else {
 						ext = AppConstants.M4A_EXTENSION;
 					}
-					if (fileRepository.renameFile(r.getPath(), name, ext)) {
-						record = new Record(r.getId(), nameWithExt, r.getDuration(), r.getCreated(),
-								r.getAdded(), renamed.getAbsolutePath(), r.isBookmarked(),
-								r.isWaveformProcessed(), r.getAmps());
-						if (localRepository.updateRecord(record)) {
+					if (fileRepository.renameFile(record.getPath(), name, ext)) {
+						MainPresenter.this.record = new Record(record.getId(), nameWithExt, record.getDuration(), record.getCreated(),
+								record.getAdded(), renamed.getAbsolutePath(), record.isBookmarked(),
+								record.isWaveformProcessed(), record.getAmps());
+						if (localRepository.updateRecord(MainPresenter.this.record)) {
 							AndroidUtils.runOnUIThread(new Runnable() {
 								@Override public void run() {
 									if (view != null) {
@@ -434,23 +434,24 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			loadingTasks.postRunnable(new Runnable() {
 				@Override
 				public void run() {
-					record = localRepository.getRecord((int) prefs.getActiveRecord());
-					if (record != null) {
-						songDuration = record.getDuration();
+					final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
+					record = rec;
+					if (rec != null) {
+						songDuration = rec.getDuration();
 						dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override
 							public void run() {
 								if (view != null) {
-									view.showWaveForm(record.getAmps(), songDuration);
-									view.showName(FileUtil.removeFileExtension(record.getName()));
+									view.showWaveForm(rec.getAmps(), songDuration);
+									view.showName(FileUtil.removeFileExtension(rec.getName()));
 									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
 									view.showOptionsMenu();
 									view.hideProgress();
 								}
 							}
 						});
-						if (!record.isWaveformProcessed() && !isProcessing) {
+						if (!rec.isWaveformProcessed() && !isProcessing) {
 							try {
 								if (view != null) {
 									AndroidUtils.runOnUIThread(new Runnable() {
@@ -462,7 +463,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 										}
 									});
 									isProcessing = true;
-									localRepository.updateWaveform(record.getId());
+									localRepository.updateWaveform(rec.getId());
 									AndroidUtils.runOnUIThread(new Runnable() {
 										@Override
 										public void run() {
@@ -547,9 +548,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		}
 		recordingsTasks.postRunnable(new Runnable() {
 			@Override public void run() {
-				localRepository.deleteRecord(record.getId());
-				fileRepository.deleteRecordFile(record.getPath());
 				if (record != null) {
+					localRepository.deleteRecord(record.getId());
+					fileRepository.deleteRecordFile(record.getPath());
 					prefs.setActiveRecord(-1);
 					dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 				}
@@ -573,14 +574,17 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void onRecordInfo() {
 		String format;
-		if (record.getPath().contains(AppConstants.M4A_EXTENSION)) {
-			format = AppConstants.M4A_EXTENSION;
-		} else if (record.getPath().contains(AppConstants.WAV_EXTENSION)) {
-			format = AppConstants.WAV_EXTENSION;
-		} else {
-			format = "";
+		Record rec = record;
+		if (rec != null) {
+			if (rec.getPath().contains(AppConstants.M4A_EXTENSION)) {
+				format = AppConstants.M4A_EXTENSION;
+			} else if (rec.getPath().contains(AppConstants.WAV_EXTENSION)) {
+				format = AppConstants.WAV_EXTENSION;
+			} else {
+				format = "";
+			}
+			view.showRecordInfo(rec.getName(), format, rec.getDuration() / 1000, new File(rec.getPath()).length(), rec.getPath());
 		}
-		view.showRecordInfo(record.getName(), format, record.getDuration()/1000, new File(record.getPath()).length(), record.getPath());
 	}
 
 	@Override
