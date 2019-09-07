@@ -80,7 +80,7 @@
 				android:paddingLeft="@dimen/spacing_normal"
 				android:paddingRight="@dimen/spacing_normal"
 				android:layout_marginStart="@dimen/spacing_small"
-				android:text="@string/btn_allow" />
+				android:text="@string/btn_ok" />
 
 	</LinearLayout>
 </LinearLayout>

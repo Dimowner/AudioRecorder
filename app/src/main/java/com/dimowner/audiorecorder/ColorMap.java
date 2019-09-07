@@ -17,6 +17,15 @@ public class ColorMap {
 		return singleton;
 	}
 
+	private static final int THEME_BLACK = 1;
+	private static final int THEME_TEAL = 2;
+	private static final int THEME_BLUE = 3;
+	private static final int THEME_PURPLE = 4;
+	private static final int THEME_PINK = 5;
+	private static final int THEME_DEEP_ORANGE = 6;
+	private static final int THEME_RED = 7;
+	private static final int THEME_BROWN = 8;
+
 	private int appThemeResource = 0;
 	private int primaryColorRes = R.color.md_blue_700;
 	private int playbackPanelBackground = R.drawable.panel_amber;
@@ -28,7 +37,11 @@ public class ColorMap {
 
 		onThemeColorChangeListeners = new ArrayList<>();
 		this.prefs = prefs;
-		selected = prefs.getThemeColor();
+		if (prefs.isFirstRun()) {
+			selected = THEME_BLUE;
+		} else {
+			selected = prefs.getThemeColor();
+		}
 		init(selected);
 	}
 
@@ -37,42 +50,42 @@ public class ColorMap {
 			color = new Random().nextInt(8);
 		}
 		switch (color) {
-			case 1:
+			case THEME_BLACK:
 				appThemeResource = R.style.AppTheme_Black;
 				primaryColorRes = R.color.md_black_1000;
 				playbackPanelBackground = R.drawable.panel_red;
 				break;
-			case 2:
+			case THEME_TEAL:
 				appThemeResource = R.style.AppTheme_Teal;
 				primaryColorRes = R.color.md_teal_700;
 				playbackPanelBackground = R.drawable.panel_green;
 				break;
-			case 4:
+			case THEME_PURPLE:
 				appThemeResource = R.style.AppTheme_Purple;
 				primaryColorRes = R.color.md_deep_purple_700;
 				playbackPanelBackground = R.drawable.panel_pink;
 				break;
-			case 5:
+			case THEME_PINK:
 				appThemeResource = R.style.AppTheme_Pink;
 				primaryColorRes = R.color.md_pink_800;
 				playbackPanelBackground = R.drawable.panel_purple;
 				break;
-			case 6:
+			case THEME_DEEP_ORANGE:
 				appThemeResource = R.style.AppTheme_DeepOrange;
 				primaryColorRes = R.color.md_deep_orange_800;
 				playbackPanelBackground = R.drawable.panel_yellow;
 				break;
-			case 7:
+			case THEME_RED:
 				appThemeResource = R.style.AppTheme_Red;
 				primaryColorRes = R.color.md_red_700;
 				playbackPanelBackground = R.drawable.panel_purple_light;
 				break;
-			case 8:
+			case THEME_BROWN:
 				appThemeResource = R.style.AppTheme_Brown;
 				primaryColorRes = R.color.md_brown_700;
 				playbackPanelBackground = R.drawable.panel_deep_orange;
 				break;
-			case 3:
+			case THEME_BLUE:
 			default:
 				primaryColorRes = R.color.md_blue_700;
 				appThemeResource = R.style.AppTheme;

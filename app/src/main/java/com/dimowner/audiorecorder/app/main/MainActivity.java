@@ -689,14 +689,14 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 													Manifest.permission.READ_EXTERNAL_STORAGE},
 											REQ_CODE_WRITE_EXTERNAL_STORAGE);
 								}
-							},
-							new View.OnClickListener() {
-								@Override
-								public void onClick(View v) {
-									presenter.setStoragePrivate(getApplicationContext());
-									presenter.startRecording();
-								}
-							}
+							}, null
+//							new View.OnClickListener() {
+//								@Override
+//								public void onClick(View v) {
+//									presenter.setStoragePrivate(getApplicationContext());
+//									presenter.startRecording();
+//								}
+//							}
 					);
 					return false;
 				}

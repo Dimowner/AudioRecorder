@@ -44,7 +44,7 @@
 	<string name="by_date">By date</string>
 	<string name="by_name">By name</string>
 	<string name="by_duration">By duration</string>
-	<string name="need_write_permission">The app requires permission to write to the public store. If not allowed, records will be stored in the app’s private directory</string>
+	<string name="need_write_permission">The app requires permission to write to the public storage. If not allowed, records will be stored in the app’s private directory</string>
 	<string name="rec_name">Name:</string>
 	<string name="rec_format">Format:</string>
 	<string name="rec_duration">Duration:</string>
