@@ -391,11 +391,13 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 					activeRecord = rec;
 					if (rec != null) {
 						dpPerSecond = ARApplication.getDpPerSecond((float) rec.getDuration() / 1000000f);
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
-								if (view != null) {
-									view.showRecords(Mapper.recordsToListItems(recordList), order);
+					}
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							if (view != null) {
+								view.showRecords(Mapper.recordsToListItems(recordList), order);
+								if (rec != null) {
 									view.showWaveForm(rec.getAmps(), rec.getDuration());
 									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
 									view.showRecordName(FileUtil.removeFileExtension(rec.getName()));
@@ -404,18 +406,16 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 									} else {
 										view.bookmarksUnselected();
 									}
-									view.hideProgress();
-									view.hidePanelProgress();
-									view.bookmarksUnselected();
-									if (recordList.size() == 0) {
-										view.showEmptyList();
-									}
+								}
+								view.hideProgress();
+								view.hidePanelProgress();
+								view.bookmarksUnselected();
+								if (recordList.size() == 0) {
+									view.showEmptyList();
 								}
 							}
-						});
-					} else {
-						view.hideProgress();
-					}
+						}
+					});
 				}
 			});
 		}
@@ -484,26 +484,26 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 						activeRecord = rec;
 						if (rec != null) {
 							dpPerSecond = ARApplication.getDpPerSecond((float) rec.getDuration() / 1000000f);
-							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override
-								public void run() {
-									if (view != null) {
-										view.showRecords(Mapper.recordsToListItems(recordList), AppConstants.SORT_DATE);
+						}
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override
+							public void run() {
+								if (view != null) {
+									view.showRecords(Mapper.recordsToListItems(recordList), AppConstants.SORT_DATE);
+									if (rec != null) {
 										view.showWaveForm(rec.getAmps(), rec.getDuration());
 										view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
 										view.showRecordName(FileUtil.removeFileExtension(rec.getName()));
-										view.hideProgress();
-										view.hidePanelProgress();
-										view.bookmarksSelected();
-										if (recordList.size() == 0) {
-											view.showEmptyBookmarksList();
-										}
+									}
+									view.hideProgress();
+									view.hidePanelProgress();
+									view.bookmarksSelected();
+									if (recordList.size() == 0) {
+										view.showEmptyBookmarksList();
 									}
 								}
-							});
-						} else {
-							view.hideProgress();
-						}
+							}
+						});
 					}
 				});
 			}
