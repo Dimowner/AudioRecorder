@@ -637,7 +637,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	@Override
 	public void showRecords(List<ListItem> records, int order) {
 		if (records.size() == 0) {
-//			txtEmpty.setVisibility(View.VISIBLE);
+			txtEmpty.setVisibility(View.VISIBLE);
 			adapter.setData(new ArrayList<ListItem>(), order);
 		} else {
 			adapter.setData(records, order);

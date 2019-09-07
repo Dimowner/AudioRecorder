@@ -66,7 +66,7 @@ public class SoundFile {
 	}
 
 	// Create and return a SoundFile object using the file fileName.
-	public static SoundFile create(String fileName) throws IOException, OutOfMemoryError, FileNotFoundException {
+	public static SoundFile create(String fileName) throws IOException, OutOfMemoryError, IllegalStateException, FileNotFoundException {
 		// First check that the file exists and that its extension is supported.
 		File f = new File(fileName);
 		if (!f.exists()) {
@@ -104,7 +104,7 @@ public class SoundFile {
 		return mFrameGains;
 	}
 
-	private void readFile(File inputFile) throws IOException, OutOfMemoryError {
+	private void readFile(File inputFile) throws IOException, OutOfMemoryError, IllegalStateException {
 		MediaExtractor extractor = new MediaExtractor();
 		MediaFormat format = null;
 		int i;

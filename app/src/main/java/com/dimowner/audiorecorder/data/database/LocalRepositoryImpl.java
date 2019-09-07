@@ -111,7 +111,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
-	public long insertFile(String path) throws IOException {
+	public long insertFile(String path) throws IOException, OutOfMemoryError, IllegalStateException {
 		if (path != null && !path.isEmpty()) {
 			final SoundFile soundFile = SoundFile.create(path);
 			if (soundFile != null) {
@@ -170,34 +170,38 @@ public class LocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
-	public boolean updateWaveform(int id) throws IOException, OutOfMemoryError {
+	public boolean updateWaveform(int id) throws IOException, OutOfMemoryError, IllegalStateException {
 		Record record = getRecord(id);
-		String path = record.getPath();
-		if (path != null && !path.isEmpty()) {
-			final SoundFile soundFile = SoundFile.create(path);
-			if (soundFile != null) {
-				Record rec = new Record(
-						record.getId(),
-						record.getName(),
-						record.getDuration(),
-						record.getCreated(),
-						record.getAdded(),
-						record.getPath(),
-						record.isBookmarked(),
-						true,
-						soundFile.getFrameGains());
-				boolean b = updateRecord(rec);
-				if (b) {
-					return true;
+		if (record != null) {
+			String path = record.getPath();
+			if (path != null && !path.isEmpty()) {
+				final SoundFile soundFile = SoundFile.create(path);
+				if (soundFile != null) {
+					Record rec = new Record(
+							record.getId(),
+							record.getName(),
+							record.getDuration(),
+							record.getCreated(),
+							record.getAdded(),
+							record.getPath(),
+							record.isBookmarked(),
+							true,
+							soundFile.getFrameGains());
+					boolean b = updateRecord(rec);
+					if (b) {
+						return true;
+					} else {
+						Timber.e("Failed to update record id = %d in local database!", rec.getId());
+					}
 				} else {
-					Timber.e("Failed to update record id = %d in local database!", rec.getId());
+					Timber.e("Unable to read sound file by specified path!");
+					throw new IOException("Unable to read sound file by specified path!");
 				}
 			} else {
-				Timber.e("Unable to read sound file by specified path!");
-				throw new IOException("Unable to read sound file by specified path!");
+				Timber.e("File path is null or empty");
 			}
 		} else {
-			Timber.e("File path is null or empty");
+			Timber.e("Record is null!");
 		}
 		return false;
 	}

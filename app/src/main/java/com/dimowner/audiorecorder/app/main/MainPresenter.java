@@ -359,72 +359,87 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			@Override public void run() {
 //				TODO: This code need to be refactored!
 				Record record = localRepository.getRecord((int)id);
-				String nameWithExt;
-				if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
-					nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.WAV_EXTENSION;
-				} else {
-					nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.M4A_EXTENSION;
-				}
-
-				File file = new File(record.getPath());
-				File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
-
-				if (renamed.exists()) {
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override public void run() {
-							if (view != null) {
-								view.showError(R.string.error_file_exists);
-							}
-						}});
-				} else {
-					String ext;
+				if (record != null) {
+					String nameWithExt;
 					if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
-						ext = AppConstants.WAV_EXTENSION;
+						nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.WAV_EXTENSION;
 					} else {
-						ext = AppConstants.M4A_EXTENSION;
+						nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.M4A_EXTENSION;
 					}
-					if (fileRepository.renameFile(record.getPath(), name, ext)) {
-						MainPresenter.this.record = new Record(record.getId(), nameWithExt, record.getDuration(), record.getCreated(),
-								record.getAdded(), renamed.getAbsolutePath(), record.isBookmarked(),
-								record.isWaveformProcessed(), record.getAmps());
-						if (localRepository.updateRecord(MainPresenter.this.record)) {
-							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override public void run() {
-									if (view != null) {
-										view.hideProgress();
-										view.showName(name);
+
+					File file = new File(record.getPath());
+					File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
+
+					if (renamed.exists()) {
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override
+							public void run() {
+								if (view != null) {
+									view.showError(R.string.error_file_exists);
+								}
+							}
+						});
+					} else {
+						String ext;
+						if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
+							ext = AppConstants.WAV_EXTENSION;
+						} else {
+							ext = AppConstants.M4A_EXTENSION;
+						}
+						if (fileRepository.renameFile(record.getPath(), name, ext)) {
+							MainPresenter.this.record = new Record(record.getId(), nameWithExt, record.getDuration(), record.getCreated(),
+									record.getAdded(), renamed.getAbsolutePath(), record.isBookmarked(),
+									record.isWaveformProcessed(), record.getAmps());
+							if (localRepository.updateRecord(MainPresenter.this.record)) {
+								AndroidUtils.runOnUIThread(new Runnable() {
+									@Override
+									public void run() {
+										if (view != null) {
+											view.hideProgress();
+											view.showName(name);
+										}
 									}
-								}});
+								});
+							} else {
+								AndroidUtils.runOnUIThread(new Runnable() {
+									@Override
+									public void run() {
+										view.showError(R.string.error_failed_to_rename);
+									}
+								});
+								//Restore file name after fail update path in local database.
+								if (renamed.exists()) {
+									//Try to rename 3 times;
+									if (!renamed.renameTo(file)) {
+										if (!renamed.renameTo(file)) {
+											renamed.renameTo(file);
+										}
+									}
+								}
+							}
+
 						} else {
 							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override public void run() { view.showError(R.string.error_failed_to_rename); }});
-							//Restore file name after fail update path in local database.
-							if (renamed.exists()) {
-								//Try to rename 3 times;
-								if (!renamed.renameTo(file)) {
-									if (!renamed.renameTo(file)) {
-										renamed.renameTo(file);
+								@Override
+								public void run() {
+									if (view != null) {
+										view.showError(R.string.error_failed_to_rename);
 									}
 								}
+							});
+						}
+					}
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							if (view != null) {
+								view.hideProgress();
 							}
 						}
-
-					} else {
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override public void run() {
-								if (view != null) {
-									view.showError(R.string.error_failed_to_rename);
-								}
-							}});
-					}
+					});
 				}
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override public void run() {
-						if (view != null) {
-							view.hideProgress();
-						}
-					}});
-			}});
+			}
+		});
 	}
 
 	@Override
@@ -473,7 +488,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 										}
 									});
 								}
-							} catch (IOException | OutOfMemoryError e) {
+							} catch (IOException | OutOfMemoryError | IllegalStateException e) {
 								Timber.e(e);
 								view.showError(R.string.error_process_waveform);
 							}
@@ -634,22 +649,25 @@ public class MainPresenter implements MainContract.UserActionsListener {
 											true,
 											new int[ARApplication.getLongWaveformSampleCount()]));
 
-							id = record.getId();
-							prefs.setActiveRecord(id);
-							songDuration = duration;
-							dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
-							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override
-								public void run() {
-									if (view != null) {
-										audioPlayer.stop();
-										view.showWaveForm(record.getAmps(), songDuration);
-										view.showName(FileUtil.removeFileExtension(record.getName()));
-										view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
-										view.hideProgress();
+							final Record rec = record;
+							if (rec != null) {
+								id = rec.getId();
+								prefs.setActiveRecord(id);
+								songDuration = duration;
+								dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
+								AndroidUtils.runOnUIThread(new Runnable() {
+									@Override
+									public void run() {
+										if (view != null) {
+											audioPlayer.stop();
+											view.showWaveForm(rec.getAmps(), songDuration);
+											view.showName(FileUtil.removeFileExtension(rec.getName()));
+											view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
+											view.hideProgress();
+										}
 									}
-								}
-							});
+								});
+							}
 
 							try {
 								if (view != null) {
@@ -663,19 +681,22 @@ public class MainPresenter implements MainContract.UserActionsListener {
 										}
 									});
 									isProcessing = true;
-									localRepository.updateWaveform((int)id);
-									record = localRepository.getRecord((int)id);
-									AndroidUtils.runOnUIThread(new Runnable() {
-										@Override
-										public void run() {
-											if (view != null) {
-												view.showWaveForm(record.getAmps(), songDuration);
-												view.hideRecordProcessing();
+									localRepository.updateWaveform((int) id);
+									record = localRepository.getRecord((int) id);
+									final Record rec2 = record;
+									if (rec2 != null) {
+										AndroidUtils.runOnUIThread(new Runnable() {
+											@Override
+											public void run() {
+												if (view != null) {
+													view.showWaveForm(rec2.getAmps(), songDuration);
+													view.hideRecordProcessing();
+												}
 											}
-										}
-									});
+										});
+									}
 								}
-							} catch (IOException | OutOfMemoryError e) {
+							} catch (IOException | OutOfMemoryError | IllegalStateException e) {
 								Timber.e(e);
 								if (view != null) {
 									view.hideRecordProcessing();
@@ -690,7 +711,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override public void run() { if (view != null) view.showError(R.string.error_permission_denied); }
 					});
-				} catch (IOException e) {
+				} catch (IOException | OutOfMemoryError | IllegalStateException e) {
 					Timber.e(e);
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override public void run() { if (view != null) view.showError(R.string.error_unable_to_read_sound_file); }

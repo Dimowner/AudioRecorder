@@ -120,6 +120,7 @@
 			android:textColor="@color/text_primary_light"
 			android:text="@string/no_records"
 			tools:text="@string/app_name"
+			android:visibility="gone"
 			tools:visibility="visible"
 			/>
 

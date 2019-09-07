@@ -95,7 +95,7 @@ public class AppRecorderImpl implements AppRecorder {
 								id = localRepository.insertFile(output.getAbsolutePath());
 							}
 							prefs.setActiveRecord(id);
-						} catch (IOException e) {
+						} catch (IOException | OutOfMemoryError | IllegalStateException e) {
 							Timber.e(e);
 						}
 						AndroidUtils.runOnUIThread(new Runnable() {
@@ -113,7 +113,7 @@ public class AppRecorderImpl implements AppRecorder {
 														onRecordFinishProcessing();
 													}
 												});
-											} catch (IOException | OutOfMemoryError e) {
+											} catch (IOException | OutOfMemoryError | IllegalStateException e) {
 												AndroidUtils.runOnUIThread(new Runnable() {
 													@Override public void run() {
 														onError(new CantProcessRecord());
