@@ -413,6 +413,8 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 								}
 							}
 						});
+					} else {
+						view.hideProgress();
 					}
 				}
 			});
@@ -459,6 +461,8 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 								}
 							}
 						});
+					} else {
+						view.hideProgress();
 					}
 				}
 			});
@@ -497,6 +501,8 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 									}
 								}
 							});
+						} else {
+							view.hideProgress();
 						}
 					}
 				});

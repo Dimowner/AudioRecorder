@@ -28,7 +28,7 @@ public interface FileRepository {
 
 	File provideRecordFile(String name) throws CantCreateFileException;
 
-	File getRecordFileByName(String name, String extension);
+//	File getRecordFileByName(String name, String extension);
 
 	File getRecordingDir();
 

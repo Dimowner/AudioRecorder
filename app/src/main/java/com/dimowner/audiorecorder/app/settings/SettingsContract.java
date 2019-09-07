@@ -19,6 +19,8 @@ public class SettingsContract {
 
 		void showRecordingFormat(int format);
 
+		void showNamingFormat(int format);
+
 		void showAllRecordsDeleted();
 
 		void showFailDeleteAllRecords();
@@ -46,6 +48,8 @@ public class SettingsContract {
 		void setRecordingBitrate(int bitrate);
 
 		void setRecordingFormat(int format);
+
+		void setNamingFormat(int format);
 
 		void setSampleRate(int rate);
 

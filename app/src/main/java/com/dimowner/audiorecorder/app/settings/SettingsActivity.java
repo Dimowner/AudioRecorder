@@ -17,10 +17,8 @@
 package com.dimowner.audiorecorder.app.settings;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -46,6 +44,7 @@ import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.util.AndroidUtils;
+import com.dimowner.audiorecorder.util.FileUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +62,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private Switch swKeepScreenOn;
 	private Switch swAskToRename;
 
+	private Spinner nameFormatSelector;
 	private Spinner formatSelector;
 	private Spinner sampleRateSelector;
 	private Spinner bitrateSelector;
@@ -144,6 +144,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		presenter = ARApplication.getInjector().provideSettingsPresenter();
 
 		initThemeColorSelector();
+		initNameFormatSelector();
 		initFormatSelector();
 		initSampleRateSelector();
 		initBitrateSelector();
@@ -181,10 +182,36 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		});
 	}
 
+	private void initNameFormatSelector() {
+		nameFormatSelector = findViewById(R.id.name_format);
+		List<AppSpinnerAdapter.ThemeItem> items = new ArrayList<>();
+		String[] values = new String[2];
+		values[0] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameCounted(1);
+		values[1] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameDate();
+		for (int i = 0; i < values.length; i++) {
+			items.add(new AppSpinnerAdapter.ThemeItem(values[i],
+					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
+		}
+		AppSpinnerAdapter adapter = new AppSpinnerAdapter(SettingsActivity.this,
+				R.layout.list_item_spinner, R.id.txtItem, items, R.drawable.ic_title);
+		nameFormatSelector.setAdapter(adapter);
+
+		nameFormatSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				if (position == 0) {
+					presenter.setNamingFormat(AppConstants.NAMING_COUNTED);
+				} else {
+					presenter.setNamingFormat(AppConstants.NAMING_DATE);
+				}
+			}
+			@Override public void onNothingSelected(AdapterView<?> parent) { }
+		});
+	}
+
 	private void initFormatSelector() {
 		formatSelector = findViewById(R.id.format);
 		List<AppSpinnerAdapter.ThemeItem> items = new ArrayList<>();
-		String values[] = getResources().getStringArray(R.array.formats);
+		String[] values = getResources().getStringArray(R.array.formats);
 		for (int i = 0; i < values.length; i++) {
 			items.add(new AppSpinnerAdapter.ThemeItem(values[i],
 					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
@@ -197,10 +224,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				if (position == 0) {
 					presenter.setRecordingFormat(AppConstants.RECORDING_FORMAT_M4A);
-					showBitrateSelector();
 				} else {
 					presenter.setRecordingFormat(AppConstants.RECORDING_FORMAT_WAV);
-					hideBitrateSelector();
 				}
 			}
 			@Override public void onNothingSelected(AdapterView<?> parent) { }
@@ -214,7 +239,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private void initSampleRateSelector() {
 		sampleRateSelector = findViewById(R.id.sample_rate);
 		List<AppSpinnerAdapter.ThemeItem> items = new ArrayList<>();
-		String values[] = getResources().getStringArray(R.array.sample_rates);
+		String[] values = getResources().getStringArray(R.array.sample_rates);
 		for (int i = 0; i < values.length; i++) {
 			items.add(new AppSpinnerAdapter.ThemeItem(values[i],
 					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
@@ -234,7 +259,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private void initBitrateSelector() {
 		bitrateSelector = findViewById(R.id.bit_rate);
 		List<AppSpinnerAdapter.ThemeItem> items3 = new ArrayList<>();
-		String values3[] = getResources().getStringArray(R.array.bit_rates);
+		String[] values3 = getResources().getStringArray(R.array.bit_rates);
 		for (int i = 0; i < values3.length; i++) {
 			items3.add(new AppSpinnerAdapter.ThemeItem(values3[i],
 					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
@@ -406,6 +431,11 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	@Override
 	public void showRecordingFormat(int format) {
 		formatSelector.setSelection(format);
+	}
+
+	@Override
+	public void showNamingFormat(int format) {
+		nameFormatSelector.setSelection(format);
 	}
 
 	@Override

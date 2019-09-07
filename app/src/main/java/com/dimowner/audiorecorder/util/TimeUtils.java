@@ -38,7 +38,13 @@ public class TimeUtils {
 	private static SimpleDateFormat dateFormat24H = new SimpleDateFormat("MMM dd", Locale.getDefault());
 
 	/** Date format: 22.11.2018, 11:30 */
-	private static SimpleDateFormat dateTimeFormatEU = new SimpleDateFormat("dd.mm.yyyy, HH:mm", Locale.FRANCE);
+	private static SimpleDateFormat dateTimeFormatEU = new SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.getDefault());
+
+	/** Date format: 11/22/2018, 11:30 */
+	private static SimpleDateFormat dateTimeFormatUS = new SimpleDateFormat("MM/dd/yyyy, HH:mm", Locale.US);
+
+	/** Date format: 2019.09.22 11:30 */
+	private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.getDefault());
 
 	/** Time format: 11:30 */
 	private static SimpleDateFormat timeFormatEU = new SimpleDateFormat("HH:mm", Locale.FRANCE);
@@ -158,5 +164,9 @@ public class TimeUtils {
 		}
 		return (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA) &&
 				cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR));
+	}
+
+	public static String formatDateForName(long time) {
+			return dateTimeFormat.format(new Date(time));
 	}
 }

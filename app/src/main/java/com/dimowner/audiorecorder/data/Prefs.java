@@ -54,4 +54,7 @@ public interface Prefs {
 
 	void setRecordOrder(int order);
 	int getRecordsOrder();
+
+	void setNamingFormat(int format);
+	int getNamingFormat();
 }

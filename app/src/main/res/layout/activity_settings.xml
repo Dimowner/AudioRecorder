@@ -152,6 +152,13 @@
 					/>
 		</LinearLayout>
 
+		<Spinner
+				android:id="@+id/name_format"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:paddingStart="0dp"
+				android:paddingEnd="1dp"/>
+
 		<TextView
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"

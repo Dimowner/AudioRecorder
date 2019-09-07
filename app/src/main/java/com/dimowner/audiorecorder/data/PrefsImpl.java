@@ -39,6 +39,7 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_BITRATE = "pref_bitrate";
 	private static final String PREF_KEY_SAMPLE_RATE = "pref_sample_rate";
 	private static final String PREF_KEY_RECORDS_ORDER = "pref_records_order";
+	private static final String PREF_KEY_NAMING_FORMAT = "pref_naming_format";
 
 	//Recording prefs.
 	private static final String PREF_KEY_RECORD_CHANNEL_COUNT = "record_channel_count";
@@ -211,5 +212,17 @@ public class PrefsImpl implements Prefs {
 	@Override
 	public int getRecordsOrder() {
 		return sharedPreferences.getInt(PREF_KEY_RECORDS_ORDER, AppConstants.SORT_DATE);
+	}
+
+	@Override
+	public void setNamingFormat(int format) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putInt(PREF_KEY_NAMING_FORMAT, format);
+		editor.apply();
+	}
+
+	@Override
+	public int getNamingFormat() {
+		return sharedPreferences.getInt(PREF_KEY_NAMING_FORMAT, AppConstants.NAMING_COUNTED);
 	}
 }

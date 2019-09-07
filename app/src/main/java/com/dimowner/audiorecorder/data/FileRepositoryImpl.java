@@ -55,12 +55,16 @@ public class FileRepositoryImpl implements FileRepository {
 	public File provideRecordFile() throws CantCreateFileException {
 		prefs.incrementRecordCounter();
 		File recordFile;
-		if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
-			recordFile = FileUtil.createFile(recordDirectory,
-					FileUtil.generateRecordNameCounted(prefs.getRecordCounter(), AppConstants.WAV_EXTENSION));
+		String recordName;
+		if (prefs.getNamingFormat() == AppConstants.NAMING_COUNTED) {
+			recordName = FileUtil.generateRecordNameCounted(prefs.getRecordCounter());
 		} else {
-			recordFile = FileUtil.createFile(recordDirectory,
-					FileUtil.generateRecordNameCounted(prefs.getRecordCounter(), AppConstants.M4A_EXTENSION));
+			recordName = FileUtil.generateRecordNameDate();
+		}
+		if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
+			recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.WAV_EXTENSION));
+		} else {
+			recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.M4A_EXTENSION));
 		}
 		if (recordFile != null) {
 			return recordFile;
@@ -77,15 +81,15 @@ public class FileRepositoryImpl implements FileRepository {
 		throw new CantCreateFileException();
 	}
 
-	@Override
-	public File getRecordFileByName(String name, String extension) {
-		File recordFile = new File(recordDirectory.getAbsolutePath() + File.separator + FileUtil.generateRecordNameCounted(prefs.getRecordCounter(), extension));
-		if (recordFile.exists() && recordFile.isFile()) {
-			return recordFile;
-		}
-		Timber.e("File %s was not found", recordFile.getAbsolutePath());
-		return null;
-	}
+//	@Override
+//	public File getRecordFileByName(String name, String extension) {
+//		File recordFile = new File(recordDirectory.getAbsolutePath() + File.separator + FileUtil.generateRecordNameCounted(prefs.getRecordCounter(), extension));
+//		if (recordFile.exists() && recordFile.isFile()) {
+//			return recordFile;
+//		}
+//		Timber.e("File %s was not found", recordFile.getAbsolutePath());
+//		return null;
+//	}
 
 	@Override
 	public File getRecordingDir() {

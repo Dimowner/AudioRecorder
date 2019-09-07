@@ -69,6 +69,7 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 			} else {
 				view.showBitrateSelector();
 			}
+			view.showNamingFormat(prefs.getNamingFormat());
 		}
 
 
@@ -174,6 +175,11 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 				view.showBitrateSelector();
 			}
 		}
+	}
+
+	@Override
+	public void setNamingFormat(int format) {
+		prefs.setNamingFormat(format);
 	}
 
 	@Override
