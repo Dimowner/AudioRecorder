@@ -442,10 +442,12 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 					activeRecord = rec;
 					if (rec != null) {
 						dpPerSecond = ARApplication.getDpPerSecond((float) rec.getDuration() / 1000000f);
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
-								if (view != null) {
+					}
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							if (view != null) {
+								if (rec != null) {
 									view.addRecords(Mapper.recordsToListItems(recordList), order);
 									view.showWaveForm(rec.getAmps(), rec.getDuration());
 									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
@@ -455,15 +457,13 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 									} else {
 										view.bookmarksUnselected();
 									}
-									view.hideProgress();
-									view.hidePanelProgress();
-									view.bookmarksUnselected();
 								}
+								view.hideProgress();
+								view.hidePanelProgress();
+								view.bookmarksUnselected();
 							}
-						});
-					} else {
-						view.hideProgress();
-					}
+						}
+					});
 				}
 			});
 		}

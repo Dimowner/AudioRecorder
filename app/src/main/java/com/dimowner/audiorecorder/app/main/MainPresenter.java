@@ -490,7 +490,14 @@ public class MainPresenter implements MainContract.UserActionsListener {
 								}
 							} catch (IOException | OutOfMemoryError | IllegalStateException e) {
 								Timber.e(e);
-								view.showError(R.string.error_process_waveform);
+								AndroidUtils.runOnUIThread(new Runnable() {
+									@Override
+									public void run() {
+										if (view != null) {
+											view.showError(R.string.error_process_waveform);
+										}
+									}
+								});
 							}
 							isProcessing = false;
 						}
