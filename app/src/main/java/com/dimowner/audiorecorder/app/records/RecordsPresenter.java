@@ -523,25 +523,28 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			public void run() {
 				final Record rec = activeRecord;
 				if (rec != null) {
+					boolean success;
 					if (rec.isBookmarked()) {
-						localRepository.removeFromBookmarks(rec.getId());
+						success = localRepository.removeFromBookmarks(rec.getId());
 					} else {
-						localRepository.addToBookmarks(rec.getId());
+						success = localRepository.addToBookmarks(rec.getId());
 					}
-					rec.setBookmark(!rec.isBookmarked());
+					if (success) {
+						rec.setBookmark(!rec.isBookmarked());
 
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							if (view != null) {
-								if (rec.isBookmarked()) {
-									view.addedToBookmarks(rec.getId(), true);
-								} else {
-									view.removedFromBookmarks(rec.getId(), true);
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override
+							public void run() {
+								if (view != null) {
+									if (rec.isBookmarked()) {
+										view.addedToBookmarks(rec.getId(), true);
+									} else {
+										view.removedFromBookmarks(rec.getId(), true);
+									}
 								}
 							}
-						}
-					});
+						});
+					}
 				}
 			}
 		});
@@ -554,15 +557,16 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			public void run() {
 				final Record r = localRepository.getRecord(id);
 				if (r != null) {
-					localRepository.addToBookmarks(r.getId());
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							if (view != null) {
-								view.addedToBookmarks(r.getId(), activeRecord != null && r.getId() == activeRecord.getId());
+					if (localRepository.addToBookmarks(r.getId())) {
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override
+							public void run() {
+								if (view != null) {
+									view.addedToBookmarks(r.getId(), activeRecord != null && r.getId() == activeRecord.getId());
+								}
 							}
-						}
-					});
+						});
+					}
 				}
 			}
 		});

@@ -308,8 +308,12 @@ public class LocalRepositoryImpl implements LocalRepository {
 			dataSource.open();
 		}
 		Record r = dataSource.getItem(id);
-		r.setBookmark(true);
-		return (dataSource.updateItem(r) > 0);
+		if (r != null) {
+			r.setBookmark(true);
+			return (dataSource.updateItem(r) > 0);
+		} else {
+			return false;
+		}
 	}
 
 	@Override
@@ -318,8 +322,12 @@ public class LocalRepositoryImpl implements LocalRepository {
 			dataSource.open();
 		}
 		Record r = dataSource.getItem(id);
-		r.setBookmark(false);
-		return (dataSource.updateItem(r) > 0);
+		if (r != null) {
+			r.setBookmark(false);
+			return (dataSource.updateItem(r) > 0);
+		} else {
+			return false;
+		}
 	}
 
 	@Override

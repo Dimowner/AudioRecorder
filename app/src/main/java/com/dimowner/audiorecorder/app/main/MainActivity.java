@@ -517,7 +517,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 						presenter.onRecordInfo();
 						break;
 					case R.id.menu_rename:
-						setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()));
+						String path = presenter.getActiveRecordPath();
+						if (path != null) {
+							setRecordName(presenter.getActiveRecordId(), new File(path));
+						}
 						break;
 					case R.id.menu_open_with:
 						AndroidUtils.openAudioFile(getApplicationContext(), presenter.getActiveRecordPath(), presenter.getActiveRecordName());
