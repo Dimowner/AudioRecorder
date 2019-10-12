@@ -293,7 +293,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		if (audioPlayer.isPlaying()) {
 			audioPlayer.stop();
 		}
-		if (!appRecorder.isRecording()) {
+		if (appRecorder.isPaused()) {
+			appRecorder.resumeRecording();
+		} else if (!appRecorder.isRecording()) {
 			try {
 				appRecorder.startRecording(fileRepository.provideRecordFile().getAbsolutePath());
 			} catch (CantCreateFileException e) {

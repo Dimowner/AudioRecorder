@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.audio.recorder;
 
 import android.media.MediaRecorder;
+import android.os.Build;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.exception.InvalidOutputFile;
@@ -39,6 +40,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 
 	private boolean isPrepared = false;
 	private boolean isRecording = false;
+	private boolean isPaused = false;
 	private Timer timerProgress;
 	private long progress = 0;
 
@@ -97,32 +99,68 @@ public class AudioRecorder implements RecorderContract.Recorder {
 
 	@Override
 	public void startRecording() {
-		if (isPrepared) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isPaused) {
 			try {
-				recorder.start();
-				isRecording = true;
+				recorder.resume();
 				ARApplication.setRecording(true);
 				startRecordingTimer();
 				if (recorderCallback != null) {
 					recorderCallback.onStartRecord();
 				}
-			} catch (RuntimeException e) {
-				Timber.e(e, "startRecording() failed");
+				isPaused = false;
+			} catch (IllegalStateException e) {
+				Timber.e(e, "unpauseRecording() failed");
 				if (recorderCallback != null) {
 					recorderCallback.onError(new RecorderInitException());
 				}
 			}
 		} else {
-			Timber.e("Recorder is not prepared!!!");
+			if (isPrepared) {
+				try {
+					recorder.start();
+					isRecording = true;
+					ARApplication.setRecording(true);
+					startRecordingTimer();
+					if (recorderCallback != null) {
+						recorderCallback.onStartRecord();
+					}
+				} catch (RuntimeException e) {
+					Timber.e(e, "startRecording() failed");
+					if (recorderCallback != null) {
+						recorderCallback.onError(new RecorderInitException());
+					}
+				}
+			} else {
+				Timber.e("Recorder is not prepared!!!");
+			}
+			isPaused = false;
 		}
 	}
 
 	@Override
 	public void pauseRecording() {
 		if (isRecording) {
-			//TODO: For below API 24 pause is not available that why records append should be implemented.
-//			recorder.pause();
-			stopRecording();
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+				try {
+					recorder.pause();
+
+					stopRecordingTimer();
+					ARApplication.setRecording(false);
+
+					if (recorderCallback != null) {
+						recorderCallback.onPauseRecord();
+					}
+					isPaused = true;
+				} catch (IllegalStateException e) {
+					Timber.e(e, "pauseRecording() failed");
+					if (recorderCallback != null) {
+						//TODO: Fix exception
+						recorderCallback.onError(new RecorderInitException());
+					}
+				}
+			} else {
+				stopRecording();
+			}
 		}
 	}
 
@@ -143,6 +181,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 			recordFile = null;
 			isPrepared = false;
 			isRecording = false;
+			isPaused = false;
 			recorder = null;
 		} else {
 			Timber.e("Recording has already stopped or hasn't started");
@@ -175,5 +214,10 @@ public class AudioRecorder implements RecorderContract.Recorder {
 	@Override
 	public boolean isRecording() {
 		return isRecording;
+	}
+
+	@Override
+	public boolean isPaused() {
+		return isPaused;
 	}
 }

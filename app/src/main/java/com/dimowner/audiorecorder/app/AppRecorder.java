@@ -11,9 +11,11 @@ public interface AppRecorder {
 	void setRecorder(RecorderContract.Recorder recorder);
 	void startRecording(String filePath);
 	void pauseRecording();
+	void resumeRecording();
 	void stopRecording();
 	List<Integer> getRecordingData();
 	boolean isRecording();
+	boolean isPaused();
 	boolean isProcessing();
 	void release();
 }

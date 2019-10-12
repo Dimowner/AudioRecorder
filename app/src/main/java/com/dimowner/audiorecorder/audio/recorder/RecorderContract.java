@@ -38,5 +38,6 @@ public interface RecorderContract {
 		void pauseRecording();
 		void stopRecording();
 		boolean isRecording();
+		boolean isPaused();
 	}
 }

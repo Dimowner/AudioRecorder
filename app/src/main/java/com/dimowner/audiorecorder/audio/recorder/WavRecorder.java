@@ -173,6 +173,11 @@ public class WavRecorder implements RecorderContract.Recorder {
 		return isRecording;
 	}
 
+	@Override
+	public boolean isPaused() {
+		return false;
+	}
+
 	private void writeAudioDataToFile() {
 		byte data[] = new byte[bufferSize];
 
