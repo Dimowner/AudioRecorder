@@ -76,7 +76,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 			recorder.setAudioChannels(channelCount);
 			recorder.setAudioSamplingRate(sampleRate);
 			recorder.setAudioEncodingBitRate(bitrate);
-			recorder.setMaxDuration(RECORD_MAX_DURATION);
+			recorder.setMaxDuration(-1); //Duration unlimited
 			recorder.setOutputFile(recordFile.getAbsolutePath());
 			try {
 				recorder.prepare();
@@ -102,7 +102,6 @@ public class AudioRecorder implements RecorderContract.Recorder {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isPaused) {
 			try {
 				recorder.resume();
-				ARApplication.setRecording(true);
 				startRecordingTimer();
 				if (recorderCallback != null) {
 					recorderCallback.onStartRecord();
@@ -143,10 +142,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 				try {
 					recorder.pause();
-
 					stopRecordingTimer();
-					ARApplication.setRecording(false);
-
 					if (recorderCallback != null) {
 						recorderCallback.onPauseRecord();
 					}

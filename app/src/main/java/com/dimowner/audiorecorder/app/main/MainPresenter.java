@@ -121,7 +121,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					if (view != null) {
 						view.showRecordingStart();
 						view.keepScreenOn(prefs.isKeepScreenOn());
-						view.showName("");
 						view.startRecordingService();
 					}
 				}
@@ -129,6 +128,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				@Override
 				public void onRecordingPaused() {
 					view.keepScreenOn(false);
+					view.showRecordingPause();
 				}
 
 				@Override

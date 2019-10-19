@@ -71,7 +71,6 @@ import timber.log.Timber;
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
 // TODO: Fix WaveForm blinking when seek
-// TODO: Show Record info
 // TODO: Ability to scroll up from the bottom of the list
 // TODO: Ability to search by record name in list
 // TODO: Welcome screen
@@ -94,6 +93,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ImageButton btnPlay;
 	private ImageButton btnStop;
 	private ImageButton btnRecord;
+	private ImageButton btnDelete;
+	private ImageButton btnRecordingStop;
 	private ImageButton btnShare;
 	private ImageButton btnRecordsList;
 	private ImageButton btnSettings;
@@ -124,6 +125,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtName = findViewById(R.id.txt_name);
 		btnPlay = findViewById(R.id.btn_play);
 		btnRecord = findViewById(R.id.btn_record);
+		btnRecordingStop = findViewById(R.id.btn_record_stop);
+		btnDelete = findViewById(R.id.btn_record_delete);
 		btnStop = findViewById(R.id.btn_stop);
 		btnRecordsList = findViewById(R.id.btn_records_list);
 		btnSettings = findViewById(R.id.btn_settings);
@@ -136,8 +139,15 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 
+		btnDelete.setVisibility(View.INVISIBLE);
+		btnDelete.setEnabled(false);
+		btnRecordingStop.setVisibility(View.INVISIBLE);
+		btnRecordingStop.setEnabled(false);
+
 		btnPlay.setOnClickListener(this);
 		btnRecord.setOnClickListener(this);
+		btnRecordingStop.setOnClickListener(this);
+		btnDelete.setOnClickListener(this);
 		btnStop.setOnClickListener(this);
 		btnRecordsList.setOnClickListener(this);
 		btnSettings.setOnClickListener(this);
@@ -228,6 +238,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 					}
 				}
 				break;
+			case R.id.btn_record_stop:
+				presenter.stopRecording();
+				break;
+			case R.id.btn_record_delete:
+				presenter.deleteActiveRecord();
+				break;
 			case R.id.btn_stop:
 				presenter.stopPlayback();
 				break;
@@ -309,10 +325,21 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showRecordingStart() {
-		btnRecord.setImageResource(R.drawable.ic_record_rec);
+		txtName.setClickable(false);
+		txtName.setFocusable(false);
+		txtName.setCompoundDrawables(null, null, null, null);
+		txtName.setVisibility(View.VISIBLE);
+		txtName.setText(R.string.recording_progress);
+		txtZeroTime.setVisibility(View.INVISIBLE);
+		txtDuration.setVisibility(View.INVISIBLE);
+		btnRecord.setImageResource(R.drawable.ic_pause_circle_filled);
 		btnPlay.setEnabled(false);
 		btnImport.setEnabled(false);
 		btnShare.setEnabled(false);
+		btnDelete.setVisibility(View.INVISIBLE);
+		btnDelete.setEnabled(false);
+		btnRecordingStop.setVisibility(View.INVISIBLE);
+		btnRecordingStop.setEnabled(false);
 		playProgress.setProgress(0);
 		playProgress.setEnabled(false);
 		txtDuration.setText(R.string.zero_time);
@@ -321,13 +348,34 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showRecordingStop() {
+		txtName.setClickable(true);
+		txtName.setFocusable(true);
+		txtName.setText("");
+		txtZeroTime.setVisibility(View.VISIBLE);
+		txtDuration.setVisibility(View.VISIBLE);
+		txtName.setCompoundDrawablesWithIntrinsicBounds(null, null, getDrawable(R.drawable.ic_pencil_small), null);
+		txtName.setVisibility(View.INVISIBLE);
 		btnRecord.setImageResource(R.drawable.ic_record);
 		btnPlay.setEnabled(true);
 		btnImport.setEnabled(true);
 		btnShare.setEnabled(true);
 		playProgress.setEnabled(true);
+		btnDelete.setVisibility(View.INVISIBLE);
+		btnDelete.setEnabled(false);
+		btnRecordingStop.setVisibility(View.INVISIBLE);
+		btnRecordingStop.setEnabled(false);
 		waveformView.hideRecording();
 		waveformView.clearRecordingData();
+	}
+
+	@Override
+	public void showRecordingPause() {
+		txtName.setText(R.string.recording_paused);
+		btnRecord.setImageResource(R.drawable.ic_record_rec);
+		btnDelete.setVisibility(View.VISIBLE);
+		btnDelete.setEnabled(true);
+		btnRecordingStop.setVisibility(View.VISIBLE);
+		btnRecordingStop.setEnabled(true);
 	}
 
 	@Override

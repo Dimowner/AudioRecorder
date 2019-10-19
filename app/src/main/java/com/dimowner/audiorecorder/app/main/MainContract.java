@@ -32,6 +32,7 @@ public interface MainContract {
 		void keepScreenOn(boolean on);
 		void showRecordingStart();
 		void showRecordingStop();
+		void showRecordingPause();
 		void onRecordingProgress(long mills, int amp);
 
 		void askRecordingNewName(long id, File file);
