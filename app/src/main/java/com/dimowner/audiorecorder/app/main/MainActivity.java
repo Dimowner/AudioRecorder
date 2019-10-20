@@ -81,6 +81,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Add pause button to the recording notification
 // TODO: Stop infinite loop when pause WAV recording
 // TODO: Add Alert when device out of memory.
+// TODO: Rename public storage setting add explain dialog when switch setting.
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -765,35 +766,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		return true;
 	}
 
-	private boolean checkRecordPermission() {
-		if (presenter.isStorePublic()) {
-			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
-						&& checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-					requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO,
-							Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL);
-					return false;
-				} else if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
-						&& checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-					requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQ_CODE_WRITE_EXTERNAL_STORAGE);
-					return false;
-				} else if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
-						&& checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-					requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_CODE_RECORD_AUDIO);
-					return false;
-				}
-			}
-		} else {
-			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-					requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_CODE_RECORD_AUDIO);
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-
 	@Override
 	public void onRequestPermissionsResult(int requestCode,  @NonNull String[] permissions, @NonNull int[] grantResults) {
 		if (requestCode == REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL && grantResults.length > 0
@@ -820,7 +792,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 			presenter.startPlayback();
-		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE
+		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.length > 0
 				&& (grantResults[0] == PackageManager.PERMISSION_DENIED
 				|| grantResults[1] == PackageManager.PERMISSION_DENIED)) {
 			presenter.setStoragePrivate(getApplicationContext());

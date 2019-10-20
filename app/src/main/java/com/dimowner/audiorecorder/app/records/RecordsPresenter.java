@@ -282,69 +282,88 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		loadingTasks.postRunnable(new Runnable() {
 			@Override public void run() {
 //				TODO: This code need to be refactored!
-				Record r = localRepository.getRecord((int)id);
+				Record rec2 = localRepository.getRecord((int)id);
 //				String nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.M4A_EXTENSION;
-				String nameWithExt;
-				if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
-					nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.WAV_EXTENSION;
-				} else {
-					nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.M4A_EXTENSION;
-				}
-				File file = new File(r.getPath());
-				File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
-
-				if (renamed.exists()) {
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override public void run() {
-							if (view != null) {
-								view.showError(R.string.error_file_exists);
-							}
-						}});
-				} else {
-					String ext;
+				if (rec2 != null) {
+					String nameWithExt;
 					if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
-						ext = AppConstants.WAV_EXTENSION;
+						nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.WAV_EXTENSION;
 					} else {
-						ext = AppConstants.M4A_EXTENSION;
+						nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.M4A_EXTENSION;
 					}
-					if (fileRepository.renameFile(r.getPath(), name, ext)) {
-						activeRecord = new Record(r.getId(), nameWithExt, r.getDuration(), r.getCreated(),
-								r.getAdded(), renamed.getAbsolutePath(), r.isBookmarked(),
-								r.isWaveformProcessed(), r.getAmps());
-						if (localRepository.updateRecord(activeRecord)) {
-							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override public void run() {
-									if (view != null) {
-										view.hideProgress();
-										view.showRecordName(name);
+					File file = new File(rec2.getPath());
+					File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
+
+					if (renamed.exists()) {
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override
+							public void run() {
+								if (view != null) {
+									view.showError(R.string.error_file_exists);
+								}
+							}
+						});
+					} else {
+						String ext;
+						if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
+							ext = AppConstants.WAV_EXTENSION;
+						} else {
+							ext = AppConstants.M4A_EXTENSION;
+						}
+						if (fileRepository.renameFile(rec2.getPath(), name, ext)) {
+							activeRecord = new Record(rec2.getId(), nameWithExt, rec2.getDuration(), rec2.getCreated(),
+									rec2.getAdded(), renamed.getAbsolutePath(), rec2.isBookmarked(),
+									rec2.isWaveformProcessed(), rec2.getAmps());
+							if (localRepository.updateRecord(activeRecord)) {
+								AndroidUtils.runOnUIThread(new Runnable() {
+									@Override
+									public void run() {
+										if (view != null) {
+											view.hideProgress();
+											view.showRecordName(name);
+										}
 									}
-								}});
+								});
+							} else {
+								AndroidUtils.runOnUIThread(new Runnable() {
+									@Override
+									public void run() {
+										if (view != null) {
+											view.showError(R.string.error_failed_to_rename);
+										}
+									}
+								});
+								//Restore file name after fail update path in local database.
+								if (renamed.exists()) {
+									//Try to rename 3 times;
+									if (!renamed.renameTo(file)) {
+										if (!renamed.renameTo(file)) {
+											renamed.renameTo(file);
+										}
+									}
+								}
+							}
+
 						} else {
 							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override public void run() {
+								@Override
+								public void run() {
 									if (view != null) {
 										view.showError(R.string.error_failed_to_rename);
 									}
-								}});
-							//Restore file name after fail update path in local database.
-							if (renamed.exists()) {
-								//Try to rename 3 times;
-								if (!renamed.renameTo(file)) {
-									if (!renamed.renameTo(file)) {
-										renamed.renameTo(file);
-									}
 								}
+							});
+						}
+					}
+				} else {
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							if (view != null) {
+								view.showError(R.string.error_failed_to_rename);
 							}
 						}
-
-					} else {
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override public void run() {
-								if (view != null) {
-									view.showError(R.string.error_failed_to_rename);
-								}
-							}});
-					}
+					});
 				}
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override public void run() {

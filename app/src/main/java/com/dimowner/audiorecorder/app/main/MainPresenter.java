@@ -128,8 +128,10 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 				@Override
 				public void onRecordingPaused() {
-					view.keepScreenOn(false);
-					view.showRecordingPause();
+					if (view != null) {
+						view.keepScreenOn(false);
+						view.showRecordingPause();
+					}
 				}
 
 				@Override
@@ -201,7 +203,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				public void onStartPlay() {
 					if (view != null) {
 						view.showPlayStart(true);
-						view.startPlaybackService(record.getName());
+						if (record != null) {
+							view.startPlaybackService(record.getName());
+						}
 					}
 				}
 
@@ -713,10 +717,15 @@ public class MainPresenter implements MainContract.UserActionsListener {
 								}
 							} catch (IOException | OutOfMemoryError | IllegalStateException e) {
 								Timber.e(e);
-								if (view != null) {
-									view.hideRecordProcessing();
-									view.showError(R.string.error_process_waveform);
-								}
+								AndroidUtils.runOnUIThread(new Runnable() {
+									@Override
+									public void run() {
+										if (view != null) {
+											view.hideRecordProcessing();
+											view.showError(R.string.error_process_waveform);
+										}
+									}
+								});
 							}
 							isProcessing = false;
 						}
