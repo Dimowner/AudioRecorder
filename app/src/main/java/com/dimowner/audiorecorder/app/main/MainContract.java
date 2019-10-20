@@ -61,6 +61,8 @@ public interface MainContract {
 		void showDuration(String duration);
 		void showName(String name);
 
+		void askDeleteRecord();
+
 		void showRecordInfo(String name, String format, long duration, long size, String location);
 
 		void updateRecordingView(List<Integer> data);
@@ -73,7 +75,7 @@ public interface MainContract {
 		void setAudioRecorder(RecorderContract.Recorder recorder);
 
 		void startRecording();
-		void stopRecording();
+		void stopRecording(boolean deleteRecord);
 
 		void startPlayback();
 		void pausePlayback();

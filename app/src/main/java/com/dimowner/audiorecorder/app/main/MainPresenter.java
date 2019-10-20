@@ -65,6 +65,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private float dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 	private Record record;
 	private boolean isProcessing = false;
+	private boolean deleteRecord = false;
 
 	/** Flag true defines that presenter called to show import progress when view was not bind.
 	 * And after view bind we need to show import progress.*/
@@ -155,7 +156,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						view.hideProgress();
 						view.showRecordingStop();
 						loadActiveRecord();
-						if (prefs.isAskToRenameAfterStopRecording()) {
+
+						if (deleteRecord) {
+							view.askDeleteRecord();
+							deleteRecord = false;
+						} else if (prefs.isAskToRenameAfterStopRecording()) {
 							view.askRecordingNewName(id, file);
 						}
 					}
@@ -309,9 +314,10 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void stopRecording() {
+	public void stopRecording(boolean delete) {
 		if (appRecorder.isRecording()) {
 			appRecorder.stopRecording();
+			deleteRecord = delete;
 		}
 	}
 

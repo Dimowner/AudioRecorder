@@ -77,6 +77,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Guidelines
 // TODO: Check how work max recording duration
 // TODO: Add scroll animation to start when stop playback
+// TODO: Fix service leak
+// TODO: Add pause button to the recording notification
+// TODO: Stop infinite loop when pause WAV recording
+// TODO: Add Alert when device out of memory.
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -239,10 +243,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				}
 				break;
 			case R.id.btn_record_stop:
-				presenter.stopRecording();
+				presenter.stopRecording(false);
 				break;
 			case R.id.btn_record_delete:
-				presenter.deleteActiveRecord();
+				presenter.stopRecording(true);
 				break;
 			case R.id.btn_stop:
 				presenter.stopPlayback();
@@ -336,10 +340,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnPlay.setEnabled(false);
 		btnImport.setEnabled(false);
 		btnShare.setEnabled(false);
-		btnDelete.setVisibility(View.INVISIBLE);
-		btnDelete.setEnabled(false);
-		btnRecordingStop.setVisibility(View.INVISIBLE);
-		btnRecordingStop.setEnabled(false);
+		btnDelete.setVisibility(View.VISIBLE);
+		btnDelete.setEnabled(true);
+		btnRecordingStop.setVisibility(View.VISIBLE);
+		btnRecordingStop.setEnabled(true);
 		playProgress.setProgress(0);
 		playProgress.setEnabled(false);
 		txtDuration.setText(R.string.zero_time);
@@ -372,10 +376,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void showRecordingPause() {
 		txtName.setText(R.string.recording_paused);
 		btnRecord.setImageResource(R.drawable.ic_record_rec);
-		btnDelete.setVisibility(View.VISIBLE);
-		btnDelete.setEnabled(true);
-		btnRecordingStop.setVisibility(View.VISIBLE);
-		btnRecordingStop.setEnabled(true);
+//		btnDelete.setVisibility(View.VISIBLE);
+//		btnDelete.setEnabled(true);
+//		btnRecordingStop.setVisibility(View.VISIBLE);
+//		btnRecordingStop.setEnabled(true);
 	}
 
 	@Override
@@ -504,6 +508,29 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
+	public void askDeleteRecord() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+		builder.setTitle(R.string.warning)
+				.setIcon(R.drawable.ic_delete_forever)
+				.setMessage(R.string.delete_record)
+				.setCancelable(false)
+				.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						presenter.deleteActiveRecord();
+						dialog.dismiss();
+					}
+				})
+				.setNegativeButton(R.string.btn_no,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								dialog.dismiss();
+							}
+						});
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
+
+	@Override
 	public void showRecordInfo(String name, String format, long duration, long size, String location) {
 		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), name, format, duration, size, location));
 	}
@@ -577,25 +604,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 //						presenter.copyToDownloads(item.getPath(), item.getName());
 //						break;
 					case R.id.menu_delete:
-						AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-						builder.setTitle(R.string.warning)
-								.setIcon(R.drawable.ic_delete_forever)
-								.setMessage(R.string.delete_record)
-								.setCancelable(false)
-								.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int id) {
-										presenter.deleteActiveRecord();
-										dialog.dismiss();
-									}
-								})
-								.setNegativeButton(R.string.btn_no,
-										new DialogInterface.OnClickListener() {
-											public void onClick(DialogInterface dialog, int id) {
-												dialog.dismiss();
-											}
-										});
-						AlertDialog alert = builder.create();
-						alert.show();
+						askDeleteRecord();
 						break;
 				}
 				return false;
