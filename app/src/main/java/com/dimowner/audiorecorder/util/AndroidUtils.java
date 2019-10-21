@@ -20,6 +20,8 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -403,5 +405,16 @@ public class AndroidUtils {
 	public static String formatSize(long size) {
 		DecimalFormat formatter = new DecimalFormat("#.##");
 		return formatter.format((float)size/(1024*1024)) + " Mb";
+	}
+
+	public static String getAppVersion(Context context) {
+		String versionName;
+		try {
+			PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+			versionName = info.versionName;
+		} catch (PackageManager.NameNotFoundException e) {
+			versionName = "N/A";
+		}
+		return versionName;
 	}
 }

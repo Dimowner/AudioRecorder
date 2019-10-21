@@ -596,6 +596,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							view.showName("");
 							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
 							view.showMessage(R.string.record_deleted_successfully);
+							view.hideOptionsMenu();
 							view.hideProgress();
 							record = null;
 						}
