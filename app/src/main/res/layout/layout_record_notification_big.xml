@@ -45,8 +45,20 @@
 	</LinearLayout>
 
 	<ImageButton
+			android:id="@+id/btn_recording_pause"
+			android:layout_width="@dimen/notification_btn"
+			android:layout_height="@dimen/bottom_pnl_btn_size"
+			android:adjustViewBounds="true"
+			android:background="?android:selectableItemBackgroundBorderless"
+			android:contentDescription="@null"
+			android:padding="@dimen/spacing_normal"
+			android:layout_gravity="center_vertical"
+			android:scaleType="center"
+			android:src="@drawable/ic_pause"/>
+
+	<ImageButton
 			android:id="@+id/btn_recording_stop"
-			android:layout_width="@dimen/bottom_pnl_btn_size"
+			android:layout_width="@dimen/notification_btn"
 			android:layout_height="@dimen/bottom_pnl_btn_size"
 			android:adjustViewBounds="true"
 			android:background="?android:selectableItemBackgroundBorderless"

@@ -36,6 +36,7 @@ public class RecordingService extends Service {
 	public static final String ACTION_STOP_RECORDING_SERVICE = "ACTION_STOP_RECORDING_SERVICE";
 
 	public static final String ACTION_STOP_RECORDING = "ACTION_STOP_RECORDING";
+	public static final String ACTION_PAUSE_RECORDING = "ACTION_PAUSE_RECORDING";
 
 	private static final int NOTIF_ID = 101;
 	private NotificationCompat.Builder builder;
@@ -97,6 +98,15 @@ public class RecordingService extends Service {
 						appRecorder.stopRecording();
 						stopForegroundService();
 						break;
+					case ACTION_PAUSE_RECORDING:
+						if (appRecorder.isPaused()) {
+							appRecorder.resumeRecording();
+							updateNotificationResume();
+						} else {
+							appRecorder.pauseRecording();
+							updateNotificationPause();
+						}
+						break;
 				}
 			}
 		}
@@ -112,6 +122,7 @@ public class RecordingService extends Service {
 
 		remoteViewsSmall = new RemoteViews(getPackageName(), R.layout.layout_record_notification_small);
 		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_recording_stop, getPendingSelfIntent(getApplicationContext(), ACTION_STOP_RECORDING));
+		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_recording_pause, getPendingSelfIntent(getApplicationContext(), ACTION_PAUSE_RECORDING));
 		remoteViewsSmall.setTextViewText(R.id.txt_recording_progress, getResources().getString(R.string.recording_is_on));
 		remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
@@ -170,6 +181,24 @@ public class RecordingService extends Service {
 			notificationManager.createNotificationChannel(chan);
 		}
 		return channelId;
+	}
+
+	private void updateNotificationPause() {
+		if (started && remoteViewsSmall != null) {
+			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress, getResources().getString(R.string.recording_paused));
+			remoteViewsSmall.setImageViewResource(R.id.btn_recording_pause, R.drawable.ic_recording_yellow);
+
+			notificationManager.notify(NOTIF_ID, notification);
+		}
+	}
+
+	private void updateNotificationResume() {
+		if (started && remoteViewsSmall != null) {
+			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress, getResources().getString(R.string.recording_is_on));
+			remoteViewsSmall.setImageViewResource(R.id.btn_recording_pause, R.drawable.ic_pause);
+
+			notificationManager.notify(NOTIF_ID, notification);
+		}
 	}
 
 	private void updateNotification(long mills) {
