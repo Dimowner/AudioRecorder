@@ -45,7 +45,7 @@ public class AppSpinnerAdapter extends ArrayAdapter<AppSpinnerAdapter.ThemeItem>
 		if (!showDrawable) {
 			txtColor.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0);
 			Resources r = getContext().getResources();
-			float n = r.getDimension(R.dimen.spacing_normal);
+			float n = r.getDimension(R.dimen.spacing_xsmall);
 			txtColor.setPadding((int)r.getDimension(R.dimen.spacing_huge), (int)n, (int)n, (int)n);
 			txtColor.setBackgroundColor(data.get(position).getColor());
 		} else {

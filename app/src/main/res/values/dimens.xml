@@ -5,7 +5,8 @@
 	<dimen name="spacing_double">32dp</dimen>
 	<dimen name="spacing_xnormal">24dp</dimen>
 	<dimen name="spacing_normal">16dp</dimen>
-	<dimen name="spacing_xsmall">12dp</dimen>
+	<dimen name="spacing_medium">12dp</dimen>
+	<dimen name="spacing_xsmall">10dp</dimen>
 	<dimen name="spacing_small">8dp</dimen>
 	<dimen name="spacing_tiny">4dp</dimen>
 	<dimen name="spacing_zero">0dp</dimen>

@@ -60,7 +60,11 @@
 	<color name="md_grey_500">#9e9e9e</color>
 	<color name="md_grey_700">#616161</color>
 	<color name="md_grey_800xxx">#383838</color>
+	<color name="md_grey_800xxxx">#282828</color>
 	<color name="md_black_1000">#000000</color>
+
+	<color name="md_blue_gray_700">#1c2733</color>
+	<color name="md_blue_gray_500">#253343</color>
 
 	<color name="transparent">#00000000</color>
 

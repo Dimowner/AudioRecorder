@@ -25,6 +25,7 @@ public class ColorMap {
 	private static final int THEME_DEEP_ORANGE = 6;
 	private static final int THEME_RED = 7;
 	private static final int THEME_BROWN = 8;
+	private static final int THEME_GRAY = 9;
 
 	private int appThemeResource = 0;
 	private int primaryColorRes = R.color.md_blue_700;
@@ -46,8 +47,8 @@ public class ColorMap {
 	}
 
 	private void init(int color) {
-		if (color < 1 || color > 8) {
-			color = new Random().nextInt(8);
+		if (color < 1 || color > 9) {
+			color = new Random().nextInt(9);
 		}
 		switch (color) {
 			case THEME_BLACK:
@@ -84,6 +85,11 @@ public class ColorMap {
 				appThemeResource = R.style.AppTheme_Brown;
 				primaryColorRes = R.color.md_brown_700;
 				playbackPanelBackground = R.drawable.panel_deep_orange;
+				break;
+			case THEME_GRAY:
+				appThemeResource = R.style.AppTheme_Gray;
+				primaryColorRes = R.color.md_blue_gray_700;
+				playbackPanelBackground = R.drawable.panel_red;
 				break;
 			case THEME_BLUE:
 			default:
@@ -129,7 +135,8 @@ public class ColorMap {
 				R.color.md_pink_800,
 				R.color.md_deep_orange_800,
 				R.color.md_red_700,
-				R.color.md_brown_700
+				R.color.md_brown_700,
+				R.color.md_blue_gray_700
 		};
 	}
 

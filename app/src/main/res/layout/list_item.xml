@@ -109,7 +109,7 @@
 					tools:text="@string/app_name"
 					android:layout_gravity="end"
 					android:paddingStart="@dimen/spacing_tiny"
-					android:paddingEnd="@dimen/spacing_xsmall"
+					android:paddingEnd="@dimen/spacing_medium"
 					android:maxLines="1"/>
 		</FrameLayout>
 	</LinearLayout>

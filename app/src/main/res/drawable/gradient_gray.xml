@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2019 Dmitriy Ponomarenko
+  ~ Copyright 2018 Dmitriy Ponomarenko
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,13 +14,12 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
-		 android:shape="rectangle">
+		android:shape="rectangle">
 
 	<gradient
-			android:endColor="@color/md_black_1000"
+			android:endColor="@color/md_blue_gray_700"
 			android:gradientRadius="@dimen/gradient_radius"
-			android:startColor="@color/md_grey_800xxxx"
+			android:startColor="@color/md_blue_gray_500"
 			android:type="radial"/>
 </shape>
