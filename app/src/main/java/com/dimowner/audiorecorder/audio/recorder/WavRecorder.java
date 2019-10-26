@@ -156,7 +156,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 	public void pauseRecording() {
 		if (isRecording) {
 			recorder.stop();
-			stopRecordingTimer();
+			pauseRecordingTimer();
 
 			isPaused = true;
 			if (recorderCallback != null) {
@@ -333,5 +333,10 @@ public class WavRecorder implements RecorderContract.Recorder {
 		timerProgress.cancel();
 		timerProgress.purge();
 		progress = 0;
+	}
+
+	private void pauseRecordingTimer() {
+		timerProgress.cancel();
+		timerProgress.purge();
 	}
 }

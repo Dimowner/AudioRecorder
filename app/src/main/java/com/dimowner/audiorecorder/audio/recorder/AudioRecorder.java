@@ -142,7 +142,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 				try {
 					recorder.pause();
-					stopRecordingTimer();
+					pauseRecordingTimer();
 					if (recorderCallback != null) {
 						recorderCallback.onPauseRecord();
 					}
@@ -205,6 +205,11 @@ public class AudioRecorder implements RecorderContract.Recorder {
 		timerProgress.cancel();
 		timerProgress.purge();
 		progress = 0;
+	}
+
+	private void pauseRecordingTimer() {
+		timerProgress.cancel();
+		timerProgress.purge();
 	}
 
 	@Override
