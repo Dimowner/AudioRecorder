@@ -65,6 +65,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private float dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 	private Record record;
 	private boolean isProcessing = false;
+	private boolean deleteRecord = false;
 
 	/** Flag true defines that presenter called to show import progress when view was not bind.
 	 * And after view bind we need to show import progress.*/
@@ -121,14 +122,16 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					if (view != null) {
 						view.showRecordingStart();
 						view.keepScreenOn(prefs.isKeepScreenOn());
-						view.showName("");
 						view.startRecordingService();
 					}
 				}
 
 				@Override
 				public void onRecordingPaused() {
-					view.keepScreenOn(false);
+					if (view != null) {
+						view.keepScreenOn(false);
+						view.showRecordingPause();
+					}
 				}
 
 				@Override
@@ -155,7 +158,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						view.hideProgress();
 						view.showRecordingStop();
 						loadActiveRecord();
-						if (prefs.isAskToRenameAfterStopRecording()) {
+
+						if (deleteRecord) {
+							view.askDeleteRecord();
+							deleteRecord = false;
+						} else if (prefs.isAskToRenameAfterStopRecording()) {
 							view.askRecordingNewName(id, file);
 						}
 					}
@@ -196,7 +203,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				public void onStartPlay() {
 					if (view != null) {
 						view.showPlayStart(true);
-						view.startPlaybackService(record.getName());
+						if (record != null) {
+							view.startPlaybackService(record.getName());
+						}
 					}
 				}
 
@@ -293,7 +302,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		if (audioPlayer.isPlaying()) {
 			audioPlayer.stop();
 		}
-		if (!appRecorder.isRecording()) {
+		if (appRecorder.isPaused()) {
+			appRecorder.resumeRecording();
+		} else if (!appRecorder.isRecording()) {
 			try {
 				appRecorder.startRecording(fileRepository.provideRecordFile().getAbsolutePath());
 			} catch (CantCreateFileException e) {
@@ -307,9 +318,10 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void stopRecording() {
+	public void stopRecording(boolean delete) {
 		if (appRecorder.isRecording()) {
 			appRecorder.stopRecording();
+			deleteRecord = delete;
 		}
 	}
 
@@ -584,6 +596,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							view.showName("");
 							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
 							view.showMessage(R.string.record_deleted_successfully);
+							view.hideOptionsMenu();
 							view.hideProgress();
 							record = null;
 						}
@@ -705,10 +718,15 @@ public class MainPresenter implements MainContract.UserActionsListener {
 								}
 							} catch (IOException | OutOfMemoryError | IllegalStateException e) {
 								Timber.e(e);
-								if (view != null) {
-									view.hideRecordProcessing();
-									view.showError(R.string.error_process_waveform);
-								}
+								AndroidUtils.runOnUIThread(new Runnable() {
+									@Override
+									public void run() {
+										if (view != null) {
+											view.hideRecordProcessing();
+											view.showError(R.string.error_process_waveform);
+										}
+									}
+								});
 							}
 							isProcessing = false;
 						}

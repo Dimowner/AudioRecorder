@@ -33,6 +33,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 	private Thread recordingThread;
 
 	private boolean isRecording = false;
+	private boolean isPaused = false;
 
 	private int channelCount = 1;
 
@@ -117,26 +118,35 @@ public class WavRecorder implements RecorderContract.Recorder {
 	@Override
 	public void startRecording() {
 		if (recorder != null && recorder.getState() == AudioRecord.STATE_INITIALIZED) {
-			try {
-				recorder.startRecording();
-				isRecording = true;
-				recordingThread = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						writeAudioDataToFile();
-					}
-				}, "AudioRecorder Thread");
-
-				recordingThread.start();
+			if (isPaused) {
 				startRecordingTimer();
+				recorder.startRecording();
 				if (recorderCallback != null) {
 					recorderCallback.onStartRecord();
 				}
-				ARApplication.setRecording(true);
-			} catch (IllegalStateException e) {
-				Timber.e(e, "startRecording() failed");
-				if (recorderCallback != null) {
-					recorderCallback.onError(new RecorderInitException());
+				isPaused = false;
+			} else {
+				try {
+					recorder.startRecording();
+					isRecording = true;
+					recordingThread = new Thread(new Runnable() {
+						@Override
+						public void run() {
+							writeAudioDataToFile();
+						}
+					}, "AudioRecorder Thread");
+
+					recordingThread.start();
+					startRecordingTimer();
+					if (recorderCallback != null) {
+						recorderCallback.onStartRecord();
+					}
+					ARApplication.setRecording(true);
+				} catch (IllegalStateException e) {
+					Timber.e(e, "startRecording() failed");
+					if (recorderCallback != null) {
+						recorderCallback.onError(new RecorderInitException());
+					}
 				}
 			}
 		}
@@ -144,13 +154,22 @@ public class WavRecorder implements RecorderContract.Recorder {
 
 	@Override
 	public void pauseRecording() {
-		stopRecording();
+		if (isRecording) {
+			recorder.stop();
+			pauseRecordingTimer();
+
+			isPaused = true;
+			if (recorderCallback != null) {
+				recorderCallback.onPauseRecord();
+			}
+		}
 	}
 
 	@Override
 	public void stopRecording() {
 		if (recorder != null) {
 			isRecording = false;
+			isPaused = false;
 			stopRecordingTimer();
 			if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
 				try {
@@ -173,6 +192,11 @@ public class WavRecorder implements RecorderContract.Recorder {
 		return isRecording;
 	}
 
+	@Override
+	public boolean isPaused() {
+		return isPaused;
+	}
+
 	private void writeAudioDataToFile() {
 		byte data[] = new byte[bufferSize];
 
@@ -185,17 +209,20 @@ public class WavRecorder implements RecorderContract.Recorder {
 		}
 		if (null != fos) {
 			int chunksCount = 0;
+			//TODO: Disable loop while pause.
 			while (isRecording) {
-				chunksCount += recorder.read(data, 0, bufferSize);
-				if (AudioRecord.ERROR_INVALID_OPERATION != chunksCount) {
-					lastVal = (Math.abs((data[0])+(data[1]<<8))
-							+ Math.abs((data[2])+(data[3]<<8)))
-							+ (Math.abs((data[4])+(data[5]<<8))
-							+ Math.abs((data[6])+(data[7]<<8)));
-					try {
-						fos.write(data);
-					} catch (IOException e) {
-						Timber.e(e);
+				if (!isPaused) {
+					chunksCount += recorder.read(data, 0, bufferSize);
+					if (AudioRecord.ERROR_INVALID_OPERATION != chunksCount) {
+						lastVal = (Math.abs((data[0]) + (data[1] << 8))
+								+ Math.abs((data[2]) + (data[3] << 8)))
+								+ (Math.abs((data[4]) + (data[5] << 8))
+								+ Math.abs((data[6]) + (data[7] << 8)));
+						try {
+							fos.write(data);
+						} catch (IOException e) {
+							Timber.e(e);
+						}
 					}
 				}
 			}
@@ -306,5 +333,10 @@ public class WavRecorder implements RecorderContract.Recorder {
 		timerProgress.cancel();
 		timerProgress.purge();
 		progress = 0;
+	}
+
+	private void pauseRecordingTimer() {
+		timerProgress.cancel();
+		timerProgress.purge();
 	}
 }

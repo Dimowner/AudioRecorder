@@ -32,6 +32,7 @@ public interface MainContract {
 		void keepScreenOn(boolean on);
 		void showRecordingStart();
 		void showRecordingStop();
+		void showRecordingPause();
 		void onRecordingProgress(long mills, int amp);
 
 		void askRecordingNewName(long id, File file);
@@ -60,6 +61,8 @@ public interface MainContract {
 		void showDuration(String duration);
 		void showName(String name);
 
+		void askDeleteRecord();
+
 		void showRecordInfo(String name, String format, long duration, long size, String location);
 
 		void updateRecordingView(List<Integer> data);
@@ -72,7 +75,7 @@ public interface MainContract {
 		void setAudioRecorder(RecorderContract.Recorder recorder);
 
 		void startRecording();
-		void stopRecording();
+		void stopRecording(boolean deleteRecord);
 
 		void startPlayback();
 		void pausePlayback();

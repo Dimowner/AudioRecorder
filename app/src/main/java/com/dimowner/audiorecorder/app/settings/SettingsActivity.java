@@ -358,7 +358,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		i.setType("message/rfc822");
 		i.putExtra(Intent.EXTRA_EMAIL, new String[]{AppConstants.REQUESTS_RECEIVER});
 		i.putExtra(Intent.EXTRA_SUBJECT,
-				"[" + getResources().getString(R.string.app_name) + "] - " + getResources().getString(R.string.request)
+				"[" + getResources().getString(R.string.app_name)
+						+ "] " + AndroidUtils.getAppVersion(getApplicationContext())
+						+ " - " + getResources().getString(R.string.request)
 		);
 		try {
 			Intent chooser = Intent.createChooser(i, getResources().getString(R.string.send_email));
@@ -382,19 +384,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	}
 
 	public SpannableStringBuilder getAboutContent() {
-		// Get app version;
-		String packageName = getPackageName();
-		String versionName;
-		try {
-			PackageInfo info = getPackageManager().getPackageInfo(packageName, 0);
-			versionName = info.versionName;
-		} catch (PackageManager.NameNotFoundException e) {
-			versionName = VERSION_UNAVAILABLE;
-		}
-
 		// Build the about body view and append the link to see OSS licenses
 		SpannableStringBuilder aboutBody = new SpannableStringBuilder();
-		aboutBody.append(Html.fromHtml(getString(R.string.about_body, versionName)));
+		aboutBody.append(Html.fromHtml(getString(R.string.about_body, AndroidUtils.getAppVersion(getApplicationContext()))));
 		return aboutBody;
 	}
 

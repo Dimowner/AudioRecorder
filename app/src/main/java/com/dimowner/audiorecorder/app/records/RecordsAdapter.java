@@ -161,10 +161,10 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
-			if (onItemOptionListener != null) {
-				onItemOptionListener.onItemOptionSelected(item.getItemId(), data.get(pos));
-			}
-			return false;
+				if (onItemOptionListener != null && data.size() > pos) {
+					onItemOptionListener.onItemOptionSelected(item.getItemId(), data.get(pos));
+				}
+				return false;
 			}
 		});
 		MenuInflater inflater = popup.getMenuInflater();

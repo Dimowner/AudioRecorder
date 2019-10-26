@@ -21,6 +21,8 @@
 	<string name="record_name">Новое имя</string>
 	<string name="recording">Запись: %s</string>
 	<string name="recording_is_on">Запись включена</string>
+	<string name="recording_progress">Запись&#8230;</string>
+	<string name="recording_paused">Пауза</string>
 	<string name="playback">Воспроизведение: %s</string>
 	<string name="zero_time">00:00</string>
 	<string name="no_records">Нет записей.</string>

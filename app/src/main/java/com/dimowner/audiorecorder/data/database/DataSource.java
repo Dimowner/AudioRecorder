@@ -202,7 +202,7 @@ public abstract class DataSource<T> {
 	public ArrayList<T> convertCursor(Cursor cursor) {
 		ArrayList<T> items = new ArrayList<>();
 		cursor.moveToFirst();
-		while (!cursor.isAfterLast()) {
+		while (!cursor.isAfterLast() && !cursor.isBeforeFirst()) {
 			items.add(recordToItem(cursor));
 			cursor.moveToNext();
 		}

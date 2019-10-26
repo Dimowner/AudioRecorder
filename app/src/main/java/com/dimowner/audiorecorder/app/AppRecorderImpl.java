@@ -203,6 +203,13 @@ public class AppRecorderImpl implements AppRecorder {
 	}
 
 	@Override
+	public void resumeRecording() {
+		if (audioRecorder.isPaused()) {
+			audioRecorder.startRecording();
+		}
+	}
+
+	@Override
 	public void stopRecording() {
 		if (audioRecorder.isRecording()) {
 			audioRecorder.stopRecording();
@@ -217,6 +224,11 @@ public class AppRecorderImpl implements AppRecorder {
 	@Override
 	public boolean isRecording() {
 		return audioRecorder.isRecording();
+	}
+
+	@Override
+	public boolean isPaused() {
+		return audioRecorder.isPaused();
 	}
 
 	@Override

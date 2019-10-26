@@ -71,13 +71,17 @@ import timber.log.Timber;
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
 // TODO: Fix WaveForm blinking when seek
-// TODO: Show Record info
 // TODO: Ability to scroll up from the bottom of the list
 // TODO: Ability to search by record name in list
 // TODO: Welcome screen
 // TODO: Guidelines
 // TODO: Check how work max recording duration
 // TODO: Add scroll animation to start when stop playback
+// TODO: Fix service leak
+// TODO: Add pause button to the recording notification
+// TODO: Stop infinite loop when pause WAV recording
+// TODO: Add Alert when device out of memory.
+// TODO: Rename public storage setting add explain dialog when switch setting.
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -94,6 +98,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ImageButton btnPlay;
 	private ImageButton btnStop;
 	private ImageButton btnRecord;
+	private ImageButton btnDelete;
+	private ImageButton btnRecordingStop;
 	private ImageButton btnShare;
 	private ImageButton btnRecordsList;
 	private ImageButton btnSettings;
@@ -124,6 +130,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtName = findViewById(R.id.txt_name);
 		btnPlay = findViewById(R.id.btn_play);
 		btnRecord = findViewById(R.id.btn_record);
+		btnRecordingStop = findViewById(R.id.btn_record_stop);
+		btnDelete = findViewById(R.id.btn_record_delete);
 		btnStop = findViewById(R.id.btn_stop);
 		btnRecordsList = findViewById(R.id.btn_records_list);
 		btnSettings = findViewById(R.id.btn_settings);
@@ -136,8 +144,15 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 
+		btnDelete.setVisibility(View.INVISIBLE);
+		btnDelete.setEnabled(false);
+		btnRecordingStop.setVisibility(View.INVISIBLE);
+		btnRecordingStop.setEnabled(false);
+
 		btnPlay.setOnClickListener(this);
 		btnRecord.setOnClickListener(this);
+		btnRecordingStop.setOnClickListener(this);
+		btnDelete.setOnClickListener(this);
 		btnStop.setOnClickListener(this);
 		btnRecordsList.setOnClickListener(this);
 		btnSettings.setOnClickListener(this);
@@ -228,6 +243,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 					}
 				}
 				break;
+			case R.id.btn_record_stop:
+				presenter.stopRecording(false);
+				break;
+			case R.id.btn_record_delete:
+				presenter.stopRecording(true);
+				break;
 			case R.id.btn_stop:
 				presenter.stopPlayback();
 				break;
@@ -309,10 +330,21 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showRecordingStart() {
-		btnRecord.setImageResource(R.drawable.ic_record_rec);
+		txtName.setClickable(false);
+		txtName.setFocusable(false);
+		txtName.setCompoundDrawables(null, null, null, null);
+		txtName.setVisibility(View.VISIBLE);
+		txtName.setText(R.string.recording_progress);
+		txtZeroTime.setVisibility(View.INVISIBLE);
+		txtDuration.setVisibility(View.INVISIBLE);
+		btnRecord.setImageResource(R.drawable.ic_pause_circle_filled);
 		btnPlay.setEnabled(false);
 		btnImport.setEnabled(false);
 		btnShare.setEnabled(false);
+		btnDelete.setVisibility(View.VISIBLE);
+		btnDelete.setEnabled(true);
+		btnRecordingStop.setVisibility(View.VISIBLE);
+		btnRecordingStop.setEnabled(true);
 		playProgress.setProgress(0);
 		playProgress.setEnabled(false);
 		txtDuration.setText(R.string.zero_time);
@@ -321,13 +353,34 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showRecordingStop() {
+		txtName.setClickable(true);
+		txtName.setFocusable(true);
+		txtName.setText("");
+		txtZeroTime.setVisibility(View.VISIBLE);
+		txtDuration.setVisibility(View.VISIBLE);
+		txtName.setCompoundDrawablesWithIntrinsicBounds(null, null, getDrawable(R.drawable.ic_pencil_small), null);
+		txtName.setVisibility(View.INVISIBLE);
 		btnRecord.setImageResource(R.drawable.ic_record);
 		btnPlay.setEnabled(true);
 		btnImport.setEnabled(true);
 		btnShare.setEnabled(true);
 		playProgress.setEnabled(true);
+		btnDelete.setVisibility(View.INVISIBLE);
+		btnDelete.setEnabled(false);
+		btnRecordingStop.setVisibility(View.INVISIBLE);
+		btnRecordingStop.setEnabled(false);
 		waveformView.hideRecording();
 		waveformView.clearRecordingData();
+	}
+
+	@Override
+	public void showRecordingPause() {
+		txtName.setText(R.string.recording_paused);
+		btnRecord.setImageResource(R.drawable.ic_record_rec);
+//		btnDelete.setVisibility(View.VISIBLE);
+//		btnDelete.setEnabled(true);
+//		btnRecordingStop.setVisibility(View.VISIBLE);
+//		btnRecordingStop.setEnabled(true);
 	}
 
 	@Override
@@ -456,6 +509,29 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
+	public void askDeleteRecord() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+		builder.setTitle(R.string.warning)
+				.setIcon(R.drawable.ic_delete_forever)
+				.setMessage(R.string.delete_record)
+				.setCancelable(false)
+				.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						presenter.deleteActiveRecord();
+						dialog.dismiss();
+					}
+				})
+				.setNegativeButton(R.string.btn_no,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								dialog.dismiss();
+							}
+						});
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
+
+	@Override
 	public void showRecordInfo(String name, String format, long duration, long size, String location) {
 		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), name, format, duration, size, location));
 	}
@@ -529,25 +605,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 //						presenter.copyToDownloads(item.getPath(), item.getName());
 //						break;
 					case R.id.menu_delete:
-						AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-						builder.setTitle(R.string.warning)
-								.setIcon(R.drawable.ic_delete_forever)
-								.setMessage(R.string.delete_record)
-								.setCancelable(false)
-								.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int id) {
-										presenter.deleteActiveRecord();
-										dialog.dismiss();
-									}
-								})
-								.setNegativeButton(R.string.btn_no,
-										new DialogInterface.OnClickListener() {
-											public void onClick(DialogInterface dialog, int id) {
-												dialog.dismiss();
-											}
-										});
-						AlertDialog alert = builder.create();
-						alert.show();
+						askDeleteRecord();
 						break;
 				}
 				return false;
@@ -708,35 +766,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		return true;
 	}
 
-	private boolean checkRecordPermission() {
-		if (presenter.isStorePublic()) {
-			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
-						&& checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-					requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO,
-							Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL);
-					return false;
-				} else if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
-						&& checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-					requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQ_CODE_WRITE_EXTERNAL_STORAGE);
-					return false;
-				} else if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
-						&& checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-					requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_CODE_RECORD_AUDIO);
-					return false;
-				}
-			}
-		} else {
-			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-					requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQ_CODE_RECORD_AUDIO);
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-
 	@Override
 	public void onRequestPermissionsResult(int requestCode,  @NonNull String[] permissions, @NonNull int[] grantResults) {
 		if (requestCode == REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL && grantResults.length > 0
@@ -763,7 +792,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 			presenter.startPlayback();
-		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE
+		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.length > 0
 				&& (grantResults[0] == PackageManager.PERMISSION_DENIED
 				|| grantResults[1] == PackageManager.PERMISSION_DENIED)) {
 			presenter.setStoragePrivate(getApplicationContext());

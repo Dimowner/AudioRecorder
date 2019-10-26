@@ -21,6 +21,8 @@
 	<string name="record_name">Нове ім\'я</string>
 	<string name="recording">Запис: %s</string>
 	<string name="recording_is_on">Запис увімкнено</string>
+	<string name="recording_progress">Запис&#8230;</string>
+	<string name="recording_paused">Пауза</string>
 	<string name="playback">Відтворення: %s</string>
 	<string name="zero_time">00:00</string>
 	<string name="no_records">Нема записів.</string>
@@ -40,7 +42,7 @@
 	<string name="download">Скачати</string>
 	<string name="share">Поділитися</string>
 	<string name="ask_to_rename">Показувати діалог перейменування після завершення звукозапису</string>
-	<string name="record_deleted_successfully">Запис %s видалено успішно</string>
+	<string name="record_deleted_successfully">Запис видалено успішно</string>
 	<string name="by_date">По даті</string>
 	<string name="by_name">По імені</string>
 	<string name="by_duration">По тривалості</string>
