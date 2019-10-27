@@ -9,7 +9,7 @@ App optimized for the fastest start as possible and helps not to miss important 
 <a href='https://play.google.com/store/apps/details?id=com.dimowner.audiorecorder' target='_blank'><img height='80' style='border:0px;height:80px;' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' border='0' alt='GooglePlay Link' /></a>
 
 <b>There are available two recording formats:</b>
- - Advanced Audio Coding (AAC)
+ - M4A
  - Waveform Audio File Format (WAVE, or WAV)
 
 In settings, select sample rate, bitrate (for AAC only) and stereo or mono.
@@ -20,7 +20,7 @@ With colorful themes, customize app looking, and make the experience better.
 <b>Features:</b>
 - Recording audio
 - Playback records
-- Select recording format AAC or WAV
+- Support recording formats M4A and WAV
 - Set sample rate and bitrate
 - Record and Playback in background
 - Display record waveform
@@ -29,7 +29,6 @@ With colorful themes, customize app looking, and make the experience better.
 - Import audio files
 - Records list
 - Add the selected record to bookmarks
-- Delete all records from settings
 - Colored themes
 
 ### License
