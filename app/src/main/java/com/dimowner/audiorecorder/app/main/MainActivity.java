@@ -78,7 +78,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Check how work max recording duration
 // TODO: Add scroll animation to start when stop playback
 // TODO: Fix service leak
-// TODO: Add pause button to the recording notification
 // TODO: Stop infinite loop when pause WAV recording
 // TODO: Add Alert when device out of memory.
 // TODO: Rename public storage setting add explain dialog when switch setting.

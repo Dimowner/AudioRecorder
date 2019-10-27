@@ -101,7 +101,10 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			prefs.setAskToRenameAfterStopRecording(true);
 		}
 
-		if (appRecorder.isRecording()) {
+		if (appRecorder.isPaused()) {
+			view.keepScreenOn(false);
+			view.showRecordingPause();
+		} else if (appRecorder.isRecording()) {
 			view.showRecordingStart();
 			view.keepScreenOn(prefs.isKeepScreenOn());
 			view.updateRecordingView(appRecorder.getRecordingData());

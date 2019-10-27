@@ -64,17 +64,21 @@ public class RecordingService extends Service {
 		appRecorder = ARApplication.getInjector().provideAppRecorder();
 		colorMap = ARApplication.getInjector().provideColorMap();
 		appRecorderCallback = new AppRecorderCallback() {
-			@Override public void onRecordingStarted() { }
-			@Override public void onRecordingPaused() { }
+			@Override public void onRecordingStarted() {
+				updateNotificationResume();
+			}
+			@Override public void onRecordingPaused() {
+				updateNotificationPause();
+			}
 			@Override public void onRecordProcessing() { }
 			@Override public void onRecordFinishProcessing() { }
 			@Override public void onRecordingStopped(long id, File file) { }
 
 			@Override
 			public void onRecordingProgress(long mills, int amp) {
-				if (mills%1000 == 0) {
-					updateNotification(mills);
-				}
+//				if (mills%1000 == 0) {
+//					updateNotification(mills);
+//				}
 			}
 
 			@Override public void onError(AppException throwable) { }
