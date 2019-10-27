@@ -304,7 +304,7 @@
 					android:contentDescription="@null"
 					android:padding="@dimen/spacing_normal"
 					android:scaleType="center"
-					android:src="@drawable/ic_check_36"
+					android:src="@drawable/ic_stop"
 					android:visibility="invisible" />
 
 		</LinearLayout>

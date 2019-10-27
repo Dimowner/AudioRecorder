@@ -237,7 +237,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	@Override
 	public void deleteRecord(final long id, final String path) {
 		final Record rec = activeRecord;
-		if (rec.getId() == id) {
+		if (rec != null && rec.getId() == id) {
 			audioPlayer.stop();
 		}
 		recordingsTasks.postRunnable(new Runnable() {
@@ -245,7 +245,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			public void run() {
 				localRepository.deleteRecord((int) id);
 				fileRepository.deleteRecordFile(path);
-				if (rec.getId() == id) {
+				if (rec != null && rec.getId() == id) {
 					prefs.setActiveRecord(-1);
 					dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 				}
@@ -254,9 +254,9 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 					public void run() {
 						if (view != null) {
 							view.onDeleteRecord(id);
-							if (rec.getId() == id) {
+							view.showMessage(R.string.record_deleted_successfully);
+							if (rec != null && rec.getId() == id) {
 								view.hidePlayPanel();
-								view.showMessage(R.string.record_deleted_successfully);
 								activeRecord = null;
 							}
 						}
