@@ -20,8 +20,6 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -51,8 +49,6 @@ import java.util.List;
 
 public class SettingsActivity extends Activity implements SettingsContract.View, View.OnClickListener {
 
-	private static final String VERSION_UNAVAILABLE = "N/A";
-
 	private TextView txtTotalDuration;
 	private TextView txtRecordsCount;
 	private TextView txtAvailableSpace;
@@ -70,6 +66,17 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private SettingsContract.UserActionsListener presenter;
 	private ColorMap colorMap;
 	private ColorMap.OnThemeColorChangeListener onThemeColorChangeListener;
+	private CompoundButton.OnCheckedChangeListener publicDirListener = new CompoundButton.OnCheckedChangeListener() {
+		@Override
+		public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
+			presenter.storeInPublicDir(isChecked);
+			if (isChecked) {
+				showDialogPublicDirInfo();
+			} else {
+				showDialogPrivateDirInfo();
+			}
+		}
+	};
 
 
 	public static Intent getStartIntent(Context context) {
@@ -115,12 +122,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		txtTotalDuration= findViewById(R.id.txt_total_duration);
 		txtAvailableSpace = findViewById(R.id.txt_available_space);
 
-		swPublicDir.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
-				presenter.storeInPublicDir(isChecked);
-			}
-		});
+		swPublicDir.setOnCheckedChangeListener(publicDirListener);
 		swRecordInStereo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
@@ -392,7 +394,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	@Override
 	public void showStoreInPublicDir(boolean b) {
+		swPublicDir.setOnCheckedChangeListener(null);
 		swPublicDir.setChecked(b);
+		swPublicDir.setOnCheckedChangeListener(publicDirListener);
 	}
 
 	@Override
@@ -463,6 +467,28 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	@Override
 	public void hideBitrateSelector() {
 		bitrateSelector.setVisibility(View.GONE);
+	}
+
+	@Override
+	public void showDialogPublicDirInfo() {
+		AndroidUtils.showDialog(this, R.string.warning, R.string.public_dir_warning,
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+					}
+				}, null
+		);
+	}
+
+	@Override
+	public void showDialogPrivateDirInfo() {
+		AndroidUtils.showDialog(this, R.string.warning, R.string.private_dir_warning,
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+					}
+				}, null
+		);
 	}
 
 	@Override

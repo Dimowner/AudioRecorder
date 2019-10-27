@@ -82,7 +82,7 @@
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:text="@string/store_records_public"
-					android:drawableStart="@drawable/ic_public"
+					android:drawableStart="@drawable/ic_folder_open"
 					android:layout_margin="@dimen/spacing_normal"
 					android:drawablePadding="@dimen/spacing_double"
 					/>

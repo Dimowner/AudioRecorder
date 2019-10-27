@@ -31,6 +31,10 @@ public class SettingsContract {
 
 		void showBitrateSelector();
 		void hideBitrateSelector();
+
+		void showDialogPublicDirInfo();
+
+		void showDialogPrivateDirInfo();
 	}
 
 	public interface UserActionsListener extends Contract.UserActionsListener<SettingsContract.View> {

@@ -53,6 +53,8 @@
 	<string name="rec_size">Size:</string>
 	<string name="rec_location">File location:</string>
 	<string name="naming">Naming:</string>
+	<string name="private_dir_warning">Records will be stored in the app\'s private directory which is not visible for other apps</string>
+	<string name="public_dir_warning">Records will be stored in the common directory on your device which is visible for other apps</string>
 
 	<string name="app_settings">App settings:</string>
 	<string name="recording_settings">Recording settings:</string>

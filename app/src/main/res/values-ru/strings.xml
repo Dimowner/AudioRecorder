@@ -53,6 +53,8 @@
 	<string name="rec_size">Размер:</string>
 	<string name="rec_location">Расположение файла:</string>
 	<string name="naming">Именование:</string>
+	<string name="private_dir_warning">Записи будут сохранятся в приватной директории приложения, невидимой для других приложений.</string>
+	<string name="public_dir_warning">Записи будут сохранятся в обычной директории устройства, видимой другим приложениям.</string>
 
 	<string name="app_settings">Настройки приложения:</string>
 	<string name="recording_settings">Настройки записи:</string>
