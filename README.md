@@ -3,33 +3,33 @@
 
 # Audio Recorder
 
-<p><b>Audio recorder (Voice recorder, Sound recorder)</b> - an application makes an easy audio recording experience. 
-App optimized for the fastest start as possible and helps not to miss important sound for the user.</p>
+<p><b>Audio recorder (Voice recorder, Sound recorder)</b> - an application that gives easy audio recording experience. 
+This app is optimized to start up as fast as possible, aiding the user in not missing important sounds.</p>
 
 <a href='https://play.google.com/store/apps/details?id=com.dimowner.audiorecorder' target='_blank'><img height='80' style='border:0px;height:80px;' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' border='0' alt='GooglePlay Link' /></a>
 
-<b>There are available two recording formats:</b>
+<b>Two recording formats are available:</b>
  - M4A
  - Waveform Audio File Format (WAVE, or WAV)
 
-In settings, select sample rate, bitrate (for AAC only) and stereo or mono.
-Selected preferences directly affect on record file size.
+In settings, you can set sample rate, bitrate (for AAC only) and select between mono and stereo.
+Selected preferences directly affect the file size of the recordings.
 
-With colorful themes, customize app looking, and make the experience better.
+Colorful themes allow customizing the app look, making the experience better.
 
 <b>Features:</b>
 - Recording audio
-- Playback records
-- Support recording formats M4A and WAV
-- Set sample rate and bitrate
-- Record and Playback in background
-- Display record waveform
-- Rename record
-- Share record
+- Playing back recordings
+- Make recordings in M4A and WAV
+- Settting sample rate and bitrate
+- Recording and playing back in background
+- Displaying waveform of the recording
+- Rename recordings
+- Share recordings
 - Import audio files
-- Records list
-- Add the selected record to bookmarks
-- Colored themes
+- List recordings
+- Add recordings to bookmarks
+- Color themes
 
 ### License
 
