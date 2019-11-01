@@ -396,7 +396,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	private boolean startPlayback() {
-		if (FileUtil.isFileInExternalStorage(presenter.getActiveRecordPath())) {
+		if (FileUtil.isFileInExternalStorage(getApplicationContext(), presenter.getActiveRecordPath())) {
 			if (checkStoragePermissionPlayback()) {
 				presenter.startPlayback();
 				return true;

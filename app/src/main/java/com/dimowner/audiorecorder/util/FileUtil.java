@@ -334,13 +334,14 @@ public class FileUtil {
 				Environment.MEDIA_MOUNTED_READ_ONLY.equals(state));
 	}
 
-	public static boolean isFileInExternalStorage(String path) {
-		if (path != null) {
-			String external = Environment.getExternalStorageDirectory().getAbsolutePath();
-			return path.contains(external);
-		} else {
-			return false;
+	public static boolean isFileInExternalStorage(Context context, String path) {
+		String privateDir = "";
+		try {
+			privateDir = FileUtil.getPrivateRecordsDir(context).getAbsolutePath();
+		} catch (FileNotFoundException e) {
+			Timber.e(e);
 		}
+		return path == null || !path.contains(privateDir);
 	}
 
 	public static File getPublicMusicStorageDir(String albumName) {

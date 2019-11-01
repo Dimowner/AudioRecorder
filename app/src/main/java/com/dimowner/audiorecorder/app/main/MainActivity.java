@@ -80,7 +80,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Fix service leak
 // TODO: Stop infinite loop when pause WAV recording
 // TODO: Add Alert when device out of memory.
-// TODO: Rename public storage setting add explain dialog when switch setting.
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -226,7 +225,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		switch (view.getId()) {
 			case R.id.btn_play:
 				//This method Starts or Pause playback.
-				if (FileUtil.isFileInExternalStorage(presenter.getActiveRecordPath())) {
+				if (FileUtil.isFileInExternalStorage(getApplicationContext(), presenter.getActiveRecordPath())) {
 					if (checkStoragePermissionPlayback()) {
 						presenter.startPlayback();
 					}

@@ -86,16 +86,16 @@ public class ColorMap {
 				primaryColorRes = R.color.md_brown_700;
 				playbackPanelBackground = R.drawable.panel_deep_orange;
 				break;
+			case THEME_BLUE:
+				primaryColorRes = R.color.md_blue_700;
+				appThemeResource = R.style.AppTheme;
+				playbackPanelBackground = R.drawable.panel_amber;
 			case THEME_GRAY:
+				default:
 				appThemeResource = R.style.AppTheme_Gray;
 				primaryColorRes = R.color.md_blue_gray_700;
 				playbackPanelBackground = R.drawable.panel_red;
 				break;
-			case THEME_BLUE:
-			default:
-				primaryColorRes = R.color.md_blue_700;
-				appThemeResource = R.style.AppTheme;
-				playbackPanelBackground = R.drawable.panel_amber;
 		}
 	}
 
