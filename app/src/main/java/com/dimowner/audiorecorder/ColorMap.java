@@ -39,7 +39,7 @@ public class ColorMap {
 		onThemeColorChangeListeners = new ArrayList<>();
 		this.prefs = prefs;
 		if (prefs.isFirstRun()) {
-			selected = THEME_BLUE;
+			selected = THEME_GRAY;
 		} else {
 			selected = prefs.getThemeColor();
 		}
@@ -90,12 +90,12 @@ public class ColorMap {
 				primaryColorRes = R.color.md_blue_700;
 				appThemeResource = R.style.AppTheme;
 				playbackPanelBackground = R.drawable.panel_amber;
+				break;
 			case THEME_GRAY:
 				default:
 				appThemeResource = R.style.AppTheme_Gray;
 				primaryColorRes = R.color.md_blue_gray_700;
 				playbackPanelBackground = R.drawable.panel_red;
-				break;
 		}
 	}
 
