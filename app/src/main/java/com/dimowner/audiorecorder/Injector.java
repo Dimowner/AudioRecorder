@@ -20,6 +20,8 @@ import android.content.Context;
 
 import com.dimowner.audiorecorder.app.AppRecorder;
 import com.dimowner.audiorecorder.app.AppRecorderImpl;
+import com.dimowner.audiorecorder.app.lostrecords.LostRecordsContract;
+import com.dimowner.audiorecorder.app.lostrecords.LostRecordsPresenter;
 import com.dimowner.audiorecorder.audio.player.AudioPlayer;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
@@ -52,6 +54,7 @@ public class Injector {
 	private MainContract.UserActionsListener mainPresenter;
 	private RecordsContract.UserActionsListener recordsPresenter;
 	private SettingsContract.UserActionsListener settingsPresenter;
+	private LostRecordsContract.UserActionsListener lostRecordsPresenter;
 
 	public Injector(Context context) {
 		this.context = context;
@@ -153,6 +156,21 @@ public class Injector {
 					provideRecordingTasksQueue(), provideLoadingTasksQueue(), providePrefs());
 		}
 		return settingsPresenter;
+	}
+
+	public LostRecordsContract.UserActionsListener provideLostRecordsPresenter() {
+		if (lostRecordsPresenter == null) {
+			lostRecordsPresenter = new LostRecordsPresenter(provideRecordingTasksQueue(),
+					provideFileRepository(), provideLocalRepository(), providePrefs());
+		}
+		return lostRecordsPresenter;
+	}
+
+	public void releaseLostRecordsPresenter() {
+		if (lostRecordsPresenter != null) {
+			lostRecordsPresenter.clear();
+			lostRecordsPresenter = null;
+		}
 	}
 
 	public void releaseRecordsPresenter() {

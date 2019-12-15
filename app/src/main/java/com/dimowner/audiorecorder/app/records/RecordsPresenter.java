@@ -28,6 +28,7 @@ import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
+import com.dimowner.audiorecorder.data.database.OnRecordsLostListener;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.exception.ErrorParser;
@@ -172,6 +173,13 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		if (view != null) {
 			view.showSortType(prefs.getRecordsOrder());
 		}
+
+		this.localRepository.setOnRecordsLostListener(new OnRecordsLostListener() {
+			@Override
+			public void onLostRecords(List<Record> list) {
+				view.showRecordsLostMessage(list);
+			}
+		});
 	}
 
 	@Override

@@ -26,6 +26,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -39,6 +40,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -58,6 +60,7 @@ import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.records.RecordsActivity;
 import com.dimowner.audiorecorder.app.settings.SettingsActivity;
 import com.dimowner.audiorecorder.app.widget.WaveformView;
+import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
 import com.dimowner.audiorecorder.util.FileUtil;
@@ -540,6 +543,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
+	public void showRecordsLostMessage(List<Record> list) {
+		AndroidUtils.showLostRecordsDialog(this, list);
+	}
+
+	@Override
 	public void onPlayProgress(final long mills, final int px, int percent) {
 		playProgress.setProgress(percent);
 		waveformView.setPlayback(px);
@@ -646,6 +654,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		params.setMargins(pad, pad, pad, pad);
 		editText.setLayoutParams(params);
 		container.addView(editText);
+		container.addView(createCheckerView());
 
 		final String fileName = FileUtil.removeFileExtension(file.getName());
 		editText.setText(fileName);
@@ -678,6 +687,44 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		editText.requestFocus();
 		editText.setSelection(editText.getText().length());
 		showKeyboard();
+	}
+
+	public CheckBox createCheckerView() {
+		final CheckBox checkBox = new CheckBox(getApplicationContext());
+		int color = getResources().getColor(R.color.dark_white);
+		checkBox.setTextColor(color);
+		ColorStateList colorStateList = new ColorStateList(
+				new int[][]{
+						new int[]{-android.R.attr.state_checked}, // unchecked
+						new int[]{android.R.attr.state_checked}  // checked
+				},
+				new int[]{
+						color,
+						color
+				}
+		);
+		checkBox.setButtonTintList(colorStateList);
+		checkBox.setText(R.string.dont_ask_again_rename);
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+		int PADD = (int) getResources().getDimension(R.dimen.spacing_normal);
+		params.setMargins(PADD, 0, PADD, PADD);
+		checkBox.setLayoutParams(params);
+		checkBox.setSaveEnabled(false);
+		checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+		checkBox.setPadding(
+				checkBox.getPaddingLeft()+(int) getResources().getDimension(R.dimen.spacing_small),
+				checkBox.getPaddingTop(),
+				checkBox.getPaddingRight(),
+				checkBox.getPaddingBottom());
+
+		checkBox.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				presenter.dontAskRename();
+			}
+		});
+		return checkBox;
 	}
 
 	/** Show soft keyboard for a dialog. */

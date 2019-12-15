@@ -33,6 +33,7 @@ import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
+import com.dimowner.audiorecorder.data.database.OnRecordsLostListener;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.exception.CantCreateFileException;
@@ -45,6 +46,7 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -264,6 +266,13 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		} else {
 			view.showPlayStop();
 		}
+
+		this.localRepository.setOnRecordsLostListener(new OnRecordsLostListener() {
+			@Override
+			public void onLostRecords(List<Record> list) {
+				view.showRecordsLostMessage(list);
+			}
+		});
 	}
 
 	@Override
@@ -533,6 +542,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				}
 			});
 		}
+	}
+
+	@Override
+	public void dontAskRename() {
+		prefs.setAskToRenameAfterStopRecording(false);
 	}
 
 	@Override

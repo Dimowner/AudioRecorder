@@ -49,12 +49,17 @@ import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.lostrecords.LostRecordsActivity;
+import com.dimowner.audiorecorder.app.lostrecords.RecordItem;
+import com.dimowner.audiorecorder.data.database.Record;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -398,6 +403,34 @@ public class AndroidUtils {
 		} else {
 			view.findViewById(R.id.dialog_positive_btn).setVisibility(View.GONE);
 		}
+		dialog.setContentView(view);
+		dialog.show();
+	}
+
+	public static void showLostRecordsDialog(final Activity activity, final List<Record> lostRecords){
+		final Dialog dialog = new Dialog(activity);
+		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		dialog.setCancelable(false);
+		View view = activity.getLayoutInflater().inflate(R.layout.dialog_lost_records_layout, null, false);
+			Button negativeBtn = view.findViewById(R.id.dialog_ok_btn);
+			negativeBtn.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					dialog.dismiss();
+				}
+			});
+			Button positiveBtn = view.findViewById(R.id.dialog_details_btn);
+			positiveBtn.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					ArrayList<RecordItem> list = new ArrayList<>();
+					for (Record r : lostRecords) {
+						list.add(new RecordItem(r.getId(), r.getName(), r.getDuration(), r.getPath()));
+					}
+					activity.startActivity(LostRecordsActivity.getStartIntent(activity.getApplicationContext(), list));
+					dialog.dismiss();
+				}
+			});
 		dialog.setContentView(view);
 		dialog.show();
 	}

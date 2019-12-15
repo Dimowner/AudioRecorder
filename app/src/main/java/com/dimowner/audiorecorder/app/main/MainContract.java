@@ -21,6 +21,7 @@ import android.net.Uri;
 
 import com.dimowner.audiorecorder.Contract;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
+import com.dimowner.audiorecorder.data.database.Record;
 
 import java.io.File;
 import java.util.List;
@@ -66,6 +67,8 @@ public interface MainContract {
 		void showRecordInfo(String name, String format, long duration, long size, String location);
 
 		void updateRecordingView(List<Integer> data);
+
+		void showRecordsLostMessage(List<Record> list);
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
@@ -85,6 +88,8 @@ public interface MainContract {
 		void renameRecord(long id, String name);
 
 		void loadActiveRecord();
+
+		void dontAskRename();
 
 		void importAudioFile(Context context, Uri uri);
 

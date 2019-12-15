@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  Copyright 2019 Dmitriy Ponomarenko
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="vertical"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+	<LinearLayout
+			android:id="@+id/toolbar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+		<ImageButton
+				android:id="@+id/btn_back"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@null"
+				android:layout_gravity="start"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:padding="@dimen/spacing_normal"
+				android:src="@drawable/ic_arrow_back"/>
+
+		<TextView
+				style="@style/Text.SectionLabel"
+				android:id="@+id/txt_title"
+				android:layout_width="0dp"
+				android:layout_height="@dimen/toolbar_height"
+				android:layout_weight="1"
+				android:gravity="center_vertical"
+				android:paddingStart="@dimen/spacing_normal"
+				android:paddingLeft="@dimen/spacing_normal"
+				android:paddingEnd="@dimen/spacing_normal"
+				android:paddingRight="@dimen/spacing_normal"
+				android:textColor="@color/text_primary_light"
+				android:text="@string/lost_records"
+				/>
+
+		<Button
+				android:id="@+id/btn_delete_all"
+				android:layout_width="wrap_content"
+				android:layout_height="@dimen/toolbar_height"
+				android:gravity="center_vertical"
+				android:paddingStart="@dimen/spacing_normal"
+				android:paddingLeft="@dimen/spacing_normal"
+				android:paddingEnd="@dimen/spacing_normal"
+				android:paddingRight="@dimen/spacing_normal"
+				android:textColor="@color/text_primary_light"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:text="@string/delete_all2"
+				/>
+	</LinearLayout>
+
+	<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:paddingStart="@dimen/spacing_normal"
+			android:paddingLeft="@dimen/spacing_normal"
+			android:paddingEnd="@dimen/spacing_normal"
+			android:paddingRight="@dimen/spacing_normal"
+			android:paddingTop="@dimen/spacing_small"
+			android:paddingBottom="@dimen/spacing_small"
+			android:textColor="@color/text_primary_light"
+			android:text="@string/records_was_removed"
+			/>
+
+	<android.support.v7.widget.RecyclerView
+			android:id="@+id/recycler_view"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			/>
+
+</LinearLayout>

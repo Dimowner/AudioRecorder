@@ -59,6 +59,7 @@ import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.widget.SimpleWaveformView;
 import com.dimowner.audiorecorder.app.widget.TouchLayout;
 import com.dimowner.audiorecorder.app.widget.WaveformView;
+import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
 import com.dimowner.audiorecorder.util.FileUtil;
@@ -745,6 +746,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	@Override
 	public void showRecordInfo(String name, String format, long duration, long size, String location) {
 		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), name, format, duration, size, location));
+	}
+
+	@Override
+	public void showRecordsLostMessage(List<Record> list) {
+		AndroidUtils.showLostRecordsDialog(this, list);
 	}
 
 	@Override

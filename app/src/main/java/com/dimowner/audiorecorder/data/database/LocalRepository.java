@@ -56,4 +56,6 @@ public interface LocalRepository {
 	boolean removeFromBookmarks(int id);
 
 	List<Record> getBookmarks();
+
+	void setOnRecordsLostListener(OnRecordsLostListener listener);
 }

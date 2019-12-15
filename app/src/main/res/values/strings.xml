@@ -12,6 +12,8 @@
 	<string name="total_record_count">Total records count: %d</string>
 	<string name="available_space">Available space: %s</string>
 	<string name="delete_all">Delete all records</string>
+	<string name="delete_all2">Delete all</string>
+	<string name="records_was_removed">Some records files was not found in records directory. Possibly they was removed or moved.</string>
 	<string name="warning">Warning!</string>
 	<string name="delete_record">Delete this record?</string>
 	<string name="delete_all_records">Delete all records?</string>
@@ -38,6 +40,7 @@
 	<string name="delete">Delete</string>
 	<string name="info">Information</string>
 	<string name="rename">Rename</string>
+	<string name="dont_ask_again_rename">Don\'t ask rename again</string>
 	<string name="open_with">Open with&#823;</string>
 	<string name="download">Download</string>
 	<string name="share">Share</string>
@@ -55,6 +58,7 @@
 	<string name="naming">Naming:</string>
 	<string name="private_dir_warning">Records will be stored in the app\'s private directory which is not visible for other apps</string>
 	<string name="public_dir_warning">Records will be stored in the common directory on your device which is visible for other apps</string>
+	<string name="lost_records">Lost records</string>
 
 	<string name="app_settings">App settings:</string>
 	<string name="recording_settings">Recording settings:</string>
@@ -71,6 +75,7 @@
 	<string name="btn_play">Play</string>
 	<string name="btn_deny">Deny</string>
 	<string name="btn_allow">Allow</string>
+	<string name="btn_details">Details</string>
 
 	<string name="error_unknown">Unexpected error</string>
 	<string name="error_cant_create_file">Can\'t create file</string>
@@ -83,6 +88,7 @@
 	<string name="error_unable_to_read_sound_file">Unable to read sound file</string>
 	<string name="error_permission_denied">Permission denied</string>
 	<string name="error_process_waveform">Can\'t draw waveform</string>
+	<string name="error_lost_records">Some of your records was deleted or moved</string>
 
 	<!-- Shown in the 'About' window of the app. -->
 	<string name="about_body"><![CDATA[

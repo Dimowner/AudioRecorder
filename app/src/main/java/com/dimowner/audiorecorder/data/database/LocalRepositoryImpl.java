@@ -50,9 +50,11 @@ public class LocalRepositoryImpl implements LocalRepository {
 //
 // */
 
-	public RecordsDataSource dataSource;
+	private RecordsDataSource dataSource;
 
 	private volatile static LocalRepositoryImpl instance;
+
+	private OnRecordsLostListener onLostRecordsListener;
 
 	private LocalRepositoryImpl(RecordsDataSource dataSource) {
 		this.dataSource = dataSource;
@@ -83,13 +85,10 @@ public class LocalRepositoryImpl implements LocalRepository {
 		}
 		Record r = dataSource.getItem(id);
 		if (r != null) {
-			if (isFileExists(r.getPath())) {
-				return r;
-			} else {
-				//If Audio file deleted then delete record about it from local database.
-				dataSource.deleteItem(r.getId());
-				Timber.e("Audio file for this record is lost");
-			}
+			List<Record> l = new ArrayList<>(1);
+			l.add(r);
+			checkForLostRecords(l);
+			return r;
 		}
 		return null;
 	}
@@ -211,12 +210,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 			dataSource.open();
 		}
 		List<Record> list = dataSource.getAll();
-		//Remove not records with not existing audio files (which was lost or deleted)
-		for (int i = 0; i < list.size(); i++) {
-			if (!isFileExists(list.get(i).getPath())) {
-				dataSource.deleteItem(list.get(i).getId());
-			}
-		}
+		checkForLostRecords(list);
 		return list;
 	}
 
@@ -226,12 +220,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 			dataSource.open();
 		}
 		List<Record> list = dataSource.getRecords(page);
-		//Remove not records with not existing audio files (which was lost or deleted)
-		for (int i = 0; i < list.size(); i++) {
-			if (!isFileExists(list.get(i).getPath())) {
-				dataSource.deleteItem(list.get(i).getId());
-			}
-		}
+		checkForLostRecords(list);
 		return list;
 	}
 
@@ -253,12 +242,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 				orderStr = SQLiteHelper.COLUMN_DATE_ADDED + " DESC";
 		}
 		List<Record> list = dataSource.getRecords(page, orderStr);
-		//Remove not records with not existing audio files (which was lost or deleted)
-		for (int i = 0; i < list.size(); i++) {
-			if (!isFileExists(list.get(i).getPath())) {
-				dataSource.deleteItem(list.get(i).getId());
-			}
-		}
+		checkForLostRecords(list);
 		return list;
 	}
 
@@ -275,8 +259,10 @@ public class LocalRepositoryImpl implements LocalRepository {
 				return r;
 			} else {
 				//If Audio file deleted then delete record from local database.
-				dataSource.deleteItem(r.getId());
-				return getLastRecord();
+				List<Record> l = new ArrayList<>(1);
+				l.add(r);
+				checkForLostRecords(l);
+				return r;
 			}
 		} else {
 			return null;
@@ -347,13 +333,15 @@ public class LocalRepositoryImpl implements LocalRepository {
 					list.add(r);
 				} else {
 					//If Audio file deleted then delete record from local database.
-					dataSource.deleteItem(r.getId());
+					List<Record> l = new ArrayList<>(1);
+					l.add(r);
+					checkForLostRecords(l);
 				}
 			} while (c.moveToNext());
 		} else {
 			return new ArrayList<>();
 		}
-		Timber.v("Bookmarks: " + list.toString());
+		Timber.v("Bookmarks: %s", list.toString());
 		return list;
 	}
 
@@ -369,5 +357,22 @@ public class LocalRepositoryImpl implements LocalRepository {
 			Timber.e(e);
 			return false;
 		}
+	}
+
+	private void checkForLostRecords(List<Record> list) {
+		List<Record> lost = new ArrayList<>();
+		for (int i = 0; i < list.size(); i++) {
+			if (!isFileExists(list.get(i).getPath())) {
+				lost.add(list.get(i));
+			}
+		}
+		if (onLostRecordsListener != null && !lost.isEmpty()) {
+			onLostRecordsListener.onLostRecords(lost);
+		}
+	}
+
+	@Override
+	public void setOnRecordsLostListener(OnRecordsLostListener onLostRecordsListener) {
+		this.onLostRecordsListener = onLostRecordsListener;
 	}
 }
