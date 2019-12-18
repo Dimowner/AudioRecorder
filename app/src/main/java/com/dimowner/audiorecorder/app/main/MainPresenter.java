@@ -412,7 +412,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						}
 						if (fileRepository.renameFile(record.getPath(), name, ext)) {
 							MainPresenter.this.record = new Record(record.getId(), nameWithExt, record.getDuration(), record.getCreated(),
-									record.getAdded(), renamed.getAbsolutePath(), record.isBookmarked(),
+									record.getAdded(), record.getRemoved(), renamed.getAbsolutePath(), record.isBookmarked(),
 									record.isWaveformProcessed(), record.getAmps());
 							if (localRepository.updateRecord(MainPresenter.this.record)) {
 								AndroidUtils.runOnUIThread(new Runnable() {
@@ -601,7 +601,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			@Override public void run() {
 				if (record != null) {
 					localRepository.deleteRecord(record.getId());
-					fileRepository.deleteRecordFile(record.getPath());
+//					fileRepository.deleteRecordFile(record.getPath());
 					prefs.setActiveRecord(-1);
 					dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 				}
@@ -612,7 +612,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							view.showWaveForm(new int[]{}, 0);
 							view.showName("");
 							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
-							view.showMessage(R.string.record_deleted_successfully);
+							view.showMessage(R.string.record_moved_into_trash);
 							view.hideOptionsMenu();
 							view.hideProgress();
 							record = null;
@@ -681,6 +681,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 											duration, //mills
 											newFile.lastModified(),
 											new Date().getTime(),
+											0,
 											newFile.getAbsolutePath(),
 											false,
 											true,

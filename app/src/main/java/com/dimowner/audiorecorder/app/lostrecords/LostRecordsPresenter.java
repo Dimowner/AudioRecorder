@@ -1,5 +1,6 @@
 package com.dimowner.audiorecorder.app.lostrecords;
 
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
@@ -8,6 +9,7 @@ import com.dimowner.audiorecorder.data.database.OnRecordsLostListener;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,12 +20,15 @@ import java.util.List;
 public class LostRecordsPresenter implements LostRecordsContract.UserActionsListener {
 
 	private LostRecordsContract.View view;
+	private final BackgroundQueue loadingTasks;
 	private final BackgroundQueue recordingsTasks;
 	private final FileRepository fileRepository;
 	private final LocalRepository localRepository;
 	private final Prefs prefs;
 
-	public LostRecordsPresenter(BackgroundQueue recordingsTasks, FileRepository fileRepository, LocalRepository localRepository, Prefs prefs) {
+	public LostRecordsPresenter(BackgroundQueue loadingTasks, BackgroundQueue recordingsTasks,
+										 FileRepository fileRepository, LocalRepository localRepository, Prefs prefs) {
+		this.loadingTasks = loadingTasks;
 		this.recordingsTasks = recordingsTasks;
 		this.fileRepository = fileRepository;
 		this.localRepository = localRepository;
@@ -36,15 +41,32 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 
 		localRepository.setOnRecordsLostListener(new OnRecordsLostListener() {
 			@Override
-			public void onLostRecords(List<Record> lostRecords) {
-				ArrayList<RecordItem> list = new ArrayList<>();
-				for (Record r : lostRecords) {
-					list.add(new RecordItem(r.getId(), r.getName(), r.getDuration(), r.getPath()));
-				}
-				view.showLostRecords(list);
+			public void onLostRecords(final List<Record> lostRecords) {
+				AndroidUtils.runOnUIThread(new Runnable() {
+					@Override
+					public void run() {
+						ArrayList<RecordItem> list = new ArrayList<>();
+						for (Record r : lostRecords) {
+							list.add(new RecordItem(r.getId(), r.getName(), r.getDuration(), r.getPath()));
+						}
+						if (view != null) {
+							if (list.isEmpty()) {
+								view.showEmpty();
+							} else {
+								view.showLostRecords(list);
+								view.hideEmpty();
+							}
+						}
+					}
+				});
 			}
 		});
-		localRepository.getAllRecords();
+		loadingTasks.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				localRepository.getAllRecords();
+			}
+		});
 	}
 
 	@Override
@@ -64,7 +86,7 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 			public void run() {
 				for (RecordItem rec : list) {
 					localRepository.deleteRecord(rec.getId());
-					fileRepository.deleteRecordFile(rec.getPath());
+//					fileRepository.deleteRecordFile(rec.getPath());
 					if (prefs.getActiveRecord() == rec.getId()) {
 						prefs.setActiveRecord(-1);
 					}
@@ -73,7 +95,7 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 					@Override
 					public void run() {
 						if (view != null) {
-							view.clearList();
+							view.showEmpty();
 						}
 					}
 				});
@@ -82,12 +104,25 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 	}
 
 	@Override
+	public void onRecordInfo(String name, long duration, String location) {
+		String format;
+		if (location.contains(AppConstants.M4A_EXTENSION)) {
+			format = AppConstants.M4A_EXTENSION;
+		} else if (location.contains(AppConstants.WAV_EXTENSION)) {
+			format = AppConstants.WAV_EXTENSION;
+		} else {
+			format = "";
+		}
+		view.showRecordInfo(name, format, duration/1000, new File(location).length(), location);
+	}
+
+	@Override
 	public void deleteRecord(final RecordItem rec) {
 		recordingsTasks.postRunnable(new Runnable() {
 			@Override
 			public void run() {
 				localRepository.deleteRecord(rec.getId());
-				fileRepository.deleteRecordFile(rec.getPath());
+//				fileRepository.deleteRecordFile(rec.getPath());
 				if (prefs.getActiveRecord() == rec.getId()) {
 					prefs.setActiveRecord(-1);
 				}

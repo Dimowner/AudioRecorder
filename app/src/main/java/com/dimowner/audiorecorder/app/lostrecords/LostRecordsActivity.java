@@ -12,9 +12,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.info.ActivityInformation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +31,7 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 	public static final String EXTRAS_RECORDS_LIST = "records_list";
 
 	private LostRecordsContract.UserActionsListener presenter;
+	private TextView txtEmpty;
 
 	private LostRecordsAdapter adapter;
 
@@ -52,6 +56,7 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 			}
 		});
 
+		txtEmpty = findViewById(R.id.txtEmpty);
 		Button btnDeleteAll = findViewById(R.id.btn_delete_all);
 		btnDeleteAll.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -81,6 +86,12 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 		RecyclerView recyclerView = findViewById(R.id.recycler_view);
 		recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 		adapter = new LostRecordsAdapter();
+		adapter.setOnItemClickListener(new LostRecordsAdapter.OnItemClickListener() {
+			@Override
+			public void onItemClick(RecordItem record) {
+				presenter.onRecordInfo(record.getName(), record.getDuration(), record.getPath());
+			}
+		});
 		recyclerView.setAdapter(adapter);
 		if (getIntent() != null) {
 			Bundle extras = getIntent().getExtras();
@@ -118,13 +129,27 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 	}
 
 	@Override
-	public void onDeletedRecord(int id) {
-		adapter.removeItem(id);
+	public void showRecordInfo(String name, String format, long duration, long size, String location) {
+		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), name, format, duration, size, location));
 	}
 
 	@Override
-	public void clearList() {
+	public void onDeletedRecord(int id) {
+		adapter.removeItem(id);
+		if (adapter.getItemCount() == 0) {
+			hideEmpty();
+		}
+	}
+
+	@Override
+	public void showEmpty() {
 		adapter.clearData();
+		txtEmpty.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void hideEmpty() {
+		txtEmpty.setVisibility(View.GONE);
 	}
 
 	@Override
@@ -139,16 +164,16 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 
 	@Override
 	public void showError(String message) {
-
+		Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
 	}
 
 	@Override
 	public void showError(int resId) {
-
+		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
 	}
 
 	@Override
 	public void showMessage(int resId) {
-
+		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
 	}
 }

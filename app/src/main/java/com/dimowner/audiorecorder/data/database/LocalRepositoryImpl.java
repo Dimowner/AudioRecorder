@@ -52,19 +52,22 @@ public class LocalRepositoryImpl implements LocalRepository {
 
 	private RecordsDataSource dataSource;
 
+	private TrashDataSource trashDataSource;
+
 	private volatile static LocalRepositoryImpl instance;
 
 	private OnRecordsLostListener onLostRecordsListener;
 
-	private LocalRepositoryImpl(RecordsDataSource dataSource) {
+	private LocalRepositoryImpl(RecordsDataSource dataSource, TrashDataSource trashDataSource) {
 		this.dataSource = dataSource;
+		this.trashDataSource = trashDataSource;
 	}
 
-	public static LocalRepositoryImpl getInstance(RecordsDataSource source) {
+	public static LocalRepositoryImpl getInstance(RecordsDataSource source, TrashDataSource trashSource) {
 		if (instance == null) {
 			synchronized (LocalRepositoryImpl.class) {
 				if (instance == null) {
-					instance = new LocalRepositoryImpl(source);
+					instance = new LocalRepositoryImpl(source, trashSource);
 				}
 			}
 		}
@@ -73,10 +76,12 @@ public class LocalRepositoryImpl implements LocalRepository {
 
 	public void open() {
 		dataSource.open();
+		trashDataSource.open();
 	}
 
 	public void close() {
 		dataSource.close();
+		trashDataSource.close();
 	}
 
 	public Record getRecord(int id) {
@@ -121,6 +126,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 						soundFile.getDuration(),
 						file.lastModified(),
 						new Date().getTime(),
+						0,
 						path,
 						false,
 						true,
@@ -151,6 +157,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 					duration,
 					file.lastModified(),
 					new Date().getTime(),
+					0,
 					path,
 					false,
 					false,
@@ -182,6 +189,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 							record.getDuration(),
 							record.getCreated(),
 							record.getAdded(),
+							record.getRemoved(),
 							record.getPath(),
 							record.isBookmarked(),
 							true,
@@ -277,6 +285,10 @@ public class LocalRepositoryImpl implements LocalRepository {
 		if (!dataSource.isOpen()) {
 			dataSource.open();
 		}
+		if (!trashDataSource.isOpen()) {
+			trashDataSource.open();
+		}
+		trashDataSource.insertItem(dataSource.getItem(id));
 		dataSource.deleteItem(id);
 	}
 
@@ -346,12 +358,53 @@ public class LocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
+	public List<Record> getTrashRecords() {
+		if (!trashDataSource.isOpen()) {
+			trashDataSource.open();
+		}
+		List<Record> list = trashDataSource.getAll();
+//		checkForLostRecords(list);
+		return list;
+	}
+
+	@Override
+	public void restoreFromTrash(int id) {
+		if (!trashDataSource.isOpen()) {
+			trashDataSource.open();
+		}
+		insertRecord(trashDataSource.getItem(id));
+		trashDataSource.deleteItem(id);
+	}
+
+	@Override
+	public void removeFromTrash(int id) {
+		if (!trashDataSource.isOpen()) {
+			trashDataSource.open();
+		}
+		trashDataSource.deleteItem(id);
+	}
+
+	@Override
+	public boolean emptyTrash() {
+		if (!trashDataSource.isOpen()) {
+			trashDataSource.open();
+		}
+		try {
+			trashDataSource.deleteAll();
+			return true;
+		} catch (SQLException e) {
+			Timber.e(e);
+			return false;
+		}
+	}
+
+	@Override
 	public boolean deleteAllRecords() {
 		if (!dataSource.isOpen()) {
 			dataSource.open();
 		}
 		try {
-			dataSource.deleteAll();
+//			dataSource.deleteAll();
 			return true;
 		} catch (SQLException e) {
 			Timber.e(e);

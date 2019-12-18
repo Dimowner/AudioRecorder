@@ -16,6 +16,8 @@
 	<string name="records_was_removed">Some records files was not found in records directory. Possibly they was removed or moved.</string>
 	<string name="warning">Warning!</string>
 	<string name="delete_record">Delete this record?</string>
+	<string name="delete_record_forever">Delete this record forever?</string>
+	<string name="restore_record">Restore this record?</string>
 	<string name="delete_all_records">Delete all records?</string>
 	<string name="all_records_deleted">All records deleted successfully</string>
 	<string name="failed_to_delete_all_records">Failed to deleted all records</string>
@@ -27,6 +29,7 @@
 	<string name="recording_paused">Paused</string>
 	<string name="playback">Playback: %s</string>
 	<string name="zero_time">00:00</string>
+	<string name="empty">Empty</string>
 	<string name="no_records">Records is empty.</string>
 	<string name="no_bookmarks">Bookmarks is empty.</string>
 	<string name="bookmarks">Bookmarks</string>
@@ -45,7 +48,9 @@
 	<string name="download">Download</string>
 	<string name="share">Share</string>
 	<string name="ask_to_rename">Show renaming dialog after stop recording</string>
+	<string name="record_moved_into_trash">Record moved to trash</string>
 	<string name="record_deleted_successfully">Record deleted successfully</string>
+	<string name="record_restored_successfully">Record restored successfully</string>
 	<string name="by_date">By date</string>
 	<string name="by_name">By name</string>
 	<string name="by_duration">By duration</string>
@@ -53,12 +58,15 @@
 	<string name="rec_name">Name:</string>
 	<string name="rec_format">Format:</string>
 	<string name="rec_duration">Duration:</string>
+	<string name="rec_frequency">Frequency:</string>
 	<string name="rec_size">Size:</string>
 	<string name="rec_location">File location:</string>
 	<string name="naming">Naming:</string>
 	<string name="private_dir_warning">Records will be stored in the app\'s private directory which is not visible for other apps</string>
 	<string name="public_dir_warning">Records will be stored in the common directory on your device which is visible for other apps</string>
 	<string name="lost_records">Lost records</string>
+	<string name="trash">Trash</string>
+	<string name="trash_info">The records moved to trash will be removed forever in 60 days.</string>
 
 	<string name="app_settings">App settings:</string>
 	<string name="recording_settings">Recording settings:</string>

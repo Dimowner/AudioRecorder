@@ -64,6 +64,19 @@
 				android:layout_marginStart="@dimen/spacing_normal"
 				android:layout_marginEnd="@dimen/spacing_normal"
 				/>
+
+		<TextView
+				android:id="@+id/btnTrash"
+				style="@style/Text.NormalLabel"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/trash"
+				android:drawableStart="@drawable/ic_delete"
+				android:background="?android:selectableItemBackground"
+				android:padding="@dimen/spacing_normal"
+				android:drawablePadding="@dimen/spacing_double"
+				/>
+
 		<Spinner
 				android:id="@+id/themeColor"
 				android:layout_width="match_parent"

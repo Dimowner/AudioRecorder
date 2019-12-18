@@ -22,6 +22,8 @@ import com.dimowner.audiorecorder.app.AppRecorder;
 import com.dimowner.audiorecorder.app.AppRecorderImpl;
 import com.dimowner.audiorecorder.app.lostrecords.LostRecordsContract;
 import com.dimowner.audiorecorder.app.lostrecords.LostRecordsPresenter;
+import com.dimowner.audiorecorder.app.trash.TrashContract;
+import com.dimowner.audiorecorder.app.trash.TrashPresenter;
 import com.dimowner.audiorecorder.audio.player.AudioPlayer;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
@@ -40,6 +42,7 @@ import com.dimowner.audiorecorder.app.records.RecordsContract;
 import com.dimowner.audiorecorder.app.records.RecordsPresenter;
 import com.dimowner.audiorecorder.app.settings.SettingsContract;
 import com.dimowner.audiorecorder.app.settings.SettingsPresenter;
+import com.dimowner.audiorecorder.data.database.TrashDataSource;
 
 public class Injector {
 
@@ -55,6 +58,7 @@ public class Injector {
 	private RecordsContract.UserActionsListener recordsPresenter;
 	private SettingsContract.UserActionsListener settingsPresenter;
 	private LostRecordsContract.UserActionsListener lostRecordsPresenter;
+	private TrashContract.UserActionsListener trashPresenter;
 
 	public Injector(Context context) {
 		this.context = context;
@@ -68,12 +72,16 @@ public class Injector {
 		return RecordsDataSource.getInstance(context);
 	}
 
+	public TrashDataSource provideTrashDataSource() {
+		return TrashDataSource.getInstance(context);
+	}
+
 	public FileRepository provideFileRepository() {
 		return FileRepositoryImpl.getInstance(context, providePrefs());
 	}
 
 	public LocalRepository provideLocalRepository() {
-		return LocalRepositoryImpl.getInstance(provideRecordsDataSource());
+		return LocalRepositoryImpl.getInstance(provideRecordsDataSource(), provideTrashDataSource());
 	}
 
 	public AppRecorder provideAppRecorder() {
@@ -158,12 +166,27 @@ public class Injector {
 		return settingsPresenter;
 	}
 
+	public TrashContract.UserActionsListener provideTrashPresenter() {
+		if (trashPresenter == null) {
+			trashPresenter = new TrashPresenter(provideLoadingTasksQueue(), provideRecordingTasksQueue(),
+					provideFileRepository(), provideLocalRepository(), providePrefs());
+		}
+		return trashPresenter;
+	}
+
 	public LostRecordsContract.UserActionsListener provideLostRecordsPresenter() {
 		if (lostRecordsPresenter == null) {
-			lostRecordsPresenter = new LostRecordsPresenter(provideRecordingTasksQueue(),
+			lostRecordsPresenter = new LostRecordsPresenter(provideLoadingTasksQueue(), provideRecordingTasksQueue(),
 					provideFileRepository(), provideLocalRepository(), providePrefs());
 		}
 		return lostRecordsPresenter;
+	}
+
+	public void releaseTrashPresenter() {
+		if (trashPresenter != null) {
+			trashPresenter.clear();
+			trashPresenter = null;
+		}
 	}
 
 	public void releaseLostRecordsPresenter() {

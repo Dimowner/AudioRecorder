@@ -34,6 +34,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL(CREATE_RECORDS_TABLE_SCRIPT);
+		db.execSQL(CREATE_TRASH_TABLE_SCRIPT);
 	}
 
 	@Override
@@ -41,16 +42,22 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 		Log.d(SQLiteHelper.class.getName(),
 				"Upgrading database from version " + oldVersion + " to "
 						+ newVersion + ", which will destroy all old data");
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECORDS);
-		onCreate(db);
+		if (newVersion == 1) {
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECORDS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRASH);
+			onCreate(db);
+		} else if (newVersion == 2) {
+			db.execSQL(CREATE_TRASH_TABLE_SCRIPT);
+		}
 	}
 
 
 	private static final String DATABASE_NAME = "records.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 
 	//Tables names
 	static final String TABLE_RECORDS = "records";
+	static final String TABLE_TRASH = "trash";
 
 	//Fields for table Records
 	static final String COLUMN_ID = "_id";
@@ -58,6 +65,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 	static final String COLUMN_DURATION = "duration";
 	static final String COLUMN_CREATION_DATE = "created";
 	static final String COLUMN_DATE_ADDED = "added";
+	static final String COLUMN_DATE_REMOVED = "removed";
 	static final String COLUMN_PATH = "path";
 	/** Simplified array of audio record amplitudes that represents waveform. */
 	static final String COLUMN_DATA = "data";
@@ -73,6 +81,21 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 					+ COLUMN_DURATION + " LONG NOT NULL, "
 					+ COLUMN_CREATION_DATE + " LONG NOT NULL, "
 					+ COLUMN_DATE_ADDED + " LONG NOT NULL, "
+					+ COLUMN_PATH + " TEXT NOT NULL, "
+					+ COLUMN_DATA + " BLOB NOT NULL, "
+					+ COLUMN_BOOKMARK + " INTEGER NOT NULL DEFAULT 0, "
+					+ COLUMN_WAVEFORM_PROCESSED + " INTEGER NOT NULL DEFAULT 0, "
+					+ COLUMN_DATA_STR + " BLOB NOT NULL);";
+
+	//Create trash table sql statement
+	private static final String CREATE_TRASH_TABLE_SCRIPT =
+			"CREATE TABLE " + TABLE_TRASH + " ("
+					+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+					+ COLUMN_NAME + " TEXT NOT NULL, "
+					+ COLUMN_DURATION + " LONG NOT NULL, "
+					+ COLUMN_CREATION_DATE + " LONG NOT NULL, "
+					+ COLUMN_DATE_ADDED + " LONG NOT NULL, "
+					+ COLUMN_DATE_REMOVED + " LONG NOT NULL, "
 					+ COLUMN_PATH + " TEXT NOT NULL, "
 					+ COLUMN_DATA + " BLOB NOT NULL, "
 					+ COLUMN_BOOKMARK + " INTEGER NOT NULL DEFAULT 0, "

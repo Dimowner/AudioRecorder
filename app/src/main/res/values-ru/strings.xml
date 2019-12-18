@@ -16,6 +16,8 @@
 	<string name="records_was_removed">Некоторые записи не были найдены в папке с записями. Возможно они были удалены или перемещены.</string>
 	<string name="warning">Внимание!</string>
 	<string name="delete_record">Удалить эту запись?</string>
+	<string name="delete_record_forever">Удалить эту запись навсегда?</string>
+	<string name="restore_record">Востановить эту запись?</string>
 	<string name="delete_all_records">Удалить все записи?</string>
 	<string name="all_records_deleted">Все записи удалены успешно</string>
 	<string name="failed_to_delete_all_records">Ошибка при удалении всех записей</string>
@@ -27,6 +29,7 @@
 	<string name="recording_paused">Пауза</string>
 	<string name="playback">Воспроизведение: %s</string>
 	<string name="zero_time">00:00</string>
+	<string name="empty">Пусто</string>
 	<string name="no_records">Нет записей.</string>
 	<string name="no_bookmarks">Нет закладок.</string>
 	<string name="bookmarks">Закладки</string>
@@ -45,7 +48,9 @@
 	<string name="download">Скачать</string>
 	<string name="share">Поделиться</string>
 	<string name="ask_to_rename">Показывать диалог переименования после завершения записи</string>
+	<string name="record_moved_into_trash">Запись перемещена в корзину</string>
 	<string name="record_deleted_successfully">Запись удалена успешно</string>
+	<string name="record_restored_successfully">Запись восстановлено успешно</string>
 	<string name="by_date">По дате</string>
 	<string name="by_name">По имени</string>
 	<string name="by_duration">По длительности</string>
@@ -53,12 +58,15 @@
 	<string name="rec_name">Название:</string>
 	<string name="rec_format">Формат:</string>
 	<string name="rec_duration">Длительность:</string>
+	<string name="rec_frequency">Частота:</string>
 	<string name="rec_size">Размер:</string>
 	<string name="rec_location">Расположение файла:</string>
 	<string name="naming">Именование:</string>
 	<string name="private_dir_warning">Записи будут сохранятся в приватной директории приложения, невидимой для других приложений.</string>
 	<string name="public_dir_warning">Записи будут сохранятся в обычной директории устройства, видимой другим приложениям.</string>
 	<string name="lost_records">Потеряные записи</string>
+	<string name="trash">Корзина</string>
+	<string name="trash_info">Запись перемещена в корзину и будет удалена навсегда через 60 дней.</string>
 
 	<string name="app_settings">Настройки приложения:</string>
 	<string name="recording_settings">Настройки записи:</string>

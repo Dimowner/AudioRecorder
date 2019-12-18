@@ -252,7 +252,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			@Override
 			public void run() {
 				localRepository.deleteRecord((int) id);
-				fileRepository.deleteRecordFile(path);
+//				fileRepository.deleteRecordFile(path);
 				if (rec != null && rec.getId() == id) {
 					prefs.setActiveRecord(-1);
 					dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
@@ -262,7 +262,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 					public void run() {
 						if (view != null) {
 							view.onDeleteRecord(id);
-							view.showMessage(R.string.record_deleted_successfully);
+							view.showMessage(R.string.record_moved_into_trash);
 							if (rec != null && rec.getId() == id) {
 								view.hidePlayPanel();
 								activeRecord = null;
@@ -320,7 +320,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 						}
 						if (fileRepository.renameFile(rec2.getPath(), name, ext)) {
 							activeRecord = new Record(rec2.getId(), nameWithExt, rec2.getDuration(), rec2.getCreated(),
-									rec2.getAdded(), renamed.getAbsolutePath(), rec2.isBookmarked(),
+									rec2.getAdded(), rec2.getRemoved(), renamed.getAbsolutePath(), rec2.isBookmarked(),
 									rec2.isWaveformProcessed(), rec2.getAmps());
 							if (localRepository.updateRecord(activeRecord)) {
 								AndroidUtils.runOnUIThread(new Runnable() {

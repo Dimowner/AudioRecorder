@@ -46,15 +46,27 @@
 					android:textStyle="bold"
 					android:ellipsize="end"
 					android:maxLines="2"
-					tools:text="asfasfasfasf asfa sfasf asfa sfa fas fasf" />
+					tools:text="Record-30.m4a" />
+
+			<TextView
+					android:id="@+id/list_item_duration"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textSize="@dimen/text_medium"
+					android:textColor="@color/text_secondary_light"
+					tools:text="22:33"
+					android:layout_gravity="start"
+					android:paddingStart="@dimen/spacing_tiny"
+					android:paddingEnd="@dimen/spacing_small"
+					android:maxLines="1"/>
 
 			<TextView
 					android:id="@+id/list_item_location"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:textSize="@dimen/text_medium"
-					android:textColor="@color/text_primary_light2"
-					tools:text="@string/app_name"
+					android:textSize="@dimen/text_normal"
+					android:textColor="@color/text_secondary_light"
+					tools:text="/storage/emulated/0/AudioRecorder/Record-30.m4a"
 					android:layout_gravity="start"
 					android:paddingStart="@dimen/spacing_tiny"
 					android:paddingEnd="@dimen/spacing_small"
@@ -62,16 +74,16 @@
 
 	</LinearLayout>
 
-	<ImageButton
-			android:id="@+id/list_item_delete"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:background="?android:selectableItemBackgroundBorderless"
-			android:contentDescription="@null"
-			android:paddingEnd="@dimen/spacing_normal"
-			android:paddingStart="@dimen/spacing_normal"
-			android:layout_gravity="center_vertical|end"
-			android:visibility="gone"
-			android:src="@drawable/ic_delete_forever"/>
+<!--	<ImageButton-->
+<!--			android:id="@+id/list_item_delete"-->
+<!--			android:layout_width="wrap_content"-->
+<!--			android:layout_height="match_parent"-->
+<!--			android:background="?android:selectableItemBackgroundBorderless"-->
+<!--			android:contentDescription="@null"-->
+<!--			android:paddingEnd="@dimen/spacing_normal"-->
+<!--			android:paddingStart="@dimen/spacing_normal"-->
+<!--			android:layout_gravity="center_vertical|end"-->
+<!--			android:visibility="gone"-->
+<!--			android:src="@drawable/ic_delete_forever"/>-->
 
 </LinearLayout>

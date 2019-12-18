@@ -13,25 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dimowner.audiorecorder.app.lostrecords;
+package com.dimowner.audiorecorder.app.trash;
 
 import com.dimowner.audiorecorder.Contract;
+import com.dimowner.audiorecorder.app.lostrecords.RecordItem;
 
 import java.util.List;
 
-public interface LostRecordsContract {
+public interface TrashContract {
 
 	interface View extends Contract.View {
-		void showLostRecords(List<RecordItem> items);
+		void showRecords(List<RecordItem> items);
 		void showRecordInfo(String name, String format, long duration, long size, String location);
-		void onDeletedRecord(int id);
+		void recordDeleted(int resId);
+		void recordRestored(int resId);
 		void showEmpty();
 		void hideEmpty();
 	}
 
-	interface UserActionsListener extends Contract.UserActionsListener<LostRecordsContract.View> {
+	interface UserActionsListener extends Contract.UserActionsListener<TrashContract.View> {
 		void onRecordInfo(String name, long duration, String location);
-		void deleteRecord(RecordItem record);
-		void deleteRecords(List<RecordItem> list);
+		void deleteRecordFromTrash(final int id, final String path);
+		void restoreRecordFromTrash(final int id);
 	}
 }

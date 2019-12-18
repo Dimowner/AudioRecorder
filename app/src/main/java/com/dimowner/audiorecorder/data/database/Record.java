@@ -30,6 +30,7 @@ public class Record {
 	private long duration;
 	private long created;
 	private long added;
+	private long removed;
 	private String path;
 	private boolean bookmark;
 	private boolean waveformProcessed;
@@ -37,13 +38,14 @@ public class Record {
 	private byte[] data;
 	//TODO: Remove not needed data clusters.
 
-	public Record(int id, String name, long duration, long created, long added, String path,
+	public Record(int id, String name, long duration, long created, long added, long removed, String path,
 					  boolean bookmark, boolean waveformProcessed, int[] amps) {
 		this.id = id;
 		this.name = name;
 		this.duration = duration;
 		this.created = created;
 		this.added= added;
+		this.removed = removed;
 		this.path = path;
 		this.bookmark = bookmark;
 		this.waveformProcessed = waveformProcessed;
@@ -52,13 +54,14 @@ public class Record {
 //		this.data = AndroidUtils.int2byte(amps);
 	}
 
-	public Record(int id, String name, long duration, long created, long added, String path,
+	public Record(int id, String name, long duration, long created, long added, long removed, String path,
 					  boolean bookmark, boolean waveformProcessed, byte[] amps) {
 		this.id = id;
 		this.name = name;
 		this.duration = duration;
 		this.created = created;
 		this.added = added;
+		this.removed = removed;
 		this.path = path;
 		this.bookmark = bookmark;
 		this.waveformProcessed = waveformProcessed;
@@ -103,6 +106,10 @@ public class Record {
 
 	public long getAdded() {
 		return added;
+	}
+
+	public long getRemoved() {
+		return removed;
 	}
 
 	public String getPath() {

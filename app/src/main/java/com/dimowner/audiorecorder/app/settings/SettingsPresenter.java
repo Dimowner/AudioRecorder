@@ -211,29 +211,29 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		recordingsTasks.postRunnable(new Runnable() {
 			@Override
 			public void run() {
-				List<Record> records  = localRepository.getAllRecords();
-				for (int i = 0; i < records.size(); i++) {
-					fileRepository.deleteRecordFile(records.get(i).getPath());
-				}
-				boolean b2 = localRepository.deleteAllRecords();
-				prefs.setActiveRecord(-1);
-				if (b2) {
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							if (view != null) {
-								view.showAllRecordsDeleted();
-							}
-						}});
-				} else {
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							if (view != null) {
-								view.showFailDeleteAllRecords();
-							}
-						}});
-				}
+//				List<Record> records  = localRepository.getAllRecords();
+//				for (int i = 0; i < records.size(); i++) {
+//					fileRepository.deleteRecordFile(records.get(i).getPath());
+//				}
+//				boolean b2 = localRepository.deleteAllRecords();
+//				prefs.setActiveRecord(-1);
+//				if (b2) {
+//					AndroidUtils.runOnUIThread(new Runnable() {
+//						@Override
+//						public void run() {
+//							if (view != null) {
+//								view.showAllRecordsDeleted();
+//							}
+//						}});
+//				} else {
+//					AndroidUtils.runOnUIThread(new Runnable() {
+//						@Override
+//						public void run() {
+//							if (view != null) {
+//								view.showFailDeleteAllRecords();
+//							}
+//						}});
+//				}
 			}
 		});
 	}

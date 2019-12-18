@@ -57,5 +57,13 @@ public interface LocalRepository {
 
 	List<Record> getBookmarks();
 
+	List<Record> getTrashRecords();
+
+	void restoreFromTrash(int id);
+
+	void removeFromTrash(int id);
+
+	boolean emptyTrash();
+
 	void setOnRecordsLostListener(OnRecordsLostListener listener);
 }

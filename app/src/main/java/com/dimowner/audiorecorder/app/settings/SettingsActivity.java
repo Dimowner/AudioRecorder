@@ -41,6 +41,7 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.trash.TrashActivity;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
 
@@ -103,6 +104,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		params.height = AndroidUtils.getNavigationBarHeight(getApplicationContext());
 		space.setLayoutParams(params);
 
+		TextView txtTrash = findViewById(R.id.btnTrash);
 		ImageButton btnBack = findViewById(R.id.btn_back);
 //		TextView btnDeleteAll = findViewById(R.id.btnDeleteAll);
 		TextView btnRate = findViewById(R.id.btnRate);
@@ -111,6 +113,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		txtAbout.setText(getAboutContent());
 		btnBack.setOnClickListener(this);
 //		btnDeleteAll.setOnClickListener(this);
+		txtTrash.setOnClickListener(this);
 		btnRate.setOnClickListener(this);
 		btnRequest.setOnClickListener(this);
 		swPublicDir = findViewById(R.id.swPublicDir);
@@ -308,6 +311,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			case R.id.btn_back:
 				ARApplication.getInjector().releaseSettingsPresenter();
 				finish();
+				break;
+			case R.id.btnTrash:
+				startActivity(TrashActivity.getStartIntent(getApplicationContext()));
 				break;
 			case R.id.btnRate:
 				rateApp();

@@ -19,29 +19,32 @@ package com.dimowner.audiorecorder.data.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+
+import java.util.Date;
+
 import timber.log.Timber;
 
 /**
- * Class to communicate with table: {@link SQLiteHelper#TABLE_RECORDS} in database.
+ * Class to communicate with table: {@link SQLiteHelper#TABLE_TRASH} in database.
  * @author Dimowner
  */
-public class RecordsDataSource extends DataSource<Record> {
+public class TrashDataSource extends DataSource<Record> {
 
-	private volatile static RecordsDataSource instance;
+	private volatile static TrashDataSource instance;
 
-	public static RecordsDataSource getInstance(Context context) {
+	public static TrashDataSource getInstance(Context context) {
 		if (instance == null) {
 			synchronized (RecordsDataSource.class) {
 				if (instance == null) {
-					instance = new RecordsDataSource(context);
+					instance = new TrashDataSource(context);
 				}
 			}
 		}
 		return instance;
 	}
 
-	private RecordsDataSource(Context context) {
-		super(context, SQLiteHelper.TABLE_RECORDS);
+	private TrashDataSource(Context context) {
+		super(context, SQLiteHelper.TABLE_TRASH);
 	}
 
 	@Override
@@ -55,6 +58,7 @@ public class RecordsDataSource extends DataSource<Record> {
 			values.put(SQLiteHelper.COLUMN_DURATION, item.getDuration());
 			values.put(SQLiteHelper.COLUMN_CREATION_DATE, item.getCreated());
 			values.put(SQLiteHelper.COLUMN_DATE_ADDED, item.getAdded());
+			values.put(SQLiteHelper.COLUMN_DATE_REMOVED, new Date().getTime());
 			values.put(SQLiteHelper.COLUMN_PATH, item.getPath());
 			values.put(SQLiteHelper.COLUMN_BOOKMARK, item.isBookmarked() ? 1 : 0);
 			values.put(SQLiteHelper.COLUMN_WAVEFORM_PROCESSED, item.isWaveformProcessed() ? 1 : 0);
@@ -76,7 +80,7 @@ public class RecordsDataSource extends DataSource<Record> {
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_DURATION)),
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_CREATION_DATE)),
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATE_ADDED)),
-				0, //Record removed date not needed here.
+				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATE_REMOVED)),
 				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_PATH)),
 				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_BOOKMARK)) != 0,
 				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_WAVEFORM_PROCESSED)) != 0,

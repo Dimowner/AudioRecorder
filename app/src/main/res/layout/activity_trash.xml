@@ -48,7 +48,7 @@
 				android:paddingEnd="@dimen/spacing_normal"
 				android:paddingRight="@dimen/spacing_normal"
 				android:textColor="@color/text_primary_light"
-				android:text="@string/lost_records"
+				android:text="@string/trash"
 				/>
 
 		<Button
@@ -77,34 +77,33 @@
 			android:paddingTop="@dimen/spacing_small"
 			android:paddingBottom="@dimen/spacing_small"
 			android:textColor="@color/text_primary_light"
-			android:text="@string/records_was_removed"
+			android:text="@string/trash_info"
 			/>
 
 	<FrameLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent" >
 
-		<android.support.v7.widget.RecyclerView
-				android:id="@+id/recycler_view"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				/>
+			<android.support.v7.widget.RecyclerView
+					android:id="@+id/recycler_view"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					/>
 
-		<TextView
-				android:id="@+id/txtEmpty"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:gravity="center"
-				android:layout_gravity="center"
-				android:drawablePadding="@dimen/spacing_small"
-				android:drawableTop="@drawable/ic_audiotrack_64"
-				android:textSize="@dimen/text_large"
-				android:textColor="@color/text_primary_light"
-				android:text="@string/empty"
-				android:visibility="gone"
-				tools:visibility="visible"
-				/>
+			<TextView
+					android:id="@+id/txtEmpty"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:gravity="center"
+					android:layout_gravity="center"
+					android:drawablePadding="@dimen/spacing_small"
+					android:drawableTop="@drawable/ic_audiotrack_64"
+					android:textSize="@dimen/text_large"
+					android:textColor="@color/text_primary_light"
+					android:text="@string/empty"
+					android:visibility="gone"
+					tools:visibility="visible"
+					/>
 
 	</FrameLayout>
-
 </LinearLayout>

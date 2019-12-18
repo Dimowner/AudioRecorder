@@ -1,4 +1,4 @@
-package com.dimowner.audiorecorder.app.lostrecords;
+package com.dimowner.audiorecorder.app.trash;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.lostrecords.RecordItem;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.util.ArrayList;
@@ -16,15 +17,14 @@ import java.util.List;
 
 /**
  * Created on 14.12.2019.
- *
  * @author Dimowner
  */
-public class LostRecordsAdapter extends RecyclerView.Adapter<LostRecordsAdapter.ItemViewHolder> {
+public class TrashAdapter extends RecyclerView.Adapter<TrashAdapter.ItemViewHolder> {
 
 	private List<RecordItem> data;
 	private OnItemClickListener onItemClickListener;
 
-	LostRecordsAdapter() {
+	TrashAdapter() {
 		this.data = new ArrayList<>();
 	}
 
@@ -61,7 +61,7 @@ public class LostRecordsAdapter extends RecyclerView.Adapter<LostRecordsAdapter.
 	@NonNull
 	@Override
 	public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-		View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item_lost, viewGroup, false);
+		View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_trash, viewGroup, false);
 		return new ItemViewHolder(v);
 	}
 
@@ -70,13 +70,28 @@ public class LostRecordsAdapter extends RecyclerView.Adapter<LostRecordsAdapter.
 		final int pos = holder.getAdapterPosition();
 		if (pos != RecyclerView.NO_POSITION) {
 			holder.name.setText(data.get(pos).getName());
-			holder.location.setText(data.get(pos).getPath());
 			holder.duration.setText(TimeUtils.formatTimeIntervalMinSec(data.get(pos).getDuration()/1000));
 			holder.view.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					if (onItemClickListener != null) {
 						onItemClickListener.onItemClick(data.get(pos));
+					}
+				}
+			});
+			holder.btnDelete.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (onItemClickListener != null) {
+						onItemClickListener.onDeleteItemClick(data.get(pos));
+					}
+				}
+			});
+			holder.btnRestore.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (onItemClickListener != null) {
+						onItemClickListener.onRestoreItemClick(data.get(pos));
 					}
 				}
 			});
@@ -88,28 +103,30 @@ public class LostRecordsAdapter extends RecyclerView.Adapter<LostRecordsAdapter.
 		return data.size();
 	}
 
-	public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+	void setOnItemClickListener(OnItemClickListener onItemClickListener) {
 		this.onItemClickListener = onItemClickListener;
 	}
 
 	class ItemViewHolder extends RecyclerView.ViewHolder {
 		TextView name;
-		TextView location;
 		TextView duration;
 		ImageButton btnDelete;
+		ImageButton btnRestore;
 		View view;
 
 		ItemViewHolder(View itemView) {
 			super(itemView);
 			view = itemView;
 			name = itemView.findViewById(R.id.list_item_name);
-			duration = itemView.findViewById(R.id.list_item_duration);
-			location = itemView.findViewById(R.id.list_item_location);
+			duration = itemView.findViewById(R.id.list_item_location);
 			btnDelete = itemView.findViewById(R.id.list_item_delete);
+			btnRestore = itemView.findViewById(R.id.list_item_restore);
 		}
 	}
 
 	public interface OnItemClickListener {
 		void onItemClick(RecordItem record);
+		void onDeleteItemClick(RecordItem record);
+		void onRestoreItemClick(RecordItem record);
 	}
 }

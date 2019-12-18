@@ -16,6 +16,8 @@
 	<string name="records_was_removed">Деякі записи не були знайдені в папці з записами. Можливо вони були видалені або переміщені.</string>
 	<string name="warning">Увага!</string>
 	<string name="delete_record">Видалити цей запис?</string>
+	<string name="delete_record_forever">Видалити цей запис назавжди?</string>
+	<string name="restore_record">Відновити цей запис?</string>
 	<string name="delete_all_records">Видалити всі записи?</string>
 	<string name="all_records_deleted">Всі записи видалено успішно</string>
 	<string name="failed_to_delete_all_records">Помилка під час видалення всіх записів</string>
@@ -27,6 +29,7 @@
 	<string name="recording_paused">Пауза</string>
 	<string name="playback">Відтворення: %s</string>
 	<string name="zero_time">00:00</string>
+	<string name="empty">Пусто</string>
 	<string name="no_records">Нема записів.</string>
 	<string name="no_bookmarks">Закладки порожні.</string>
 	<string name="bookmarks">Закладки</string>
@@ -45,7 +48,9 @@
 	<string name="download">Скачати</string>
 	<string name="share">Поділитися</string>
 	<string name="ask_to_rename">Показувати діалог перейменування після завершення звукозапису</string>
+	<string name="record_moved_into_trash">Запис переміщено в кошик</string>
 	<string name="record_deleted_successfully">Запис видалено успішно</string>
+	<string name="record_restored_successfully">Запис відновлено успішно</string>
 	<string name="by_date">По даті</string>
 	<string name="by_name">По імені</string>
 	<string name="by_duration">По тривалості</string>
@@ -53,12 +58,15 @@
 	<string name="rec_name">Назва:</string>
 	<string name="rec_format">Формат:</string>
 	<string name="rec_duration">Тривалість:</string>
+	<string name="rec_frequency">Частота:</string>
 	<string name="rec_size">Розмір:</string>
 	<string name="rec_location">Розташування файлу:</string>
 	<string name="naming">Іменування:</string>
 	<string name="private_dir_warning">Записи будуть зберігатись в приватній директорії додатка, невидимій для інших додатків.</string>
 	<string name="public_dir_warning">Записи будуть зберігатись в звичайній директорії пристрою, видимій іншим додаткам.</string>
 	<string name="lost_records">Втрачені записи</string>
+	<string name="trash">Кошик</string>
+	<string name="trash_info">Запис переміщена в кошик і буде видалена назавжди через 60 днів.</string>
 
 	<string name="app_settings">Налаштування додатка:</string>
 	<string name="recording_settings">Налаштування запису:</string>
