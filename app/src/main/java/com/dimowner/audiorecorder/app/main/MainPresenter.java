@@ -175,7 +175,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 				@Override
 				public void onRecordingProgress(final long mills, final int amp) {
-					Timber.v("onRecordProgress time = %d, apm = %d", mills, amp);
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override
 						public void run() {
@@ -184,6 +183,19 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							}
 						}
 					});
+
+					if (!hasAvailableSpace()) {
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override
+							public void run() {
+								if (view != null) {
+									stopRecording(false);
+									view.showError(R.string.error_no_available_space);
+									view.showNoSpaceNotification();
+								}
+							}
+						});
+					}
 				}
 
 				@Override
@@ -275,6 +287,22 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		});
 	}
 
+	private long spaceToTimeSecs(long spaceBytes, int format, int sampleRate, int channels) {
+		if (format == AppConstants.RECORDING_FORMAT_M4A) {
+			return 1000 * (spaceBytes/(AppConstants.RECORD_ENCODING_BITRATE_48000 /8));
+		} else if (format == AppConstants.RECORDING_FORMAT_WAV) {
+			return 1000 * (spaceBytes/(sampleRate * channels * 2));
+		} else {
+			return 0;
+		}
+	}
+
+	private boolean hasAvailableSpace() {
+		final long space = FileUtil.getFree(fileRepository.getRecordingDir());
+		final long time = spaceToTimeSecs(space, prefs.getFormat(), prefs.getSampleRate(), prefs.getRecordChannelCount());
+		return time > AppConstants.MIN_REMAIN_RECORDING_TIME;
+	}
+
 	@Override
 	public void unbindView() {
 		if (view != null) {
@@ -311,21 +339,26 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void startRecording() {
-		if (audioPlayer.isPlaying()) {
-			audioPlayer.stop();
-		}
-		if (appRecorder.isPaused()) {
-			appRecorder.resumeRecording();
-		} else if (!appRecorder.isRecording()) {
-			try {
-				appRecorder.startRecording(fileRepository.provideRecordFile().getAbsolutePath());
-			} catch (CantCreateFileException e) {
-				if (view != null) {
-					view.showError(ErrorParser.parseException(e));
+		if (hasAvailableSpace()) {
+
+			if (audioPlayer.isPlaying()) {
+				audioPlayer.stop();
+			}
+			if (appRecorder.isPaused()) {
+				appRecorder.resumeRecording();
+			} else if (!appRecorder.isRecording()) {
+				try {
+					appRecorder.startRecording(fileRepository.provideRecordFile().getAbsolutePath());
+				} catch (CantCreateFileException e) {
+					if (view != null) {
+						view.showError(ErrorParser.parseException(e));
+					}
 				}
+			} else {
+				appRecorder.pauseRecording();
 			}
 		} else {
-			appRecorder.pauseRecording();
+			view.showError(R.string.error_no_available_space);
 		}
 	}
 

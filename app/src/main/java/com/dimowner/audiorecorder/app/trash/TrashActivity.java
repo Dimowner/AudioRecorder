@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class TrashActivity extends Activity implements TrashContract.View {
 
-	//TODO: Remove record from trash after 60 days
+	//TODO: Fix errors in trash
 
 	private TrashContract.UserActionsListener presenter;
 

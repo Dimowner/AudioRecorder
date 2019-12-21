@@ -20,6 +20,9 @@ import android.Manifest;
 import android.animation.Animator;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,10 +30,14 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
@@ -90,6 +97,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_IMPORT = 405;
 	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK = 406;
 	public static final int REQ_CODE_IMPORT_AUDIO = 11;
+
+	private final static String CHANNEL_NAME = "Errors";
+	private final static String CHANNEL_ID = "com.dimowner.audiorecorder.Errors";
 
 	private WaveformView waveformView;
 	private TextView txtProgress;
@@ -545,6 +555,39 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void showRecordsLostMessage(List<Record> list) {
 		AndroidUtils.showLostRecordsDialog(this, list);
+	}
+
+	@Override
+	public void showNoSpaceNotification() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			createNotificationChannel(CHANNEL_ID, CHANNEL_NAME);
+		}
+		NotificationCompat.Builder builder =
+				new NotificationCompat.Builder(MainActivity.this, CHANNEL_ID)
+						.setSmallIcon(R.drawable.ic_record_rec)
+						.setContentTitle(getApplicationContext().getString(R.string.app_name))
+						.setContentText(getApplicationContext().getString(R.string.error_no_available_space))
+						.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+		NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.this);
+		notificationManager.notify(303, builder.build());
+	}
+
+	@RequiresApi(Build.VERSION_CODES.O)
+	private String createNotificationChannel(String channelId, String channelName) {
+		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		NotificationChannel channel = notificationManager.getNotificationChannel(channelId);
+		if (channel == null) {
+			NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
+			chan.setLightColor(Color.BLUE);
+			chan.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+			chan.setSound(null, null);
+			chan.enableLights(false);
+			chan.enableVibration(false);
+
+			notificationManager.createNotificationChannel(chan);
+		}
+		return channelId;
 	}
 
 	@Override
