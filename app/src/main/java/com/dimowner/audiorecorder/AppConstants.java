@@ -42,6 +42,8 @@ public class AppConstants {
 
 	public static final int DEFAULT_PER_PAGE = 50;
 
+	public final static long RECORD_IN_TRASH_MAX_DURATION = 5184000000L; // 1000 X 60 X 60 X 24 X 60 = 60 Days
+
 	//BEGINNING-------------- Waveform visualisation constants ----------------------------------
 
 	/** Density pixel count per one second of time.

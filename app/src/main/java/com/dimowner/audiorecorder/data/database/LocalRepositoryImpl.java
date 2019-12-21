@@ -68,6 +68,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 			synchronized (LocalRepositoryImpl.class) {
 				if (instance == null) {
 					instance = new LocalRepositoryImpl(source, trashSource);
+					instance.removeOutdatedTrashRecords();
 				}
 			}
 		}
@@ -362,9 +363,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 		if (!trashDataSource.isOpen()) {
 			trashDataSource.open();
 		}
-		List<Record> list = trashDataSource.getAll();
-//		checkForLostRecords(list);
-		return list;
+		return trashDataSource.getAll();
 	}
 
 	@Override
@@ -395,6 +394,20 @@ public class LocalRepositoryImpl implements LocalRepository {
 		} catch (SQLException e) {
 			Timber.e(e);
 			return false;
+		}
+	}
+
+	@Override
+	public void removeOutdatedTrashRecords() {
+		if (!trashDataSource.isOpen()) {
+			trashDataSource.open();
+		}
+		long curTime = new Date().getTime();
+		List<Record> list = trashDataSource.getAll();
+		for (int i = 0; i < list.size(); i++) {
+			if (list.get(i).getRemoved() + AppConstants.RECORD_IN_TRASH_MAX_DURATION < curTime) {
+				trashDataSource.deleteItem(list.get(i).getId());
+			}
 		}
 	}
 

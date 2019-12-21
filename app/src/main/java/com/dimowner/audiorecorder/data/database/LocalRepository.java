@@ -65,5 +65,7 @@ public interface LocalRepository {
 
 	boolean emptyTrash();
 
+	void removeOutdatedTrashRecords();
+
 	void setOnRecordsLostListener(OnRecordsLostListener listener);
 }
