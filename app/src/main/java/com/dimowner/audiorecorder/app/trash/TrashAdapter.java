@@ -41,11 +41,12 @@ public class TrashAdapter extends RecyclerView.Adapter<TrashAdapter.ItemViewHold
 		for (int i = 0; i < data.size(); i++) {
 			if (id == data.get(i).getId()) {
 				pos = i;
+				break;
 			}
 		}
 		if (pos >= 0 && pos < data.size()) {
 			data.remove(pos);
-			notifyItemRemoved(pos);
+			notifyDataSetChanged();
 		}
 	}
 
@@ -69,13 +70,13 @@ public class TrashAdapter extends RecyclerView.Adapter<TrashAdapter.ItemViewHold
 	public void onBindViewHolder(@NonNull ItemViewHolder holder, final int position) {
 		final int pos = holder.getAdapterPosition();
 		if (pos != RecyclerView.NO_POSITION) {
-			holder.name.setText(data.get(pos).getName());
-			holder.duration.setText(TimeUtils.formatTimeIntervalMinSec(data.get(pos).getDuration()/1000));
+			holder.name.setText(data.get(position).getName());
+			holder.duration.setText(TimeUtils.formatTimeIntervalMinSec(data.get(position).getDuration()/1000));
 			holder.view.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					if (onItemClickListener != null) {
-						onItemClickListener.onItemClick(data.get(pos));
+						onItemClickListener.onItemClick(data.get(position));
 					}
 				}
 			});
@@ -83,7 +84,7 @@ public class TrashAdapter extends RecyclerView.Adapter<TrashAdapter.ItemViewHold
 				@Override
 				public void onClick(View v) {
 					if (onItemClickListener != null) {
-						onItemClickListener.onDeleteItemClick(data.get(pos));
+						onItemClickListener.onDeleteItemClick(data.get(position));
 					}
 				}
 			});
@@ -91,7 +92,7 @@ public class TrashAdapter extends RecyclerView.Adapter<TrashAdapter.ItemViewHold
 				@Override
 				public void onClick(View v) {
 					if (onItemClickListener != null) {
-						onItemClickListener.onRestoreItemClick(data.get(pos));
+						onItemClickListener.onRestoreItemClick(data.get(position));
 					}
 				}
 			});

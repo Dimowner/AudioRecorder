@@ -66,6 +66,7 @@ public class TrashActivity extends Activity implements TrashContract.View {
 						.setCancelable(false)
 						.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
+								presenter.deleteAllRecordsFromTrash();
 								dialog.dismiss();
 							}
 						})
@@ -203,6 +204,12 @@ public class TrashActivity extends Activity implements TrashContract.View {
 		if (adapter.getItemCount() == 0) {
 			showEmpty();
 		}
+	}
+
+	@Override
+	public void allRecordsRemoved() {
+		adapter.clearData();
+		showEmpty();
 	}
 
 	@Override

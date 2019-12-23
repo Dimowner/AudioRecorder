@@ -49,6 +49,7 @@
 	<string name="share">Поделиться</string>
 	<string name="ask_to_rename">Показывать диалог переименования после завершения записи</string>
 	<string name="record_moved_into_trash">Запись перемещена в корзину</string>
+	<string name="all_records_deleted_successfully">Все записи удалены успешно</string>
 	<string name="record_deleted_successfully">Запись удалена успешно</string>
 	<string name="record_restored_successfully">Запись восстановлено успешно</string>
 	<string name="by_date">По дате</string>

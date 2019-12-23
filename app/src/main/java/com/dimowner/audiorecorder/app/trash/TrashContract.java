@@ -27,6 +27,7 @@ public interface TrashContract {
 		void showRecordInfo(String name, String format, long duration, long size, String location);
 		void recordDeleted(int resId);
 		void recordRestored(int resId);
+		void allRecordsRemoved();
 		void showEmpty();
 		void hideEmpty();
 	}
@@ -34,6 +35,7 @@ public interface TrashContract {
 	interface UserActionsListener extends Contract.UserActionsListener<TrashContract.View> {
 		void onRecordInfo(String name, long duration, String location);
 		void deleteRecordFromTrash(final int id, final String path);
+		void deleteAllRecordsFromTrash();
 		void restoreRecordFromTrash(final int id);
 	}
 }

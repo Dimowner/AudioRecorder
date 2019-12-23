@@ -25,15 +25,13 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 	private final BackgroundQueue recordingsTasks;
 	private final FileRepository fileRepository;
 	private final LocalRepository localRepository;
-	private final Prefs prefs;
 
 	public TrashPresenter(BackgroundQueue loadingTasks, BackgroundQueue recordingsTasks,
-								 FileRepository fileRepository, LocalRepository localRepository, Prefs prefs) {
+								 FileRepository fileRepository, LocalRepository localRepository) {
 		this.loadingTasks = loadingTasks;
 		this.recordingsTasks = recordingsTasks;
 		this.fileRepository = fileRepository;
 		this.localRepository = localRepository;
-		this.prefs = prefs;
 	}
 
 	@Override
@@ -98,6 +96,29 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 						if (view != null) {
 							view.showMessage(R.string.record_deleted_successfully);
 							view.recordDeleted(id);
+						}
+					}
+				});
+			}
+		});
+	}
+
+	@Override
+	public void deleteAllRecordsFromTrash() {
+		recordingsTasks.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				List<Record> records  = localRepository.getTrashRecords();
+				for (int i = 0; i < records.size(); i++) {
+					fileRepository.deleteRecordFile(records.get(i).getPath());
+				}
+				localRepository.emptyTrash();
+				AndroidUtils.runOnUIThread(new Runnable() {
+					@Override
+					public void run() {
+						if (view != null) {
+							view.showMessage(R.string.all_records_deleted_successfully);
+							view.allRecordsRemoved();
 						}
 					}
 				});

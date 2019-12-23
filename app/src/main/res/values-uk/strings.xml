@@ -49,6 +49,7 @@
 	<string name="share">Поділитися</string>
 	<string name="ask_to_rename">Показувати діалог перейменування після завершення звукозапису</string>
 	<string name="record_moved_into_trash">Запис переміщено в кошик</string>
+	<string name="all_records_deleted_successfully">Всі записи видалені успішно</string>
 	<string name="record_deleted_successfully">Запис видалено успішно</string>
 	<string name="record_restored_successfully">Запис відновлено успішно</string>
 	<string name="by_date">По даті</string>

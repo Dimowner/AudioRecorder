@@ -49,6 +49,7 @@
 	<string name="share">Share</string>
 	<string name="ask_to_rename">Show renaming dialog after stop recording</string>
 	<string name="record_moved_into_trash">Record moved to trash</string>
+	<string name="all_records_deleted_successfully">All records deleted successfully</string>
 	<string name="record_deleted_successfully">Record deleted successfully</string>
 	<string name="record_restored_successfully">Record restored successfully</string>
 	<string name="by_date">By date</string>

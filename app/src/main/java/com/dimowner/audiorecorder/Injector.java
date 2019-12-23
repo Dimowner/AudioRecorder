@@ -169,7 +169,7 @@ public class Injector {
 	public TrashContract.UserActionsListener provideTrashPresenter() {
 		if (trashPresenter == null) {
 			trashPresenter = new TrashPresenter(provideLoadingTasksQueue(), provideRecordingTasksQueue(),
-					provideFileRepository(), provideLocalRepository(), providePrefs());
+					provideFileRepository(), provideLocalRepository());
 		}
 		return trashPresenter;
 	}
