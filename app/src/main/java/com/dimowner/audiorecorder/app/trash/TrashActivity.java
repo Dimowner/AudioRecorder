@@ -28,8 +28,6 @@ import java.util.List;
  */
 public class TrashActivity extends Activity implements TrashContract.View {
 
-	//TODO: Fix errors in trash
-
 	private TrashContract.UserActionsListener presenter;
 
 	private TrashAdapter adapter;

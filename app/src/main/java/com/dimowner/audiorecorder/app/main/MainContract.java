@@ -69,8 +69,6 @@ public interface MainContract {
 		void updateRecordingView(List<Integer> data);
 
 		void showRecordsLostMessage(List<Record> list);
-
-		void showNoSpaceNotification();
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {

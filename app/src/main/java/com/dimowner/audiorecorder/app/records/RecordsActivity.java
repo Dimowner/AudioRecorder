@@ -357,7 +357,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 			@Override
 			public void onServiceDisconnected(ComponentName n) {
-				isBound = false;
 			}
 		};
 

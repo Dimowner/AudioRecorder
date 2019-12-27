@@ -183,19 +183,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							}
 						}
 					});
-
-					if (!hasAvailableSpace()) {
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
-								if (view != null) {
-									stopRecording(false);
-									view.showError(R.string.error_no_available_space);
-									view.showNoSpaceNotification();
-								}
-							}
-						});
-					}
 				}
 
 				@Override

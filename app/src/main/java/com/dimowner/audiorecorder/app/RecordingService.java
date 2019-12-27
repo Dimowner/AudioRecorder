@@ -13,23 +13,30 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.main.MainActivity;
+import com.dimowner.audiorecorder.data.FileRepository;
+import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.exception.AppException;
-import com.dimowner.audiorecorder.util.TimeUtils;
+import com.dimowner.audiorecorder.util.AndroidUtils;
+import com.dimowner.audiorecorder.util.FileUtil;
 
 import java.io.File;
-
-import timber.log.Timber;
 
 public class RecordingService extends Service {
 
 	private final static String CHANNEL_NAME = "Default";
 	private final static String CHANNEL_ID = "com.dimowner.audiorecorder.NotificationId";
+
+	private final static String CHANNEL_NAME_ERRORS = "Errors";
+	private final static String CHANNEL_ID_ERRORS = "com.dimowner.audiorecorder.Errors";
 
 	public static final String ACTION_START_RECORDING_SERVICE = "ACTION_START_RECORDING_SERVICE";
 
@@ -49,6 +56,8 @@ public class RecordingService extends Service {
 	private AppRecorderCallback appRecorderCallback;
 	private ColorMap colorMap;
 	private boolean started = false;
+	private Prefs prefs;
+	private FileRepository fileRepository;
 
 	public RecordingService() {
 	}
@@ -63,6 +72,9 @@ public class RecordingService extends Service {
 		super.onCreate();
 		appRecorder = ARApplication.getInjector().provideAppRecorder();
 		colorMap = ARApplication.getInjector().provideColorMap();
+		prefs = ARApplication.getInjector().providePrefs();
+		fileRepository = ARApplication.getInjector().provideFileRepository();
+
 		appRecorderCallback = new AppRecorderCallback() {
 			@Override public void onRecordingStarted() {
 				updateNotificationResume();
@@ -76,14 +88,54 @@ public class RecordingService extends Service {
 
 			@Override
 			public void onRecordingProgress(long mills, int amp) {
-//				if (mills%1000 == 0) {
-//					updateNotification(mills);
-//				}
+				if (!hasAvailableSpace()) {
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							stopRecording();
+							Toast.makeText(getApplicationContext(), R.string.error_no_available_space, Toast.LENGTH_LONG).show();
+							showNoSpaceNotification();
+						}
+					});
+				}
 			}
 
 			@Override public void onError(AppException throwable) { }
 		};
 		appRecorder.addRecordingCallback(appRecorderCallback);
+	}
+
+	public void showNoSpaceNotification() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			createNotificationChannel(CHANNEL_ID_ERRORS, CHANNEL_NAME_ERRORS);
+		}
+		NotificationCompat.Builder builder =
+				new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+						.setSmallIcon(R.drawable.ic_record_rec)
+						.setContentTitle(getApplicationContext().getString(R.string.app_name))
+						.setContentText(getApplicationContext().getString(R.string.error_no_available_space))
+						.setContentIntent(createContentIntent())
+						.setAutoCancel(true)
+						.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+		NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+		notificationManager.notify(303, builder.build());
+	}
+
+	private boolean hasAvailableSpace() {
+		final long space = FileUtil.getFree(fileRepository.getRecordingDir());
+		final long time = spaceToTimeSecs(space, prefs.getFormat(), prefs.getSampleRate(), prefs.getRecordChannelCount());
+		return time > AppConstants.MIN_REMAIN_RECORDING_TIME;
+	}
+
+	private long spaceToTimeSecs(long spaceBytes, int format, int sampleRate, int channels) {
+		if (format == AppConstants.RECORDING_FORMAT_M4A) {
+			return 1000 * (spaceBytes/(AppConstants.RECORD_ENCODING_BITRATE_48000 /8));
+		} else if (format == AppConstants.RECORDING_FORMAT_WAV) {
+			return 1000 * (spaceBytes/(sampleRate * channels * 2));
+		} else {
+			return 0;
+		}
 	}
 
 	@Override
@@ -99,8 +151,7 @@ public class RecordingService extends Service {
 						stopForegroundService();
 						break;
 					case ACTION_STOP_RECORDING:
-						appRecorder.stopRecording();
-						stopForegroundService();
+						stopRecording();
 						break;
 					case ACTION_PAUSE_RECORDING:
 						if (appRecorder.isPaused()) {
@@ -115,6 +166,11 @@ public class RecordingService extends Service {
 			}
 		}
 		return super.onStartCommand(intent, flags, startId);
+	}
+
+	private void stopRecording() {
+		appRecorder.stopRecording();
+		stopForegroundService();
 	}
 
 	private void startForegroundService() {
@@ -135,11 +191,6 @@ public class RecordingService extends Service {
 //		remoteViewsBig.setTextViewText(R.id.txt_recording_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
 //		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
-		// Create notification default intent.
-		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
-		PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-
 		// Create notification builder.
 		builder = new NotificationCompat.Builder(this, CHANNEL_ID);
 
@@ -147,7 +198,7 @@ public class RecordingService extends Service {
 		builder.setSmallIcon(R.drawable.ic_record_rec);
 		builder.setPriority(Notification.PRIORITY_MAX);
 		// Make head-up notification.
-		builder.setContentIntent(pendingIntent);
+		builder.setContentIntent(createContentIntent());
 		builder.setCustomContentView(remoteViewsSmall);
 //		builder.setCustomBigContentView(remoteViewsBig);
 		builder.setOnlyAlertOnce(true);
@@ -156,6 +207,13 @@ public class RecordingService extends Service {
 		notification = builder.build();
 		startForeground(NOTIF_ID, notification);
 		started = true;
+	}
+
+	private PendingIntent createContentIntent() {
+		// Create notification default intent.
+		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+		return PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 	}
 
 	private void stopForegroundService() {
