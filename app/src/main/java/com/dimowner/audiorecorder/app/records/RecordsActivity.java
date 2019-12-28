@@ -56,6 +56,7 @@ import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
+import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.widget.SimpleWaveformView;
 import com.dimowner.audiorecorder.app.widget.TouchLayout;
 import com.dimowner.audiorecorder.app.widget.WaveformView;
@@ -254,7 +255,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 						AndroidUtils.shareAudioFile(getApplicationContext(), item.getPath(), item.getName());
 						break;
 					case R.id.menu_info:
-						presenter.onRecordInfo(item.getName(), item.getDuration(), item.getPath());
+						presenter.onRecordInfo(item.getName(), item.getDuration(), item.getPath(), item.getCreated());
 						break;
 					case R.id.menu_rename:
 						setRecordName(item.getId(), new File(item.getPath()));
@@ -743,8 +744,8 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
-	public void showRecordInfo(String name, String format, long duration, long size, String location) {
-		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), name, format, duration, size, location));
+	public void showRecordInfo(RecordInfo info) {
+		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), info));
 	}
 
 	@Override

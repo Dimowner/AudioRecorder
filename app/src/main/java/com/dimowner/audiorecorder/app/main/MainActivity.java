@@ -57,6 +57,7 @@ import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.RecordingService;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
+import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.records.RecordsActivity;
 import com.dimowner.audiorecorder.app.settings.SettingsActivity;
 import com.dimowner.audiorecorder.app.widget.WaveformView;
@@ -529,8 +530,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void showRecordInfo(String name, String format, long duration, long size, String location) {
-		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), name, format, duration, size, location));
+	public void showRecordInfo(RecordInfo info) {
+		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), info));
 	}
 
 	@Override

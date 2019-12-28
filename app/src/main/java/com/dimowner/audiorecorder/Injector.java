@@ -177,7 +177,7 @@ public class Injector {
 	public LostRecordsContract.UserActionsListener provideLostRecordsPresenter() {
 		if (lostRecordsPresenter == null) {
 			lostRecordsPresenter = new LostRecordsPresenter(provideLoadingTasksQueue(), provideRecordingTasksQueue(),
-					provideFileRepository(), provideLocalRepository(), providePrefs());
+					provideLocalRepository(), providePrefs());
 		}
 		return lostRecordsPresenter;
 	}

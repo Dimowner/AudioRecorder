@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
+import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.lostrecords.RecordItem;
 
 import java.util.List;
@@ -86,7 +87,7 @@ public class TrashActivity extends Activity implements TrashContract.View {
 		adapter.setOnItemClickListener(new TrashAdapter.OnItemClickListener() {
 			@Override
 			public void onItemClick(RecordItem record) {
-				presenter.onRecordInfo(record.getName(), record.getDuration()/1000, record.getPath());
+				presenter.onRecordInfo(record.getName(), record.getDuration()/1000, record.getPath(), record.getCreated());
 			}
 
 			@Override
@@ -184,8 +185,8 @@ public class TrashActivity extends Activity implements TrashContract.View {
 	}
 
 	@Override
-	public void showRecordInfo(String name, String format, long duration, long size, String location) {
-		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), name, format, duration, size, location));
+	public void showRecordInfo(RecordInfo info) {
+		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), info));
 	}
 
 	@Override

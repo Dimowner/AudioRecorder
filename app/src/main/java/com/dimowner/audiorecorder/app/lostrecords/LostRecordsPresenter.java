@@ -2,7 +2,7 @@ package com.dimowner.audiorecorder.app.lostrecords;
 
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
-import com.dimowner.audiorecorder.data.FileRepository;
+import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.OnRecordsLostListener;
@@ -22,15 +22,13 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 	private LostRecordsContract.View view;
 	private final BackgroundQueue loadingTasks;
 	private final BackgroundQueue recordingsTasks;
-	private final FileRepository fileRepository;
 	private final LocalRepository localRepository;
 	private final Prefs prefs;
 
 	public LostRecordsPresenter(BackgroundQueue loadingTasks, BackgroundQueue recordingsTasks,
-										 FileRepository fileRepository, LocalRepository localRepository, Prefs prefs) {
+										 LocalRepository localRepository, Prefs prefs) {
 		this.loadingTasks = loadingTasks;
 		this.recordingsTasks = recordingsTasks;
-		this.fileRepository = fileRepository;
 		this.localRepository = localRepository;
 		this.prefs = prefs;
 	}
@@ -47,7 +45,7 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 					public void run() {
 						ArrayList<RecordItem> list = new ArrayList<>();
 						for (Record r : lostRecords) {
-							list.add(new RecordItem(r.getId(), r.getName(), r.getDuration(), r.getPath()));
+							list.add(new RecordItem(r.getId(), r.getName(), r.getDuration(), r.getPath(), r.getCreated()));
 						}
 						if (view != null) {
 							if (list.isEmpty()) {
@@ -104,7 +102,7 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 	}
 
 	@Override
-	public void onRecordInfo(String name, long duration, String location) {
+	public void onRecordInfo(String name, long duration, String location, long created) {
 		String format;
 		if (location.contains(AppConstants.M4A_EXTENSION)) {
 			format = AppConstants.M4A_EXTENSION;
@@ -113,7 +111,7 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 		} else {
 			format = "";
 		}
-		view.showRecordInfo(name, format, duration/1000, new File(location).length(), location);
+		view.showRecordInfo(new RecordInfo(name, format, duration/1000, new File(location).length(), location, created));
 	}
 
 	@Override

@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
+import com.dimowner.audiorecorder.app.info.RecordInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +90,7 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 		adapter.setOnItemClickListener(new LostRecordsAdapter.OnItemClickListener() {
 			@Override
 			public void onItemClick(RecordItem record) {
-				presenter.onRecordInfo(record.getName(), record.getDuration(), record.getPath());
+				presenter.onRecordInfo(record.getName(), record.getDuration(), record.getPath(), record.getCreated());
 			}
 		});
 		recyclerView.setAdapter(adapter);
@@ -129,8 +130,8 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 	}
 
 	@Override
-	public void showRecordInfo(String name, String format, long duration, long size, String location) {
-		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), name, format, duration, size, location));
+	public void showRecordInfo(RecordInfo info) {
+		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), info));
 	}
 
 	@Override

@@ -28,6 +28,7 @@ import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.AppRecorder;
 import com.dimowner.audiorecorder.app.AppRecorderCallback;
+import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.FileRepository;
@@ -655,7 +656,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			} else {
 				format = "";
 			}
-			view.showRecordInfo(rec.getName(), format, rec.getDuration() / 1000, new File(rec.getPath()).length(), rec.getPath());
+			view.showRecordInfo(new RecordInfo(rec.getName(), format, rec.getDuration() / 1000, new File(rec.getPath()).length(), rec.getPath(), rec.getCreated()));
 		}
 	}
 

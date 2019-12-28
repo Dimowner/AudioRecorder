@@ -20,6 +20,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.dimowner.audiorecorder.Contract;
+import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.database.Record;
 
@@ -64,7 +65,7 @@ public interface MainContract {
 
 		void askDeleteRecord();
 
-		void showRecordInfo(String name, String format, long duration, long size, String location);
+		void showRecordInfo(RecordInfo info);
 
 		void updateRecordingView(List<Integer> data);
 

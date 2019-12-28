@@ -61,6 +61,7 @@
 	<string name="rec_duration">Тривалість:</string>
 	<string name="rec_frequency">Частота:</string>
 	<string name="rec_size">Розмір:</string>
+	<string name="rec_created">Дата створення:</string>
 	<string name="rec_location">Розташування файлу:</string>
 	<string name="naming">Іменування:</string>
 	<string name="private_dir_warning">Записи будуть зберігатись в приватній директорії додатка, невидимій для інших додатків.</string>

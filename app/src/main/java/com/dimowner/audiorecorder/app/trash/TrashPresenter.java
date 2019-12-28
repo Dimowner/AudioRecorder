@@ -3,9 +3,9 @@ package com.dimowner.audiorecorder.app.trash;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.lostrecords.RecordItem;
 import com.dimowner.audiorecorder.data.FileRepository;
-import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
@@ -43,7 +43,7 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 				List<Record> records = localRepository.getTrashRecords();
 				final ArrayList<RecordItem> list = new ArrayList<>();
 				for (Record r : records) {
-					list.add(new RecordItem(r.getId(), r.getName(), r.getDuration(), r.getPath()));
+					list.add(new RecordItem(r.getId(), r.getName(), r.getDuration(), r.getPath(), r.getCreated()));
 				}
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override
@@ -71,7 +71,7 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 	}
 
 	@Override
-	public void onRecordInfo(String name, long duration, String location) {
+	public void onRecordInfo(String name, long duration, String location, long created) {
 		String format;
 		if (location.contains(AppConstants.M4A_EXTENSION)) {
 			format = AppConstants.M4A_EXTENSION;
@@ -80,7 +80,7 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 		} else {
 			format = "";
 		}
-		view.showRecordInfo(name, format, duration, new File(location).length(), location);
+		view.showRecordInfo(new RecordInfo(name, format, duration, new File(location).length(), location, created));
 	}
 
 	@Override

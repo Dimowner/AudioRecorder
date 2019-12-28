@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.app.records;
 
 import com.dimowner.audiorecorder.Contract;
+import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.data.database.Record;
 
 import java.util.List;
@@ -64,7 +65,7 @@ public interface RecordsContract {
 		void bookmarksSelected();
 		void bookmarksUnselected();
 
-		void showRecordInfo(String name, String format, long duration, long size, String location);
+		void showRecordInfo(RecordInfo info);
 
 		void showRecordsLostMessage(List<Record> list);
 	}
@@ -111,7 +112,7 @@ public interface RecordsContract {
 
 		String getRecordName();
 
-		void onRecordInfo(String name, long duration, String location);
+		void onRecordInfo(String name, long duration, String location, long created);
 	}
 
 	interface Callback {

@@ -161,4 +161,26 @@
 			android:layout_marginEnd="@dimen/spacing_normal"
 			android:textSize="@dimen/text_large"
 			tools:text="/emulater/0/sotrage/downloads/Record-12.wav"/>
+
+	<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/rec_created"
+			android:textStyle="normal"
+			android:fontFamily="sans-serif-light"
+			android:textSize="@dimen/text_medium"
+			android:layout_marginTop="@dimen/spacing_normal"
+			android:layout_marginStart="@dimen/spacing_normal"
+			android:layout_marginEnd="@dimen/spacing_normal" />
+	<TextView
+			android:id="@+id/txt_created"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="start"
+			android:textColor="@color/text_primary_light"
+			android:layout_marginStart="@dimen/spacing_normal"
+			android:layout_marginEnd="@dimen/spacing_normal"
+			android:textSize="@dimen/text_large"
+			tools:text="22.11.2018, 11:30"/>
+
 </LinearLayout>

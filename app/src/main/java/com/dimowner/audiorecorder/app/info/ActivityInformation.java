@@ -33,28 +33,17 @@ import com.dimowner.audiorecorder.util.TimeUtils;
 
 public class ActivityInformation extends Activity {
 
-	private static final String KEY_NAME = "pref_name";
-	private static final String KEY_FORMAT = "pref_format";
-	private static final String KEY_DURATION = "pref_duration";
-	private static final String KEY_SIZE = "pref_size";
-	private static final String KEY_LOCATION = "pref_location";
+	private static final String KEY_INFO = "key_info";
 
-	private ColorMap colorMap;
-
-
-	public static Intent getStartIntent(Context context, String name, String format, long duration, long size, String location) {
+	public static Intent getStartIntent(Context context, RecordInfo info) {
 		Intent intent = new Intent(context, ActivityInformation.class);
-		intent.putExtra(KEY_NAME, name);
-		intent.putExtra(KEY_FORMAT, format);
-		intent.putExtra(KEY_DURATION, duration);
-		intent.putExtra(KEY_SIZE, size);
-		intent.putExtra(KEY_LOCATION, location);
+		intent.putExtra(KEY_INFO, info);
 		return intent;
 	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		colorMap = ARApplication.getInjector().provideColorMap();
+		ColorMap colorMap = ARApplication.getInjector().provideColorMap();
 		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_info);
@@ -71,22 +60,19 @@ public class ActivityInformation extends Activity {
 		TextView txtDuration = findViewById(R.id.txt_duration);
 		TextView txtSize = findViewById(R.id.txt_size);
 		TextView txtLocation = findViewById(R.id.txt_location);
+		TextView txtCreated = findViewById(R.id.txt_created);
 
 		if (extras != null) {
-			if (extras.containsKey(KEY_NAME)) {
-				txtName.setText(extras.getString(KEY_NAME));
-			}
-			if (extras.containsKey(KEY_FORMAT)) {
-				txtFormat.setText(extras.getString(KEY_FORMAT));
-			}
-			if (extras.containsKey(KEY_DURATION)) {
-				txtDuration.setText(TimeUtils.formatTimeIntervalHourMinSec2(extras.getLong(KEY_DURATION)));
-			}
-			if (extras.containsKey(KEY_SIZE)) {
-				txtSize.setText(AndroidUtils.formatSize(extras.getLong(KEY_SIZE)));
-			}
-			if (extras.containsKey(KEY_LOCATION)) {
-				txtLocation.setText(extras.getString(KEY_LOCATION));
+			if (extras.containsKey(KEY_INFO)) {
+				RecordInfo info = extras.getParcelable(KEY_INFO);
+				if (info != null) {
+					txtName.setText(info.getName());
+					txtFormat.setText(info.getFormat());
+					txtDuration.setText(TimeUtils.formatTimeIntervalHourMinSec2(info.getDuration()));
+					txtSize.setText(AndroidUtils.formatSize(info.getSize()));
+					txtLocation.setText(info.getLocation());
+					txtCreated.setText(TimeUtils.formatDateTime(info.getCreated()));
+				}
 			}
 		}
 

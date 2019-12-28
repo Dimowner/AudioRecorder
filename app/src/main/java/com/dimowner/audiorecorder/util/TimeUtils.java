@@ -169,4 +169,8 @@ public class TimeUtils {
 	public static String formatDateForName(long time) {
 			return dateTimeFormat.format(new Date(time));
 	}
+
+	public static String formatDateTime(long time) {
+		return dateTimeFormatEU.format(new Date(time));
+	}
 }

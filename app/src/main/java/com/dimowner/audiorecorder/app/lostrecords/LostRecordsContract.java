@@ -16,6 +16,7 @@
 package com.dimowner.audiorecorder.app.lostrecords;
 
 import com.dimowner.audiorecorder.Contract;
+import com.dimowner.audiorecorder.app.info.RecordInfo;
 
 import java.util.List;
 
@@ -23,14 +24,14 @@ public interface LostRecordsContract {
 
 	interface View extends Contract.View {
 		void showLostRecords(List<RecordItem> items);
-		void showRecordInfo(String name, String format, long duration, long size, String location);
+		void showRecordInfo(RecordInfo info);
 		void onDeletedRecord(int id);
 		void showEmpty();
 		void hideEmpty();
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<LostRecordsContract.View> {
-		void onRecordInfo(String name, long duration, String location);
+		void onRecordInfo(String name, long duration, String location, long created);
 		void deleteRecord(RecordItem record);
 		void deleteRecords(List<RecordItem> list);
 	}

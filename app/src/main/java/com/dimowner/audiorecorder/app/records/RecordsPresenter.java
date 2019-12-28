@@ -24,6 +24,7 @@ import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.AppRecorder;
 import com.dimowner.audiorecorder.app.AppRecorderCallback;
+import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
@@ -690,7 +691,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	}
 
 	@Override
-	public void onRecordInfo(String name, long duration, String location) {
+	public void onRecordInfo(String name, long duration, String location, long created) {
 		String format;
 		if (location.contains(AppConstants.M4A_EXTENSION)) {
 			format = AppConstants.M4A_EXTENSION;
@@ -699,6 +700,6 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		} else {
 			format = "";
 		}
-		view.showRecordInfo(name, format, duration, new File(location).length(), location);
+		view.showRecordInfo(new RecordInfo(name, format, duration, new File(location).length(), location, created));
 	}
 }
