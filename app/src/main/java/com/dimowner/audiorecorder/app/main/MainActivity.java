@@ -69,8 +69,6 @@ import com.dimowner.audiorecorder.util.TimeUtils;
 import java.io.File;
 import java.util.List;
 
-import timber.log.Timber;
-
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
 // TODO: Fix WaveForm blinking when seek
@@ -270,7 +268,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				break;
 			case R.id.txt_name:
 				if (presenter.getActiveRecordId() != -1) {
-					setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()));
+					setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()), false);
 				}
 				break;
 		}
@@ -386,7 +384,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void askRecordingNewName(long id, File file) {
-		setRecordName(id, file);
+		setRecordName(id, file, true);
 	}
 
 	@Override
@@ -599,7 +597,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 					case R.id.menu_rename:
 						String path = presenter.getActiveRecordPath();
 						if (path != null) {
-							setRecordName(presenter.getActiveRecordId(), new File(path));
+							setRecordName(presenter.getActiveRecordId(), new File(path), false);
 						}
 						break;
 					case R.id.menu_open_with:
@@ -621,7 +619,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		popup.show();
 	}
 
-	public void setRecordName(final long recordId, File file) {
+	public void setRecordName(final long recordId, File file, boolean showCheckbox) {
 		//Create dialog layout programmatically.
 		LinearLayout container = new LinearLayout(getApplicationContext());
 		container.setOrientation(LinearLayout.VERTICAL);
@@ -652,7 +650,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		params.setMargins(pad, pad, pad, pad);
 		editText.setLayoutParams(params);
 		container.addView(editText);
-		container.addView(createCheckerView());
+		if (showCheckbox) {
+			container.addView(createCheckerView());
+		}
 
 		final String fileName = FileUtil.removeFileExtension(file.getName());
 		editText.setText(fileName);

@@ -17,17 +17,17 @@
 <resources>
 
 	<style name="AppTheme" parent="@android:style/Theme.Material">
-		<item name="android:colorPrimary">@color/md_blue_700</item>
-		<item name="android:colorPrimaryDark">@color/md_blue_700</item>
+		<item name="android:colorPrimary">@color/md_blue_gray_700</item>
+		<item name="android:colorPrimaryDark">@color/md_blue_gray_700</item>
 		<item name="android:colorAccent">@color/md_yellow_A700</item>
 
 		<item name="android:windowActionBar">false</item>
 		<item name="android:windowNoTitle">true</item>
 		<item name="android:windowActionBarOverlay">true</item>
 
-		<item name="android:windowBackground">@drawable/gradient_blue</item>
+		<item name="android:windowBackground">@drawable/gradient_gray</item>
 
-		<item name="android:navigationBarColor">@color/md_blue_700</item>
+		<item name="android:navigationBarColor">@color/md_blue_gray_700</item>
 	</style>
 
 	<style name="AppTheme.Gray" parent="AppTheme">
