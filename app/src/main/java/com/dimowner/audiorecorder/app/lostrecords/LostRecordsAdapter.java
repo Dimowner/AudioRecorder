@@ -45,7 +45,7 @@ public class LostRecordsAdapter extends RecyclerView.Adapter<LostRecordsAdapter.
 		}
 		if (pos >= 0 && pos < data.size()) {
 			data.remove(pos);
-			notifyItemRemoved(pos);
+			notifyDataSetChanged();
 		}
 	}
 
@@ -80,6 +80,14 @@ public class LostRecordsAdapter extends RecyclerView.Adapter<LostRecordsAdapter.
 					}
 				}
 			});
+			holder.btnDelete.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (onItemClickListener != null) {
+						onItemClickListener.onRemoveItemClick(data.get(pos));
+					}
+				}
+			});
 		}
 	}
 
@@ -111,5 +119,6 @@ public class LostRecordsAdapter extends RecyclerView.Adapter<LostRecordsAdapter.
 
 	public interface OnItemClickListener {
 		void onItemClick(RecordItem record);
+		void onRemoveItemClick(RecordItem record);
 	}
 }

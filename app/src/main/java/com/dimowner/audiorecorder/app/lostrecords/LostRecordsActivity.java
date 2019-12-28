@@ -92,6 +92,29 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 			public void onItemClick(RecordItem record) {
 				presenter.onRecordInfo(record.getName(), record.getDuration(), record.getPath(), record.getCreated());
 			}
+
+			@Override
+			public void onRemoveItemClick(final RecordItem record) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(LostRecordsActivity.this);
+				builder.setTitle(R.string.warning)
+						.setIcon(R.drawable.ic_delete_forever)
+						.setMessage(R.string.delete_record)
+						.setCancelable(false)
+						.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								presenter.deleteRecord(record);
+								dialog.dismiss();
+							}
+						})
+						.setNegativeButton(R.string.btn_no,
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog, int id) {
+										dialog.dismiss();
+									}
+								});
+				AlertDialog alert = builder.create();
+				alert.show();
+			}
 		});
 		recyclerView.setAdapter(adapter);
 		if (getIntent() != null) {

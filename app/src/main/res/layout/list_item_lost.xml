@@ -74,16 +74,15 @@
 
 	</LinearLayout>
 
-<!--	<ImageButton-->
-<!--			android:id="@+id/list_item_delete"-->
-<!--			android:layout_width="wrap_content"-->
-<!--			android:layout_height="match_parent"-->
-<!--			android:background="?android:selectableItemBackgroundBorderless"-->
-<!--			android:contentDescription="@null"-->
-<!--			android:paddingEnd="@dimen/spacing_normal"-->
-<!--			android:paddingStart="@dimen/spacing_normal"-->
-<!--			android:layout_gravity="center_vertical|end"-->
-<!--			android:visibility="gone"-->
-<!--			android:src="@drawable/ic_delete_forever"/>-->
+	<ImageButton
+			android:id="@+id/list_item_delete"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:background="?android:selectableItemBackgroundBorderless"
+			android:contentDescription="@null"
+			android:paddingEnd="@dimen/spacing_normal"
+			android:paddingStart="@dimen/spacing_normal"
+			android:layout_gravity="center_vertical|end"
+			android:src="@drawable/ic_delete_forever"/>
 
 </LinearLayout>
