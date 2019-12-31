@@ -296,6 +296,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		if (view != null) {
 			audioPlayer.removePlayerCallback(playerCallback);
 			appRecorder.removeRecordingCallback(appRecorderCallback);
+			this.localRepository.setOnRecordsLostListener(null);
 			this.view.stopPlaybackService();
 			this.view = null;
 		}

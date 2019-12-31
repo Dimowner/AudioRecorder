@@ -69,6 +69,7 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 
 	@Override
 	public void unbindView() {
+		this.localRepository.setOnRecordsLostListener(null);
 		this.view = null;
 	}
 

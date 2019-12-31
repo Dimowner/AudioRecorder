@@ -188,6 +188,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		if (view != null) {
 			audioPlayer.removePlayerCallback(playerCallback);
 			appRecorder.removeRecordingCallback(appRecorderCallback);
+			this.localRepository.setOnRecordsLostListener(null);
 			this.view = null;
 		}
 	}
