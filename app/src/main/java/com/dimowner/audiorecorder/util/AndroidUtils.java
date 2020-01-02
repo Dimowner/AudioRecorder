@@ -17,8 +17,10 @@
 package com.dimowner.audiorecorder.util;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -358,6 +360,40 @@ public class AndroidUtils {
 			Timber.e("There no record selected!");
 			Toast.makeText(context, R.string.error_unknown, Toast.LENGTH_LONG).show();
 		}
+	}
+
+	public static void showSimpleDialog(Activity activity, int icon, int resTitle, int resContent,
+													final DialogInterface.OnClickListener positiveListener) {
+		showSimpleDialog(activity, icon, resTitle, resContent, positiveListener, null);
+	}
+
+	public static void showSimpleDialog(Activity activity, int icon, int resTitle, int resContent,
+													final DialogInterface.OnClickListener positiveListener,
+													final DialogInterface.OnClickListener negativeListener) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		builder.setTitle(resTitle)
+				.setIcon(icon)
+				.setMessage(resContent)
+				.setCancelable(false)
+				.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						if (positiveListener != null) {
+							positiveListener.onClick(dialog, id);
+						}
+						dialog.dismiss();
+					}
+				})
+				.setNegativeButton(R.string.btn_no,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								if (negativeListener != null) {
+									negativeListener.onClick(dialog, id);
+								}
+								dialog.dismiss();
+							}
+						});
+		AlertDialog alert = builder.create();
+		alert.show();
 	}
 
 	public static void showDialog(Activity activity, int resTitle, int resContent,

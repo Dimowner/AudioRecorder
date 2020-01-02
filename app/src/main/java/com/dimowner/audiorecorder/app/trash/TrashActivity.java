@@ -1,7 +1,6 @@
 package com.dimowner.audiorecorder.app.trash;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,6 +19,7 @@ import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.lostrecords.RecordItem;
+import com.dimowner.audiorecorder.util.AndroidUtils;
 
 import java.util.List;
 
@@ -58,25 +58,18 @@ public class TrashActivity extends Activity implements TrashContract.View {
 		btnDeleteAll.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(TrashActivity.this);
-				builder.setTitle(R.string.warning)
-						.setIcon(R.drawable.ic_delete_forever)
-						.setMessage(R.string.delete_all_records)
-						.setCancelable(false)
-						.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
+				AndroidUtils.showSimpleDialog(
+						TrashActivity.this,
+						R.drawable.ic_delete_forever,
+						R.string.warning,
+						R.string.delete_all_records,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
 								presenter.deleteAllRecordsFromTrash();
-								dialog.dismiss();
 							}
-						})
-						.setNegativeButton(R.string.btn_no,
-								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int id) {
-										dialog.dismiss();
-									}
-								});
-				AlertDialog alert = builder.create();
-				alert.show();
+						}
+				);
 			}
 		});
 
@@ -92,48 +85,34 @@ public class TrashActivity extends Activity implements TrashContract.View {
 
 			@Override
 			public void onDeleteItemClick(final RecordItem record) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(TrashActivity.this);
-				builder.setTitle(R.string.warning)
-						.setIcon(R.drawable.ic_delete_forever)
-						.setMessage(R.string.delete_record_forever)
-						.setCancelable(false)
-						.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
+				AndroidUtils.showSimpleDialog(
+						TrashActivity.this,
+						R.drawable.ic_delete_forever,
+						R.string.warning,
+						R.string.delete_record_forever,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
 								presenter.deleteRecordFromTrash(record.getId(), record.getPath());
-								dialog.dismiss();
 							}
-						})
-						.setNegativeButton(R.string.btn_no,
-								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int id) {
-										dialog.dismiss();
-									}
-								});
-				AlertDialog alert = builder.create();
-				alert.show();
+						}
+				);
 			}
 
 			@Override
 			public void onRestoreItemClick(final RecordItem record) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(TrashActivity.this);
-				builder.setTitle(R.string.warning)
-						.setIcon(R.drawable.ic_restore_from_trash)
-						.setMessage(R.string.restore_record)
-						.setCancelable(false)
-						.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
+				AndroidUtils.showSimpleDialog(
+						TrashActivity.this,
+						R.drawable.ic_restore_from_trash,
+						R.string.warning,
+						R.string.restore_record,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
 								presenter.restoreRecordFromTrash(record.getId());
-								dialog.dismiss();
 							}
-						})
-						.setNegativeButton(R.string.btn_no,
-								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int id) {
-										dialog.dismiss();
-									}
-								});
-				AlertDialog alert = builder.create();
-				alert.show();
+						}
+				);
 			}
 		});
 		recyclerView.setAdapter(adapter);

@@ -77,11 +77,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Ability to search by record name in list
 // TODO: Welcome screen
 // TODO: Guidelines
-// TODO: Check how work max recording duration
 // TODO: Add scroll animation to start when stop playback
-// TODO: Fix service leak
 // TODO: Stop infinite loop when pause WAV recording
-// TODO: Add Alert when device out of memory.
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -508,25 +505,18 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void askDeleteRecord() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-		builder.setTitle(R.string.warning)
-				.setIcon(R.drawable.ic_delete_forever)
-				.setMessage(R.string.delete_record)
-				.setCancelable(false)
-				.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
+		AndroidUtils.showSimpleDialog(
+				MainActivity.this,
+				R.drawable.ic_delete_forever,
+				R.string.warning,
+				R.string.delete_record,
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
 						presenter.deleteActiveRecord();
-						dialog.dismiss();
 					}
-				})
-				.setNegativeButton(R.string.btn_no,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								dialog.dismiss();
-							}
-						});
-		AlertDialog alert = builder.create();
-		alert.show();
+				}
+		);
 	}
 
 	@Override

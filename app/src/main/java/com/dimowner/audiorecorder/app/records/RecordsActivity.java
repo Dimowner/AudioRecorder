@@ -267,25 +267,18 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 //						presenter.copyToDownloads(item.getPath(), item.getName());
 //						break;
 					case R.id.menu_delete:
-						AlertDialog.Builder builder = new AlertDialog.Builder(RecordsActivity.this);
-						builder.setTitle(R.string.warning)
-								.setIcon(R.drawable.ic_delete_forever)
-								.setMessage(R.string.delete_record)
-								.setCancelable(false)
-								.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int id) {
+						AndroidUtils.showSimpleDialog(
+								RecordsActivity.this,
+								R.drawable.ic_delete_forever,
+								R.string.warning,
+								R.string.delete_record,
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
 										presenter.deleteRecord(item.getId(), item.getPath());
-										dialog.dismiss();
 									}
-								})
-								.setNegativeButton(R.string.btn_no,
-										new DialogInterface.OnClickListener() {
-											public void onClick(DialogInterface dialog, int id) {
-												dialog.dismiss();
-											}
-										});
-						AlertDialog alert = builder.create();
-						alert.show();
+								}
+						);
 						break;
 				}
 			}

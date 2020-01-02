@@ -1,7 +1,6 @@
 package com.dimowner.audiorecorder.app.lostrecords;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,6 +18,7 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
+import com.dimowner.audiorecorder.util.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,25 +62,18 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 		btnDeleteAll.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(LostRecordsActivity.this);
-				builder.setTitle(R.string.warning)
-						.setIcon(R.drawable.ic_delete_forever)
-						.setMessage(R.string.delete_all_records)
-						.setCancelable(false)
-						.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
+				AndroidUtils.showSimpleDialog(
+						LostRecordsActivity.this,
+						R.drawable.ic_delete_forever,
+						R.string.warning,
+						R.string.delete_all_records,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
 								presenter.deleteRecords(adapter.getData());
-								dialog.dismiss();
 							}
-						})
-						.setNegativeButton(R.string.btn_no,
-								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int id) {
-										dialog.dismiss();
-									}
-								});
-				AlertDialog alert = builder.create();
-				alert.show();
+						}
+				);
 			}
 		});
 
@@ -95,25 +88,18 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 
 			@Override
 			public void onRemoveItemClick(final RecordItem record) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(LostRecordsActivity.this);
-				builder.setTitle(R.string.warning)
-						.setIcon(R.drawable.ic_delete_forever)
-						.setMessage(R.string.delete_record)
-						.setCancelable(false)
-						.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
+				AndroidUtils.showSimpleDialog(
+						LostRecordsActivity.this,
+						R.drawable.ic_delete_forever,
+						R.string.warning,
+						R.string.delete_record,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
 								presenter.deleteRecord(record);
-								dialog.dismiss();
 							}
-						})
-						.setNegativeButton(R.string.btn_no,
-								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int id) {
-										dialog.dismiss();
-									}
-								});
-				AlertDialog alert = builder.create();
-				alert.show();
+						}
+				);
 			}
 		});
 		recyclerView.setAdapter(adapter);
