@@ -271,7 +271,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 								RecordsActivity.this,
 								R.drawable.ic_delete_forever,
 								R.string.warning,
-								R.string.delete_record,
+								getApplicationContext().getString(R.string.delete_record, item.getName()),
 								new DialogInterface.OnClickListener() {
 									@Override
 									public void onClick(DialogInterface dialog, int which) {
@@ -460,25 +460,18 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				break;
 			case R.id.btn_delete:
 				presenter.pausePlayback();
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.setTitle(R.string.warning)
-						.setIcon(R.drawable.ic_delete_forever)
-						.setMessage(R.string.delete_record)
-						.setCancelable(false)
-						.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
+				AndroidUtils.showSimpleDialog(
+						RecordsActivity.this,
+						R.drawable.ic_delete_forever,
+						R.string.warning,
+						getApplicationContext().getString(R.string.delete_record, presenter.getRecordName()),
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
 								presenter.deleteActiveRecord();
-								dialog.dismiss();
 							}
-						})
-						.setNegativeButton(R.string.btn_no,
-								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog, int id) {
-										dialog.dismiss();
-									}
-								});
-				AlertDialog alert = builder.create();
-				alert.show();
+						}
+				);
 				break;
 			case R.id.btn_check_bookmark:
 				presenter.checkBookmarkActiveRecord();

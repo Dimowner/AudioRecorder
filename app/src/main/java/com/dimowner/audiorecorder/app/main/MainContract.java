@@ -63,7 +63,7 @@ public interface MainContract {
 		void showDuration(String duration);
 		void showName(String name);
 
-		void askDeleteRecord();
+		void askDeleteRecord(String name);
 
 		void showRecordInfo(RecordInfo info);
 

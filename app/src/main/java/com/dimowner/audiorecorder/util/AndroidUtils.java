@@ -396,6 +396,40 @@ public class AndroidUtils {
 		alert.show();
 	}
 
+	public static void showSimpleDialog(Activity activity, int icon, int resTitle, String resContent,
+													final DialogInterface.OnClickListener positiveListener) {
+		showSimpleDialog(activity, icon, resTitle, resContent, positiveListener, null);
+	}
+
+	public static void showSimpleDialog(Activity activity, int icon, int resTitle, String resContent,
+													final DialogInterface.OnClickListener positiveListener,
+													final DialogInterface.OnClickListener negativeListener) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		builder.setTitle(resTitle)
+				.setIcon(icon)
+				.setMessage(resContent)
+				.setCancelable(false)
+				.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						if (positiveListener != null) {
+							positiveListener.onClick(dialog, id);
+						}
+						dialog.dismiss();
+					}
+				})
+				.setNegativeButton(R.string.btn_no,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								if (negativeListener != null) {
+									negativeListener.onClick(dialog, id);
+								}
+								dialog.dismiss();
+							}
+						});
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
+
 	public static void showDialog(Activity activity, int resTitle, int resContent,
 											View.OnClickListener positiveBtnListener, View.OnClickListener negativeBtnListener){
 		showDialog(activity, -1, -1, resTitle, resContent, positiveBtnListener, negativeBtnListener);

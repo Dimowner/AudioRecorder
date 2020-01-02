@@ -166,7 +166,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						loadActiveRecord();
 
 						if (deleteRecord) {
-							view.askDeleteRecord();
+							view.askDeleteRecord(FileUtil.removeFileExtension(file.getName()));
 							deleteRecord = false;
 						} else if (prefs.isAskToRenameAfterStopRecording()) {
 							view.askRecordingNewName(id, file);
@@ -599,7 +599,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public String getActiveRecordName() {
 		if (record != null) {
-			return record.getName();
+			return FileUtil.removeFileExtension(record.getName());
 		} else {
 			return null;
 		}
@@ -657,7 +657,16 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			} else {
 				format = "";
 			}
-			view.showRecordInfo(new RecordInfo(rec.getName(), format, rec.getDuration() / 1000, new File(rec.getPath()).length(), rec.getPath(), rec.getCreated()));
+			view.showRecordInfo(
+					new RecordInfo(
+							FileUtil.removeFileExtension(rec.getName()),
+							format,
+							rec.getDuration() / 1000,
+							new File(rec.getPath()).length(),
+							rec.getPath(),
+							rec.getCreated()
+					)
+			);
 		}
 	}
 

@@ -15,7 +15,8 @@
 	<string name="delete_all2">Delete all</string>
 	<string name="records_was_removed">Some records files was not found in records directory. Possibly they was removed or moved.</string>
 	<string name="warning">Warning!</string>
-	<string name="delete_record">Delete this record?</string>
+	<string name="delete_this_record">Delete this record?</string>
+	<string name="delete_record">Delete record %s?</string>
 	<string name="delete_record_forever">Delete this record forever?</string>
 	<string name="restore_record">Restore this record?</string>
 	<string name="delete_all_records">Delete all records?</string>

@@ -15,7 +15,8 @@
 	<string name="delete_all2">Удалить все</string>
 	<string name="records_was_removed">Некоторые записи не были найдены в папке с записями. Возможно они были удалены или перемещены.</string>
 	<string name="warning">Внимание!</string>
-	<string name="delete_record">Удалить эту запись?</string>
+	<string name="delete_this_record">Удалить эту запись?</string>
+	<string name="delete_record">Удалить запись %s?</string>
 	<string name="delete_record_forever">Удалить эту запись навсегда?</string>
 	<string name="restore_record">Востановить эту запись?</string>
 	<string name="delete_all_records">Удалить все записи?</string>

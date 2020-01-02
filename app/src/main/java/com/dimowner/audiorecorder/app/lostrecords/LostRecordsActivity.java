@@ -92,7 +92,7 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 						LostRecordsActivity.this,
 						R.drawable.ic_delete_forever,
 						R.string.warning,
-						R.string.delete_record,
+						getApplicationContext().getString(R.string.delete_record, record.getName()),
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {

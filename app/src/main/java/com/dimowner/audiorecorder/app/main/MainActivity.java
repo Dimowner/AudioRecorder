@@ -504,12 +504,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void askDeleteRecord() {
+	public void askDeleteRecord(String name) {
 		AndroidUtils.showSimpleDialog(
 				MainActivity.this,
 				R.drawable.ic_delete_forever,
 				R.string.warning,
-				R.string.delete_record,
+				getApplicationContext().getString(R.string.delete_record, name),
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
@@ -598,7 +598,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 //						presenter.copyToDownloads(item.getPath(), item.getName());
 //						break;
 					case R.id.menu_delete:
-						askDeleteRecord();
+						askDeleteRecord(presenter.getActiveRecordName());
 						break;
 				}
 				return false;
