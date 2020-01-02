@@ -685,7 +685,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	@Override
 	public String getRecordName() {
 		if (activeRecord != null) {
-			return activeRecord.getName();
+			return FileUtil.removeFileExtension(activeRecord.getName());
 		} else {
 			return "Record";
 		}

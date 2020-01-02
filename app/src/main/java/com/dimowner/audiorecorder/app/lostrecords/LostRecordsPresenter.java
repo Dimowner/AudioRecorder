@@ -8,6 +8,7 @@ import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.OnRecordsLostListener;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
+import com.dimowner.audiorecorder.util.FileUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -112,7 +113,7 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 		} else {
 			format = "";
 		}
-		view.showRecordInfo(new RecordInfo(name, format, duration/1000, new File(location).length(), location, created));
+		view.showRecordInfo(new RecordInfo(FileUtil.removeFileExtension(name), format, duration/1000, new File(location).length(), location, created));
 	}
 
 	@Override

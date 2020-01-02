@@ -19,6 +19,7 @@ import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.util.AndroidUtils;
+import com.dimowner.audiorecorder.util.FileUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,7 +93,7 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 						LostRecordsActivity.this,
 						R.drawable.ic_delete_forever,
 						R.string.warning,
-						getApplicationContext().getString(R.string.delete_record, record.getName()),
+						getApplicationContext().getString(R.string.delete_record, FileUtil.removeFileExtension(record.getName())),
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
@@ -147,7 +148,7 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 	public void onDeletedRecord(int id) {
 		adapter.removeItem(id);
 		if (adapter.getItemCount() == 0) {
-			hideEmpty();
+			showEmpty();
 		}
 	}
 

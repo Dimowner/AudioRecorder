@@ -17,8 +17,8 @@
 	<string name="warning">Warning!</string>
 	<string name="delete_this_record">Delete this record?</string>
 	<string name="delete_record">Delete record %s?</string>
-	<string name="delete_record_forever">Delete this record forever?</string>
-	<string name="restore_record">Restore this record?</string>
+	<string name="delete_record_forever">Delete record %s forever?</string>
+	<string name="restore_record">Restore record %s?</string>
 	<string name="delete_all_records">Delete all records?</string>
 	<string name="all_records_deleted">All records deleted successfully</string>
 	<string name="failed_to_delete_all_records">Failed to deleted all records</string>

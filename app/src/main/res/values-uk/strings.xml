@@ -17,8 +17,8 @@
 	<string name="warning">Увага!</string>
 	<string name="delete_this_record">Видалити цей запис?</string>
 	<string name="delete_record">Видалити запис %s?</string>
-	<string name="delete_record_forever">Видалити цей запис назавжди?</string>
-	<string name="restore_record">Відновити цей запис?</string>
+	<string name="delete_record_forever">Видалити запис %s назавжди?</string>
+	<string name="restore_record">Відновити запис %s?</string>
 	<string name="delete_all_records">Видалити всі записи?</string>
 	<string name="all_records_deleted">Всі записи видалено успішно</string>
 	<string name="failed_to_delete_all_records">Помилка під час видалення всіх записів</string>

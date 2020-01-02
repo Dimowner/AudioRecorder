@@ -17,8 +17,8 @@
 	<string name="warning">Внимание!</string>
 	<string name="delete_this_record">Удалить эту запись?</string>
 	<string name="delete_record">Удалить запись %s?</string>
-	<string name="delete_record_forever">Удалить эту запись навсегда?</string>
-	<string name="restore_record">Востановить эту запись?</string>
+	<string name="delete_record_forever">Удалить запись %s навсегда?</string>
+	<string name="restore_record">Востановить запись %s?</string>
 	<string name="delete_all_records">Удалить все записи?</string>
 	<string name="all_records_deleted">Все записи удалены успешно</string>
 	<string name="failed_to_delete_all_records">Ошибка при удалении всех записей</string>

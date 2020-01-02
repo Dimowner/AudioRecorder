@@ -22,7 +22,6 @@ import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.main.MainActivity;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.exception.AppException;
-import com.dimowner.audiorecorder.util.FileUtil;
 
 import timber.log.Timber;
 
@@ -147,13 +146,13 @@ public class PlaybackService extends Service {
 		remoteViewsSmall = new RemoteViews(getPackageName(), R.layout.layout_play_notification_small);
 		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_pause, getPendingSelfIntent(getApplicationContext(), ACTION_PAUSE_PLAYBACK));
 		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_close, getPendingSelfIntent(getApplicationContext(), ACTION_CLOSE));
-		remoteViewsSmall.setTextViewText(R.id.txt_name, FileUtil.removeFileExtension(recordName));
+		remoteViewsSmall.setTextViewText(R.id.txt_name, recordName);
 		remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
 //		remoteViewsBig = new RemoteViews(getPackageName(), R.layout.layout_play_notification_big);
 //		remoteViewsBig.setOnClickPendingIntent(R.id.btn_pause, getPendingSelfIntent(getApplicationContext(), ACTION_PAUSE_PLAYBACK));
 //		remoteViewsBig.setOnClickPendingIntent(R.id.btn_close, getPendingSelfIntent(getApplicationContext(), ACTION_CLOSE));
-//		remoteViewsBig.setTextViewText(R.id.txt_name, FileUtil.removeFileExtension(recordName));
+//		remoteViewsBig.setTextViewText(R.id.txt_name, recordName);
 //		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
 		// Create notification default intent.
