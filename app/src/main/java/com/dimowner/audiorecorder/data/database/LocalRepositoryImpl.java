@@ -289,7 +289,10 @@ public class LocalRepositoryImpl implements LocalRepository {
 		if (!trashDataSource.isOpen()) {
 			trashDataSource.open();
 		}
-		trashDataSource.insertItem(dataSource.getItem(id));
+		Record recordToDelete = dataSource.getItem(id);
+		if (recordToDelete != null) {
+			trashDataSource.insertItem(recordToDelete);
+		}
 		dataSource.deleteItem(id);
 	}
 
