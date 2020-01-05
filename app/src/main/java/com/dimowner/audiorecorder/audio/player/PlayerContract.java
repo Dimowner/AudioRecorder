@@ -39,6 +39,8 @@ public interface PlayerContract {
 		void pause();
 		void stop();
 		boolean isPlaying();
+		boolean isPause();
+		long getPauseTime();
 		void release();
 	}
 }

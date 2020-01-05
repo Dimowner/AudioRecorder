@@ -171,8 +171,14 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 					presenter.seekPlayback(val);
 				}
 			}
-			@Override public void onStartTrackingTouch(SeekBar seekBar) { }
-			@Override public void onStopTrackingTouch(SeekBar seekBar) { }
+
+			@Override public void onStartTrackingTouch(SeekBar seekBar) {
+				presenter.disablePlaybackProgressListener();
+			}
+
+			@Override public void onStopTrackingTouch(SeekBar seekBar) {
+				presenter.enablePlaybackProgressListener();
+			}
 		});
 
 		touchLayout = findViewById(R.id.touch_layout);
@@ -293,8 +299,19 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
 			@Override
-			public void onSeek(int px) {
+			public void onStartSeek() {
+				presenter.disablePlaybackProgressListener();
+			}
+
+			@Override
+			public void onSeek(int px, long mills) {
+				presenter.enablePlaybackProgressListener();
 				presenter.seekPlayback(px);
+
+				if (waveformView.getWaveformLength() > 0) {
+					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / waveformView.getWaveformLength());
+				}
+				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 			}
 			@Override
 			public void onSeeking(int px, long mills) {

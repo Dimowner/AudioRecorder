@@ -59,6 +59,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	private Record activeRecord;
 	private float dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 	private boolean showBookmarks = false;
+	private boolean listenPlaybackProgress = true;
 
 	public RecordsPresenter(final LocalRepository localRepository, FileRepository fileRepository,
 									BackgroundQueue loadingTasks, BackgroundQueue recordingsTasks, BackgroundQueue copyTasks,
@@ -122,7 +123,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 				@Override
 				public void onPlayProgress(final long mills) {
-					if (view != null) {
+					if (view != null && listenPlaybackProgress) {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override public void run() {
 								Record rec = activeRecord;
@@ -484,6 +485,17 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 									} else {
 										view.bookmarksUnselected();
 									}
+									//Set player position is audio player is paused.
+									if (audioPlayer.isPause()) {
+										long duration = rec.getDuration() / 1000;
+										if (duration > 0) {
+											long playProgressMills = audioPlayer.getPauseTime();
+											view.onPlayProgress(playProgressMills, AndroidUtils.convertMillsToPx(playProgressMills,
+													AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * playProgressMills / duration));
+										}
+										view.showPlayerPanel();
+										view.showPlayPause();
+									}
 								}
 								view.hideProgress();
 								view.hidePanelProgress();
@@ -702,5 +714,15 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			format = "";
 		}
 		view.showRecordInfo(new RecordInfo(name, format, duration, new File(location).length(), location, created));
+	}
+
+	@Override
+	public void disablePlaybackProgressListener() {
+		listenPlaybackProgress = false;
+	}
+
+	@Override
+	public void enablePlaybackProgressListener() {
+		listenPlaybackProgress = true;
 	}
 }

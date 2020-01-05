@@ -113,6 +113,10 @@ public interface RecordsContract {
 		String getRecordName();
 
 		void onRecordInfo(String name, long duration, String location, long created);
+
+		void disablePlaybackProgressListener();
+
+		void enablePlaybackProgressListener();
 	}
 
 	interface Callback {

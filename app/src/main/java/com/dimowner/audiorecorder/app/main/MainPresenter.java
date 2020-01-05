@@ -69,6 +69,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private Record record;
 	private boolean isProcessing = false;
 	private boolean deleteRecord = false;
+	private boolean listenPlaybackProgress = true;
 
 	/** Flag true defines that presenter called to show import progress when view was not bind.
 	 * And after view bind we need to show import progress.*/
@@ -216,7 +217,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 				@Override
 				public void onPlayProgress(final long mills) {
-					if (view != null) {
+					if (view != null && listenPlaybackProgress) {
 						AndroidUtils.runOnUIThread(new Runnable() {
 							@Override public void run() {
 								if (view != null) {
@@ -263,6 +264,16 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 		if (audioPlayer.isPlaying()) {
 			view.showPlayStart(false);
+		} else if (audioPlayer.isPause()) {
+			if (view != null) {
+				long duration = songDuration/1000;
+				if (duration > 0) {
+					long playProgressMills = audioPlayer.getPauseTime();
+					view.onPlayProgress(playProgressMills, AndroidUtils.convertMillsToPx(playProgressMills,
+							AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * playProgressMills / duration));
+				}
+				view.showPlayPause();
+			}
 		} else {
 			view.showPlayStop();
 		}
@@ -668,6 +679,16 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					)
 			);
 		}
+	}
+
+	@Override
+	public void disablePlaybackProgressListener() {
+		listenPlaybackProgress = false;
+	}
+
+	@Override
+	public void enablePlaybackProgressListener() {
+		listenPlaybackProgress = true;
 	}
 
 	@Override

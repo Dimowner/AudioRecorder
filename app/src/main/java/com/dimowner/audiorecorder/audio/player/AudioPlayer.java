@@ -38,7 +38,9 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 	private MediaPlayer mediaPlayer;
 	private Timer timerProgress;
 	private boolean isPrepared = false;
+	private boolean isPause = false;
 	private long seekPos = 0;
+	private long pausePos = 0;
 	private String dataSource = null;
 
 
@@ -106,6 +108,7 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 				if (mediaPlayer.isPlaying()) {
 					pause();
 				} else {
+					isPause = false;
 					if (!isPrepared) {
 						try {
 							mediaPlayer.setOnPreparedListener(this);
@@ -123,7 +126,7 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 						}
 					} else {
 						mediaPlayer.start();
-						mediaPlayer.seekTo((int) seekPos);
+						mediaPlayer.seekTo((int) pausePos);
 						onStartPlay();
 						mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 							@Override
@@ -148,6 +151,7 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 							}
 						}, 0, AppConstants.VISUALIZATION_INTERVAL);
 					}
+					pausePos = 0;
 				}
 			}
 		} catch(IllegalStateException e){
@@ -194,6 +198,9 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 	@Override
 	public void seek(long mills) {
 		seekPos = mills;
+		if (isPause) {
+			pausePos = mills;
+		}
 		try {
 			if (mediaPlayer != null && mediaPlayer.isPlaying()) {
 				mediaPlayer.seekTo((int) seekPos);
@@ -215,6 +222,8 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 				mediaPlayer.pause();
 				onPausePlay();
 				seekPos = mediaPlayer.getCurrentPosition();
+				isPause = true;
+				pausePos = seekPos;
 			}
 		}
 	}
@@ -233,6 +242,8 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 			mediaPlayer.getCurrentPosition();
 			seekPos = 0;
 		}
+		isPause = false;
+		pausePos = 0;
 	}
 
 	@Override
@@ -246,6 +257,16 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 	}
 
 	@Override
+	public boolean isPause() {
+		return isPause;
+	}
+
+	@Override
+	public long getPauseTime() {
+		return seekPos;
+	}
+
+	@Override
 	public void release() {
 		stop();
 		if (mediaPlayer != null) {
@@ -253,6 +274,7 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 			mediaPlayer = null;
 		}
 		isPrepared = false;
+		isPause = false;
 		dataSource = null;
 		actionsListeners.clear();
 	}

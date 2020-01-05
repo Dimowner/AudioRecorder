@@ -21,7 +21,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Typeface;
-import android.os.Bundle;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -39,17 +38,16 @@ import java.util.List;
 public class WaveformView extends View {
 
 	private static final int DEFAULT_PIXEL_PER_SECOND = (int) AndroidUtils.dpToPx(AppConstants.SHORT_RECORD_DP_PER_SECOND);
-	private static final float SMALL_LINE_HEIGHT = 30.0f;
-	private static final float PADD = 15.0f;
+	private static final float SMALL_LINE_HEIGHT = AndroidUtils.dpToPx(12);
+	private static final float PADD = AndroidUtils.dpToPx(6);
 	private static final int VIEW_DRAW_EDGE = 0;
 
 	private float pxPerSecond = DEFAULT_PIXEL_PER_SECOND;
 
 	private Paint waveformPaint;
 	private Paint gridPaint;
-	private TextPaint textPaint;
-
 	private Paint scrubberPaint;
+	private TextPaint textPaint;
 
 	private int[] waveformData;
 	private long playProgressPx;
@@ -63,7 +61,7 @@ public class WaveformView extends View {
 	private float textHeight;
 	private float inset;
 
-	private int[] empty = new int[0];
+	private final int[] empty = new int[0];
 
 	private int prevScreenShift = 0;
 	private float startX = 0;
@@ -118,7 +116,7 @@ public class WaveformView extends View {
 		scrubberPaint.setColor(context.getResources().getColor(R.color.md_yellow_A700));
 
 		gridPaint = new Paint();
-		gridPaint.setColor(context.getResources().getColor(R.color.md_grey_100));
+		gridPaint.setColor(context.getResources().getColor(R.color.md_grey_100_75));
 		gridPaint.setStrokeWidth(AndroidUtils.dpToPx(1)/2);
 
 		textHeight = context.getResources().getDimension(R.dimen.text_normal);
@@ -159,6 +157,9 @@ public class WaveformView extends View {
 						case MotionEvent.ACTION_DOWN:
 							readPlayProgress = false;
 							startX = motionEvent.getX();
+							if (onSeekListener != null) {
+								onSeekListener.onStartSeek();
+							}
 							break;
 						case MotionEvent.ACTION_MOVE:
 							int shift = (int) (prevScreenShift + (motionEvent.getX()) - startX);
@@ -179,7 +180,7 @@ public class WaveformView extends View {
 							break;
 						case MotionEvent.ACTION_UP:
 							if (onSeekListener != null) {
-								onSeekListener.onSeek(-screenShift);
+								onSeekListener.onSeek(-screenShift, AndroidUtils.convertPxToMills(-screenShift, pxPerSecond));
 							}
 							prevScreenShift = screenShift;
 							readPlayProgress = true;
@@ -249,7 +250,7 @@ public class WaveformView extends View {
 	}
 
 	public void showRecording() {
-		updateShifts(0);
+		updateShifts((int) -AndroidUtils.dpToPx(recordingData.size()));
 		pxPerSecond = (int) AndroidUtils.dpToPx(AppConstants.SHORT_RECORD_DP_PER_SECOND);
 		isShortWaveForm = true;
 		showRecording = true;
@@ -320,8 +321,10 @@ public class WaveformView extends View {
 		int width = MeasureSpec.getSize(widthMeasureSpec);
 
 		this.viewWidth = width;
-		screenShift = 0;
-		waveformShift = viewWidth/2;
+
+		screenShift = (int)-playProgressPx;
+		waveformShift = screenShift + viewWidth/2;
+		prevScreenShift = screenShift;
 
 		setMeasuredDimension(
 				resolveSize(width, widthMeasureSpec),
@@ -615,28 +618,29 @@ public class WaveformView extends View {
 		isInitialized = true;
 	}
 
-	public void onSaveState(Bundle b) {
-		b.putIntArray("waveformData", waveformData);
-		b.putLong("playProgressPx", playProgressPx);
-		b.putIntArray("waveForm", waveForm);
-		b.putIntegerArrayList("recordingData", (ArrayList<Integer>) recordingData);
-		b.putBoolean("showRecording", showRecording);
-	}
-
-	public void onRestoreState(Bundle b) {
-		waveformData = b.getIntArray("waveformData");
-		playProgressPx = b.getLong("playProgressPx");
-		waveForm = b.getIntArray("waveForm");
-		recordingData = b.getIntegerArrayList("recordingData");
-		showRecording = b.getBoolean("showRecording");
-	}
+//	public void onSaveState(Bundle b) {
+//		b.putIntArray("waveformData", waveformData);
+//		b.putLong("playProgressPx", playProgressPx);
+//		b.putIntArray("waveForm", waveForm);
+//		b.putIntegerArrayList("recordingData", (ArrayList<Integer>) recordingData);
+//		b.putBoolean("showRecording", showRecording);
+//	}
+//
+//	public void onRestoreState(Bundle b) {
+//		waveformData = b.getIntArray("waveformData");
+//		playProgressPx = b.getLong("playProgressPx");
+//		waveForm = b.getIntArray("waveForm");
+//		recordingData = b.getIntegerArrayList("recordingData");
+//		showRecording = b.getBoolean("showRecording");
+//	}
 
 	public void setOnSeekListener(OnSeekListener onSeekListener) {
 		this.onSeekListener = onSeekListener;
 	}
 
 	public interface OnSeekListener {
-		void onSeek(int px);
+		void onStartSeek();
+		void onSeek(int px, long mills);
 		void onSeeking(int px, long mills);
 	}
 }

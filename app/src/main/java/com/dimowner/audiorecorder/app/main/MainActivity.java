@@ -73,9 +73,14 @@ import java.util.List;
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
 // TODO: Fix WaveForm blinking when seek
-// TODO: Ability to scroll up from the bottom of the list
+// TODO: Fix waveform when long record (there is no waveform)
+// TODO: optimize waveform draws. replace path with draw lines
+// TODO: Enhance sort records
+// TODO: Welcome screen theme color, rec format and quality, location dir, name format (date or record)
+// TODO: Pause record -> move to main -> diplay record as paused.
 // TODO: Ability to search by record name in list
-// TODO: Welcome screen
+// TODO: Display recording info on main activity.
+// TODO: Ability to scroll up from the bottom of the list
 // TODO: Guidelines
 // TODO: Add scroll animation to start when stop playback
 // TODO: Stop infinite loop when pause WAV recording
@@ -165,8 +170,14 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 					presenter.seekPlayback(val);
 				}
 			}
-			@Override public void onStartTrackingTouch(SeekBar seekBar) { }
-			@Override public void onStopTrackingTouch(SeekBar seekBar) { }
+
+			@Override public void onStartTrackingTouch(SeekBar seekBar) {
+				presenter.disablePlaybackProgressListener();
+			}
+
+			@Override public void onStopTrackingTouch(SeekBar seekBar) {
+				presenter.enablePlaybackProgressListener();
+			}
 		});
 
 		presenter = ARApplication.getInjector().provideMainPresenter();
@@ -174,8 +185,20 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
 			@Override
-			public void onSeek(int px) {
+			public void onStartSeek() {
+				presenter.disablePlaybackProgressListener();
+			}
+
+			@Override
+			public void onSeek(int px, long mills) {
+				presenter.enablePlaybackProgressListener();
 				presenter.seekPlayback(px);
+
+				int length = waveformView.getWaveformLength();
+				if (length > 0) {
+					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / length);
+				}
+				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 			}
 			@Override
 			public void onSeeking(int px, long mills) {

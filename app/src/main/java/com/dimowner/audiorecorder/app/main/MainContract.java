@@ -110,5 +110,9 @@ public interface MainContract {
 		void deleteActiveRecord();
 
 		void onRecordInfo();
+
+		void disablePlaybackProgressListener();
+
+		void enablePlaybackProgressListener();
 	}
 }
