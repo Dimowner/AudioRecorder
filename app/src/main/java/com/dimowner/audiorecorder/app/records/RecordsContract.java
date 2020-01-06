@@ -62,6 +62,8 @@ public interface RecordsContract {
 
 		void showSortType(int type);
 
+		void showActiveRecord(int id);
+
 		void bookmarksSelected();
 		void bookmarksUnselected();
 

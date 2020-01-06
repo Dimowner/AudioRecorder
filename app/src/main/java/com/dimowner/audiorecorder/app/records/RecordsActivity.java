@@ -731,6 +731,14 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
+	public void showActiveRecord(int id) {
+		int pos = adapter.findPositionById(id);
+		if (pos >= 0) {
+			adapter.setActiveItem(pos);
+		}
+	}
+
+	@Override
 	public void bookmarksSelected() {
 		btnBookmarks.setImageResource(R.drawable.ic_bookmark);
 		txtTitle.setText(R.string.bookmarks);

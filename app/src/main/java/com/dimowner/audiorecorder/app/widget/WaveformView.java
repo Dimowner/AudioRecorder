@@ -48,6 +48,7 @@ public class WaveformView extends View {
 	private Paint gridPaint;
 	private Paint scrubberPaint;
 	private TextPaint textPaint;
+	private Path path = new Path();
 
 	private int[] waveformData;
 	private long playProgressPx;
@@ -55,6 +56,7 @@ public class WaveformView extends View {
 	private int[] waveForm;
 
 	private List<Integer> recordingData;
+	private long totalRecordingSize;
 	private boolean showRecording = false;
 
 	private boolean isInitialized;
@@ -103,9 +105,12 @@ public class WaveformView extends View {
 		setFocusable(false);
 
 		recordingData = new ArrayList<>();
+		totalRecordingSize = 0;
+		path = new Path();
 
 		waveformPaint = new Paint();
-		waveformPaint.setStyle(Paint.Style.FILL);
+		waveformPaint.setStyle(Paint.Style.STROKE);
+		waveformPaint.setStrokeWidth(AndroidUtils.dpToPx(1));
 		waveformPaint.setAntiAlias(true);
 		waveformPaint.setColor(context.getResources().getColor(R.color.dark_white));
 
@@ -250,7 +255,7 @@ public class WaveformView extends View {
 	}
 
 	public void showRecording() {
-		updateShifts((int) -AndroidUtils.dpToPx(recordingData.size()));
+		updateShifts((int) -AndroidUtils.dpToPx(totalRecordingSize));
 		pxPerSecond = (int) AndroidUtils.dpToPx(AppConstants.SHORT_RECORD_DP_PER_SECOND);
 		isShortWaveForm = true;
 		showRecording = true;
@@ -274,8 +279,12 @@ public class WaveformView extends View {
 		if (amp < 0) {
 			amp = 0;
 		}
-		updateShifts((int) -AndroidUtils.dpToPx(recordingData.size()));
+		totalRecordingSize++;
+		updateShifts((int) -AndroidUtils.dpToPx(totalRecordingSize));
 		recordingData.add(convertAmp(amp));
+		if (recordingData.size() > AndroidUtils.pxToDp(viewWidth/2)) {
+			recordingData.remove(0);
+		}
 		invalidate();
 	}
 
@@ -285,7 +294,8 @@ public class WaveformView extends View {
 			for (int i = 0; i < data.size(); i++) {
 				recordingData.add(convertAmp(data.get(i)));
 			}
-			updateShifts((int) -AndroidUtils.dpToPx(recordingData.size()));
+			totalRecordingSize = recordingData.size();
+			updateShifts((int) -AndroidUtils.dpToPx(totalRecordingSize));
 			invalidate();
 		}
 	}
@@ -299,6 +309,7 @@ public class WaveformView extends View {
 
 	public void clearRecordingData() {
 		recordingData = new ArrayList<>();
+		totalRecordingSize = 0;
 	}
 
 	@Override
@@ -358,9 +369,9 @@ public class WaveformView extends View {
 			drawGrid2(canvas);
 		}
 		if (showRecording) {
-			drawRecordingWaveform(canvas);
+			drawRecordingWaveform2(canvas);
 		} else {
-			drawWaveForm(canvas);
+			drawWaveForm2(canvas);
 
 			float density = AndroidUtils.dpToPx(1);
 
@@ -461,7 +472,7 @@ public class WaveformView extends View {
 				width = getMeasuredWidth();
 			}
 
-			Path path = new Path();
+			path.reset();
 
 			float xPos = waveformShift;
 			if (xPos < VIEW_DRAW_EDGE) { xPos = VIEW_DRAW_EDGE; }
@@ -488,10 +499,31 @@ public class WaveformView extends View {
 		}
 	}
 
+	private void drawWaveForm2(Canvas canvas) {
+		int width = waveformData.length;
+		int half = getMeasuredHeight() / 2;
+
+		if (width > getMeasuredWidth()) {
+			width = getMeasuredWidth();
+		}
+
+		float dpi = AndroidUtils.dpToPx(1);
+		float[] lines = new float[width*4];
+		int step = 0;
+		for (int i = 0; i < width; i++) {
+			lines[step] = waveformShift + i*dpi;
+			lines[step+1] = half + waveformData[i]+1;
+			lines[step+2] = waveformShift + i*dpi;
+			lines[step+3] = half - waveformData[i]-1;
+			step +=4;
+		}
+		canvas.drawLines(lines, 0, lines.length, waveformPaint);
+	}
+
 	private void drawRecordingWaveform(Canvas canvas) {
 		if (recordingData.size() > 0) {
 			int half = getMeasuredHeight() / 2;
-			Path path = new Path();
+			path.reset();
 			float xPos = waveformShift;
 			if (xPos < VIEW_DRAW_EDGE) { xPos = VIEW_DRAW_EDGE; }
 			path.moveTo(xPos, half);
@@ -518,6 +550,25 @@ public class WaveformView extends View {
 			path.lineTo(xPos, half);
 			path.close();
 			canvas.drawPath(path, waveformPaint);
+		}
+	}
+
+	private void drawRecordingWaveform2(Canvas canvas) {
+		if (recordingData.size() > 0) {
+			int width = recordingData.size();
+			int half = getMeasuredHeight() / 2;
+
+			float dpi = AndroidUtils.dpToPx(1);
+			float[] lines = new float[width * 4];
+			int step = 0;
+			for (int i = 0; i < width; i++) {
+				lines[step] = (float) viewWidth/2 - i * dpi;
+				lines[step + 1] = half + recordingData.get(recordingData.size()-1 - i) + 1;
+				lines[step + 2] = (float) viewWidth/2 - i * dpi;
+				lines[step + 3] = half - recordingData.get(recordingData.size()-1 - i) - 1;
+				step += 4;
+			}
+			canvas.drawLines(lines, 0, lines.length, waveformPaint);
 		}
 	}
 

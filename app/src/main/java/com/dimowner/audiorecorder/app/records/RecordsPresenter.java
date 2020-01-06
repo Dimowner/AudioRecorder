@@ -434,6 +434,9 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 									} else {
 										view.bookmarksUnselected();
 									}
+									if (audioPlayer.isPlaying() || audioPlayer.isPause()) {
+										view.showActiveRecord(rec.getId());
+									}
 								}
 								view.hideProgress();
 								view.hidePanelProgress();
