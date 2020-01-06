@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.app.widget;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -26,6 +27,7 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.R;
@@ -41,6 +43,7 @@ public class WaveformView extends View {
 	private static final float SMALL_LINE_HEIGHT = AndroidUtils.dpToPx(12);
 	private static final float PADD = AndroidUtils.dpToPx(6);
 	private static final int VIEW_DRAW_EDGE = 0;
+	private static final int ANIMATION_DURATION = 330; //mills.
 
 	private float pxPerSecond = DEFAULT_PIXEL_PER_SECOND;
 
@@ -51,7 +54,7 @@ public class WaveformView extends View {
 	private Path path = new Path();
 
 	private int[] waveformData;
-	private long playProgressPx;
+	private int playProgressPx;
 
 	private int[] waveForm;
 
@@ -198,13 +201,28 @@ public class WaveformView extends View {
 		});
 	}
 
-	public void setPlayback(long px) {
+	public void setPlayback(int px) {
 		if (readPlayProgress) {
 			playProgressPx = px;
-			updateShifts((int)-playProgressPx);
+			updateShifts(-playProgressPx);
 			prevScreenShift = screenShift;
 			invalidate();
 		}
+	}
+
+	public void moveToStart() {
+		final ValueAnimator moveAnimator;
+		moveAnimator = ValueAnimator.ofInt(playProgressPx, 0);
+		moveAnimator.setInterpolator(new DecelerateInterpolator());
+		moveAnimator.setDuration(ANIMATION_DURATION);
+		moveAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+			@Override
+			public void onAnimationUpdate(ValueAnimator animation) {
+				int moveVal = (int)animation.getAnimatedValue();
+				setPlayback(moveVal);
+			}
+		});
+		moveAnimator.start();
 	}
 
 	/**
@@ -213,7 +231,7 @@ public class WaveformView extends View {
 	 */
 	public void rewindMills(long mills) {
 		playProgressPx += AndroidUtils.convertMillsToPx(mills, pxPerSecond);
-		updateShifts((int)-playProgressPx);
+		updateShifts(-playProgressPx);
 		prevScreenShift = screenShift;
 		invalidate();
 		if (onSeekListener != null) {
@@ -227,7 +245,7 @@ public class WaveformView extends View {
 	 */
 	public void seekPx(int px) {
 		playProgressPx = px;
-		updateShifts((int)-playProgressPx);
+		updateShifts(-playProgressPx);
 		prevScreenShift = screenShift;
 		invalidate();
 		if (onSeekListener != null) {
@@ -333,7 +351,7 @@ public class WaveformView extends View {
 
 		this.viewWidth = width;
 
-		screenShift = (int)-playProgressPx;
+		screenShift = -playProgressPx;
 		waveformShift = screenShift + viewWidth/2;
 		prevScreenShift = screenShift;
 

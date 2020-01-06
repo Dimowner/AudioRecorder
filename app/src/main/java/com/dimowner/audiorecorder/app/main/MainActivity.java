@@ -233,6 +233,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		super.onStop();
 		if (presenter != null) {
 			presenter.unbindView();
+			waveformView.setPlayback(-1);
 		}
 	}
 
@@ -482,7 +483,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void showPlayStop() {
 		btnPlay.setImageResource(R.drawable.ic_play);
-		waveformView.setPlayback(-1);
+//		waveformView.setPlayback(-1);
+		waveformView.moveToStart();
 		btnRecord.setEnabled(true);
 		playProgress.setProgress(0);
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));

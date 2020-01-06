@@ -275,6 +275,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				view.showPlayPause();
 			}
 		} else {
+			audioPlayer.seek(0);
 			view.showPlayStop();
 		}
 
