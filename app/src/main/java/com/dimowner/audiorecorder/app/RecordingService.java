@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.RequiresApi;
@@ -115,8 +116,11 @@ public class RecordingService extends Service {
 						.setContentTitle(getApplicationContext().getString(R.string.app_name))
 						.setContentText(getApplicationContext().getString(R.string.error_no_available_space))
 						.setContentIntent(createContentIntent())
+						.setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 })
+						.setLights(Color.RED, 500, 500)
+						.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
 						.setAutoCancel(true)
-						.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+						.setPriority(NotificationCompat.PRIORITY_MAX);
 
 		NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
 		notificationManager.notify(303, builder.build());
