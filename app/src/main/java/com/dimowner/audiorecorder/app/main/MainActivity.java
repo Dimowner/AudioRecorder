@@ -483,7 +483,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void showPlayStop() {
 		btnPlay.setImageResource(R.drawable.ic_play);
-//		waveformView.setPlayback(-1);
 		waveformView.moveToStart();
 		btnRecord.setEnabled(true);
 		playProgress.setProgress(0);

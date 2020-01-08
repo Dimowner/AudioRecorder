@@ -438,6 +438,19 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 										view.showActiveRecord(rec.getId());
 									}
 								}
+
+								//Set player position is audio player is paused.
+								if (audioPlayer.isPause()) {
+									long duration = rec.getDuration() / 1000;
+									if (duration > 0) {
+										long playProgressMills = audioPlayer.getPauseTime();
+										view.onPlayProgress(playProgressMills, AndroidUtils.convertMillsToPx(playProgressMills,
+												AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * playProgressMills / duration));
+									}
+									view.showPlayerPanel();
+									view.showPlayPause();
+								}
+
 								view.hideProgress();
 								view.hidePanelProgress();
 								view.bookmarksUnselected();
@@ -487,17 +500,6 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 										view.bookmarksSelected();
 									} else {
 										view.bookmarksUnselected();
-									}
-									//Set player position is audio player is paused.
-									if (audioPlayer.isPause()) {
-										long duration = rec.getDuration() / 1000;
-										if (duration > 0) {
-											long playProgressMills = audioPlayer.getPauseTime();
-											view.onPlayProgress(playProgressMills, AndroidUtils.convertMillsToPx(playProgressMills,
-													AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * playProgressMills / duration));
-										}
-										view.showPlayerPanel();
-										view.showPlayPause();
 									}
 								}
 								view.hideProgress();

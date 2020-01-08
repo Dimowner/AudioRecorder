@@ -598,7 +598,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	public void showPlayStop() {
-		waveformView.setPlayback(-1);
+		waveformView.moveToStart();
 		btnPlay.setImageResource(R.drawable.ic_play_64);
 		playProgress.setProgress(0);
 		adapter.setActiveItem(-1);
