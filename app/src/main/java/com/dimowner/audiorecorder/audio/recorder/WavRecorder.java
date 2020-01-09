@@ -253,9 +253,9 @@ public class WavRecorder implements RecorderContract.Recorder {
 	}
 
 	private void setWaveFileHeader(File file, int channels) {
-		long fileSize = file.length();
+		long fileSize = file.length() - 8;
 		long totalSize = fileSize + 36;
-		long byteRate = sampleRate * channels * 2; //2 byte per 1 sample for 1 channel.
+		long byteRate = sampleRate * channels * (RECORDER_BPP/8); //2 byte per 1 sample for 1 channel.
 
 		try {
 			final RandomAccessFile wavFile = randomAccessFile(file);
@@ -301,7 +301,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 		header[13] = 'm';
 		header[14] = 't';
 		header[15] = ' ';
-		header[16] = 16; // 4 bytes: size of 'fmt ' chunk
+		header[16] = 16; //16 for PCM. 4 bytes: size of 'fmt ' chunk
 		header[17] = 0;
 		header[18] = 0;
 		header[19] = 0;
@@ -317,7 +317,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 		header[29] = (byte) ((byteRate >> 8) & 0xff);
 		header[30] = (byte) ((byteRate >> 16) & 0xff);
 		header[31] = (byte) ((byteRate >> 24) & 0xff);
-		header[32] = (byte) (2 * 16 / 8); // block align
+		header[32] = (byte) (channels * (RECORDER_BPP/8)); // block align
 		header[33] = 0;
 		header[34] = RECORDER_BPP; // bits per sample
 		header[35] = 0;
