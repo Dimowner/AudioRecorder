@@ -74,7 +74,7 @@
 
 	<style name="AppTheme.Black" parent="AppTheme">
 		<item name="android:colorPrimaryDark">@color/md_black_1000</item>
-		<item name="android:windowBackground">@drawable/gradient_black</item>
+		<item name="android:windowBackground">@color/md_black_1000</item>
 		<item name="android:navigationBarColor">@color/md_black_1000</item>
 	</style>
 

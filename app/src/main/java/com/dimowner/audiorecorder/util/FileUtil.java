@@ -382,6 +382,21 @@ public class FileUtil {
 		return true;
 	}
 
+	public static boolean renameFile(File file, File renamed) {
+		if (!file.exists()) {
+			return false;
+		}
+		Timber.v("old File: " + file.getAbsolutePath());
+		Timber.v("new File: " + renamed.getAbsolutePath());
+
+		if (!file.renameTo(renamed)) {
+			if (!file.renameTo(renamed)) {
+				return (file.renameTo(renamed));
+			}
+		}
+		return true;
+	}
+
 	public static String removeUnallowedSignsFromName(String name) {
 //		String str = name.replaceAll("[^a-zA-Z0-9\\.\\-\\_]", "_");
 //		return str.trim();

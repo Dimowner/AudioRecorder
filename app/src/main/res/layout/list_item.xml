@@ -33,7 +33,7 @@
 			android:layout_marginEnd="@dimen/spacing_double"
 			android:layout_marginBottom="@dimen/spacing_tiny"
 			android:layout_marginTop="@dimen/spacing_tiny"
-			android:layout_gravity="start"/>
+			android:layout_gravity="start|center_vertical"/>
 
 	<ImageView
 			android:layout_width="64dp"

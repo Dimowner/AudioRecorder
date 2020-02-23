@@ -105,6 +105,24 @@ public class FileRepositoryImpl implements FileRepository {
 	}
 
 	@Override
+	public String markAsTrashRecord(String path) {
+		String trashLocation = FileUtil.addExtension(path, AppConstants.TRASH_MARK_EXTENSION);
+		if (FileUtil.renameFile(new File(path), new File(trashLocation))) {
+			return trashLocation;
+		}
+		return null;
+	}
+
+	@Override
+	public String unmarkTrashRecord(String path) {
+		String restoredFile = FileUtil.removeFileExtension(path);
+		if (FileUtil.renameFile(new File(path), new File(restoredFile))) {
+			return restoredFile;
+		}
+		return null;
+	}
+
+	@Override
 	public boolean deleteAllRecords() {
 		return FileUtil.deleteFile(recordDirectory);
 	}

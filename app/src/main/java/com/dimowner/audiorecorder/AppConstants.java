@@ -32,6 +32,7 @@ public class AppConstants {
 	public static final String EXTENSION_SEPARATOR = ".";
 	public static final String BASE_RECORD_NAME = "Record-";
 	public static final String BASE_RECORD_NAME_SHORT = "Rec-";
+	public static final String TRASH_MARK_EXTENSION = "del";
 	public static final int MAX_RECORD_NAME_LENGTH = 50;
 
 	public static final int NAMING_COUNTED = 0;

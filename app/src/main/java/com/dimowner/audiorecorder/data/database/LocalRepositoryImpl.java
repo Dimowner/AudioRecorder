@@ -21,6 +21,7 @@ import android.database.SQLException;
 
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.audio.SoundFile;
+import com.dimowner.audiorecorder.data.FileRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,20 +55,23 @@ public class LocalRepositoryImpl implements LocalRepository {
 
 	private TrashDataSource trashDataSource;
 
+	private FileRepository fileRepository;
+
 	private volatile static LocalRepositoryImpl instance;
 
 	private OnRecordsLostListener onLostRecordsListener;
 
-	private LocalRepositoryImpl(RecordsDataSource dataSource, TrashDataSource trashDataSource) {
+	private LocalRepositoryImpl(RecordsDataSource dataSource, TrashDataSource trashDataSource, FileRepository fileRepository) {
 		this.dataSource = dataSource;
 		this.trashDataSource = trashDataSource;
+		this.fileRepository = fileRepository;
 	}
 
-	public static LocalRepositoryImpl getInstance(RecordsDataSource source, TrashDataSource trashSource) {
+	public static LocalRepositoryImpl getInstance(RecordsDataSource source, TrashDataSource trashSource, FileRepository fileRepository) {
 		if (instance == null) {
 			synchronized (LocalRepositoryImpl.class) {
 				if (instance == null) {
-					instance = new LocalRepositoryImpl(source, trashSource);
+					instance = new LocalRepositoryImpl(source, trashSource, fileRepository);
 					instance.removeOutdatedTrashRecords();
 				}
 			}
@@ -291,6 +295,8 @@ public class LocalRepositoryImpl implements LocalRepository {
 		}
 		Record recordToDelete = dataSource.getItem(id);
 		if (recordToDelete != null) {
+			String renamed = fileRepository.markAsTrashRecord(recordToDelete.getPath());
+			recordToDelete.setPath(renamed);
 			trashDataSource.insertItem(recordToDelete);
 		}
 		dataSource.deleteItem(id);
@@ -374,7 +380,11 @@ public class LocalRepositoryImpl implements LocalRepository {
 		if (!trashDataSource.isOpen()) {
 			trashDataSource.open();
 		}
-		insertRecord(trashDataSource.getItem(id));
+
+		Record recordToRestore = trashDataSource.getItem(id);
+		String renamed = fileRepository.unmarkTrashRecord(recordToRestore.getPath());
+		recordToRestore.setPath(renamed);
+		insertRecord(recordToRestore);
 		trashDataSource.deleteItem(id);
 	}
 

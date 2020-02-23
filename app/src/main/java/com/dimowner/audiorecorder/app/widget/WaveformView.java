@@ -113,7 +113,7 @@ public class WaveformView extends View {
 
 		waveformPaint = new Paint();
 		waveformPaint.setStyle(Paint.Style.STROKE);
-		waveformPaint.setStrokeWidth(AndroidUtils.dpToPx(1));
+		waveformPaint.setStrokeWidth(AndroidUtils.dpToPx(1.2f));
 		waveformPaint.setAntiAlias(true);
 		waveformPaint.setColor(context.getResources().getColor(R.color.dark_white));
 

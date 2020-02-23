@@ -81,7 +81,7 @@ public class Injector {
 	}
 
 	public LocalRepository provideLocalRepository() {
-		return LocalRepositoryImpl.getInstance(provideRecordsDataSource(), provideTrashDataSource());
+		return LocalRepositoryImpl.getInstance(provideRecordsDataSource(), provideTrashDataSource(), provideFileRepository());
 	}
 
 	public AppRecorder provideAppRecorder() {

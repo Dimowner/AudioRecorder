@@ -34,6 +34,10 @@ public interface FileRepository {
 
 	boolean deleteRecordFile(String path);
 
+	String markAsTrashRecord(String path);
+
+	String unmarkTrashRecord(String path);
+
 	boolean deleteAllRecords();
 
 	boolean renameFile(String path, String newName, String extension);

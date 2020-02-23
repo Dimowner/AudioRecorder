@@ -16,7 +16,7 @@
 	<string name="records_was_removed">Some records files was not found in records directory. Possibly they was removed or moved.</string>
 	<string name="warning">Warning!</string>
 	<string name="delete_this_record">Delete this record?</string>
-	<string name="delete_record">Delete record %s?</string>
+	<string name="delete_record">Move to trash %s?</string>
 	<string name="delete_record_forever">Delete record %s forever?</string>
 	<string name="restore_record">Restore record %s?</string>
 	<string name="delete_all_records">Delete all records?</string>
@@ -69,7 +69,7 @@
 	<string name="public_dir_warning">Records will be stored in the common directory on your device which is visible for other apps</string>
 	<string name="lost_records">Lost records</string>
 	<string name="trash">Trash</string>
-	<string name="trash_info">The records moved to trash will be removed forever in 60 days.</string>
+	<string name="trash_info">The records moved to trash will be automatically removed forever in 60 days.</string>
 
 	<string name="app_settings">App settings:</string>
 	<string name="recording_settings">Recording settings:</string>

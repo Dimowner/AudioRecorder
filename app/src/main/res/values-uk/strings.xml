@@ -16,7 +16,7 @@
 	<string name="records_was_removed">Деякі записи не були знайдені в папці з записами. Можливо вони були видалені або переміщені.</string>
 	<string name="warning">Увага!</string>
 	<string name="delete_this_record">Видалити цей запис?</string>
-	<string name="delete_record">Видалити запис %s?</string>
+	<string name="delete_record">Перемістити в кошик %s?</string>
 	<string name="delete_record_forever">Видалити запис %s назавжди?</string>
 	<string name="restore_record">Відновити запис %s?</string>
 	<string name="delete_all_records">Видалити всі записи?</string>
@@ -69,7 +69,7 @@
 	<string name="public_dir_warning">Записи будуть зберігатись в звичайній директорії пристрою, видимій іншим додаткам.</string>
 	<string name="lost_records">Втрачені записи</string>
 	<string name="trash">Кошик</string>
-	<string name="trash_info">Запис переміщена в кошик і буде видалена назавжди через 60 днів.</string>
+	<string name="trash_info">Запис переміщений в кошик автоматично буде видалений назавжди через 60 днів.</string>
 
 	<string name="app_settings">Налаштування додатка:</string>
 	<string name="recording_settings">Налаштування запису:</string>
