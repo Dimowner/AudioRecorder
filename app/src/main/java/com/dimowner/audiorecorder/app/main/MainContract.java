@@ -78,7 +78,7 @@ public interface MainContract {
 
 		void setAudioRecorder(RecorderContract.Recorder recorder);
 
-		void startRecording();
+		void startRecording(Context context);
 		void stopRecording(boolean deleteRecord);
 
 		void startPlayback();

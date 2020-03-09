@@ -198,10 +198,41 @@ public class FileUtil {
 				return 0;
 		}
 		StatFs fsi = new StatFs(f.getPath());
-		if (Build.VERSION.SDK_INT >= 18)
+		if (Build.VERSION.SDK_INT >= 18) {
 			return fsi.getBlockSizeLong() * fsi.getAvailableBlocksLong();
-		else
+		} else {
 			return fsi.getBlockSize() * (long) fsi.getAvailableBlocks();
+		}
+	}
+
+	public static long getAvailableInternalMemorySize(Context context) {
+		//TODO: fix nullable file
+		File file = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
+		StatFs fsi = new StatFs(file.getAbsolutePath());
+		if (Build.VERSION.SDK_INT >= 18) {
+			return fsi.getBlockSizeLong() * fsi.getAvailableBlocksLong();
+		} else {
+			return fsi.getBlockSize() * (long) fsi.getAvailableBlocks();
+		}
+	}
+
+	public static long getAvailableExternalMemorySize() {
+		if (externalMemoryAvailable()) {
+			File path = Environment.getExternalStorageDirectory();
+			StatFs fsi = new StatFs(path.getPath());
+			if (Build.VERSION.SDK_INT >= 18) {
+				return fsi.getBlockSizeLong() * fsi.getAvailableBlocksLong();
+			} else {
+				return fsi.getBlockSize() * (long) fsi.getAvailableBlocks();
+			}
+		} else {
+			return 0;
+		}
+	}
+
+	public static boolean externalMemoryAvailable() {
+		return android.os.Environment.getExternalStorageState().equals(
+				android.os.Environment.MEDIA_MOUNTED);
 	}
 
 	/**

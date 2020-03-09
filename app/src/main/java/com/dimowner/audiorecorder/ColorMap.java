@@ -88,7 +88,7 @@ public class ColorMap {
 				break;
 			case THEME_BLUE:
 				primaryColorRes = R.color.md_blue_700;
-				appThemeResource = R.style.AppTheme;
+				appThemeResource = R.style.AppTheme_Blue;
 				playbackPanelBackground = R.drawable.panel_amber;
 				break;
 			case THEME_GRAY:

@@ -127,7 +127,13 @@ public class RecordingService extends Service {
 	}
 
 	private boolean hasAvailableSpace() {
-		final long space = FileUtil.getFree(fileRepository.getRecordingDir());
+		long space;
+		if (prefs.isStoreDirPublic()) {
+			space = FileUtil.getAvailableExternalMemorySize();
+		} else {
+			space = FileUtil.getAvailableInternalMemorySize(getApplicationContext());
+		}
+
 		final long time = spaceToTimeSecs(space, prefs.getFormat(), prefs.getSampleRate(), prefs.getRecordChannelCount());
 		return time > AppConstants.MIN_REMAIN_RECORDING_TIME;
 	}

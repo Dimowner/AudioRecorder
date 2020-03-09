@@ -297,8 +297,14 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		}
 	}
 
-	private boolean hasAvailableSpace() {
-		final long space = FileUtil.getFree(fileRepository.getRecordingDir());
+	private boolean hasAvailableSpace(Context context) {
+		long space;
+		if (prefs.isStoreDirPublic()) {
+			space = FileUtil.getAvailableExternalMemorySize();
+		} else {
+			space = FileUtil.getAvailableInternalMemorySize(context);
+		}
+
 		final long time = spaceToTimeSecs(space, prefs.getFormat(), prefs.getSampleRate(), prefs.getRecordChannelCount());
 		return time > AppConstants.MIN_REMAIN_RECORDING_TIME;
 	}
@@ -339,8 +345,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void startRecording() {
-		if (hasAvailableSpace()) {
+	public void startRecording(Context context) {
+		if (hasAvailableSpace(context)) {
 
 			if (audioPlayer.isPlaying()) {
 				audioPlayer.stop();
