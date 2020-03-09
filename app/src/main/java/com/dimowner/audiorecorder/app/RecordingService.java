@@ -89,7 +89,8 @@ public class RecordingService extends Service {
 
 			@Override
 			public void onRecordingProgress(long mills, int amp) {
-				if (!hasAvailableSpace()) {
+				if (mills % (5 * AppConstants.VISUALIZATION_INTERVAL * AppConstants.SHORT_RECORD_DP_PER_SECOND) == 0
+						&& !hasAvailableSpace()) {
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override
 						public void run() {
