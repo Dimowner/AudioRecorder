@@ -260,7 +260,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				if (checkRecordPermission2()) {
 					if (checkStoragePermission2()) {
 						//Start or stop recording
-						presenter.startRecording();
+						presenter.startRecording(getApplicationContext());
 					}
 				}
 				break;
@@ -830,17 +830,17 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 					&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 					&& grantResults[1] == PackageManager.PERMISSION_GRANTED
 					&& grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-			presenter.startRecording();
+			presenter.startRecording(getApplicationContext());
 		} else if (requestCode == REQ_CODE_RECORD_AUDIO && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 			if (checkStoragePermission2()) {
-				presenter.startRecording();
+				presenter.startRecording(getApplicationContext());
 			}
 		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 			if (checkRecordPermission2()) {
-				presenter.startRecording();
+				presenter.startRecording(getApplicationContext());
 			}
 		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE_IMPORT && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
@@ -854,7 +854,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				&& (grantResults[0] == PackageManager.PERMISSION_DENIED
 				|| grantResults[1] == PackageManager.PERMISSION_DENIED)) {
 			presenter.setStoragePrivate(getApplicationContext());
-			presenter.startRecording();
+			presenter.startRecording(getApplicationContext());
 		}
 	}
 }

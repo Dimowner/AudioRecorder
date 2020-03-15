@@ -101,6 +101,7 @@
 	<string name="error_process_waveform">Не удалось отобразить аудиофайл</string>
 	<string name="error_lost_records">Некоторые ваши записи были удалены или перемещены</string>
 	<string name="error_no_available_space">Нет доступной памяти!</string>
+	<string name="error_on_recording">Ошибка при записи</string>
 
 	<!-- Shown in the 'About' window of the app. -->
 	<string name="about_body"><![CDATA[

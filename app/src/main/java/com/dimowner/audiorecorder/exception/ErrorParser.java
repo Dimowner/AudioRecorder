@@ -35,6 +35,10 @@ public class ErrorParser {
 			return R.string.error_failed_to_init_player;
 		} else if (e.getType() == AppException.CANT_PROCESS_RECORD) {
 			return R.string.error_process_waveform;
+		} else if (e.getType() == AppException.NO_SPACE_AVAILABLE) {
+			return R.string.error_no_available_space;
+		} else if (e.getType() == AppException.RECORDING_ERROR) {
+			return R.string.error_on_recording;
 		} else if (e.getType() == AppException.READ_PERMISSION_DENIED) {
 			return R.string.error_permission_denied;
 		}

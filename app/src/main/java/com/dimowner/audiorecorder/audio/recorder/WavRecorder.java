@@ -24,6 +24,8 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.exception.InvalidOutputFile;
 import com.dimowner.audiorecorder.exception.RecorderInitException;
+import com.dimowner.audiorecorder.exception.RecordingException;
+import com.dimowner.audiorecorder.util.AndroidUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -238,6 +240,12 @@ public class WavRecorder implements RecorderContract.Recorder {
 							fos.write(data);
 						} catch (IOException e) {
 							Timber.e(e);
+							AndroidUtils.runOnUIThread(new Runnable() {
+								@Override public void run() {
+									recorderCallback.onError(new RecordingException());
+									stopRecording();
+								}
+							});
 						}
 					}
 				}
