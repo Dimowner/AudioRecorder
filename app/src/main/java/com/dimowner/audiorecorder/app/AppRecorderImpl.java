@@ -1,4 +1,22 @@
+/*
+ * Copyright 2020 Dmitriy Ponomarenko
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dimowner.audiorecorder.app;
+
+import android.media.MediaCodec;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
@@ -91,44 +109,56 @@ public class AppRecorderImpl implements AppRecorder {
 								long duration = AndroidUtils.readRecordDuration(output);
 								int[] waveForm = convertRecordingData(recordingData, (int) (duration / 1000000f));
 								id = localRepository.insertFile(output.getAbsolutePath(), duration, waveForm);
+								AndroidUtils.runOnUIThread(new Runnable() {
+									@Override
+									public void run() {
+										onRecordingStopped(id, output);
+										processingTasks.postRunnable(new Runnable() {
+											@Override
+											public void run() {
+												try {
+													localRepository.updateWaveform((int) id, new LocalRepository.OnFinishListener() {
+														@Override
+														public void onFinish(long id) {
+															AndroidUtils.runOnUIThread(new Runnable() {
+																@Override public void run() {
+																	onRecordFinishProcessing();
+																}
+															});
+														}
+													});
+												} catch (IOException | OutOfMemoryError | IllegalStateException e) {
+													AndroidUtils.runOnUIThread(new Runnable() {
+														@Override public void run() {
+															onError(new CantProcessRecord());
+														}
+													});
+													Timber.e(e);
+												}
+											}
+										});
+										recordingData.clear();
+									}
+								});
 							} else {
-								id = localRepository.insertFile(output.getAbsolutePath());
+								localRepository.insertFile(output.getAbsolutePath(), new LocalRepository.OnFinishListener() {
+									@Override
+									public void onFinish(final long id) {
+										AndroidUtils.runOnUIThread(new Runnable() {
+											@Override public void run() {
+												prefs.setActiveRecord(id);
+												onRecordFinishProcessing();
+												recordingData.clear();
+												onRecordingStopped(id, output);
+											}
+										});
+									}
+								});
 							}
 							prefs.setActiveRecord(id);
 						} catch (IOException | OutOfMemoryError | IllegalStateException e) {
 							Timber.e(e);
 						}
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
-								onRecordingStopped(id, output);
-								if ((float)recordingData.size()/(float)ARApplication.getLongWaveformSampleCount() > 1) {
-									processingTasks.postRunnable(new Runnable() {
-										@Override
-										public void run() {
-											try {
-												localRepository.updateWaveform((int) id);
-												AndroidUtils.runOnUIThread(new Runnable() {
-													@Override public void run() {
-														onRecordFinishProcessing();
-													}
-												});
-											} catch (IOException | OutOfMemoryError | IllegalStateException e) {
-												AndroidUtils.runOnUIThread(new Runnable() {
-													@Override public void run() {
-														onError(new CantProcessRecord());
-													}
-												});
-												Timber.e(e);
-											}
-										}
-									});
-								} else {
-									onRecordFinishProcessing();
-								}
-								recordingData.clear();
-							}
-						});
 					}
 				});
 			}

@@ -16,6 +16,8 @@
 
 package com.dimowner.audiorecorder.data.database;
 
+import android.media.MediaCodec;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -41,11 +43,11 @@ public interface LocalRepository {
 
 	boolean updateRecord(Record record);
 
-	long insertFile(String filePath) throws IOException;
+	long insertFile(String filePath, OnFinishListener listener) throws IOException, OutOfMemoryError, IllegalStateException;
 
 	long insertFile(String filePath, long duration, int[] waveform) throws IOException;
 
-	boolean updateWaveform(int id) throws IOException, OutOfMemoryError, IllegalStateException;
+	boolean updateWaveform(int id, OnFinishListener listener) throws IOException, OutOfMemoryError, IllegalStateException;
 
 	void deleteRecord(int id);
 
@@ -68,4 +70,8 @@ public interface LocalRepository {
 	void removeOutdatedTrashRecords();
 
 	void setOnRecordsLostListener(OnRecordsLostListener listener);
+
+	public interface OnFinishListener {
+		void onFinish(long id);
+	}
 }

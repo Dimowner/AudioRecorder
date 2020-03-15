@@ -415,7 +415,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		final String name = FileUtil.removeUnallowedSignsFromName(n);
 		loadingTasks.postRunnable(new Runnable() {
 			@Override public void run() {
-//				TODO: This code need to be refactored!
 				Record record = localRepository.getRecord((int)id);
 				if (record != null) {
 					String nameWithExt;
@@ -536,13 +535,17 @@ public class MainPresenter implements MainContract.UserActionsListener {
 										}
 									});
 									isProcessing = true;
-									localRepository.updateWaveform(rec.getId());
-									AndroidUtils.runOnUIThread(new Runnable() {
+									localRepository.updateWaveform(rec.getId(), new LocalRepository.OnFinishListener() {
 										@Override
-										public void run() {
-											if (view != null) {
-												view.hideRecordProcessing();
-											}
+										public void onFinish(long id) {
+											AndroidUtils.runOnUIThread(new Runnable() {
+												@Override
+												public void run() {
+													if (view != null) {
+														view.hideRecordProcessing();
+													}
+												}
+											});
 										}
 									});
 								}
@@ -714,15 +717,19 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						long duration = AndroidUtils.readRecordDuration(newFile);
 						if (duration/1000000 < AppConstants.LONG_RECORD_THRESHOLD_SECONDS) {
 							//Do simple import for short records.
-							id = localRepository.insertFile(newFile.getAbsolutePath());
-							prefs.setActiveRecord(id);
-							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override public void run() {
-									if (view != null) {
-										view.hideImportProgress();
-										audioPlayer.stop();
-										loadActiveRecord();
-									}
+							localRepository.insertFile(newFile.getAbsolutePath(), new LocalRepository.OnFinishListener() {
+								@Override
+								public void onFinish(long id) {
+									prefs.setActiveRecord(id);
+									AndroidUtils.runOnUIThread(new Runnable() {
+										@Override public void run() {
+											if (view != null) {
+												view.hideImportProgress();
+												audioPlayer.stop();
+												loadActiveRecord();
+											}
+										}
+									});
 								}
 							});
 						} else {
@@ -772,20 +779,24 @@ public class MainPresenter implements MainContract.UserActionsListener {
 										}
 									});
 									isProcessing = true;
-									localRepository.updateWaveform((int) id);
-									record = localRepository.getRecord((int) id);
-									final Record rec2 = record;
-									if (rec2 != null) {
-										AndroidUtils.runOnUIThread(new Runnable() {
-											@Override
-											public void run() {
-												if (view != null) {
-													view.showWaveForm(rec2.getAmps(), songDuration);
-													view.hideRecordProcessing();
-												}
+									localRepository.updateWaveform((int) id, new LocalRepository.OnFinishListener() {
+										@Override
+										public void onFinish(long id) {
+											record = localRepository.getRecord((int) id);
+											final Record rec2 = record;
+											if (rec2 != null) {
+												AndroidUtils.runOnUIThread(new Runnable() {
+													@Override
+													public void run() {
+														if (view != null) {
+															view.showWaveForm(rec2.getAmps(), songDuration);
+															view.hideRecordProcessing();
+														}
+													}
+												});
 											}
-										});
-									}
+										}
+									});
 								}
 							} catch (IOException | OutOfMemoryError | IllegalStateException e) {
 								Timber.e(e);

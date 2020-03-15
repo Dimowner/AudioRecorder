@@ -30,7 +30,6 @@ import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
@@ -70,6 +69,8 @@ import com.dimowner.audiorecorder.util.TimeUtils;
 import java.io.File;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
 // TODO: Fix WaveForm blinking when seek
@@ -77,13 +78,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: optimize waveform draws. replace path with draw lines
 // TODO: Enhance sort records
 // TODO: Welcome screen theme color, rec format and quality, location dir, name format (date or record)
-// TODO: Pause record -> move to main -> diplay record as paused.
 // TODO: Ability to search by record name in list
 // TODO: Display recording info on main activity.
 // TODO: Ability to scroll up from the bottom of the list
 // TODO: Guidelines
-// TODO: Add scroll animation to start when stop playback
 // TODO: Stop infinite loop when pause WAV recording
+// TODO: If trash empty display link to Trash as first records item in the list.
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -825,7 +825,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode,  @NonNull String[] permissions, @NonNull int[] grantResults) {
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		if (requestCode == REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL && grantResults.length > 0
 					&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 					&& grantResults[1] == PackageManager.PERMISSION_GRANTED

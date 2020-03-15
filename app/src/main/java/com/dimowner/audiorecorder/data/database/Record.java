@@ -16,9 +16,9 @@
 
 package com.dimowner.audiorecorder.data.database;
 
-import android.support.annotation.NonNull;
-
 import java.util.Arrays;
+
+import androidx.annotation.NonNull;
 
 public class Record {
 

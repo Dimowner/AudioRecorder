@@ -148,7 +148,7 @@ public class WaveformView extends View {
 
 			@Override
 			public boolean onDoubleTap(MotionEvent e) {
-				if (e.getX() > getWidth()/2) {
+				if (e.getX() > getWidth()/2f) {
 					rewindMills(10000);
 				} else {
 					rewindMills(-10000);
@@ -454,7 +454,7 @@ public class WaveformView extends View {
 		int pxPerMark = viewWidth/markCount;
 		float secPerMark = pxPerMark/pxPerSecond;
 
-		int gridShift = (int)(waveformShift%(pxPerMark*2));
+		int gridShift = (waveformShift%(pxPerMark*2));
 
 		for (float i = -2f; i < count; i+=2) {
 			//Draw seconds marks
