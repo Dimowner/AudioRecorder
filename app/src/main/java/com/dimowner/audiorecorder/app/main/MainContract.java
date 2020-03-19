@@ -18,8 +18,8 @@ package com.dimowner.audiorecorder.app.main;
 
 import android.content.Context;
 import android.net.Uri;
-
 import com.dimowner.audiorecorder.Contract;
+import com.dimowner.audiorecorder.IntArrayList;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.database.Record;
@@ -67,7 +67,7 @@ public interface MainContract {
 
 		void showRecordInfo(RecordInfo info);
 
-		void updateRecordingView(List<Integer> data);
+		void updateRecordingView(IntArrayList data);
 
 		void showRecordsLostMessage(List<Record> list);
 	}

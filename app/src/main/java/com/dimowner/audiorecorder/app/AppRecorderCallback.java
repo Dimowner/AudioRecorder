@@ -21,11 +21,9 @@ import com.dimowner.audiorecorder.exception.AppException;
 import java.io.File;
 
 public interface AppRecorderCallback {
-	void onRecordingStarted();
+	void onRecordingStarted(File file);
 	void onRecordingPaused();
-	void onRecordProcessing();
-	void onRecordFinishProcessing();
-	void onRecordingStopped(long id, File file);
+	void onRecordingStopped(File file);
 	void onRecordingProgress(long mills, int amp);
 	void onError(AppException throwable);
 }

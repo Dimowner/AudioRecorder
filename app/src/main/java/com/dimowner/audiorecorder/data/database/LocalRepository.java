@@ -47,7 +47,9 @@ public interface LocalRepository {
 
 	long insertFile(String filePath, long duration, int[] waveform) throws IOException;
 
-	boolean updateWaveform(int id, OnFinishListener listener) throws IOException, OutOfMemoryError, IllegalStateException;
+	Record insertEmptyFile(String filePath) throws IOException;
+
+	boolean updateWaveform(Record record, OnFinishListener listener) throws IOException, OutOfMemoryError, IllegalStateException;
 
 	void deleteRecord(int id);
 

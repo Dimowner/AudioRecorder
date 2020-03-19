@@ -104,7 +104,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 				recorder.resume();
 				startRecordingTimer();
 				if (recorderCallback != null) {
-					recorderCallback.onStartRecord();
+					recorderCallback.onStartRecord(recordFile);
 				}
 				isPaused = false;
 			} catch (IllegalStateException e) {
@@ -121,7 +121,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 					ARApplication.setRecording(true);
 					startRecordingTimer();
 					if (recorderCallback != null) {
-						recorderCallback.onStartRecord();
+						recorderCallback.onStartRecord(recordFile);
 					}
 				} catch (RuntimeException e) {
 					Timber.e(e, "startRecording() failed");

@@ -25,6 +25,7 @@ import android.provider.OpenableColumns;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
+import com.dimowner.audiorecorder.IntArrayList;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.AppRecorder;
 import com.dimowner.audiorecorder.app.AppRecorderCallback;
@@ -38,6 +39,7 @@ import com.dimowner.audiorecorder.data.database.OnRecordsLostListener;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.exception.CantCreateFileException;
+import com.dimowner.audiorecorder.exception.CantProcessRecord;
 import com.dimowner.audiorecorder.exception.ErrorParser;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
@@ -46,7 +48,6 @@ import com.dimowner.audiorecorder.util.TimeUtils;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 import timber.log.Timber;
@@ -60,6 +61,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private AppRecorderCallback appRecorderCallback;
 	private final BackgroundQueue loadingTasks;
 	private final BackgroundQueue recordingsTasks;
+	private final BackgroundQueue processingTasks;
 	private final BackgroundQueue importTasks;
 	private final FileRepository fileRepository;
 	private final LocalRepository localRepository;
@@ -70,6 +72,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private boolean isProcessing = false;
 	private boolean deleteRecord = false;
 	private boolean listenPlaybackProgress = true;
+	private IntArrayList recordingData;
 
 	/** Flag true defines that presenter called to show import progress when view was not bind.
 	 * And after view bind we need to show import progress.*/
@@ -81,15 +84,18 @@ public class MainPresenter implements MainContract.UserActionsListener {
 								AppRecorder appRecorder,
 								final BackgroundQueue recordingTasks,
 								final BackgroundQueue loadingTasks,
+								final BackgroundQueue processingTasks,
 								final BackgroundQueue importTasks) {
 		this.prefs = prefs;
 		this.fileRepository = fileRepository;
 		this.localRepository = localRepository;
 		this.loadingTasks = loadingTasks;
 		this.recordingsTasks = recordingTasks;
+		this.processingTasks = processingTasks;
 		this.importTasks = importTasks;
 		this.audioPlayer = audioPlayer;
 		this.appRecorder = appRecorder;
+		this.recordingData = new IntArrayList();
 	}
 
 	@Override
@@ -111,12 +117,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		} else if (appRecorder.isRecording()) {
 			view.showRecordingStart();
 			view.keepScreenOn(prefs.isKeepScreenOn());
-			view.updateRecordingView(appRecorder.getRecordingData());
+			view.updateRecordingView(recordingData);
 		} else {
 			view.showRecordingStop();
 			view.keepScreenOn(false);
 		}
-		if (appRecorder.isProcessing()) {
+		if (isProcessing) {
 			view.showRecordProcessing();
 		} else {
 			view.hideRecordProcessing();
@@ -125,11 +131,22 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		if (appRecorderCallback == null) {
 			appRecorderCallback = new AppRecorderCallback() {
 				@Override
-				public void onRecordingStarted() {
+				public void onRecordingStarted(final File file) {
 					if (view != null) {
 						view.showRecordingStart();
 						view.keepScreenOn(prefs.isKeepScreenOn());
 						view.startRecordingService();
+						recordingsTasks.postRunnable(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									record = localRepository.insertEmptyFile(file.getAbsolutePath());
+									prefs.setActiveRecord(record.getId());
+								} catch (IOException | OutOfMemoryError | IllegalStateException e) {
+									Timber.e(e);
+								}
+							}
+						});
 					}
 				}
 
@@ -142,41 +159,98 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				}
 
 				@Override
-				public void onRecordProcessing() {
+				public void onRecordingStopped(final File file) {
 					if (view != null) {
 						view.showProgress();
 						view.showRecordProcessing();
 					}
-				}
+					recordingsTasks.postRunnable(new Runnable() {
+						@Override
+						public void run() {
+							long duration = AndroidUtils.readRecordDuration(file);
+							int[] waveForm = convertRecordingData(recordingData, (int) (duration / 1000000f));
+							final Record update = new Record(
+									record.getId(),
+									record.getName(),
+									duration,
+									record.getCreated(),
+									record.getAdded(),
+									record.getRemoved(),
+									record.getPath(),
+									record.isBookmarked(),
+									record.isWaveformProcessed(),
+									waveForm);
+							if (localRepository.updateRecord(update)) {
+								recordingData.clear();
+								record = update;
+								final Record rec = localRepository.getRecord(update.getId());
+								songDuration = rec.getDuration();
+								dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
+								AndroidUtils.runOnUIThread(new Runnable() {
+									@Override
+									public void run() {
+										if (view != null) {
+											view.showWaveForm(rec.getAmps(), songDuration);
+											view.showName(FileUtil.removeFileExtension(rec.getName()));
+											view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
+											view.showOptionsMenu();
+											view.hideProgress();
+										}
+									}
+								});
 
-				@Override
-				public void onRecordFinishProcessing() {
-					if (view != null) {
-						view.hideRecordProcessing();
-						loadActiveRecord();
-					}
-				}
+								processingTasks.postRunnable(new Runnable() {
+									@Override
+									public void run() {
+										try {
+											localRepository.updateWaveform(rec, new LocalRepository.OnFinishListener() {
+												@Override
+												public void onFinish(long id) {
+													AndroidUtils.runOnUIThread(new Runnable() {
+														@Override public void run() {
+															if (view != null) {
+																view.hideRecordProcessing();
+																loadActiveRecord();
+															}
 
-				@Override
-				public void onRecordingStopped(long id, File file) {
+														}
+													});
+												}
+											});
+										} catch (IOException | OutOfMemoryError | IllegalStateException e) {
+											AndroidUtils.runOnUIThread(new Runnable() {
+												@Override public void run() {
+													onError(new CantProcessRecord());
+												}
+											});
+											Timber.e(e);
+										}
+									}
+								});
+							}
+						}
+					});
+
 					if (view != null) {
 						view.keepScreenOn(false);
 						view.stopRecordingService();
 						view.hideProgress();
 						view.showRecordingStop();
-						loadActiveRecord();
 
 						if (deleteRecord) {
+							//TODO: do not move record into trash
 							view.askDeleteRecord(FileUtil.removeFileExtension(file.getName()));
 							deleteRecord = false;
 						} else if (prefs.isAskToRenameAfterStopRecording()) {
-							view.askRecordingNewName(id, file);
+							//TODO: check id
+							view.askRecordingNewName(record.getId(), file);
 						}
 					}
 				}
 
 				@Override
 				public void onRecordingProgress(final long mills, final int amp) {
+					recordingData.add(amp);
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override
 						public void run() {
@@ -355,7 +429,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				appRecorder.resumeRecording();
 			} else if (!appRecorder.isRecording()) {
 				try {
-					appRecorder.startRecording(fileRepository.provideRecordFile().getAbsolutePath());
+					appRecorder.startRecording(
+							fileRepository.provideRecordFile().getAbsolutePath(),
+							prefs.getRecordChannelCount(),
+							prefs.getSampleRate(),
+							prefs.getBitrate()
+						);
 				} catch (CantCreateFileException e) {
 					if (view != null) {
 						view.showError(ErrorParser.parseException(e));
@@ -541,7 +620,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 										}
 									});
 									isProcessing = true;
-									localRepository.updateWaveform(rec.getId(), new LocalRepository.OnFinishListener() {
+									localRepository.updateWaveform(rec, new LocalRepository.OnFinishListener() {
 										@Override
 										public void onFinish(long id) {
 											AndroidUtils.runOnUIThread(new Runnable() {
@@ -740,18 +819,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							});
 						} else {
 							//Do 2 step import: 1) Import record with empty waveform. 2) Process and update waveform in background.
-							record = localRepository.insertRecord(
-									new Record(
-											Record.NO_ID,
-											newFile.getName(),
-											duration, //mills
-											newFile.lastModified(),
-											new Date().getTime(),
-											0,
-											newFile.getAbsolutePath(),
-											false,
-											true,
-											new int[ARApplication.getLongWaveformSampleCount()]));
+							record = localRepository.insertEmptyFile(newFile.getAbsolutePath());
 
 							final Record rec = record;
 							if (rec != null) {
@@ -785,7 +853,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 										}
 									});
 									isProcessing = true;
-									localRepository.updateWaveform((int) id, new LocalRepository.OnFinishListener() {
+									localRepository.updateWaveform(rec, new LocalRepository.OnFinishListener() {
 										@Override
 										public void onFinish(long id) {
 											record = localRepository.getRecord((int) id);
@@ -858,5 +926,35 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			cursor.close();
 		}
 		return null;
+	}
+
+	private int[] convertRecordingData(IntArrayList list, int durationSec) {
+		if (durationSec > AppConstants.LONG_RECORD_THRESHOLD_SECONDS) {
+			int sampleCount = ARApplication.getLongWaveformSampleCount();
+			int[] waveForm = new int[sampleCount];
+			int scale = (int)((float)list.size()/(float) sampleCount);
+			for (int i = 0; i < sampleCount; i++) {
+				int val = 0;
+				for (int j = 0; j < scale; j++) {
+					val += list.get(i*scale + j);
+				}
+				val = (int)((float)val/scale);
+				waveForm[i] = convertAmp(val);
+			}
+			return waveForm;
+		} else {
+			int[] waveForm = new int[list.size()];
+			for (int i = 0; i < list.size(); i++) {
+				waveForm[i] = convertAmp(list.get(i));
+			}
+			return waveForm;
+		}
+	}
+
+	/**
+	 * Convert dB amp value to view amp.
+	 */
+	private int convertAmp(double amp) {
+		return (int)(255*(amp/32767f));
 	}
 }

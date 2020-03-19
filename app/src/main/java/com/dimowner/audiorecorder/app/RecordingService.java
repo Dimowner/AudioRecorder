@@ -94,15 +94,13 @@ public class RecordingService extends Service {
 		fileRepository = ARApplication.getInjector().provideFileRepository();
 
 		appRecorderCallback = new AppRecorderCallback() {
-			@Override public void onRecordingStarted() {
+			@Override public void onRecordingStarted(File file) {
 				updateNotificationResume();
 			}
 			@Override public void onRecordingPaused() {
 				updateNotificationPause();
 			}
-			@Override public void onRecordProcessing() { }
-			@Override public void onRecordFinishProcessing() { }
-			@Override public void onRecordingStopped(long id, File file) { }
+			@Override public void onRecordingStopped(File file) { }
 
 			@Override
 			public void onRecordingProgress(long mills, int amp) {

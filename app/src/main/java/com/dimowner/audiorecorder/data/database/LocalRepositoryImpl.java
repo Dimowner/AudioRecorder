@@ -20,6 +20,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.media.MediaCodec;
 
+import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.audio.AudioDecoder;
 import com.dimowner.audiorecorder.data.FileRepository;
@@ -195,9 +196,36 @@ public class LocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
-	public boolean updateWaveform(int id, final OnFinishListener listener)
+	public Record insertEmptyFile(String path) throws IOException {
+		if (path != null && !path.isEmpty()) {
+			File file = new File(path);
+			Record record = new Record(
+					Record.NO_ID,
+					file.getName(),
+					0, //mills
+					file.lastModified(),
+					new Date().getTime(),
+					0,
+					path,
+					false,
+					false,
+					new int[ARApplication.getLongWaveformSampleCount()]);
+			Record r = insertRecord(record);
+			if (r != null) {
+				return r;
+			} else {
+				Timber.e("Failed to insert record into local database!");
+			}
+		} else {
+			Timber.e("Unable to read sound file by specified path!");
+			throw new IOException("Unable to read sound file by specified path!");
+		}
+		return null;
+	}
+
+	@Override
+	public boolean updateWaveform(final Record record, final OnFinishListener listener)
 			throws IOException, OutOfMemoryError, IllegalStateException, MediaCodec.CodecException {
-		final Record record = getRecord(id);
 		if (record != null) {
 			final String path = record.getPath();
 			if (path != null && !path.isEmpty()) {

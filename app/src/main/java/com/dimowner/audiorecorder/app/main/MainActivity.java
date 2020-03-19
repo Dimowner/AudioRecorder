@@ -52,6 +52,7 @@ import android.widget.Toast;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
+import com.dimowner.audiorecorder.IntArrayList;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.RecordingService;
@@ -549,7 +550,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void updateRecordingView(List<Integer> data) {
+	public void updateRecordingView(IntArrayList data) {
 		waveformView.setRecordingData(data);
 	}
 

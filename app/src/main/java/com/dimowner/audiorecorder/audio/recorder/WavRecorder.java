@@ -140,7 +140,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 				startRecordingTimer();
 				recorder.startRecording();
 				if (recorderCallback != null) {
-					recorderCallback.onStartRecord();
+					recorderCallback.onStartRecord(recordFile);
 				}
 				isPaused = false;
 			} else {
@@ -157,7 +157,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 					recordingThread.start();
 					startRecordingTimer();
 					if (recorderCallback != null) {
-						recorderCallback.onStartRecord();
+						recorderCallback.onStartRecord(recordFile);
 					}
 					ARApplication.setRecording(true);
 				} catch (IllegalStateException e) {

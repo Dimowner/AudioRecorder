@@ -30,11 +30,13 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 
 import com.dimowner.audiorecorder.AppConstants;
+import com.dimowner.audiorecorder.IntArrayList;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class WaveformView extends View {
@@ -107,7 +109,7 @@ public class WaveformView extends View {
 
 		setFocusable(false);
 
-		recordingData = new ArrayList<>();
+		recordingData = new LinkedList<>();
 		totalRecordingSize = 0;
 		path = new Path();
 
@@ -278,6 +280,7 @@ public class WaveformView extends View {
 		isShortWaveForm = true;
 		showRecording = true;
 		invalidate();
+		setWaveform(new int[] {});
 	}
 
 	public void hideRecording() {
@@ -306,7 +309,7 @@ public class WaveformView extends View {
 		invalidate();
 	}
 
-	public void setRecordingData(List<Integer> data) {
+	public void setRecordingData(IntArrayList data) {
 		if (data != null) {
 			recordingData.clear();
 			for (int i = 0; i < data.size(); i++) {
