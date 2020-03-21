@@ -34,6 +34,14 @@ public class IntArrayList {
 		return data[index];
 	}
 
+	public int[] getData() {
+		int [] arr = new int[size];
+		for (int i = 0; i < size; i++) {
+			arr[i] = data[i];
+		}
+		return arr;
+	}
+
 	public void clear() {
 		data = new int[100];
 		size = 0;

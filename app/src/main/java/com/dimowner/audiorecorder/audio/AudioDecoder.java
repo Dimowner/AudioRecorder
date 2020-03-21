@@ -22,16 +22,14 @@ import android.media.MediaFormat;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
+import com.dimowner.audiorecorder.IntArrayList;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import androidx.annotation.NonNull;
 import timber.log.Timber;
@@ -41,6 +39,8 @@ import timber.log.Timber;
  * @author Dimowner
  */
 public class AudioDecoder {
+	private static final int QUEUE_INPUT_BUFFER_EFFECTIVE = 1; // Most effective and fastest
+	private static final int QUEUE_INPUT_BUFFER_SIMPLE = 2;	// Less effective and slower
 
 	private float dpPerSec = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 
@@ -52,42 +52,45 @@ public class AudioDecoder {
 	private long duration;
 	private static final String[] SUPPORTED_EXT = new String[]{"mp3", "wav", "3gpp", "3gp", "amr", "aac", "m4a", "mp4", "ogg"};
 
-	private List<Integer> gains;
+	private IntArrayList gains;
 
 	public interface DecodeListener {
 		void onStartDecode(long duration, int channelsCount, int sampleRate);
-		void onFinishDecode(List<Integer> data, long duration);
-		void onError(MediaCodec.CodecException exception);
+		void onFinishDecode(int[] data, long duration);
+		void onError(Exception exception);
 	}
 
 	private AudioDecoder() {
 	}
 
-	public static void decode(String fileName, DecodeListener decodeListener)
-			throws IOException, OutOfMemoryError, IllegalStateException, FileNotFoundException {
-		// First check that the file exists and that its extension is supported.
-		File file = new File(fileName);
-		if (!file.exists()) {
-			throw new java.io.FileNotFoundException(fileName);
+	public static void decode(@NonNull String fileName, @NonNull DecodeListener decodeListener) {
+		try {
+			File file = new File(fileName);
+			if (!file.exists()) {
+				throw new java.io.FileNotFoundException(fileName);
+			}
+			String name = file.getName().toLowerCase();
+			String[] components = name.split("\\.");
+			if (components.length < 2) {
+				throw new IOException();
+			}
+			if (!Arrays.asList(SUPPORTED_EXT).contains(components[components.length - 1])) {
+				throw new IOException();
+			}
+			AudioDecoder decoder = new AudioDecoder();
+			decoder.decodeFile(file, decodeListener, QUEUE_INPUT_BUFFER_EFFECTIVE);
+		} catch (Exception e) {
+			decodeListener.onError(e);
 		}
-		String name = file.getName().toLowerCase();
-		String[] components = name.split("\\.");
-		if (components.length < 2) {
-			throw new IOException();
-		}
-		if (!Arrays.asList(SUPPORTED_EXT).contains(components[components.length - 1])) {
-			throw new IOException();
-		}
-		AudioDecoder decoder = new AudioDecoder();
-		decoder.decodeFile(file, decodeListener);
 	}
 
 	private int calculateSamplesPerFrame() {
 		return (int)(sampleRate / dpPerSec);
 	}
 
-	private void decodeFile(@NonNull final File mInputFile, @NonNull final DecodeListener decodeListener) throws IOException, OutOfMemoryError, IllegalStateException {
-		gains = new ArrayList<>();
+	private void decodeFile(@NonNull final File mInputFile, @NonNull final DecodeListener decodeListener, final int queueType)
+			throws IOException, OutOfMemoryError, IllegalStateException {
+		gains = new IntArrayList();
 		final MediaExtractor extractor = new MediaExtractor();
 		MediaFormat format = null;
 		int i;
@@ -127,7 +130,16 @@ public class AudioDecoder {
 			@Override
 			public void onError(@NonNull MediaCodec codec, @NonNull MediaCodec.CodecException exception) {
 				Timber.e(exception);
-				decodeListener.onError(exception);
+				if (queueType == QUEUE_INPUT_BUFFER_EFFECTIVE) {
+					try {
+						AudioDecoder decoder = new AudioDecoder();
+						decoder.decodeFile(mInputFile, decodeListener, QUEUE_INPUT_BUFFER_SIMPLE);
+					} catch (IllegalStateException | IOException | OutOfMemoryError e) {
+						decodeListener.onError(exception);
+					}
+				} else {
+					decodeListener.onError(exception);
+				}
 			}
 
 			@Override
@@ -137,19 +149,42 @@ public class AudioDecoder {
 			@Override
 			public void onInputBufferAvailable(@NonNull MediaCodec codec, int index) {
 				if (mOutputEOS) return;
-
-				ByteBuffer inputBuffer;
-				inputBuffer = codec.getInputBuffer(index);
-				if (inputBuffer == null) return;
-				long sampleTime;
-				int result;
-				result = extractor.readSampleData(inputBuffer, 0);
-				if (result >= 0) {
-					sampleTime = extractor.getSampleTime();
-					codec.queueInputBuffer(index, 0, result, sampleTime, 0);
-					extractor.advance();
-				} else  {
-					codec.queueInputBuffer(index, 0, 0, -1, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+				try {
+					ByteBuffer inputBuffer;
+					inputBuffer = codec.getInputBuffer(index);
+					if (inputBuffer == null) return;
+					long sampleTime = 0;
+					int result;
+					if (queueType == QUEUE_INPUT_BUFFER_EFFECTIVE) {
+						int total = 0;
+						boolean advanced = false;
+						int maxresult = 0;
+						do {
+							result = extractor.readSampleData(inputBuffer, total);
+							if (result >= 0) {
+								total += result;
+								sampleTime = extractor.getSampleTime();
+								advanced = extractor.advance();
+								maxresult = Math.max(maxresult, result);
+							}
+						} while (result >= 0 && advanced && inputBuffer.capacity() - inputBuffer.limit() > maxresult);
+						if (advanced) {
+							codec.queueInputBuffer(index, 0, total, sampleTime, 0);
+						} else {
+							codec.queueInputBuffer(index, 0, 0, -1, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+						}
+					} else {
+						result = extractor.readSampleData(inputBuffer, 0);
+						if (result >= 0) {
+							sampleTime = extractor.getSampleTime();
+							codec.queueInputBuffer(index, 0, result, sampleTime, 0);
+							extractor.advance();
+						} else {
+							codec.queueInputBuffer(index, 0, 0, -1, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+						}
+					}
+				} catch (IllegalStateException e) {
+					Timber.e(e);
 				}
 			}
 
@@ -162,28 +197,24 @@ public class AudioDecoder {
 					//TODO: ShortBuffer get rid of usage. Just user source ByteBuffer.
 					ShortBuffer decodedSamples = outputBuffer.asShortBuffer();
 					while (decodedSamples.remaining() > 0) {
-						for (int i = 0; i < decodedSamples.remaining(); i++) {
-							if (decodedSamples.remaining() > 0) {
-								oneFrameAmps[frameIndex] = decodedSamples.get();
-								frameIndex++;
-							}
-							if (frameIndex >= oneFrameAmps.length - 1) {
-								int j;
-								int gain, value;
-								gain = -1;
-								for (j = 0; j < oneFrameAmps.length; j += channelCount) {
-									value = 0;
-									for (int k = 0; k < channelCount; k++) {
-										value += oneFrameAmps[j + k];
-									}
-									value /= channelCount;
-									if (gain < value) {
-										gain = value;
-									}
+						oneFrameAmps[frameIndex] = decodedSamples.get();
+						frameIndex++;
+						if (frameIndex >= oneFrameAmps.length - 1) {
+							int j;
+							int gain, value;
+							gain = -1;
+							for (j = 0; j < oneFrameAmps.length; j += channelCount) {
+								value = 0;
+								for (int k = 0; k < channelCount; k++) {
+									value += oneFrameAmps[j + k];
 								}
-								gains.add((int) Math.sqrt(gain));
-								frameIndex = 0;
+								value /= channelCount;
+								if (gain < value) {
+									gain = value;
+								}
 							}
+							gains.add((int) Math.sqrt(gain));
+							frameIndex = 0;
 						}
 					}
 				}
@@ -192,7 +223,7 @@ public class AudioDecoder {
 				codec.releaseOutputBuffer(index, false);
 
 				if (mOutputEOS) {
-					decodeListener.onFinishDecode(gains, duration);
+					decodeListener.onFinishDecode(gains.getData(), duration);
 					codec.stop();
 					codec.release();
 					extractor.release();

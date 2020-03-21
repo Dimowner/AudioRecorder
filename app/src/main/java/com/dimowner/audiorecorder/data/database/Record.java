@@ -128,6 +128,10 @@ public class Record {
 		return duration;
 	}
 
+	public void setDuration(long duration) {
+		this.duration = duration;
+	}
+
 	public byte[] getData() {
 		return data;
 	}

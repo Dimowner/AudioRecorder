@@ -18,11 +18,9 @@ package com.dimowner.audiorecorder.data.database;
 
 import android.database.Cursor;
 import android.database.SQLException;
-import android.media.MediaCodec;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
-import com.dimowner.audiorecorder.audio.AudioDecoder;
 import com.dimowner.audiorecorder.data.FileRepository;
 
 import java.io.File;
@@ -122,80 +120,6 @@ public class LocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
-	public long insertFile(final String path, final OnFinishListener listener)
-			throws IOException, OutOfMemoryError, IllegalStateException, MediaCodec.CodecException {
-		if (path != null && !path.isEmpty()) {
-			AudioDecoder.decode(path, new AudioDecoder.DecodeListener() {
-				@Override
-				public void onStartDecode(long duration, int channelsCount, int sampleRate) {
-				}
-
-				@Override
-				public void onFinishDecode(List<Integer> data, long duration) {
-					int[] arr = new int[data.size()];
-					for (int i = 0; i < arr.length; i++) {
-						arr[i] = data.get(i);
-					}
-
-					File file = new File(path);
-					Record record = new Record(
-							Record.NO_ID,
-							file.getName(),
-							duration,
-							file.lastModified(),
-							new Date().getTime(),
-							0,
-							path,
-							false,
-							true,
-							arr);
-					//TODO: insert record when start recording not when stop
-					Record r = insertRecord(record);
-					if (listener != null) {
-						listener.onFinish(r.getId());
-					}
-				}
-
-				@Override
-				public void onError(MediaCodec.CodecException exception) {
-					throw exception;
-				}
-			});
-		} else {
-			Timber.e("File path is null or empty");
-		}
-		return Record.NO_ID;
-	}
-
-	@Override
-	public long insertFile(String path, long duration, int[] waveform) throws IOException {
-		if (path != null && !path.isEmpty()) {
-			File file = new File(path);
-			Record record = new Record(
-					Record.NO_ID,
-					file.getName(),
-					duration,
-					file.lastModified(),
-					new Date().getTime(),
-					0,
-					path,
-					false,
-					false,
-					waveform);
-			Record r = insertRecord(record);
-			if (r != null) {
-				return r.getId();
-			} else {
-				Timber.e("Failed to insert record into local database!");
-			}
-		} else {
-			Timber.e("Unable to read sound file by specified path!");
-			throw new IOException("Unable to read sound file by specified path!");
-		}
-		return Record.NO_ID;
-	}
-
-	@Override
 	public Record insertEmptyFile(String path) throws IOException {
 		if (path != null && !path.isEmpty()) {
 			File file = new File(path);
@@ -221,55 +145,6 @@ public class LocalRepositoryImpl implements LocalRepository {
 			throw new IOException("Unable to read sound file by specified path!");
 		}
 		return null;
-	}
-
-	@Override
-	public boolean updateWaveform(final Record record, final OnFinishListener listener)
-			throws IOException, OutOfMemoryError, IllegalStateException, MediaCodec.CodecException {
-		if (record != null) {
-			final String path = record.getPath();
-			if (path != null && !path.isEmpty()) {
-				AudioDecoder.decode(path, new AudioDecoder.DecodeListener() {
-					@Override
-					public void onStartDecode(long duration, int channelsCount, int sampleRate) {
-					}
-
-					@Override
-					public void onFinishDecode(List<Integer> data, long duration) {
-						int[] arr = new int[data.size()];
-						for (int i = 0; i < arr.length; i++) {
-							arr[i] = data.get(i);
-						}
-						Record rec = new Record(
-								record.getId(),
-								record.getName(),
-								record.getDuration(),
-								record.getCreated(),
-								record.getAdded(),
-								record.getRemoved(),
-								record.getPath(),
-								record.isBookmarked(),
-								true,
-								arr);
-						updateRecord(rec);
-						if (listener != null) {
-							listener.onFinish(rec.getId());
-						}
-						Timber.v("record = %s", record.toString());
-					}
-
-					@Override
-					public void onError(MediaCodec.CodecException exception) {
-						throw exception;
-					}
-				});
-			} else {
-				Timber.e("File path is null or empty");
-			}
-		} else {
-			Timber.e("Record is null!");
-		}
-		return false;
 	}
 
 	public List<Record> getAllRecords() {
