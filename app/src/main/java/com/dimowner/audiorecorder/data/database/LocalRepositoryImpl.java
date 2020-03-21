@@ -232,6 +232,14 @@ public class LocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
+	public void deleteRecordForever(int id) {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		dataSource.deleteItem(id);
+	}
+
+	@Override
 	public List<Long> getRecordsDurations() {
 		if (!dataSource.isOpen()) {
 			dataSource.open();

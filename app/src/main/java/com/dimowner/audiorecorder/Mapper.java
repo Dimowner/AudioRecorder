@@ -15,7 +15,7 @@ public class Mapper {
 				record.getId(),
 				ListItem.ITEM_TYPE_NORMAL,
 				record.getName().substring(0, record.getName().length()-4),
-				TimeUtils.formatTimeIntervalMinSec(record.getDuration()/1000),
+				TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration()/1000),
 				record.getDuration()/1000,
 				record.getCreated(),
 				record.getAdded(),

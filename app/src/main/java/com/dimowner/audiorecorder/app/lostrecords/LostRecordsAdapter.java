@@ -71,7 +71,7 @@ public class LostRecordsAdapter extends RecyclerView.Adapter<LostRecordsAdapter.
 		if (pos != RecyclerView.NO_POSITION) {
 			holder.name.setText(data.get(pos).getName());
 			holder.location.setText(data.get(pos).getPath());
-			holder.duration.setText(TimeUtils.formatTimeIntervalMinSec(data.get(pos).getDuration()/1000));
+			holder.duration.setText(TimeUtils.formatTimeIntervalHourMinSec2(data.get(pos).getDuration()/1000));
 			holder.view.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {

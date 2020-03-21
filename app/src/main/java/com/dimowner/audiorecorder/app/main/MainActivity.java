@@ -269,7 +269,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				presenter.stopRecording(false);
 				break;
 			case R.id.btn_record_delete:
-				presenter.stopRecording(true);
+				presenter.cancelRecording(getApplicationContext());
 				break;
 			case R.id.btn_stop:
 				presenter.stopPlayback();
@@ -538,7 +538,23 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						presenter.deleteActiveRecord();
+						presenter.deleteActiveRecord(false);
+					}
+				}
+		);
+	}
+
+	@Override
+	public void askDeleteRecordForever() {
+		AndroidUtils.showSimpleDialog(
+				MainActivity.this,
+				R.drawable.ic_delete_forever,
+				R.string.warning,
+				getApplicationContext().getString(R.string.delete_this_record),
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						presenter.stopRecording(true);
 					}
 				}
 		);

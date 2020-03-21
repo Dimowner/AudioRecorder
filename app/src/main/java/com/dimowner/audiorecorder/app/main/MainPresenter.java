@@ -157,67 +157,71 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						view.keepScreenOn(false);
 						view.showRecordingPause();
 					}
+					if (deleteRecord) {
+						if (view != null) {
+							view.askDeleteRecordForever();
+							deleteRecord = false;
+						}
+					}
 				}
 
 				@Override
 				public void onRecordingStopped(final File file) {
-					if (view != null) {
-						view.showProgress();
-						view.showRecordProcessing();
-					}
-					recordingsTasks.postRunnable(new Runnable() {
-						@Override
-						public void run() {
-							long duration = AndroidUtils.readRecordDuration(file);
-							int[] waveForm = convertRecordingData(recordingData, (int) (duration / 1000000f));
-							final Record update = new Record(
-									record.getId(),
-									record.getName(),
-									duration,
-									record.getCreated(),
-									record.getAdded(),
-									record.getRemoved(),
-									record.getPath(),
-									record.isBookmarked(),
-									record.isWaveformProcessed(),
-									waveForm);
-							if (localRepository.updateRecord(update)) {
-								recordingData.clear();
-								record = update;
-								final Record rec = localRepository.getRecord(update.getId());
-								songDuration = rec.getDuration();
-								dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
-								AndroidUtils.runOnUIThread(new Runnable() {
-									@Override
-									public void run() {
-										if (view != null) {
-											view.showWaveForm(rec.getAmps(), songDuration);
-											view.showName(FileUtil.removeFileExtension(rec.getName()));
-											view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
-											view.showOptionsMenu();
-											view.hideProgress();
-										}
-									}
-								});
-								decodeRecordWaveform(rec);
+					if (deleteRecord) {
+						deleteActiveRecord(true);
+						deleteRecord = false;
+					} else {
+						if (view != null) {
+							view.showProgress();
+							view.showRecordProcessing();
+							if (prefs.isAskToRenameAfterStopRecording()) {
+								view.askRecordingNewName(record.getId(), file);
 							}
 						}
-					});
-
+						recordingsTasks.postRunnable(new Runnable() {
+							@Override
+							public void run() {
+								long duration = AndroidUtils.readRecordDuration(file);
+								int[] waveForm = convertRecordingData(recordingData, (int) (duration / 1000000f));
+								final Record update = new Record(
+										record.getId(),
+										record.getName(),
+										duration,
+										record.getCreated(),
+										record.getAdded(),
+										record.getRemoved(),
+										record.getPath(),
+										record.isBookmarked(),
+										record.isWaveformProcessed(),
+										waveForm);
+								if (localRepository.updateRecord(update)) {
+									recordingData.clear();
+									record = update;
+									final Record rec = localRepository.getRecord(update.getId());
+									songDuration = rec.getDuration();
+									dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
+									AndroidUtils.runOnUIThread(new Runnable() {
+										@Override
+										public void run() {
+											if (view != null) {
+												view.showWaveForm(rec.getAmps(), songDuration);
+												view.showName(FileUtil.removeFileExtension(rec.getName()));
+												view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
+												view.showOptionsMenu();
+												view.hideProgress();
+											}
+										}
+									});
+									decodeRecordWaveform(rec);
+								}
+							}
+						});
+					}
 					if (view != null) {
 						view.keepScreenOn(false);
 						view.stopRecordingService();
 						view.hideProgress();
 						view.showRecordingStop();
-
-						if (deleteRecord) {
-							//TODO: do not move record into trash
-							view.askDeleteRecord(FileUtil.removeFileExtension(file.getName()));
-							deleteRecord = false;
-						} else if (prefs.isAskToRenameAfterStopRecording()) {
-							//TODO: check id
-							view.askRecordingNewName(record.getId(), file);
-						}
 					}
 				}
 
@@ -424,9 +428,15 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void stopRecording(boolean delete) {
 		if (appRecorder.isRecording()) {
-			appRecorder.stopRecording();
 			deleteRecord = delete;
+			appRecorder.stopRecording();
 		}
+	}
+
+	@Override
+	public void cancelRecording(Context context) {
+		deleteRecord = true;
+		appRecorder.pauseRecording();
 	}
 
 	@Override
@@ -581,6 +591,15 @@ public class MainPresenter implements MainContract.UserActionsListener {
 								}
 							}
 						});
+					} else {
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override
+							public void run() {
+								if (view != null) {
+									view.hideProgress();
+								}
+							}
+						});
 					}
 				}
 			});
@@ -636,34 +655,40 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void deleteActiveRecord() {
-		if (record != null) {
+	public void deleteActiveRecord(final boolean forever) {
+		final Record rec = record;
+		if (rec != null) {
 			audioPlayer.stop();
-		}
-		recordingsTasks.postRunnable(new Runnable() {
-			@Override public void run() {
-				if (record != null) {
-					localRepository.deleteRecord(record.getId());
-//					fileRepository.deleteRecordFile(record.getPath());
+			recordingsTasks.postRunnable(new Runnable() {
+				@Override
+				public void run() {
+					if (forever) {
+						localRepository.deleteRecordForever(rec.getId());
+						fileRepository.deleteRecordFile(rec.getPath());
+					} else {
+						localRepository.deleteRecord(rec.getId());
+					}
 					prefs.setActiveRecord(-1);
 					dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
-				}
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override
-					public void run() {
-						if (view != null) {
-							view.showWaveForm(new int[]{}, 0);
-							view.showName("");
-							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
-							view.showMessage(R.string.record_moved_into_trash);
-							view.hideOptionsMenu();
-							view.hideProgress();
-							record = null;
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							if (view != null) {
+								view.showWaveForm(new int[]{}, 0);
+								view.showName("");
+								view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
+								if (!forever) {
+									view.showMessage(R.string.record_moved_into_trash);
+								}
+								view.hideOptionsMenu();
+								view.hideProgress();
+								record = null;
+							}
 						}
-					}
-				});
-			}
-		});
+					});
+				}
+			});
+		}
 	}
 
 	@Override
