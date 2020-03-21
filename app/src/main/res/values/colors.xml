@@ -11,6 +11,8 @@
 	<color name="dark_white">#eaeaea</color>
 	<color name="white">#ffffff</color>
 
+	<color name="divider">#12FFFFFF</color>
+
 	<color name="icon_background">#f3f5f7</color>
 	<color name="highlight_light">#A1FFFFFF</color>
 

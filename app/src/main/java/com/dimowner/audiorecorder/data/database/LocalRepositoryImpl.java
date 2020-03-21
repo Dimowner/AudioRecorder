@@ -313,6 +313,14 @@ public class LocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
+	public int getTrashRecordsCount() {
+		if (!trashDataSource.isOpen()) {
+			trashDataSource.open();
+		}
+		return trashDataSource.getCount();
+	}
+
+	@Override
 	public void restoreFromTrash(int id) {
 		if (!trashDataSource.isOpen()) {
 			trashDataSource.open();

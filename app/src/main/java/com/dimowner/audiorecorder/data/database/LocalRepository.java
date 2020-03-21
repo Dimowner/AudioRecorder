@@ -59,6 +59,8 @@ public interface LocalRepository {
 
 	List<Record> getTrashRecords();
 
+	int getTrashRecordsCount();
+
 	void restoreFromTrash(int id);
 
 	void removeFromTrash(int id);

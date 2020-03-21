@@ -196,6 +196,23 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	}
 
 	@Override
+	public void onResumeView() {
+		loadingTasks.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				int count = localRepository.getTrashRecordsCount();
+				if (view != null) {
+					if (count > 0) {
+						view.showTrashBtn();
+					} else {
+						view.hideTrashBtn();
+					}
+				}
+			}
+		});
+	}
+
+	@Override
 	public void startPlayback() {
 		if (!appRecorder.isRecording()) {
 			if (activeRecord != null) {
@@ -258,6 +275,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 					@Override
 					public void run() {
 						if (view != null) {
+							view.showTrashBtn();
 							view.onDeleteRecord(id);
 							view.showMessage(R.string.record_moved_into_trash);
 							if (rec != null && rec.getId() == id) {

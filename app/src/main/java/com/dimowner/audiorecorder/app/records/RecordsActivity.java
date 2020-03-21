@@ -57,6 +57,7 @@ import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
+import com.dimowner.audiorecorder.app.trash.TrashActivity;
 import com.dimowner.audiorecorder.app.widget.SimpleWaveformView;
 import com.dimowner.audiorecorder.app.widget.TouchLayout;
 import com.dimowner.audiorecorder.app.widget.WaveformView;
@@ -289,6 +290,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				}
 			}
 		});
+		adapter.setBtnTrashClickListener(new RecordsAdapter.BtnTrashClickListener() {
+			@Override
+			public void onClick() {
+				startActivity(TrashActivity.getStartIntent(getApplicationContext()));
+			}
+		});
 		recyclerView.setAdapter(adapter);
 
 //		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -321,6 +328,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 			}
 		});
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		presenter.onResumeView();
 	}
 
 	@Override
@@ -612,6 +625,16 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	@Override
 	public void showPrevRecord() {
 
+	}
+
+	@Override
+	public void showTrashBtn() {
+		adapter.showTrash(true);
+	}
+
+	@Override
+	public void hideTrashBtn() {
+		adapter.showTrash(false);
 	}
 
 	@Override

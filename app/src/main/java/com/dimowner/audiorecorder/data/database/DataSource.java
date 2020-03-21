@@ -149,6 +149,20 @@ public abstract class DataSource<T> {
 	}
 
 	/**
+	 * Get total records count database for table T.
+	 * @return Existing records count of table T.
+	 */
+	public int getCount() {
+		Cursor cursor = queryLocal("SELECT COUNT(*) FROM " + tableName);
+		if (cursor != null) {
+			cursor.moveToFirst();
+			return cursor.getInt(0);
+		} else {
+			return -1;
+		}
+	}
+
+	/**
 	 * Get records from database for table T.
 	 * @return List that contains all records of table T.
 	 */

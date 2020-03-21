@@ -16,9 +16,11 @@
 
 package com.dimowner.audiorecorder.app.records;
 
+import android.content.Context;
 import android.graphics.Typeface;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -49,8 +51,11 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 	private boolean showDateHeaders = true;
 	private int activeItem = -1;
+	private View headerView;
+	private boolean showTrash = false;
 
 	private ItemClickListener itemClickListener;
+	private BtnTrashClickListener btnTrashClickListener;
 	private OnAddToBookmarkListener onAddToBookmarkListener = null;
 	private OnItemOptionListener onItemOptionListener = null;
 
@@ -62,19 +67,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	@Override
 	public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int type) {
 		if (type == ListItem.ITEM_TYPE_HEADER) {
-
-			View view = new View(viewGroup.getContext());
-			int height;
-//			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-//				height = AndroidUtils.getStatusBarHeight(viewGroup.getContext()) + (int) viewGroup.getContext().getResources().getDimension(R.dimen.toolbar_height);
-//			} else {
-				height = (int) viewGroup.getContext().getResources().getDimension(R.dimen.toolbar_height);
-//			}
-
-			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-					LinearLayout.LayoutParams.MATCH_PARENT, height);
-			view.setLayoutParams(lp);
-			return new UniversalViewHolder(view);
+			return new UniversalViewHolder(createHeaderView(viewGroup.getContext()));
 		} else if (type == ListItem.ITEM_TYPE_FOOTER) {
 			View view = new View(viewGroup.getContext());
 			int height = (int) viewGroup.getContext().getResources().getDimension(R.dimen.panel_height);
@@ -154,6 +147,48 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		} else if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_DATE) {
 			UniversalViewHolder holder = (UniversalViewHolder) viewHolder;
 			((TextView)holder.view).setText(TimeUtils.formatDateSmart(data.get(viewHolder.getAdapterPosition()).getAdded(), holder.view.getContext()));
+		}
+	}
+
+	@Override
+	public void onViewAttachedToWindow(@NonNull RecyclerView.ViewHolder holder) {
+		super.onViewAttachedToWindow(holder);
+		if (holder.getItemViewType() == ListItem.ITEM_TYPE_HEADER) {
+			headerView = holder.itemView.findViewById(R.id.btn_trash);
+			if (headerView != null) {
+				if (btnTrashClickListener != null) {
+					headerView.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							btnTrashClickListener.onClick();
+						}
+					});
+				}
+				if (showTrash) {
+					headerView.setVisibility(View.VISIBLE);
+				} else {
+					headerView.setVisibility(View.GONE);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void onViewDetachedFromWindow(@NonNull RecyclerView.ViewHolder holder) {
+		super.onViewDetachedFromWindow(holder);
+		if (holder.getItemViewType() == ListItem.ITEM_TYPE_HEADER) {
+			headerView = null;
+		}
+	}
+
+	public void showTrash(boolean show) {
+		showTrash = show;
+		if (headerView != null) {
+			if (showTrash) {
+				headerView.setVisibility(View.VISIBLE);
+			} else {
+				headerView.setVisibility(View.GONE);
+			}
 		}
 	}
 
@@ -387,6 +422,73 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		return false;
 	}
 
+	private View createHeaderView(Context context) {
+		LinearLayout container = new LinearLayout(context);
+		container.setOrientation(LinearLayout.VERTICAL);
+
+		View headerView = new View(context);
+		int height = (int) context.getResources().getDimension(R.dimen.toolbar_height);
+		LinearLayout.LayoutParams headerParams = new LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT, height);
+		headerView.setLayoutParams(headerParams);
+
+		LinearLayout btnLayout = new LinearLayout(context);
+		btnLayout.setOrientation(LinearLayout.VERTICAL);
+		btnLayout.setId(R.id.btn_trash);
+		ViewGroup.LayoutParams frameParams = new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT,
+				ViewGroup.LayoutParams.WRAP_CONTENT);
+		btnLayout.setLayoutParams(frameParams);
+		btnLayout.setClickable(true);
+		btnLayout.setFocusable(true);
+		btnLayout.setBackgroundResource(R.drawable.button_translcent);
+
+		int pad = (int) context.getResources().getDimension(R.dimen.spacing_normal);
+		int medium = (int) context.getResources().getDimension(R.dimen.spacing_medium);
+		TextView buttonTrash = new TextView(context);
+		ViewGroup.LayoutParams btnParams = new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.WRAP_CONTENT,
+				ViewGroup.LayoutParams.WRAP_CONTENT);
+		buttonTrash.setLayoutParams(btnParams);
+		buttonTrash.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
+		buttonTrash.setText(R.string.trash);
+		buttonTrash.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_delete, 0, 0, 0);
+		buttonTrash.setCompoundDrawablePadding(pad*2);
+		buttonTrash.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getResources().getDimension(R.dimen.text_large));
+		buttonTrash.setTextColor(ContextCompat.getColor(context, R.color.white));
+		buttonTrash.setPadding(pad, medium, pad, medium);
+		buttonTrash.setGravity(Gravity.CENTER);
+
+		int dividerColor = ContextCompat.getColor(context, R.color.divider);
+		int dividerSize = (int) context.getResources().getDimension(R.dimen.divider);
+
+		View dividerView = new View(context);
+		ViewGroup.LayoutParams dividerParams = new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.WRAP_CONTENT,
+				dividerSize);
+		dividerView.setLayoutParams(dividerParams);
+		dividerView.setBackgroundColor(dividerColor);
+
+		View dividerView2 = new View(context);
+		ViewGroup.LayoutParams dividerParams2 = new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.WRAP_CONTENT,
+				dividerSize);
+		dividerView2.setLayoutParams(dividerParams2);
+		dividerView2.setBackgroundColor(dividerColor);
+
+		btnLayout.addView(dividerView);
+		btnLayout.addView(buttonTrash);
+		btnLayout.addView(dividerView2);
+
+		container.addView(headerView);
+		container.addView(btnLayout);
+		return container;
+	}
+
+	public void setBtnTrashClickListener(BtnTrashClickListener btnTrashClickListener) {
+		this.btnTrashClickListener = btnTrashClickListener;
+	}
+
 	void setItemClickListener(ItemClickListener itemClickListener) {
 		this.itemClickListener = itemClickListener;
 	}
@@ -397,6 +499,10 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 	public interface ItemClickListener{
 		void onItemClick(View view, long id, String path, int position);
+	}
+
+	public interface BtnTrashClickListener{
+		void onClick();
 	}
 
 	void setOnItemOptionListener(OnItemOptionListener onItemOptionListener) {

@@ -34,6 +34,9 @@ public interface RecordsContract {
 		void showNextRecord();
 		void showPrevRecord();
 
+		void showTrashBtn();
+		void hideTrashBtn();
+
 		void showPlayerPanel();
 
 		void startPlaybackService();
@@ -73,6 +76,8 @@ public interface RecordsContract {
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<RecordsContract.View> {
+
+		void onResumeView();
 
 		void startPlayback();
 

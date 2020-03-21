@@ -10,6 +10,7 @@
 	<dimen name="spacing_small">8dp</dimen>
 	<dimen name="spacing_tiny">4dp</dimen>
 	<dimen name="spacing_zero">0dp</dimen>
+	<dimen name="divider">1dp</dimen>
 
 	<dimen name="text_smallest">10sp</dimen>
 	<dimen name="text_small">12sp</dimen>
