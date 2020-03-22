@@ -7,13 +7,29 @@
 			android:id="@+id/menu_date"
 			android:icon="@drawable/ic_calendar_today"
 			android:title="@string/by_date" />
+
+	<item
+			android:id="@+id/menu_date_desc"
+			android:icon="@drawable/ic_calendar_today"
+			android:title="@string/by_date_desc" />
+
 	<item
 			android:id="@+id/menu_name"
 			android:icon="@drawable/ic_sort_by_alpha"
 			android:title="@string/by_name" />
+
+	<item
+			android:id="@+id/menu_name_desc"
+			android:icon="@drawable/ic_sort_by_alpha"
+			android:title="@string/by_name_desc" />
+
 	<item
 			android:id="@+id/menu_duration"
 			android:icon="@drawable/ic_access_time"
 			android:title="@string/by_duration" />
 
+	<item
+			android:id="@+id/menu_duration_desc"
+			android:icon="@drawable/ic_access_time"
+			android:title="@string/by_duration_desc" />
 </menu>

@@ -53,9 +53,12 @@
 	<string name="all_records_deleted_successfully">All records deleted successfully</string>
 	<string name="record_deleted_successfully">Record deleted successfully</string>
 	<string name="record_restored_successfully">Record restored successfully</string>
-	<string name="by_date">By date</string>
-	<string name="by_name">By name</string>
-	<string name="by_duration">By duration</string>
+	<string name="by_date">By date (newest)</string>
+	<string name="by_date_desc">By date (oldest)</string>
+	<string name="by_name">By name (A-Z)</string>
+	<string name="by_name_desc">By name (Z-A)</string>
+	<string name="by_duration">By duration (longest)</string>
+	<string name="by_duration_desc">By duration (shortest)</string>
 	<string name="need_write_permission">The app requires permission to access to the public storage. If not allowed, records will be stored in the app’s private directory</string>
 	<string name="rec_name">Name:</string>
 	<string name="rec_format">Format:</string>

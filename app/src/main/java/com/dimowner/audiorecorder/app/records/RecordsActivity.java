@@ -529,11 +529,20 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 					case R.id.menu_date:
 						presenter.updateRecordsOrder(AppConstants.SORT_DATE);
 						break;
+					case R.id.menu_date_desc:
+						presenter.updateRecordsOrder(AppConstants.SORT_DATE_DESC);
+						break;
 					case R.id.menu_name:
 						presenter.updateRecordsOrder(AppConstants.SORT_NAME);
 						break;
+					case R.id.menu_name_desc:
+						presenter.updateRecordsOrder(AppConstants.SORT_NAME_DESC);
+						break;
 					case R.id.menu_duration:
 						presenter.updateRecordsOrder(AppConstants.SORT_DURATION);
+						break;
+					case R.id.menu_duration_desc:
+						presenter.updateRecordsOrder(AppConstants.SORT_DURATION_DESC);
 						break;
 				}
 				return false;
@@ -744,11 +753,20 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			case AppConstants.SORT_DATE:
 				txtSubTitle.setText(R.string.by_date);
 				break;
+			case AppConstants.SORT_DATE_DESC:
+				txtSubTitle.setText(R.string.by_date_desc);
+				break;
 			case AppConstants.SORT_NAME:
 				txtSubTitle.setText(R.string.by_name);
 				break;
+			case AppConstants.SORT_NAME_DESC:
+				txtSubTitle.setText(R.string.by_name_desc);
+				break;
 			case AppConstants.SORT_DURATION:
 				txtSubTitle.setText(R.string.by_duration);
+				break;
+			case AppConstants.SORT_DURATION_DESC:
+				txtSubTitle.setText(R.string.by_duration_desc);
 				break;
 		}
 	}

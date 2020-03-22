@@ -53,9 +53,12 @@
 	<string name="all_records_deleted_successfully">Всі записи видалені успішно</string>
 	<string name="record_deleted_successfully">Запис видалено успішно</string>
 	<string name="record_restored_successfully">Запис відновлено успішно</string>
-	<string name="by_date">По даті</string>
-	<string name="by_name">По імені</string>
-	<string name="by_duration">По тривалості</string>
+	<string name="by_date">По даті (найновіші)</string>
+	<string name="by_date_desc">По даті (найстаріші)</string>
+	<string name="by_name">По назві (А-Я)</string>
+	<string name="by_name_desc">По назві (Я-А)</string>
+	<string name="by_duration">Тривалість (найдовші)</string>
+	<string name="by_duration_desc">Тривалість (найкоротші)</string>
 	<string name="need_write_permission">Додатку потрібно дозвіл на запис в публічне сховище. Якщо не дозволити, записи будуть зберігатися в приватному каталозі додатка</string>
 	<string name="rec_name">Назва:</string>
 	<string name="rec_format">Формат:</string>

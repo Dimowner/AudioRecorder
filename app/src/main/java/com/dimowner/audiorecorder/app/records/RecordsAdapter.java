@@ -281,7 +281,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	}
 
 	private void updateShowHeader(int order) {
-		if (order == AppConstants.SORT_DATE) {
+		if (order == AppConstants.SORT_DATE || order == AppConstants.SORT_DATE_DESC) {
 			showDateHeaders = true;
 		} else {
 			showDateHeaders = false;

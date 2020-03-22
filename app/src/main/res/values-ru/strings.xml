@@ -53,9 +53,12 @@
 	<string name="all_records_deleted_successfully">Все записи удалены успешно</string>
 	<string name="record_deleted_successfully">Запись удалена успешно</string>
 	<string name="record_restored_successfully">Запись восстановлено успешно</string>
-	<string name="by_date">По дате</string>
-	<string name="by_name">По имени</string>
-	<string name="by_duration">По длительности</string>
+	<string name="by_date">По дате (новые)</string>
+	<string name="by_date_desc">По дате (старые)</string>
+	<string name="by_name">По имени (А-Я)</string>
+	<string name="by_name_desc">По имени (Я-А)</string>
+	<string name="by_duration">Длительность (длиные)</string>
+	<string name="by_duration_desc">Длительность (короткие)</string>
 	<string name="need_write_permission">Приложению требуется разрешение на запись в публичное хранилище. Если не разрешить, записи будут сохраняться в приватном каталоге приложения</string>
 	<string name="rec_name">Название:</string>
 	<string name="rec_format">Формат:</string>

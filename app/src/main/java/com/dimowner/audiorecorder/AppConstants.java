@@ -86,6 +86,9 @@ public class AppConstants {
 	public static final int SORT_DATE = 1;
 	public static final int SORT_NAME = 2;
 	public static final int SORT_DURATION = 3;
+	public static final int SORT_DATE_DESC = 4;
+	public static final int SORT_NAME_DESC = 5;
+	public static final int SORT_DURATION_DESC = 6;
 
 //	public final static int RECORD_AUDIO_CHANNELS_COUNT = 2;
 	public final static int RECORD_AUDIO_MONO = 1;
