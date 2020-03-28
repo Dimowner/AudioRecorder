@@ -40,7 +40,6 @@ public interface RecordsContract {
 		void showPlayerPanel();
 
 		void startPlaybackService();
-		void stopPlaybackService();
 
 		void showWaveForm(int[] waveForm, long duration);
 		void showDuration(String duration);
@@ -96,8 +95,6 @@ public interface RecordsContract {
 		void deleteRecord(long id, String path);
 
 		void renameRecord(long id, String name);
-
-		void copyToDownloads(String path, String name);
 
 		void loadRecords();
 

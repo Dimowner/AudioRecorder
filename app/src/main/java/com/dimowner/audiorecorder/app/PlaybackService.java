@@ -25,7 +25,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import androidx.annotation.RequiresApi;
@@ -39,6 +38,7 @@ import com.dimowner.audiorecorder.app.main.MainActivity;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.exception.AppException;
 
+import androidx.core.app.NotificationManagerCompat;
 import timber.log.Timber;
 
 public class PlaybackService extends Service {
@@ -62,7 +62,7 @@ public class PlaybackService extends Service {
 
 	private static final int NOTIF_ID = 101;
 	private NotificationCompat.Builder builder;
-	private NotificationManager notificationManager;
+	private NotificationManagerCompat notificationManager;
 	private RemoteViews remoteViewsSmall;
 //	private RemoteViews remoteViewsBig;
 	private Notification notification;
@@ -75,9 +75,16 @@ public class PlaybackService extends Service {
 	public PlaybackService() {
 	}
 
+	public static void startServiceForeground(Context context, String name) {
+		Intent intent = new Intent(context, PlaybackService.class);
+		intent.setAction(PlaybackService.ACTION_START_PLAYBACK_SERVICE);
+		intent.putExtra(PlaybackService.EXTRAS_KEY_RECORD_NAME, name);
+		context.startService(intent);
+	}
+
 	@Override
 	public IBinder onBind(Intent intent) {
-		return new PlaybackBinder();
+		return null;
 	}
 
 	@Override
@@ -91,15 +98,14 @@ public class PlaybackService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (intent != null) {
-			if (intent.hasExtra(EXTRAS_KEY_RECORD_NAME)) {
-				recordName = intent.getStringExtra(EXTRAS_KEY_RECORD_NAME);
-			}
 
 			String action = intent.getAction();
 			if (action != null && !action.isEmpty()) {
 				switch (action) {
 					case ACTION_START_PLAYBACK_SERVICE:
-						startForegroundService();
+						if (intent.hasExtra(EXTRAS_KEY_RECORD_NAME)) {
+							startForeground(intent.getStringExtra(EXTRAS_KEY_RECORD_NAME));
+						}
 						break;
 					case ACTION_STOP_PLAYBACK_SERVICE:
 						stopForegroundService();
@@ -134,7 +140,9 @@ public class PlaybackService extends Service {
 					stopForegroundService();
 				}
 				@Override public void onSeek(long mills) {}
-				@Override public void onError(AppException throwable) {}
+				@Override public void onError(AppException throwable) {
+					stopForegroundService();
+				}
 
 				@Override
 				public void onStartPlay() {
@@ -153,7 +161,7 @@ public class PlaybackService extends Service {
 	}
 
 	private void startForegroundService() {
-		notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager = NotificationManagerCompat.from(this);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			createNotificationChannel(CHANNEL_ID, CHANNEL_NAME);
@@ -182,7 +190,11 @@ public class PlaybackService extends Service {
 		builder.setWhen(System.currentTimeMillis());
 		builder.setContentTitle(getResources().getString(R.string.app_name));
 		builder.setSmallIcon(R.drawable.ic_play_circle);
-		builder.setPriority(Notification.PRIORITY_MAX);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			builder.setPriority(NotificationManagerCompat.IMPORTANCE_LOW);
+		} else {
+			builder.setPriority(Notification.PRIORITY_LOW);
+		}
 		// Make head-up notification.
 		builder.setContentIntent(pendingIntent);
 		builder.setCustomContentView(remoteViewsSmall);
@@ -198,6 +210,7 @@ public class PlaybackService extends Service {
 	public void stopForegroundService() {
 		audioPlayer.removePlayerCallback(playerCallback);
 		stopForeground(true);
+		notificationManager.cancel(NOTIF_ID);
 		stopSelf();
 	}
 
@@ -252,12 +265,6 @@ public class PlaybackService extends Service {
 			Intent stopIntent = new Intent(context, PlaybackService.class);
 			stopIntent.setAction(intent.getAction());
 			context.startService(stopIntent);
-		}
-	}
-
-	public class PlaybackBinder extends Binder {
-		public PlaybackService getService() {
-			return PlaybackService.this;
 		}
 	}
 }

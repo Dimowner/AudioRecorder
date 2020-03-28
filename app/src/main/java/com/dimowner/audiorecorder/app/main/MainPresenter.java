@@ -254,15 +254,15 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			playerCallback = new PlayerContract.PlayerCallback() {
 				@Override
 				public void onPreparePlay() {
+					if (record != null) {
+						view.startPlaybackService(record.getName());
+					}
 				}
 
 				@Override
 				public void onStartPlay() {
 					if (view != null) {
 						view.showPlayStart(true);
-						if (record != null) {
-							view.startPlaybackService(record.getName());
-						}
 					}
 				}
 
@@ -366,7 +366,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			audioPlayer.removePlayerCallback(playerCallback);
 			appRecorder.removeRecordingCallback(appRecorderCallback);
 			this.localRepository.setOnRecordsLostListener(null);
-			this.view.stopPlaybackService();
 			this.view = null;
 		}
 	}
@@ -640,6 +639,15 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	public String getActiveRecordName() {
 		if (record != null) {
 			return FileUtil.removeFileExtension(record.getName());
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public String getActiveRecordFullName() {
+		if (record != null) {
+			return record.getName();
 		} else {
 			return null;
 		}

@@ -49,6 +49,7 @@
 
 		<service android:name="com.dimowner.audiorecorder.app.RecordingService" />
 		<service android:name="com.dimowner.audiorecorder.app.PlaybackService" />
+		<service android:name="com.dimowner.audiorecorder.app.DownloadService" />
 
 <!--	    <meta-data-->
 <!--            android:name="io.fabric.ApiKey"-->
@@ -56,6 +57,7 @@
 
 		<receiver android:name=".app.RecordingService$StopRecordingReceiver" />
 		<receiver android:name=".app.PlaybackService$StopPlaybackReceiver" />
+		<receiver android:name=".app.DownloadService$StopDownloadReceiver" />
 
 		<provider
 				android:name=".AppFileProvider"

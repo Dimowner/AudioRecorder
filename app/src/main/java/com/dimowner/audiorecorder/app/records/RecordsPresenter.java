@@ -16,7 +16,6 @@
 
 package com.dimowner.audiorecorder.app.records;
 
-import android.os.Environment;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
@@ -38,7 +37,6 @@ import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import timber.log.Timber;
 
@@ -51,7 +49,6 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	private AppRecorderCallback appRecorderCallback;
 	private final BackgroundQueue loadingTasks;
 	private final BackgroundQueue recordingsTasks;
-	private final BackgroundQueue copyTasks;
 	private final FileRepository fileRepository;
 	private final LocalRepository localRepository;
 	private final Prefs prefs;
@@ -62,13 +59,12 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	private boolean listenPlaybackProgress = true;
 
 	public RecordsPresenter(final LocalRepository localRepository, FileRepository fileRepository,
-									BackgroundQueue loadingTasks, BackgroundQueue recordingsTasks, BackgroundQueue copyTasks,
+									BackgroundQueue loadingTasks, BackgroundQueue recordingsTasks,
 									PlayerContract.Player player, AppRecorder appRecorder, Prefs prefs) {
 		this.localRepository = localRepository;
 		this.fileRepository = fileRepository;
 		this.loadingTasks = loadingTasks;
 		this.recordingsTasks = recordingsTasks;
-		this.copyTasks = copyTasks;
 		this.audioPlayer = player;
 		this.appRecorder = appRecorder;
 		this.playerCallback = null;
@@ -105,13 +101,15 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				@Override
 				public void onPreparePlay() {
 					Timber.d("onPreparePlay");
+					if (view != null) {
+						view.startPlaybackService();
+					}
 				}
 
 				@Override
 				public void onStartPlay() {
 					if (view != null) {
 						view.showPlayStart();
-						view.startPlaybackService();
 					}
 				}
 
@@ -395,26 +393,6 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 						}
 					}});
 			}});
-	}
-
-	@Override
-	public void copyToDownloads(final String path, final String name) {
-		if (view != null) {
-			//TODO: show copy progress
-			copyTasks.postRunnable(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						FileUtil.copyFile(new File(path), FileUtil.createFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), name));
-						//TODO: show success result
-					} catch (IOException e) {
-						Timber.v(e);
-						//TODO: show copy error
-					}
-					//TODO:hide progress
-				}
-			});
-		}
 	}
 
 	@Override

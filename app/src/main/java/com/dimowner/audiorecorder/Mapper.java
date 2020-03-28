@@ -2,6 +2,7 @@ package com.dimowner.audiorecorder;
 
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.app.records.ListItem;
+import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.util.ArrayList;
@@ -14,7 +15,8 @@ public class Mapper {
 		return new ListItem(
 				record.getId(),
 				ListItem.ITEM_TYPE_NORMAL,
-				record.getName().substring(0, record.getName().length()-4),
+				FileUtil.removeFileExtension(record.getName()),
+				record.getName(),
 				TimeUtils.formatTimeIntervalHourMinSec2(record.getDuration()/1000),
 				record.getDuration()/1000,
 				record.getCreated(),

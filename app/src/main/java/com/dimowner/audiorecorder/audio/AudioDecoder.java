@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.ShortBuffer;
 import java.util.Arrays;
 
 import androidx.annotation.NonNull;
@@ -167,13 +166,14 @@ public class AudioDecoder {
 								advanced = extractor.advance();
 								maxresult = Math.max(maxresult, result);
 							}
-						} while (result >= 0 && advanced && inputBuffer.capacity() - inputBuffer.limit() > maxresult);
+						} while (result >= 0 && advanced && inputBuffer.capacity() - inputBuffer.limit() > maxresult*3);//3 it is just for insurance. When remove it crash happens. it is ok if replace it by 2 number.
 						if (advanced) {
 							codec.queueInputBuffer(index, 0, total, sampleTime, 0);
 						} else {
 							codec.queueInputBuffer(index, 0, 0, -1, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
 						}
 					} else {
+						//If QUEUE_INPUT_BUFFER_EFFECTIVE failed then trying this way.
 						result = extractor.readSampleData(inputBuffer, 0);
 						if (result >= 0) {
 							sampleTime = extractor.getSampleTime();
@@ -183,8 +183,10 @@ public class AudioDecoder {
 							codec.queueInputBuffer(index, 0, 0, -1, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
 						}
 					}
-				} catch (IllegalStateException e) {
+				} catch (IllegalStateException | IllegalArgumentException e) {
 					Timber.e(e);
+					//When crash happens decoding failed. Then just finish decoding by sending END of stream flag.
+					codec.queueInputBuffer(index, 0, 0, -1, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
 				}
 			}
 
@@ -194,10 +196,8 @@ public class AudioDecoder {
 				if (outputBuffer != null) {
 					outputBuffer.rewind();
 					outputBuffer.order(ByteOrder.LITTLE_ENDIAN);
-					//TODO: ShortBuffer get rid of usage. Just user source ByteBuffer.
-					ShortBuffer decodedSamples = outputBuffer.asShortBuffer();
-					while (decodedSamples.remaining() > 0) {
-						oneFrameAmps[frameIndex] = decodedSamples.get();
+					while (outputBuffer.remaining() > 0) {
+						oneFrameAmps[frameIndex] = outputBuffer.getShort();
 						frameIndex++;
 						if (frameIndex >= oneFrameAmps.length - 1) {
 							int j;

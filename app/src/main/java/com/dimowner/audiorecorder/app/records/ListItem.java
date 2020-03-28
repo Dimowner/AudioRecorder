@@ -32,6 +32,7 @@ public class ListItem implements Parcelable {
 	private final long id;
 	private final int type;
 	private final String name;
+	private final String nameFull;
 	private final String path;
 	private final String description;
 	private final String durationStr;
@@ -45,11 +46,12 @@ public class ListItem implements Parcelable {
 	private int[] amps;
 
 
-	public ListItem(long id, int type, String name, String description, long duration,
+	public ListItem(long id, int type, String name, String nameFull, String description, long duration,
 						 long created, long added, String path, boolean bookmarked, int[] amps) {
 		this.id = id;
 		this.type = type;
 		this.name = name;
+		this.nameFull = nameFull;
 		this.description = description;
 		this.created = created;
 		this.createTime = convertTimeToStr(created);
@@ -64,15 +66,15 @@ public class ListItem implements Parcelable {
 	}
 
 	public static ListItem createHeaderItem() {
-		return new ListItem(-1, ListItem.ITEM_TYPE_HEADER, "HEADER", "", 0, 0, 0, "", false, null);
+		return new ListItem(-1, ListItem.ITEM_TYPE_HEADER, "HEADER", "", "", 0, 0, 0, "", false, null);
 	}
 
 	public static ListItem createFooterItem() {
-		return new ListItem(-1, ListItem.ITEM_TYPE_FOOTER, "FOOTER", "", 0, 0, 0, "", false, null);
+		return new ListItem(-1, ListItem.ITEM_TYPE_FOOTER, "FOOTER", "", "", 0, 0, 0, "", false, null);
 	}
 
 	public static ListItem createDateItem(long date) {
-		return new ListItem(-1, ListItem.ITEM_TYPE_DATE, "DATE", "", 0, 0, date, "", false, null);
+		return new ListItem(-1, ListItem.ITEM_TYPE_DATE, "DATE", "", "", 0, 0, date, "", false, null);
 	}
 
 	public long getId() {
@@ -81,6 +83,10 @@ public class ListItem implements Parcelable {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getNameFull() {
+		return nameFull;
 	}
 
 	public String getDescription() {
@@ -155,12 +161,13 @@ public class ListItem implements Parcelable {
 		createTime = convertTimeToStr(created);
 		durationStr = convertDurationToStr(duration);
 		addedTime = convertTimeToStr(added);
-		String[] data = new String[4];
+		String[] data = new String[5];
 		in.readStringArray(data);
 		name = data[0];
-		description = data[1];
-		path = data[2];
-		avatar_url = data[3];
+		nameFull = data[1];
+		description = data[2];
+		path = data[3];
+		avatar_url = data[4];
 		in.readIntArray(amps);
 		boolean[] bools = new boolean[1];
 		in.readBooleanArray(bools);
@@ -174,7 +181,7 @@ public class ListItem implements Parcelable {
 	public void writeToParcel(Parcel out, int flags) {
 		out.writeInt(type);
 		out.writeLongArray(new long[] {id, created, duration, added});
-		out.writeStringArray(new String[] {name, description, path, avatar_url});
+		out.writeStringArray(new String[] {name, nameFull, description, path, avatar_url});
 		out.writeIntArray(amps);
 		out.writeBooleanArray(new boolean[] {bookmarked});
 	}

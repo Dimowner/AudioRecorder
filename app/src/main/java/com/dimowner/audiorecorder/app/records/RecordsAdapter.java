@@ -51,7 +51,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 	private boolean showDateHeaders = true;
 	private int activeItem = -1;
-	private View headerView;
+	private View btnTrash;
 	private boolean showTrash = false;
 
 	private ItemClickListener itemClickListener;
@@ -154,10 +154,10 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	public void onViewAttachedToWindow(@NonNull RecyclerView.ViewHolder holder) {
 		super.onViewAttachedToWindow(holder);
 		if (holder.getItemViewType() == ListItem.ITEM_TYPE_HEADER) {
-			headerView = holder.itemView.findViewById(R.id.btn_trash);
-			if (headerView != null) {
+			btnTrash = holder.itemView.findViewById(R.id.btn_trash);
+			if (btnTrash != null) {
 				if (btnTrashClickListener != null) {
-					headerView.setOnClickListener(new View.OnClickListener() {
+					btnTrash.setOnClickListener(new View.OnClickListener() {
 						@Override
 						public void onClick(View v) {
 							btnTrashClickListener.onClick();
@@ -165,9 +165,9 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 					});
 				}
 				if (showTrash) {
-					headerView.setVisibility(View.VISIBLE);
+					btnTrash.setVisibility(View.VISIBLE);
 				} else {
-					headerView.setVisibility(View.GONE);
+					btnTrash.setVisibility(View.GONE);
 				}
 			}
 		}
@@ -177,17 +177,17 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	public void onViewDetachedFromWindow(@NonNull RecyclerView.ViewHolder holder) {
 		super.onViewDetachedFromWindow(holder);
 		if (holder.getItemViewType() == ListItem.ITEM_TYPE_HEADER) {
-			headerView = null;
+			btnTrash = null;
 		}
 	}
 
 	public void showTrash(boolean show) {
 		showTrash = show;
-		if (headerView != null) {
+		if (btnTrash != null) {
 			if (showTrash) {
-				headerView.setVisibility(View.VISIBLE);
+				btnTrash.setVisibility(View.VISIBLE);
 			} else {
-				headerView.setVisibility(View.GONE);
+				btnTrash.setVisibility(View.GONE);
 			}
 		}
 	}

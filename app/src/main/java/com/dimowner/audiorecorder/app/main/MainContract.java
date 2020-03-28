@@ -43,7 +43,6 @@ public interface MainContract {
 		void stopRecordingService();
 
 		void startPlaybackService(String name);
-		void stopPlaybackService();
 
 		void showPlayStart(boolean animate);
 		void showPlayPause();
@@ -107,6 +106,8 @@ public interface MainContract {
 		String getActiveRecordPath();
 
 		String getActiveRecordName();
+
+		String getActiveRecordFullName();
 
 		int getActiveRecordId();
 

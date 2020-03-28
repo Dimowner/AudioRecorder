@@ -222,7 +222,11 @@ public class RecordingService extends Service {
 
 		builder.setWhen(System.currentTimeMillis());
 		builder.setSmallIcon(R.drawable.ic_record_rec);
-		builder.setPriority(Notification.PRIORITY_MAX);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			builder.setPriority(NotificationManager.IMPORTANCE_MAX);
+		} else {
+			builder.setPriority(Notification.PRIORITY_MAX);
+		}
 		// Make head-up notification.
 		builder.setContentIntent(createContentIntent());
 		builder.setCustomContentView(remoteViewsSmall);
@@ -246,6 +250,7 @@ public class RecordingService extends Service {
 		appRecorder.removeRecordingCallback(appRecorderCallback);
 		stopForeground(true);
 		stopSelf();
+		notificationManager.cancel(NOTIF_ID);
 		started = false;
 	}
 

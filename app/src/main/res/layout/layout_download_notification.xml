@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:tools="http://schemas.android.com/tools"
+		android:id="@+id/container"
+		android:orientation="horizontal"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingStart="@dimen/spacing_small"
+		android:paddingEnd="@dimen/spacing_zero"
+		android:background="@color/md_blue_500">
+
+	<ImageButton
+			android:layout_width="@dimen/bottom_pnl_small_btn_size"
+			android:layout_height="@dimen/bottom_pnl_small_btn_size"
+			android:adjustViewBounds="true"
+			android:background="?android:selectableItemBackgroundBorderless"
+			android:contentDescription="@null"
+			android:layout_gravity="center_vertical"
+			android:layout_margin="@dimen/spacing_small"
+			android:scaleType="center"
+			android:src="@mipmap/audio_recorder_logo"/>
+
+	<LinearLayout
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:layout_gravity="center_vertical"
+			android:layout_marginStart="@dimen/spacing_normal"
+			android:orientation="vertical">
+
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textColor="@color/text_primary_light"
+				android:textSize="@dimen/text_normal"
+				android:text="@string/app_name"/>
+
+		<TextView
+				android:id="@+id/txt_name"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textColor="@color/text_primary_light"
+				android:maxLines="2"
+				android:textStyle="bold"
+				android:textSize="@dimen/text_medium"
+				tools:text="Downloading: Record-14.m4a"/>
+
+		<ProgressBar
+				android:id="@+id/progress"
+				style="?android:attr/progressBarStyleHorizontal"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"/>
+
+	</LinearLayout>
+
+	<ImageButton
+			android:id="@+id/btn_close"
+			android:layout_width="@dimen/bottom_pnl_small_btn_size"
+			android:layout_height="@dimen/bottom_pnl_btn_size"
+			android:adjustViewBounds="true"
+			android:background="?android:selectableItemBackgroundBorderless"
+			android:contentDescription="@null"
+			android:padding="@dimen/spacing_normal"
+			android:layout_gravity="center_vertical"
+			android:scaleType="center"
+			android:src="@drawable/ic_round_close"/>
+
+</LinearLayout>

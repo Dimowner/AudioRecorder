@@ -20,16 +20,13 @@ import android.Manifest;
 import android.animation.Animator;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
@@ -54,6 +51,7 @@ import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.IntArrayList;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.DownloadService;
 import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.RecordingService;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
@@ -76,15 +74,13 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 // TODO: Fix WaveForm blinking when seek
 // TODO: Fix waveform when long record (there is no waveform)
-// TODO: optimize waveform draws. replace path with draw lines
-// TODO: Enhance sort records
 // TODO: Welcome screen theme color, rec format and quality, location dir, name format (date or record)
 // TODO: Ability to search by record name in list
 // TODO: Display recording info on main activity.
 // TODO: Ability to scroll up from the bottom of the list
 // TODO: Guidelines
 // TODO: Stop infinite loop when pause WAV recording
-// TODO: If trash empty display link to Trash as first records item in the list.
+// TODO: Report some sensitive error to Crashlytics manually.
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -113,9 +109,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private LinearLayout pnlRecordProcessing;
 
 	private MainContract.UserActionsListener presenter;
-	private ServiceConnection serviceConnection;
-	private PlaybackService playbackService;
-	private boolean isBound = false;
 	private ColorMap colorMap;
 	private ColorMap.OnThemeColorChangeListener onThemeColorChangeListener;
 
@@ -432,28 +425,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void startPlaybackService(final String name) {
-		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
-		startService(intent);
-		serviceConnection = new ServiceConnection() {
-			@Override public void onServiceConnected(ComponentName n, IBinder service) {
-				PlaybackService.PlaybackBinder pb = (PlaybackService.PlaybackBinder) service;
-				playbackService = pb.getService();
-				playbackService.startForeground(name);
-				isBound = true;
-			}
-			@Override public void onServiceDisconnected(ComponentName n) {
-			}
-		};
-
-		bindService(intent, serviceConnection, Context.BIND_IMPORTANT);
-	}
-
-	@Override
-	public void stopPlaybackService() {
-		if (isBound && serviceConnection != null) {
-			unbindService(serviceConnection);
-			isBound = false;
-		}
+		PlaybackService.startServiceForeground(getApplicationContext(), name);
 	}
 
 	@Override
@@ -635,9 +607,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 					case R.id.menu_open_with:
 						AndroidUtils.openAudioFile(getApplicationContext(), presenter.getActiveRecordPath(), presenter.getActiveRecordName());
 						break;
-//					case R.id.menu_download:
-//						presenter.copyToDownloads(item.getPath(), item.getName());
-//						break;
+					case R.id.menu_download:
+						DownloadService.startNotification(getApplicationContext(), presenter.getActiveRecordFullName(), presenter.getActiveRecordPath());
+						break;
 					case R.id.menu_delete:
 						askDeleteRecord(presenter.getActiveRecordName());
 						break;

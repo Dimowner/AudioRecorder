@@ -20,15 +20,13 @@ import android.Manifest;
 import android.animation.Animator;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -54,6 +52,7 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.DownloadService;
 import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
@@ -104,10 +103,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private SeekBar playProgress;
 
 	private RecordsContract.UserActionsListener presenter;
-	private ServiceConnection serviceConnection;
-	private PlaybackService playbackService;
 	private ColorMap colorMap;
-	private boolean isBound = false;
 
 	public static Intent getStartIntent(Context context) {
 		Intent intent = new Intent(context, RecordsActivity.class);
@@ -270,9 +266,10 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 					case R.id.menu_open_with:
 						AndroidUtils.openAudioFile(getApplicationContext(), item.getPath(), item.getName());
 						break;
-//					case R.id.menu_download:
-//						presenter.copyToDownloads(item.getPath(), item.getName());
-//						break;
+					case R.id.menu_download:
+						//Download record file with Service
+						DownloadService.startNotification(getApplicationContext(), item.getNameFull(), item.getPath());
+						break;
 					case R.id.menu_delete:
 						AndroidUtils.showSimpleDialog(
 								RecordsActivity.this,
@@ -368,31 +365,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	public void startPlaybackService() {
-		Intent intent = new Intent(getApplicationContext(), PlaybackService.class);
-		startService(intent);
-		serviceConnection = new ServiceConnection() {
-			@Override
-			public void onServiceConnected(ComponentName n, IBinder service) {
-				PlaybackService.PlaybackBinder pb = (PlaybackService.PlaybackBinder) service;
-				playbackService = pb.getService();
-				playbackService.startForeground(presenter.getRecordName());
-				isBound = true;
-			}
-
-			@Override
-			public void onServiceDisconnected(ComponentName n) {
-			}
-		};
-
-		bindService(intent, serviceConnection, Context.BIND_IMPORTANT);
-	}
-
-	@Override
-	public void stopPlaybackService() {
-		if (isBound && serviceConnection != null) {
-			unbindService(serviceConnection);
-			isBound = false;
-		}
+		PlaybackService.startServiceForeground(getApplicationContext(), presenter.getRecordName());
 	}
 
 	public void hidePanel() {
@@ -567,7 +540,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		if (presenter != null) {
 			presenter.unbindView();
 		}
-		stopPlaybackService();
 	}
 
 	@Override
