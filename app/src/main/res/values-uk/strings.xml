@@ -48,7 +48,7 @@
 	<string name="open_with">Відкрити з допомогою&#823;</string>
 	<string name="download">Скачати</string>
 	<string name="downloading">Скачування: %s</string>
-	<string name="downloading_success">%s скачано папку Downloads</string>
+	<string name="downloading_success">%s скачано папку Download</string>
 	<string name="downloading_failed">Помилка при скачувані: %s</string>
 	<string name="downloading_cancel">Скачування відмінено</string>
 	<string name="share">Поділитися</string>

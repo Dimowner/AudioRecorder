@@ -49,7 +49,7 @@ public class AudioDecoder {
 	private int frameIndex = 0;
 
 	private long duration;
-	private static final String[] SUPPORTED_EXT = new String[]{"mp3", "wav", "3gpp", "3gp", "amr", "aac", "m4a", "mp4", "ogg"};
+	private static final String[] SUPPORTED_EXT = new String[]{"mp3", "wav", "3gpp", "3gp", "amr", "aac", "m4a", "mp4", "ogg", "flac"};
 
 	private IntArrayList gains;
 
@@ -125,6 +125,7 @@ public class AudioDecoder {
 		decoder.setCallback(new MediaCodec.Callback() {
 
 			private boolean mOutputEOS = false;
+			private boolean mInputEOS = false;
 
 			@Override
 			public void onError(@NonNull MediaCodec codec, @NonNull MediaCodec.CodecException exception) {
@@ -147,7 +148,7 @@ public class AudioDecoder {
 
 			@Override
 			public void onInputBufferAvailable(@NonNull MediaCodec codec, int index) {
-				if (mOutputEOS) return;
+				if (mOutputEOS | mInputEOS) return;
 				try {
 					ByteBuffer inputBuffer;
 					inputBuffer = codec.getInputBuffer(index);
@@ -166,11 +167,12 @@ public class AudioDecoder {
 								advanced = extractor.advance();
 								maxresult = Math.max(maxresult, result);
 							}
-						} while (result >= 0 && advanced && inputBuffer.capacity() - inputBuffer.limit() > maxresult*3);//3 it is just for insurance. When remove it crash happens. it is ok if replace it by 2 number.
+						} while (result >= 0 && total < maxresult * 5 && advanced && inputBuffer.capacity() - inputBuffer.limit() > maxresult*3);//3 it is just for insurance. When remove it crash happens. it is ok if replace it by 2 number.
 						if (advanced) {
 							codec.queueInputBuffer(index, 0, total, sampleTime, 0);
 						} else {
 							codec.queueInputBuffer(index, 0, 0, -1, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+							mInputEOS = true;
 						}
 					} else {
 						//If QUEUE_INPUT_BUFFER_EFFECTIVE failed then trying this way.
@@ -181,12 +183,11 @@ public class AudioDecoder {
 							extractor.advance();
 						} else {
 							codec.queueInputBuffer(index, 0, 0, -1, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+							mInputEOS = true;
 						}
 					}
 				} catch (IllegalStateException | IllegalArgumentException e) {
 					Timber.e(e);
-					//When crash happens decoding failed. Then just finish decoding by sending END of stream flag.
-					codec.queueInputBuffer(index, 0, 0, -1, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
 				}
 			}
 

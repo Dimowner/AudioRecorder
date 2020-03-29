@@ -48,7 +48,7 @@
 	<string name="open_with">Open with&#823;</string>
 	<string name="download">Download</string>
 	<string name="downloading">Downloading: %s</string>
-	<string name="downloading_success">%s downloaded to the Downloads directory</string>
+	<string name="downloading_success">%s downloaded to the Download directory</string>
 	<string name="downloading_failed">Failed to download: %s</string>
 	<string name="downloading_cancel">Downloading canceled</string>
 	<string name="share">Share</string>

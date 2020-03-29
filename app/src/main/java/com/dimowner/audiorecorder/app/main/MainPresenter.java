@@ -596,6 +596,10 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							public void run() {
 								if (view != null) {
 									view.hideProgress();
+									view.showWaveForm(new int[]{}, 0);
+									view.showName("");
+									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
+									view.hideOptionsMenu();
 								}
 							}
 						});
@@ -689,6 +693,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 									view.showMessage(R.string.record_moved_into_trash);
 								}
 								view.hideOptionsMenu();
+								view.onPlayProgress(0, 0, 0);
 								view.hideProgress();
 								record = null;
 							}
@@ -783,6 +788,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 										view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
 										view.hideProgress();
 										view.hideImportProgress();
+										view.showOptionsMenu();
 									}
 								}
 							});

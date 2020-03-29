@@ -125,9 +125,13 @@ public class DownloadService extends Service {
 	}
 
 	public void startDownload(String name, String path) {
-		recordName = name;
-		copyFile(name, path);
-		startNotification();
+		if (name == null || path == null) {
+			stopService();
+		} else {
+			recordName = name;
+			copyFile(name, path);
+			startNotification();
+		}
 	}
 
 	private void copyFile(final String name, final String path) {
