@@ -85,7 +85,8 @@ public class Injector {
 	}
 
 	public AppRecorder provideAppRecorder() {
-		return AppRecorderImpl.getInstance(provideAudioRecorder());
+		return AppRecorderImpl.getInstance(provideAudioRecorder(), provideLocalRepository(),
+				provideLoadingTasksQueue(), provideProcessingTasksQueue(), providePrefs());
 	}
 
 	public BackgroundQueue provideLoadingTasksQueue() {
@@ -143,8 +144,7 @@ public class Injector {
 		if (mainPresenter == null) {
 			mainPresenter = new MainPresenter(providePrefs(), provideFileRepository(),
 					provideLocalRepository(), provideAudioPlayer(), provideAppRecorder(),
-					provideLoadingTasksQueue(), provideRecordingTasksQueue(),
-					provideProcessingTasksQueue(), provideImportTasksQueue());
+					provideLoadingTasksQueue(), provideRecordingTasksQueue(), provideImportTasksQueue());
 		}
 		return mainPresenter;
 	}

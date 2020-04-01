@@ -79,11 +79,17 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			appRecorderCallback = new AppRecorderCallback() {
 				@Override public void onRecordingStarted(File file) {}
 				@Override public void onRecordingPaused() {}
+				@Override public void onRecordProcessing() {}
+
+				@Override
+				public void onRecordFinishProcessing() {
+					loadRecords();
+				}
 
 				@Override public void onRecordingProgress(long mills, int amp) {}
 
 				@Override
-				public void onRecordingStopped(File file) {
+				public void onRecordingStopped(File file, Record rec) {
 					loadRecords();
 				}
 

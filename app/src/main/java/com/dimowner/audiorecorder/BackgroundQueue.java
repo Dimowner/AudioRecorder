@@ -23,7 +23,6 @@ public class BackgroundQueue extends Thread {
 	}
 
 	public void postRunnable(Runnable runnable, long delay) {
-		Timber.v("postRunnable1");
 		try {
 			countDownLatch.await();
 			if (delay <= 0) {

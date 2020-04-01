@@ -42,6 +42,7 @@ import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.main.MainActivity;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
+import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
@@ -100,7 +101,9 @@ public class RecordingService extends Service {
 			@Override public void onRecordingPaused() {
 				updateNotificationPause();
 			}
-			@Override public void onRecordingStopped(File file) { }
+			@Override public void onRecordProcessing() { }
+			@Override public void onRecordFinishProcessing() { }
+			@Override public void onRecordingStopped(File file, Record rec) { }
 
 			@Override
 			public void onRecordingProgress(long mills, int amp) {
@@ -250,7 +253,6 @@ public class RecordingService extends Service {
 		appRecorder.removeRecordingCallback(appRecorderCallback);
 		stopForeground(true);
 		stopSelf();
-		notificationManager.cancel(NOTIF_ID);
 		started = false;
 	}
 

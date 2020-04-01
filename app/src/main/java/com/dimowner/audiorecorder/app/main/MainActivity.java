@@ -227,7 +227,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		super.onStop();
 		if (presenter != null) {
 			presenter.unbindView();
-			waveformView.setPlayback(-1);
 		}
 	}
 
@@ -390,12 +389,19 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showRecordingPause() {
+		txtName.setClickable(false);
+		txtName.setFocusable(false);
+		txtName.setCompoundDrawables(null, null, null, null);
 		txtName.setText(R.string.recording_paused);
+		txtName.setVisibility(View.VISIBLE);
+		btnImport.setEnabled(false);
 		btnRecord.setImageResource(R.drawable.ic_record_rec);
-//		btnDelete.setVisibility(View.VISIBLE);
-//		btnDelete.setEnabled(true);
-//		btnRecordingStop.setVisibility(View.VISIBLE);
-//		btnRecordingStop.setEnabled(true);
+		btnDelete.setVisibility(View.VISIBLE);
+		btnDelete.setEnabled(true);
+		btnRecordingStop.setVisibility(View.VISIBLE);
+		btnRecordingStop.setEnabled(true);
+		playProgress.setEnabled(false);
+		btnShare.setEnabled(false);
 	}
 
 	@Override
@@ -486,8 +492,18 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
+	public void waveFormToStart() {
+		waveformView.seekPx(0);
+	}
+
+	@Override
 	public void showDuration(final String duration) {
 		txtDuration.setText(duration);
+	}
+
+	@Override
+	public void showRecordingProgress(String progress) {
+		txtProgress.setText(progress);
 	}
 
 	@Override
@@ -539,6 +555,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void updateRecordingView(IntArrayList data) {
+		waveformView.showRecording();
 		waveformView.setRecordingData(data);
 	}
 

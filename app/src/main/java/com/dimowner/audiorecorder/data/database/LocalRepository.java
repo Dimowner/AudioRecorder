@@ -70,8 +70,4 @@ public interface LocalRepository {
 	void removeOutdatedTrashRecords();
 
 	void setOnRecordsLostListener(OnRecordsLostListener listener);
-
-	public interface OnFinishListener {
-		void onFinish(long id);
-	}
 }

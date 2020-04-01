@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.app;
 
+import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
 
 import java.io.File;
@@ -23,7 +24,9 @@ import java.io.File;
 public interface AppRecorderCallback {
 	void onRecordingStarted(File file);
 	void onRecordingPaused();
-	void onRecordingStopped(File file);
+	void onRecordProcessing();
+	void onRecordFinishProcessing();
+	void onRecordingStopped(File file, Record record);
 	void onRecordingProgress(long mills, int amp);
 	void onError(AppException throwable);
 }

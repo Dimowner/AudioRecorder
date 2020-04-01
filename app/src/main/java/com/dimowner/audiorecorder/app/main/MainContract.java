@@ -59,7 +59,9 @@ public interface MainContract {
 		void hideRecordProcessing();
 
 		void showWaveForm(int[] waveForm, long duration);
+		void waveFormToStart();
 		void showDuration(String duration);
+		void showRecordingProgress(String progress);
 		void showName(String name);
 
 		void askDeleteRecord(String name);

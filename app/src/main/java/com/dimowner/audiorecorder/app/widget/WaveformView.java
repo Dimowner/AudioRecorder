@@ -24,7 +24,6 @@ import android.graphics.Path;
 import android.graphics.Typeface;
 import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
@@ -88,8 +87,6 @@ public class WaveformView extends View {
 
 	private OnSeekListener onSeekListener;
 
-	private GestureDetector gestureDetector;
-
 	public WaveformView(Context context) {
 		super(context);
 		init(context);
@@ -142,23 +139,6 @@ public class WaveformView extends View {
 		waveForm = null;
 		isInitialized = false;
 
-		gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-			@Override
-			public boolean onDown(MotionEvent e) {
-				return true;
-			}
-
-			@Override
-			public boolean onDoubleTap(MotionEvent e) {
-				if (e.getX() > getWidth()/2f) {
-					rewindMills(10000);
-				} else {
-					rewindMills(-10000);
-				}
-				return true;
-			}
-		});
-
 		setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent motionEvent) {
@@ -198,7 +178,7 @@ public class WaveformView extends View {
 							break;
 					}
 				}
-				return gestureDetector.onTouchEvent(motionEvent);
+				return true;
 			}
 		});
 	}
@@ -280,7 +260,6 @@ public class WaveformView extends View {
 		isShortWaveForm = true;
 		showRecording = true;
 		invalidate();
-		setWaveform(new int[] {});
 	}
 
 	public void hideRecording() {
@@ -309,16 +288,28 @@ public class WaveformView extends View {
 		invalidate();
 	}
 
-	public void setRecordingData(IntArrayList data) {
-		if (data != null) {
-			recordingData.clear();
-			for (int i = 0; i < data.size(); i++) {
-				recordingData.add(convertAmp(data.get(i)));
+	public void setRecordingData(final IntArrayList data) {
+		post(new Runnable() {
+			@Override
+			public void run() {
+				if (data != null) {
+					recordingData.clear();
+					int count = (int)AndroidUtils.pxToDp(viewWidth/2);
+					if (data.size() > count) {
+						for (int i = data.size() - count; i < data.size(); i++) {
+							recordingData.add(convertAmp(data.get(i)));
+						}
+					} else {
+						for (int i = 0; i < data.size(); i++) {
+							recordingData.add(convertAmp(data.get(i)));
+						}
+					}
+					totalRecordingSize = data.size();
+					updateShifts((int) -AndroidUtils.dpToPx(totalRecordingSize));
+					invalidate();
+				}
 			}
-			totalRecordingSize = recordingData.size();
-			updateShifts((int) -AndroidUtils.dpToPx(totalRecordingSize));
-			invalidate();
-		}
+		});
 	}
 
 	/**
