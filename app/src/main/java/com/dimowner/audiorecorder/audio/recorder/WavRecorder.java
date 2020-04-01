@@ -32,6 +32,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -86,7 +88,6 @@ public class WavRecorder implements RecorderContract.Recorder {
 
 	@Override
 	public void prepare(String outputFile, int channelCount, int sampleRate, int bitrate) {
-		Timber.v("prepare file: %s", outputFile + " channelCount = " + channelCount);
 		this.sampleRate = sampleRate;
 //		this.framesPerVisInterval = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/sampleRate));
 		this.channelCount = channelCount;
@@ -97,7 +98,6 @@ public class WavRecorder implements RecorderContract.Recorder {
 				bufferSize = AudioRecord.getMinBufferSize(sampleRate,
 						channel,
 						AudioFormat.ENCODING_PCM_16BIT);
-				Timber.v("buffer size = %s", bufferSize);
 				if (bufferSize == AudioRecord.ERROR || bufferSize == AudioRecord.ERROR_BAD_VALUE) {
 					bufferSize = AudioRecord.getMinBufferSize(sampleRate,
 							channel,
@@ -216,8 +216,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 	}
 
 	private void writeAudioDataToFile() {
-		byte data[] = new byte[bufferSize];
-
+		byte[] data = new byte[bufferSize];
 		FileOutputStream fos;
 		try {
 			fos = new FileOutputStream(recordFile);
@@ -227,15 +226,22 @@ public class WavRecorder implements RecorderContract.Recorder {
 		}
 		if (null != fos) {
 			int chunksCount = 0;
+			ByteBuffer shortBuffer = ByteBuffer.allocate(2);
+			shortBuffer.order(ByteOrder.LITTLE_ENDIAN);
 			//TODO: Disable loop while pause.
 			while (isRecording) {
 				if (!isPaused) {
 					chunksCount += recorder.read(data, 0, bufferSize);
 					if (AudioRecord.ERROR_INVALID_OPERATION != chunksCount) {
-						lastVal = (Math.abs((data[0]) + (data[1] << 8))
-								+ Math.abs((data[2]) + (data[3] << 8)))
-								+ (Math.abs((data[4]) + (data[5] << 8))
-								+ Math.abs((data[6]) + (data[7] << 8)));
+						long sum = 0;
+						for (int i = 0; i < bufferSize; i+=2) {
+							//TODO: find a better way to covert bytes into shorts.
+							shortBuffer.put(data[i]);
+							shortBuffer.put(data[i+1]);
+							sum += Math.abs(shortBuffer.getShort(0));
+							shortBuffer.clear();
+						}
+						lastVal = (int)(sum/(bufferSize/16));
 						try {
 							fos.write(data);
 						} catch (IOException e) {
