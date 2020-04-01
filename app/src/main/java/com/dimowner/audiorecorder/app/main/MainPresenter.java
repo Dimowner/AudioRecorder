@@ -273,7 +273,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				}
 				view.showPlayPause();
 			}
-		} else if (appRecorder.isPaused()) {
+		} else {
+			audioPlayer.seek(0);
+			view.showPlayStop();
+		}
+
+		if (appRecorder.isPaused()) {
 			view.keepScreenOn(false);
 			view.showRecordingPause();
 			view.showRecordingProgress(TimeUtils.formatTimeIntervalHourMinSec2(appRecorder.getRecordingDuration()));
@@ -286,8 +291,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		} else {
 			view.showRecordingStop();
 			view.keepScreenOn(false);
-			audioPlayer.seek(0);
-			view.showPlayStop();
 		}
 		if (appRecorder.isProcessing()) {
 			view.showRecordProcessing();
