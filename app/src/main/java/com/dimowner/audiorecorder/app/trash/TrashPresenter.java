@@ -48,11 +48,13 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override
 					public void run() {
-						if (list.isEmpty()) {
-							view.showEmpty();
-						} else {
-							view.showRecords(list);
-							view.hideEmpty();
+						if (view != null) {
+							if (list.isEmpty()) {
+								view.showEmpty();
+							} else {
+								view.showRecords(list);
+								view.hideEmpty();
+							}
 						}
 					}
 				});
@@ -80,7 +82,9 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 		} else {
 			format = "";
 		}
-		view.showRecordInfo(new RecordInfo(name, format, duration, new File(location).length(), location, created));
+		if (view != null) {
+			view.showRecordInfo(new RecordInfo(name, format, duration, new File(location).length(), location, created));
+		}
 	}
 
 	@Override
