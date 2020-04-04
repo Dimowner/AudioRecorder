@@ -113,7 +113,9 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 		} else {
 			format = "";
 		}
-		view.showRecordInfo(new RecordInfo(FileUtil.removeFileExtension(name), format, duration/1000, new File(location).length(), location, created));
+		if (view != null) {
+			view.showRecordInfo(new RecordInfo(FileUtil.removeFileExtension(name), format, duration / 1000, new File(location).length(), location, created));
+		}
 	}
 
 	@Override

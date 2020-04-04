@@ -204,14 +204,17 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		loadingTasks.postRunnable(new Runnable() {
 			@Override
 			public void run() {
-				int count = localRepository.getTrashRecordsCount();
-				if (view != null) {
-					if (count > 0) {
-						view.showTrashBtn();
-					} else {
-						view.hideTrashBtn();
-					}
-				}
+				final int count = localRepository.getTrashRecordsCount();
+				AndroidUtils.runOnUIThread(new Runnable() {
+					@Override public void run() {
+						if (view != null) {
+							if (count > 0) {
+								view.showTrashBtn();
+							} else {
+								view.hideTrashBtn();
+							}
+						}
+					}});
 			}
 		});
 	}

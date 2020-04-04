@@ -48,13 +48,7 @@ public class PlaybackService extends Service {
 
 	public static final String ACTION_START_PLAYBACK_SERVICE = "ACTION_START_PLAYBACK_SERVICE";
 
-	public static final String ACTION_STOP_PLAYBACK_SERVICE = "ACTION_STOP_PLAYBACK_SERVICE";
-
 	public static final String ACTION_PAUSE_PLAYBACK = "ACTION_PAUSE_PLAYBACK";
-
-	public static final String ACTION_PLAY_NEXT = "ACTION_PLAY_NEXT";
-
-	public static final String ACTION_PLAY_PREV = "ACTION_PLAY_PREV";
 
 	public static final String ACTION_CLOSE = "ACTION_CLOSE";
 
@@ -107,22 +101,12 @@ public class PlaybackService extends Service {
 							startForeground(intent.getStringExtra(EXTRAS_KEY_RECORD_NAME));
 						}
 						break;
-					case ACTION_STOP_PLAYBACK_SERVICE:
-						stopForegroundService();
-						break;
 					case ACTION_PAUSE_PLAYBACK:
 						audioPlayer.playOrPause();
 						break;
 					case ACTION_CLOSE:
 						audioPlayer.stop();
 						stopForegroundService();
-						break;
-					case ACTION_PLAY_NEXT:
-						break;
-					case ACTION_PLAY_PREV:
-						if (audioPlayer.isPlaying()) {
-							audioPlayer.pause();
-						}
 						break;
 				}
 			}
@@ -233,7 +217,7 @@ public class PlaybackService extends Service {
 
 			notificationManager.createNotificationChannel(chan);
 		} else {
-			Timber.v("Channel already exists: " + CHANNEL_ID);
+			Timber.d("Channel already exists: " + CHANNEL_ID);
 		}
 		return channelId;
 	}

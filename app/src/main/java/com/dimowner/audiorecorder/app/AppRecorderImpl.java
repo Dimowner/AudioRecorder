@@ -107,29 +107,18 @@ public class AppRecorderImpl implements AppRecorder {
 						long duration = AndroidUtils.readRecordDuration(output);
 						int[] waveForm = convertRecordingData(recordingData, (int) (duration / 1000000f));
 						final Record record = localRepository.getRecord((int) prefs.getActiveRecord());
-						final Record update = new Record(
-								record.getId(),
-								record.getName(),
-								duration,
-								record.getCreated(),
-								record.getAdded(),
-								record.getRemoved(),
-								record.getPath(),
-								record.isBookmarked(),
-								record.isWaveformProcessed(),
-								waveForm);
-						if (localRepository.updateRecord(update)) {
-							recordingData.clear();
-							final Record rec = localRepository.getRecord(update.getId());
-							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override
-								public void run() {
-									onRecordingStopped(output, rec);
-								}
-							});
-							decodeRecordWaveform(rec);
-						} else {
-							//Try to update record again if failed.
+						if (record != null) {
+							final Record update = new Record(
+									record.getId(),
+									record.getName(),
+									duration,
+									record.getCreated(),
+									record.getAdded(),
+									record.getRemoved(),
+									record.getPath(),
+									record.isBookmarked(),
+									record.isWaveformProcessed(),
+									waveForm);
 							if (localRepository.updateRecord(update)) {
 								recordingData.clear();
 								final Record rec = localRepository.getRecord(update.getId());
@@ -141,8 +130,23 @@ public class AppRecorderImpl implements AppRecorder {
 								});
 								decodeRecordWaveform(rec);
 							} else {
-								onRecordingStopped(output, record);
+								//Try to update record again if failed.
+								if (localRepository.updateRecord(update)) {
+									recordingData.clear();
+									final Record rec = localRepository.getRecord(update.getId());
+									AndroidUtils.runOnUIThread(new Runnable() {
+										@Override
+										public void run() {
+											onRecordingStopped(output, rec);
+										}
+									});
+									decodeRecordWaveform(rec);
+								} else {
+									onRecordingStopped(output, record);
+								}
 							}
+						} else {
+							//TODO: Error on record update.
 						}
 					}
 				});

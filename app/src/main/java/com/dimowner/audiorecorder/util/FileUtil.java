@@ -246,13 +246,16 @@ public class FileUtil {
 	}
 
 	public static long getAvailableInternalMemorySize(Context context) {
-		//TODO: fix nullable file
 		File file = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
-		StatFs fsi = new StatFs(file.getAbsolutePath());
-		if (Build.VERSION.SDK_INT >= 18) {
-			return fsi.getBlockSizeLong() * fsi.getAvailableBlocksLong();
+		if (file != null) {
+			StatFs fsi = new StatFs(file.getAbsolutePath());
+			if (Build.VERSION.SDK_INT >= 18) {
+				return fsi.getBlockSizeLong() * fsi.getAvailableBlocksLong();
+			} else {
+				return fsi.getBlockSize() * (long) fsi.getAvailableBlocks();
+			}
 		} else {
-			return fsi.getBlockSize() * (long) fsi.getAvailableBlocks();
+			return 0;
 		}
 	}
 

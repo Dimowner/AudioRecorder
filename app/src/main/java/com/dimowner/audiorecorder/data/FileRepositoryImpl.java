@@ -159,4 +159,27 @@ public class FileRepositoryImpl implements FileRepository {
 			}
 		}
 	}
+
+	@Override
+	public boolean hasAvailableSpace(Context context) {
+		long space;
+		if (prefs.isStoreDirPublic()) {
+			space = FileUtil.getAvailableExternalMemorySize();
+		} else {
+			space = FileUtil.getAvailableInternalMemorySize(context);
+		}
+
+		final long time = spaceToTimeSecs(space, prefs.getFormat(), prefs.getSampleRate(), prefs.getRecordChannelCount());
+		return time > AppConstants.MIN_REMAIN_RECORDING_TIME;
+	}
+
+	private long spaceToTimeSecs(long spaceBytes, int format, int sampleRate, int channels) {
+		if (format == AppConstants.RECORDING_FORMAT_M4A) {
+			return 1000 * (spaceBytes/(AppConstants.RECORD_ENCODING_BITRATE_48000 /8));
+		} else if (format == AppConstants.RECORDING_FORMAT_WAV) {
+			return 1000 * (spaceBytes/(sampleRate * channels * 2));
+		} else {
+			return 0;
+		}
+	}
 }

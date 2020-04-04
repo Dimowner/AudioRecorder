@@ -41,11 +41,9 @@ import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.main.MainActivity;
 import com.dimowner.audiorecorder.data.FileRepository;
-import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.util.AndroidUtils;
-import com.dimowner.audiorecorder.util.FileUtil;
 
 import java.io.File;
 
@@ -68,14 +66,12 @@ public class RecordingService extends Service {
 	private NotificationCompat.Builder builder;
 	private NotificationManager notificationManager;
 	private RemoteViews remoteViewsSmall;
-//	private RemoteViews remoteViewsBig;
 	private Notification notification;
 
 	private AppRecorder appRecorder;
 	private AppRecorderCallback appRecorderCallback;
 	private ColorMap colorMap;
 	private boolean started = false;
-	private Prefs prefs;
 	private FileRepository fileRepository;
 
 	public RecordingService() {
@@ -91,7 +87,6 @@ public class RecordingService extends Service {
 		super.onCreate();
 		appRecorder = ARApplication.getInjector().provideAppRecorder();
 		colorMap = ARApplication.getInjector().provideColorMap();
-		prefs = ARApplication.getInjector().providePrefs();
 		fileRepository = ARApplication.getInjector().provideFileRepository();
 
 		appRecorderCallback = new AppRecorderCallback() {
@@ -108,7 +103,7 @@ public class RecordingService extends Service {
 			@Override
 			public void onRecordingProgress(long mills, int amp) {
 				if (mills % (5 * AppConstants.VISUALIZATION_INTERVAL * AppConstants.SHORT_RECORD_DP_PER_SECOND) == 0
-						&& !hasAvailableSpace()) {
+						&& !fileRepository.hasAvailableSpace(getApplicationContext())) {
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override
 						public void run() {
@@ -143,28 +138,6 @@ public class RecordingService extends Service {
 
 		NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
 		notificationManager.notify(303, builder.build());
-	}
-
-	private boolean hasAvailableSpace() {
-		long space;
-		if (prefs.isStoreDirPublic()) {
-			space = FileUtil.getAvailableExternalMemorySize();
-		} else {
-			space = FileUtil.getAvailableInternalMemorySize(getApplicationContext());
-		}
-
-		final long time = spaceToTimeSecs(space, prefs.getFormat(), prefs.getSampleRate(), prefs.getRecordChannelCount());
-		return time > AppConstants.MIN_REMAIN_RECORDING_TIME;
-	}
-
-	private long spaceToTimeSecs(long spaceBytes, int format, int sampleRate, int channels) {
-		if (format == AppConstants.RECORDING_FORMAT_M4A) {
-			return 1000 * (spaceBytes/(AppConstants.RECORD_ENCODING_BITRATE_48000 /8));
-		} else if (format == AppConstants.RECORDING_FORMAT_WAV) {
-			return 1000 * (spaceBytes/(sampleRate * channels * 2));
-		} else {
-			return 0;
-		}
 	}
 
 	@Override
