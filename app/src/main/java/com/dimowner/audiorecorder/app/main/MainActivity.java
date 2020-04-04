@@ -39,6 +39,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
@@ -107,6 +108,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private SeekBar playProgress;
 	private LinearLayout pnlImportProgress;
 	private LinearLayout pnlRecordProcessing;
+	private ImageView ivPlaceholder;
 
 	private MainContract.UserActionsListener presenter;
 	private ColorMap colorMap;
@@ -137,6 +139,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		playProgress = findViewById(R.id.play_progress);
 		pnlImportProgress = findViewById(R.id.pnl_import_progress);
 		pnlRecordProcessing = findViewById(R.id.pnl_record_processing);
+		ivPlaceholder = findViewById(R.id.placeholder);
 
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 
@@ -317,13 +320,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showProgress() {
-		waveformView.setVisibility(View.INVISIBLE);
 		progressBar.setVisibility(View.VISIBLE);
 	}
 
 	@Override
 	public void hideProgress() {
-		waveformView.setVisibility(View.VISIBLE);
 		progressBar.setVisibility(View.GONE);
 	}
 
@@ -363,6 +364,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		playProgress.setEnabled(false);
 		txtDuration.setText(R.string.zero_time);
 		waveformView.showRecording();
+		waveformView.setVisibility(View.VISIBLE);
+		ivPlaceholder.setVisibility(View.GONE);
 	}
 
 	@Override
@@ -402,6 +405,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnRecordingStop.setEnabled(true);
 		playProgress.setEnabled(false);
 		btnShare.setEnabled(false);
+		waveformView.setVisibility(View.VISIBLE);
+		ivPlaceholder.setVisibility(View.GONE);
 	}
 
 	@Override
@@ -482,10 +487,14 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			btnPlay.setVisibility(View.VISIBLE);
 			txtDuration.setVisibility(View.VISIBLE);
 			txtZeroTime.setVisibility(View.VISIBLE);
+			ivPlaceholder.setVisibility(View.GONE);
+			waveformView.setVisibility(View.VISIBLE);
 		} else {
 			btnPlay.setVisibility(View.INVISIBLE);
 			txtDuration.setVisibility(View.INVISIBLE);
 			txtZeroTime.setVisibility(View.INVISIBLE);
+			ivPlaceholder.setVisibility(View.VISIBLE);
+			waveformView.setVisibility(View.INVISIBLE);
 		}
 		waveformView.setWaveform(waveForm);
 		waveformView.setPxPerSecond(AndroidUtils.dpToPx(ARApplication.getDpPerSecond((float)duration/1000000f)));

@@ -131,6 +131,15 @@
 				android:layout_gravity="center"
 				>
 
+			<ImageView
+					android:id="@+id/placeholder"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:src="@drawable/waveform"
+					android:visibility="gone"
+					android:layout_gravity="center"
+					tools:visibility="visible"/>
+
 			<com.dimowner.audiorecorder.app.widget.WaveformView
 					android:id="@+id/record"
 					android:layout_width="wrap_content"
