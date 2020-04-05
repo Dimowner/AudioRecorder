@@ -36,6 +36,7 @@ public interface MainContract {
 		void showRecordingStop();
 		void showRecordingPause();
 		void onRecordingProgress(long mills, int amp);
+		void startWelcomeScreen();
 
 		void askRecordingNewName(long id, File file);
 
@@ -77,7 +78,7 @@ public interface MainContract {
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
 
-		void executeFirstRun();
+		void checkFirstRun();
 
 		void setAudioRecorder(RecorderContract.Recorder recorder);
 

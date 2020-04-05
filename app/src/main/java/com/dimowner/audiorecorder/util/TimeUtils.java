@@ -46,6 +46,9 @@ public class TimeUtils {
 	/** Date format: 2019.09.22 11:30 */
 	private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss", Locale.getDefault());
 
+	/** Date format: 22.11.2018 11:30 */
+	private static SimpleDateFormat dateTimeFormat2 = new SimpleDateFormat("dd.MM.yyyy HH.mm.ss", Locale.getDefault());
+
 	/** Time format: 11:30 */
 	private static SimpleDateFormat timeFormatEU = new SimpleDateFormat("HH:mm", Locale.FRANCE);
 
@@ -168,6 +171,10 @@ public class TimeUtils {
 
 	public static String formatDateForName(long time) {
 			return dateTimeFormat.format(new Date(time));
+	}
+
+	public static String formatDateForNameVariant(long time) {
+		return dateTimeFormat2.format(new Date(time));
 	}
 
 	public static String formatDateTime(long time) {

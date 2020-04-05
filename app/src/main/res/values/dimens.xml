@@ -19,6 +19,7 @@
 	<dimen name="text_xmedium">18sp</dimen>
 	<dimen name="text_large">20sp</dimen>
 	<dimen name="text_xlarge">24sp</dimen>
+	<dimen name="text_double">36sp</dimen>
 	<dimen name="text_largest">48sp</dimen>
 
 	<dimen name="divider_height">1dp</dimen>

@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.app.settings;
+package com.dimowner.audiorecorder.app.setup;
 
 import com.dimowner.audiorecorder.Contract;
 
-public class SettingsContract {
+public class SetupContract {
 
 	interface View extends Contract.View {
 
 		void showStoreInPublicDir(boolean b);
 
-		void showKeepScreenOn(boolean b);
 		void showRecordInStereo(boolean b);
-
-		void showAskToRenameAfterRecordingStop(boolean b);
 
 		void showRecordingBitrate(int bitrate);
 
@@ -37,15 +34,8 @@ public class SettingsContract {
 
 		void showNamingFormat(int format);
 
-		void showAllRecordsDeleted();
-
-		void showFailDeleteAllRecords();
-
-		void showTotalRecordsDuration(String duration);
-		void showRecordsCount(int count);
-		void showAvailableSpace(String space);
-
 		void showBitrateSelector();
+
 		void hideBitrateSelector();
 
 		void showDialogPublicDirInfo();
@@ -53,15 +43,11 @@ public class SettingsContract {
 		void showDialogPrivateDirInfo();
 	}
 
-	public interface UserActionsListener extends Contract.UserActionsListener<SettingsContract.View> {
+	public interface UserActionsListener extends Contract.UserActionsListener<SetupContract.View> {
 
 		void loadSettings();
 
 		void storeInPublicDir(boolean b);
-
-		void keepScreenOn(boolean b);
-
-		void askToRenameAfterRecordingStop(boolean b);
 
 		void recordInStereo(boolean stereo);
 
@@ -73,6 +59,6 @@ public class SettingsContract {
 
 		void setSampleRate(int rate);
 
-		void deleteAllRecords();
+		void executeFirstRun();
 	}
 }

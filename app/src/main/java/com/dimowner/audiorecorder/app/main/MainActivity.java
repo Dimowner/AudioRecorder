@@ -59,6 +59,7 @@ import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.records.RecordsActivity;
 import com.dimowner.audiorecorder.app.settings.SettingsActivity;
+import com.dimowner.audiorecorder.app.welcome.WelcomeActivity;
 import com.dimowner.audiorecorder.app.widget.WaveformView;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
@@ -113,6 +114,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private MainContract.UserActionsListener presenter;
 	private ColorMap colorMap;
 	private ColorMap.OnThemeColorChangeListener onThemeColorChangeListener;
+
+	public static Intent getStartIntent(Context context) {
+		return new Intent(context, MainActivity.class);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -178,7 +183,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		});
 
 		presenter = ARApplication.getInjector().provideMainPresenter();
-		presenter.executeFirstRun();
+		presenter.checkFirstRun();
 
 		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
 			@Override
@@ -220,6 +225,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	protected void onStart() {
 		super.onStart();
 		presenter.bindView(this);
+		presenter.checkFirstRun();
 		presenter.setAudioRecorder(ARApplication.getInjector().provideAudioRecorder());
 		presenter.updateRecordingDir(getApplicationContext());
 		presenter.loadActiveRecord();
@@ -418,6 +424,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void onRecordingProgress(long mills, int amp) {
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 		waveformView.addRecordAmp(amp);
+	}
+
+	@Override
+	public void startWelcomeScreen() {
+		startActivity(WelcomeActivity.getStartIntent(getApplicationContext()));
+		finish();
 	}
 
 	@Override

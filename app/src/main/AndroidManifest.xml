@@ -46,6 +46,10 @@
 				android:screenOrientation="portrait"/>
 		<activity android:name="com.dimowner.audiorecorder.app.trash.TrashActivity"
 				android:screenOrientation="portrait"/>
+		<activity android:name="com.dimowner.audiorecorder.app.welcome.WelcomeActivity"
+				android:screenOrientation="portrait"/>
+		<activity android:name="com.dimowner.audiorecorder.app.setup.SetupActivity"
+				android:screenOrientation="portrait"/>
 
 		<service android:name="com.dimowner.audiorecorder.app.RecordingService" />
 		<service android:name="com.dimowner.audiorecorder.app.PlaybackService" />

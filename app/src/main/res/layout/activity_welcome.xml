@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  Copyright 2020 Dmitriy Ponomarenko
+  ~
+  ~  Licensed to the Apache Software Foundation (ASF) under one or more contributor
+  ~  license agreements. See the NOTICE file distributed with this work for
+  ~  additional ic_information regarding copyright ownership. The ASF licenses this
+  ~  file to you under the Apache License, Version 2.0 (the "License"); you may not
+  ~  use this file except in compliance with the License. You may obtain a copy of
+  ~  the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  ~  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+  ~  License for the specific language governing permissions and limitations under
+  ~  the License.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:app="http://schemas.android.com/apk/res-auto"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical">
+
+	<FrameLayout
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1" >
+
+		<ImageView
+				android:id="@+id/item_image_first"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:contentDescription="@null"
+				android:layout_marginBottom="@dimen/spacing_huge"
+				android:src="@drawable/waveform"
+				/>
+
+		<ImageView
+				android:id="@+id/item_image_second"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:contentDescription="@null"
+				android:layout_marginBottom="@dimen/spacing_huge"
+				android:src="@drawable/waveform"
+				/>
+
+		<androidx.viewpager2.widget.ViewPager2
+				android:id="@+id/pager"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"/>
+
+	</FrameLayout>
+
+	<Button
+			android:id="@+id/btn_get_started"
+			style="@style/Widget.RaisedButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:layout_marginTop="@dimen/spacing_normal"
+			android:text="@string/btn_next"
+			android:textSize="@dimen/text_normal" />
+
+	<com.dimowner.audiorecorder.app.InkPageIndicator
+			android:id="@+id/pageIndicator"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/spacing_xnormal"
+			android:layout_marginBottom="@dimen/spacing_xdouble"
+			android:layout_gravity="center_horizontal"
+			android:importantForAccessibility="no"
+			app:ipi_currentPageIndicatorColor="@color/md_yellow_A700"
+			app:ipi_pageIndicatorColor="@color/white_transparent_50" />
+
+	<Space
+			android:id="@+id/navigation_height"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content" />
+</LinearLayout>

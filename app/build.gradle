@@ -120,6 +120,8 @@ dependencies {
 	implementation "com.jakewharton.timber:timber:$versions.timber"
 	implementation "androidx.recyclerview:recyclerview:$versions.androidX"
 
+	implementation "androidx.viewpager2:viewpager2:1.0.0"
+
 //	implementation('com.crashlytics.sdk.android:crashlytics:2.9.8@aar') {
 //		transitive = true
 //	}

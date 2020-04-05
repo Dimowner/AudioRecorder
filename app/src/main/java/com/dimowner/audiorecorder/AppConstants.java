@@ -37,6 +37,8 @@ public class AppConstants {
 
 	public static final int NAMING_COUNTED = 0;
 	public static final int NAMING_DATE = 1;
+	public static final int NAMING_DATE_VARIANT = 2;
+	public static final int NAMING_MILLISECONDS = 3;
 
 	public static final int RECORDING_FORMAT_M4A = 0;
 	public static final int RECORDING_FORMAT_WAV = 1;

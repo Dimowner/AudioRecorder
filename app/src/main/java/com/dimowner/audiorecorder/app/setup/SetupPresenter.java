@@ -14,35 +14,21 @@
  * limitations under the License.
  */
 
-package com.dimowner.audiorecorder.app.settings;
+package com.dimowner.audiorecorder.app.setup;
 
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
-import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
-import com.dimowner.audiorecorder.data.database.LocalRepository;
-import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
-import com.dimowner.audiorecorder.util.FileUtil;
-import com.dimowner.audiorecorder.util.TimeUtils;
 
-import java.util.List;
+public class SetupPresenter implements SetupContract.UserActionsListener {
 
-public class SettingsPresenter implements SettingsContract.UserActionsListener {
+	private SetupContract.View view;
 
-	private SettingsContract.View view;
-
-	private final BackgroundQueue recordingsTasks;
-	private final FileRepository fileRepository;
-	private final LocalRepository localRepository;
 	private final BackgroundQueue loadingTasks;
 	private final Prefs prefs;
 
-	public SettingsPresenter(final LocalRepository localRepository, FileRepository fileRepository,
-									 BackgroundQueue recordingsTasks, final BackgroundQueue loadingTasks, Prefs prefs) {
-		this.localRepository = localRepository;
-		this.fileRepository = fileRepository;
-		this.recordingsTasks = recordingsTasks;
+	public SetupPresenter(final BackgroundQueue loadingTasks, Prefs prefs) {
 		this.loadingTasks = loadingTasks;
 		this.prefs = prefs;
 	}
@@ -55,18 +41,9 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		loadingTasks.postRunnable(new Runnable() {
 			@Override
 			public void run() {
-				final List<Long> durations = localRepository.getRecordsDurations();
-				long totalDuration = 0;
-				for (int i = 0; i < durations.size(); i++) {
-					totalDuration += durations.get(i);
-				}
-				final long finalTotalDuration = totalDuration;
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override public void run() {
 						if (view != null) {
-							view.showTotalRecordsDuration(TimeUtils.formatTimeIntervalHourMinSec(finalTotalDuration / 1000));
-							view.showRecordsCount(durations.size());
-							updateAvailableSpace();
 							view.hideProgress();
 						}
 					}
@@ -75,9 +52,7 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		});
 		if (view != null) {
 			view.showStoreInPublicDir(prefs.isStoreDirPublic());
-			view.showAskToRenameAfterRecordingStop(prefs.isAskToRenameAfterStopRecording());
 			view.showRecordInStereo(prefs.getRecordChannelCount() == AppConstants.RECORD_AUDIO_STEREO);
-			view.showKeepScreenOn(prefs.isKeepScreenOn());
 			int format = prefs.getFormat();
 			view.showRecordingFormat(format);
 			if (format == AppConstants.RECORDING_FORMAT_WAV) {
@@ -140,19 +115,8 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	}
 
 	@Override
-	public void keepScreenOn(boolean keep) {
-		prefs.setKeepScreenOn(keep);
-	}
-
-	@Override
-	public void askToRenameAfterRecordingStop(boolean b) {
-		prefs.setAskToRenameAfterStopRecording(b);
-	}
-
-	@Override
 	public void recordInStereo(boolean stereo) {
 		prefs.setRecordInStereo(stereo);
-		updateAvailableSpace();
 	}
 
 	@Override
@@ -177,13 +141,11 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 				break;
 		}
 		prefs.setBitrate(rate);
-		updateAvailableSpace();
 	}
 
 	@Override
 	public void setRecordingFormat(int format) {
 		prefs.setFormat(format);
-		updateAvailableSpace();
 		if (view != null) {
 			if (format == AppConstants.RECORDING_FORMAT_WAV) {
 				view.hideBitrateSelector();
@@ -219,43 +181,17 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 				rate = AppConstants.RECORD_SAMPLE_RATE_44100;
 		}
 		prefs.setSampleRate(rate);
-		updateAvailableSpace();
 	}
 
 	@Override
-	public void deleteAllRecords() {
-		recordingsTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-//				List<Record> records  = localRepository.getAllRecords();
-//				for (int i = 0; i < records.size(); i++) {
-//					fileRepository.deleteRecordFile(records.get(i).getPath());
-//				}
-//				boolean b2 = localRepository.deleteAllRecords();
-//				prefs.setActiveRecord(-1);
-//				if (b2) {
-//					AndroidUtils.runOnUIThread(new Runnable() {
-//						@Override
-//						public void run() {
-//							if (view != null) {
-//								view.showAllRecordsDeleted();
-//							}
-//						}});
-//				} else {
-//					AndroidUtils.runOnUIThread(new Runnable() {
-//						@Override
-//						public void run() {
-//							if (view != null) {
-//								view.showFailDeleteAllRecords();
-//							}
-//						}});
-//				}
-			}
-		});
+	public void executeFirstRun() {
+		if (prefs.isFirstRun()) {
+			prefs.firstRunExecuted();
+		}
 	}
 
 	@Override
-	public void bindView(SettingsContract.View view) {
+	public void bindView(SetupContract.View view) {
 		this.view = view;
 	}
 
@@ -270,24 +206,6 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	public void clear() {
 		if (view != null) {
 			unbindView();
-		}
-	}
-
-	private void updateAvailableSpace() {
-		final long space = FileUtil.getFree(fileRepository.getRecordingDir());
-		final long time = spaceToTimeSecs(space, prefs.getFormat(), prefs.getSampleRate(), prefs.getRecordChannelCount());
-		if (view != null) {
-			view.showAvailableSpace(TimeUtils.formatTimeIntervalHourMinSec(time));
-		}
-	}
-
-	private long spaceToTimeSecs(long spaceBytes, int format, int sampleRate, int channels) {
-		if (format == AppConstants.RECORDING_FORMAT_M4A) {
-			return 1000 * (spaceBytes/(AppConstants.RECORD_ENCODING_BITRATE_48000 /8));
-		} else if (format == AppConstants.RECORDING_FORMAT_WAV) {
-			return 1000 * (spaceBytes/(sampleRate * channels * 2));
-		} else {
-			return 0;
 		}
 	}
 }

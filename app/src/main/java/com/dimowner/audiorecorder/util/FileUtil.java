@@ -83,6 +83,15 @@ public class FileUtil {
 		return AppConstants.BASE_RECORD_NAME_SHORT + TimeUtils.formatDateForName(System.currentTimeMillis());
 	}
 
+	public static String generateRecordNameDateVariant() {
+		return TimeUtils.formatDateForNameVariant(System.currentTimeMillis());
+	}
+
+	public static String generateRecordNameMills() {
+		return String.valueOf(System.currentTimeMillis());
+	}
+
+
 	public static String addExtension(String name, String extension) {
 		return name + AppConstants.EXTENSION_SEPARATOR + extension;
 	}
