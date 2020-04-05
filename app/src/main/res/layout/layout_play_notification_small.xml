@@ -72,8 +72,8 @@
 
 	<ImageButton
 			android:id="@+id/btn_pause"
-			android:layout_width="@dimen/bottom_pnl_btn_size"
-			android:layout_height="@dimen/bottom_pnl_btn_size"
+			android:layout_width="@dimen/notification_btn"
+			android:layout_height="@dimen/notification_btn"
 			android:adjustViewBounds="true"
 			android:background="?android:selectableItemBackgroundBorderless"
 			android:contentDescription="@null"
@@ -84,15 +84,15 @@
 
 	<ImageButton
 			android:id="@+id/btn_close"
-			android:layout_width="@dimen/bottom_pnl_small_btn_size"
-			android:layout_height="@dimen/bottom_pnl_btn_size"
+			android:layout_width="@dimen/notification_btn"
+			android:layout_height="@dimen/notification_btn"
 			android:adjustViewBounds="true"
 			android:background="?android:selectableItemBackgroundBorderless"
 			android:contentDescription="@null"
 			android:padding="@dimen/spacing_normal"
 			android:layout_gravity="center_vertical"
 			android:scaleType="center"
-			android:src="@drawable/ic_round_close"/>
+			android:src="@drawable/ic_stop"/>
 
 	<!--<ImageButton-->
 			<!--android:id="@+id/btn_next"-->
