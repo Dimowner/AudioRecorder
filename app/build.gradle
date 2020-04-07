@@ -6,9 +6,7 @@ ext.versions = [
 		targetSdkVersion: 28,
 		minSdkVersion   : 21,
 		androidX        : "1.1.0",
-
-		//Timber
-		timber          : "4.7.0",
+		timber          : "4.7.1",
 ]
 
 def versionMajor = 0
