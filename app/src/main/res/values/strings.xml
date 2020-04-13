@@ -4,7 +4,7 @@
 
 	<string name="records">Records</string>
 	<string name="settings">Settings</string>
-	<string name="setup">Initial setup</string>
+	<string name="setup">Setup</string>
 	<string name="welcome_1">Welcome to the Audio Recorder!</string>
 	<string name="rate_app">Rate app</string>
 	<string name="store_records_public">Store records in public dir</string>
@@ -97,7 +97,8 @@
 	<string name="btn_allow">Allow</string>
 	<string name="btn_details">Details</string>
 	<string name="btn_get_started">Get started</string>
-	<string name="btn_apply">Apply settings</string>
+	<string name="btn_apply">Go recording</string>
+	<string name="btn_set_default">Set default</string>
 	<string name="btn_next">Next</string>
 
 	<string name="error_unknown">Unexpected error</string>

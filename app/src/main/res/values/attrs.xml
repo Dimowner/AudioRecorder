@@ -7,4 +7,33 @@
 		<attr name="ipi_pageIndicatorColor" format="color" />
 		<attr name="ipi_currentPageIndicatorColor" format="color" />
 	</declare-styleable>
+
+	<attr name="primaryColor" format="color" />
+	<attr name="viewBackground" format="color" />
+	<attr name="gridColor" format="color" />
+	<attr name="gridBaseLineColor" format="color" />
+	<attr name="gridTextColor" format="color" />
+	<attr name="selectionColor" format="color" />
+	<attr name="overlayColor" format="color" />
+	<attr name="textCheckerColor" format="color" />
+	<attr name="panelColor" format="color" />
+	<attr name="panelTextColor" format="color" />
+	<attr name="scrubblerColor" format="color" />
+	<attr name="shadowColor" format="color" />
+	<attr name="tittleColor" format="color" />
+	<attr name="barOverlayColor" format="color" />
+	<attr name="arrowColor" format="color" />
+
+	<declare-styleable name="ChipsView">
+		<attr name="chipColor" format="color" />
+		<attr name="chipRadius" format="dimension" />
+		<attr name="rippleColor" format="color" />
+		<attr name="borderColor" format="color" />
+		<attr name="borderWidth" format="dimension" />
+		<attr name="chipTextSize" format="dimension" />
+		<attr name="chipPadding" format="dimension" />
+		<attr name="chipMargin" format="dimension" />
+		<attr name="chipTextColor" format="color" />
+		<attr name="chipTextSelectedColor" format="color" />
+	</declare-styleable>
 </resources>

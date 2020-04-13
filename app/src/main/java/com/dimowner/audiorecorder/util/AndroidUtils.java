@@ -92,6 +92,14 @@ public class AndroidUtils {
 	}
 
 	/**
+	 * Returns display pixel density.
+	 * @return display density value in pixels (pixel count per one dip).
+	 */
+	public static float getDisplayDensity() {
+		return Resources.getSystem().getDisplayMetrics().density;
+	}
+
+	/**
 	 * Convert pixels value (px) into density independent pixels (dip).
 	 * @param px Value needed to convert
 	 * @return Converted value in pixels.

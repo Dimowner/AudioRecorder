@@ -10,7 +10,10 @@
 
 	<color name="dark_white">#eaeaea</color>
 	<color name="white">#ffffff</color>
+	<color name="white_transparent_10">#E6FFFFFF</color>
+	<color name="white_transparent_20">#CDFFFFFF</color>
 	<color name="white_transparent_50">#7EFFFFFF</color>
+	<color name="white_transparent_90">#32FFFFFF</color>
 
 	<color name="divider">#12FFFFFF</color>
 

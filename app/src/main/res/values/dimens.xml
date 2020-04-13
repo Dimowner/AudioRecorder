@@ -8,8 +8,10 @@
 	<dimen name="spacing_medium">12dp</dimen>
 	<dimen name="spacing_xsmall">10dp</dimen>
 	<dimen name="spacing_small">8dp</dimen>
+	<dimen name="spacing_xtiny">6dp</dimen>
 	<dimen name="spacing_tiny">4dp</dimen>
 	<dimen name="spacing_zero">0dp</dimen>
+	<dimen name="border">2dp</dimen>
 	<dimen name="divider">1dp</dimen>
 
 	<dimen name="text_smallest">10sp</dimen>

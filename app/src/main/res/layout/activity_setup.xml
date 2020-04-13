@@ -14,184 +14,232 @@
   ~  See the License for the specific language governing permissions and
   ~  limitations under the License.
   -->
-<ScrollView
+<FrameLayout
 		xmlns:android="http://schemas.android.com/apk/res/android"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent">
+		android:layout_height="match_parent"
+		android:orientation="vertical">
+
+	<ScrollView
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
+
+		<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+			<LinearLayout
+					android:id="@+id/toolbar"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal">
+
+				<ImageButton
+						android:id="@+id/btn_back"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:contentDescription="@null"
+						android:layout_gravity="start"
+						android:background="?android:selectableItemBackgroundBorderless"
+						android:padding="@dimen/spacing_normal"
+						android:src="@drawable/ic_arrow_back"/>
+
+				<TextView
+						style="@style/Text.SectionLabel"
+						android:layout_width="wrap_content"
+						android:layout_height="@dimen/toolbar_height"
+						android:gravity="center_vertical"
+						android:paddingStart="@dimen/spacing_normal"
+						android:paddingLeft="@dimen/spacing_normal"
+						android:paddingEnd="@dimen/spacing_normal"
+						android:paddingRight="@dimen/spacing_normal"
+						android:text="@string/setup"
+						/>
+
+			</LinearLayout>
+
+			<Spinner
+					android:id="@+id/themeColor"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:visibility="visible"
+					android:paddingStart="0dp"
+					android:paddingEnd="1dp"/>
+
+			<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:visibility="gone"
+					android:orientation="horizontal">
+
+				<TextView
+						style="@style/Text.NormalLabel"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:text="@string/store_records_public"
+						android:drawableStart="@drawable/ic_folder_open"
+						android:layout_margin="@dimen/spacing_normal"
+						android:drawablePadding="@dimen/spacing_double"
+						/>
+
+				<Switch
+						android:id="@+id/swPublicDir"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_margin="@dimen/spacing_normal"
+						android:layout_gravity="top"
+						/>
+			</LinearLayout>
+
+			<Spinner
+					android:id="@+id/name_format"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:visibility="visible"
+					android:paddingStart="0dp"
+					android:paddingEnd="1dp"/>
+
+			<TextView
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:text="@string/recording_settings"
+					android:textStyle="normal"
+					android:visibility="gone"
+					android:textSize="@dimen/text_medium"
+					android:layout_marginTop="@dimen/spacing_small"
+					android:layout_marginStart="@dimen/spacing_normal"
+					android:layout_marginEnd="@dimen/spacing_normal"
+					/>
+
+			<com.dimowner.audiorecorder.app.widget.SettingView
+					android:id="@+id/setting_item_theme"
+					android:visibility="gone"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content" />
+			<com.dimowner.audiorecorder.app.widget.SettingView
+					android:id="@+id/setting_storage"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:visibility="gone" />
+			<com.dimowner.audiorecorder.app.widget.SettingView
+					android:id="@+id/setting_name_format"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:visibility="gone" />
+			<com.dimowner.audiorecorder.app.widget.SettingView
+					android:id="@+id/setting_recording_format"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content" />
+			<com.dimowner.audiorecorder.app.widget.SettingView
+					android:id="@+id/setting_frequency"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content" />
+			<com.dimowner.audiorecorder.app.widget.SettingView
+					android:id="@+id/setting_bitrate"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content" />
+			<com.dimowner.audiorecorder.app.widget.SettingView
+					android:id="@+id/setting_channels"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content" />
+
+			<Spinner
+					android:id="@+id/format"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:visibility="gone"
+					android:paddingStart="0dp"
+					android:paddingEnd="1dp"/>
+
+			<Spinner
+					android:id="@+id/sample_rate"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:visibility="gone"
+					android:paddingStart="0dp"
+					android:paddingEnd="1dp"/>
+
+			<Spinner
+					android:id="@+id/bit_rate"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:visibility="gone"
+					android:paddingStart="0dp"
+					android:paddingEnd="1dp"/>
+
+			<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:visibility="gone"
+					android:orientation="horizontal">
+
+				<TextView
+						style="@style/Text.NormalLabel"
+						android:layout_width="0dp"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:text="@string/record_in_stereo"
+						android:layout_marginTop="@dimen/spacing_normal"
+						android:layout_marginBottom="@dimen/spacing_normal"
+						android:layout_marginEnd="@dimen/spacing_normal"
+						android:layout_marginStart="@dimen/spacing_normal"
+						android:drawableStart="@drawable/ic_surround_sound_2_0"
+						android:drawablePadding="@dimen/spacing_double"
+						/>
+
+				<Switch
+						android:id="@+id/swRecordInStereo"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_margin="@dimen/spacing_normal"
+						android:layout_gravity="top"
+						/>
+			</LinearLayout>
+			<Space
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/spacing_huge" />
+			<Space
+					android:id="@+id/space2"
+					android:layout_width="match_parent"
+					android:layout_height="@dimen/spacing_normal" />
+		</LinearLayout>
+	</ScrollView>
 
 	<LinearLayout
-			android:layout_width="match_parent"
+			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_gravity="bottom|center_horizontal"
 			android:orientation="vertical">
-
 		<LinearLayout
-				android:id="@+id/toolbar"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal">
-
-			<ImageButton
-					android:id="@+id/btn_back"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:contentDescription="@null"
-					android:layout_gravity="start"
-					android:background="?android:selectableItemBackgroundBorderless"
-					android:padding="@dimen/spacing_normal"
-					android:src="@drawable/ic_arrow_back"/>
-
-			<TextView
-					style="@style/Text.SectionLabel"
-					android:layout_width="wrap_content"
-					android:layout_height="@dimen/toolbar_height"
-					android:gravity="center_vertical"
-					android:paddingStart="@dimen/spacing_normal"
-					android:paddingLeft="@dimen/spacing_normal"
-					android:paddingEnd="@dimen/spacing_normal"
-					android:paddingRight="@dimen/spacing_normal"
-					android:text="@string/setup"
-					/>
-
-		</LinearLayout>
-<!--			<TextView-->
-<!--					style="@style/Text.SectionLabel"-->
-<!--					android:id="@+id/toolbar"-->
-<!--					android:layout_width="wrap_content"-->
-<!--					android:layout_height="@dimen/toolbar_height"-->
-<!--					android:gravity="center_vertical"-->
-<!--					android:layout_gravity="center_horizontal"-->
-<!--					android:paddingStart="@dimen/spacing_normal"-->
-<!--					android:paddingLeft="@dimen/spacing_normal"-->
-<!--					android:paddingEnd="@dimen/spacing_normal"-->
-<!--					android:paddingRight="@dimen/spacing_normal"-->
-<!--					android:layout_marginTop="@dimen/spacing_xnormal"-->
-<!--					android:layout_marginBottom="@dimen/spacing_normal"-->
-<!--					android:text="@string/setup"-->
-<!--					/>-->
-
-		<TextView
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="Select best settings for you."
-				android:textStyle="normal"
-				android:textSize="@dimen/text_medium"
-				android:textColor="@color/white"
-				android:layout_margin="@dimen/spacing_normal"
-				/>
-
-		<Spinner
-				android:id="@+id/themeColor"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:paddingStart="0dp"
-				android:paddingEnd="1dp"/>
-
-		<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal">
-
-			<TextView
-					style="@style/Text.NormalLabel"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:text="@string/store_records_public"
-					android:drawableStart="@drawable/ic_folder_open"
-					android:layout_margin="@dimen/spacing_normal"
-					android:drawablePadding="@dimen/spacing_double"
-					/>
-
-			<Switch
-					android:id="@+id/swPublicDir"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_margin="@dimen/spacing_normal"
-					android:layout_gravity="top"
-					/>
-		</LinearLayout>
-
-		<Spinner
-				android:id="@+id/name_format"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:paddingStart="0dp"
-				android:paddingEnd="1dp"/>
-
-		<TextView
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/recording_settings"
-				android:textStyle="normal"
-				android:textSize="@dimen/text_medium"
-				android:layout_marginTop="@dimen/spacing_small"
-				android:layout_marginStart="@dimen/spacing_normal"
-				android:layout_marginEnd="@dimen/spacing_normal"
-				/>
-
-		<Spinner
-				android:id="@+id/format"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:paddingStart="0dp"
-				android:paddingEnd="1dp"/>
-
-		<Spinner
-				android:id="@+id/sample_rate"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:paddingStart="0dp"
-				android:paddingEnd="1dp"/>
-
-		<Spinner
-				android:id="@+id/bit_rate"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:paddingStart="0dp"
-				android:paddingEnd="1dp"/>
-
-		<LinearLayout
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal">
-
-			<TextView
-					style="@style/Text.NormalLabel"
-					android:layout_width="0dp"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:text="@string/record_in_stereo"
-					android:layout_marginTop="@dimen/spacing_normal"
-					android:layout_marginBottom="@dimen/spacing_normal"
-					android:layout_marginEnd="@dimen/spacing_normal"
-					android:layout_marginStart="@dimen/spacing_normal"
-					android:drawableStart="@drawable/ic_surround_sound_2_0"
-					android:drawablePadding="@dimen/spacing_double"
-					/>
-
-			<Switch
-					android:id="@+id/swRecordInStereo"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_margin="@dimen/spacing_normal"
-					android:layout_gravity="top"
-					/>
-		</LinearLayout>
-
-		<Button
-				android:id="@+id/btn_get_started"
-				style="@style/Widget.RaisedButton"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_gravity="bottom|center_horizontal"
-				android:layout_marginTop="@dimen/text_xlarge"
-				android:layout_marginBottom="@dimen/spacing_xdouble"
-				android:text="@string/btn_apply"
-				android:textSize="@dimen/text_medium" />
-
+				android:orientation="horizontal">
+			<Button
+					android:id="@+id/btn_set_defaults"
+					style="@style/Widget.RaisedButton"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="@dimen/spacing_small"
+					android:layout_marginBottom="@dimen/spacing_small"
+					android:layout_marginEnd="@dimen/spacing_xtiny"
+					android:text="@string/btn_set_default"
+					android:textSize="@dimen/text_medium" />
+			<Button
+					android:id="@+id/btn_get_started"
+					style="@style/Widget.RaisedButton"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="@dimen/spacing_small"
+					android:layout_marginBottom="@dimen/spacing_small"
+					android:layout_marginStart="@dimen/spacing_xtiny"
+					android:text="@string/btn_apply"
+					android:textSize="@dimen/text_medium" />
+		</LinearLayout>
 		<Space
 				android:id="@+id/space"
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/spacing_normal" />
 	</LinearLayout>
-</ScrollView>
+</FrameLayout>
