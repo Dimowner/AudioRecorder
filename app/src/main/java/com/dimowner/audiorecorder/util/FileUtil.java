@@ -245,7 +245,7 @@ public class FileUtil {
 		}
 	}
 
-	public static long getAvailableInternalMemorySize(Context context) {
+	public static long getAvailableInternalMemorySize(Context context) throws IllegalArgumentException {
 		File file = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC);
 		if (file != null) {
 			StatFs fsi = new StatFs(file.getAbsolutePath());
@@ -259,7 +259,7 @@ public class FileUtil {
 		}
 	}
 
-	public static long getAvailableExternalMemorySize() {
+	public static long getAvailableExternalMemorySize() throws IllegalArgumentException {
 		if (externalMemoryAvailable()) {
 			File path = Environment.getExternalStorageDirectory();
 			StatFs fsi = new StatFs(path.getPath());

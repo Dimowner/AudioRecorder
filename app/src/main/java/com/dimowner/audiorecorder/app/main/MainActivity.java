@@ -264,7 +264,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				presenter.stopRecording(false);
 				break;
 			case R.id.btn_record_delete:
-				presenter.cancelRecording(getApplicationContext());
+				presenter.cancelRecording();
 				break;
 			case R.id.btn_stop:
 				presenter.stopPlayback();

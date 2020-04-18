@@ -342,48 +342,51 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void startRecording(Context context) {
-		if (fileRepository.hasAvailableSpace(context)) {
-
-			if (audioPlayer.isPlaying()) {
-				audioPlayer.stop();
-			}
-			if (appRecorder.isPaused()) {
-				appRecorder.resumeRecording();
-			} else if (!appRecorder.isRecording()) {
-				try {
-					final String path = fileRepository.provideRecordFile().getAbsolutePath();
-					recordingsTasks.postRunnable(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								record = localRepository.insertEmptyFile(path);
-								prefs.setActiveRecord(record.getId());
-								AndroidUtils.runOnUIThread(new Runnable() {
-									@Override
-									public void run() {
-										appRecorder.startRecording(
-												path,
-												prefs.getRecordChannelCount(),
-												prefs.getSampleRate(),
-												prefs.getBitrate()
-										);
-									}
-								});
-							} catch (IOException | OutOfMemoryError | IllegalStateException e) {
-								Timber.e(e);
+		try {
+			if (fileRepository.hasAvailableSpace(context)) {
+				if (audioPlayer.isPlaying()) {
+					audioPlayer.stop();
+				}
+				if (appRecorder.isPaused()) {
+					appRecorder.resumeRecording();
+				} else if (!appRecorder.isRecording()) {
+					try {
+						final String path = fileRepository.provideRecordFile().getAbsolutePath();
+						recordingsTasks.postRunnable(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									record = localRepository.insertEmptyFile(path);
+									prefs.setActiveRecord(record.getId());
+									AndroidUtils.runOnUIThread(new Runnable() {
+										@Override
+										public void run() {
+											appRecorder.startRecording(
+													path,
+													prefs.getRecordChannelCount(),
+													prefs.getSampleRate(),
+													prefs.getBitrate()
+											);
+										}
+									});
+								} catch (IOException | OutOfMemoryError | IllegalStateException e) {
+									Timber.e(e);
+								}
 							}
+						});
+					} catch (CantCreateFileException e) {
+						if (view != null) {
+							view.showError(ErrorParser.parseException(e));
 						}
-					});
-				} catch (CantCreateFileException e) {
-					if (view != null) {
-						view.showError(ErrorParser.parseException(e));
 					}
+				} else {
+					appRecorder.pauseRecording();
 				}
 			} else {
-				appRecorder.pauseRecording();
+				view.showError(R.string.error_no_available_space);
 			}
-		} else {
-			view.showError(R.string.error_no_available_space);
+		} catch (IllegalArgumentException e) {
+			view.showError(R.string.error_failed_access_to_storage);
 		}
 	}
 
@@ -401,7 +404,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void cancelRecording(Context context) {
+	public void cancelRecording() {
 		deleteRecord = true;
 		appRecorder.pauseRecording();
 	}

@@ -161,7 +161,7 @@ public class FileRepositoryImpl implements FileRepository {
 	}
 
 	@Override
-	public boolean hasAvailableSpace(Context context) {
+	public boolean hasAvailableSpace(Context context) throws IllegalArgumentException {
 		long space;
 		if (prefs.isStoreDirPublic()) {
 			space = FileUtil.getAvailableExternalMemorySize();

@@ -83,7 +83,7 @@ public interface MainContract {
 
 		void startRecording(Context context);
 		void stopRecording(boolean deleteRecord);
-		void cancelRecording(Context context);
+		void cancelRecording();
 
 		void startPlayback();
 		void pausePlayback();

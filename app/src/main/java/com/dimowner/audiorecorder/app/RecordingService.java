@@ -102,13 +102,24 @@ public class RecordingService extends Service {
 
 			@Override
 			public void onRecordingProgress(long mills, int amp) {
-				if (mills % (5 * AppConstants.VISUALIZATION_INTERVAL * AppConstants.SHORT_RECORD_DP_PER_SECOND) == 0
-						&& !fileRepository.hasAvailableSpace(getApplicationContext())) {
+				try {
+					if (mills % (5 * AppConstants.VISUALIZATION_INTERVAL * AppConstants.SHORT_RECORD_DP_PER_SECOND) == 0
+							&& !fileRepository.hasAvailableSpace(getApplicationContext())) {
+						AndroidUtils.runOnUIThread(new Runnable() {
+							@Override
+							public void run() {
+								stopRecording();
+								Toast.makeText(getApplicationContext(), R.string.error_no_available_space, Toast.LENGTH_LONG).show();
+								showNoSpaceNotification();
+							}
+						});
+					}
+				} catch (IllegalArgumentException e) {
 					AndroidUtils.runOnUIThread(new Runnable() {
 						@Override
 						public void run() {
 							stopRecording();
-							Toast.makeText(getApplicationContext(), R.string.error_no_available_space, Toast.LENGTH_LONG).show();
+							Toast.makeText(getApplicationContext(), R.string.error_failed_access_to_storage, Toast.LENGTH_LONG).show();
 							showNoSpaceNotification();
 						}
 					});

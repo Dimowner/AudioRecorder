@@ -108,6 +108,7 @@
 	<string name="error_process_waveform">Не вдалося відобразити аудіофайл</string>
 	<string name="error_lost_records">Деякі ваші записи були видалені або переміщені</string>
 	<string name="error_no_available_space">Немає доступної пам\'яті</string>
+	<string name="error_failed_access_to_storage">Не вдалося отримати доступ до сховища файлів</string>
 	<string name="error_on_recording">Помилка при запису</string>
 
 	<!-- Shown in the 'About' window of the app. -->
