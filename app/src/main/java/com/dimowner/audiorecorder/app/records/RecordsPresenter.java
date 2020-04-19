@@ -311,9 +311,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		final String name = FileUtil.removeUnallowedSignsFromName(n);
 		loadingTasks.postRunnable(new Runnable() {
 			@Override public void run() {
-//				TODO: This code need to be refactored!
 				Record rec2 = localRepository.getRecord((int)id);
-//				String nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.M4A_EXTENSION;
 				if (rec2 != null) {
 					String nameWithExt;
 					if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
@@ -436,18 +434,18 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 									if (audioPlayer.isPlaying() || audioPlayer.isPause()) {
 										view.showActiveRecord(rec.getId());
 									}
-								}
 
-								//Set player position is audio player is paused.
-								if (audioPlayer.isPause()) {
-									long duration = rec.getDuration() / 1000;
-									if (duration > 0) {
-										long playProgressMills = audioPlayer.getPauseTime();
-										view.onPlayProgress(playProgressMills, AndroidUtils.convertMillsToPx(playProgressMills,
-												AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * playProgressMills / duration));
+									//Set player position is audio player is paused.
+									if (audioPlayer.isPause()) {
+										long duration = rec.getDuration() / 1000;
+										if (duration > 0) {
+											long playProgressMills = audioPlayer.getPauseTime();
+											view.onPlayProgress(playProgressMills, AndroidUtils.convertMillsToPx(playProgressMills,
+													AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * playProgressMills / duration));
+										}
+										view.showPlayerPanel();
+										view.showPlayPause();
 									}
-									view.showPlayerPanel();
-									view.showPlayPause();
 								}
 
 								view.hideProgress();

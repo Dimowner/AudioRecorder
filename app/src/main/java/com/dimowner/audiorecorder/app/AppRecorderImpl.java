@@ -100,11 +100,15 @@ public class AppRecorderImpl implements AppRecorder {
 
 			@Override
 			public void onStopRecord(final File output) {
-				recordingDuration = 0;
 				recordingsTasks.postRunnable(new Runnable() {
 					@Override
 					public void run() {
 						long duration = AndroidUtils.readRecordDuration(output);
+						if (duration < 0) {
+							duration = recordingDuration;
+						}
+						recordingDuration = 0;
+
 						int[] waveForm = convertRecordingData(recordingData, (int) (duration / 1000000f));
 						final Record record = localRepository.getRecord((int) prefs.getActiveRecord());
 						if (record != null) {
@@ -128,7 +132,6 @@ public class AppRecorderImpl implements AppRecorder {
 										onRecordingStopped(output, rec);
 									}
 								});
-								decodeRecordWaveform(rec);
 							} else {
 								//Try to update record again if failed.
 								if (localRepository.updateRecord(update)) {
@@ -140,7 +143,6 @@ public class AppRecorderImpl implements AppRecorder {
 											onRecordingStopped(output, rec);
 										}
 									});
-									decodeRecordWaveform(rec);
 								} else {
 									onRecordingStopped(output, record);
 								}

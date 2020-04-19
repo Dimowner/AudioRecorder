@@ -140,6 +140,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		pnlImportProgress = findViewById(R.id.pnl_import_progress);
 		pnlRecordProcessing = findViewById(R.id.pnl_record_processing);
 		ivPlaceholder = findViewById(R.id.placeholder);
+		ivPlaceholder.setImageResource(R.drawable.waveform);
 
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 
@@ -286,7 +287,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				break;
 			case R.id.txt_name:
 				if (presenter.getActiveRecordId() != -1) {
-					setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()), false);
+					setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()), false, false);
 				}
 				break;
 		}
@@ -411,7 +412,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void askRecordingNewName(long id, File file) {
-		setRecordName(id, file, true);
+		setRecordName(id, file, true, true);
 	}
 
 	@Override
@@ -627,7 +628,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 					case R.id.menu_rename:
 						String path = presenter.getActiveRecordPath();
 						if (path != null) {
-							setRecordName(presenter.getActiveRecordId(), new File(path), false);
+							setRecordName(presenter.getActiveRecordId(), new File(path), false, false);
 						}
 						break;
 					case R.id.menu_open_with:
@@ -649,7 +650,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		popup.show();
 	}
 
-	public void setRecordName(final long recordId, File file, boolean showCheckbox) {
+	public void setRecordName(final long recordId, File file, boolean showCheckbox, final boolean needDecode) {
 		//Create dialog layout programmatically.
 		LinearLayout container = new LinearLayout(getApplicationContext());
 		container.setOrientation(LinearLayout.VERTICAL);
@@ -694,7 +695,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 					public void onClick(DialogInterface dialog, int id) {
 						String newName = editText.getText().toString();
 						if (!fileName.equalsIgnoreCase(newName)) {
-							presenter.renameRecord(recordId, newName);
+							presenter.renameRecord(recordId, newName, needDecode);
 						}
 						dialog.dismiss();
 					}
@@ -702,6 +703,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						dialog.dismiss();
+						if (needDecode) {
+							presenter.decodeRecord(recordId);
+						}
 					}
 				})
 				.create();

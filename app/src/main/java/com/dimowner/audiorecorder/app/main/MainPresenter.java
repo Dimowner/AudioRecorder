@@ -437,8 +437,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void renameRecord(final long id, final String n) {
-		if (id < 0 || n == null || n.isEmpty()) {
+	public void renameRecord(final long id, final String newName, final boolean needDecode) {
+		if (id < 0 || newName == null || newName.isEmpty()) {
 			AndroidUtils.runOnUIThread(new Runnable() {
 				@Override public void run() {
 					if (view != null) {
@@ -450,7 +450,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		if (view != null) {
 			view.showProgress();
 		}
-		final String name = FileUtil.removeUnallowedSignsFromName(n);
+		final String name = FileUtil.removeUnallowedSignsFromName(newName);
 		loadingTasks.postRunnable(new Runnable() {
 			@Override public void run() {
 				Record record = localRepository.getRecord((int)id);
@@ -492,6 +492,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 										if (view != null) {
 											view.hideProgress();
 											view.showName(name);
+											if (needDecode) {
+												appRecorder.decodeRecordWaveform(MainPresenter.this.record);
+											}
 										}
 									}
 								});
@@ -532,6 +535,26 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							}
 						}
 					});
+				} else {
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override public void run() {
+							if (view != null) {
+								view.showError(R.string.error_failed_to_rename);
+							}
+						}});
+				}
+			}
+		});
+	}
+
+	@Override
+	public void decodeRecord(long id) {
+		loadingTasks.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
+				if (rec != null) {
+					appRecorder.decodeRecordWaveform(rec);
 				}
 			}
 		});
@@ -540,7 +563,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void loadActiveRecord() {
 		if (!appRecorder.isRecording()) {
-			view.showProgress();
+			if (view != null) {
+				view.showProgress();
+			}
 			loadingTasks.postRunnable(new Runnable() {
 				@Override
 				public void run() {
@@ -734,7 +759,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						Record r = new Record(
 								Record.NO_ID,
 								newFile.getName(),
-								duration,
+								duration >= 0 ? duration : 0,
 								newFile.lastModified(),
 								new Date().getTime(),
 								0,
