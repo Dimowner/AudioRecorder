@@ -44,5 +44,5 @@ public interface FileRepository {
 
 	void updateRecordingDir(Context context, Prefs prefs);
 
-	boolean hasAvailableSpace(Context context);
+	boolean hasAvailableSpace(Context context) throws IllegalArgumentException;
 }

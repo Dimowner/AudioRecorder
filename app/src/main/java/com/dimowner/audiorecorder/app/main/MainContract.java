@@ -84,14 +84,16 @@ public interface MainContract {
 
 		void startRecording(Context context);
 		void stopRecording(boolean deleteRecord);
-		void cancelRecording(Context context);
+		void cancelRecording();
 
 		void startPlayback();
 		void pausePlayback();
 		void seekPlayback(int px);
 		void stopPlayback();
 
-		void renameRecord(long id, String name);
+		void renameRecord(long id, String name, boolean needDecode);
+
+		void decodeRecord(long id);
 
 		void loadActiveRecord();
 

@@ -344,48 +344,51 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void startRecording(Context context) {
-		if (fileRepository.hasAvailableSpace(context)) {
-
-			if (audioPlayer.isPlaying()) {
-				audioPlayer.stop();
-			}
-			if (appRecorder.isPaused()) {
-				appRecorder.resumeRecording();
-			} else if (!appRecorder.isRecording()) {
-				try {
-					final String path = fileRepository.provideRecordFile().getAbsolutePath();
-					recordingsTasks.postRunnable(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								record = localRepository.insertEmptyFile(path);
-								prefs.setActiveRecord(record.getId());
-								AndroidUtils.runOnUIThread(new Runnable() {
-									@Override
-									public void run() {
-										appRecorder.startRecording(
-												path,
-												prefs.getRecordChannelCount(),
-												prefs.getSampleRate(),
-												prefs.getBitrate()
-										);
-									}
-								});
-							} catch (IOException | OutOfMemoryError | IllegalStateException e) {
-								Timber.e(e);
+		try {
+			if (fileRepository.hasAvailableSpace(context)) {
+				if (audioPlayer.isPlaying()) {
+					audioPlayer.stop();
+				}
+				if (appRecorder.isPaused()) {
+					appRecorder.resumeRecording();
+				} else if (!appRecorder.isRecording()) {
+					try {
+						final String path = fileRepository.provideRecordFile().getAbsolutePath();
+						recordingsTasks.postRunnable(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									record = localRepository.insertEmptyFile(path);
+									prefs.setActiveRecord(record.getId());
+									AndroidUtils.runOnUIThread(new Runnable() {
+										@Override
+										public void run() {
+											appRecorder.startRecording(
+													path,
+													prefs.getRecordChannelCount(),
+													prefs.getSampleRate(),
+													prefs.getBitrate()
+											);
+										}
+									});
+								} catch (IOException | OutOfMemoryError | IllegalStateException e) {
+									Timber.e(e);
+								}
 							}
+						});
+					} catch (CantCreateFileException e) {
+						if (view != null) {
+							view.showError(ErrorParser.parseException(e));
 						}
-					});
-				} catch (CantCreateFileException e) {
-					if (view != null) {
-						view.showError(ErrorParser.parseException(e));
 					}
+				} else {
+					appRecorder.pauseRecording();
 				}
 			} else {
-				appRecorder.pauseRecording();
+				view.showError(R.string.error_no_available_space);
 			}
-		} else {
-			view.showError(R.string.error_no_available_space);
+		} catch (IllegalArgumentException e) {
+			view.showError(R.string.error_failed_access_to_storage);
 		}
 	}
 
@@ -403,7 +406,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void cancelRecording(Context context) {
+	public void cancelRecording() {
 		deleteRecord = true;
 		appRecorder.pauseRecording();
 	}
@@ -436,8 +439,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void renameRecord(final long id, final String n) {
-		if (id < 0 || n == null || n.isEmpty()) {
+	public void renameRecord(final long id, final String newName, final boolean needDecode) {
+		if (id < 0 || newName == null || newName.isEmpty()) {
 			AndroidUtils.runOnUIThread(new Runnable() {
 				@Override public void run() {
 					if (view != null) {
@@ -449,7 +452,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		if (view != null) {
 			view.showProgress();
 		}
-		final String name = FileUtil.removeUnallowedSignsFromName(n);
+		final String name = FileUtil.removeUnallowedSignsFromName(newName);
 		loadingTasks.postRunnable(new Runnable() {
 			@Override public void run() {
 				Record record = localRepository.getRecord((int)id);
@@ -491,6 +494,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 										if (view != null) {
 											view.hideProgress();
 											view.showName(name);
+											if (needDecode) {
+												appRecorder.decodeRecordWaveform(MainPresenter.this.record);
+											}
 										}
 									}
 								});
@@ -531,6 +537,26 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							}
 						}
 					});
+				} else {
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override public void run() {
+							if (view != null) {
+								view.showError(R.string.error_failed_to_rename);
+							}
+						}});
+				}
+			}
+		});
+	}
+
+	@Override
+	public void decodeRecord(long id) {
+		loadingTasks.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
+				if (rec != null) {
+					appRecorder.decodeRecordWaveform(rec);
 				}
 			}
 		});
@@ -539,7 +565,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void loadActiveRecord() {
 		if (!appRecorder.isRecording()) {
-			view.showProgress();
+			if (view != null) {
+				view.showProgress();
+			}
 			loadingTasks.postRunnable(new Runnable() {
 				@Override
 				public void run() {
@@ -733,7 +761,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						Record r = new Record(
 								Record.NO_ID,
 								newFile.getName(),
-								duration,
+								duration >= 0 ? duration : 0,
 								newFile.lastModified(),
 								new Date().getTime(),
 								0,

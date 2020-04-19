@@ -194,7 +194,6 @@ public class PlaybackService extends Service {
 	public void stopForegroundService() {
 		audioPlayer.removePlayerCallback(playerCallback);
 		stopForeground(true);
-		notificationManager.cancel(NOTIF_ID);
 		stopSelf();
 	}
 

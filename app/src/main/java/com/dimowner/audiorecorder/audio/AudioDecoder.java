@@ -193,41 +193,45 @@ public class AudioDecoder {
 
 			@Override
 			public void onOutputBufferAvailable(@NonNull MediaCodec codec, int index, @NonNull MediaCodec.BufferInfo info) {
-				ByteBuffer outputBuffer = codec.getOutputBuffer(index);
-				if (outputBuffer != null) {
-					outputBuffer.rewind();
-					outputBuffer.order(ByteOrder.LITTLE_ENDIAN);
-					while (outputBuffer.remaining() > 0) {
-						oneFrameAmps[frameIndex] = outputBuffer.getShort();
-						frameIndex++;
-						if (frameIndex >= oneFrameAmps.length - 1) {
-							int j;
-							int gain, value;
-							gain = -1;
-							for (j = 0; j < oneFrameAmps.length; j += channelCount) {
-								value = 0;
-								for (int k = 0; k < channelCount; k++) {
-									value += oneFrameAmps[j + k];
+				try {
+					ByteBuffer outputBuffer = codec.getOutputBuffer(index);
+					if (outputBuffer != null) {
+						outputBuffer.rewind();
+						outputBuffer.order(ByteOrder.LITTLE_ENDIAN);
+						while (outputBuffer.remaining() > 0) {
+							oneFrameAmps[frameIndex] = outputBuffer.getShort();
+							frameIndex++;
+							if (frameIndex >= oneFrameAmps.length - 1) {
+								int j;
+								int gain, value;
+								gain = -1;
+								for (j = 0; j < oneFrameAmps.length; j += channelCount) {
+									value = 0;
+									for (int k = 0; k < channelCount; k++) {
+										value += oneFrameAmps[j + k];
+									}
+									value /= channelCount;
+									if (gain < value) {
+										gain = value;
+									}
 								}
-								value /= channelCount;
-								if (gain < value) {
-									gain = value;
-								}
+								gains.add((int) Math.sqrt(gain));
+								frameIndex = 0;
 							}
-							gains.add((int) Math.sqrt(gain));
-							frameIndex = 0;
 						}
 					}
-				}
 
-				mOutputEOS |= ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0);
-				codec.releaseOutputBuffer(index, false);
+					mOutputEOS |= ((info.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0);
+					codec.releaseOutputBuffer(index, false);
 
-				if (mOutputEOS) {
-					decodeListener.onFinishDecode(gains.getData(), duration);
-					codec.stop();
-					codec.release();
-					extractor.release();
+					if (mOutputEOS) {
+						decodeListener.onFinishDecode(gains.getData(), duration);
+						codec.stop();
+						codec.release();
+						extractor.release();
+					}
+				} catch (IllegalStateException e) {
+					Timber.e(e);
 				}
 			}
 		});

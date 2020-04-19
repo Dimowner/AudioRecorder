@@ -274,7 +274,11 @@ public class AndroidUtils {
 				throw new IOException("No audio track found in " + file.toString());
 			}
 			if (format != null) {
-				return format.getLong(MediaFormat.KEY_DURATION);
+				try {
+					return format.getLong(MediaFormat.KEY_DURATION);
+				} catch (Exception e) {
+					Timber.e(e);
+				}
 			}
 		} catch (IOException e) {
 			Timber.e(e);
