@@ -97,9 +97,19 @@
 	<string name="btn_allow">Allow</string>
 	<string name="btn_details">Details</string>
 	<string name="btn_get_started">Get started</string>
-	<string name="btn_apply">Go recording</string>
-	<string name="btn_set_default">Set default</string>
+	<string name="btn_apply">Apply</string>
+	<string name="btn_set_default">Reset</string>
 	<string name="btn_next">Next</string>
+	<string name="info_format">Recording format information</string>
+	<string name="info_frequency">Frequency information</string>
+	<string name="info_bitrate">Bitrate information</string>
+	<string name="info_channels">Channels information</string>
+	<string name="info_m4a">M4a is recommended format</string>
+	<string name="info_wav">WAV is uncompressed format. It needs more space than other formats</string>
+	<string name="frequency">Frequency</string>
+	<string name="recording_format">Recording format</string>
+	<string name="bitrate">Bitrate</string>
+	<string name="channels">Channels</string>
 
 	<string name="error_unknown">Unexpected error</string>
 	<string name="error_cant_create_file">Can\'t create file</string>
@@ -158,4 +168,41 @@
 		<item>Bitrate: 192kbps</item>
 	</string-array>
 
+	<string-array name="theme_colors2">
+		<item>Theme Blue Gray</item>
+		<item>Theme Black</item>
+		<item>Theme Teal</item>
+		<item>Theme Blue</item>
+		<item>Theme Deep Purple</item>
+		<item>Theme Pink</item>
+		<item>Theme Deep Orange</item>
+		<item>Theme Red</item>
+		<item>Theme Brown</item>
+	</string-array>
+
+	<string-array name="formats2">
+		<item>M4a</item>
+		<item>Wav</item>
+	</string-array>
+
+	<string-array name="bit_rates2">
+		<item>24 kbps</item>
+		<item>48 kbps</item>
+		<item>96 kbps</item>
+		<item>128 kbps</item>
+		<item>192 kbps</item>
+	</string-array>
+
+	<string-array name="sample_rates2">
+		<item>8000</item>
+		<item>16000</item>
+		<item>32000</item>
+		<item>44100</item>
+		<item>48000</item>
+	</string-array>
+
+	<string-array name="channels">
+		<item>Stereo</item>
+		<item>Mono</item>
+	</string-array>
 </resources>

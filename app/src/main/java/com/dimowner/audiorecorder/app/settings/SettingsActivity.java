@@ -169,19 +169,19 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 		onThemeColorChangeListener = new ColorMap.OnThemeColorChangeListener() {
 			@Override
-			public void onThemeColorChange(int pos) {
+			public void onThemeColorChange(String key) {
 				setTheme(colorMap.getAppThemeResource());
 				recreate();
 			}
 		};
 		colorMap.addOnThemeColorChangeListener(onThemeColorChangeListener);
 
-		if (colorMap.getSelected() > 0) {
-			themeColor.setSelection(colorMap.getSelected());
-		}
+//		if (colorMap.getSelected() > 0) {
+//			themeColor.setSelection(colorMap.getSelected());
+//		}
 		themeColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				colorMap.updateColorMap(position);
+//				colorMap.updateColorMap(position);
 			}
 			@Override public void onNothingSelected(AdapterView<?> parent) { }
 		});

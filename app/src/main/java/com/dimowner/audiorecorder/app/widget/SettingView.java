@@ -54,6 +54,12 @@ public class SettingView extends LinearLayout {
 		imgInfo = findViewById(R.id.setting_image);
 	}
 
+	@Override
+	public void setVisibility(int visibility) {
+		super.setVisibility(visibility);
+		chipsView.setVisibility(visibility);
+	}
+
 	public void setData(String[] names, String[] keys, int[] colors) {
 		chipsView.setData(names, keys, colors);
 	}
@@ -72,6 +78,10 @@ public class SettingView extends LinearLayout {
 
 	public void setTitle(String title) {
 		txtTitle.setText(title);
+	}
+
+	public void setTitle(int resId) {
+		txtTitle.setText(resId);
 	}
 
 	public void setImageInfo(int imgRes) {

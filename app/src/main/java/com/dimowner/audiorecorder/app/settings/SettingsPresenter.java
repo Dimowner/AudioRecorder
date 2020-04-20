@@ -90,7 +90,7 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 
 
 		int pos;
-		switch (prefs.getSampleRate()) {
+		switch (prefs.getSettingSampleRate()) {
 			case AppConstants.RECORD_SAMPLE_RATE_8000:
 				pos = 0;
 				break;
@@ -111,7 +111,7 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 			view.showRecordingSampleRate(pos);
 		}
 
-		switch (prefs.getBitrate()) {
+		switch (prefs.getSettingBitrate()) {
 			case AppConstants.RECORD_ENCODING_BITRATE_24000:
 				pos = 0;
 				break;
@@ -176,7 +176,7 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 				rate = AppConstants.RECORD_ENCODING_BITRATE_192000;
 				break;
 		}
-		prefs.setBitrate(rate);
+		prefs.setSettingBitrate(rate);
 		updateAvailableSpace();
 	}
 
@@ -218,7 +218,7 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 			default:
 				rate = AppConstants.RECORD_SAMPLE_RATE_44100;
 		}
-		prefs.setSampleRate(rate);
+		prefs.setSettingSampleRate(rate);
 		updateAvailableSpace();
 	}
 
@@ -275,7 +275,7 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 
 	private void updateAvailableSpace() {
 		final long space = FileUtil.getFree(fileRepository.getRecordingDir());
-		final long time = spaceToTimeSecs(space, prefs.getFormat(), prefs.getSampleRate(), prefs.getRecordChannelCount());
+		final long time = spaceToTimeSecs(space, prefs.getFormat(), prefs.getSettingSampleRate(), prefs.getRecordChannelCount());
 		if (view != null) {
 			view.showAvailableSpace(TimeUtils.formatTimeIntervalHourMinSec(time));
 		}

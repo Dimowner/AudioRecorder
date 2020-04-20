@@ -22,43 +22,43 @@ public class SetupContract {
 
 	interface View extends Contract.View {
 
-		void showStoreInPublicDir(boolean b);
-
-		void showRecordInStereo(boolean b);
-
 		void showRecordingBitrate(int bitrate);
 
-		void showRecordingSampleRate(int rate);
+		void showSampleRate(int rate);
 
-		void showRecordingFormat(int format);
+		void showChannelCount(int count);
 
-		void showNamingFormat(int format);
+		void showNamingFormat(String namingKey);
+
+		void showRecordingFormat(String formatKey);
 
 		void showBitrateSelector();
 
 		void hideBitrateSelector();
 
-		void showDialogPublicDirInfo();
-
-		void showDialogPrivateDirInfo();
+		void showInformation(int infoResId);
 	}
 
 	public interface UserActionsListener extends Contract.UserActionsListener<SetupContract.View> {
 
 		void loadSettings();
 
-		void storeInPublicDir(boolean b);
-
-		void recordInStereo(boolean stereo);
-
-		void setRecordingBitrate(int bitrate);
-
-		void setRecordingFormat(int format);
-
-		void setNamingFormat(int format);
-
 		void setSampleRate(int rate);
 
+		void setSettingRecordingBitrate(int bitrate);
+
+		void setSettingSampleRate(int rate);
+
+		void setSettingChannelCount(int count);
+
+		void setSettingThemeColor(String colorKey);
+
+		void setSettingNamingFormat(String namingKey);
+
+		void setSettingRecordingFormat(String formatKey);
+
 		void executeFirstRun();
+
+		void resetSettings();
 	}
 }

@@ -169,7 +169,7 @@ public class FileRepositoryImpl implements FileRepository {
 			space = FileUtil.getAvailableInternalMemorySize(context);
 		}
 
-		final long time = spaceToTimeSecs(space, prefs.getFormat(), prefs.getSampleRate(), prefs.getRecordChannelCount());
+		final long time = spaceToTimeSecs(space, prefs.getFormat(), prefs.getSettingSampleRate(), prefs.getRecordChannelCount());
 		return time > AppConstants.MIN_REMAIN_RECORDING_TIME;
 	}
 

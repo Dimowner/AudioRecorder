@@ -33,7 +33,7 @@
 				android:layout_weight="1"
 				android:textSize="@dimen/text_medium"
 				android:textColor="@color/white"
-				android:layout_marginBottom="2dp"
+				android:layout_marginBottom="@dimen/spacing_tiny"
 				android:layout_gravity="start|bottom"
 				tools:text="Theme color"/>
 
@@ -45,7 +45,7 @@
 				android:contentDescription="@null"
 				android:visibility="visible"
 				android:layout_gravity="center_vertical|end"
-				android:padding="@dimen/spacing_small"
+				android:padding="@dimen/spacing_xsmall"
 				android:src="@drawable/ic_info"/>
 
 	</LinearLayout>
@@ -66,6 +66,8 @@
 			app:chipTextSize="@dimen/text_medium"
 			app:chipPadding="@dimen/spacing_xsmall"
 			app:chipMargin="2dp"
+			app:orderEffective="false"
+			app:multiSelect="false"
 			/>
 
 </merge>

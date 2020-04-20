@@ -34,9 +34,6 @@ public interface Prefs {
 	long getRecordCounter();
 	void incrementRecordCounter();
 
-	void setAppThemeColor(int colorMapPosition);
-	int getThemeColor();
-
 	void setRecordInStereo(boolean stereo);
 	int getRecordChannelCount();
 
@@ -46,15 +43,32 @@ public interface Prefs {
 	void setFormat(int f);
 	int getFormat();
 
-	void setBitrate(int q);
-	int getBitrate();
-
-	void setSampleRate(int rate);
-	int getSampleRate();
-
 	void setRecordOrder(int order);
 	int getRecordsOrder();
 
 	void setNamingFormat(int format);
 	int getNamingFormat();
+
+	void isMigratedSettings();
+	void migrateSettings();
+
+	void setSettingThemeColor(String colorKey);
+	String getSettingThemeColor();
+
+	void setSettingNamingFormat(String nameKay);
+	String getSettingNamingFormat();
+
+	void setSettingRecordingFormat(String formatKey);
+	String getSettingRecordingFormat();
+
+	void setSettingSampleRate(int sampleRate);
+	int getSettingSampleRate();
+
+	void setSettingBitrate(int rate);
+	int getSettingBitrate();
+
+	void setSettingChannelCount(int count);
+	int getSettingChannelCount();
+
+	void resetSettings();
 }

@@ -489,6 +489,16 @@ public class AndroidUtils {
 		dialog.show();
 	}
 
+
+	public static void showInfoDialog(Activity activity, int resContent){
+		showDialog(activity, -1, -1, R.string.info, resContent,
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {}
+				}, null);
+	}
+
+
 	public static void showLostRecordsDialog(final Activity activity, final List<Record> lostRecords){
 		final Dialog dialog = new Dialog(activity);
 		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);

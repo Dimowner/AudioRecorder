@@ -24,10 +24,10 @@
 		xmlns:tools="http://schemas.android.com/tools"
 		android:orientation="vertical"
 		android:background="@color/white"
-		android:paddingStart="@dimen/spacing_double"
-		android:paddingEnd="@dimen/spacing_double"
-		android:paddingTop="@dimen/spacing_double"
-		android:paddingBottom="@dimen/spacing_xnormal"
+		android:paddingStart="@dimen/spacing_xnormal"
+		android:paddingEnd="@dimen/spacing_xnormal"
+		android:paddingTop="@dimen/spacing_xnormal"
+		android:paddingBottom="@dimen/spacing_normal"
 		xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<TextView

@@ -214,7 +214,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		});
 		onThemeColorChangeListener = new ColorMap.OnThemeColorChangeListener() {
 			@Override
-			public void onThemeColorChange(int pos) {
+			public void onThemeColorChange(String colorKey) {
 				setTheme(colorMap.getAppThemeResource());
 				recreate();
 			}

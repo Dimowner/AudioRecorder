@@ -366,8 +366,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 											appRecorder.startRecording(
 													path,
 													prefs.getRecordChannelCount(),
-													prefs.getSampleRate(),
-													prefs.getBitrate()
+													prefs.getSettingSampleRate(),
+													prefs.getSettingBitrate()
 											);
 										}
 									});

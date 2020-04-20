@@ -19,7 +19,6 @@ package com.dimowner.audiorecorder.app.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -39,7 +38,6 @@ import java.util.Collections;
 import java.util.List;
 
 import androidx.core.content.ContextCompat;
-import timber.log.Timber;
 
 /**
  * Created on 06.04.2020.
@@ -62,6 +60,8 @@ public class ChipsView extends FrameLayout {
 	private int chipMargin;
 	private int rowCount = 0;
 	private float posY = 0;
+	private boolean orderEffective = true;
+	private boolean multiSelect = true;
 
 	{
 		float DENSITY = AndroidUtils.getDisplayDensity();
@@ -100,6 +100,8 @@ public class ChipsView extends FrameLayout {
 		// Load attributes
 		final TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.ChipsView, defStyleAttr, 0);
 		try {
+			orderEffective = a.getBoolean(R.styleable.ChipsView_orderEffective, orderEffective);
+			multiSelect = a.getBoolean(R.styleable.ChipsView_multiSelect, multiSelect);
 			chipColor = a.getColor(R.styleable.ChipsView_chipColor, chipColor);
 			rippleColor = a.getColor(R.styleable.ChipsView_rippleColor, rippleColor);
 			borderColor = a.getColor(R.styleable.ChipsView_borderColor, borderColor);
@@ -123,6 +125,17 @@ public class ChipsView extends FrameLayout {
 		WIDTH = getWidth() - getPaddingStart() - getPaddingEnd();
 	}
 
+	@Override
+	public void setVisibility(int visibility) {
+		super.setVisibility(visibility);
+		post(new Runnable() {
+			@Override
+			public void run() {
+				updateChipPositions();
+			}
+		});
+	}
+
 	public TextView createChipView(int id, final String key, final Context context, final String name, final int color, boolean checked) {
 		final TextView textView = new TextView(context);
 		LayoutParams  lp = new LayoutParams(LayoutParams.WRAP_CONTENT, (int) ROW_HEIGHT);
@@ -142,18 +155,20 @@ public class ChipsView extends FrameLayout {
 		textView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-//				int pos = findById(v.getId());
-				Timber.v("onClick key = " + key);
 				int pos = findById(key);
 				if (pos >= 0) {
 					if (chips.get(pos).isSelected()) {
-						setUnselected(chips.get(pos).getView(), color);
-						if (listener != null) {
-							listener.onCheck(key, name, false);
+						if (multiSelect) {
+							setUnselected(chips.get(pos).getView(), color);
+							if (listener != null) {
+								listener.onCheck(key, name, false);
+							}
 						}
 					} else {
 						setSelected(context, chips.get(pos).getView(), color);
-						unselectAll(pos);
+						if (!multiSelect) {
+							unselectAll(pos);
+						}
 						if (listener != null) {
 							listener.onCheck(key, name, true);
 						}
@@ -168,6 +183,9 @@ public class ChipsView extends FrameLayout {
 	public void setSelected(String key) {
 		int pos = findById(key);
 		if (pos >= 0) {
+			if (!multiSelect) {
+				unselectAll(pos);
+			}
 			setSelected(getContext(), chips.get(pos).getView(), chips.get(pos).getColor());
 			chips.get(pos).setSelected(true);
 		}
@@ -239,7 +257,7 @@ public class ChipsView extends FrameLayout {
 
 	private void updateChipPositions() {
 		//Calculate chips sizes.
-		Rect rect = new Rect();
+//		Rect rect = new Rect();
 		Chip chip;
 		for (int i = 0; i < chips.size(); i++) {
 			chip = chips.get(i);
@@ -250,11 +268,19 @@ public class ChipsView extends FrameLayout {
 
 			chips.set(i, chip);
 		}
-		Collections.sort(chips);
+		if (orderEffective) {
+			Collections.sort(chips);
+		}
 
+		rowCount = 0;
+		posY = 0;
 		if (chips.size() > 0 && WIDTH >= chips.get(0).getWidth()) {
 			List<Chip> temp = new ArrayList<>(chips);
-			calculatePositions(temp);
+			if (orderEffective) {
+				calculatePositions(temp);
+			} else {
+				calculatePositionsDefault(temp);
+			}
 
 			for (int i = 0; i < chips.size(); i++) {
 				chips.get(i).getView().setTranslationX(chips.get(i).getPosX());
@@ -264,6 +290,29 @@ public class ChipsView extends FrameLayout {
 		ViewGroup.LayoutParams lp = getLayoutParams();
 		lp.height = (int)((ROW_HEIGHT + chipMargin)* rowCount - chipMargin + getPaddingTop() + getPaddingBottom());
 		setLayoutParams(lp);
+	}
+
+	private void calculatePositionsDefault(List<Chip> temp) {
+		float posX = 0;
+		rowCount++;
+		if (temp.size() > 0) {
+			float availableWidth = WIDTH;
+			for (int i = 0; i < temp.size(); i++) {
+				if (availableWidth < temp.get(i).getWidth()) {
+					rowCount++;
+					posY += ROW_HEIGHT + chipMargin;
+					availableWidth = WIDTH;
+					posX = 0;
+				}
+				chips.get(i).setPosX(posX);
+				chips.get(i).setPosY(posY);
+
+				float width = temp.get(i).getWidth() + chipMargin;
+				posX += width;
+				availableWidth -= width;
+			}
+			posY += ROW_HEIGHT + chipMargin;
+		}
 	}
 
 	private void calculatePositions(List<Chip> temp) {

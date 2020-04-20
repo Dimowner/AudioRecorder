@@ -35,5 +35,7 @@
 		<attr name="chipMargin" format="dimension" />
 		<attr name="chipTextColor" format="color" />
 		<attr name="chipTextSelectedColor" format="color" />
+		<attr name="orderEffective" format="boolean" />
+		<attr name="multiSelect" format="boolean" />
 	</declare-styleable>
 </resources>

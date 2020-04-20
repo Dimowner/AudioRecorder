@@ -33,6 +33,25 @@ public class AppConstants {
 	public static final String BASE_RECORD_NAME = "Record-";
 	public static final String BASE_RECORD_NAME_SHORT = "Rec-";
 	public static final String TRASH_MARK_EXTENSION = "del";
+
+	public static final String THEME_BLACK = "black";
+	public static final String THEME_TEAL = "teal";
+	public static final String THEME_BLUE = "blue";
+	public static final String THEME_PURPLE = "purple";
+	public static final String THEME_PINK = "pink";
+	public static final String THEME_ORANGE = "orange";
+	public static final String THEME_RED = "red";
+	public static final String THEME_BROWN = "brown";
+	public static final String THEME_BLUE_GREY = "blue_gray";
+
+	public static final String FORMAT_M4A = "m4a";
+	public static final String FORMAT_WAV = "wav";
+	public static final String FORMAT_3GP = "3gp";
+
+	public static final String NAME_FORMAT_RECORD = "record";
+	public static final String NAME_FORMAT_TIMESTAMP = "timestamp";
+	public static final String NAME_FORMAT_DATE = "date";
+
 	public static final int MAX_RECORD_NAME_LENGTH = 50;
 
 	public static final int NAMING_COUNTED = 0;
@@ -72,18 +91,18 @@ public class AppConstants {
 	public static final int TIME_FORMAT_12H = 12;
 
 	// recording and playback
-	public final static int PLAYBACK_SAMPLE_RATE = 44100;
-	public final static int RECORD_SAMPLE_RATE_44100 = 44100;
-	public final static int RECORD_SAMPLE_RATE_8000 = 8000;
-	public final static int RECORD_SAMPLE_RATE_16000 = 16000;
-	public final static int RECORD_SAMPLE_RATE_32000 = 32000;
-	public final static int RECORD_SAMPLE_RATE_48000 = 48000;
+	public static final int PLAYBACK_SAMPLE_RATE = 44100;
+	public static final int RECORD_SAMPLE_RATE_44100 = 44100;
+	public static final int RECORD_SAMPLE_RATE_8000 = 8000;
+	public static final int RECORD_SAMPLE_RATE_16000 = 16000;
+	public static final int RECORD_SAMPLE_RATE_32000 = 32000;
+	public static final int RECORD_SAMPLE_RATE_48000 = 48000;
 
-	public final static int RECORD_ENCODING_BITRATE_24000 = 24000;
-	public final static int RECORD_ENCODING_BITRATE_48000 = 48000;
-	public final static int RECORD_ENCODING_BITRATE_96000 = 96000;
-	public final static int RECORD_ENCODING_BITRATE_128000 = 128000;
-	public final static int RECORD_ENCODING_BITRATE_192000 = 192000;
+	public static final int RECORD_ENCODING_BITRATE_24000 = 24000;
+	public static final int RECORD_ENCODING_BITRATE_48000 = 48000;
+	public static final int RECORD_ENCODING_BITRATE_96000 = 96000;
+	public static final int RECORD_ENCODING_BITRATE_128000 = 128000;
+	public static final int RECORD_ENCODING_BITRATE_192000 = 192000;
 
 	public static final int SORT_DATE = 1;
 	public static final int SORT_NAME = 2;
@@ -96,6 +115,13 @@ public class AppConstants {
 	public final static int RECORD_AUDIO_MONO = 1;
 	public final static int RECORD_AUDIO_STEREO = 2;
 	public final static int RECORD_MAX_DURATION = 14400000; // 240 min 4 hours
+
+	public static final String DEFAULT_THEME_COLOR = THEME_BLUE_GREY;
+	public static final String DEFAULT_RECORDING_FORMAT = FORMAT_M4A;
+	public static final String DEFAULT_NAME_FORMAT = NAME_FORMAT_RECORD;
+	public static final int DEFAULT_RECORD_SAMPLE_RATE = RECORD_SAMPLE_RATE_44100;
+	public static final int DEFAULT_RECORD_ENCODING_BITRATE = RECORD_ENCODING_BITRATE_128000;
+	public static final int DEFAULT_CHANNEL_COUNT = RECORD_AUDIO_STEREO;
 
 	/** Time interval for Recording progress visualisation. */
 	public final static int VISUALIZATION_INTERVAL = 1000/SHORT_RECORD_DP_PER_SECOND; //1000 mills/25 dp per sec

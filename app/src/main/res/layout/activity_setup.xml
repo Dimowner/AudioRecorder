@@ -14,19 +14,20 @@
   ~  See the License for the specific language governing permissions and
   ~  limitations under the License.
   -->
-<FrameLayout
-		xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:orientation="vertical">
 
 	<ScrollView
 			android:layout_width="match_parent"
-			android:layout_height="match_parent">
+			android:layout_height="0dp"
+			android:layout_weight="1">
 
 		<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:animateLayoutChanges="true"
 				android:orientation="vertical">
 
 			<LinearLayout
@@ -48,12 +49,10 @@
 				<TextView
 						style="@style/Text.SectionLabel"
 						android:layout_width="wrap_content"
-						android:layout_height="@dimen/toolbar_height"
-						android:gravity="center_vertical"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_vertical"
 						android:paddingStart="@dimen/spacing_normal"
-						android:paddingLeft="@dimen/spacing_normal"
 						android:paddingEnd="@dimen/spacing_normal"
-						android:paddingRight="@dimen/spacing_normal"
 						android:text="@string/setup"
 						/>
 
@@ -66,32 +65,6 @@
 					android:visibility="visible"
 					android:paddingStart="0dp"
 					android:paddingEnd="1dp"/>
-
-			<LinearLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:visibility="gone"
-					android:orientation="horizontal">
-
-				<TextView
-						style="@style/Text.NormalLabel"
-						android:layout_width="0dp"
-						android:layout_height="wrap_content"
-						android:layout_weight="1"
-						android:text="@string/store_records_public"
-						android:drawableStart="@drawable/ic_folder_open"
-						android:layout_margin="@dimen/spacing_normal"
-						android:drawablePadding="@dimen/spacing_double"
-						/>
-
-				<Switch
-						android:id="@+id/swPublicDir"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:layout_margin="@dimen/spacing_normal"
-						android:layout_gravity="top"
-						/>
-			</LinearLayout>
 
 			<Spinner
 					android:id="@+id/name_format"
@@ -108,26 +81,10 @@
 					android:textStyle="normal"
 					android:visibility="gone"
 					android:textSize="@dimen/text_medium"
-					android:layout_marginTop="@dimen/spacing_small"
 					android:layout_marginStart="@dimen/spacing_normal"
 					android:layout_marginEnd="@dimen/spacing_normal"
 					/>
 
-			<com.dimowner.audiorecorder.app.widget.SettingView
-					android:id="@+id/setting_item_theme"
-					android:visibility="gone"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content" />
-			<com.dimowner.audiorecorder.app.widget.SettingView
-					android:id="@+id/setting_storage"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:visibility="gone" />
-			<com.dimowner.audiorecorder.app.widget.SettingView
-					android:id="@+id/setting_name_format"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:visibility="gone" />
 			<com.dimowner.audiorecorder.app.widget.SettingView
 					android:id="@+id/setting_recording_format"
 					android:layout_width="match_parent"
@@ -199,7 +156,7 @@
 			</LinearLayout>
 			<Space
 					android:layout_width="match_parent"
-					android:layout_height="@dimen/spacing_huge" />
+					android:layout_height="@dimen/spacing_normal" />
 			<Space
 					android:id="@+id/space2"
 					android:layout_width="match_parent"
@@ -208,29 +165,73 @@
 	</ScrollView>
 
 	<LinearLayout
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="bottom|center_horizontal"
+			android:paddingStart="@dimen/spacing_small"
+			android:paddingEnd="@dimen/spacing_small"
+			android:background="@color/white_transparent_90"
 			android:orientation="vertical">
 		<LinearLayout
-				android:layout_width="wrap_content"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
+
+			<ImageView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_vertical"
+					android:src="@drawable/ic_info" />
+				<LinearLayout
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:orientation="vertical">
+					<TextView
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:text="120 Mb/hour"
+							android:layout_marginTop="@dimen/spacing_tiny"
+							android:layout_marginStart="@dimen/spacing_small"
+							android:layout_marginEnd="@dimen/spacing_small"
+							android:fontFamily="sans-serif-light"
+							android:textColor="@color/white"
+							android:textSize="@dimen/text_normal"
+							android:visibility="gone"/>
+					<TextView
+							android:id="@+id/txt_information"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:text="WAV is uncompressed format and it takes a lot of space"
+							android:layout_marginTop="@dimen/spacing_tiny"
+							android:layout_marginBottom="@dimen/spacing_tiny"
+							android:layout_marginStart="@dimen/spacing_small"
+							android:layout_marginEnd="@dimen/spacing_small"
+							android:fontFamily="sans-serif-light"
+							android:textColor="@color/white"
+							android:textSize="@dimen/text_normal" />
+				</LinearLayout>
+			</LinearLayout>
+		<LinearLayout
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:orientation="horizontal">
 			<Button
-					android:id="@+id/btn_set_defaults"
+					android:id="@+id/btn_reset"
 					style="@style/Widget.RaisedButton"
-					android:layout_width="wrap_content"
+					android:layout_width="0dp"
 					android:layout_height="wrap_content"
+					android:layout_weight="1"
 					android:layout_marginTop="@dimen/spacing_small"
 					android:layout_marginBottom="@dimen/spacing_small"
 					android:layout_marginEnd="@dimen/spacing_xtiny"
 					android:text="@string/btn_set_default"
 					android:textSize="@dimen/text_medium" />
 			<Button
-					android:id="@+id/btn_get_started"
+					android:id="@+id/btn_apply"
 					style="@style/Widget.RaisedButton"
-					android:layout_width="wrap_content"
+					android:layout_width="0dp"
 					android:layout_height="wrap_content"
+					android:layout_weight="1"
 					android:layout_marginTop="@dimen/spacing_small"
 					android:layout_marginBottom="@dimen/spacing_small"
 					android:layout_marginStart="@dimen/spacing_xtiny"
@@ -242,4 +243,4 @@
 				android:layout_width="match_parent"
 				android:layout_height="@dimen/spacing_normal" />
 	</LinearLayout>
-</FrameLayout>
+</LinearLayout>
