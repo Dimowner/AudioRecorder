@@ -36,7 +36,7 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 	@Override
 	public void loadSettings() {
 		if (view != null) {
-			view.showChannelCount(prefs.getRecordChannelCount());
+			view.showChannelCount(prefs.getSettingChannelCount());
 			String recordingFormatKey = prefs.getSettingRecordingFormat();
 			view.showRecordingFormat(recordingFormatKey);
 			updateRecordingFormat(recordingFormatKey);
@@ -49,39 +49,19 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 	@Override
 	public void setSettingRecordingBitrate(int bitrate) {
 		prefs.setSettingBitrate(bitrate);
-	}
-
-	@Override
-	public void setSampleRate(int pos) {
-		int rate;
-		switch (pos) {
-			case 0:
-				rate = AppConstants.RECORD_SAMPLE_RATE_8000;
-				break;
-			case 1:
-				rate = AppConstants.RECORD_SAMPLE_RATE_16000;
-				break;
-			case 2:
-				rate = AppConstants.RECORD_SAMPLE_RATE_32000;
-				break;
-			case 4:
-				rate = AppConstants.RECORD_SAMPLE_RATE_48000;
-				break;
-			case 3:
-			default:
-				rate = AppConstants.RECORD_SAMPLE_RATE_44100;
-		}
-		prefs.setSettingSampleRate(rate);
+		view.showInformation(R.string.info_bitrate);
 	}
 
 	@Override
 	public void setSettingSampleRate(int rate) {
 		prefs.setSettingSampleRate(rate);
+		view.showInformation(R.string.info_frequency);
 	}
 
 	@Override
 	public void setSettingChannelCount(int count) {
 		prefs.setSettingChannelCount(count);
+		view.showInformation(R.string.info_channels);
 	}
 
 	@Override
@@ -98,6 +78,7 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 	public void setSettingRecordingFormat(String formatKey) {
 		prefs.setSettingRecordingFormat(formatKey);
 		updateRecordingFormat(formatKey);
+		view.showInformation(R.string.info_format);
 	}
 
 	@Override

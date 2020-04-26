@@ -34,20 +34,11 @@ public interface Prefs {
 	long getRecordCounter();
 	void incrementRecordCounter();
 
-	void setRecordInStereo(boolean stereo);
-	int getRecordChannelCount();
-
 	void setKeepScreenOn(boolean on);
 	boolean isKeepScreenOn();
 
-	void setFormat(int f);
-	int getFormat();
-
 	void setRecordOrder(int order);
 	int getRecordsOrder();
-
-	void setNamingFormat(int format);
-	int getNamingFormat();
 
 	void isMigratedSettings();
 	void migrateSettings();

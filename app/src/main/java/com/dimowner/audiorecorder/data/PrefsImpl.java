@@ -143,14 +143,6 @@ public class PrefsImpl implements Prefs {
 		return sharedPreferences.getInt(PREF_KEY_THEME_COLORMAP_POSITION, 0);
 	}
 
-	@Override
-	public void setRecordInStereo(boolean stereo) {
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.putInt(PREF_KEY_RECORD_CHANNEL_COUNT, stereo ? AppConstants.RECORD_AUDIO_STEREO : AppConstants.RECORD_AUDIO_MONO);
-		editor.apply();
-	}
-
-	@Override
 	public int getRecordChannelCount() {
 		return sharedPreferences.getInt(PREF_KEY_RECORD_CHANNEL_COUNT, AppConstants.RECORD_AUDIO_STEREO);
 	}
@@ -167,14 +159,6 @@ public class PrefsImpl implements Prefs {
 		return sharedPreferences.getBoolean(PREF_KEY_KEEP_SCREEN_ON, false);
 	}
 
-	@Override
-	public void setFormat(int f) {
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.putInt(PREF_KEY_FORMAT, f);
-		editor.apply();
-	}
-
-	@Override
 	public int getFormat() {
 		return sharedPreferences.getInt(PREF_KEY_FORMAT, AppConstants.RECORDING_FORMAT_M4A);
 	}
@@ -199,14 +183,6 @@ public class PrefsImpl implements Prefs {
 		return sharedPreferences.getInt(PREF_KEY_RECORDS_ORDER, AppConstants.SORT_DATE);
 	}
 
-	@Override
-	public void setNamingFormat(int format) {
-		SharedPreferences.Editor editor = sharedPreferences.edit();
-		editor.putInt(PREF_KEY_NAMING_FORMAT, format);
-		editor.apply();
-	}
-
-	@Override
 	public int getNamingFormat() {
 		return sharedPreferences.getInt(PREF_KEY_NAMING_FORMAT, AppConstants.NAMING_COUNTED);
 	}
@@ -350,7 +326,7 @@ public class PrefsImpl implements Prefs {
 
 	@Override
 	public int getSettingBitrate() {
-		return sharedPreferences.getInt(PREF_KEY_SETTING_SAMPLE_RATE, AppConstants.DEFAULT_RECORD_ENCODING_BITRATE);
+		return sharedPreferences.getInt(PREF_KEY_SETTING_BITRATE, AppConstants.DEFAULT_RECORD_ENCODING_BITRATE);
 	}
 
 	@Override

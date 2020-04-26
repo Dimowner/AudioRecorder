@@ -42,6 +42,8 @@ import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.trash.TrashActivity;
+import com.dimowner.audiorecorder.app.widget.ChipsView;
+import com.dimowner.audiorecorder.app.widget.SettingView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
 
@@ -55,14 +57,16 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private TextView txtAvailableSpace;
 
 	private Switch swPublicDir;
-	private Switch swRecordInStereo;
 	private Switch swKeepScreenOn;
 	private Switch swAskToRename;
 
+	private Spinner themeColor;
 	private Spinner nameFormatSelector;
-	private Spinner formatSelector;
-	private Spinner sampleRateSelector;
-	private Spinner bitrateSelector;
+
+	private SettingView formatSetting;
+	private SettingView sampleRateSetting;
+	private SettingView bitrateSetting;
+	private SettingView channelsSetting;
 
 	private SettingsContract.UserActionsListener presenter;
 	private ColorMap colorMap;
@@ -117,7 +121,6 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		btnRate.setOnClickListener(this);
 		btnRequest.setOnClickListener(this);
 		swPublicDir = findViewById(R.id.swPublicDir);
-		swRecordInStereo = findViewById(R.id.swRecordInStereo);
 		swKeepScreenOn = findViewById(R.id.swKeepScreenOn);
 		swAskToRename = findViewById(R.id.swAskToRename);
 
@@ -126,12 +129,6 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		txtAvailableSpace = findViewById(R.id.txt_available_space);
 
 		swPublicDir.setOnCheckedChangeListener(publicDirListener);
-		swRecordInStereo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
-				presenter.recordInStereo(isChecked);
-			}
-		});
 
 		swKeepScreenOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
@@ -146,19 +143,110 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			}
 		});
 
+		formatSetting = findViewById(R.id.setting_recording_format);
+		final String[] formats = getResources().getStringArray(R.array.formats2);
+		final String[] formatsKeys = new String[] {
+				AppConstants.FORMAT_M4A,
+				AppConstants.FORMAT_WAV
+		};
+		formatSetting.setData(formats, formatsKeys);
+		formatSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
+			@Override
+			public void onCheck(String key, String name, boolean checked) {
+				presenter.setSettingRecordingFormat(key);
+			}
+		});
+		formatSetting.setTitle(R.string.recording_format);
+//		formatSetting.setImageInfo(R.drawable.ic_audiotrack);
+		formatSetting.setOnInfoClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				AndroidUtils.showInfoDialog(SettingsActivity.this, R.string.info_format);
+			}
+		});
+
+		sampleRateSetting = findViewById(R.id.setting_frequency);
+		final String[] sampleRates = getResources().getStringArray(R.array.sample_rates2);
+		final String[] sampleRatesKeys = new String[] {
+				SettingsMapper.SAMPLE_RATE_8000,
+				SettingsMapper.SAMPLE_RATE_16000,
+				SettingsMapper.SAMPLE_RATE_32000,
+				SettingsMapper.SAMPLE_RATE_44100,
+				SettingsMapper.SAMPLE_RATE_48000,
+		};
+		sampleRateSetting.setData(sampleRates, sampleRatesKeys);
+		sampleRateSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
+			@Override
+			public void onCheck(String key, String name, boolean checked) {
+				presenter.setSettingSampleRate(SettingsMapper.keyToSampleRate(key));
+			}
+		});
+		sampleRateSetting.setTitle(R.string.frequency);
+//		sampleRateSetting.setImageInfo(R.drawable.ic_audiotrack);
+		sampleRateSetting.setOnInfoClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				AndroidUtils.showInfoDialog(SettingsActivity.this, R.string.info_frequency);
+			}
+		});
+
+		bitrateSetting = findViewById(R.id.setting_bitrate);
+		final String[] rates = getResources().getStringArray(R.array.bit_rates2);
+		final String[] rateKeys = new String[] {
+				SettingsMapper.BITRATE_24000,
+				SettingsMapper.BITRATE_48000,
+				SettingsMapper.BITRATE_96000,
+				SettingsMapper.BITRATE_128000,
+				SettingsMapper.BITRATE_192000,
+		};
+		bitrateSetting.setData(rates, rateKeys);
+		bitrateSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
+			@Override
+			public void onCheck(String key, String name, boolean checked) {
+				presenter.setSettingRecordingBitrate(SettingsMapper.keyToBitrate(key));
+			}
+		});
+		bitrateSetting.setTitle(R.string.bitrate);
+//		bitrateSetting.setImageInfo(R.drawable.ic_audiotrack);
+		bitrateSetting.setOnInfoClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				AndroidUtils.showInfoDialog(SettingsActivity.this, R.string.info_bitrate);
+			}
+		});
+
+		channelsSetting = findViewById(R.id.setting_channels);
+		final String[] recChannels = getResources().getStringArray(R.array.channels);
+		final String[] recChannelsKeys = new String[] {
+				SettingsMapper.CHANNEL_COUNT_STEREO,
+				SettingsMapper.CHANNEL_COUNT_MONO
+		};
+		channelsSetting.setData(recChannels, recChannelsKeys);
+		channelsSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
+			@Override
+			public void onCheck(String key, String name, boolean checked) {
+				presenter.setSettingChannelCount(SettingsMapper.keyToChannelCount(key));
+			}
+		});
+		channelsSetting.setTitle(R.string.channels);
+//		channelsSetting.setImageInfo(R.drawable.ic_surround_sound_2_0);
+		channelsSetting.setOnInfoClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				AndroidUtils.showInfoDialog(SettingsActivity.this, R.string.info_channels);
+			}
+		});
+
 		presenter = ARApplication.getInjector().provideSettingsPresenter();
 
 		initThemeColorSelector();
 		initNameFormatSelector();
-		initFormatSelector();
-		initSampleRateSelector();
-		initBitrateSelector();
 	}
 
 	private void initThemeColorSelector() {
-		final Spinner themeColor = findViewById(R.id.themeColor);
+		themeColor = findViewById(R.id.themeColor);
 		List<AppSpinnerAdapter.ThemeItem> items = new ArrayList<>();
-		String values[] = getResources().getStringArray(R.array.theme_colors);
+		String[] values = getResources().getStringArray(R.array.theme_colors2);
 		int[] colorRes = colorMap.getColorResources();
 		for (int i = 0; i < values.length; i++) {
 			items.add(new AppSpinnerAdapter.ThemeItem(values[i], getApplicationContext().getResources().getColor(colorRes[i])));
@@ -169,19 +257,22 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 		onThemeColorChangeListener = new ColorMap.OnThemeColorChangeListener() {
 			@Override
-			public void onThemeColorChange(String key) {
+			public void onThemeColorChange(String colorKey) {
 				setTheme(colorMap.getAppThemeResource());
 				recreate();
 			}
 		};
 		colorMap.addOnThemeColorChangeListener(onThemeColorChangeListener);
 
-//		if (colorMap.getSelected() > 0) {
-//			themeColor.setSelection(colorMap.getSelected());
-//		}
+		int selected = SettingsMapper.colorKeyToPosition(colorMap.getSelected());
+		if (selected != themeColor.getSelectedItemPosition()) {
+			themeColor.setSelection(selected);
+		}
 		themeColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//				colorMap.updateColorMap(position);
+				String colorKey = SettingsMapper.positionToColorKey(position);
+				colorMap.updateColorMap(colorKey);
+				presenter.setSettingThemeColor(colorKey);
 			}
 			@Override public void onNothingSelected(AdapterView<?> parent) { }
 		});
@@ -190,11 +281,11 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private void initNameFormatSelector() {
 		nameFormatSelector = findViewById(R.id.name_format);
 		List<AppSpinnerAdapter.ThemeItem> items = new ArrayList<>();
-		String[] values = new String[4];
+		String[] values = new String[3];
 		values[0] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameCounted(1) + ".m4a";
-		values[1] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameDate() + ".m4a";
-		values[2] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameDateVariant() + ".m4a";
-		values[3] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameMills() + ".m4a";
+//		values[1] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameDate() + ".m4a";
+		values[1] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameDateVariant() + ".m4a";
+		values[2] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameMills() + ".m4a";
 		for (int i = 0; i < values.length; i++) {
 			items.add(new AppSpinnerAdapter.ThemeItem(values[i],
 					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
@@ -205,84 +296,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 		nameFormatSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				if (position == 0) {
-					presenter.setNamingFormat(AppConstants.NAMING_COUNTED);
-				} else {
-					presenter.setNamingFormat(AppConstants.NAMING_DATE);
-				}
+				presenter.setSettingNamingFormat(SettingsMapper.positionToNamingFormat(position));
 			}
 			@Override public void onNothingSelected(AdapterView<?> parent) { }
-		});
-	}
-
-	private void initFormatSelector() {
-		formatSelector = findViewById(R.id.format);
-		List<AppSpinnerAdapter.ThemeItem> items = new ArrayList<>();
-		String[] values = getResources().getStringArray(R.array.formats);
-		for (int i = 0; i < values.length; i++) {
-			items.add(new AppSpinnerAdapter.ThemeItem(values[i],
-					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
-		}
-		AppSpinnerAdapter adapter = new AppSpinnerAdapter(SettingsActivity.this,
-				R.layout.list_item_spinner, R.id.txtItem, items, R.drawable.ic_audiotrack);
-		formatSelector.setAdapter(adapter);
-
-		formatSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				if (position == 0) {
-					presenter.setRecordingFormat(AppConstants.RECORDING_FORMAT_M4A);
-				} else {
-					presenter.setRecordingFormat(AppConstants.RECORDING_FORMAT_WAV);
-				}
-			}
-			@Override public void onNothingSelected(AdapterView<?> parent) { }
-		});
-		if (ARApplication.isRecording()) {
-			formatSelector.setEnabled(false);
-			formatSelector.setClickable(false);
-		}
-	}
-
-	private void initSampleRateSelector() {
-		sampleRateSelector = findViewById(R.id.sample_rate);
-		List<AppSpinnerAdapter.ThemeItem> items = new ArrayList<>();
-		String[] values = getResources().getStringArray(R.array.sample_rates);
-		for (int i = 0; i < values.length; i++) {
-			items.add(new AppSpinnerAdapter.ThemeItem(values[i],
-					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
-		}
-		AppSpinnerAdapter adapter = new AppSpinnerAdapter(SettingsActivity.this,
-				R.layout.list_item_spinner, R.id.txtItem, items, R.drawable.ic_audiotrack);
-		sampleRateSelector.setAdapter(adapter);
-
-		sampleRateSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				presenter.setSampleRate(position);
-			}
-			@Override public void onNothingSelected(AdapterView<?> parent) { }
-		});
-	}
-
-	private void initBitrateSelector() {
-		bitrateSelector = findViewById(R.id.bit_rate);
-		List<AppSpinnerAdapter.ThemeItem> items3 = new ArrayList<>();
-		String[] values3 = getResources().getStringArray(R.array.bit_rates);
-		for (int i = 0; i < values3.length; i++) {
-			items3.add(new AppSpinnerAdapter.ThemeItem(values3[i],
-					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
-		}
-		AppSpinnerAdapter adapter3 = new AppSpinnerAdapter(SettingsActivity.this,
-				R.layout.list_item_spinner, R.id.txtItem, items3, R.drawable.ic_audiotrack);
-		bitrateSelector.setAdapter(adapter3);
-
-		bitrateSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				presenter.setRecordingBitrate(position);
-			}
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-			}
 		});
 	}
 
@@ -413,8 +429,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	}
 
 	@Override
-	public void showRecordInStereo(boolean b) {
-		swRecordInStereo.setChecked(b);
+	public void showChannelCount(int count) {
+		channelsSetting.setSelected(SettingsMapper.channelCountToKey(count));
 	}
 
 	@Override
@@ -424,22 +440,22 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	@Override
 	public void showRecordingBitrate(int bitrate) {
-		bitrateSelector.setSelection(bitrate);
+		bitrateSetting.setSelected(SettingsMapper.bitrateToKey(bitrate));
 	}
 
 	@Override
 	public void showRecordingSampleRate(int rate) {
-		sampleRateSelector.setSelection(rate);
+		sampleRateSetting.setSelected(SettingsMapper.sampleRateToKey(rate));
 	}
 
 	@Override
-	public void showRecordingFormat(int format) {
-		formatSelector.setSelection(format);
+	public void showRecordingFormat(String formatKey) {
+		formatSetting.setSelected(formatKey);
 	}
 
 	@Override
-	public void showNamingFormat(int format) {
-		nameFormatSelector.setSelection(format);
+	public void showNamingFormat(String namingKey) {
+		nameFormatSelector.setSelection(SettingsMapper.namingFormatToPosition(namingKey));
 	}
 
 	@Override
@@ -469,12 +485,12 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	@Override
 	public void showBitrateSelector() {
-		bitrateSelector.setVisibility(View.VISIBLE);
+		bitrateSetting.setVisibility(View.VISIBLE);
 	}
 
 	@Override
 	public void hideBitrateSelector() {
-		bitrateSelector.setVisibility(View.GONE);
+		bitrateSetting.setVisibility(View.GONE);
 	}
 
 	@Override
@@ -497,6 +513,11 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 					}
 				}, null
 		);
+	}
+
+	@Override
+	public void showInformation(int infoResId) {
+
 	}
 
 	@Override

@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Space;
 import android.widget.Spinner;
@@ -37,6 +38,7 @@ import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.main.MainActivity;
 import com.dimowner.audiorecorder.app.settings.AppSpinnerAdapter;
+import com.dimowner.audiorecorder.app.settings.SettingsMapper;
 import com.dimowner.audiorecorder.app.widget.ChipsView;
 import com.dimowner.audiorecorder.app.widget.SettingView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
@@ -46,21 +48,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SetupActivity extends Activity implements SetupContract.View, View.OnClickListener {
-
-	private final static String SAMPLE_RATE_8000 = "8000";
-	private final static String SAMPLE_RATE_16000 = "16000";
-	private final static String SAMPLE_RATE_32000 = "32000";
-	private final static String SAMPLE_RATE_44100 = "44100";
-	private final static String SAMPLE_RATE_48000 = "48000";
-
-	private final static String BITRATE_24000 = "24000";
-	private final static String BITRATE_48000 = "48000";
-	private final static String BITRATE_96000 = "96000";
-	private final static String BITRATE_128000 = "128000";
-	private final static String BITRATE_192000 = "192000";
-
-	private final static String CHANNEL_COUNT_STEREO = "stereo";
-	private final static String CHANNEL_COUNT_MONO = "mono";
 
 	private Spinner nameFormatSelector;
 	private Spinner themeColor;
@@ -99,8 +86,10 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 
 		Button btnApply = findViewById(R.id.btn_apply);
 		Button btnReset = findViewById(R.id.btn_reset);
+		ImageButton btnBack = findViewById(R.id.btn_back);
 		btnApply.setOnClickListener(this);
 		btnReset.setOnClickListener(this);
+		btnBack.setOnClickListener(this);
 
 		Space space = findViewById(R.id.space);
 		ViewGroup.LayoutParams params = space.getLayoutParams();
@@ -111,22 +100,6 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 		ViewGroup.LayoutParams params2 = space.getLayoutParams();
 		params2.height = AndroidUtils.getNavigationBarHeight(getApplicationContext());
 		space2.setLayoutParams(params2);
-
-		findViewById(R.id.btn_back).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				finish();
-			}
-		});
-
-		findViewById(R.id.btn_apply).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				presenter.executeFirstRun();
-				startActivity(MainActivity.getStartIntent(getApplicationContext()));
-				finish();
-			}
-		});
 
 		formatSetting = findViewById(R.id.setting_recording_format);
 		final String[] formats = getResources().getStringArray(R.array.formats2);
@@ -153,17 +126,17 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 		sampleRateSetting = findViewById(R.id.setting_frequency);
 		final String[] sampleRates = getResources().getStringArray(R.array.sample_rates2);
 		final String[] sampleRatesKeys = new String[] {
-				SAMPLE_RATE_8000,
-				SAMPLE_RATE_16000,
-				SAMPLE_RATE_32000,
-				SAMPLE_RATE_44100,
-				SAMPLE_RATE_48000,
+				SettingsMapper.SAMPLE_RATE_8000,
+				SettingsMapper.SAMPLE_RATE_16000,
+				SettingsMapper.SAMPLE_RATE_32000,
+				SettingsMapper.SAMPLE_RATE_44100,
+				SettingsMapper.SAMPLE_RATE_48000,
 		};
 		sampleRateSetting.setData(sampleRates, sampleRatesKeys);
 		sampleRateSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
 			@Override
 			public void onCheck(String key, String name, boolean checked) {
-				presenter.setSettingSampleRate(keyToSampleRate(key));
+				presenter.setSettingSampleRate(SettingsMapper.keyToSampleRate(key));
 			}
 		});
 		sampleRateSetting.setTitle(R.string.frequency);
@@ -178,17 +151,17 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 		bitrateSetting = findViewById(R.id.setting_bitrate);
 		final String[] rates = getResources().getStringArray(R.array.bit_rates2);
 		final String[] rateKeys = new String[] {
-				BITRATE_24000,
-				BITRATE_48000,
-				BITRATE_96000,
-				BITRATE_128000,
-				BITRATE_192000,
+				SettingsMapper.BITRATE_24000,
+				SettingsMapper.BITRATE_48000,
+				SettingsMapper.BITRATE_96000,
+				SettingsMapper.BITRATE_128000,
+				SettingsMapper.BITRATE_192000,
 		};
 		bitrateSetting.setData(rates, rateKeys);
 		bitrateSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
 			@Override
 			public void onCheck(String key, String name, boolean checked) {
-				presenter.setSettingRecordingBitrate(keyToBitrate(key));
+				presenter.setSettingRecordingBitrate(SettingsMapper.keyToBitrate(key));
 			}
 		});
 		bitrateSetting.setTitle(R.string.bitrate);
@@ -203,14 +176,14 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 		channelsSetting = findViewById(R.id.setting_channels);
 		final String[] recChannels = getResources().getStringArray(R.array.channels);
 		final String[] recChannelsKeys = new String[] {
-				CHANNEL_COUNT_STEREO,
-				CHANNEL_COUNT_MONO
+				SettingsMapper.CHANNEL_COUNT_STEREO,
+				SettingsMapper.CHANNEL_COUNT_MONO
 		};
 		channelsSetting.setData(recChannels, recChannelsKeys);
 		channelsSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
 			@Override
 			public void onCheck(String key, String name, boolean checked) {
-				presenter.setSettingChannelCount(keyToChannelCount(key));
+				presenter.setSettingChannelCount(SettingsMapper.keyToChannelCount(key));
 			}
 		});
 		channelsSetting.setTitle(R.string.channels);
@@ -249,13 +222,13 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 		};
 		colorMap.addOnThemeColorChangeListener(onThemeColorChangeListener);
 
-		int selected = colorKeyToPosition(colorMap.getSelected());
+		int selected = SettingsMapper.colorKeyToPosition(colorMap.getSelected());
 		if (selected != themeColor.getSelectedItemPosition()) {
 			themeColor.setSelection(selected);
 		}
 		themeColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				String colorKey = positionToColorKey(position);
+				String colorKey = SettingsMapper.positionToColorKey(position);
 				colorMap.updateColorMap(colorKey);
 				presenter.setSettingThemeColor(colorKey);
 			}
@@ -266,11 +239,11 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 	private void initNameFormatSelector() {
 		nameFormatSelector = findViewById(R.id.name_format);
 		List<AppSpinnerAdapter.ThemeItem> items = new ArrayList<>();
-		String[] values = new String[2];
+		String[] values = new String[3];
 		values[0] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameCounted(1) + ".m4a";
-		values[1] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameDate() + ".m4a";
-//		values[2] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameDateVariant() + ".m4a";
-//		values[3] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameMills() + ".m4a";
+//		values[1] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameDate() + ".m4a";
+		values[1] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameDateVariant() + ".m4a";
+		values[2] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameMills() + ".m4a";
 		for (int i = 0; i < values.length; i++) {
 			items.add(new AppSpinnerAdapter.ThemeItem(values[i],
 					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
@@ -281,7 +254,7 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 
 		nameFormatSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				presenter.setSettingNamingFormat(positionToNamingFormat(position));
+				presenter.setSettingNamingFormat(SettingsMapper.positionToNamingFormat(position));
 			}
 			@Override public void onNothingSelected(AdapterView<?> parent) { }
 		});
@@ -334,22 +307,22 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 
 	@Override
 	public void showRecordingBitrate(int bitrate) {
-		bitrateSetting.setSelected(bitrateToKey(bitrate));
+		bitrateSetting.setSelected(SettingsMapper.bitrateToKey(bitrate));
 	}
 
 	@Override
 	public void showSampleRate(int rate) {
-		sampleRateSetting.setSelected(sampleRateToKey(rate));
+		sampleRateSetting.setSelected(SettingsMapper.sampleRateToKey(rate));
 	}
 
 	@Override
 	public void showChannelCount(int count) {
-		channelsSetting.setSelected(channelCountToKey(count));
+		channelsSetting.setSelected(SettingsMapper.channelCountToKey(count));
 	}
 
 	@Override
 	public void showNamingFormat(String namingKey) {
-		nameFormatSelector.setSelection(namingFormatToPosition(namingKey));
+		nameFormatSelector.setSelection(SettingsMapper.namingFormatToPosition(namingKey));
 	}
 
 	@Override
@@ -393,162 +366,5 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 	@Override
 	public void showMessage(int resId) {
 		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
-	}
-
-	private String positionToColorKey(int position) {
-		switch (position) {
-			case 0:
-				return AppConstants.THEME_BLUE_GREY;
-			case 1:
-				return AppConstants.THEME_BLACK;
-			case 2:
-				return AppConstants.THEME_TEAL;
-			case 3:
-				return AppConstants.THEME_BLUE;
-			case 4:
-				return AppConstants.THEME_PURPLE;
-			case 5:
-				return AppConstants.THEME_PINK;
-			case 6:
-				return AppConstants.THEME_ORANGE;
-			case 7:
-				return AppConstants.THEME_RED;
-			case 8:
-				return AppConstants.THEME_BROWN;
-			default:
-				return AppConstants.DEFAULT_THEME_COLOR;
-		}
-	}
-
-	private int colorKeyToPosition(String colorKey) {
-		switch (colorKey) {
-			default:
-			case AppConstants.THEME_BLUE_GREY:
-				return 0;
-			case AppConstants.THEME_BLACK:
-				return 1;
-			case AppConstants.THEME_TEAL:
-				return 2;
-			case AppConstants.THEME_BLUE:
-				return 3;
-			case AppConstants.THEME_PURPLE:
-				return 4;
-			case AppConstants.THEME_PINK:
-				return 5;
-			case AppConstants.THEME_ORANGE:
-				return 6;
-			case AppConstants.THEME_RED:
-				return 7;
-			case AppConstants.THEME_BROWN:
-				return 8;
-		}
-	}
-
-	private int namingFormatToPosition(String namingFormat) {
-		switch (namingFormat) {
-			case AppConstants.NAME_FORMAT_DATE:
-				return 1;
-			case AppConstants.NAME_FORMAT_RECORD:
-			default:
-				return 0;
-		}
-	}
-
-	private String positionToNamingFormat(int position) {
-		switch (position) {
-			case 1:
-				return AppConstants.NAME_FORMAT_DATE;
-			case 0:
-				return AppConstants.NAME_FORMAT_RECORD;
-			default:
-				return AppConstants.DEFAULT_NAME_FORMAT;
-		}
-	}
-
-	private int keyToSampleRate(String sampleRateKey) {
-		switch (sampleRateKey) {
-			case SAMPLE_RATE_8000:
-				return AppConstants.RECORD_SAMPLE_RATE_8000;
-			case SAMPLE_RATE_16000:
-				return AppConstants.RECORD_SAMPLE_RATE_16000;
-			case SAMPLE_RATE_32000:
-				return AppConstants.RECORD_SAMPLE_RATE_32000;
-			case SAMPLE_RATE_44100:
-				return AppConstants.RECORD_SAMPLE_RATE_44100;
-			case SAMPLE_RATE_48000:
-				return AppConstants.RECORD_SAMPLE_RATE_48000;
-			default:
-				return AppConstants.DEFAULT_RECORD_SAMPLE_RATE;
-		}
-	}
-
-	private String sampleRateToKey(int sampleRate) {
-		switch (sampleRate) {
-			case AppConstants.RECORD_SAMPLE_RATE_8000:
-				return SAMPLE_RATE_8000;
-			case AppConstants.RECORD_SAMPLE_RATE_16000:
-				return SAMPLE_RATE_16000;
-			case AppConstants.RECORD_SAMPLE_RATE_32000:
-				return SAMPLE_RATE_32000;
-			case AppConstants.RECORD_SAMPLE_RATE_44100:
-			default:
-				return SAMPLE_RATE_44100;
-			case AppConstants.RECORD_SAMPLE_RATE_48000:
-				return SAMPLE_RATE_48000;
-		}
-	}
-
-	private int keyToBitrate(String bitrateKey) {
-		switch (bitrateKey) {
-			case BITRATE_24000:
-				return AppConstants.RECORD_ENCODING_BITRATE_24000;
-			case BITRATE_48000:
-				return AppConstants.RECORD_ENCODING_BITRATE_48000;
-			case BITRATE_96000:
-				return AppConstants.RECORD_ENCODING_BITRATE_96000;
-			case BITRATE_128000:
-				return AppConstants.RECORD_ENCODING_BITRATE_128000;
-			case BITRATE_192000:
-				return AppConstants.RECORD_ENCODING_BITRATE_192000;
-			default:
-				return AppConstants.DEFAULT_RECORD_ENCODING_BITRATE;
-		}
-	}
-
-	private String bitrateToKey(int bitrate) {
-		switch (bitrate) {
-			case AppConstants.RECORD_ENCODING_BITRATE_24000:
-				return BITRATE_24000;
-			case AppConstants.RECORD_ENCODING_BITRATE_48000:
-				return BITRATE_48000;
-			case AppConstants.RECORD_ENCODING_BITRATE_96000:
-				return BITRATE_96000;
-			case AppConstants.RECORD_ENCODING_BITRATE_128000:
-			default:
-				return BITRATE_128000;
-			case AppConstants.RECORD_ENCODING_BITRATE_192000:
-				return BITRATE_192000;
-		}
-	}
-
-	private int keyToChannelCount(String key) {
-		switch (key) {
-			case CHANNEL_COUNT_MONO:
-				return AppConstants.RECORD_AUDIO_MONO;
-			case CHANNEL_COUNT_STEREO:
-				return AppConstants.RECORD_AUDIO_STEREO;
-			default:
-				return AppConstants.DEFAULT_CHANNEL_COUNT;
-		}
-	}
-
-	private String channelCountToKey(int count) {
-		switch (count) {
-			case AppConstants.RECORD_AUDIO_MONO:
-				return CHANNEL_COUNT_MONO;
-			case AppConstants.RECORD_AUDIO_STEREO:
-			default:
-				return CHANNEL_COUNT_STEREO;
-		}
 	}
 }

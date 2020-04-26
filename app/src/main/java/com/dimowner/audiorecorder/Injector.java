@@ -31,6 +31,7 @@ import com.dimowner.audiorecorder.app.welcome.WelcomePresenter;
 import com.dimowner.audiorecorder.audio.player.AudioPlayer;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
+import com.dimowner.audiorecorder.audio.recorder.GpRecorder;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.audio.recorder.WavRecorder;
 import com.dimowner.audiorecorder.data.FileRepository;
@@ -139,10 +140,14 @@ public class Injector {
 	}
 
 	public RecorderContract.Recorder provideAudioRecorder() {
-		if (providePrefs().getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
-			return WavRecorder.getInstance();
-		} else {
-			return AudioRecorder.getInstance();
+		switch (providePrefs().getSettingRecordingFormat()) {
+			default:
+			case AppConstants.FORMAT_M4A:
+				return AudioRecorder.getInstance();
+			case AppConstants.FORMAT_WAV:
+				return WavRecorder.getInstance();
+			case AppConstants.FORMAT_3GP:
+				return GpRecorder.getInstance();
 		}
 	}
 

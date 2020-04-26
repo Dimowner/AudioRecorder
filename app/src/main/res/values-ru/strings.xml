@@ -1,9 +1,13 @@
 <resources>
-	<!--<string name="app_name">Audio Recorder</string>-->
 	<string name="app_name">Аудио Рекордер</string>
 
 	<string name="records">Записи</string>
 	<string name="settings">Настройки</string>
+	<string name="setup">Установки</string>
+	<string name="welcome_1">Добро пожаловать в простое и быстрое приложение</string>
+	<string name="title_1">Аудио Рекордер</string>
+	<string name="title_2">Аудио Рекордер</string>
+	<string name="title_3">Рекордио Аудер</string>
 	<string name="rate_app">Оценить приложение</string>
 	<string name="store_records_public">Хранить записи в публичной директории</string>
 	<string name="record_in_stereo">Записывать в Стерео</string>
@@ -118,38 +122,41 @@
 	]]></string>
 	<!--<a href="http://#/">Application site</a>-->
 
-	<string-array name="theme_colors">
-		<item>Тама Не выбрано</item>
+	<string-array name="theme_colors2">
+		<item>Тема Сине-серая</item>
 		<item>Тема Черная</item>
 		<item>Тема Бирюзовая</item>
 		<item>Тема Голубая</item>
-		<item>Тема Темно Фиолетовая</item>
+		<item>Тема Фиолетовая</item>
 		<item>Тема Розовая</item>
-		<item>Тема Темно Оранжевая</item>
+		<item>Тема Оранжевая</item>
 		<item>Тема Красная</item>
 		<item>Тема Коричневая</item>
-		<item>Тема Сине-серая</item>
 	</string-array>
 
-	<string-array name="formats">
-		<item>Формат: M4a</item>
-		<item>Формат: Wav</item>
+	<string-array name="formats2">
+		<item>M4a</item>
+		<item>Wav</item>
 	</string-array>
 
-	<string-array name="sample_rates">
-		<item>Частота: 8000 Гц</item>
-		<item>Частота: 16000 Гц</item>
-		<item>Частота: 32000 Гц</item>
-		<item>Частота: 44100 Гц</item>
-		<item>Частота: 48000 Гц</item>
+	<string-array name="bit_rates2">
+		<item>24 кбит/с</item>
+		<item>48 кбит/с</item>
+		<item>96 кбит/с</item>
+		<item>128 кбит/с</item>
+		<item>192 кбит/с</item>
 	</string-array>
 
-	<string-array name="bit_rates">
-		<item>Битрейт: 24 кбит/с</item>
-		<item>Битрейт: 48 кбит/с</item>
-		<item>Битрейт: 96 кбит/с</item>
-		<item>Битрейт: 128 кбит/с</item>
-		<item>Битрейт: 192 кбит/с</item>
+	<string-array name="sample_rates2">
+		<item>8000</item>
+		<item>16000</item>
+		<item>32000</item>
+		<item>44100</item>
+		<item>48000</item>
 	</string-array>
 
+	<string-array name="channels">
+		<item>Стерео</item>
+		<item>Моно</item>
+	</string-array>
 </resources>

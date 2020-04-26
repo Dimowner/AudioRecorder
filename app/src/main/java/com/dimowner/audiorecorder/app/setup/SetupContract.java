@@ -43,8 +43,6 @@ public class SetupContract {
 
 		void loadSettings();
 
-		void setSampleRate(int rate);
-
 		void setSettingRecordingBitrate(int bitrate);
 
 		void setSettingSampleRate(int rate);

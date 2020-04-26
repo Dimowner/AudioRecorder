@@ -56,16 +56,44 @@ public class FileRepositoryImpl implements FileRepository {
 		prefs.incrementRecordCounter();
 		File recordFile;
 		String recordName;
-		if (prefs.getNamingFormat() == AppConstants.NAMING_COUNTED) {
-			recordName = FileUtil.generateRecordNameCounted(prefs.getRecordCounter());
-		} else {
-			recordName = FileUtil.generateRecordNameDate();
+		switch (prefs.getSettingNamingFormat()) {
+			default:
+			case AppConstants.NAME_FORMAT_RECORD:
+				recordName = FileUtil.generateRecordNameCounted(prefs.getRecordCounter());
+				break;
+			case AppConstants.NAME_FORMAT_DATE:
+				recordName = FileUtil.generateRecordNameDate();
+				break;
+			case AppConstants.NAME_FORMAT_DATE_SIMPLE:
+				recordName = FileUtil.generateRecordNameDateVariant();
+				break;
+			case AppConstants.NAME_FORMAT_TIMESTAMP:
+				recordName = FileUtil.generateRecordNameMills();
+				break;
 		}
-		if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
-			recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.WAV_EXTENSION));
-		} else {
-			recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.M4A_EXTENSION));
+		switch (prefs.getSettingRecordingFormat()) {
+			default:
+			case AppConstants.FORMAT_M4A:
+				recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.M4A_EXTENSION));
+				break;
+			case AppConstants.FORMAT_WAV:
+				recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.WAV_EXTENSION));
+				break;
+			case AppConstants.FORMAT_3GP:
+				recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.GP3_EXTENSION));
+				break;
 		}
+
+//		if (prefs.getNamingFormat() == AppConstants.NAMING_COUNTED) {
+//			recordName = FileUtil.generateRecordNameCounted(prefs.getRecordCounter());
+//		} else {
+//			recordName = FileUtil.generateRecordNameDate();
+//		}
+//		if (prefs.getSettingRecordingFormat() == AppConstants.RECORDING_FORMAT_WAV) {
+//			recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.WAV_EXTENSION));
+//		} else {
+//			recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.M4A_EXTENSION));
+//		}
 		if (recordFile != null) {
 			return recordFile;
 		}
@@ -169,17 +197,19 @@ public class FileRepositoryImpl implements FileRepository {
 			space = FileUtil.getAvailableInternalMemorySize(context);
 		}
 
-		final long time = spaceToTimeSecs(space, prefs.getFormat(), prefs.getSettingSampleRate(), prefs.getRecordChannelCount());
+		final long time = spaceToTimeSecs(space, prefs.getSettingRecordingFormat(),
+				prefs.getSettingSampleRate(), prefs.getSettingBitrate(), prefs.getSettingChannelCount());
 		return time > AppConstants.MIN_REMAIN_RECORDING_TIME;
 	}
 
-	private long spaceToTimeSecs(long spaceBytes, int format, int sampleRate, int channels) {
-		if (format == AppConstants.RECORDING_FORMAT_M4A) {
-			return 1000 * (spaceBytes/(AppConstants.RECORD_ENCODING_BITRATE_48000 /8));
-		} else if (format == AppConstants.RECORDING_FORMAT_WAV) {
-			return 1000 * (spaceBytes/(sampleRate * channels * 2));
-		} else {
-			return 0;
+	private long spaceToTimeSecs(long spaceBytes, String recordingFormat, int sampleRate, int bitrate, int channels) {
+		switch (recordingFormat) {
+			case AppConstants.FORMAT_M4A:
+				return 1000 * (spaceBytes/(bitrate/8));
+			case AppConstants.FORMAT_WAV:
+				return 1000 * (spaceBytes/(sampleRate * channels * 2));
+			default:
+				return 0;
 		}
 	}
 }

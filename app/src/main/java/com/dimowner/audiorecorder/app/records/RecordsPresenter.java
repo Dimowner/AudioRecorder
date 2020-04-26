@@ -314,10 +314,17 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				Record rec2 = localRepository.getRecord((int)id);
 				if (rec2 != null) {
 					String nameWithExt;
-					if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
-						nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.WAV_EXTENSION;
-					} else {
-						nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.M4A_EXTENSION;
+					switch (prefs.getSettingRecordingFormat()) {
+						default:
+						case AppConstants.FORMAT_M4A:
+							nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.M4A_EXTENSION;
+							break;
+						case AppConstants.FORMAT_WAV:
+							nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.WAV_EXTENSION;
+							break;
+						case AppConstants.FORMAT_3GP:
+							nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.GP3_EXTENSION;
+							break;
 					}
 					File file = new File(rec2.getPath());
 					File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
@@ -333,10 +340,17 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 						});
 					} else {
 						String ext;
-						if (prefs.getFormat() == AppConstants.RECORDING_FORMAT_WAV) {
-							ext = AppConstants.WAV_EXTENSION;
-						} else {
-							ext = AppConstants.M4A_EXTENSION;
+						switch (prefs.getSettingRecordingFormat()) {
+							default:
+							case AppConstants.FORMAT_M4A:
+								ext = AppConstants.M4A_EXTENSION;
+								break;
+							case AppConstants.FORMAT_WAV:
+								ext = AppConstants.WAV_EXTENSION;
+								break;
+							case AppConstants.FORMAT_3GP:
+								ext = AppConstants.GP3_EXTENSION;
+								break;
 						}
 						if (fileRepository.renameFile(rec2.getPath(), name, ext)) {
 							activeRecord = new Record(rec2.getId(), nameWithExt, rec2.getDuration(), rec2.getCreated(),

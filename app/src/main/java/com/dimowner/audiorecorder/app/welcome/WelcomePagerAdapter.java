@@ -9,82 +9,53 @@ import com.dimowner.audiorecorder.R;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import static com.dimowner.audiorecorder.app.welcome.WelcomePagerAdapter.*;
 
 /**
  * Created on 05.04.2020.
  * @author Dimowner
  */
-public class WelcomePagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
-//	private int curPosition = 0;
-//
-//	private PagerItemViewHolder curItem = null;
-//	private Map<Integer, PagerItemViewHolder> holdersMap = new HashMap<>();
+public class WelcomePagerAdapter extends RecyclerView.Adapter<PagerItemViewHolder> {
 
 	@NonNull
 	@Override
-	public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+	public PagerItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		return new PagerItemViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.welcome_page_item, parent, false));
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+	public void onBindViewHolder(@NonNull PagerItemViewHolder holder, int position) {
+		switch (position) {
+			case 0:
+				holder.txtTitle.setText(R.string.title_1);
+				holder.txtDetails.setText(R.string.welcome_1);
+				break;
+			case 1:
+				holder.txtTitle.setText(R.string.title_2);
+				holder.txtDetails.setText(R.string.welcome_2);
+				break;
+			case 2:
+				holder.txtTitle.setText(R.string.title_3);
+				holder.txtDetails.setText(R.string.welcome_3);
+				break;
+		}
 	}
-
-//	@Override
-//	public void onViewAttachedToWindow(@NonNull RecyclerView.ViewHolder holder) {
-//		super.onViewAttachedToWindow(holder);
-//		holdersMap.put(holder.getAdapterPosition(), (PagerItemViewHolder) holder);
-//	}
-//
-//	@Override
-//	public void onViewDetachedFromWindow(@NonNull RecyclerView.ViewHolder holder) {
-//		super.onViewDetachedFromWindow(holder);
-//		PagerItemViewHolder vh = (PagerItemViewHolder) holder;
-//		vh.resetImagePosition();
-//		holdersMap.remove(vh.getAdapterPosition());
-//	}
 
 	@Override
 	public int getItemCount() {
-		return 4;
+		return 3;
 	}
 
 	public static class PagerItemViewHolder extends RecyclerView.ViewHolder {
 		View view;
-//		ImageView itemImage;
 		TextView txtTitle;
 		TextView txtDetails;
 
 		PagerItemViewHolder(View view) {
 			super(view);
 			this.view = view;
-//			itemImage = view.findViewById(R.id.item_image);
 			txtTitle = view.findViewById(R.id.txt_title);
 			txtDetails = view.findViewById(R.id.txt_details);
 		}
-
-//		public void setImageTranslation(int pos) {
-//			itemImage.setTranslationY(-pos);
-//			itemImage.setTranslationX(pos);
-//		}
-//
-//		public void resetImagePosition() {
-//			itemImage.setTranslationY(0);
-//		}
 	}
-
-//	public void setCurPosition(int position) {
-//		curPosition = position;
-//		curItem = holdersMap.get(0);
-//		if (curItem != null) {
-//			curItem.resetImagePosition();
-//		}
-//	}
-//
-//	public void setOffset(int offset) {
-//		if (curItem != null) {
-//			curItem.setImageTranslation(offset);
-//		}
-//	}
 }

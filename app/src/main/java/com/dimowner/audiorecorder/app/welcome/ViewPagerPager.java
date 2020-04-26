@@ -11,7 +11,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 class ViewPagerPager {
 
-	private static final int AUTO_ADVANCE_DELAY = 6000;
+	private static final int AUTO_ADVANCE_DELAY = 5000;
 
 	private static final int PAGE_CHANGE_DURATION = 400;
 	private static final int MULTI_PAGE_CHANGE_DURATION = 600;

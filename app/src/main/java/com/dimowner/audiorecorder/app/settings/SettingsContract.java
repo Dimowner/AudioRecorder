@@ -25,7 +25,6 @@ public class SettingsContract {
 		void showStoreInPublicDir(boolean b);
 
 		void showKeepScreenOn(boolean b);
-		void showRecordInStereo(boolean b);
 
 		void showAskToRenameAfterRecordingStop(boolean b);
 
@@ -33,9 +32,11 @@ public class SettingsContract {
 
 		void showRecordingSampleRate(int rate);
 
-		void showRecordingFormat(int format);
+		void showRecordingFormat(String formatKey);
 
-		void showNamingFormat(int format);
+		void showNamingFormat(String namingKey);
+
+		void showChannelCount(int count);
 
 		void showAllRecordsDeleted();
 
@@ -51,6 +52,8 @@ public class SettingsContract {
 		void showDialogPublicDirInfo();
 
 		void showDialogPrivateDirInfo();
+
+		void showInformation(int infoResId);
 	}
 
 	public interface UserActionsListener extends Contract.UserActionsListener<SettingsContract.View> {
@@ -63,15 +66,17 @@ public class SettingsContract {
 
 		void askToRenameAfterRecordingStop(boolean b);
 
-		void recordInStereo(boolean stereo);
+		void setSettingRecordingBitrate(int bitrate);
 
-		void setRecordingBitrate(int bitrate);
+		void setSettingSampleRate(int rate);
 
-		void setRecordingFormat(int format);
+		void setSettingChannelCount(int count);
 
-		void setNamingFormat(int format);
+		void setSettingThemeColor(String colorKey);
 
-		void setSampleRate(int rate);
+		void setSettingNamingFormat(String namingKey);
+
+		void setSettingRecordingFormat(String formatKey);
 
 		void deleteAllRecords();
 	}

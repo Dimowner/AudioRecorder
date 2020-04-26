@@ -50,7 +50,7 @@ public class WelcomeActivity extends Activity implements WelcomeContract.View {
 
 	private ImageView itemImageFirst;
 	private ImageView itemImageSecond;
-	private Button btnGetStarted;
+	private Button actionButton;
 
 	private ViewPager2 pager;
 	private InkPageIndicator pageIndicator;
@@ -70,13 +70,12 @@ public class WelcomeActivity extends Activity implements WelcomeContract.View {
 				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
 				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
-		btnGetStarted = findViewById(R.id.btn_get_started);
-		btnGetStarted.setOnClickListener(new View.OnClickListener() {
+		actionButton = findViewById(R.id.btn_action);
+		actionButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (pager.getCurrentItem() == adapter.getItemCount() - 1) {
 					startActivity(SetupActivity.getStartIntent(getApplicationContext()));
-					pager.setCurrentItem(0);
 				} else {
 					pagerPager.advance();
 				}
@@ -86,7 +85,7 @@ public class WelcomeActivity extends Activity implements WelcomeContract.View {
 		presenter = ARApplication.getInjector().provideWelcomePresenter();
 
 		View space = findViewById(R.id.navigation_height);
-		ViewGroup.LayoutParams params = space.getLayoutParams();
+		final ViewGroup.LayoutParams params = space.getLayoutParams();
 		params.height = AndroidUtils.getNavigationBarHeight(getApplicationContext());
 		space.setLayoutParams(params);
 
@@ -108,16 +107,35 @@ public class WelcomeActivity extends Activity implements WelcomeContract.View {
 				itemImageSecond.setTranslationX(width);
 
 				if (position == adapter.getItemCount() - 1) {
-					btnGetStarted.setText(R.string.btn_get_started);
+					actionButton.setText(R.string.btn_get_started);
 				} else {
-					btnGetStarted.setText(R.string.btn_next);
+					actionButton.setText(R.string.btn_next);
 				}
 			}
 
+			private int prevPos = -1; //This added to prevent update images every onPageScrolled call. It only needs when page changed.
+
 			@Override
 			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+				if (prevPos != position) {
+					switch (position) {
+						case 0:
+							itemImageFirst.setImageResource(R.drawable.waveform);
+							itemImageSecond.setImageResource(R.drawable.waveform);
+							break;
+						case 1:
+							itemImageFirst.setImageResource(R.drawable.waveform);
+							itemImageSecond.setImageResource(R.drawable.waveform_flip);
+							break;
+						case 2:
+							itemImageFirst.setImageResource(R.drawable.waveform_flip);
+							itemImageSecond.setImageResource(R.drawable.waveform);
+							break;
+					}
+				}
 				itemImageFirst.setTranslationY(-positionOffsetPixels);
 				itemImageSecond.setTranslationX(width - positionOffsetPixels);
+				prevPos = position;
 			}
 		};
 		pager.registerOnPageChangeCallback(onPageChangeCallback);
