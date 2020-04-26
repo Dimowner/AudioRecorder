@@ -12,7 +12,7 @@
 			android:layout_height="wrap_content"
 			android:visibility="visible"
 			android:paddingStart="@dimen/spacing_normal"
-			android:paddingEnd="@dimen/spacing_normal"
+			android:paddingEnd="@dimen/spacing_small"
 			android:orientation="horizontal">
 
 		<ImageView
@@ -33,6 +33,7 @@
 				android:layout_weight="1"
 				android:textSize="@dimen/text_medium"
 				android:textColor="@color/white"
+				android:fontFamily="sans-serif-light"
 				android:layout_marginBottom="@dimen/spacing_tiny"
 				android:layout_gravity="start|bottom"
 				tools:text="Theme color"/>
@@ -65,7 +66,7 @@
 			app:chipTextColor="@color/white_transparent_20"
 			app:chipTextSize="@dimen/text_medium"
 			app:chipPadding="@dimen/spacing_xsmall"
-			app:chipMargin="2dp"
+			app:chipMargin="3dp"
 			app:orderEffective="false"
 			app:multiSelect="false"
 			/>

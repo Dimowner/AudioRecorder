@@ -17,7 +17,6 @@
 package com.dimowner.audiorecorder.app.setup;
 
 import com.dimowner.audiorecorder.AppConstants;
-import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.data.Prefs;
 
@@ -25,11 +24,9 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 
 	private SetupContract.View view;
 
-	private final BackgroundQueue loadingTasks;
 	private final Prefs prefs;
 
-	public SetupPresenter(final BackgroundQueue loadingTasks, Prefs prefs) {
-		this.loadingTasks = loadingTasks;
+	public SetupPresenter(Prefs prefs) {
 		this.prefs = prefs;
 	}
 

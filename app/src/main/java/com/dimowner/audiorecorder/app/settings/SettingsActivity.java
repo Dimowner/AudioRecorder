@@ -29,8 +29,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -46,15 +46,20 @@ import com.dimowner.audiorecorder.app.widget.ChipsView;
 import com.dimowner.audiorecorder.app.widget.SettingView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
+import com.dimowner.audiorecorder.util.RippleUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.core.content.ContextCompat;
 
 public class SettingsActivity extends Activity implements SettingsContract.View, View.OnClickListener {
 
 	private TextView txtTotalDuration;
 	private TextView txtRecordsCount;
 	private TextView txtAvailableSpace;
+	private TextView txtSizePerMin;
+	private TextView txtInformation;
 
 	private Switch swPublicDir;
 	private Switch swKeepScreenOn;
@@ -108,18 +113,16 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		params.height = AndroidUtils.getNavigationBarHeight(getApplicationContext());
 		space.setLayoutParams(params);
 
-		TextView txtTrash = findViewById(R.id.btnTrash);
-		ImageButton btnBack = findViewById(R.id.btn_back);
-//		TextView btnDeleteAll = findViewById(R.id.btnDeleteAll);
-		TextView btnRate = findViewById(R.id.btnRate);
-		TextView btnRequest = findViewById(R.id.btnRequest);
+		Button btnReset = findViewById(R.id.btnReset);
+		btnReset.setOnClickListener(this);
+		txtSizePerMin = findViewById(R.id.txt_size_per_min);
+		txtInformation = findViewById(R.id.txt_information);
+		findViewById(R.id.btnBack).setOnClickListener(this);
 		TextView txtAbout = findViewById(R.id.txtAbout);
 		txtAbout.setText(getAboutContent());
-		btnBack.setOnClickListener(this);
-//		btnDeleteAll.setOnClickListener(this);
-		txtTrash.setOnClickListener(this);
-		btnRate.setOnClickListener(this);
-		btnRequest.setOnClickListener(this);
+		findViewById(R.id.btnTrash).setOnClickListener(this);
+		findViewById(R.id.btnRate).setOnClickListener(this);
+		findViewById(R.id.btnRequest).setOnClickListener(this);
 		swPublicDir = findViewById(R.id.swPublicDir);
 		swKeepScreenOn = findViewById(R.id.swKeepScreenOn);
 		swAskToRename = findViewById(R.id.swAskToRename);
@@ -157,7 +160,6 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			}
 		});
 		formatSetting.setTitle(R.string.recording_format);
-//		formatSetting.setImageInfo(R.drawable.ic_audiotrack);
 		formatSetting.setOnInfoClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -182,7 +184,6 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			}
 		});
 		sampleRateSetting.setTitle(R.string.frequency);
-//		sampleRateSetting.setImageInfo(R.drawable.ic_audiotrack);
 		sampleRateSetting.setOnInfoClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -207,7 +208,6 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			}
 		});
 		bitrateSetting.setTitle(R.string.bitrate);
-//		bitrateSetting.setImageInfo(R.drawable.ic_audiotrack);
 		bitrateSetting.setOnInfoClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -229,7 +229,6 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			}
 		});
 		channelsSetting.setTitle(R.string.channels);
-//		channelsSetting.setImageInfo(R.drawable.ic_surround_sound_2_0);
 		channelsSetting.setOnInfoClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -238,6 +237,29 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		});
 
 		presenter = ARApplication.getInjector().provideSettingsPresenter();
+
+		LinearLayout pnlInfo = findViewById(R.id.info_panel);
+		pnlInfo.setBackground(
+				RippleUtils.createShape(
+						ContextCompat.getColor(getApplicationContext(),R.color.white_transparent_95),
+						getResources().getDimension(R.dimen.spacing_normal)
+				)
+		);
+
+		btnReset.setBackground(
+				RippleUtils.createShape(
+						ContextCompat.getColor(getApplicationContext(),colorMap.getPrimaryColorRes()),
+						getResources().getDimension(R.dimen.spacing_normal)
+				)
+		);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			btnReset.setForeground(
+					RippleUtils.createRippleMaskShape(
+							ContextCompat.getColor(getApplicationContext(), R.color.white_transparent_90),
+							getResources().getDimension(R.dimen.spacing_normal)
+					)
+			);
+		}
 
 		initThemeColorSelector();
 		initNameFormatSelector();
@@ -326,7 +348,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-			case R.id.btn_back:
+			case R.id.btnBack:
 				ARApplication.getInjector().releaseSettingsPresenter();
 				finish();
 				break;
@@ -335,6 +357,10 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 				break;
 			case R.id.btnRate:
 				rateApp();
+				break;
+			case R.id.btnReset:
+				presenter.resetSettings();
+				presenter.loadSettings();
 				break;
 //			case R.id.btnDeleteAll:
 //				AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -516,8 +542,13 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	}
 
 	@Override
-	public void showInformation(int infoResId) {
+	public void showSizePerMin(String size) {
+		txtSizePerMin.setText(getString(R.string.size_per_min, size));
+	}
 
+	@Override
+	public void showInformation(String info) {
+		txtInformation.setText(info);
 	}
 
 	@Override

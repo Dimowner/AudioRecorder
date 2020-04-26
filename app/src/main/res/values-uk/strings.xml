@@ -35,8 +35,8 @@
 	<string name="playback">Відтворення: %s</string>
 	<string name="zero_time">00:00</string>
 	<string name="empty">Пусто</string>
-	<string name="no_records">Нема записів.</string>
-	<string name="no_bookmarks">Закладки порожні.</string>
+	<string name="no_records">Нема записів</string>
+	<string name="no_bookmarks">Закладки порожні</string>
 	<string name="bookmarks">Закладки</string>
 	<string name="share_record">Поділитися записом: %s</string>
 	<string name="import_progress">Імпортування аудіо файла&#8230;</string>

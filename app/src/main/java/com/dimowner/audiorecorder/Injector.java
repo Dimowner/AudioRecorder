@@ -194,7 +194,7 @@ public class Injector {
 
 	public SetupContract.UserActionsListener provideSetupPresenter() {
 		if (setupPresenter == null) {
-			setupPresenter = new SetupPresenter(provideLoadingTasksQueue(), providePrefs());
+			setupPresenter = new SetupPresenter(providePrefs());
 		}
 		return setupPresenter;
 	}

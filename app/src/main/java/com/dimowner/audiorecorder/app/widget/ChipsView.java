@@ -23,7 +23,6 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -70,7 +69,7 @@ public class ChipsView extends FrameLayout {
 		chipTextSize = (int)(12*DENSITY);
 		chipPadding = (int)(8*DENSITY);
 		drawablePadding = chipPadding/2;
-		DRAWABLE_WIDTH = (int)(25*DENSITY);
+		DRAWABLE_WIDTH = (int)(20*DENSITY);
 		chipMargin = (int)(6*DENSITY);
 	}
 
@@ -140,7 +139,6 @@ public class ChipsView extends FrameLayout {
 		final TextView textView = new TextView(context);
 		LayoutParams  lp = new LayoutParams(LayoutParams.WRAP_CONTENT, (int) ROW_HEIGHT);
 		textView.setLayoutParams(lp);
-		textView.setGravity(Gravity.START);
 		if (checked) {
 			setSelected(context, textView, color);
 		} else {
@@ -151,7 +149,6 @@ public class ChipsView extends FrameLayout {
 		textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, chipTextSize);
 		textView.setId(id);
 		textView.setTypeface(textView.getTypeface(), Typeface.NORMAL);
-		textView.setGravity(Gravity.CENTER_VERTICAL);
 		textView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {

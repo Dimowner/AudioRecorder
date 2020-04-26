@@ -53,7 +53,8 @@ public class SettingsContract {
 
 		void showDialogPrivateDirInfo();
 
-		void showInformation(int infoResId);
+		void showSizePerMin(String size);
+		void showInformation(String info);
 	}
 
 	public interface UserActionsListener extends Contract.UserActionsListener<SettingsContract.View> {
@@ -79,5 +80,7 @@ public class SettingsContract {
 		void setSettingRecordingFormat(String formatKey);
 
 		void deleteAllRecords();
+
+		void resetSettings();
 	}
 }

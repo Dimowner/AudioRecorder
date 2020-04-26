@@ -28,6 +28,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:animateLayoutChanges="true"
+				android:paddingBottom="@dimen/spacing_normal"
 				android:orientation="vertical">
 
 			<LinearLayout
@@ -51,8 +52,6 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:layout_gravity="center_vertical"
-						android:paddingStart="@dimen/spacing_normal"
-						android:paddingEnd="@dimen/spacing_normal"
 						android:text="@string/setup"
 						/>
 
@@ -70,6 +69,7 @@
 					android:id="@+id/name_format"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
+					android:layout_marginTop="@dimen/spacing_small"
 					android:visibility="visible"
 					android:paddingStart="0dp"
 					android:paddingEnd="1dp"/>
@@ -130,13 +130,6 @@
 						android:layout_gravity="top"
 						/>
 			</LinearLayout>
-			<Space
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/spacing_normal" />
-			<Space
-					android:id="@+id/space2"
-					android:layout_width="match_parent"
-					android:layout_height="@dimen/spacing_normal" />
 		</LinearLayout>
 	</ScrollView>
 
@@ -200,7 +193,7 @@
 					android:layout_marginTop="@dimen/spacing_small"
 					android:layout_marginBottom="@dimen/spacing_small"
 					android:layout_marginEnd="@dimen/spacing_xtiny"
-					android:text="@string/btn_set_default"
+					android:text="@string/btn_reset"
 					android:textSize="@dimen/text_medium" />
 			<Button
 					android:id="@+id/btn_apply"

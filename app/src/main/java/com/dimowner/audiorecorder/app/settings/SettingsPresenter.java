@@ -18,7 +18,6 @@ package com.dimowner.audiorecorder.app.settings;
 
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
-import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
@@ -26,11 +25,14 @@ import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class SettingsPresenter implements SettingsContract.UserActionsListener {
 
 	private SettingsContract.View view;
+
+	private DecimalFormat decimalFormat = new DecimalFormat("#.#");
 
 	private final BackgroundQueue recordingsTasks;
 	private final FileRepository fileRepository;
@@ -85,51 +87,6 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 			view.showRecordingBitrate(prefs.getSettingBitrate());
 			view.showRecordingSampleRate(prefs.getSettingSampleRate());
 		}
-
-
-		int pos;
-		switch (prefs.getSettingSampleRate()) {
-			case AppConstants.RECORD_SAMPLE_RATE_8000:
-				pos = 0;
-				break;
-			case AppConstants.RECORD_SAMPLE_RATE_16000:
-				pos = 1;
-				break;
-			case AppConstants.RECORD_SAMPLE_RATE_32000:
-				pos = 2;
-				break;
-			case AppConstants.RECORD_SAMPLE_RATE_48000:
-				pos = 4;
-				break;
-			case AppConstants.RECORD_SAMPLE_RATE_44100:
-			default:
-				pos = 3;
-		}
-		if (view != null) {
-			view.showRecordingSampleRate(pos);
-		}
-
-		switch (prefs.getSettingBitrate()) {
-			case AppConstants.RECORD_ENCODING_BITRATE_24000:
-				pos = 0;
-				break;
-			case AppConstants.RECORD_ENCODING_BITRATE_48000:
-			default:
-				pos = 1;
-				break;
-			case AppConstants.RECORD_ENCODING_BITRATE_96000:
-				pos = 2;
-				break;
-			case AppConstants.RECORD_ENCODING_BITRATE_128000:
-				pos = 3;
-				break;
-			case AppConstants.RECORD_ENCODING_BITRATE_192000:
-				pos = 4;
-				break;
-		}
-		if (view != null) {
-			view.showRecordingBitrate(pos);
-		}
 	}
 
 	@Override
@@ -150,21 +107,18 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	@Override
 	public void setSettingRecordingBitrate(int bitrate) {
 		prefs.setSettingBitrate(bitrate);
-		view.showInformation(R.string.info_bitrate);
 		updateAvailableSpace();
 	}
 
 	@Override
 	public void setSettingSampleRate(int rate) {
 		prefs.setSettingSampleRate(rate);
-		view.showInformation(R.string.info_frequency);
 		updateAvailableSpace();
 	}
 
 	@Override
 	public void setSettingChannelCount(int count) {
 		prefs.setSettingChannelCount(count);
-		view.showInformation(R.string.info_channels);
 		updateAvailableSpace();
 	}
 
@@ -182,7 +136,6 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	public void setSettingRecordingFormat(String formatKey) {
 		prefs.setSettingRecordingFormat(formatKey);
 		updateRecordingFormat(formatKey);
-		view.showInformation(R.string.info_format);
 		updateAvailableSpace();
 	}
 
@@ -237,12 +190,30 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		}
 	}
 
+	@Override
+	public void resetSettings() {
+		prefs.resetSettings();
+	}
+
 	private void updateAvailableSpace() {
 		final long space = FileUtil.getFree(fileRepository.getRecordingDir());
-		final long time = spaceToTimeSecs(space, prefs.getSettingRecordingFormat(),
-				prefs.getSettingSampleRate(), prefs.getSettingBitrate(), prefs.getSettingChannelCount());
+		String format = prefs.getSettingRecordingFormat();
+		int sampleRate = prefs.getSettingSampleRate();
+		int bitrate = prefs.getSettingBitrate();
+		int channelsCount = prefs.getSettingChannelCount();
+		final long time = spaceToTimeSecs(space, format, sampleRate, bitrate, channelsCount);
 		if (view != null) {
 			view.showAvailableSpace(TimeUtils.formatTimeIntervalHourMinSec(time));
+			view.showSizePerMin(decimalFormat.format(sizePerMin(format, sampleRate, bitrate, channelsCount)/1000000f));
+			switch (format) {
+				default:
+				case AppConstants.FORMAT_M4A:
+					view.showInformation(format + "/" + sampleRate + "/" + bitrate + "/" + channelsCount);
+					break;
+				case AppConstants.FORMAT_WAV:
+					view.showInformation(format + "/" + sampleRate + "/" + channelsCount);
+					break;
+			}
 		}
 	}
 
@@ -257,14 +228,23 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		}
 	}
 
+	private long sizePerMin(String recordingFormat, int sampleRate, int bitrate, int channels) {
+		switch (recordingFormat) {
+			case AppConstants.FORMAT_M4A:
+				return 60 * (bitrate/8);
+			case AppConstants.FORMAT_WAV:
+				return 60 * (sampleRate * channels * 2);
+			default:
+				return 0;
+		}
+	}
+
 	private void updateRecordingFormat(String formatKey) {
 		switch (formatKey) {
 			case AppConstants.FORMAT_WAV:
 				view.hideBitrateSelector();
-				view.showInformation(R.string.info_wav);
 				break;
 			case AppConstants.FORMAT_M4A:
-				view.showInformation(R.string.info_m4a);
 			case AppConstants.FORMAT_3GP:
 			default:
 				view.showBitrateSelector();

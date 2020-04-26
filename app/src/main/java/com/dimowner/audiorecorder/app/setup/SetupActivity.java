@@ -96,11 +96,6 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 		params.height = AndroidUtils.getNavigationBarHeight(getApplicationContext());
 		space.setLayoutParams(params);
 
-		Space space2 = findViewById(R.id.space2);
-		ViewGroup.LayoutParams params2 = space.getLayoutParams();
-		params2.height = AndroidUtils.getNavigationBarHeight(getApplicationContext());
-		space2.setLayoutParams(params2);
-
 		formatSetting = findViewById(R.id.setting_recording_format);
 		final String[] formats = getResources().getStringArray(R.array.formats2);
 		final String[] formatsKeys = new String[] {

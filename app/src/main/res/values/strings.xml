@@ -37,8 +37,8 @@
 	<string name="playback">Playback: %s</string>
 	<string name="zero_time">00:00</string>
 	<string name="empty">Empty</string>
-	<string name="no_records">Records is empty.</string>
-	<string name="no_bookmarks">Bookmarks is empty.</string>
+	<string name="no_records">Records is empty</string>
+	<string name="no_bookmarks">Bookmarks is empty</string>
 	<string name="bookmarks">Bookmarks</string>
 	<string name="share_record">Share record: %s</string>
 	<string name="import_progress">Audio file import&#8230;</string>
@@ -102,7 +102,7 @@
 	<string name="btn_details">Details</string>
 	<string name="btn_get_started">Get started</string>
 	<string name="btn_apply">Apply</string>
-	<string name="btn_set_default">Reset</string>
+	<string name="btn_reset">Reset</string>
 	<string name="btn_next">Next</string>
 	<string name="info_format">Recording format information</string>
 	<string name="info_frequency">Frequency information</string>
@@ -114,6 +114,7 @@
 	<string name="recording_format">Recording format</string>
 	<string name="bitrate">Bitrate</string>
 	<string name="channels">Channels</string>
+	<string name="size_per_min">%s Mb/min</string>
 
 	<string name="error_unknown">Unexpected error</string>
 	<string name="error_cant_create_file">Can\'t create file</string>

@@ -1,6 +1,7 @@
 <resources>
 
 	<dimen name="spacing_huge">72dp</dimen>
+	<dimen name="spacing_xxdouble">56dp</dimen>
 	<dimen name="spacing_xdouble">48dp</dimen>
 	<dimen name="spacing_double">32dp</dimen>
 	<dimen name="spacing_xnormal">24dp</dimen>
