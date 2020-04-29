@@ -37,6 +37,8 @@ public class SetupContract {
 		void hideBitrateSelector();
 
 		void showInformation(int infoResId);
+
+		void showSizePerMin(String size);
 	}
 
 	public interface UserActionsListener extends Contract.UserActionsListener<SetupContract.View> {

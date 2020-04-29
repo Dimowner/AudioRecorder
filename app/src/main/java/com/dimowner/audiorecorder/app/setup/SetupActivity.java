@@ -57,6 +57,7 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 	private SettingView bitrateSetting;
 	private SettingView channelsSetting;
 	private TextView txtInformation;
+	private TextView txtSizePerMin;
 
 	private SetupContract.UserActionsListener presenter;
 	private ColorMap colorMap;
@@ -83,13 +84,12 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 		toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
 
 		txtInformation = findViewById(R.id.txt_information);
+		txtSizePerMin = findViewById(R.id.txt_size_per_min);
 
 		Button btnApply = findViewById(R.id.btn_apply);
 		Button btnReset = findViewById(R.id.btn_reset);
-		ImageButton btnBack = findViewById(R.id.btn_back);
 		btnApply.setOnClickListener(this);
 		btnReset.setOnClickListener(this);
-		btnBack.setOnClickListener(this);
 
 		Space space = findViewById(R.id.space);
 		ViewGroup.LayoutParams params = space.getLayoutParams();
@@ -267,9 +267,6 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 				presenter.resetSettings();
 				presenter.loadSettings();
 				break;
-			case R.id.btn_back:
-				finish();
-				break;
 		}
 	}
 
@@ -338,6 +335,11 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 	@Override
 	public void showInformation(int infoResId) {
 		txtInformation.setText(infoResId);
+	}
+
+	@Override
+	public void showSizePerMin(String size) {
+		txtSizePerMin.setText(getString(R.string.size_per_min, size));
 	}
 
 	@Override

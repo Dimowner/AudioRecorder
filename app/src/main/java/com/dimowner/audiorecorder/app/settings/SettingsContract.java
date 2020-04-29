@@ -54,7 +54,8 @@ public class SettingsContract {
 		void showDialogPrivateDirInfo();
 
 		void showSizePerMin(String size);
-		void showInformation(String info);
+		void showInformation(String formatKey, int sampleRate, int bitrate, int channelsCount);
+		void showInformation(String formatKey, int sampleRate, int channelsCount);
 	}
 
 	public interface UserActionsListener extends Contract.UserActionsListener<SettingsContract.View> {

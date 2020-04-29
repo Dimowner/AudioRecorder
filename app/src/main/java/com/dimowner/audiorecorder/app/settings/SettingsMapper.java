@@ -204,4 +204,43 @@ public class SettingsMapper {
 				return CHANNEL_COUNT_STEREO;
 		}
 	}
+
+	public static String convertSampleRateToString(String[] sampleRates, String[] sampleRateKeys, int sampleRate) {
+		String key = sampleRateToKey(sampleRate);
+		for (int i = 0; i < sampleRateKeys.length; i++) {
+			if (key.equals(sampleRateKeys[i])) {
+				return sampleRates[i];
+			}
+		}
+		return "";
+	}
+
+	public static String convertBitratesToString(String[] bitrates, String[] bitrateKeys, int bitrate) {
+		String key = bitrateToKey(bitrate);
+		for (int i = 0; i < bitrateKeys.length; i++) {
+			if (key.equals(bitrateKeys[i])) {
+				return bitrates[i];
+			}
+		}
+		return "";
+	}
+
+	public static String convertChannelsToString(String[] channels, String[] channelKeys, int count) {
+		String key = channelCountToKey(count);
+		for (int i = 0; i < channelKeys.length; i++) {
+			if (key.equals(channelKeys[i])) {
+				return channels[i];
+			}
+		}
+		return "";
+	}
+
+	public static String convertFormatsToString(String[] formats, String[] formatKeys, String formatKey) {
+		for (int i = 0; i < formatKeys.length; i++) {
+			if (formatKey.equals(formatKeys[i])) {
+				return formats[i];
+			}
+		}
+		return "";
+	}
 }

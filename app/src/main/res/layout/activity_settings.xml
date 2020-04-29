@@ -71,6 +71,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginTop="@dimen/spacing_small"
+				android:layout_marginBottom="@dimen/spacing_tiny"
 				android:paddingStart="0dp"
 				android:paddingEnd="1dp"/>
 
@@ -86,8 +87,8 @@
 					android:layout_weight="1"
 					android:text="@string/store_records_public"
 					android:drawableStart="@drawable/ic_folder_open"
-					android:layout_marginTop="@dimen/spacing_small"
-					android:layout_marginBottom="@dimen/spacing_small"
+					android:layout_marginTop="@dimen/spacing_medium"
+					android:layout_marginBottom="@dimen/spacing_medium"
 					android:layout_marginEnd="@dimen/spacing_normal"
 					android:layout_marginStart="@dimen/spacing_normal"
 					android:drawablePadding="@dimen/spacing_normal"
@@ -113,8 +114,8 @@
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:text="@string/keep_screen_on"
-					android:layout_marginTop="@dimen/spacing_small"
-					android:layout_marginBottom="@dimen/spacing_small"
+					android:layout_marginTop="@dimen/spacing_medium"
+					android:layout_marginBottom="@dimen/spacing_medium"
 					android:layout_marginEnd="@dimen/spacing_normal"
 					android:layout_marginStart="@dimen/spacing_normal"
 					android:drawableStart="@drawable/ic_lightbulb_on"
@@ -141,8 +142,8 @@
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:text="@string/ask_to_rename"
-					android:layout_marginTop="@dimen/spacing_small"
-					android:layout_marginBottom="@dimen/spacing_small"
+					android:layout_marginTop="@dimen/spacing_medium"
+					android:layout_marginBottom="@dimen/spacing_medium"
 					android:layout_marginEnd="@dimen/spacing_normal"
 					android:layout_marginStart="@dimen/spacing_normal"
 					android:drawableStart="@drawable/ic_pencil"
@@ -162,6 +163,7 @@
 				android:id="@+id/name_format"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:layout_marginBottom="@dimen/spacing_tiny"
 				android:paddingStart="0dp"
 				android:paddingEnd="1dp"/>
 
@@ -263,8 +265,8 @@
 				android:layout_marginTop="@dimen/spacing_small"
 				android:paddingStart="@dimen/spacing_normal"
 				android:paddingEnd="@dimen/spacing_normal"
-				android:paddingTop="@dimen/spacing_xsmall"
-				android:paddingBottom="@dimen/spacing_xsmall"
+				android:paddingTop="@dimen/spacing_medium"
+				android:paddingBottom="@dimen/spacing_medium"
 				android:drawablePadding="@dimen/spacing_normal"
 				/>
 
@@ -278,8 +280,8 @@
 				android:background="?android:selectableItemBackground"
 				android:paddingStart="@dimen/spacing_normal"
 				android:paddingEnd="@dimen/spacing_normal"
-				android:paddingTop="@dimen/spacing_xsmall"
-				android:paddingBottom="@dimen/spacing_xsmall"
+				android:paddingTop="@dimen/spacing_medium"
+				android:paddingBottom="@dimen/spacing_medium"
 				android:drawablePadding="@dimen/spacing_normal"
 				/>
 

@@ -98,6 +98,15 @@
 	<string name="btn_deny">Запретить</string>
 	<string name="btn_allow">Разрешить</string>
 	<string name="btn_details">Детали</string>
+	<string name="btn_get_started">Начать</string>
+	<string name="btn_apply">Применить</string>
+	<string name="btn_reset">Сбросить</string>
+	<string name="btn_next">Далее</string>
+	<string name="frequency">Частота</string>
+	<string name="recording_format">Формат записи</string>
+	<string name="bitrate">Битрейт</string>
+	<string name="channels">Количество каналов</string>
+	<string name="size_per_min">%s Мб/мин ожидаемый размер</string>
 
 	<string name="error_unknown">Неожиданная ошибка</string>
 	<string name="error_cant_create_file">Не удалось создать файл</string>
@@ -148,11 +157,11 @@
 	</string-array>
 
 	<string-array name="sample_rates2">
-		<item>8000</item>
-		<item>16000</item>
-		<item>32000</item>
-		<item>44100</item>
-		<item>48000</item>
+		<item>8кГц</item>
+		<item>16кГц</item>
+		<item>32кГц</item>
+		<item>44,1кГц</item>
+		<item>48кГц</item>
 	</string-array>
 
 	<string-array name="channels">

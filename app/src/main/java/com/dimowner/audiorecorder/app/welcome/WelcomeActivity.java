@@ -76,6 +76,7 @@ public class WelcomeActivity extends Activity implements WelcomeContract.View {
 			public void onClick(View v) {
 				if (pager.getCurrentItem() == adapter.getItemCount() - 1) {
 					startActivity(SetupActivity.getStartIntent(getApplicationContext()));
+					finish();
 				} else {
 					pagerPager.advance();
 				}

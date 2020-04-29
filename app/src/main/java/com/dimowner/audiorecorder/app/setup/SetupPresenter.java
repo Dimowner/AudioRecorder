@@ -20,7 +20,11 @@ import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.data.Prefs;
 
+import java.text.DecimalFormat;
+
 public class SetupPresenter implements SetupContract.UserActionsListener {
+
+	private DecimalFormat decimalFormat = new DecimalFormat("#.#");
 
 	private SetupContract.View view;
 
@@ -40,6 +44,7 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 			view.showNamingFormat(prefs.getSettingNamingFormat());
 			view.showRecordingBitrate(prefs.getSettingBitrate());
 			view.showSampleRate(prefs.getSettingSampleRate());
+			updateSizePerMin();
 		}
 	}
 
@@ -47,18 +52,21 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 	public void setSettingRecordingBitrate(int bitrate) {
 		prefs.setSettingBitrate(bitrate);
 		view.showInformation(R.string.info_bitrate);
+		updateSizePerMin();
 	}
 
 	@Override
 	public void setSettingSampleRate(int rate) {
 		prefs.setSettingSampleRate(rate);
 		view.showInformation(R.string.info_frequency);
+		updateSizePerMin();
 	}
 
 	@Override
 	public void setSettingChannelCount(int count) {
 		prefs.setSettingChannelCount(count);
 		view.showInformation(R.string.info_channels);
+		updateSizePerMin();
 	}
 
 	@Override
@@ -76,6 +84,7 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 		prefs.setSettingRecordingFormat(formatKey);
 		updateRecordingFormat(formatKey);
 		view.showInformation(R.string.info_format);
+		updateSizePerMin();
 	}
 
 	@Override
@@ -120,6 +129,27 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 			case AppConstants.FORMAT_3GP:
 			default:
 				view.showBitrateSelector();
+		}
+	}
+
+	private void updateSizePerMin() {
+		String format = prefs.getSettingRecordingFormat();
+		int sampleRate = prefs.getSettingSampleRate();
+		int bitrate = prefs.getSettingBitrate();
+		int channelsCount = prefs.getSettingChannelCount();
+		if (view != null) {
+			view.showSizePerMin(decimalFormat.format(sizePerMin(format, sampleRate, bitrate, channelsCount)/1000000f));
+		}
+	}
+
+	private long sizePerMin(String recordingFormat, int sampleRate, int bitrate, int channels) {
+		switch (recordingFormat) {
+			case AppConstants.FORMAT_M4A:
+				return 60 * (bitrate/8);
+			case AppConstants.FORMAT_WAV:
+				return 60 * (sampleRate * channels * 2);
+			default:
+				return 0;
 		}
 	}
 }

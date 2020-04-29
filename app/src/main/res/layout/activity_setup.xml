@@ -15,6 +15,7 @@
   ~  limitations under the License.
   -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:tools="http://schemas.android.com/tools"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:orientation="vertical">
@@ -34,23 +35,15 @@
 			<LinearLayout
 					android:id="@+id/toolbar"
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
+					android:layout_height="@dimen/toolbar_height"
+					android:layout_marginBottom="@dimen/spacing_small"
 					android:orientation="horizontal">
-
-				<ImageButton
-						android:id="@+id/btn_back"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:contentDescription="@null"
-						android:layout_gravity="start"
-						android:background="?android:selectableItemBackgroundBorderless"
-						android:padding="@dimen/spacing_normal"
-						android:src="@drawable/ic_arrow_back"/>
 
 				<TextView
 						style="@style/Text.SectionLabel"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
+						android:layout_marginStart="@dimen/spacing_xxdouble"
 						android:layout_gravity="center_vertical"
 						android:text="@string/setup"
 						/>
@@ -156,16 +149,17 @@
 						android:layout_height="wrap_content"
 						android:orientation="vertical">
 					<TextView
-							android:layout_width="match_parent"
+							android:id="@+id/txt_size_per_min"
+							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
-							android:text="120 Mb/hour"
-							android:layout_marginTop="@dimen/spacing_tiny"
+							android:layout_marginTop="@dimen/spacing_small"
 							android:layout_marginStart="@dimen/spacing_small"
-							android:layout_marginEnd="@dimen/spacing_small"
+							android:layout_marginEnd="@dimen/spacing_xsmall"
+							android:layout_gravity="center_vertical"
 							android:fontFamily="sans-serif-light"
 							android:textColor="@color/white"
-							android:textSize="@dimen/text_normal"
-							android:visibility="gone"/>
+							android:textSize="@dimen/text_medium"
+							tools:text="5 Mb/min" />
 					<TextView
 							android:id="@+id/txt_information"
 							android:layout_width="match_parent"

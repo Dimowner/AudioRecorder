@@ -208,10 +208,10 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 			switch (format) {
 				default:
 				case AppConstants.FORMAT_M4A:
-					view.showInformation(format + "/" + sampleRate + "/" + bitrate + "/" + channelsCount);
+					view.showInformation(format, sampleRate, bitrate, channelsCount);
 					break;
 				case AppConstants.FORMAT_WAV:
-					view.showInformation(format + "/" + sampleRate + "/" + channelsCount);
+					view.showInformation(format, sampleRate, channelsCount);
 					break;
 			}
 		}

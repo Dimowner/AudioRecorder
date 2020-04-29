@@ -88,6 +88,14 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		}
 	};
 
+	private String[] formats;
+	private String[] formatsKeys;
+	private String[] sampleRates;
+	private String[] sampleRatesKeys;
+	private String[] rates;
+	private String[] rateKeys;
+	private String[] recChannels;
+	private String[] recChannelsKeys;
 
 	public static Intent getStartIntent(Context context) {
 		Intent intent = new Intent(context, SettingsActivity.class);
@@ -147,8 +155,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		});
 
 		formatSetting = findViewById(R.id.setting_recording_format);
-		final String[] formats = getResources().getStringArray(R.array.formats2);
-		final String[] formatsKeys = new String[] {
+		formats = getResources().getStringArray(R.array.formats2);
+		formatsKeys = new String[] {
 				AppConstants.FORMAT_M4A,
 				AppConstants.FORMAT_WAV
 		};
@@ -168,8 +176,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		});
 
 		sampleRateSetting = findViewById(R.id.setting_frequency);
-		final String[] sampleRates = getResources().getStringArray(R.array.sample_rates2);
-		final String[] sampleRatesKeys = new String[] {
+		sampleRates = getResources().getStringArray(R.array.sample_rates2);
+		sampleRatesKeys = new String[] {
 				SettingsMapper.SAMPLE_RATE_8000,
 				SettingsMapper.SAMPLE_RATE_16000,
 				SettingsMapper.SAMPLE_RATE_32000,
@@ -192,8 +200,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		});
 
 		bitrateSetting = findViewById(R.id.setting_bitrate);
-		final String[] rates = getResources().getStringArray(R.array.bit_rates2);
-		final String[] rateKeys = new String[] {
+		rates = getResources().getStringArray(R.array.bit_rates2);
+		rateKeys = new String[] {
 				SettingsMapper.BITRATE_24000,
 				SettingsMapper.BITRATE_48000,
 				SettingsMapper.BITRATE_96000,
@@ -216,8 +224,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		});
 
 		channelsSetting = findViewById(R.id.setting_channels);
-		final String[] recChannels = getResources().getStringArray(R.array.channels);
-		final String[] recChannelsKeys = new String[] {
+		recChannels = getResources().getStringArray(R.array.channels);
+		recChannelsKeys = new String[] {
 				SettingsMapper.CHANNEL_COUNT_STEREO,
 				SettingsMapper.CHANNEL_COUNT_MONO
 		};
@@ -547,8 +555,22 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	}
 
 	@Override
-	public void showInformation(String info) {
-		txtInformation.setText(info);
+	public void showInformation(String formatKey, int sampleRate, int bitrate, int channelsCount) {
+		txtInformation.setText(
+				SettingsMapper.convertFormatsToString(formats, formatsKeys, formatKey) + "/"
+						+ SettingsMapper.convertSampleRateToString(sampleRates, sampleRatesKeys, sampleRate) + "/"
+						+ SettingsMapper.convertBitratesToString(rates, rateKeys, bitrate) + "/"
+						+ SettingsMapper.convertChannelsToString(recChannels, recChannelsKeys, channelsCount)
+		);
+	}
+
+	@Override
+	public void showInformation(String formatKey, int sampleRate, int channelsCount) {
+		txtInformation.setText(
+				SettingsMapper.convertFormatsToString(formats, formatsKeys, formatKey) + "/"
+						+ SettingsMapper.convertSampleRateToString(sampleRates, sampleRatesKeys, sampleRate) + "/"
+						+ SettingsMapper.convertChannelsToString(recChannels, recChannelsKeys, channelsCount)
+		);
 	}
 
 	@Override

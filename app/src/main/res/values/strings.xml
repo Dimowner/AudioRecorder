@@ -113,8 +113,8 @@
 	<string name="frequency">Frequency</string>
 	<string name="recording_format">Recording format</string>
 	<string name="bitrate">Bitrate</string>
-	<string name="channels">Channels</string>
-	<string name="size_per_min">%s Mb/min</string>
+	<string name="channels">Channel count</string>
+	<string name="size_per_min">%s Mb/min expected size </string>
 
 	<string name="error_unknown">Unexpected error</string>
 	<string name="error_cant_create_file">Can\'t create file</string>
@@ -165,11 +165,11 @@
 	</string-array>
 
 	<string-array name="sample_rates2">
-		<item>8000</item>
-		<item>16000</item>
-		<item>32000</item>
-		<item>44100</item>
-		<item>48000</item>
+		<item>8kHz</item>
+		<item>16kHz</item>
+		<item>32kHz</item>
+		<item>44,1kHz</item>
+		<item>48kHz</item>
 	</string-array>
 
 	<string-array name="channels">
