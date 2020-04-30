@@ -321,6 +321,29 @@
 				tools:text="Available space: 34h:12m:22s "/>
 
 		<TextView
+				android:id="@+id/btnPatreon"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/become_a_patreon"
+				android:drawableStart="@drawable/ic_patreon_logo"
+				android:textColor="#052a49"
+				android:background="#f96753"
+				android:fontFamily="sans-serif-medium"
+				android:layout_marginTop="@dimen/spacing_small"
+				android:layout_marginBottom="@dimen/spacing_small"
+				android:textSize="@dimen/text_medium"
+				android:textAllCaps="true"
+				android:gravity="center_vertical"
+				android:foreground="?android:selectableItemBackground"
+				android:layout_gravity="center_horizontal"
+				android:paddingStart="@dimen/spacing_normal"
+				android:paddingEnd="@dimen/spacing_normal"
+				android:paddingTop="@dimen/spacing_medium"
+				android:paddingBottom="@dimen/spacing_medium"
+				android:drawablePadding="@dimen/spacing_normal"
+				/>
+
+		<TextView
 				android:id="@+id/txtAbout"
 				style="@style/Text.NormalLabel"
 				android:layout_width="match_parent"

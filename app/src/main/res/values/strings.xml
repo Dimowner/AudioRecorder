@@ -131,6 +131,7 @@
 	<string name="error_no_available_space">No available space!</string>
 	<string name="error_failed_access_to_storage">Failed access to file storage</string>
 	<string name="error_on_recording">Recording error!</string>
+	<string name="become_a_patreon">Become a Patreon</string>
 
 	<!-- Shown in the 'About' window of the app. -->
 	<string name="about_body"><![CDATA[

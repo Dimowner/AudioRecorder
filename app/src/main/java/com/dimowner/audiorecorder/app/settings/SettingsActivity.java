@@ -131,6 +131,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		findViewById(R.id.btnTrash).setOnClickListener(this);
 		findViewById(R.id.btnRate).setOnClickListener(this);
 		findViewById(R.id.btnRequest).setOnClickListener(this);
+		findViewById(R.id.btnPatreon).setOnClickListener(this);
 		swPublicDir = findViewById(R.id.swPublicDir);
 		swKeepScreenOn = findViewById(R.id.swKeepScreenOn);
 		swAskToRename = findViewById(R.id.swAskToRename);
@@ -393,6 +394,17 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 //				break;
 			case R.id.btnRequest:
 				requestFeature();
+				break;
+			case R.id.btnPatreon:
+				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.patreon.com/Dimowner"));
+				int flags = Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
+				if (Build.VERSION.SDK_INT >= 21) {
+					flags |= Intent.FLAG_ACTIVITY_NEW_DOCUMENT;
+				} else {
+					flags |= Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET;
+				}
+				intent.addFlags(flags);
+				startActivity(intent);
 				break;
 		}
 	}
