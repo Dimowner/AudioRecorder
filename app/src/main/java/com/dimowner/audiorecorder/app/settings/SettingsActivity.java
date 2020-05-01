@@ -254,7 +254,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		LinearLayout pnlInfo = findViewById(R.id.info_panel);
 		pnlInfo.setBackground(
 				RippleUtils.createShape(
-						ContextCompat.getColor(getApplicationContext(),R.color.white_transparent_95),
+						ContextCompat.getColor(getApplicationContext(),R.color.white_transparent_88),
 						getResources().getDimension(R.dimen.spacing_normal)
 				)
 		);
@@ -268,7 +268,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			btnReset.setForeground(
 					RippleUtils.createRippleMaskShape(
-							ContextCompat.getColor(getApplicationContext(), R.color.white_transparent_90),
+							ContextCompat.getColor(getApplicationContext(), R.color.white_transparent_80),
 							getResources().getDimension(R.dimen.spacing_normal)
 					)
 			);

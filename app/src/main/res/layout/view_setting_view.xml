@@ -57,7 +57,7 @@
 			android:layout_height="wrap_content"
 			android:paddingStart="@dimen/spacing_small"
 			android:paddingEnd="@dimen/spacing_small"
-			app:chipColor="@color/white_transparent_90"
+			app:chipColor="@color/white_transparent_80"
 			app:chipRadius="@dimen/spacing_normal"
 			app:rippleColor="@color/white_transparent_50"
 			app:borderWidth="@dimen/border"

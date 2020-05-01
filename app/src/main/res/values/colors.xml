@@ -13,8 +13,8 @@
 	<color name="white_transparent_10">#E6FFFFFF</color>
 	<color name="white_transparent_20">#CDFFFFFF</color>
 	<color name="white_transparent_50">#7EFFFFFF</color>
-	<color name="white_transparent_90">#32FFFFFF</color>
-	<color name="white_transparent_95">#19FFFFFF</color>
+	<color name="white_transparent_80">#32FFFFFF</color>
+	<color name="white_transparent_88">#1EFFFFFF</color>
 
 	<color name="divider">#12FFFFFF</color>
 

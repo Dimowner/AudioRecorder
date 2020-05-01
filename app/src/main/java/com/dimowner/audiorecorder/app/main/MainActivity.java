@@ -183,7 +183,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		});
 
 		presenter = ARApplication.getInjector().provideMainPresenter();
-		presenter.checkFirstRun();
 
 		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
 			@Override
@@ -225,6 +224,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	protected void onStart() {
 		super.onStart();
 		presenter.bindView(this);
+		presenter.checkFirstRun();
 		presenter.setAudioRecorder(ARApplication.getInjector().provideAudioRecorder());
 		presenter.updateRecordingDir(getApplicationContext());
 		presenter.loadActiveRecord();

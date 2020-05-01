@@ -132,7 +132,7 @@
 			android:layout_gravity="bottom|center_horizontal"
 			android:paddingStart="@dimen/spacing_small"
 			android:paddingEnd="@dimen/spacing_small"
-			android:background="@color/white_transparent_90"
+			android:background="@color/white_transparent_80"
 			android:orientation="vertical">
 		<LinearLayout
 				android:layout_width="match_parent"
