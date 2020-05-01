@@ -76,7 +76,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 // TODO: Fix WaveForm blinking when seek
 // TODO: Fix waveform when long record (there is no waveform)
-// TODO: Welcome screen theme color, rec format and quality, location dir, name format (date or record)
 // TODO: Ability to search by record name in list
 // TODO: Display recording info on main activity.
 // TODO: Ability to scroll up from the bottom of the list
@@ -226,7 +225,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	protected void onStart() {
 		super.onStart();
 		presenter.bindView(this);
-		presenter.checkFirstRun();
 		presenter.setAudioRecorder(ARApplication.getInjector().provideAudioRecorder());
 		presenter.updateRecordingDir(getApplicationContext());
 		presenter.loadActiveRecord();

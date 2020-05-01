@@ -95,10 +95,7 @@ public class SettingsMapper {
 			case AppConstants.NAME_FORMAT_TIMESTAMP:
 				return 2;
 			case AppConstants.NAME_FORMAT_DATE:
-			case AppConstants.NAME_FORMAT_DATE_SIMPLE:
 				return 1;
-//			case AppConstants.NAME_FORMAT_DATE:
-//				return 1;
 			case AppConstants.NAME_FORMAT_RECORD:
 			default:
 				return 0;
@@ -109,10 +106,8 @@ public class SettingsMapper {
 		switch (position) {
 			case 0:
 				return AppConstants.NAME_FORMAT_RECORD;
-//			case 1:
-//				return AppConstants.NAME_FORMAT_DATE;
 			case 1:
-				return AppConstants.NAME_FORMAT_DATE_SIMPLE;
+				return AppConstants.NAME_FORMAT_DATE;
 			case 2:
 				return AppConstants.NAME_FORMAT_TIMESTAMP;
 			default:

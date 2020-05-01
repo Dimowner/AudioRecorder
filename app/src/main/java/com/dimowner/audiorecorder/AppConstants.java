@@ -52,14 +52,11 @@ public class AppConstants {
 	public static final String NAME_FORMAT_RECORD = "record";
 	public static final String NAME_FORMAT_TIMESTAMP = "timestamp";
 	public static final String NAME_FORMAT_DATE = "date";
-	public static final String NAME_FORMAT_DATE_SIMPLE = "date_simple";
 
 	public static final int MAX_RECORD_NAME_LENGTH = 50;
 
 	public static final int NAMING_COUNTED = 0;
 	public static final int NAMING_DATE = 1;
-	public static final int NAMING_DATE_VARIANT = 2;
-	public static final int NAMING_MILLISECONDS = 3;
 
 	public static final int RECORDING_FORMAT_M4A = 0;
 	public static final int RECORDING_FORMAT_WAV = 1;

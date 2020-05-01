@@ -20,6 +20,7 @@ import android.app.Application;
 import android.os.Handler;
 
 //import com.crashlytics.android.Crashlytics;
+import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 //import io.fabric.sdk.android.Fabric;
 
@@ -81,6 +82,10 @@ public class ARApplication extends Application {
 		applicationHandler = new Handler(getApplicationContext().getMainLooper());
 		screenWidthDp = AndroidUtils.pxToDp(AndroidUtils.getScreenWidth(getApplicationContext()));
 		injector = new Injector(getApplicationContext());
+		Prefs prefs = injector.providePrefs();
+		if (!prefs.isMigratedSettings()) {
+			prefs.migrateSettings();
+		}
 	}
 
 	@Override
