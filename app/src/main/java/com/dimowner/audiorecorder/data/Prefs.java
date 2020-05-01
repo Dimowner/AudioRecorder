@@ -40,7 +40,7 @@ public interface Prefs {
 	void setRecordOrder(int order);
 	int getRecordsOrder();
 
-	void isMigratedSettings();
+	boolean isMigratedSettings();
 	void migrateSettings();
 
 	void setSettingThemeColor(String colorKey);

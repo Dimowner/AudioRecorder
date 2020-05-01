@@ -55,6 +55,8 @@ import androidx.core.content.ContextCompat;
 
 public class SettingsActivity extends Activity implements SettingsContract.View, View.OnClickListener {
 
+	private static final String SEPARATOR = ", ";
+
 	private TextView txtTotalDuration;
 	private TextView txtRecordsCount;
 	private TextView txtAvailableSpace;
@@ -181,6 +183,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		sampleRatesKeys = new String[] {
 				SettingsMapper.SAMPLE_RATE_8000,
 				SettingsMapper.SAMPLE_RATE_16000,
+				SettingsMapper.SAMPLE_RATE_22050,
 				SettingsMapper.SAMPLE_RATE_32000,
 				SettingsMapper.SAMPLE_RATE_44100,
 				SettingsMapper.SAMPLE_RATE_48000,
@@ -203,11 +206,12 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		bitrateSetting = findViewById(R.id.setting_bitrate);
 		rates = getResources().getStringArray(R.array.bit_rates2);
 		rateKeys = new String[] {
-				SettingsMapper.BITRATE_24000,
+//				SettingsMapper.BITRATE_24000,
 				SettingsMapper.BITRATE_48000,
 				SettingsMapper.BITRATE_96000,
 				SettingsMapper.BITRATE_128000,
 				SettingsMapper.BITRATE_192000,
+				SettingsMapper.BITRATE_256000,
 		};
 		bitrateSetting.setData(rates, rateKeys);
 		bitrateSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
@@ -569,9 +573,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	@Override
 	public void showInformation(String formatKey, int sampleRate, int bitrate, int channelsCount) {
 		txtInformation.setText(
-				SettingsMapper.convertFormatsToString(formats, formatsKeys, formatKey) + "/"
-						+ SettingsMapper.convertSampleRateToString(sampleRates, sampleRatesKeys, sampleRate) + "/"
-						+ SettingsMapper.convertBitratesToString(rates, rateKeys, bitrate) + "/"
+				SettingsMapper.convertFormatsToString(formats, formatsKeys, formatKey) + SEPARATOR
+						+ SettingsMapper.convertSampleRateToString(sampleRates, sampleRatesKeys, sampleRate) + SEPARATOR
+						+ SettingsMapper.convertBitratesToString(rates, rateKeys, bitrate) + SEPARATOR
 						+ SettingsMapper.convertChannelsToString(recChannels, recChannelsKeys, channelsCount)
 		);
 	}
@@ -579,8 +583,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	@Override
 	public void showInformation(String formatKey, int sampleRate, int channelsCount) {
 		txtInformation.setText(
-				SettingsMapper.convertFormatsToString(formats, formatsKeys, formatKey) + "/"
-						+ SettingsMapper.convertSampleRateToString(sampleRates, sampleRatesKeys, sampleRate) + "/"
+				SettingsMapper.convertFormatsToString(formats, formatsKeys, formatKey) + SEPARATOR
+						+ SettingsMapper.convertSampleRateToString(sampleRates, sampleRatesKeys, sampleRate) + SEPARATOR
 						+ SettingsMapper.convertChannelsToString(recChannels, recChannelsKeys, channelsCount)
 		);
 	}

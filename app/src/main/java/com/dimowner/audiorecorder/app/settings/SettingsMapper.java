@@ -26,15 +26,17 @@ public class SettingsMapper {
 
 	public final static String SAMPLE_RATE_8000 = "8000";
 	public final static String SAMPLE_RATE_16000 = "16000";
+	public final static String SAMPLE_RATE_22050 = "22050";
 	public final static String SAMPLE_RATE_32000 = "32000";
 	public final static String SAMPLE_RATE_44100 = "44100";
 	public final static String SAMPLE_RATE_48000 = "48000";
 
-	public final static String BITRATE_24000 = "24000";
+//	public final static String BITRATE_24000 = "24000";
 	public final static String BITRATE_48000 = "48000";
 	public final static String BITRATE_96000 = "96000";
 	public final static String BITRATE_128000 = "128000";
 	public final static String BITRATE_192000 = "192000";
+	public final static String BITRATE_256000 = "256000";
 
 	public final static String CHANNEL_COUNT_STEREO = "stereo";
 	public final static String CHANNEL_COUNT_MONO = "mono";
@@ -124,6 +126,8 @@ public class SettingsMapper {
 				return AppConstants.RECORD_SAMPLE_RATE_8000;
 			case SAMPLE_RATE_16000:
 				return AppConstants.RECORD_SAMPLE_RATE_16000;
+			case SAMPLE_RATE_22050:
+				return AppConstants.RECORD_SAMPLE_RATE_22050;
 			case SAMPLE_RATE_32000:
 				return AppConstants.RECORD_SAMPLE_RATE_32000;
 			case SAMPLE_RATE_44100:
@@ -141,6 +145,8 @@ public class SettingsMapper {
 				return SAMPLE_RATE_8000;
 			case AppConstants.RECORD_SAMPLE_RATE_16000:
 				return SAMPLE_RATE_16000;
+			case AppConstants.RECORD_SAMPLE_RATE_22050:
+				return SAMPLE_RATE_22050;
 			case AppConstants.RECORD_SAMPLE_RATE_32000:
 				return SAMPLE_RATE_32000;
 			case AppConstants.RECORD_SAMPLE_RATE_44100:
@@ -153,8 +159,8 @@ public class SettingsMapper {
 
 	public static int keyToBitrate(String bitrateKey) {
 		switch (bitrateKey) {
-			case BITRATE_24000:
-				return AppConstants.RECORD_ENCODING_BITRATE_24000;
+//			case BITRATE_24000:
+//				return AppConstants.RECORD_ENCODING_BITRATE_24000;
 			case BITRATE_48000:
 				return AppConstants.RECORD_ENCODING_BITRATE_48000;
 			case BITRATE_96000:
@@ -163,6 +169,8 @@ public class SettingsMapper {
 				return AppConstants.RECORD_ENCODING_BITRATE_128000;
 			case BITRATE_192000:
 				return AppConstants.RECORD_ENCODING_BITRATE_192000;
+			case BITRATE_256000:
+				return AppConstants.RECORD_ENCODING_BITRATE_256000;
 			default:
 				return AppConstants.DEFAULT_RECORD_ENCODING_BITRATE;
 		}
@@ -170,8 +178,8 @@ public class SettingsMapper {
 
 	public static String bitrateToKey(int bitrate) {
 		switch (bitrate) {
-			case AppConstants.RECORD_ENCODING_BITRATE_24000:
-				return BITRATE_24000;
+//			case AppConstants.RECORD_ENCODING_BITRATE_24000:
+//				return BITRATE_24000;
 			case AppConstants.RECORD_ENCODING_BITRATE_48000:
 				return BITRATE_48000;
 			case AppConstants.RECORD_ENCODING_BITRATE_96000:
@@ -181,6 +189,8 @@ public class SettingsMapper {
 				return BITRATE_128000;
 			case AppConstants.RECORD_ENCODING_BITRATE_192000:
 				return BITRATE_192000;
+			case AppConstants.RECORD_ENCODING_BITRATE_256000:
+				return BITRATE_256000;
 		}
 	}
 

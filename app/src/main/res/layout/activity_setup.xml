@@ -164,7 +164,7 @@
 							android:id="@+id/txt_information"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
-							android:text="WAV is uncompressed format and it takes a lot of space"
+							tools:text="WAV is uncompressed format and it takes a lot of space"
 							android:layout_marginTop="@dimen/spacing_tiny"
 							android:layout_marginBottom="@dimen/spacing_tiny"
 							android:layout_marginStart="@dimen/spacing_small"

@@ -5,8 +5,8 @@
 	<string name="settings">Settings</string>
 	<string name="setup">Setup</string>
 	<string name="welcome_1">Welcome to the simple and fast application</string>
-	<string name="welcome_2">Beautiful design and good functionality</string>
-	<string name="welcome_3">Set best settings for you and start recording</string>
+	<string name="welcome_2">Beautiful design and nice functionality</string>
+	<string name="welcome_3">Select best settings and start recording</string>
 	<string name="title_1">Audio Recorder</string>
 	<string name="title_2">Audio Recorder</string>
 	<string name="title_3">Recordio Audier</string>
@@ -104,12 +104,41 @@
 	<string name="btn_apply">Apply</string>
 	<string name="btn_reset">Reset</string>
 	<string name="btn_next">Next</string>
-	<string name="info_format">Recording format information</string>
-	<string name="info_frequency">Frequency information</string>
-	<string name="info_bitrate">Bitrate information</string>
-	<string name="info_channels">Channels information</string>
-	<string name="info_m4a">M4a is recommended format</string>
-	<string name="info_wav">WAV is uncompressed format. It needs more space than other formats</string>
+	<string name="info_format"><b>M4a</b> format is encoded with AAC audio codec has good quality and small size. <b>(recommended)</b>
+		\n<b>WAV</b> is uncompressed audio data format. It takes much more space than other formats. It\'s needed for specific cases.
+		</string>
+	<string name="info_frequency"><b>Sample rate</b> is the number of samples of audio carried per second.
+		\n<b>48kHz</b> is the sample rate used for DVDs.
+		\n<b>44,1kHz</b> is the sampling rate of Audio CDs. <b>(recommended)</b>
+		\n<b>22kHz</b> popular sample rate for low bit rate such as 64 kbps.
+		\n <b>8kHz</b> sample rate has less bandwidth than modern telephone systems. Not suitable for any serious recording task.
+		</string>
+	<string name="info_bitrate"><b>Bitrate</b> is size of data per second of sound. Directly affects recording quality and size.
+		\n<b>256 kbps</b> good quality bitrate.
+		\n<b>192 kbps</b> medium quality bitrate.
+		\n<b>128 kbps</b> mid-range bitrate quality. Common bitrate for podcasts. <b>(recommended)</b>
+		\n<b>96 kbps</b> generally used for speech or low-quality streaming.
+		\n<b>48 kbps</b> generally acceptable only for speech.
+		</string>
+	<string name="info_channels">
+		<b>Stereo</b> two separate channels are recorded. This means that each stereo speaker has a different sound signal. <b>(recommended)</b>
+		\n<b>Mono</b> one signal channel is recorded. It can be reproduced through several speakers, but all speakers are still reproducing the same copy of the signal.
+		</string>
+	<string name="info_m4a"><b>M4a</b> format is encoded with AAC audio codec has good quality and small size. <b>(recommended)</b></string>
+	<string name="info_wav"><b>WAV</b> is uncompressed audio data format. It takes much more space than other formats. It\'s needed for specific cases.</string>
+	<string name="info_stereo"><b>Stereo</b> two separate channels are recorded. This means that each stereo speaker has a different sound signal. <b>(recommended)</b></string>
+	<string name="info_mono"><b>Mono</b> one signal channel is recorded. It can be reproduced through several speakers, but all speakers are still reproducing the same copy of the signal.</string>
+	<string name="info_bitrate_48"><b>48 kbps</b> generally acceptable only for speech.</string>
+	<string name="info_bitrate_96"><b>96 kbps</b> generally used for speech or low-quality streaming.</string>
+	<string name="info_bitrate_128"><b>128 kbps</b> mid-range bitrate quality. Common bitrate for podcasts. <b>(recommended)</b></string>
+	<string name="info_bitrate_192"><b>192 kbps</b> medium quality bitrate.</string>
+	<string name="info_bitrate_256"><b>256 kbps</b> good quality bitrate.</string>
+	<string name="info_sample_rate_8k"><b>8kHz</b> sample rate has less bandwidth than modern telephone systems. Not suitable for any serious recording task.</string>
+	<string name="info_sample_rate_16k"><b>16kHz</b> is better than 8kHz.</string>
+	<string name="info_sample_rate_22k"><b>22kHz</b> popular sample rate for low bit rate such as 64 kbps.</string>
+	<string name="info_sample_rate_32k"><b>32kHz</b> is a bit better than 22kHz.</string>
+	<string name="info_sample_rate_44k"><b>44,1kHz</b> is the sampling rate of Audio CDs. <b>(recommended)</b></string>
+	<string name="info_sample_rate_48k"><b>48kHz</b> is the sample rate used for DVDs.</string>
 	<string name="frequency">Frequency</string>
 	<string name="recording_format">Recording format</string>
 	<string name="bitrate">Bitrate</string>
@@ -158,16 +187,18 @@
 	</string-array>
 
 	<string-array name="bit_rates2">
-		<item>24 kbps</item>
+<!--		<item>24 kbps</item>-->
 		<item>48 kbps</item>
 		<item>96 kbps</item>
 		<item>128 kbps</item>
 		<item>192 kbps</item>
+		<item>256 kbps</item>
 	</string-array>
 
 	<string-array name="sample_rates2">
 		<item>8kHz</item>
 		<item>16kHz</item>
+		<item>22kHz</item>
 		<item>32kHz</item>
 		<item>44,1kHz</item>
 		<item>48kHz</item>

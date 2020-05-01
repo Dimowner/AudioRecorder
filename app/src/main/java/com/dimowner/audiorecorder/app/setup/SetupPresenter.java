@@ -51,15 +51,58 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 	@Override
 	public void setSettingRecordingBitrate(int bitrate) {
 		prefs.setSettingBitrate(bitrate);
-		view.showInformation(R.string.info_bitrate);
+		showBitrateInfo(bitrate);
 		updateSizePerMin();
+	}
+
+	private void showBitrateInfo(int bitrate) {
+		switch (bitrate) {
+			case AppConstants.RECORD_ENCODING_BITRATE_48000:
+				view.showInformation(R.string.info_bitrate_48);
+				break;
+			case AppConstants.RECORD_ENCODING_BITRATE_96000:
+				view.showInformation(R.string.info_bitrate_96);
+				break;
+			case AppConstants.RECORD_ENCODING_BITRATE_128000:
+				view.showInformation(R.string.info_bitrate_128);
+				break;
+			case AppConstants.RECORD_ENCODING_BITRATE_192000:
+				view.showInformation(R.string.info_bitrate_192);
+				break;
+			case AppConstants.RECORD_ENCODING_BITRATE_256000:
+				view.showInformation(R.string.info_bitrate_256);
+				break;
+		}
 	}
 
 	@Override
 	public void setSettingSampleRate(int rate) {
 		prefs.setSettingSampleRate(rate);
-		view.showInformation(R.string.info_frequency);
+		showSampleRateInfo(rate);
 		updateSizePerMin();
+	}
+
+	private void showSampleRateInfo(int sampleRate) {
+		switch (sampleRate) {
+			case AppConstants.RECORD_SAMPLE_RATE_8000:
+				view.showInformation(R.string.info_sample_rate_8k);
+				break;
+			case AppConstants.RECORD_SAMPLE_RATE_16000:
+				view.showInformation(R.string.info_sample_rate_16k);
+				break;
+			case AppConstants.RECORD_SAMPLE_RATE_22050:
+				view.showInformation(R.string.info_sample_rate_22k);
+				break;
+			case AppConstants.RECORD_SAMPLE_RATE_32000:
+				view.showInformation(R.string.info_sample_rate_32k);
+				break;
+			case AppConstants.RECORD_SAMPLE_RATE_44100:
+				view.showInformation(R.string.info_sample_rate_44k);
+				break;
+			case AppConstants.RECORD_SAMPLE_RATE_48000:
+				view.showInformation(R.string.info_sample_rate_48k);
+				break;
+		}
 	}
 
 	@Override
@@ -67,6 +110,14 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 		prefs.setSettingChannelCount(count);
 		view.showInformation(R.string.info_channels);
 		updateSizePerMin();
+		switch (count) {
+			case AppConstants.RECORD_AUDIO_STEREO:
+				view.showInformation(R.string.info_stereo);
+				break;
+			case AppConstants.RECORD_AUDIO_MONO:
+				view.showInformation(R.string.info_mono);
+				break;
+		}
 	}
 
 	@Override
@@ -83,7 +134,14 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 	public void setSettingRecordingFormat(String formatKey) {
 		prefs.setSettingRecordingFormat(formatKey);
 		updateRecordingFormat(formatKey);
-		view.showInformation(R.string.info_format);
+		switch (formatKey) {
+			case AppConstants.FORMAT_WAV:
+				view.showInformation(R.string.info_wav);
+				break;
+			case AppConstants.FORMAT_M4A:
+				view.showInformation(R.string.info_m4a);
+				break;
+		}
 		updateSizePerMin();
 	}
 

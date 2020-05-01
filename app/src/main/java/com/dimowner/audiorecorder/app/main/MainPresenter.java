@@ -334,6 +334,10 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			if (view != null) {
 				view.startWelcomeScreen();
 			}
+		} else {
+			if (!prefs.isMigratedSettings()) {
+				prefs.migrateSettings();
+			}
 		}
 	}
 

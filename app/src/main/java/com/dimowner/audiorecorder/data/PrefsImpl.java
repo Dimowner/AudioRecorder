@@ -188,8 +188,8 @@ public class PrefsImpl implements Prefs {
 	}
 
 	@Override
-	public void isMigratedSettings() {
-
+	public boolean isMigratedSettings() {
+		return sharedPreferences.getBoolean(PREF_KEY_IS_MIGRATED, false);
 	}
 
 	@Override
@@ -199,6 +199,9 @@ public class PrefsImpl implements Prefs {
 		int recordingFormat = getFormat();
 		int sampleRate = getSampleRate();
 		int bitrate = getBitrate();
+		if (bitrate == AppConstants.RECORD_ENCODING_BITRATE_24000) {
+			bitrate = AppConstants.RECORD_ENCODING_BITRATE_48000;
+		}
 		int channelCount = getRecordChannelCount();
 
 		String colorKey;

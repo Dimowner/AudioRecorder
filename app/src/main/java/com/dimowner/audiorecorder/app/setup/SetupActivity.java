@@ -123,6 +123,7 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 		final String[] sampleRatesKeys = new String[] {
 				SettingsMapper.SAMPLE_RATE_8000,
 				SettingsMapper.SAMPLE_RATE_16000,
+				SettingsMapper.SAMPLE_RATE_22050,
 				SettingsMapper.SAMPLE_RATE_32000,
 				SettingsMapper.SAMPLE_RATE_44100,
 				SettingsMapper.SAMPLE_RATE_48000,
@@ -146,11 +147,12 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 		bitrateSetting = findViewById(R.id.setting_bitrate);
 		final String[] rates = getResources().getStringArray(R.array.bit_rates2);
 		final String[] rateKeys = new String[] {
-				SettingsMapper.BITRATE_24000,
+//				SettingsMapper.BITRATE_24000,
 				SettingsMapper.BITRATE_48000,
 				SettingsMapper.BITRATE_96000,
 				SettingsMapper.BITRATE_128000,
 				SettingsMapper.BITRATE_192000,
+				SettingsMapper.BITRATE_256000,
 		};
 		bitrateSetting.setData(rates, rateKeys);
 		bitrateSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {

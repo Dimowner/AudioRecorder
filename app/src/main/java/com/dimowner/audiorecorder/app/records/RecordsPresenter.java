@@ -479,7 +479,9 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	@Override
 	public void updateRecordsOrder(int order) {
 		prefs.setRecordOrder(order);
-		view.showSortType(order);
+		if (view != null) {
+			view.showSortType(order);
+		}
 		loadRecords();
 	}
 
@@ -729,7 +731,9 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		} else {
 			format = "";
 		}
-		view.showRecordInfo(new RecordInfo(name, format, duration, new File(location).length(), location, created));
+		if (view != null) {
+			view.showRecordInfo(new RecordInfo(name, format, duration, new File(location).length(), location, created));
+		}
 	}
 
 	@Override
