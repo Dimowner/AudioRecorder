@@ -26,8 +26,6 @@ import com.dimowner.audiorecorder.app.setup.SetupContract;
 import com.dimowner.audiorecorder.app.setup.SetupPresenter;
 import com.dimowner.audiorecorder.app.trash.TrashContract;
 import com.dimowner.audiorecorder.app.trash.TrashPresenter;
-import com.dimowner.audiorecorder.app.welcome.WelcomeContract;
-import com.dimowner.audiorecorder.app.welcome.WelcomePresenter;
 import com.dimowner.audiorecorder.audio.player.AudioPlayer;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
@@ -64,7 +62,6 @@ public class Injector {
 	private SettingsContract.UserActionsListener settingsPresenter;
 	private LostRecordsContract.UserActionsListener lostRecordsPresenter;
 	private TrashContract.UserActionsListener trashPresenter;
-	private WelcomeContract.UserActionsListener welcomePresenter;
 	private SetupContract.UserActionsListener setupPresenter;
 
 	public Injector(Context context) {
@@ -185,13 +182,6 @@ public class Injector {
 		return trashPresenter;
 	}
 
-	public WelcomeContract.UserActionsListener provideWelcomePresenter() {
-		if (welcomePresenter == null) {
-			welcomePresenter = new WelcomePresenter();
-		}
-		return welcomePresenter;
-	}
-
 	public SetupContract.UserActionsListener provideSetupPresenter() {
 		if (setupPresenter == null) {
 			setupPresenter = new SetupPresenter(providePrefs());
@@ -246,13 +236,6 @@ public class Injector {
 		if (setupPresenter != null) {
 			setupPresenter.clear();
 			setupPresenter = null;
-		}
-	}
-
-	public void releaseWelcomePresenter() {
-		if (welcomePresenter != null) {
-			welcomePresenter.clear();
-			welcomePresenter = null;
 		}
 	}
 

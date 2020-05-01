@@ -56,22 +56,26 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 	}
 
 	private void showBitrateInfo(int bitrate) {
+		int text = -1;
 		switch (bitrate) {
 			case AppConstants.RECORD_ENCODING_BITRATE_48000:
-				view.showInformation(R.string.info_bitrate_48);
+				text = R.string.info_bitrate_48;
 				break;
 			case AppConstants.RECORD_ENCODING_BITRATE_96000:
-				view.showInformation(R.string.info_bitrate_96);
+				text = R.string.info_bitrate_96;
 				break;
 			case AppConstants.RECORD_ENCODING_BITRATE_128000:
-				view.showInformation(R.string.info_bitrate_128);
+				text = R.string.info_bitrate_128;
 				break;
 			case AppConstants.RECORD_ENCODING_BITRATE_192000:
-				view.showInformation(R.string.info_bitrate_192);
+				text = R.string.info_bitrate_192;
 				break;
 			case AppConstants.RECORD_ENCODING_BITRATE_256000:
-				view.showInformation(R.string.info_bitrate_256);
+				text = R.string.info_bitrate_256;
 				break;
+		}
+		if (view != null && text != -1) {
+			view.showInformation(text);
 		}
 	}
 
@@ -83,39 +87,49 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 	}
 
 	private void showSampleRateInfo(int sampleRate) {
+		int text = -1;
 		switch (sampleRate) {
 			case AppConstants.RECORD_SAMPLE_RATE_8000:
-				view.showInformation(R.string.info_sample_rate_8k);
+				text = R.string.info_sample_rate_8k;
 				break;
 			case AppConstants.RECORD_SAMPLE_RATE_16000:
-				view.showInformation(R.string.info_sample_rate_16k);
+				text = R.string.info_sample_rate_16k;
 				break;
 			case AppConstants.RECORD_SAMPLE_RATE_22050:
-				view.showInformation(R.string.info_sample_rate_22k);
+				text = R.string.info_sample_rate_22k;
 				break;
 			case AppConstants.RECORD_SAMPLE_RATE_32000:
-				view.showInformation(R.string.info_sample_rate_32k);
+				text = R.string.info_sample_rate_32k;
 				break;
 			case AppConstants.RECORD_SAMPLE_RATE_44100:
-				view.showInformation(R.string.info_sample_rate_44k);
+				text = R.string.info_sample_rate_44k;
 				break;
 			case AppConstants.RECORD_SAMPLE_RATE_48000:
-				view.showInformation(R.string.info_sample_rate_48k);
+				text = R.string.info_sample_rate_48k;
 				break;
+		}
+		if (view != null && text != -1) {
+			view.showInformation(text);
 		}
 	}
 
 	@Override
 	public void setSettingChannelCount(int count) {
 		prefs.setSettingChannelCount(count);
-		view.showInformation(R.string.info_channels);
+		if (view != null) {
+			view.showInformation(R.string.info_channels);
+		}
 		updateSizePerMin();
 		switch (count) {
 			case AppConstants.RECORD_AUDIO_STEREO:
-				view.showInformation(R.string.info_stereo);
+				if (view != null) {
+					view.showInformation(R.string.info_stereo);
+				}
 				break;
 			case AppConstants.RECORD_AUDIO_MONO:
-				view.showInformation(R.string.info_mono);
+				if (view != null) {
+					view.showInformation(R.string.info_mono);
+				}
 				break;
 		}
 	}
@@ -136,10 +150,14 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 		updateRecordingFormat(formatKey);
 		switch (formatKey) {
 			case AppConstants.FORMAT_WAV:
-				view.showInformation(R.string.info_wav);
+				if (view != null) {
+					view.showInformation(R.string.info_wav);
+				}
 				break;
 			case AppConstants.FORMAT_M4A:
-				view.showInformation(R.string.info_m4a);
+				if (view != null) {
+					view.showInformation(R.string.info_m4a);
+				}
 				break;
 		}
 		updateSizePerMin();
@@ -179,14 +197,20 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 	private void updateRecordingFormat(String formatKey) {
 		switch (formatKey) {
 			case AppConstants.FORMAT_WAV:
-				view.hideBitrateSelector();
-				view.showInformation(R.string.info_wav);
+				if (view != null) {
+					view.hideBitrateSelector();
+					view.showInformation(R.string.info_wav);
+				}
 				break;
 			case AppConstants.FORMAT_M4A:
-				view.showInformation(R.string.info_m4a);
+				if (view != null) {
+					view.showInformation(R.string.info_m4a);
+				}
 			case AppConstants.FORMAT_3GP:
 			default:
-				view.showBitrateSelector();
+				if (view != null) {
+					view.showBitrateSelector();
+				}
 		}
 	}
 

@@ -42,8 +42,6 @@ import androidx.viewpager2.widget.ViewPager2;
  */
 public class WelcomeActivity extends Activity implements WelcomeContract.View {
 
-	private WelcomeContract.UserActionsListener presenter;
-
 	private ViewPagerPager pagerPager;
 
 	private WelcomePagerAdapter adapter;
@@ -82,8 +80,6 @@ public class WelcomeActivity extends Activity implements WelcomeContract.View {
 				}
 			}
 		});
-
-		presenter = ARApplication.getInjector().provideWelcomePresenter();
 
 		View space = findViewById(R.id.navigation_height);
 		final ViewGroup.LayoutParams params = space.getLayoutParams();
@@ -140,8 +136,6 @@ public class WelcomeActivity extends Activity implements WelcomeContract.View {
 			}
 		};
 		pager.registerOnPageChangeCallback(onPageChangeCallback);
-
-		presenter.bindView(this);
 	}
 
 	@Override
@@ -154,20 +148,6 @@ public class WelcomeActivity extends Activity implements WelcomeContract.View {
 	protected void onStop() {
 		super.onStop();
 		pagerPager.stopTimer();
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		if (presenter != null) {
-			presenter.unbindView();
-		}
-	}
-
-	@Override
-	public void onBackPressed() {
-		super.onBackPressed();
-		ARApplication.getInjector().releaseWelcomePresenter();
 	}
 
 	@Override
