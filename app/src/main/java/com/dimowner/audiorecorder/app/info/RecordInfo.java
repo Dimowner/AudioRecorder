@@ -15,14 +15,21 @@ public class RecordInfo implements Parcelable {
 	private long duration;
 	private long created;
 	private long size;
+	private int sampleRate;
+	private int channelCount;
+	private int bitrate;
 
-	public RecordInfo(String name, String format, long duration, long size, String location, long created) {
+	public RecordInfo(String name, String format, long duration, long size, String location, long created,
+							int sampleRate, int channelCount, int bitrate) {
 		this.name = name;
 		this.format = format;
 		this.duration = duration;
 		this.size = size;
 		this.location = location;
 		this.created = created;
+		this.sampleRate = sampleRate;
+		this.channelCount = channelCount;
+		this.bitrate = bitrate;
 	}
 
 	public String getName() {
@@ -49,6 +56,18 @@ public class RecordInfo implements Parcelable {
 		return created;
 	}
 
+	public int getSampleRate() {
+		return sampleRate;
+	}
+
+	public int getChannelCount() {
+		return channelCount;
+	}
+
+	public int getBitrate() {
+		return bitrate;
+	}
+
 	//----- START Parcelable implementation ----------
 	private RecordInfo(Parcel in) {
 		String[] data = new String[3];
@@ -61,6 +80,11 @@ public class RecordInfo implements Parcelable {
 		duration = longs[0];
 		size = longs[1];
 		created = longs[2];
+		int[] ints = new int[3];
+		in.readIntArray(ints);
+		sampleRate = ints[0];
+		channelCount = ints[1];
+		bitrate = ints[2];
 	}
 
 	public int describeContents() {
@@ -70,6 +94,7 @@ public class RecordInfo implements Parcelable {
 	public void writeToParcel(Parcel out, int flags) {
 		out.writeStringArray(new String[] {name, format, location});
 		out.writeLongArray(new long[] {duration, size, created});
+		out.writeIntArray(new int[] {sampleRate, channelCount, bitrate});
 	}
 
 	public static final Parcelable.Creator<RecordInfo> CREATOR

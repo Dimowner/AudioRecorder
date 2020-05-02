@@ -29,6 +29,7 @@ import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.AppRecorder;
 import com.dimowner.audiorecorder.app.AppRecorderCallback;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
+import com.dimowner.audiorecorder.audio.AudioDecoder;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.FileRepository;
@@ -498,9 +499,22 @@ public class MainPresenter implements MainContract.UserActionsListener {
 								break;
 						}
 						if (fileRepository.renameFile(record.getPath(), name, ext)) {
-							MainPresenter.this.record = new Record(record.getId(), nameWithExt, record.getDuration(), record.getCreated(),
-									record.getAdded(), record.getRemoved(), renamed.getAbsolutePath(), record.isBookmarked(),
-									record.isWaveformProcessed(), record.getAmps());
+							MainPresenter.this.record = new Record(
+									record.getId(),
+									nameWithExt,
+									record.getDuration(),
+									record.getCreated(),
+									record.getAdded(),
+									record.getRemoved(),
+									renamed.getAbsolutePath(),
+									record.getFormat(),
+									record.getSize(),
+									record.getSampleRate(),
+									record.getChannelCount(),
+									record.getBitrate(),
+									record.isBookmarked(),
+									record.isWaveformProcessed(),
+									record.getAmps());
 							if (localRepository.updateRecord(MainPresenter.this.record)) {
 								AndroidUtils.runOnUIThread(new Runnable() {
 									@Override
@@ -718,26 +732,19 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void onRecordInfo() {
-		String format;
 		Record rec = record;
 		if (rec != null) {
-			if (rec.getPath().contains(AppConstants.M4A_EXTENSION)) {
-				format = AppConstants.M4A_EXTENSION;
-			} else if (rec.getPath().contains(AppConstants.WAV_EXTENSION)) {
-				format = AppConstants.WAV_EXTENSION;
-			} else {
-				format = "";
-			}
-			view.showRecordInfo(
-					new RecordInfo(
-							FileUtil.removeFileExtension(rec.getName()),
-							format,
-							rec.getDuration() / 1000,
-							new File(rec.getPath()).length(),
-							rec.getPath(),
-							rec.getCreated()
-					)
-			);
+			view.showRecordInfo(new RecordInfo(
+					rec.getName(),
+					rec.getFormat(),
+					rec.getDuration(),
+					rec.getSize(),
+					rec.getPath(),
+					rec.getCreated(),
+					rec.getSampleRate(),
+					rec.getChannelCount(),
+					rec.getBitrate()
+			));
 		}
 	}
 
@@ -770,16 +777,22 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 					File newFile = fileRepository.provideRecordFile(name);
 					if (FileUtil.copyFile(fileDescriptor, newFile)) {
-						long duration = AndroidUtils.readRecordDuration(newFile);
+						RecordInfo info = AudioDecoder.readRecordInfo(newFile.getAbsolutePath());
+
 						//Do 2 step import: 1) Import record with empty waveform. 2) Process and update waveform in background.
 						Record r = new Record(
 								Record.NO_ID,
 								newFile.getName(),
-								duration >= 0 ? duration : 0,
+								info.getDuration() >= 0 ? info.getDuration() : 0,
 								newFile.lastModified(),
 								new Date().getTime(),
 								0,
 								newFile.getAbsolutePath(),
+								info.getFormat(),
+								info.getSize(),
+								info.getSampleRate(),
+								info.getChannelCount(),
+								info.getBitrate(),
 								false,
 								false,
 								new int[ARApplication.getLongWaveformSampleCount()]);
@@ -788,7 +801,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						if (rec != null) {
 							id = rec.getId();
 							prefs.setActiveRecord(id);
-							songDuration = duration;
+							songDuration = info.getDuration();
 							dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
 							AndroidUtils.runOnUIThread(new Runnable() {
 								@Override

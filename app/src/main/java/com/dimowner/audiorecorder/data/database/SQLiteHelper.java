@@ -48,12 +48,52 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 			onCreate(db);
 		} else if (newVersion == 2) {
 			db.execSQL(CREATE_TRASH_TABLE_SCRIPT);
+		} else if (oldVersion == 1 && newVersion == 3) {
+			db.beginTransaction();
+
+			db.execSQL(CREATE_TRASH_TABLE_SCRIPT);
+
+			//Add new fields to the table Records.
+			db.execSQL("ALTER TABLE " + TABLE_RECORDS + " ADD COLUMN " + COLUMN_FORMAT + " TEXT NOT NULL DEFAULT '';");
+			db.execSQL("ALTER TABLE " + TABLE_RECORDS + " ADD COLUMN " + COLUMN_SIZE + " LONG NOT NULL DEFAULT 0;");
+			db.execSQL("ALTER TABLE " + TABLE_RECORDS + " ADD COLUMN " + COLUMN_SAMPLE_RATE + " INTEGER NOT NULL DEFAULT 0;");
+			db.execSQL("ALTER TABLE " + TABLE_RECORDS + " ADD COLUMN " + COLUMN_CHANNEL_COUNT + " INTEGER NOT NULL DEFAULT 0;");
+			db.execSQL("ALTER TABLE " + TABLE_RECORDS + " ADD COLUMN " + COLUMN_BITRATE + " INTEGER NOT NULL DEFAULT 0;");
+
+			//Add new fields to the table Trash.
+			db.execSQL("ALTER TABLE " + TABLE_TRASH + " ADD COLUMN " + COLUMN_FORMAT + " TEXT NOT NULL DEFAULT '';");
+			db.execSQL("ALTER TABLE " + TABLE_TRASH + " ADD COLUMN " + COLUMN_SIZE + " LONG NOT NULL DEFAULT 0;");
+			db.execSQL("ALTER TABLE " + TABLE_TRASH + " ADD COLUMN " + COLUMN_SAMPLE_RATE + " INTEGER NOT NULL DEFAULT 0;");
+			db.execSQL("ALTER TABLE " + TABLE_TRASH + " ADD COLUMN " + COLUMN_CHANNEL_COUNT + " INTEGER NOT NULL DEFAULT 0;");
+			db.execSQL("ALTER TABLE " + TABLE_TRASH + " ADD COLUMN " + COLUMN_BITRATE + " INTEGER NOT NULL DEFAULT 0;");
+
+			db.setTransactionSuccessful();
+			db.endTransaction();
+		} else if (oldVersion == 2 && newVersion == 3) {
+			db.beginTransaction();
+
+			//Add new fields to the table Records.
+			db.execSQL("ALTER TABLE " + TABLE_RECORDS + " ADD COLUMN " + COLUMN_FORMAT + " TEXT NOT NULL DEFAULT '';");
+			db.execSQL("ALTER TABLE " + TABLE_RECORDS + " ADD COLUMN " + COLUMN_SIZE + " LONG NOT NULL DEFAULT 0;");
+			db.execSQL("ALTER TABLE " + TABLE_RECORDS + " ADD COLUMN " + COLUMN_SAMPLE_RATE + " INTEGER NOT NULL DEFAULT 0;");
+			db.execSQL("ALTER TABLE " + TABLE_RECORDS + " ADD COLUMN " + COLUMN_CHANNEL_COUNT + " INTEGER NOT NULL DEFAULT 0;");
+			db.execSQL("ALTER TABLE " + TABLE_RECORDS + " ADD COLUMN " + COLUMN_BITRATE + " INTEGER NOT NULL DEFAULT 0;");
+
+			//Add new fields to the table Trash.
+			db.execSQL("ALTER TABLE " + TABLE_TRASH + " ADD COLUMN " + COLUMN_FORMAT + " TEXT NOT NULL DEFAULT '';");
+			db.execSQL("ALTER TABLE " + TABLE_TRASH + " ADD COLUMN " + COLUMN_SIZE + " LONG NOT NULL DEFAULT 0;");
+			db.execSQL("ALTER TABLE " + TABLE_TRASH + " ADD COLUMN " + COLUMN_SAMPLE_RATE + " INTEGER NOT NULL DEFAULT 0;");
+			db.execSQL("ALTER TABLE " + TABLE_TRASH + " ADD COLUMN " + COLUMN_CHANNEL_COUNT + " INTEGER NOT NULL DEFAULT 0;");
+			db.execSQL("ALTER TABLE " + TABLE_TRASH + " ADD COLUMN " + COLUMN_BITRATE + " INTEGER NOT NULL DEFAULT 0;");
+
+			db.setTransactionSuccessful();
+			db.endTransaction();
 		}
 	}
 
 
 	private static final String DATABASE_NAME = "records.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 
 	//Tables names
 	static final String TABLE_RECORDS = "records";
@@ -72,6 +112,11 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 	static final String COLUMN_DATA_STR = "data_str";
 	static final String COLUMN_WAVEFORM_PROCESSED = "waveform_processed";
 	static final String COLUMN_BOOKMARK = "bookmark";
+	static final String COLUMN_FORMAT = "format";
+	static final String COLUMN_SIZE = "size";
+	static final String COLUMN_SAMPLE_RATE = "sample_rate";
+	static final String COLUMN_CHANNEL_COUNT = "channel_count";
+	static final String COLUMN_BITRATE = "bitrate";
 
 	//Create records table sql statement
 	private static final String CREATE_RECORDS_TABLE_SCRIPT =
@@ -82,6 +127,11 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 					+ COLUMN_CREATION_DATE + " LONG NOT NULL, "
 					+ COLUMN_DATE_ADDED + " LONG NOT NULL, "
 					+ COLUMN_PATH + " TEXT NOT NULL, "
+					+ COLUMN_FORMAT + " TEXT NOT NULL DEFAULT '', "
+					+ COLUMN_SIZE + " LONG NOT NULL DEFAULT 0, "
+					+ COLUMN_SAMPLE_RATE + " INTEGER NOT NULL DEFAULT 0, "
+					+ COLUMN_CHANNEL_COUNT + " INTEGER NOT NULL DEFAULT 0, "
+					+ COLUMN_BITRATE + " INTEGER NOT NULL DEFAULT 0, "
 					+ COLUMN_DATA + " BLOB NOT NULL, "
 					+ COLUMN_BOOKMARK + " INTEGER NOT NULL DEFAULT 0, "
 					+ COLUMN_WAVEFORM_PROCESSED + " INTEGER NOT NULL DEFAULT 0, "
@@ -97,6 +147,11 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 					+ COLUMN_DATE_ADDED + " LONG NOT NULL, "
 					+ COLUMN_DATE_REMOVED + " LONG NOT NULL, "
 					+ COLUMN_PATH + " TEXT NOT NULL, "
+					+ COLUMN_FORMAT + " TEXT NOT NULL DEFAULT '', "
+					+ COLUMN_SIZE + " LONG NOT NULL DEFAULT 0, "
+					+ COLUMN_SAMPLE_RATE + " INTEGER NOT NULL DEFAULT 0, "
+					+ COLUMN_CHANNEL_COUNT + " INTEGER NOT NULL DEFAULT 0, "
+					+ COLUMN_BITRATE + " INTEGER NOT NULL DEFAULT 0, "
 					+ COLUMN_DATA + " BLOB NOT NULL, "
 					+ COLUMN_BOOKMARK + " INTEGER NOT NULL DEFAULT 0, "
 					+ COLUMN_WAVEFORM_PROCESSED + " INTEGER NOT NULL DEFAULT 0, "

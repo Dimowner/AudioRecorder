@@ -22,6 +22,7 @@ import android.database.SQLException;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.data.FileRepository;
+import com.dimowner.audiorecorder.data.Prefs;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,21 +58,24 @@ public class LocalRepositoryImpl implements LocalRepository {
 
 	private FileRepository fileRepository;
 
+	private Prefs prefs;
+
 	private volatile static LocalRepositoryImpl instance;
 
 	private OnRecordsLostListener onLostRecordsListener;
 
-	private LocalRepositoryImpl(RecordsDataSource dataSource, TrashDataSource trashDataSource, FileRepository fileRepository) {
+	private LocalRepositoryImpl(RecordsDataSource dataSource, TrashDataSource trashDataSource, FileRepository fileRepository, Prefs prefs) {
 		this.dataSource = dataSource;
 		this.trashDataSource = trashDataSource;
 		this.fileRepository = fileRepository;
+		this.prefs = prefs;
 	}
 
-	public static LocalRepositoryImpl getInstance(RecordsDataSource source, TrashDataSource trashSource, FileRepository fileRepository) {
+	public static LocalRepositoryImpl getInstance(RecordsDataSource source, TrashDataSource trashSource, FileRepository fileRepository, Prefs prefs) {
 		if (instance == null) {
 			synchronized (LocalRepositoryImpl.class) {
 				if (instance == null) {
-					instance = new LocalRepositoryImpl(source, trashSource, fileRepository);
+					instance = new LocalRepositoryImpl(source, trashSource, fileRepository, prefs);
 					instance.removeOutdatedTrashRecords();
 				}
 			}
@@ -131,6 +135,11 @@ public class LocalRepositoryImpl implements LocalRepository {
 					new Date().getTime(),
 					0,
 					path,
+					prefs.getSettingRecordingFormat(),
+					0,
+					prefs.getSettingSampleRate(),
+					prefs.getSettingChannelCount(),
+					prefs.getSettingBitrate(),
 					false,
 					false,
 					new int[ARApplication.getLongWaveformSampleCount()]);

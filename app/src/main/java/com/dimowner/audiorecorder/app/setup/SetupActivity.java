@@ -110,7 +110,6 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 			}
 		});
 		formatSetting.setTitle(R.string.recording_format);
-//		formatSetting.setImageInfo(R.drawable.ic_audiotrack);
 		formatSetting.setOnInfoClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -135,8 +134,7 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 				presenter.setSettingSampleRate(SettingsMapper.keyToSampleRate(key));
 			}
 		});
-		sampleRateSetting.setTitle(R.string.frequency);
-//		sampleRateSetting.setImageInfo(R.drawable.ic_audiotrack);
+		sampleRateSetting.setTitle(R.string.sample_rate);
 		sampleRateSetting.setOnInfoClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -162,7 +160,6 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 			}
 		});
 		bitrateSetting.setTitle(R.string.bitrate);
-//		bitrateSetting.setImageInfo(R.drawable.ic_audiotrack);
 		bitrateSetting.setOnInfoClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -184,7 +181,6 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 			}
 		});
 		channelsSetting.setTitle(R.string.channels);
-//		channelsSetting.setImageInfo(R.drawable.ic_surround_sound_2_0);
 		channelsSetting.setOnInfoClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {

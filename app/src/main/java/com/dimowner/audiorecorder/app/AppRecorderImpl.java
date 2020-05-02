@@ -20,6 +20,7 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.IntArrayList;
+import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.audio.AudioDecoder;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.Prefs;
@@ -103,8 +104,9 @@ public class AppRecorderImpl implements AppRecorder {
 				recordingsTasks.postRunnable(new Runnable() {
 					@Override
 					public void run() {
-						long duration = AndroidUtils.readRecordDuration(output);
-						if (duration < 0) {
+						RecordInfo info = AudioDecoder.readRecordInfo(output.getAbsolutePath());
+						long duration = info.getDuration();
+						if (duration <= 0) {
 							duration = recordingDuration;
 						}
 						recordingDuration = 0;
@@ -120,6 +122,11 @@ public class AppRecorderImpl implements AppRecorder {
 									record.getAdded(),
 									record.getRemoved(),
 									record.getPath(),
+									info.getFormat(),
+									info.getSize(),
+									info.getSampleRate(),
+									info.getChannelCount(),
+									info.getBitrate(),
 									record.isBookmarked(),
 									record.isWaveformProcessed(),
 									waveForm);
@@ -231,6 +238,11 @@ public class AppRecorderImpl implements AppRecorder {
 									decRec.getAdded(),
 									decRec.getRemoved(),
 									decRec.getPath(),
+									decRec.getFormat(),
+									decRec.getSize(),
+									decRec.getSampleRate(),
+									decRec.getChannelCount(),
+									decRec.getBitrate(),
 									decRec.isBookmarked(),
 									true,
 									data);

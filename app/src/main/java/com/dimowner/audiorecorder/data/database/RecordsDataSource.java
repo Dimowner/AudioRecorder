@@ -56,6 +56,11 @@ public class RecordsDataSource extends DataSource<Record> {
 			values.put(SQLiteHelper.COLUMN_CREATION_DATE, item.getCreated());
 			values.put(SQLiteHelper.COLUMN_DATE_ADDED, item.getAdded());
 			values.put(SQLiteHelper.COLUMN_PATH, item.getPath());
+			values.put(SQLiteHelper.COLUMN_FORMAT, item.getFormat());
+			values.put(SQLiteHelper.COLUMN_SIZE, item.getSize());
+			values.put(SQLiteHelper.COLUMN_SAMPLE_RATE, item.getSampleRate());
+			values.put(SQLiteHelper.COLUMN_CHANNEL_COUNT, item.getChannelCount());
+			values.put(SQLiteHelper.COLUMN_BITRATE, item.getBitrate());
 			values.put(SQLiteHelper.COLUMN_BOOKMARK, item.isBookmarked() ? 1 : 0);
 			values.put(SQLiteHelper.COLUMN_WAVEFORM_PROCESSED, item.isWaveformProcessed() ? 1 : 0);
 			values.put(SQLiteHelper.COLUMN_DATA, item.getData());
@@ -78,6 +83,11 @@ public class RecordsDataSource extends DataSource<Record> {
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATE_ADDED)),
 				0, //Record removed date not needed here.
 				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_PATH)),
+				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_FORMAT)),
+				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_SIZE)),
+				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_SAMPLE_RATE)),
+				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_CHANNEL_COUNT)),
+				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_BITRATE)),
 				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_BOOKMARK)) != 0,
 				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_WAVEFORM_PROCESSED)) != 0,
 				cursor.getBlob(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATA))

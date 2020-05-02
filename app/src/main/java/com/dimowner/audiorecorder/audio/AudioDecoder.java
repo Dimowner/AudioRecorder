@@ -23,6 +23,7 @@ import android.media.MediaFormat;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.IntArrayList;
+import com.dimowner.audiorecorder.app.info.RecordInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -237,5 +238,116 @@ public class AudioDecoder {
 		});
 		decoder.configure(format, null, null, 0);
 		decoder.start();
+	}
+
+	public static RecordInfo readRecordInfo(@NonNull final String path)
+			throws OutOfMemoryError, IllegalStateException {
+		File inputFile = new File(path);
+		try {
+			if (!inputFile.exists()) {
+				throw new java.io.FileNotFoundException(path);
+			}
+			String name = inputFile.getName().toLowerCase();
+			String[] components = name.split("\\.");
+			if (components.length < 2) {
+				throw new IOException();
+			}
+			if (!Arrays.asList(SUPPORTED_EXT).contains(components[components.length - 1])) {
+				throw new IOException();
+			}
+
+			final MediaExtractor extractor = new MediaExtractor();
+			MediaFormat format = null;
+			int i;
+
+			extractor.setDataSource(inputFile.getPath());
+			int numTracks = extractor.getTrackCount();
+			// find and select the first audio track present in the file.
+			for (i = 0; i < numTracks; i++) {
+				format = extractor.getTrackFormat(i);
+				try {
+					if (format.getString(MediaFormat.KEY_MIME).startsWith("audio/")) {
+						extractor.selectTrack(i);
+						break;
+					}
+				} catch (Exception e) {
+					Timber.e(e);
+				}
+			}
+
+			if (i == numTracks || format == null) {
+				throw new IOException("No audio track found in " + inputFile.toString());
+			}
+			int channelCount;
+			try {
+				channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+			} catch (Exception e) {
+				Timber.e(e);
+				channelCount = 0;
+			}
+			int sampleRate;
+			try {
+				sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+			} catch (Exception e) {
+				Timber.e(e);
+				sampleRate = 0;
+			}
+			int bitrate;
+			try {
+				bitrate = format.getInteger(MediaFormat.KEY_BIT_RATE);
+			} catch (Exception e) {
+				Timber.e(e);
+				bitrate = 0;
+			}
+
+			long duration;
+			try {
+				duration = format.getLong(MediaFormat.KEY_DURATION);
+			} catch (Exception e) {
+				Timber.e(e);
+				duration = 0;
+			}
+
+			String mimeType;
+			try {
+				mimeType= format.getString(MediaFormat.KEY_MIME);
+			} catch (Exception e) {
+				Timber.e(e);
+				mimeType = "";
+			}
+
+			return new RecordInfo(inputFile.getName(), readFileFormat(inputFile, mimeType), duration, inputFile.length(),
+					inputFile.getAbsolutePath(), inputFile.lastModified(), sampleRate, channelCount, bitrate);
+		} catch (Exception e) {
+			return new RecordInfo(inputFile.getName(), "", 0, inputFile.length(),
+					inputFile.getAbsolutePath(), inputFile.lastModified(), 0, 0, 0);
+		}
+	}
+
+	private static String readFileFormat(File file, String mime) {
+		String name = file.getName().toLowerCase();
+		if (name.contains(AppConstants.FORMAT_M4A) || (mime != null && mime.contains("audio") && mime.contains("mp4a"))) {
+			return AppConstants.FORMAT_M4A;
+		} else if (name.contains(AppConstants.FORMAT_WAV) || (mime != null && mime.contains("audio") && mime.contains("raw"))) {
+			return AppConstants.FORMAT_WAV;
+		} else if (name.contains(AppConstants.FORMAT_3GP)) {
+			return AppConstants.FORMAT_3GP;
+		} else if (name.contains(AppConstants.FORMAT_3GPP)) {
+			return AppConstants.FORMAT_3GPP;
+		} else if (name.contains(AppConstants.FORMAT_MP3) || (mime != null && mime.contains("audio") && mime.contains("mpeg"))) {
+			return AppConstants.FORMAT_MP3;
+		} else if (name.contains(AppConstants.FORMAT_AMR)) {
+			return AppConstants.FORMAT_AMR;
+		} else if (name.contains(AppConstants.FORMAT_AAC)) {
+			return AppConstants.FORMAT_AAC;
+		} else if (name.contains(AppConstants.FORMAT_MP4)) {
+			return AppConstants.FORMAT_MP4;
+		} else if (name.contains(AppConstants.FORMAT_OGG)) {
+			return AppConstants.FORMAT_OGG;
+		} else if (name.contains(AppConstants.FORMAT_FLAC) || (mime != null && mime.contains("audio") && mime.contains(AppConstants.FORMAT_FLAC))) {
+			return AppConstants.FORMAT_FLAC;
+		}
+		return "";
+
 	}
 }

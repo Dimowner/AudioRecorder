@@ -353,9 +353,22 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 								break;
 						}
 						if (fileRepository.renameFile(rec2.getPath(), name, ext)) {
-							activeRecord = new Record(rec2.getId(), nameWithExt, rec2.getDuration(), rec2.getCreated(),
-									rec2.getAdded(), rec2.getRemoved(), renamed.getAbsolutePath(), rec2.isBookmarked(),
-									rec2.isWaveformProcessed(), rec2.getAmps());
+							activeRecord = new Record(
+									rec2.getId(),
+									nameWithExt,
+									rec2.getDuration(),
+									rec2.getCreated(),
+									rec2.getAdded(),
+									rec2.getRemoved(),
+									renamed.getAbsolutePath(),
+									rec2.getFormat(),
+									rec2.getSize(),
+									rec2.getSampleRate(),
+									rec2.getChannelCount(),
+									rec2.getBitrate(),
+									rec2.isBookmarked(),
+									rec2.isWaveformProcessed(),
+									rec2.getAmps());
 							if (localRepository.updateRecord(activeRecord)) {
 								AndroidUtils.runOnUIThread(new Runnable() {
 									@Override
@@ -732,7 +745,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			format = "";
 		}
 		if (view != null) {
-			view.showRecordInfo(new RecordInfo(name, format, duration, new File(location).length(), location, created));
+			view.showRecordInfo(new RecordInfo(name, format, duration, new File(location).length(), location, created, 0, 0, 0));
 		}
 	}
 

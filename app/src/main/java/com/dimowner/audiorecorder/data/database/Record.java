@@ -32,6 +32,11 @@ public class Record {
 	private long added;
 	private long removed;
 	private String path;
+	private String format;
+	private long size;
+	private int sampleRate;
+	private int channelCount;
+	private int bitrate;
 	private boolean bookmark;
 	private boolean waveformProcessed;
 	private int[] amps;
@@ -39,6 +44,7 @@ public class Record {
 	//TODO: Remove not needed data clusters.
 
 	public Record(int id, String name, long duration, long created, long added, long removed, String path,
+					  String format, long size, int sampleRate, int channelCount, int bitrate,
 					  boolean bookmark, boolean waveformProcessed, int[] amps) {
 		this.id = id;
 		this.name = name;
@@ -47,6 +53,11 @@ public class Record {
 		this.added= added;
 		this.removed = removed;
 		this.path = path;
+		this.format = format;
+		this.size = size;
+		this.sampleRate = sampleRate;
+		this.channelCount = channelCount;
+		this.bitrate = bitrate;
 		this.bookmark = bookmark;
 		this.waveformProcessed = waveformProcessed;
 		this.amps = amps;
@@ -55,6 +66,7 @@ public class Record {
 	}
 
 	public Record(int id, String name, long duration, long created, long added, long removed, String path,
+					  String format, long size, int sampleRate, int channelCount, int bitrate,
 					  boolean bookmark, boolean waveformProcessed, byte[] amps) {
 		this.id = id;
 		this.name = name;
@@ -63,6 +75,11 @@ public class Record {
 		this.added = added;
 		this.removed = removed;
 		this.path = path;
+		this.format = format;
+		this.size = size;
+		this.sampleRate = sampleRate;
+		this.channelCount = channelCount;
+		this.bitrate = bitrate;
 		this.bookmark = bookmark;
 		this.waveformProcessed = waveformProcessed;
 		this.amps = byte2int(amps);
@@ -118,6 +135,26 @@ public class Record {
 
 	public void setPath(String path) {
 		this.path = path;
+	}
+
+	public String getFormat() {
+		return format;
+	}
+
+	public long getSize() {
+		return size;
+	}
+
+	public int getSampleRate() {
+		return sampleRate;
+	}
+
+	public int getChannelCount() {
+		return channelCount;
+	}
+
+	public int getBitrate() {
+		return bitrate;
 	}
 
 	public int[] getAmps() {
@@ -182,14 +219,20 @@ public class Record {
 	@Override
 	public String toString() {
 		return "Record{" +
-				"id=" + id + '\'' +
+				"id=" + id +
 				", name='" + name + '\'' +
-				", duration=" + duration + '\'' +
-				", created=" + created + '\'' +
-				", added=" + added + '\'' +
+				", duration=" + duration +
+				", created=" + created +
+				", added=" + added +
+				", removed=" + removed +
 				", path='" + path + '\'' +
-				", bookmark=" + bookmark + '\'' +
-				", waveformProcessed=" + waveformProcessed + '\'' +
+				", format='" + format + '\'' +
+				", size=" + size +
+				", sampleRate=" + sampleRate +
+				", channelCount=" + channelCount +
+				", bitrate=" + bitrate +
+				", bookmark=" + bookmark +
+				", waveformProcessed=" + waveformProcessed +
 				", amps=" + Arrays.toString(amps) +
 				", data=" + Arrays.toString(data) +
 				'}';

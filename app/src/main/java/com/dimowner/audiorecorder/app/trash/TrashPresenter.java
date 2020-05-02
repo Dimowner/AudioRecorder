@@ -99,7 +99,7 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 			format = "";
 		}
 		if (view != null) {
-			view.showRecordInfo(new RecordInfo(name, format, duration, new File(location).length(), location, created));
+			view.showRecordInfo(new RecordInfo(name, format, duration, new File(location).length(), location, created, 0, 0, 0));
 		}
 	}
 

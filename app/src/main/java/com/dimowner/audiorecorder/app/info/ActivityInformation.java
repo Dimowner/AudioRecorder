@@ -26,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.util.AndroidUtils;
@@ -61,6 +62,10 @@ public class ActivityInformation extends Activity {
 		TextView txtSize = findViewById(R.id.txt_size);
 		TextView txtLocation = findViewById(R.id.txt_location);
 		TextView txtCreated = findViewById(R.id.txt_created);
+		TextView txtSampleRate = findViewById(R.id.txt_sample_rate);
+		TextView txtChannelsCount = findViewById(R.id.txt_channels_count);
+		TextView txtBitrate = findViewById(R.id.txt_bitrate);
+		TextView lblBitrate = findViewById(R.id.lbl_bitrate);
 
 		if (extras != null) {
 			if (extras.containsKey(KEY_INFO)) {
@@ -68,10 +73,27 @@ public class ActivityInformation extends Activity {
 				if (info != null) {
 					txtName.setText(info.getName());
 					txtFormat.setText(info.getFormat());
-					txtDuration.setText(TimeUtils.formatTimeIntervalHourMinSec2(info.getDuration()));
+					txtDuration.setText(TimeUtils.formatTimeIntervalHourMinSec2(info.getDuration()/1000));
 					txtSize.setText(AndroidUtils.formatSize(info.getSize()));
 					txtLocation.setText(info.getLocation());
 					txtCreated.setText(TimeUtils.formatDateTime(info.getCreated()));
+					txtSampleRate.setText(getString(R.string.value_hz, info.getSampleRate()));
+					switch (info.getChannelCount()) {
+						case 1:
+							txtChannelsCount.setText(R.string.mono);
+							break;
+						case 2:
+							txtChannelsCount.setText(R.string.stereo);
+							break;
+					}
+					if (info.getFormat().equals(AppConstants.FORMAT_WAV) || info.getFormat().equals(AppConstants.FORMAT_FLAC)) {
+						txtBitrate.setVisibility(View.GONE);
+						lblBitrate.setVisibility(View.GONE);
+					} else {
+						txtBitrate.setVisibility(View.VISIBLE);
+						lblBitrate.setVisibility(View.VISIBLE);
+						txtBitrate.setText(getString(R.string.value_kbps, info.getBitrate()/1000));
+					}
 				}
 			}
 		}

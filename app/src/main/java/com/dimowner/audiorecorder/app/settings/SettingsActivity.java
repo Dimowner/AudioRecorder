@@ -195,7 +195,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 				presenter.setSettingSampleRate(SettingsMapper.keyToSampleRate(key));
 			}
 		});
-		sampleRateSetting.setTitle(R.string.frequency);
+		sampleRateSetting.setTitle(R.string.sample_rate);
 		sampleRateSetting.setOnInfoClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {

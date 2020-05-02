@@ -139,11 +139,15 @@
 	<string name="info_sample_rate_32k"><b>32kHz</b> трохи краще за 22кГц.</string>
 	<string name="info_sample_rate_44k"><b>44,1кГц</b> частота, використовується в Аудіо CD. <b>(рекомендовано)</b></string>
 	<string name="info_sample_rate_48k"><b>48кГц</b> частота, використовується в DVD.</string>
-	<string name="frequency">Частота</string>
-	<string name="recording_format">Формат запису</string>
-	<string name="bitrate">Бітрейт</string>
-	<string name="channels">Кількість каналів</string>
+	<string name="recording_format">Формат запису:</string>
+	<string name="bitrate">Бітрейт:</string>
+	<string name="channels">Кількість каналів:</string>
+	<string name="sample_rate">Частота дискретизації:</string>
 	<string name="size_per_min">%s Мб/хв очікуваний розмір</string>
+	<string name="value_hz">%d Гц</string>
+	<string name="value_kbps">%d кбіт/с</string>
+	<string name="stereo">Стерео</string>
+	<string name="mono">Моно</string>
 
 	<string name="error_unknown">Неочікувана помилка</string>
 	<string name="error_cant_create_file">Не вдалося створити файл</string>
