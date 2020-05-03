@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.view.View;
@@ -48,10 +49,12 @@ import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.RippleUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 public class SettingsActivity extends Activity implements SettingsContract.View, View.OnClickListener {
 
@@ -62,6 +65,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private TextView txtAvailableSpace;
 	private TextView txtSizePerMin;
 	private TextView txtInformation;
+	private TextView txtLocation;
 
 	private Switch swPublicDir;
 	private Switch swKeepScreenOn;
@@ -127,6 +131,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		btnReset.setOnClickListener(this);
 		txtSizePerMin = findViewById(R.id.txt_size_per_min);
 		txtInformation = findViewById(R.id.txt_information);
+		txtLocation = findViewById(R.id.txt_records_location);
+		txtLocation.setOnClickListener(this);
 		findViewById(R.id.btnBack).setOnClickListener(this);
 		TextView txtAbout = findViewById(R.id.txtAbout);
 		txtAbout.setText(getAboutContent());
@@ -368,6 +374,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			case R.id.btnTrash:
 				startActivity(TrashActivity.getStartIntent(getApplicationContext()));
 				break;
+			case R.id.txt_records_location:
+				presenter.onRecordsLocationClick();
+				break;
 			case R.id.btnRate:
 				rateApp();
 				break;
@@ -587,6 +596,32 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 						+ SettingsMapper.convertSampleRateToString(sampleRates, sampleRatesKeys, sampleRate) + SEPARATOR
 						+ SettingsMapper.convertChannelsToString(recChannels, recChannelsKeys, channelsCount)
 		);
+	}
+
+	@Override
+	public void showRecordsLocation(String location) {
+		txtLocation.setVisibility(View.VISIBLE);
+		txtLocation.setText(getString(R.string.records_location, location));
+	}
+
+	@Override
+	public void hideRecordsLocation() {
+		txtLocation.setText("");
+		txtLocation.setVisibility(View.GONE);
+	}
+
+	@Override
+	public void openRecordsLocation(File file) {
+		Intent intent = new Intent(Intent.ACTION_VIEW);
+		Uri fileUri = FileProvider.getUriForFile(
+				getApplicationContext(),
+				getApplicationContext().getPackageName() + ".app_file_provider",
+				file
+		);
+		intent.setDataAndType(fileUri, DocumentsContract.Document.MIME_TYPE_DIR);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		startActivity(intent);
 	}
 
 	@Override

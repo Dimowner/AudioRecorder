@@ -77,6 +77,11 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		});
 		if (view != null) {
 			view.showStoreInPublicDir(prefs.isStoreDirPublic());
+			if (prefs.isStoreDirPublic()) {
+				view.showRecordsLocation(fileRepository.getRecordingDir().getAbsolutePath());
+			} else {
+				view.hideRecordsLocation();
+			}
 			view.showAskToRenameAfterRecordingStop(prefs.isAskToRenameAfterStopRecording());
 			view.showKeepScreenOn(prefs.isKeepScreenOn());
 			view.showChannelCount(prefs.getSettingChannelCount());
@@ -92,6 +97,11 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	@Override
 	public void storeInPublicDir(boolean b) {
 		prefs.setStoreDirPublic(b);
+		if (b) {
+			view.showRecordsLocation(fileRepository.getRecordingDir().getAbsolutePath());
+		} else {
+			view.hideRecordsLocation();
+		}
 	}
 
 	@Override
@@ -193,6 +203,13 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	@Override
 	public void resetSettings() {
 		prefs.resetSettings();
+	}
+
+	@Override
+	public void onRecordsLocationClick() {
+		if (view != null) {
+			view.openRecordsLocation(fileRepository.getRecordingDir());
+		}
 	}
 
 	private void updateAvailableSpace() {

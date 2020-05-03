@@ -18,6 +18,8 @@ package com.dimowner.audiorecorder.app.settings;
 
 import com.dimowner.audiorecorder.Contract;
 
+import java.io.File;
+
 public class SettingsContract {
 
 	interface View extends Contract.View {
@@ -56,6 +58,10 @@ public class SettingsContract {
 		void showSizePerMin(String size);
 		void showInformation(String formatKey, int sampleRate, int bitrate, int channelsCount);
 		void showInformation(String formatKey, int sampleRate, int channelsCount);
+
+		void showRecordsLocation(String location);
+		void hideRecordsLocation();
+		void openRecordsLocation(File file);
 	}
 
 	public interface UserActionsListener extends Contract.UserActionsListener<SettingsContract.View> {
@@ -83,5 +89,7 @@ public class SettingsContract {
 		void deleteAllRecords();
 
 		void resetSettings();
+
+		void onRecordsLocationClick();
 	}
 }

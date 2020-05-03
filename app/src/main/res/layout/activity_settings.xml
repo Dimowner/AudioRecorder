@@ -88,7 +88,6 @@
 					android:text="@string/store_records_public"
 					android:drawableStart="@drawable/ic_folder_open"
 					android:layout_marginTop="@dimen/spacing_medium"
-					android:layout_marginBottom="@dimen/spacing_medium"
 					android:layout_marginEnd="@dimen/spacing_normal"
 					android:layout_marginStart="@dimen/spacing_normal"
 					android:drawablePadding="@dimen/spacing_normal"
@@ -102,6 +101,21 @@
 					android:layout_marginEnd="@dimen/spacing_xsmall"
 					/>
 		</LinearLayout>
+
+		<TextView
+				android:id="@+id/txt_records_location"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="start"
+				android:textColor="@color/text_secondary_light"
+				android:fontFamily="sans-serif-light"
+				android:paddingStart="@dimen/spacing_xxdouble"
+				android:paddingEnd="@dimen/spacing_small"
+				android:paddingTop="@dimen/spacing_small"
+				android:paddingBottom="@dimen/spacing_medium"
+				android:background="?android:selectableItemBackground"
+				android:textSize="@dimen/text_normal"
+				tools:text="@string/records_location"/>
 
 		<LinearLayout
 				android:layout_width="match_parent"
