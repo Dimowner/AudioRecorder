@@ -15,11 +15,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.util.AndroidUtils;
-import com.dimowner.audiorecorder.util.FileUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +84,7 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 		adapter.setOnItemClickListener(new LostRecordsAdapter.OnItemClickListener() {
 			@Override
 			public void onItemClick(RecordItem record) {
-				presenter.onRecordInfo(record.getName(), record.getDuration(), record.getPath(), record.getCreated());
+				presenter.onRecordInfo(Mapper.toRecordInfo(record));
 			}
 
 			@Override
@@ -93,7 +93,7 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 						LostRecordsActivity.this,
 						R.drawable.ic_delete_forever,
 						R.string.warning,
-						getApplicationContext().getString(R.string.delete_record, FileUtil.removeFileExtension(record.getName())),
+						getApplicationContext().getString(R.string.delete_record, record.getName()),
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {

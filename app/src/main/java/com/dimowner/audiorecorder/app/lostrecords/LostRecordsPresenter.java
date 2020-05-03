@@ -1,17 +1,14 @@
 package com.dimowner.audiorecorder.app.lostrecords;
 
-import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
+import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.OnRecordsLostListener;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
-import com.dimowner.audiorecorder.util.FileUtil;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,10 +41,7 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override
 					public void run() {
-						ArrayList<RecordItem> list = new ArrayList<>();
-						for (Record r : lostRecords) {
-							list.add(new RecordItem(r.getId(), r.getName(), r.getDuration(), r.getPath(), r.getCreated()));
-						}
+						List<RecordItem> list = Mapper.toRecordItemList(lostRecords);
 						if (view != null) {
 							if (list.isEmpty()) {
 								view.showEmpty();
@@ -104,26 +98,9 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 	}
 
 	@Override
-	public void onRecordInfo(String name, long duration, String location, long created) {
-		String format;
-		if (location.contains(AppConstants.M4A_EXTENSION)) {
-			format = AppConstants.M4A_EXTENSION;
-		} else if (location.contains(AppConstants.WAV_EXTENSION)) {
-			format = AppConstants.WAV_EXTENSION;
-		} else {
-			format = "";
-		}
+	public void onRecordInfo(RecordInfo info) {
 		if (view != null) {
-			view.showRecordInfo(new RecordInfo(
-					FileUtil.removeFileExtension(name),
-					format,
-					duration/1000,
-					new File(location).length(),
-					location,
-					created,
-					0,
-					0,
-					0));
+			view.showRecordInfo(info);
 		}
 	}
 

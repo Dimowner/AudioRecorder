@@ -28,12 +28,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.lostrecords.RecordItem;
 import com.dimowner.audiorecorder.util.AndroidUtils;
-import com.dimowner.audiorecorder.util.FileUtil;
 
 import java.util.List;
 
@@ -98,7 +98,7 @@ public class TrashActivity extends Activity implements TrashContract.View {
 		adapter.setOnItemClickListener(new TrashAdapter.OnItemClickListener() {
 			@Override
 			public void onItemClick(RecordItem record) {
-				presenter.onRecordInfo(FileUtil.removeFileExtension(record.getName()), record.getDuration()/1000, record.getPath(), record.getCreated());
+				presenter.onRecordInfo(Mapper.toRecordInfo(record));
 			}
 
 			@Override
@@ -107,7 +107,7 @@ public class TrashActivity extends Activity implements TrashContract.View {
 						TrashActivity.this,
 						R.drawable.ic_delete_forever,
 						R.string.warning,
-						getApplicationContext().getString(R.string.delete_record_forever, FileUtil.removeFileExtension(record.getName())),
+						getApplicationContext().getString(R.string.delete_record_forever, record.getName()),
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
@@ -123,7 +123,7 @@ public class TrashActivity extends Activity implements TrashContract.View {
 						TrashActivity.this,
 						R.drawable.ic_restore_from_trash,
 						R.string.warning,
-						getApplicationContext().getString(R.string.restore_record, FileUtil.removeFileExtension(record.getName())),
+						getApplicationContext().getString(R.string.restore_record, record.getName()),
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {

@@ -61,6 +61,7 @@ import com.dimowner.audiorecorder.app.records.RecordsActivity;
 import com.dimowner.audiorecorder.app.settings.SettingsActivity;
 import com.dimowner.audiorecorder.app.welcome.WelcomeActivity;
 import com.dimowner.audiorecorder.app.widget.WaveformView;
+import com.dimowner.audiorecorder.audio.AudioDecoder;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
@@ -82,6 +83,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Guidelines
 // TODO: Stop infinite loop when pause WAV recording
 // TODO: Report some sensitive error to Crashlytics manually.
+// TODO: Add data migration to local database, remove extensions from name, sample rate, format, bitrate...
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -695,8 +697,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			container.addView(createCheckerView());
 		}
 
-		final String fileName = FileUtil.removeFileExtension(file.getName());
-		editText.setText(fileName);
+		final RecordInfo info = AudioDecoder.readRecordInfo(file);
+		editText.setText(info.getName());
 
 		AlertDialog alertDialog = new AlertDialog.Builder(this)
 				.setTitle(R.string.record_name)
@@ -704,8 +706,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				.setPositiveButton(R.string.btn_save, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						String newName = editText.getText().toString();
-						if (!fileName.equalsIgnoreCase(newName)) {
-							presenter.renameRecord(recordId, newName, needDecode);
+						if (!info.getName().equalsIgnoreCase(newName)) {
+							presenter.renameRecord(recordId, newName, info.getFormat(), needDecode);
 						}
 						dialog.dismiss();
 					}

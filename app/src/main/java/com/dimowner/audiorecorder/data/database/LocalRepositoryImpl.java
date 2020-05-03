@@ -23,6 +23,7 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
+import com.dimowner.audiorecorder.util.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -129,7 +130,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 			File file = new File(path);
 			Record record = new Record(
 					Record.NO_ID,
-					file.getName(),
+					FileUtil.removeFileExtension(file.getName()),
 					0, //mills
 					file.lastModified(),
 					new Date().getTime(),

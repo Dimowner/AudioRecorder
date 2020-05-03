@@ -34,7 +34,7 @@ public interface TrashContract {
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<TrashContract.View> {
-		void onRecordInfo(String name, long duration, String location, long created);
+		void onRecordInfo(RecordInfo info);
 		void deleteRecordFromTrash(final int id, final String path);
 		void deleteAllRecordsFromTrash();
 		void restoreRecordFromTrash(final int id);

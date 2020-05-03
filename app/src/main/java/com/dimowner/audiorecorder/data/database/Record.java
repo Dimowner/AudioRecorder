@@ -16,6 +16,8 @@
 
 package com.dimowner.audiorecorder.data.database;
 
+import com.dimowner.audiorecorder.AppConstants;
+
 import java.util.Arrays;
 
 import androidx.annotation.NonNull;
@@ -115,6 +117,10 @@ public class Record {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getNameWithExtension() {
+		return name + AppConstants.EXTENSION_SEPARATOR + format;
 	}
 
 	public long getCreated() {

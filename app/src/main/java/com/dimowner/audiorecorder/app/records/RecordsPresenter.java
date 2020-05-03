@@ -297,7 +297,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	}
 
 	@Override
-	public void renameRecord(final long id, String n) {
+	public void renameRecord(final long id, String n, final String extension) {
 		if (id < 0 || n == null || n.isEmpty()) {
 			AndroidUtils.runOnUIThread(new Runnable() {
 				@Override public void run() {
@@ -313,19 +313,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			@Override public void run() {
 				Record rec2 = localRepository.getRecord((int)id);
 				if (rec2 != null) {
-					String nameWithExt;
-					switch (prefs.getSettingRecordingFormat()) {
-						default:
-						case AppConstants.FORMAT_M4A:
-							nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.M4A_EXTENSION;
-							break;
-						case AppConstants.FORMAT_WAV:
-							nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.WAV_EXTENSION;
-							break;
-						case AppConstants.FORMAT_3GP:
-							nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.GP3_EXTENSION;
-							break;
-					}
+					String nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + extension;
 					File file = new File(rec2.getPath());
 					File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
 
@@ -339,23 +327,10 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 							}
 						});
 					} else {
-						String ext;
-						switch (prefs.getSettingRecordingFormat()) {
-							default:
-							case AppConstants.FORMAT_M4A:
-								ext = AppConstants.M4A_EXTENSION;
-								break;
-							case AppConstants.FORMAT_WAV:
-								ext = AppConstants.WAV_EXTENSION;
-								break;
-							case AppConstants.FORMAT_3GP:
-								ext = AppConstants.GP3_EXTENSION;
-								break;
-						}
-						if (fileRepository.renameFile(rec2.getPath(), name, ext)) {
+						if (fileRepository.renameFile(rec2.getPath(), name, extension)) {
 							activeRecord = new Record(
 									rec2.getId(),
-									nameWithExt,
+									name,
 									rec2.getDuration(),
 									rec2.getCreated(),
 									rec2.getAdded(),
@@ -452,7 +427,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 								if (rec != null) {
 									view.showWaveForm(rec.getAmps(), rec.getDuration());
 									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
-									view.showRecordName(FileUtil.removeFileExtension(rec.getName()));
+									view.showRecordName(rec.getName());
 									if (rec.isBookmarked()) {
 										view.bookmarksSelected();
 									} else {
@@ -521,7 +496,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 									view.addRecords(Mapper.recordsToListItems(recordList), order);
 									view.showWaveForm(rec.getAmps(), rec.getDuration());
 									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
-									view.showRecordName(FileUtil.removeFileExtension(rec.getName()));
+									view.showRecordName(rec.getName());
 									if (rec.isBookmarked()) {
 										view.bookmarksSelected();
 									} else {
@@ -563,7 +538,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 									if (rec != null) {
 										view.showWaveForm(rec.getAmps(), rec.getDuration());
 										view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
-										view.showRecordName(FileUtil.removeFileExtension(rec.getName()));
+										view.showRecordName(rec.getName());
 									}
 									view.hideProgress();
 									view.hidePanelProgress();
@@ -683,7 +658,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 								if (view != null) {
 									view.showWaveForm(rec.getAmps(), rec.getDuration());
 									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
-									view.showRecordName(FileUtil.removeFileExtension(rec.getName()));
+									view.showRecordName(rec.getName());
 									callback.onSuccess();
 									if (rec.isBookmarked()) {
 										view.addedToBookmarks(rec.getId(), true);
@@ -712,6 +687,11 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	}
 
 	@Override
+	public void onRenameClick() {
+		view.showRename(activeRecord);
+	}
+
+	@Override
 	public long getActiveRecordId() {
 		return prefs.getActiveRecord();
 	}
@@ -728,24 +708,16 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	@Override
 	public String getRecordName() {
 		if (activeRecord != null) {
-			return FileUtil.removeFileExtension(activeRecord.getName());
+			return activeRecord.getName();
 		} else {
 			return "Record";
 		}
 	}
 
 	@Override
-	public void onRecordInfo(String name, long duration, String location, long created) {
-		String format;
-		if (location.contains(AppConstants.M4A_EXTENSION)) {
-			format = AppConstants.M4A_EXTENSION;
-		} else if (location.contains(AppConstants.WAV_EXTENSION)) {
-			format = AppConstants.WAV_EXTENSION;
-		} else {
-			format = "";
-		}
+	public void onRecordInfo(RecordInfo info) {
 		if (view != null) {
-			view.showRecordInfo(new RecordInfo(name, format, duration, new File(location).length(), location, created, 0, 0, 0));
+			view.showRecordInfo(info);
 		}
 	}
 

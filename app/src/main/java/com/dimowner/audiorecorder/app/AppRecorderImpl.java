@@ -104,7 +104,7 @@ public class AppRecorderImpl implements AppRecorder {
 				recordingsTasks.postRunnable(new Runnable() {
 					@Override
 					public void run() {
-						RecordInfo info = AudioDecoder.readRecordInfo(output.getAbsolutePath());
+						RecordInfo info = AudioDecoder.readRecordInfo(output);
 						long duration = info.getDuration();
 						if (duration <= 0) {
 							duration = recordingDuration;

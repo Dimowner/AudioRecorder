@@ -55,6 +55,8 @@ public interface RecordsContract {
 
 		void showRecordName(String name);
 
+		void showRename(Record record);
+
 		void onDeleteRecord(long id);
 
 		void hidePlayPanel();
@@ -94,7 +96,7 @@ public interface RecordsContract {
 
 		void deleteRecord(long id, String path);
 
-		void renameRecord(long id, String name);
+		void renameRecord(long id, String name, String extension);
 
 		void loadRecords();
 
@@ -110,13 +112,15 @@ public interface RecordsContract {
 
 		void setActiveRecord(long id, Callback callback);
 
+		void onRenameClick();
+
 		long getActiveRecordId();
 
 		String getActiveRecordPath();
 
 		String getRecordName();
 
-		void onRecordInfo(String name, long duration, String location, long created);
+		void onRecordInfo(RecordInfo info);
 
 		void disablePlaybackProgressListener();
 

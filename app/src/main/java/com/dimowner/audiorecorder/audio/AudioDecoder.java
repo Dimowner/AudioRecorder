@@ -24,6 +24,7 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.IntArrayList;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
+import com.dimowner.audiorecorder.util.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -240,12 +241,11 @@ public class AudioDecoder {
 		decoder.start();
 	}
 
-	public static RecordInfo readRecordInfo(@NonNull final String path)
+	public static RecordInfo readRecordInfo(@NonNull final File inputFile)
 			throws OutOfMemoryError, IllegalStateException {
-		File inputFile = new File(path);
 		try {
 			if (!inputFile.exists()) {
-				throw new java.io.FileNotFoundException(path);
+				throw new java.io.FileNotFoundException(inputFile.getAbsolutePath());
 			}
 			String name = inputFile.getName().toLowerCase();
 			String[] components = name.split("\\.");
@@ -316,11 +316,22 @@ public class AudioDecoder {
 				mimeType = "";
 			}
 
-			return new RecordInfo(inputFile.getName(), readFileFormat(inputFile, mimeType), duration, inputFile.length(),
-					inputFile.getAbsolutePath(), inputFile.lastModified(), sampleRate, channelCount, bitrate);
+			return new RecordInfo(
+					FileUtil.removeFileExtension(inputFile.getName()),
+					readFileFormat(inputFile, mimeType),
+					duration,
+					inputFile.length(),
+					inputFile.getAbsolutePath(),
+					inputFile.lastModified(),
+					sampleRate,
+					channelCount,
+					bitrate
+			);
 		} catch (Exception e) {
-			return new RecordInfo(inputFile.getName(), "", 0, inputFile.length(),
-					inputFile.getAbsolutePath(), inputFile.lastModified(), 0, 0, 0);
+			return new RecordInfo(
+					FileUtil.removeFileExtension(inputFile.getName()), "", 0, inputFile.length(),
+					inputFile.getAbsolutePath(), inputFile.lastModified(), 0, 0, 0
+			);
 		}
 	}
 

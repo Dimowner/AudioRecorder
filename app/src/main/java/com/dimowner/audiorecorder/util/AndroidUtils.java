@@ -50,6 +50,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.lostrecords.LostRecordsActivity;
 import com.dimowner.audiorecorder.app.lostrecords.RecordItem;
@@ -515,11 +516,10 @@ public class AndroidUtils {
 			positiveBtn.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					ArrayList<RecordItem> list = new ArrayList<>();
-					for (Record r : lostRecords) {
-						list.add(new RecordItem(r.getId(), r.getName(), r.getDuration(), r.getPath(), r.getCreated()));
-					}
-					activity.startActivity(LostRecordsActivity.getStartIntent(activity.getApplicationContext(), list));
+					activity.startActivity(LostRecordsActivity.getStartIntent(
+							activity.getApplicationContext(),
+							(ArrayList<RecordItem>) Mapper.toRecordItemList(lostRecords))
+					);
 					dialog.dismiss();
 				}
 			});

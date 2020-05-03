@@ -51,6 +51,7 @@ import android.widget.Toast;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
+import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.DownloadService;
 import com.dimowner.audiorecorder.app.PlaybackService;
@@ -66,7 +67,6 @@ import com.dimowner.audiorecorder.util.AnimationUtil;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -258,17 +258,21 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 						AndroidUtils.shareAudioFile(getApplicationContext(), item.getPath(), item.getName());
 						break;
 					case R.id.menu_info:
-						presenter.onRecordInfo(item.getName(), item.getDuration(), item.getPath(), item.getCreated());
+						presenter.onRecordInfo(Mapper.toRecordInfo(item));
 						break;
 					case R.id.menu_rename:
-						setRecordName(item.getId(), new File(item.getPath()));
+						setRecordName(item.getId(), item.getName(), item.getFormat());
 						break;
 					case R.id.menu_open_with:
 						AndroidUtils.openAudioFile(getApplicationContext(), item.getPath(), item.getName());
 						break;
 					case R.id.menu_download:
 						//Download record file with Service
-						DownloadService.startNotification(getApplicationContext(), item.getNameFull(), item.getPath());
+						DownloadService.startNotification(
+								getApplicationContext(),
+								item.getNameWithExtension(),
+								item.getPath()
+						);
 						break;
 					case R.id.menu_delete:
 						AndroidUtils.showSimpleDialog(
@@ -486,9 +490,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				showMenu(view);
 				break;
 			case R.id.txt_name:
-				if (presenter.getActiveRecordId() != -1) {
-					setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()));
-				}
+				presenter.onRenameClick();
 				break;
 		}
 	}
@@ -690,6 +692,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
+	public void showRename(Record record) {
+		setRecordName(record.getId(), record.getName(), record.getFormat());
+	}
+
+	@Override
 	public void onDeleteRecord(long id) {
 //		adapter.deleteItem(id);
 		presenter.loadRecords();
@@ -802,7 +809,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
 	}
 
-	public void setRecordName(final long recordId, File file) {
+	public void setRecordName(final long recordId, final String name, final String extension) {
 		//Create dialog layout programmatically.
 		LinearLayout container = new LinearLayout(getApplicationContext());
 		container.setOrientation(LinearLayout.VERTICAL);
@@ -834,8 +841,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		editText.setLayoutParams(params);
 		container.addView(editText);
 
-		final String fileName = FileUtil.removeFileExtension(file.getName());
-		editText.setText(fileName);
+		editText.setText(name);
 
 		AlertDialog alertDialog = new AlertDialog.Builder(this)
 				.setTitle(R.string.record_name)
@@ -843,8 +849,8 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				.setPositiveButton(R.string.btn_save, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						String newName = editText.getText().toString();
-						if (!fileName.equalsIgnoreCase(newName)) {
-							presenter.renameRecord(recordId, newName);
+						if (!name.equalsIgnoreCase(newName)) {
+							presenter.renameRecord(recordId, newName, extension);
 							presenter.loadRecords();
 						}
 						dialog.dismiss();

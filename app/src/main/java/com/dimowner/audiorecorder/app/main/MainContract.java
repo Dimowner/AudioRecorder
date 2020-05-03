@@ -91,7 +91,7 @@ public interface MainContract {
 		void seekPlayback(int px);
 		void stopPlayback();
 
-		void renameRecord(long id, String name, boolean needDecode);
+		void renameRecord(long id, String name, String extension, boolean needDecode);
 
 		void decodeRecord(long id);
 

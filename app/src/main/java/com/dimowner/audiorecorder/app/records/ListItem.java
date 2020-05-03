@@ -19,7 +19,10 @@ package com.dimowner.audiorecorder.app.records;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.util.TimeUtils;
+
+import java.util.Arrays;
 
 public class ListItem implements Parcelable {
 
@@ -32,11 +35,15 @@ public class ListItem implements Parcelable {
 	private final long id;
 	private final int type;
 	private final String name;
-	private final String nameFull;
+	private final String format;
 	private final String path;
 	private final String description;
 	private final String durationStr;
 	private final long duration;
+	private final long size;
+	private final int sampleRate;
+	private final int channelCount;
+	private final int bitrate;
 	private final long created;
 	private final long added;
 	private final String addedTime;
@@ -45,36 +52,40 @@ public class ListItem implements Parcelable {
 	private final String avatar_url;
 	private int[] amps;
 
-
-	public ListItem(long id, int type, String name, String nameFull, String description, long duration,
-						 long created, long added, String path, boolean bookmarked, int[] amps) {
+	public ListItem(long id, int type, String name, String format, String description, long duration,
+						 long size, long created, long added, String path, int sampleRate, int channelCount, int bitrate,
+						 boolean bookmarked, int[] amps) {
 		this.id = id;
 		this.type = type;
 		this.name = name;
-		this.nameFull = nameFull;
+		this.format = format;
 		this.description = description;
 		this.created = created;
 		this.createTime = convertTimeToStr(created);
 		this.added = added;
 		this.addedTime = convertTimeToStr(added);
 		this.duration = duration;
-		this.durationStr = convertDurationToStr(duration);
+		this.size = size;
+		this.durationStr = convertDurationToStr(duration/1000);
 		this.path = path;
+		this.sampleRate = sampleRate;
+		this.channelCount = channelCount;
+		this.bitrate = bitrate;
 		this.bookmarked = bookmarked;
 		this.avatar_url = "";
 		this.amps = amps;
 	}
 
 	public static ListItem createHeaderItem() {
-		return new ListItem(-1, ListItem.ITEM_TYPE_HEADER, "HEADER", "", "", 0, 0, 0, "", false, null);
+		return new ListItem(-1, ListItem.ITEM_TYPE_HEADER, "HEADER", "", "", 0, 0, 0, 0, "", 0, 0, 0, false, null);
 	}
 
 	public static ListItem createFooterItem() {
-		return new ListItem(-1, ListItem.ITEM_TYPE_FOOTER, "FOOTER", "", "", 0, 0, 0, "", false, null);
+		return new ListItem(-1, ListItem.ITEM_TYPE_FOOTER, "FOOTER", "", "", 0, 0, 0, 0, "", 0, 0, 0, false, null);
 	}
 
 	public static ListItem createDateItem(long date) {
-		return new ListItem(-1, ListItem.ITEM_TYPE_DATE, "DATE", "", "", 0, 0, date, "", false, null);
+		return new ListItem(-1, ListItem.ITEM_TYPE_DATE, "DATE", "", "", 0, 0, 0, date, "", 0, 0, 0, false, null);
 	}
 
 	public long getId() {
@@ -85,8 +96,12 @@ public class ListItem implements Parcelable {
 		return name;
 	}
 
-	public String getNameFull() {
-		return nameFull;
+	public String getNameWithExtension() {
+		return name + AppConstants.EXTENSION_SEPARATOR + format;
+	}
+
+	public String getFormat() {
+		return format;
 	}
 
 	public String getDescription() {
@@ -117,8 +132,24 @@ public class ListItem implements Parcelable {
 		return duration;
 	}
 
+	public long getSize() {
+		return size;
+	}
+
 	public String getPath() {
 		return path;
+	}
+
+	public int getSampleRate() {
+		return sampleRate;
+	}
+
+	public int getChannelCount() {
+		return channelCount;
+	}
+
+	public int getBitrate() {
+		return bitrate;
 	}
 
 	public String getImageUrl() {
@@ -151,23 +182,29 @@ public class ListItem implements Parcelable {
 
 	//----- START Parcelable implementation ----------
 	private ListItem(Parcel in) {
-		type = in.readInt();
-		long[] longs = new long[4];
+		int[] ints = new int[4];
+		in.readIntArray(ints);
+		type = ints[0];
+		sampleRate = ints[1];
+		channelCount = ints[2];
+		bitrate = ints[3];
+		long[] longs = new long[5];
 		in.readLongArray(longs);
 		id = longs[0];
-		created = longs[1];
-		duration = longs[2];
-		added = longs[3];
-		createTime = convertTimeToStr(created);
-		durationStr = convertDurationToStr(duration);
-		addedTime = convertTimeToStr(added);
-		String[] data = new String[5];
+		duration = longs[1];
+		size = longs[2];
+		created = longs[3];
+		added = longs[4];
+		String[] data = new String[8];
 		in.readStringArray(data);
 		name = data[0];
-		nameFull = data[1];
-		description = data[2];
-		path = data[3];
-		avatar_url = data[4];
+		format = data[1];
+		path = data[2];
+		description = data[3];
+		durationStr = data[4];
+		addedTime = data[5];
+		createTime = data[6];
+		avatar_url = data[7];
 		in.readIntArray(amps);
 		boolean[] bools = new boolean[1];
 		in.readBooleanArray(bools);
@@ -179,9 +216,9 @@ public class ListItem implements Parcelable {
 	}
 
 	public void writeToParcel(Parcel out, int flags) {
-		out.writeInt(type);
-		out.writeLongArray(new long[] {id, created, duration, added});
-		out.writeStringArray(new String[] {name, nameFull, description, path, avatar_url});
+		out.writeIntArray(new int[] {type, sampleRate, channelCount, bitrate});
+		out.writeLongArray(new long[] {id, duration, size, created, added});
+		out.writeStringArray(new String[] {name, format, path, description, durationStr, addedTime, createTime, avatar_url});
 		out.writeIntArray(amps);
 		out.writeBooleanArray(new boolean[] {bookmarked});
 	}
@@ -198,24 +235,28 @@ public class ListItem implements Parcelable {
 	};
 	//----- END Parcelable implementation ----------
 
-
 	@Override
 	public String toString() {
 		return "ListItem{" +
 				"id=" + id +
 				", type=" + type +
 				", name='" + name + '\'' +
+				", format='" + format + '\'' +
 				", path='" + path + '\'' +
 				", description='" + description + '\'' +
 				", durationStr='" + durationStr + '\'' +
 				", duration=" + duration +
+				", size=" + size +
+				", sampleRate=" + sampleRate +
+				", channelCount=" + channelCount +
+				", bitrate=" + bitrate +
 				", created=" + created +
-				", createTime='" + createTime + '\'' +
 				", added=" + added +
 				", addedTime='" + addedTime + '\'' +
-				", bookmarked='" + bookmarked + '\'' +
+				", createTime='" + createTime + '\'' +
+				", bookmarked=" + bookmarked +
 				", avatar_url='" + avatar_url + '\'' +
-				", amps length='" + amps.length+ '\'' +
+				", amps=" + Arrays.toString(amps) +
 				'}';
 	}
 }

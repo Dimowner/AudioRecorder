@@ -25,6 +25,7 @@ import android.provider.OpenableColumns;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
+import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.AppRecorder;
 import com.dimowner.audiorecorder.app.AppRecorderCallback;
@@ -161,7 +162,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
 						if (view != null) {
 							view.showWaveForm(rec.getAmps(), songDuration);
-							view.showName(FileUtil.removeFileExtension(rec.getName()));
+							view.showName(rec.getName());
 							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
 							view.showOptionsMenu();
 						}
@@ -440,7 +441,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void renameRecord(final long id, final String newName, final boolean needDecode) {
+	public void renameRecord(final long id, final String newName, final String extension, final boolean needDecode) {
 		if (id < 0 || newName == null || newName.isEmpty()) {
 			AndroidUtils.runOnUIThread(new Runnable() {
 				@Override public void run() {
@@ -458,20 +459,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			@Override public void run() {
 				Record record = localRepository.getRecord((int)id);
 				if (record != null) {
-					String nameWithExt;
-					switch (prefs.getSettingRecordingFormat()) {
-						default:
-						case AppConstants.FORMAT_M4A:
-							nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.M4A_EXTENSION;
-							break;
-						case AppConstants.FORMAT_WAV:
-							nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.WAV_EXTENSION;
-							break;
-						case AppConstants.FORMAT_3GP:
-							nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + AppConstants.GP3_EXTENSION;
-							break;
-					}
-
+					String nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + extension;
 					File file = new File(record.getPath());
 					File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
 
@@ -485,23 +473,10 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							}
 						});
 					} else {
-						String ext;
-						switch (prefs.getSettingRecordingFormat()) {
-							default:
-							case AppConstants.FORMAT_M4A:
-								ext = AppConstants.M4A_EXTENSION;
-								break;
-							case AppConstants.FORMAT_WAV:
-								ext = AppConstants.WAV_EXTENSION;
-								break;
-							case AppConstants.FORMAT_3GP:
-								ext = AppConstants.GP3_EXTENSION;
-								break;
-						}
-						if (fileRepository.renameFile(record.getPath(), name, ext)) {
+						if (fileRepository.renameFile(record.getPath(), name, extension)) {
 							MainPresenter.this.record = new Record(
 									record.getId(),
-									nameWithExt,
+									name,
 									record.getDuration(),
 									record.getCreated(),
 									record.getAdded(),
@@ -609,7 +584,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							public void run() {
 								if (view != null) {
 									view.showWaveForm(rec.getAmps(), songDuration);
-									view.showName(FileUtil.removeFileExtension(rec.getName()));
+									view.showName(rec.getName());
 									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
 									view.showOptionsMenu();
 									view.hideProgress();
@@ -668,7 +643,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public String getActiveRecordName() {
 		if (record != null) {
-			return FileUtil.removeFileExtension(record.getName());
+			return record.getName();
 		} else {
 			return null;
 		}
@@ -677,7 +652,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public String getActiveRecordFullName() {
 		if (record != null) {
-			return record.getName();
+			return record.getNameWithExtension();
 		} else {
 			return null;
 		}
@@ -734,17 +709,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	public void onRecordInfo() {
 		Record rec = record;
 		if (rec != null) {
-			view.showRecordInfo(new RecordInfo(
-					rec.getName(),
-					rec.getFormat(),
-					rec.getDuration(),
-					rec.getSize(),
-					rec.getPath(),
-					rec.getCreated(),
-					rec.getSampleRate(),
-					rec.getChannelCount(),
-					rec.getBitrate()
-			));
+			view.showRecordInfo(Mapper.toRecordInfo(rec));
 		}
 	}
 
@@ -777,12 +742,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 					File newFile = fileRepository.provideRecordFile(name);
 					if (FileUtil.copyFile(fileDescriptor, newFile)) {
-						RecordInfo info = AudioDecoder.readRecordInfo(newFile.getAbsolutePath());
+						RecordInfo info = AudioDecoder.readRecordInfo(newFile);
 
 						//Do 2 step import: 1) Import record with empty waveform. 2) Process and update waveform in background.
 						Record r = new Record(
 								Record.NO_ID,
-								newFile.getName(),
+								FileUtil.removeFileExtension(newFile.getName()),
 								info.getDuration() >= 0 ? info.getDuration() : 0,
 								newFile.lastModified(),
 								new Date().getTime(),
@@ -809,7 +774,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 									if (view != null) {
 										audioPlayer.stop();
 										view.showWaveForm(rec.getAmps(), songDuration);
-										view.showName(FileUtil.removeFileExtension(rec.getName()));
+										view.showName(rec.getName());
 										view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
 										view.hideProgress();
 										view.hideImportProgress();
