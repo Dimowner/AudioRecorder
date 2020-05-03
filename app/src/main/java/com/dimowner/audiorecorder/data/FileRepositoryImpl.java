@@ -71,13 +71,13 @@ public class FileRepositoryImpl implements FileRepository {
 		switch (prefs.getSettingRecordingFormat()) {
 			default:
 			case AppConstants.FORMAT_M4A:
-				recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.M4A_EXTENSION));
+				recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.FORMAT_M4A));
 				break;
 			case AppConstants.FORMAT_WAV:
-				recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.WAV_EXTENSION));
+				recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.FORMAT_WAV));
 				break;
 			case AppConstants.FORMAT_3GP:
-				recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.GP3_EXTENSION));
+				recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.FORMAT_3GP));
 				break;
 		}
 
@@ -201,6 +201,8 @@ public class FileRepositoryImpl implements FileRepository {
 
 	private long spaceToTimeSecs(long spaceBytes, String recordingFormat, int sampleRate, int bitrate, int channels) {
 		switch (recordingFormat) {
+			case AppConstants.FORMAT_3GP:
+				return 1000 * (spaceBytes/(AppConstants.RECORD_ENCODING_BITRATE_12000/8));
 			case AppConstants.FORMAT_M4A:
 				return 1000 * (spaceBytes/(bitrate/8));
 			case AppConstants.FORMAT_WAV:

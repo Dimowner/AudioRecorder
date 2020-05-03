@@ -16,6 +16,8 @@
 
 package com.dimowner.audiorecorder.app.settings;
 
+import android.content.Context;
+
 import com.dimowner.audiorecorder.Contract;
 
 import java.io.File;
@@ -55,9 +57,12 @@ public class SettingsContract {
 
 		void showDialogPrivateDirInfo();
 
+		void updateRecordingInfo(String format);
+
 		void showSizePerMin(String size);
 		void showInformation(String formatKey, int sampleRate, int bitrate, int channelsCount);
 		void showInformation(String formatKey, int sampleRate, int channelsCount);
+		void showInformation3gp(String formatKey, int sampleRate, int bitrate, int channelsCount);
 
 		void showRecordsLocation(String location);
 		void hideRecordsLocation();
@@ -68,7 +73,7 @@ public class SettingsContract {
 
 		void loadSettings();
 
-		void storeInPublicDir(boolean b);
+		void storeInPublicDir(Context context, boolean b);
 
 		void keepScreenOn(boolean b);
 

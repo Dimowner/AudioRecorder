@@ -341,7 +341,7 @@ public class AudioDecoder {
 			return AppConstants.FORMAT_M4A;
 		} else if (name.contains(AppConstants.FORMAT_WAV) || (mime != null && mime.contains("audio") && mime.contains("raw"))) {
 			return AppConstants.FORMAT_WAV;
-		} else if (name.contains(AppConstants.FORMAT_3GP)) {
+		} else if (name.contains(AppConstants.FORMAT_3GP) || (mime != null && mime.contains("audio") && mime.contains("3gpp"))) {
 			return AppConstants.FORMAT_3GP;
 		} else if (name.contains(AppConstants.FORMAT_3GPP)) {
 			return AppConstants.FORMAT_3GPP;

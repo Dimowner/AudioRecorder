@@ -76,7 +76,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 			recorder.setAudioChannels(channelCount);
 			recorder.setAudioSamplingRate(sampleRate);
 			recorder.setAudioEncodingBitRate(bitrate);
-			recorder.setMaxDuration(-1); //Duration unlimited
+			recorder.setMaxDuration(-1); //Duration unlimited or use RECORD_MAX_DURATION
 			recorder.setOutputFile(recordFile.getAbsolutePath());
 			try {
 				recorder.prepare();

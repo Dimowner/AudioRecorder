@@ -39,6 +39,8 @@ public class SetupContract {
 		void showInformation(int infoResId);
 
 		void showSizePerMin(String size);
+
+		void updateRecordingInfo(String format);
 	}
 
 	public interface UserActionsListener extends Contract.UserActionsListener<SetupContract.View> {

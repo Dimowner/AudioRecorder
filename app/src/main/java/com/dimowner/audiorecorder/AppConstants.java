@@ -27,9 +27,6 @@ public class AppConstants {
 
 	public static final String APPLICATION_NAME = "AudioRecorder";
 	public static final String RECORDS_DIR = "records";
-	public static final String M4A_EXTENSION = "m4a";
-	public static final String WAV_EXTENSION = "wav";
-	public static final String GP3_EXTENSION = "3gp";
 	public static final String EXTENSION_SEPARATOR = ".";
 	public static final String BASE_RECORD_NAME = "Record-";
 	public static final String BASE_RECORD_NAME_SHORT = "Rec-";
@@ -105,6 +102,7 @@ public class AppConstants {
 	public static final int RECORD_SAMPLE_RATE_32000 = 32000;
 	public static final int RECORD_SAMPLE_RATE_48000 = 48000;
 
+	public static final int RECORD_ENCODING_BITRATE_12000 = 12000; //Bitrate for 3gp format
 	public static final int RECORD_ENCODING_BITRATE_24000 = 24000;
 	public static final int RECORD_ENCODING_BITRATE_48000 = 48000;
 	public static final int RECORD_ENCODING_BITRATE_96000 = 96000;

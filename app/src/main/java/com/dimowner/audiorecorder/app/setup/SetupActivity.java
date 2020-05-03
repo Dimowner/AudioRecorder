@@ -99,8 +99,9 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 		formatSetting = findViewById(R.id.setting_recording_format);
 		final String[] formats = getResources().getStringArray(R.array.formats2);
 		final String[] formatsKeys = new String[] {
-			AppConstants.FORMAT_M4A,
-			AppConstants.FORMAT_WAV
+				AppConstants.FORMAT_M4A,
+				AppConstants.FORMAT_WAV,
+				AppConstants.FORMAT_3GP
 		};
 		formatSetting.setData(formats, formatsKeys);
 		formatSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
@@ -338,6 +339,38 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 	@Override
 	public void showSizePerMin(String size) {
 		txtSizePerMin.setText(getString(R.string.size_per_min, size));
+	}
+
+	@Override
+	public void updateRecordingInfo(String format) {
+		String[] sampleRateKeys = new String[] {
+				SettingsMapper.SAMPLE_RATE_22050,
+				SettingsMapper.SAMPLE_RATE_32000,
+				SettingsMapper.SAMPLE_RATE_44100,
+				SettingsMapper.SAMPLE_RATE_48000
+		};
+		if (format.equals(AppConstants.FORMAT_3GP)) {
+			sampleRateSetting.removeChip(sampleRateKeys);
+			if (sampleRateSetting.getSelected() == null) {
+				sampleRateSetting.setSelected(SettingsMapper.SAMPLE_RATE_16000);
+			}
+		} else {
+			String[] sampleRates = getResources().getStringArray(R.array.sample_rates2);
+			String[] values = new String[] {
+					sampleRates[2],
+					sampleRates[3],
+					sampleRates[4],
+					sampleRates[5]
+			};
+			sampleRateSetting.addChip(sampleRateKeys, values);
+		}
+
+		if (format.equals(AppConstants.FORMAT_3GP)) {
+			channelsSetting.removeChip(new String[] {SettingsMapper.CHANNEL_COUNT_STEREO});
+			channelsSetting.setSelected(SettingsMapper.CHANNEL_COUNT_MONO);
+		} else {
+			channelsSetting.addChip(new String[] {SettingsMapper.CHANNEL_COUNT_STEREO}, new String[] {getString(R.string.stereo)});
+		}
 	}
 
 	@Override

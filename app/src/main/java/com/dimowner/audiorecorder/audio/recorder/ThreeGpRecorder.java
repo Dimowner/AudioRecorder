@@ -30,10 +30,9 @@ import java.util.TimerTask;
 
 import timber.log.Timber;
 
-import static com.dimowner.audiorecorder.AppConstants.RECORD_MAX_DURATION;
 import static com.dimowner.audiorecorder.AppConstants.VISUALIZATION_INTERVAL;
 
-public class GpRecorder implements RecorderContract.Recorder {
+public class ThreeGpRecorder implements RecorderContract.Recorder {
 
 	private MediaRecorder recorder = null;
 	private File recordFile = null;
@@ -47,18 +46,18 @@ public class GpRecorder implements RecorderContract.Recorder {
 	private RecorderContract.RecorderCallback recorderCallback;
 
 	private static class RecorderSingletonHolder {
-		private static GpRecorder singleton = new GpRecorder();
+		private static ThreeGpRecorder singleton = new ThreeGpRecorder();
 
-		public static GpRecorder getSingleton() {
+		public static ThreeGpRecorder getSingleton() {
 			return RecorderSingletonHolder.singleton;
 		}
 	}
 
-	public static GpRecorder getInstance() {
+	public static ThreeGpRecorder getInstance() {
 		return RecorderSingletonHolder.getSingleton();
 	}
 
-	private GpRecorder() { }
+	private ThreeGpRecorder() { }
 
 	@Override
 	public void setRecorderCallback(RecorderContract.RecorderCallback callback) {
@@ -72,11 +71,12 @@ public class GpRecorder implements RecorderContract.Recorder {
 			recorder = new MediaRecorder();
 			recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 			recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-			recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-//			recorder.setAudioChannels(channelCount);
-//			recorder.setAudioSamplingRate(sampleRate);
-//			recorder.setAudioEncodingBitRate(bitrate);
-			recorder.setMaxDuration(-1); //Duration unlimited
+			if (sampleRate > 8000) {
+				recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB); //AMR_WR records with 16000 Hz frequency, ~23 kbps bitrate
+			} else {
+				recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);  //AMR_NB records with 8000 Hz frequency, ~12 kbps bitrate
+			}
+			recorder.setMaxDuration(-1); //Duration unlimited or use RECORD_MAX_DURATION
 			recorder.setOutputFile(recordFile.getAbsolutePath());
 			try {
 				recorder.prepare();

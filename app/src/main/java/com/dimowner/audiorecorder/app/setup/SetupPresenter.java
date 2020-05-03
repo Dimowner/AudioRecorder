@@ -37,6 +37,7 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 	@Override
 	public void loadSettings() {
 		if (view != null) {
+			view.updateRecordingInfo(prefs.getSettingRecordingFormat());
 			view.showChannelCount(prefs.getSettingChannelCount());
 			String recordingFormatKey = prefs.getSettingRecordingFormat();
 			view.showRecordingFormat(recordingFormatKey);
@@ -159,6 +160,14 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 					view.showInformation(R.string.info_m4a);
 				}
 				break;
+			case AppConstants.FORMAT_3GP:
+				if (view != null) {
+					view.showInformation(R.string.info_3gp);
+				}
+				break;
+		}
+		if (view != null) {
+			view.updateRecordingInfo(formatKey);
 		}
 		updateSizePerMin();
 	}
@@ -196,6 +205,7 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 
 	private void updateRecordingFormat(String formatKey) {
 		switch (formatKey) {
+			case AppConstants.FORMAT_3GP:
 			case AppConstants.FORMAT_WAV:
 				if (view != null) {
 					view.hideBitrateSelector();
@@ -206,7 +216,6 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 				if (view != null) {
 					view.showInformation(R.string.info_m4a);
 				}
-			case AppConstants.FORMAT_3GP:
 			default:
 				if (view != null) {
 					view.showBitrateSelector();
@@ -217,16 +226,26 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 	private void updateSizePerMin() {
 		String format = prefs.getSettingRecordingFormat();
 		int sampleRate = prefs.getSettingSampleRate();
-		int bitrate = prefs.getSettingBitrate();
-		int channelsCount = prefs.getSettingChannelCount();
-		if (view != null) {
-			view.showSizePerMin(decimalFormat.format(sizePerMin(format, sampleRate, bitrate, channelsCount)/1000000f));
+		if (format.equals(AppConstants.FORMAT_3GP)) {
+			view.showSizePerMin(
+					decimalFormat.format(
+							sizePerMin(format, sampleRate, AppConstants.RECORD_ENCODING_BITRATE_12000,
+									AppConstants.RECORD_AUDIO_MONO) / 1000000f
+					)
+			);
+		} else {
+			int bitrate = prefs.getSettingBitrate();
+			int channelsCount = prefs.getSettingChannelCount();
+			if (view != null) {
+				view.showSizePerMin(decimalFormat.format(sizePerMin(format, sampleRate, bitrate, channelsCount) / 1000000f));
+			}
 		}
 	}
 
 	private long sizePerMin(String recordingFormat, int sampleRate, int bitrate, int channels) {
 		switch (recordingFormat) {
 			case AppConstants.FORMAT_M4A:
+			case AppConstants.FORMAT_3GP:
 				return 60 * (bitrate/8);
 			case AppConstants.FORMAT_WAV:
 				return 60 * (sampleRate * channels * 2);

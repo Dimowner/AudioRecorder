@@ -22,7 +22,6 @@
 	<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:animateLayoutChanges="true"
 			android:orientation="vertical">
 
 		<LinearLayout
@@ -78,6 +77,7 @@
 		<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
+				android:layout_marginBottom="@dimen/spacing_small"
 				android:orientation="horizontal">
 
 			<TextView
@@ -106,16 +106,15 @@
 				android:id="@+id/txt_records_location"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:gravity="start"
-				android:textColor="@color/text_secondary_light"
+				android:background="?android:selectableItemBackground"
 				android:fontFamily="sans-serif-light"
+				android:gravity="start"
 				android:paddingStart="@dimen/spacing_xxdouble"
 				android:paddingEnd="@dimen/spacing_small"
-				android:paddingTop="@dimen/spacing_small"
-				android:paddingBottom="@dimen/spacing_medium"
-				android:background="?android:selectableItemBackground"
+				android:paddingBottom="@dimen/spacing_small"
+				android:textColor="@color/text_secondary_light"
 				android:textSize="@dimen/text_normal"
-				tools:text="@string/records_location"/>
+				tools:text="@string/records_location" />
 
 		<LinearLayout
 				android:layout_width="match_parent"

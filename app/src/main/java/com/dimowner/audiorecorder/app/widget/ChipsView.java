@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.app.widget;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -25,6 +26,7 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -45,6 +47,7 @@ import androidx.core.content.ContextCompat;
 public class ChipsView extends FrameLayout {
 
 	private final int DRAWABLE_WIDTH;
+	private static final int HEIGHT_ANIMATION_DURATION = 300;
 
 	private int chipColor = Color.GREEN;
 	private int rippleColor = Color.RED;
@@ -61,6 +64,8 @@ public class ChipsView extends FrameLayout {
 	private float posY = 0;
 	private boolean orderEffective = true;
 	private boolean multiSelect = true;
+
+	private ValueAnimator heightAnimator;
 
 	{
 		float DENSITY = AndroidUtils.getDisplayDensity();
@@ -148,6 +153,7 @@ public class ChipsView extends FrameLayout {
 		textView.setText(name);
 		textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, chipTextSize);
 		textView.setId(id);
+		textView.setVisibility(INVISIBLE);
 		textView.setTypeface(textView.getTypeface(), Typeface.NORMAL);
 		textView.setOnClickListener(new OnClickListener() {
 			@Override
@@ -186,6 +192,15 @@ public class ChipsView extends FrameLayout {
 			setSelected(getContext(), chips.get(pos).getView(), chips.get(pos).getColor());
 			chips.get(pos).setSelected(true);
 		}
+	}
+
+	public String getSelected() {
+		for (int i = 0; i < chips.size(); i++) {
+			if (chips.get(i).isSelected) {
+				return chips.get(i).getKey();
+			}
+		}
+		return null;
 	}
 
 	private void setSelected(Context context, TextView textView, int chipColor) {
@@ -233,7 +248,7 @@ public class ChipsView extends FrameLayout {
 			if (WIDTH <= 1) {
 				WIDTH = AndroidUtils.getScreenWidth(getContext()) - getPaddingStart() - getPaddingEnd();
 			}
-			if (names.length > 1) {
+			if (names.length >= 1) {
 				for (int i = 0; i < names.length; i++) {
 					if (colors != null) {
 						chips.add(new Chip(keys[i], createChipView(i, keys[i], getContext(), names[i], colors[i], false), names[i], colors[i]));
@@ -250,6 +265,36 @@ public class ChipsView extends FrameLayout {
 				});
 			}
 		}
+	}
+
+	public void removeChip(String[] keys) {
+		for (int i = 0; i < keys.length; i++) {
+			String key = keys[i];
+			int pos = findById(key);
+			if (pos >= 0) {
+				removeViewAt(pos);
+				chips.remove(pos);
+			}
+		}
+		updateChipPositions();
+	}
+
+	public void addChip(String[] keys, String[] names) {
+		for (int i = 0; i < keys.length; i++) {
+			String key = keys[i];
+			String name = names[i];
+			int pos = findById(key);
+			if (pos == -1) {
+				chips.add(new Chip(key, createChipView(chips.size(), key, getContext(), name, chipColor, false), name, chipColor));
+				addView(chips.get(chips.size() - 1).getView());
+			}
+		}
+		post(new Runnable() {
+			@Override
+			public void run() {
+				updateChipPositions();
+			}
+		});
 	}
 
 	private void updateChipPositions() {
@@ -282,11 +327,29 @@ public class ChipsView extends FrameLayout {
 			for (int i = 0; i < chips.size(); i++) {
 				chips.get(i).getView().setTranslationX(chips.get(i).getPosX());
 				chips.get(i).getView().setTranslationY(chips.get(i).getPosY());
+				chips.get(i).getView().setVisibility(VISIBLE);
 			}
 		}
-		ViewGroup.LayoutParams lp = getLayoutParams();
-		lp.height = (int)((ROW_HEIGHT + chipMargin)* rowCount - chipMargin + getPaddingTop() + getPaddingBottom());
-		setLayoutParams(lp);
+		heightAnimator();
+	}
+
+	private void heightAnimator() {
+		final ViewGroup.LayoutParams lp = getLayoutParams();
+		if (heightAnimator != null && (heightAnimator.isStarted())) {
+			heightAnimator.cancel();
+		}
+		int newHeight = (int)(ROW_HEIGHT + chipMargin)* rowCount - chipMargin + getPaddingTop() + getPaddingBottom();
+		heightAnimator = ValueAnimator.ofInt(lp.height, newHeight);
+		heightAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+		heightAnimator.setDuration(HEIGHT_ANIMATION_DURATION);
+		heightAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+			@Override
+			public void onAnimationUpdate(ValueAnimator animation) {
+				lp.height = (int)animation.getAnimatedValue();
+				setLayoutParams(lp);
+			}
+		});
+		heightAnimator.start();
 	}
 
 	private void calculatePositionsDefault(List<Chip> temp) {
@@ -355,9 +418,6 @@ public class ChipsView extends FrameLayout {
 		posY = 0;
 		chips.clear();
 		removeAllViews();
-		ViewGroup.LayoutParams lp = getLayoutParams();
-		lp.height = 0;
-		setLayoutParams(lp);
 	}
 
 	public void setOnChipCheckListener(OnCheckListener l) {

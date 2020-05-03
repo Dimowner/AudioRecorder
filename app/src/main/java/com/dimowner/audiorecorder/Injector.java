@@ -29,7 +29,7 @@ import com.dimowner.audiorecorder.app.trash.TrashPresenter;
 import com.dimowner.audiorecorder.audio.player.AudioPlayer;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
-import com.dimowner.audiorecorder.audio.recorder.GpRecorder;
+import com.dimowner.audiorecorder.audio.recorder.ThreeGpRecorder;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.audio.recorder.WavRecorder;
 import com.dimowner.audiorecorder.data.FileRepository;
@@ -144,7 +144,7 @@ public class Injector {
 			case AppConstants.FORMAT_WAV:
 				return WavRecorder.getInstance();
 			case AppConstants.FORMAT_3GP:
-				return GpRecorder.getInstance();
+				return ThreeGpRecorder.getInstance();
 		}
 	}
 

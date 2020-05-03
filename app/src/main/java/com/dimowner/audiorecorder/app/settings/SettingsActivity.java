@@ -85,7 +85,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private CompoundButton.OnCheckedChangeListener publicDirListener = new CompoundButton.OnCheckedChangeListener() {
 		@Override
 		public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
-			presenter.storeInPublicDir(isChecked);
+			presenter.storeInPublicDir(getApplicationContext(), isChecked);
 			if (isChecked) {
 				showDialogPublicDirInfo();
 			} else {
@@ -167,7 +167,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		formats = getResources().getStringArray(R.array.formats2);
 		formatsKeys = new String[] {
 				AppConstants.FORMAT_M4A,
-				AppConstants.FORMAT_WAV
+				AppConstants.FORMAT_WAV,
+				AppConstants.FORMAT_3GP
 		};
 		formatSetting.setData(formats, formatsKeys);
 		formatSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
@@ -575,6 +576,37 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	}
 
 	@Override
+	public void updateRecordingInfo(String format) {
+		String[] sampleRates = new String[] {
+				sampleRatesKeys[2],
+				sampleRatesKeys[3],
+				sampleRatesKeys[4],
+				sampleRatesKeys[5]
+		};
+		if (format.equals(AppConstants.FORMAT_3GP)) {
+			sampleRateSetting.removeChip(sampleRates);
+			if (sampleRateSetting.getSelected() == null) {
+				sampleRateSetting.setSelected(sampleRatesKeys[1]);
+			}
+		} else {
+			String[] values = new String[] {
+					this.sampleRates[2],
+					this.sampleRates[3],
+					this.sampleRates[4],
+					this.sampleRates[5]
+			};
+			sampleRateSetting.addChip(sampleRates, values);
+		}
+
+		if (format.equals(AppConstants.FORMAT_3GP)) {
+			channelsSetting.removeChip(new String[] {SettingsMapper.CHANNEL_COUNT_STEREO});
+			channelsSetting.setSelected(SettingsMapper.CHANNEL_COUNT_MONO);
+		} else {
+			channelsSetting.addChip(new String[] {SettingsMapper.CHANNEL_COUNT_STEREO}, new String[] {getString(R.string.stereo)});
+		}
+	}
+
+	@Override
 	public void showSizePerMin(String size) {
 		txtSizePerMin.setText(getString(R.string.size_per_min, size));
 	}
@@ -594,6 +626,16 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		txtInformation.setText(
 				SettingsMapper.convertFormatsToString(formats, formatsKeys, formatKey) + SEPARATOR
 						+ SettingsMapper.convertSampleRateToString(sampleRates, sampleRatesKeys, sampleRate) + SEPARATOR
+						+ SettingsMapper.convertChannelsToString(recChannels, recChannelsKeys, channelsCount)
+		);
+	}
+
+	@Override
+	public void showInformation3gp(String formatKey, int sampleRate, int bitrate, int channelsCount) {
+		txtInformation.setText(
+				SettingsMapper.convertFormatsToString(formats, formatsKeys, formatKey) + SEPARATOR
+						+ SettingsMapper.convertSampleRateToString(sampleRates, sampleRatesKeys, sampleRate) + SEPARATOR
+						+ getString(R.string.value_kbps, bitrate/1000) + SEPARATOR
 						+ SettingsMapper.convertChannelsToString(recChannels, recChannelsKeys, channelsCount)
 		);
 	}

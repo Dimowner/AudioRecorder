@@ -68,8 +68,20 @@ public class SettingView extends LinearLayout {
 		chipsView.setData(names, keys, null);
 	}
 
+	public void removeChip(String[] keys) {
+		chipsView.removeChip(keys);
+	}
+
+	public void addChip(String[] keys, String[] names) {
+		chipsView.addChip(keys, names);
+	}
+
 	public void setSelected(String key) {
 		chipsView.setSelected(key);
+	}
+
+	public String getSelected() {
+		return chipsView.getSelected();
 	}
 
 	public void setOnChipCheckListener(ChipsView.OnCheckListener l) {
