@@ -137,6 +137,15 @@ public abstract class DataSource<T> {
 	}
 
 	/**
+	 * Get all records from database for table T.
+	 * @return List that contains all records of table T.
+	 */
+	public ArrayList<Integer> getAllItemsIds() {
+		Cursor cursor = queryLocal("SELECT " + SQLiteHelper.COLUMN_ID + " FROM " + tableName + " ORDER BY " + SQLiteHelper.COLUMN_DATE_ADDED + " DESC");
+		return convertCursorIds(cursor);
+	}
+
+	/**
 	 * Get records from database for table T.
 	 * @return List that contains all records of table T.
 	 */
@@ -218,6 +227,25 @@ public abstract class DataSource<T> {
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast() && !cursor.isBeforeFirst()) {
 			items.add(recordToItem(cursor));
+			cursor.moveToNext();
+		}
+		cursor.close();
+		if (items.size() > 0) {
+			return items;
+		}
+		return items;
+	}
+
+	/**
+	 * Convert {@link android.database.Cursor Cursor} into item T
+	 * @param cursor Cursor.
+	 * @return T item which corresponds some table in database.
+	 */
+	public ArrayList<Integer> convertCursorIds(Cursor cursor) {
+		ArrayList<Integer> items = new ArrayList<>();
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast() && !cursor.isBeforeFirst()) {
+			items.add(cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_ID)));
 			cursor.moveToNext();
 		}
 		cursor.close();

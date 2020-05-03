@@ -30,6 +30,7 @@ public class PrefsImpl implements Prefs {
 
 	private static final String PREF_KEY_IS_FIRST_RUN = "is_first_run";
 	private static final String PREF_KEY_IS_MIGRATED = "is_migrated";
+	private static final String PREF_KEY_IS_MIGRATED_DB3 = "is_migrated_db3";
 	private static final String PREF_KEY_IS_STORE_DIR_PUBLIC = "is_store_dir_public";
 	private static final String PREF_KEY_IS_ASK_TO_RENAME_AFTER_STOP_RECORDING = "is_ask_rename_after_stop_recording";
 	private static final String PREF_KEY_ACTIVE_RECORD = "active_record";
@@ -269,6 +270,18 @@ public class PrefsImpl implements Prefs {
 		editor.putInt(PREF_KEY_SETTING_BITRATE, bitrate);
 		editor.putInt(PREF_KEY_SETTING_CHANNEL_COUNT, channelCount);
 		editor.putBoolean(PREF_KEY_IS_MIGRATED, true);
+		editor.apply();
+	}
+
+	@Override
+	public boolean isMigratedDb3() {
+		return sharedPreferences.getBoolean(PREF_KEY_IS_MIGRATED_DB3, false);
+	}
+
+	@Override
+	public void migrateDb3Finished() {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putBoolean(PREF_KEY_IS_MIGRATED_DB3, true);
 		editor.apply();
 	}
 

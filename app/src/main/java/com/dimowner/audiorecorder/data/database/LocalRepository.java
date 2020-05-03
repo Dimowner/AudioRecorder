@@ -16,8 +16,6 @@
 
 package com.dimowner.audiorecorder.data.database;
 
-import android.media.MediaCodec;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -29,7 +27,11 @@ public interface LocalRepository {
 
 	Record getRecord(int id);
 
+	Record getTrashRecord(int id);
+
 	List<Record> getAllRecords();
+
+	List<Integer> getAllItemsIds();
 
 	List<Record> getRecords(int page);
 
@@ -42,6 +44,8 @@ public interface LocalRepository {
 	Record insertRecord(Record record);
 
 	boolean updateRecord(Record record);
+
+	boolean updateTrashRecord(Record record);
 
 	Record insertEmptyFile(String filePath) throws IOException;
 
@@ -58,6 +62,8 @@ public interface LocalRepository {
 	List<Record> getBookmarks();
 
 	List<Record> getTrashRecords();
+
+	List<Integer> getTrashRecordsIds();
 
 	int getTrashRecordsCount();
 

@@ -108,6 +108,14 @@ public class LocalRepositoryImpl implements LocalRepository {
 		return null;
 	}
 
+	@Override
+	public Record getTrashRecord(int id) {
+		if (!trashDataSource.isOpen()) {
+			trashDataSource.open();
+		}
+		return trashDataSource.getItem(id);
+	}
+
 	public Record insertRecord(Record record) {
 		if (!dataSource.isOpen()) {
 			dataSource.open();
@@ -122,6 +130,15 @@ public class LocalRepositoryImpl implements LocalRepository {
 		}
 		//If updated record count is more than 0, then update is successful.
 		return (dataSource.updateItem(record) > 0);
+	}
+
+	@Override
+	public boolean updateTrashRecord(Record record) {
+		if (!trashDataSource.isOpen()) {
+			trashDataSource.open();
+		}
+		//If updated record count is more than 0, then update is successful.
+		return (trashDataSource.updateItem(record) > 0);
 	}
 
 	@Override
@@ -164,6 +181,14 @@ public class LocalRepositoryImpl implements LocalRepository {
 		List<Record> list = dataSource.getAll();
 		checkForLostRecords(list);
 		return list;
+	}
+
+	@Override
+	public List<Integer> getAllItemsIds() {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		return dataSource.getAllItemsIds();
 	}
 
 	@Override
@@ -329,6 +354,14 @@ public class LocalRepositoryImpl implements LocalRepository {
 			trashDataSource.open();
 		}
 		return trashDataSource.getAll();
+	}
+
+	@Override
+	public List<Integer> getTrashRecordsIds() {
+		if (!trashDataSource.isOpen()) {
+			trashDataSource.open();
+		}
+		return trashDataSource.getAllItemsIds();
 	}
 
 	@Override

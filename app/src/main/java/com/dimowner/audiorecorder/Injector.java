@@ -152,7 +152,7 @@ public class Injector {
 		if (mainPresenter == null) {
 			mainPresenter = new MainPresenter(providePrefs(), provideFileRepository(),
 					provideLocalRepository(), provideAudioPlayer(), provideAppRecorder(),
-					provideLoadingTasksQueue(), provideRecordingTasksQueue(), provideImportTasksQueue());
+					provideLoadingTasksQueue(), provideRecordingTasksQueue(), provideProcessingTasksQueue(), provideImportTasksQueue());
 		}
 		return mainPresenter;
 	}

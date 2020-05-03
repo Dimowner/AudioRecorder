@@ -63,6 +63,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private final BackgroundQueue loadingTasks;
 	private final BackgroundQueue recordingsTasks;
 	private final BackgroundQueue importTasks;
+	private final BackgroundQueue processingTasks;
 	private final FileRepository fileRepository;
 	private final LocalRepository localRepository;
 	private final Prefs prefs;
@@ -82,6 +83,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 								AppRecorder appRecorder,
 								final BackgroundQueue recordingTasks,
 								final BackgroundQueue loadingTasks,
+								final BackgroundQueue processingTasks,
 								final BackgroundQueue importTasks) {
 		this.prefs = prefs;
 		this.fileRepository = fileRepository;
@@ -89,6 +91,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		this.loadingTasks = loadingTasks;
 		this.recordingsTasks = recordingTasks;
 		this.importTasks = importTasks;
+		this.processingTasks = processingTasks;
 		this.audioPlayer = audioPlayer;
 		this.appRecorder = appRecorder;
 	}
@@ -102,6 +105,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			view.hideImportProgress();
 		}
 
+		if (!prefs.isMigratedDb3()) {
+			migrateDb3();
+		}
 		if (!prefs.hasAskToRenameAfterStopRecordingSetting()) {
 			prefs.setAskToRenameAfterStopRecording(true);
 		}
@@ -805,6 +811,69 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						if (view != null) { view.hideImportProgress(); }
 					}});
 				showImportProgress = false;
+			}
+		});
+	}
+
+	private void migrateDb3() {
+		processingTasks.postRunnable(new Runnable() {
+			@Override
+			public void run() {
+				//Update records table.
+				List<Integer> ids = localRepository.getAllItemsIds();
+				Record rec;
+				for (int i = 0; i < ids.size(); i++) {
+					if (ids.get(i) != null) {
+						rec = localRepository.getRecord(ids.get(i));
+						if (rec != null) {
+							RecordInfo info = AudioDecoder.readRecordInfo(new File(rec.getPath()));
+							localRepository.updateRecord(new Record(
+									rec.getId(),
+									FileUtil.removeFileExtension(rec.getName()),
+									rec.getDuration(),
+									rec.getCreated(),
+									rec.getAdded(),
+									rec.getRemoved(),
+									rec.getPath(),
+									info.getFormat(),
+									info.getSize(),
+									info.getSampleRate(),
+									info.getChannelCount(),
+									info.getBitrate(),
+									rec.isBookmarked(),
+									rec.isWaveformProcessed(),
+									rec.getAmps()));
+						}
+					}
+				}
+				//Update trash records table.
+				List<Integer> trashIds = localRepository.getTrashRecordsIds();
+				Record trashRecord;
+				for (int i = 0; i < trashIds.size(); i++) {
+					if (trashIds.get(i) != null) {
+						trashRecord = localRepository.getTrashRecord(trashIds.get(i));
+						if (trashRecord != null) {
+							RecordInfo info = AudioDecoder.readRecordInfo(new File(trashRecord.getPath()));
+							localRepository.updateTrashRecord(new Record(
+									trashRecord.getId(),
+									FileUtil.removeFileExtension(trashRecord.getName()),
+									trashRecord.getDuration(),
+									trashRecord.getCreated(),
+									trashRecord.getAdded(),
+									trashRecord.getRemoved(),
+									trashRecord.getPath(),
+									info.getFormat(),
+									info.getSize(),
+									info.getSampleRate(),
+									info.getChannelCount(),
+									info.getBitrate(),
+									trashRecord.isBookmarked(),
+									trashRecord.isWaveformProcessed(),
+									trashRecord.getAmps()));
+						}
+					}
+				}
+				prefs.migrateDb3Finished();
 			}
 		});
 	}

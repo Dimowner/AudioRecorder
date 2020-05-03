@@ -43,6 +43,9 @@ public interface Prefs {
 	boolean isMigratedSettings();
 	void migrateSettings();
 
+	boolean isMigratedDb3();
+	void migrateDb3Finished();
+
 	void setSettingThemeColor(String colorKey);
 	String getSettingThemeColor();
 
