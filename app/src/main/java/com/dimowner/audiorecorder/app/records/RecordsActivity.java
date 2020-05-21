@@ -225,7 +225,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		});
 
 		SimpleWaveformView.setWaveformColorRes(colorMap.getPrimaryColorRes());
-		adapter = new RecordsAdapter();
+		adapter = new RecordsAdapter(ARApplication.getInjector().provideSettingsMapper());
 		adapter.setItemClickListener(new RecordsAdapter.ItemClickListener() {
 			@Override
 			public void onItemClick(View view, long id, String path, final int position) {

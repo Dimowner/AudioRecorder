@@ -218,17 +218,33 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="bottom|center_horizontal"
-					android:layout_marginStart="@dimen/spacing_huge"
-					android:layout_marginEnd="@dimen/spacing_huge"
-					android:layout_marginBottom="@dimen/spacing_normal"
+					android:gravity="center_horizontal"
+					android:layout_marginStart="@dimen/spacing_xxdouble"
+					android:layout_marginEnd="@dimen/spacing_xxdouble"
+					android:layout_marginBottom="@dimen/spacing_tiny"
 					android:drawableEnd="@drawable/ic_pencil_small"
 					android:ellipsize="end"
 					android:maxLines="2"
 					android:textColor="@color/text_primary_light"
-					android:textSize="@dimen/text_large"
+					android:textSize="22sp"
 					android:visibility="invisible"
-					tools:text="Rec-2019.12.30 12:12:23"
+					tools:text="2019.12.30 12:12:23"
 					tools:visibility="visible" />
+
+			<TextView
+					android:id="@+id/txt_record_info"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="bottom|center_horizontal"
+					android:layout_marginStart="@dimen/spacing_huge"
+					android:layout_marginEnd="@dimen/spacing_huge"
+					android:layout_marginBottom="@dimen/spacing_xsmall"
+					android:ellipsize="end"
+					android:maxLines="1"
+					android:fontFamily="sans-serif-light"
+					android:textColor="@color/text_primary_light2"
+					android:textSize="@dimen/text_normal"
+					tools:text="M4a, 44.1kHz, 128kbps, Stereo" />
 		</LinearLayout>
 
 		<TextView

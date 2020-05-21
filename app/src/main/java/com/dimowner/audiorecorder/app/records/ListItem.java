@@ -173,7 +173,8 @@ public class ListItem implements Parcelable {
 	}
 
 	private String convertTimeToStr(long time) {
-		return TimeUtils.formatTime(time);
+		return TimeUtils.formatDateForNameVariant(time);
+//		return TimeUtils.formatTime(time);
 	}
 
 	private String convertDurationToStr(long dur) {

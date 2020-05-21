@@ -16,13 +16,30 @@
 
 package com.dimowner.audiorecorder.app.settings;
 
+import android.content.Context;
+import android.content.res.Resources;
+
 import com.dimowner.audiorecorder.AppConstants;
+import com.dimowner.audiorecorder.R;
 
 /**
  * Created on 26.04.2020.
  * @author Dimowner
  */
 public class SettingsMapper {
+
+	private static SettingsMapper singleton;
+
+	public static SettingsMapper getInstance(Context context) {
+		if (singleton == null) {
+			singleton = new SettingsMapper(context);
+		}
+		return singleton;
+	}
+
+	public SettingsMapper(Context context) {
+		loadResources(context);
+	}
 
 	public final static String SAMPLE_RATE_8000 = "8000";
 	public final static String SAMPLE_RATE_16000 = "16000";
@@ -40,6 +57,49 @@ public class SettingsMapper {
 
 	public final static String CHANNEL_COUNT_STEREO = "stereo";
 	public final static String CHANNEL_COUNT_MONO = "mono";
+
+	private Resources resources;
+	private String[] formats;
+	private String[] formatsKeys;
+	private String[] sampleRates;
+	private String[] sampleRatesKeys;
+	private String[] rates;
+	private String[] rateKeys;
+	private String[] recChannels;
+	private String[] recChannelsKeys;
+
+	public void loadResources(Context context) {
+		resources = context.getResources();
+		formats = resources.getStringArray(R.array.formats2);
+		formatsKeys = new String[] {
+				AppConstants.FORMAT_M4A,
+				AppConstants.FORMAT_WAV,
+				AppConstants.FORMAT_3GP
+		};
+		sampleRates = resources.getStringArray(R.array.sample_rates2);
+		sampleRatesKeys = new String[] {
+				SettingsMapper.SAMPLE_RATE_8000,
+				SettingsMapper.SAMPLE_RATE_16000,
+				SettingsMapper.SAMPLE_RATE_22050,
+				SettingsMapper.SAMPLE_RATE_32000,
+				SettingsMapper.SAMPLE_RATE_44100,
+				SettingsMapper.SAMPLE_RATE_48000,
+		};
+		rates = resources.getStringArray(R.array.bit_rates2);
+		rateKeys = new String[] {
+//				SettingsMapper.BITRATE_24000,
+				SettingsMapper.BITRATE_48000,
+				SettingsMapper.BITRATE_96000,
+				SettingsMapper.BITRATE_128000,
+				SettingsMapper.BITRATE_192000,
+				SettingsMapper.BITRATE_256000,
+		};
+		recChannels = resources.getStringArray(R.array.channels);
+		recChannelsKeys = new String[] {
+				SettingsMapper.CHANNEL_COUNT_STEREO,
+				SettingsMapper.CHANNEL_COUNT_MONO
+		};
+	}
 
 	public static String positionToColorKey(int position) {
 		switch (position) {
@@ -210,39 +270,43 @@ public class SettingsMapper {
 		}
 	}
 
-	public static String convertSampleRateToString(String[] sampleRates, String[] sampleRateKeys, int sampleRate) {
+	public String formatBitrate(int bitrate) {
+		return resources.getString(R.string.value_kbps, bitrate);
+	}
+
+	public String convertSampleRateToString(int sampleRate) {
 		String key = sampleRateToKey(sampleRate);
-		for (int i = 0; i < sampleRateKeys.length; i++) {
-			if (key.equals(sampleRateKeys[i])) {
+		for (int i = 0; i < sampleRatesKeys.length; i++) {
+			if (key.equals(sampleRatesKeys[i])) {
 				return sampleRates[i];
 			}
 		}
 		return "";
 	}
 
-	public static String convertBitratesToString(String[] bitrates, String[] bitrateKeys, int bitrate) {
+	public String convertBitratesToString(int bitrate) {
 		String key = bitrateToKey(bitrate);
-		for (int i = 0; i < bitrateKeys.length; i++) {
-			if (key.equals(bitrateKeys[i])) {
-				return bitrates[i];
+		for (int i = 0; i < rateKeys.length; i++) {
+			if (key.equals(rateKeys[i])) {
+				return rates[i];
 			}
 		}
 		return "";
 	}
 
-	public static String convertChannelsToString(String[] channels, String[] channelKeys, int count) {
+	public String convertChannelsToString(int count) {
 		String key = channelCountToKey(count);
-		for (int i = 0; i < channelKeys.length; i++) {
-			if (key.equals(channelKeys[i])) {
-				return channels[i];
+		for (int i = 0; i < recChannelsKeys.length; i++) {
+			if (key.equals(recChannelsKeys[i])) {
+				return recChannels[i];
 			}
 		}
 		return "";
 	}
 
-	public static String convertFormatsToString(String[] formats, String[] formatKeys, String formatKey) {
-		for (int i = 0; i < formatKeys.length; i++) {
-			if (formatKey.equals(formatKeys[i])) {
+	public String convertFormatsToString(String formatKey) {
+		for (int i = 0; i < formatsKeys.length; i++) {
+			if (formatKey.equals(formatsKeys[i])) {
 				return formats[i];
 			}
 		}

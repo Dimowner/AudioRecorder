@@ -37,6 +37,7 @@ import android.widget.TextView;
 
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.settings.SettingsMapper;
 import com.dimowner.audiorecorder.app.widget.SimpleWaveformView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.TimeUtils;
@@ -49,6 +50,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 	private List<ListItem> data;
 
+	private SettingsMapper settingsMapper;
 	private boolean showDateHeaders = true;
 	private int activeItem = -1;
 	private View btnTrash;
@@ -59,8 +61,9 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	private OnAddToBookmarkListener onAddToBookmarkListener = null;
 	private OnItemOptionListener onItemOptionListener = null;
 
-	RecordsAdapter() {
+	RecordsAdapter(SettingsMapper mapper) {
 		this.data = new ArrayList<>();
+		this.settingsMapper = mapper;
 	}
 
 	@NonNull
@@ -103,10 +106,11 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_NORMAL) {
 			final ItemViewHolder holder = (ItemViewHolder) viewHolder;
 			final int p = holder.getAdapterPosition();
-			holder.name.setText(data.get(p).getName());
-			holder.description.setText(data.get(p).getDurationStr());
-			holder.created.setText(data.get(p).getAddedTimeStr());
-			if (data.get(p).isBookmarked()) {
+			final ListItem item = data.get(p);
+			holder.name.setText(item.getName());
+			holder.description.setText(item.getDurationStr());
+			holder.created.setText(item.getAddedTimeStr());
+			if (item.isBookmarked()) {
 				holder.btnBookmark.setImageResource(R.drawable.ic_bookmark_small);
 			} else {
 				holder.btnBookmark.setImageResource(R.drawable.ic_bookmark_bordered_small);
@@ -121,10 +125,10 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 				@Override
 				public void onClick(View v) {
 					if (onAddToBookmarkListener != null && data.size() > p) {
-						if(data.get(p).isBookmarked()) {
-							onAddToBookmarkListener.onRemoveFromBookmarks((int) data.get(p).getId());
+						if(item.isBookmarked()) {
+							onAddToBookmarkListener.onRemoveFromBookmarks((int) item.getId());
 						} else {
-							onAddToBookmarkListener.onAddToBookmarks((int) data.get(p).getId());
+							onAddToBookmarkListener.onAddToBookmarks((int) item.getId());
 						}
 					}
 				}
@@ -135,7 +139,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 					showMenu(v, p);
 				}
 			});
-			holder.waveformView.setWaveform(data.get(p).getAmps());
+			holder.waveformView.setWaveform(item.getAmps());
 
 			holder.view.setOnClickListener(new View.OnClickListener() {
 				@Override public void onClick(View v) {
@@ -144,6 +148,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 						itemClickListener.onItemClick(v, data.get(lpos).getId(), data.get(lpos).getPath(), lpos);
 					}
 				}});
+			updateInformation(holder.info, item.getFormat(), item.getSampleRate(), item.getBitrate(), item.getChannelCount());
 		} else if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_DATE) {
 			UniversalViewHolder holder = (UniversalViewHolder) viewHolder;
 			((TextView)holder.view).setText(TimeUtils.formatDateSmart(data.get(viewHolder.getAdapterPosition()).getAdded(), holder.view.getContext()));
@@ -407,6 +412,34 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		}
 	}
 
+	private void updateInformation(TextView view, String format, int sampleRate, int bitrate, int channelsCount) {
+		if (format.equals(AppConstants.FORMAT_3GP)) {
+			view.setText(settingsMapper.convertFormatsToString(format) + AppConstants.SEPARATOR
+					+ settingsMapper.convertSampleRateToString(sampleRate) + AppConstants.SEPARATOR
+					+ settingsMapper.formatBitrate(AppConstants.RECORD_ENCODING_BITRATE_12000/1000) + AppConstants.SEPARATOR
+					+ settingsMapper.convertChannelsToString(AppConstants.RECORD_AUDIO_MONO));
+		} else {
+			switch (format) {
+				case AppConstants.FORMAT_M4A:
+					view.setText(settingsMapper.convertFormatsToString(format) + AppConstants.SEPARATOR
+							+ settingsMapper.convertSampleRateToString(sampleRate) + AppConstants.SEPARATOR
+							+ settingsMapper.convertBitratesToString(bitrate) + AppConstants.SEPARATOR
+							+ settingsMapper.convertChannelsToString(channelsCount));
+					break;
+				case AppConstants.FORMAT_WAV:
+					view.setText(settingsMapper.convertFormatsToString(format) + AppConstants.SEPARATOR
+							+ settingsMapper.convertSampleRateToString(sampleRate) + AppConstants.SEPARATOR
+							+ settingsMapper.convertChannelsToString(channelsCount));
+					break;
+				default:
+					view.setText(format + AppConstants.SEPARATOR
+							+ settingsMapper.convertSampleRateToString(sampleRate) + AppConstants.SEPARATOR
+							+ settingsMapper.convertBitratesToString(bitrate) + AppConstants.SEPARATOR
+							+ settingsMapper.convertChannelsToString(channelsCount));
+			}
+		}
+	}
+
 	private boolean hasDateHeader(List<ListItem> data, long time) {
 		for (int i = data.size()-1; i>= 0; i--) {
 			if (data.get(i).getType() == ListItem.ITEM_TYPE_DATE) {
@@ -522,6 +555,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		TextView name;
 		TextView description;
 		TextView created;
+		TextView info;
 		ImageButton btnBookmark;
 		ImageButton btnMore;
 		SimpleWaveformView waveformView;
@@ -533,6 +567,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			name = itemView.findViewById(R.id.list_item_name);
 			description = itemView.findViewById(R.id.list_item_description);
 			created = itemView.findViewById(R.id.list_item_date);
+			info = itemView.findViewById(R.id.list_item_info);
 			btnBookmark = itemView.findViewById(R.id.list_item_bookmark);
 			waveformView = itemView.findViewById(R.id.list_item_waveform);
 			btnMore = itemView.findViewById(R.id.list_item_more);

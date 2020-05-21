@@ -58,8 +58,6 @@ import androidx.core.content.FileProvider;
 
 public class SettingsActivity extends Activity implements SettingsContract.View, View.OnClickListener {
 
-	private static final String SEPARATOR = ", ";
-
 	private TextView txtTotalDuration;
 	private TextView txtRecordsCount;
 	private TextView txtAvailableSpace;
@@ -587,6 +585,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			sampleRateSetting.removeChip(sampleRates);
 			if (sampleRateSetting.getSelected() == null) {
 				sampleRateSetting.setSelected(sampleRatesKeys[1]);
+				presenter.setSettingSampleRate(SettingsMapper.keyToSampleRate(sampleRatesKeys[1]));
 			}
 		} else {
 			String[] values = new String[] {
@@ -612,32 +611,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	}
 
 	@Override
-	public void showInformation(String formatKey, int sampleRate, int bitrate, int channelsCount) {
-		txtInformation.setText(
-				SettingsMapper.convertFormatsToString(formats, formatsKeys, formatKey) + SEPARATOR
-						+ SettingsMapper.convertSampleRateToString(sampleRates, sampleRatesKeys, sampleRate) + SEPARATOR
-						+ SettingsMapper.convertBitratesToString(rates, rateKeys, bitrate) + SEPARATOR
-						+ SettingsMapper.convertChannelsToString(recChannels, recChannelsKeys, channelsCount)
-		);
-	}
-
-	@Override
-	public void showInformation(String formatKey, int sampleRate, int channelsCount) {
-		txtInformation.setText(
-				SettingsMapper.convertFormatsToString(formats, formatsKeys, formatKey) + SEPARATOR
-						+ SettingsMapper.convertSampleRateToString(sampleRates, sampleRatesKeys, sampleRate) + SEPARATOR
-						+ SettingsMapper.convertChannelsToString(recChannels, recChannelsKeys, channelsCount)
-		);
-	}
-
-	@Override
-	public void showInformation3gp(String formatKey, int sampleRate, int bitrate, int channelsCount) {
-		txtInformation.setText(
-				SettingsMapper.convertFormatsToString(formats, formatsKeys, formatKey) + SEPARATOR
-						+ SettingsMapper.convertSampleRateToString(sampleRates, sampleRatesKeys, sampleRate) + SEPARATOR
-						+ getString(R.string.value_kbps, bitrate/1000) + SEPARATOR
-						+ SettingsMapper.convertChannelsToString(recChannels, recChannelsKeys, channelsCount)
-		);
+	public void showInformation(String info) {
+		txtInformation.setText(info);
 	}
 
 	@Override

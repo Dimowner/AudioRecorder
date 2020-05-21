@@ -27,6 +27,7 @@ public class AppConstants {
 
 	public static final String APPLICATION_NAME = "AudioRecorder";
 	public static final String RECORDS_DIR = "records";
+	public static final String SEPARATOR = ", ";
 	public static final String EXTENSION_SEPARATOR = ".";
 	public static final String BASE_RECORD_NAME = "Record-";
 	public static final String BASE_RECORD_NAME_SHORT = "Rec-";

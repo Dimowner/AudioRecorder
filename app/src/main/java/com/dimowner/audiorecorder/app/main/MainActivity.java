@@ -97,6 +97,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private TextView txtDuration;
 	private TextView txtZeroTime;
 	private TextView txtName;
+	private TextView txtRecordInfo;
 	private ImageButton btnPlay;
 	private ImageButton btnStop;
 	private ImageButton btnRecord;
@@ -132,6 +133,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtDuration = findViewById(R.id.txt_duration);
 		txtZeroTime = findViewById(R.id.txt_zero_time);
 		txtName = findViewById(R.id.txt_name);
+		txtRecordInfo = findViewById(R.id.txt_record_info);
 		btnPlay = findViewById(R.id.btn_play);
 		btnRecord = findViewById(R.id.btn_record);
 		btnRecordingStop = findViewById(R.id.btn_record_stop);
@@ -379,11 +381,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void showRecordingStop() {
 		txtName.setClickable(true);
 		txtName.setFocusable(true);
-		txtName.setText("");
+//		txtName.setText("");
 		txtZeroTime.setVisibility(View.VISIBLE);
 		txtDuration.setVisibility(View.VISIBLE);
 		txtName.setCompoundDrawablesWithIntrinsicBounds(null, null, getDrawable(R.drawable.ic_pencil_small), null);
-		txtName.setVisibility(View.INVISIBLE);
+//		txtName.setVisibility(View.INVISIBLE);
 		btnRecord.setImageResource(R.drawable.ic_record);
 		btnPlay.setEnabled(true);
 		btnImport.setEnabled(true);
@@ -532,10 +534,15 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void showName(String name) {
 		if (name == null || name.isEmpty()) {
 			txtName.setVisibility(View.INVISIBLE);
-		} else if (txtName.getVisibility() == View.INVISIBLE) {
+		} else {
 			txtName.setVisibility(View.VISIBLE);
 		}
 		txtName.setText(name);
+	}
+
+	@Override
+	public void showInformation(String info) {
+		txtRecordInfo.setText(info);
 	}
 
 	@Override

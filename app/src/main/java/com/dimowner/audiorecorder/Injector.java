@@ -22,6 +22,7 @@ import com.dimowner.audiorecorder.app.AppRecorder;
 import com.dimowner.audiorecorder.app.AppRecorderImpl;
 import com.dimowner.audiorecorder.app.lostrecords.LostRecordsContract;
 import com.dimowner.audiorecorder.app.lostrecords.LostRecordsPresenter;
+import com.dimowner.audiorecorder.app.settings.SettingsMapper;
 import com.dimowner.audiorecorder.app.setup.SetupContract;
 import com.dimowner.audiorecorder.app.setup.SetupPresenter;
 import com.dimowner.audiorecorder.app.trash.TrashContract;
@@ -132,6 +133,10 @@ public class Injector {
 		return ColorMap.getInstance(providePrefs());
 	}
 
+	public SettingsMapper provideSettingsMapper() {
+		return SettingsMapper.getInstance(context);
+	}
+
 	public PlayerContract.Player provideAudioPlayer() {
 		return AudioPlayer.getInstance();
 	}
@@ -152,7 +157,8 @@ public class Injector {
 		if (mainPresenter == null) {
 			mainPresenter = new MainPresenter(providePrefs(), provideFileRepository(),
 					provideLocalRepository(), provideAudioPlayer(), provideAppRecorder(),
-					provideLoadingTasksQueue(), provideRecordingTasksQueue(), provideProcessingTasksQueue(), provideImportTasksQueue());
+					provideLoadingTasksQueue(), provideRecordingTasksQueue(), provideProcessingTasksQueue(),
+					provideImportTasksQueue(), provideSettingsMapper());
 		}
 		return mainPresenter;
 	}
@@ -169,7 +175,7 @@ public class Injector {
 	public SettingsContract.UserActionsListener provideSettingsPresenter() {
 		if (settingsPresenter == null) {
 			settingsPresenter = new SettingsPresenter(provideLocalRepository(), provideFileRepository(),
-					provideRecordingTasksQueue(), provideLoadingTasksQueue(), providePrefs());
+					provideRecordingTasksQueue(), provideLoadingTasksQueue(), providePrefs(), provideSettingsMapper());
 		}
 		return settingsPresenter;
 	}

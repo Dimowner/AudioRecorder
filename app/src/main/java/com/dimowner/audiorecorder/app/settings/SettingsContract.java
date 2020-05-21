@@ -60,9 +60,7 @@ public class SettingsContract {
 		void updateRecordingInfo(String format);
 
 		void showSizePerMin(String size);
-		void showInformation(String formatKey, int sampleRate, int bitrate, int channelsCount);
-		void showInformation(String formatKey, int sampleRate, int channelsCount);
-		void showInformation3gp(String formatKey, int sampleRate, int bitrate, int channelsCount);
+		void showInformation(String info);
 
 		void showRecordsLocation(String location);
 		void hideRecordsLocation();

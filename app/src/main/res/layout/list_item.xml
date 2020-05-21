@@ -86,32 +86,64 @@
 		<FrameLayout
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:paddingBottom="@dimen/spacing_normal">
+				>
 
 			<TextView
 					android:id="@+id/list_item_description"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:textSize="@dimen/text_medium"
-					android:textColor="@color/text_primary_light2"
-					tools:text="@string/app_name"
-					android:layout_gravity="start"
-					android:paddingStart="@dimen/spacing_tiny"
-					android:paddingEnd="@dimen/spacing_small"
-					android:maxLines="1"/>
-
-			<TextView
-					android:id="@+id/list_item_date"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:textSize="@dimen/text_medium"
+					android:textSize="@dimen/text_normal"
 					android:textColor="@color/text_primary_light2"
 					tools:text="@string/app_name"
 					android:layout_gravity="end"
 					android:paddingStart="@dimen/spacing_tiny"
 					android:paddingEnd="@dimen/spacing_medium"
 					android:maxLines="1"/>
+
+			<TextView
+					android:id="@+id/list_item_date"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textSize="@dimen/text_normal"
+					android:textColor="@color/text_primary_light2"
+					tools:text="@string/app_name"
+					android:layout_gravity="start"
+					android:paddingStart="@dimen/spacing_tiny"
+					android:paddingEnd="@dimen/spacing_small"
+					android:visibility="invisible"
+					android:maxLines="1"/>
+			<TextView
+					android:id="@+id/list_item_info"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="start"
+					android:paddingStart="@dimen/spacing_tiny"
+					android:paddingEnd="@dimen/spacing_medium"
+					android:paddingTop="2dp"
+					android:paddingBottom="@dimen/spacing_normal"
+					android:ellipsize="end"
+					android:maxLines="1"
+					android:fontFamily="sans-serif-light"
+					android:textColor="@color/text_primary_light2"
+					android:textSize="@dimen/text_normal"
+					tools:text="M4a, 44.1kHz, 128kbps, Stereo" />
 		</FrameLayout>
+
+<!--		<TextView-->
+<!--				android:id="@+id/list_item_info"-->
+<!--				android:layout_width="wrap_content"-->
+<!--				android:layout_height="wrap_content"-->
+<!--				android:layout_gravity="start"-->
+<!--				android:paddingStart="@dimen/spacing_tiny"-->
+<!--				android:paddingEnd="@dimen/spacing_medium"-->
+<!--				android:paddingTop="2dp"-->
+<!--				android:paddingBottom="@dimen/spacing_small"-->
+<!--				android:ellipsize="end"-->
+<!--				android:maxLines="1"-->
+<!--				android:fontFamily="sans-serif-light"-->
+<!--				android:textColor="@color/text_primary_light2"-->
+<!--				android:textSize="@dimen/text_normal"-->
+<!--				tools:text="M4a, 44.1kHz, 128kbps, Stereo" />-->
 	</LinearLayout>
 
 	<ImageButton
