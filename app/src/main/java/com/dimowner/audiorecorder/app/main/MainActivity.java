@@ -715,6 +715,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 						String newName = editText.getText().toString();
 						if (!info.getName().equalsIgnoreCase(newName)) {
 							presenter.renameRecord(recordId, newName, info.getFormat(), needDecode);
+						} else if (needDecode) {
+							presenter.decodeRecord(recordId);
 						}
 						dialog.dismiss();
 					}

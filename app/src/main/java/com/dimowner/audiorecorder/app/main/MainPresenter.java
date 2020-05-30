@@ -480,7 +480,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		final String name = FileUtil.removeUnallowedSignsFromName(newName);
 		loadingTasks.postRunnable(new Runnable() {
 			@Override public void run() {
-				Record record = localRepository.getRecord((int)id);
+				final Record record = localRepository.getRecord((int)id);
 				if (record != null) {
 					String nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + extension;
 					File file = new File(record.getPath());
@@ -520,7 +520,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 										if (view != null) {
 											view.hideProgress();
 											view.showName(name);
-											if (needDecode) {
+											if (needDecode && record.getDuration()/1000 < AppConstants.DECODE_DURATION) {
 												appRecorder.decodeRecordWaveform(MainPresenter.this.record);
 											}
 										}
@@ -581,7 +581,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			@Override
 			public void run() {
 				final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
-				if (rec != null) {
+				if (rec != null && rec.getDuration()/1000 < AppConstants.DECODE_DURATION) {
 					appRecorder.decodeRecordWaveform(rec);
 				}
 			}
@@ -844,7 +844,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 									}
 								}
 							});
-							appRecorder.decodeRecordWaveform(rec);
+							if (rec.getDuration()/1000 < AppConstants.DECODE_DURATION) {
+								appRecorder.decodeRecordWaveform(rec);
+							}
 						}
 					}
 				} catch (SecurityException e) {

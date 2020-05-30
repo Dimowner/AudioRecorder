@@ -43,7 +43,7 @@ public class WelcomePagerAdapter extends RecyclerView.Adapter<PagerItemViewHolde
 
 	@Override
 	public int getItemCount() {
-		return 3;
+		return 1;
 	}
 
 	public static class PagerItemViewHolder extends RecyclerView.ViewHolder {

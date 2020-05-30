@@ -49,6 +49,7 @@ public class SettingsMapper {
 	public final static String SAMPLE_RATE_48000 = "48000";
 
 	public final static String BITRATE_12000 = "12000";
+//	public final static String BITRATE_24000 = "24000";
 	public final static String BITRATE_48000 = "48000";
 	public final static String BITRATE_96000 = "96000";
 	public final static String BITRATE_128000 = "128000";
@@ -235,6 +236,8 @@ public class SettingsMapper {
 		switch (bitrate) {
 			case AppConstants.RECORD_ENCODING_BITRATE_12000:
 				return BITRATE_12000;
+//			case AppConstants.RECORD_ENCODING_BITRATE_24000:
+//				return BITRATE_24000;
 			case AppConstants.RECORD_ENCODING_BITRATE_48000:
 				return BITRATE_48000;
 			case AppConstants.RECORD_ENCODING_BITRATE_96000:

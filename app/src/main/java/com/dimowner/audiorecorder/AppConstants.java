@@ -69,7 +69,8 @@ public class AppConstants {
 	public static final int DEFAULT_PER_PAGE = 50;
 
 	public final static long RECORD_IN_TRASH_MAX_DURATION = 5184000000L; // 1000 X 60 X 60 X 24 X 60 = 60 Days
-	public final static long MIN_REMAIN_RECORDING_TIME = 10000; // 1000 X 60 = 1 Minute
+	public final static long MIN_REMAIN_RECORDING_TIME = 10000; // 1000 X 10 = 10 Seconds
+	public final static long DECODE_DURATION = 7200000; // 2 X 60 X 60 X 1000 = 2 Hours
 
 	//BEGINNING-------------- Waveform visualisation constants ----------------------------------
 

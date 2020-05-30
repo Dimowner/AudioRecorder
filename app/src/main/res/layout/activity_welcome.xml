@@ -40,15 +40,15 @@
 				tools:src="@drawable/waveform"
 				/>
 
-		<ImageView
-				android:id="@+id/item_image_second"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center"
-				android:contentDescription="@null"
-				android:layout_marginBottom="@dimen/spacing_huge"
-				tools:src="@drawable/waveform"
-				/>
+<!--		<ImageView-->
+<!--				android:id="@+id/item_image_second"-->
+<!--				android:layout_width="wrap_content"-->
+<!--				android:layout_height="wrap_content"-->
+<!--				android:layout_gravity="center"-->
+<!--				android:contentDescription="@null"-->
+<!--				android:layout_marginBottom="@dimen/spacing_huge"-->
+<!--				tools:src="@drawable/waveform"-->
+<!--				/>-->
 
 		<androidx.viewpager2.widget.ViewPager2
 				android:id="@+id/pager"
@@ -64,19 +64,21 @@
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"
 			android:layout_marginTop="@dimen/spacing_normal"
-			android:text="@string/btn_next"
+			android:layout_marginBottom="@dimen/spacing_xdouble"
+			android:text="@string/btn_get_started"
 			android:textSize="@dimen/text_normal" />
 
-	<com.dimowner.audiorecorder.app.InkPageIndicator
-			android:id="@+id/pageIndicator"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="@dimen/spacing_xnormal"
-			android:layout_marginBottom="@dimen/spacing_xdouble"
-			android:layout_gravity="center_horizontal"
-			android:importantForAccessibility="no"
-			app:ipi_currentPageIndicatorColor="@color/md_yellow_A700"
-			app:ipi_pageIndicatorColor="@color/white_transparent_50" />
+<!--	<com.dimowner.audiorecorder.app.InkPageIndicator-->
+<!--			android:id="@+id/pageIndicator"-->
+<!--			android:layout_width="match_parent"-->
+<!--			android:layout_height="wrap_content"-->
+<!--			android:layout_marginTop="@dimen/spacing_xnormal"-->
+<!--			android:layout_marginBottom="@dimen/spacing_xdouble"-->
+<!--			android:layout_gravity="center_horizontal"-->
+<!--			android:visibility="invisible"-->
+<!--			android:importantForAccessibility="no"-->
+<!--			app:ipi_currentPageIndicatorColor="@color/md_yellow_A700"-->
+<!--			app:ipi_pageIndicatorColor="@color/white_transparent_50" />-->
 
 	<Space
 			android:id="@+id/navigation_height"

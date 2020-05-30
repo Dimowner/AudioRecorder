@@ -553,24 +553,12 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	@Override
 	public void showDialogPublicDirInfo() {
-		AndroidUtils.showDialog(this, R.string.warning, R.string.public_dir_warning,
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-					}
-				}, null
-		);
+		AndroidUtils.showInfoDialog(this, R.string.public_dir_warning);
 	}
 
 	@Override
 	public void showDialogPrivateDirInfo() {
-		AndroidUtils.showDialog(this, R.string.warning, R.string.private_dir_warning,
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-					}
-				}, null
-		);
+		AndroidUtils.showInfoDialog(this, R.string.private_dir_warning);
 	}
 
 	@Override

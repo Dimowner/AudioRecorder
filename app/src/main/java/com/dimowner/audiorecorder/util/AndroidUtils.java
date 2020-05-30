@@ -445,14 +445,14 @@ public class AndroidUtils {
 
 	public static void showDialog(Activity activity, int resTitle, int resContent,
 											View.OnClickListener positiveBtnListener, View.OnClickListener negativeBtnListener){
-		showDialog(activity, -1, -1, resTitle, resContent, positiveBtnListener, negativeBtnListener);
+		showDialog(activity, -1, -1, resTitle, resContent, false, positiveBtnListener, negativeBtnListener);
 	}
 
-	public static void showDialog(Activity activity, int positiveBtnTextRes, int negativeBtnTextRes, int resTitle, int resContent,
+	public static void showDialog(Activity activity, int positiveBtnTextRes, int negativeBtnTextRes, int resTitle, int resContent, boolean cancelable,
 											final View.OnClickListener positiveBtnListener, final View.OnClickListener negativeBtnListener){
 		final Dialog dialog = new Dialog(activity);
 		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		dialog.setCancelable(false);
+		dialog.setCancelable(cancelable);
 		View view = activity.getLayoutInflater().inflate(R.layout.dialog_layout, null, false);
 		((TextView)view.findViewById(R.id.dialog_title)).setText(resTitle);
 		((TextView)view.findViewById(R.id.dialog_content)).setText(resContent);
@@ -490,15 +490,13 @@ public class AndroidUtils {
 		dialog.show();
 	}
 
-
 	public static void showInfoDialog(Activity activity, int resContent){
-		showDialog(activity, -1, -1, R.string.info, resContent,
+		showDialog(activity, -1, -1, R.string.info, resContent, true,
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {}
 				}, null);
 	}
-
 
 	public static void showLostRecordsDialog(final Activity activity, final List<Record> lostRecords){
 		final Dialog dialog = new Dialog(activity);
