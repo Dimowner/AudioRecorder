@@ -118,8 +118,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 		if (appRecorderCallback == null) {
 			appRecorderCallback = new AppRecorderCallback() {
+
+				private File recFile = null;
+
 				@Override
 				public void onRecordingStarted(final File file) {
+					recFile = file;
 					if (view != null) {
 						view.showRecordingStart();
 						view.keepScreenOn(prefs.isKeepScreenOn());
@@ -128,8 +132,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					updateInformation(
 							prefs.getSettingRecordingFormat(),
 							prefs.getSettingSampleRate(),
-							prefs.getSettingBitrate(),
-							prefs.getSettingChannelCount()
+							0
 					);
 				}
 
@@ -164,6 +167,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 				@Override
 				public void onRecordingStopped(final File file, final Record rec) {
+					recFile = null;
 					if (deleteRecord) {
 						deleteActiveRecord(true);
 						deleteRecord = false;
@@ -182,7 +186,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
 							view.showOptionsMenu();
 						}
-						updateInformation(rec.getFormat(), rec.getSampleRate(), rec.getBitrate(), rec.getChannelCount());
+						updateInformation(rec.getFormat(), rec.getSampleRate(), rec.getSize());
 					}
 					if (view != null) {
 						view.keepScreenOn(false);
@@ -199,6 +203,13 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						public void run() {
 							if (view != null) {
 								view.onRecordingProgress(mills, amp);
+								if (recFile != null && mills % 1000 == 0) { //Update record info every second when recording.
+									updateInformation(
+											prefs.getSettingRecordingFormat(),
+											prefs.getSettingSampleRate(),
+											recFile.length()
+									);
+								}
 							}
 						}
 					});
@@ -319,8 +330,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		updateInformation(
 				prefs.getSettingRecordingFormat(),
 				prefs.getSettingSampleRate(),
-				prefs.getSettingBitrate(),
-				prefs.getSettingChannelCount()
+				0
 		);
 
 		this.localRepository.setOnRecordsLostListener(new OnRecordsLostListener() {
@@ -611,7 +621,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
 									view.showOptionsMenu();
 									view.hideProgress();
-									updateInformation(rec.getFormat(), rec.getSampleRate(), rec.getBitrate(), rec.getChannelCount());
+									updateInformation(rec.getFormat(), rec.getSampleRate(), rec.getSize());
 								}
 							}
 						});
@@ -650,33 +660,29 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		fileRepository.updateRecordingDir(context, prefs);
 	}
 
-	private void updateInformation(String format, int sampleRate, int bitrate, int channelsCount) {
+	private void updateInformation(String format, int sampleRate, long size) {
 		if (format.equals(AppConstants.FORMAT_3GP)) {
 			if (view != null) {
-				view.showInformation(settingsMapper.convertFormatsToString(format) + AppConstants.SEPARATOR
-						+ settingsMapper.convertSampleRateToString(sampleRate) + AppConstants.SEPARATOR
-						+ settingsMapper.formatBitrate(AppConstants.RECORD_ENCODING_BITRATE_12000 / 1000) + AppConstants.SEPARATOR
-						+ settingsMapper.convertChannelsToString(AppConstants.RECORD_AUDIO_MONO));
+				view.showInformation(settingsMapper.formatSize(size) + AppConstants.SEPARATOR
+						+ settingsMapper.convertFormatsToString(format) + AppConstants.SEPARATOR
+						+ settingsMapper.convertSampleRateToString(sampleRate)
+				);
 			}
 		} else {
 			if (view != null) {
 				switch (format) {
 					case AppConstants.FORMAT_M4A:
-						view.showInformation(settingsMapper.convertFormatsToString(format) + AppConstants.SEPARATOR
-								+ settingsMapper.convertSampleRateToString(sampleRate) + AppConstants.SEPARATOR
-								+ settingsMapper.convertBitratesToString(bitrate) + AppConstants.SEPARATOR
-								+ settingsMapper.convertChannelsToString(channelsCount));
-						break;
 					case AppConstants.FORMAT_WAV:
-						view.showInformation(settingsMapper.convertFormatsToString(format) + AppConstants.SEPARATOR
-								+ settingsMapper.convertSampleRateToString(sampleRate) + AppConstants.SEPARATOR
-								+ settingsMapper.convertChannelsToString(channelsCount));
+						view.showInformation(settingsMapper.formatSize(size) + AppConstants.SEPARATOR
+								+ settingsMapper.convertFormatsToString(format) + AppConstants.SEPARATOR
+								+ settingsMapper.convertSampleRateToString(sampleRate)
+						);
 						break;
 					default:
-						view.showInformation(format + AppConstants.SEPARATOR
+						view.showInformation(settingsMapper.formatSize(size) + AppConstants.SEPARATOR
+								+ format + AppConstants.SEPARATOR
 								+ settingsMapper.convertSampleRateToString(sampleRate) + AppConstants.SEPARATOR
-								+ settingsMapper.convertBitratesToString(bitrate) + AppConstants.SEPARATOR
-								+ settingsMapper.convertChannelsToString(channelsCount));
+						);
 				}
 			}
 		}
@@ -756,8 +762,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 								updateInformation(
 										prefs.getSettingRecordingFormat(),
 										prefs.getSettingSampleRate(),
-										prefs.getSettingBitrate(),
-										prefs.getSettingChannelCount()
+										0
 								);
 							}
 						}

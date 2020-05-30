@@ -151,6 +151,7 @@
 	<string name="stereo">Стерео</string>
 	<string name="mono">Моно</string>
 	<string name="records_location">Розташування записів:\n%s</string>
+	<string name="size">%s Мб</string>
 
 	<string name="error_unknown">Неочікувана помилка</string>
 	<string name="error_cant_create_file">Не вдалося створити файл</string>

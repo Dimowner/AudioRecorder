@@ -525,11 +525,6 @@ public class AndroidUtils {
 		dialog.show();
 	}
 
-	public static String formatSize(long size) {
-		DecimalFormat formatter = new DecimalFormat("#.##");
-		return formatter.format((float)size/(1024*1024)) + " Mb";
-	}
-
 	public static String getAppVersion(Context context) {
 		String versionName;
 		try {

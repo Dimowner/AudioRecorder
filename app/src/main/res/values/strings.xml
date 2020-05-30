@@ -151,6 +151,7 @@
 	<string name="stereo">Stereo</string>
 	<string name="mono">Mono</string>
 	<string name="records_location">Records location:\n%s</string>
+	<string name="size">%s Mb</string>
 
 	<string name="error_unknown">Unexpected error</string>
 	<string name="error_cant_create_file">Can\'t create file</string>

@@ -22,6 +22,10 @@ import android.content.res.Resources;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.R;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+
 /**
  * Created on 26.04.2020.
  * @author Dimowner
@@ -39,7 +43,13 @@ public class SettingsMapper {
 
 	public SettingsMapper(Context context) {
 		loadResources(context);
+
+		DecimalFormatSymbols formatSymbols = new DecimalFormatSymbols(Locale.getDefault());
+		formatSymbols.setDecimalSeparator('.');
+		format = new DecimalFormat("#.##", formatSymbols);
 	}
+
+	private static DecimalFormat format;
 
 	public final static String SAMPLE_RATE_8000 = "8000";
 	public final static String SAMPLE_RATE_16000 = "16000";
@@ -314,5 +324,9 @@ public class SettingsMapper {
 			}
 		}
 		return "";
+	}
+
+	public String formatSize(long size) {
+		return resources.getString(R.string.size, format.format((float)size/(1024*1024)));
 	}
 }

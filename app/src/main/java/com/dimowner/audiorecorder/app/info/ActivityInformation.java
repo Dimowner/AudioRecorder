@@ -74,7 +74,7 @@ public class ActivityInformation extends Activity {
 					txtName.setText(info.getName());
 					txtFormat.setText(info.getFormat());
 					txtDuration.setText(TimeUtils.formatTimeIntervalHourMinSec2(info.getDuration()/1000));
-					txtSize.setText(AndroidUtils.formatSize(info.getSize()));
+					txtSize.setText(ARApplication.getInjector().provideSettingsMapper().formatSize(info.getSize()));
 					txtLocation.setText(info.getLocation());
 					txtCreated.setText(TimeUtils.formatDateTime(info.getCreated()));
 					txtSampleRate.setText(getString(R.string.value_hz, info.getSampleRate()));

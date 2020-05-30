@@ -148,7 +148,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 						itemClickListener.onItemClick(v, data.get(lpos).getId(), data.get(lpos).getPath(), lpos);
 					}
 				}});
-			updateInformation(holder.info, item.getFormat(), item.getSampleRate(), item.getBitrate(), item.getChannelCount());
+			updateInformation(holder.info, item.getFormat(), item.getSampleRate(), item.getSize());
 		} else if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_DATE) {
 			UniversalViewHolder holder = (UniversalViewHolder) viewHolder;
 			((TextView)holder.view).setText(TimeUtils.formatDateSmart(data.get(viewHolder.getAdapterPosition()).getAdded(), holder.view.getContext()));
@@ -412,30 +412,26 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		}
 	}
 
-	private void updateInformation(TextView view, String format, int sampleRate, int bitrate, int channelsCount) {
+	private void updateInformation(TextView view, String format, int sampleRate, long size) {
 		if (format.equals(AppConstants.FORMAT_3GP)) {
-			view.setText(settingsMapper.convertFormatsToString(format) + AppConstants.SEPARATOR
-					+ settingsMapper.convertSampleRateToString(sampleRate) + AppConstants.SEPARATOR
-					+ settingsMapper.formatBitrate(AppConstants.RECORD_ENCODING_BITRATE_12000/1000) + AppConstants.SEPARATOR
-					+ settingsMapper.convertChannelsToString(AppConstants.RECORD_AUDIO_MONO));
+			view.setText(settingsMapper.formatSize(size) + AppConstants.SEPARATOR
+					+ settingsMapper.convertFormatsToString(format) + AppConstants.SEPARATOR
+					+ settingsMapper.convertSampleRateToString(sampleRate)
+			);
 		} else {
 			switch (format) {
 				case AppConstants.FORMAT_M4A:
-					view.setText(settingsMapper.convertFormatsToString(format) + AppConstants.SEPARATOR
-							+ settingsMapper.convertSampleRateToString(sampleRate) + AppConstants.SEPARATOR
-							+ settingsMapper.convertBitratesToString(bitrate) + AppConstants.SEPARATOR
-							+ settingsMapper.convertChannelsToString(channelsCount));
-					break;
 				case AppConstants.FORMAT_WAV:
-					view.setText(settingsMapper.convertFormatsToString(format) + AppConstants.SEPARATOR
-							+ settingsMapper.convertSampleRateToString(sampleRate) + AppConstants.SEPARATOR
-							+ settingsMapper.convertChannelsToString(channelsCount));
+					view.setText(settingsMapper.formatSize(size) + AppConstants.SEPARATOR
+							+ settingsMapper.convertFormatsToString(format) + AppConstants.SEPARATOR
+							+ settingsMapper.convertSampleRateToString(sampleRate)// + AppConstants.SEPARATOR
+					);
 					break;
 				default:
-					view.setText(format + AppConstants.SEPARATOR
+					view.setText(settingsMapper.formatSize(size) + AppConstants.SEPARATOR
+							+ format + AppConstants.SEPARATOR
 							+ settingsMapper.convertSampleRateToString(sampleRate) + AppConstants.SEPARATOR
-							+ settingsMapper.convertBitratesToString(bitrate) + AppConstants.SEPARATOR
-							+ settingsMapper.convertChannelsToString(channelsCount));
+					);
 			}
 		}
 	}
