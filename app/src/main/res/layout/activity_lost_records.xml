@@ -40,9 +40,10 @@
 				style="@style/Text.SectionLabel"
 				android:id="@+id/txt_title"
 				android:layout_width="0dp"
-				android:layout_height="@dimen/toolbar_height"
+				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:gravity="center_vertical"
+				android:layout_gravity="center"
 				android:paddingStart="@dimen/spacing_normal"
 				android:paddingLeft="@dimen/spacing_normal"
 				android:paddingEnd="@dimen/spacing_normal"
@@ -65,6 +66,31 @@
 				android:text="@string/delete_all2"
 				/>
 	</LinearLayout>
+
+	<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/divider"
+			android:background="@color/divider" />
+
+	<TextView
+			android:id="@+id/btn_file_browser"
+			style="@style/Text.NormalLabel"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/file_browser"
+			android:drawableStart="@drawable/ic_folder_open"
+			android:background="?android:selectableItemBackground"
+			android:paddingStart="@dimen/spacing_normal"
+			android:paddingEnd="@dimen/spacing_normal"
+			android:paddingTop="@dimen/spacing_xsmall"
+			android:paddingBottom="@dimen/spacing_xsmall"
+			android:drawablePadding="@dimen/spacing_double"
+			/>
+
+	<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/divider"
+			android:background="@color/divider" />
 
 	<TextView
 			android:layout_width="match_parent"

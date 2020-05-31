@@ -33,6 +33,7 @@ import android.widget.Toast;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.browser.FileBrowserActivity;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.util.AndroidUtils;
@@ -71,6 +72,12 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 			public void onClick(View v) {
 				ARApplication.getInjector().releaseLostRecordsPresenter();
 				finish();
+			}
+		});
+		findViewById(R.id.btn_file_browser).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startActivity(FileBrowserActivity.getStartIntent(getApplicationContext()));
 			}
 		});
 
