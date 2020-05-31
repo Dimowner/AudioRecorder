@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~  Copyright 2019 Dmitriy Ponomarenko
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:tools="http://schemas.android.com/tools"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:animateLayoutChanges="true"
+		android:orientation="vertical">
+
+	<LinearLayout
+			android:id="@+id/toolbar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+		<ImageButton
+				android:id="@+id/btn_back"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="start"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:contentDescription="@null"
+				android:padding="@dimen/spacing_normal"
+				android:src="@drawable/ic_arrow_back" />
+
+		<TextView
+				android:id="@+id/txt_title"
+				style="@style/Text.SectionLabel"
+				android:layout_width="0dp"
+				android:layout_height="@dimen/toolbar_height"
+				android:layout_weight="1"
+				android:gravity="center_vertical"
+				android:paddingStart="@dimen/spacing_normal"
+				android:paddingLeft="@dimen/spacing_normal"
+				android:paddingEnd="@dimen/spacing_normal"
+				android:paddingRight="@dimen/spacing_normal"
+				android:text="@string/file_browser"
+				android:textColor="@color/text_primary_light" />
+
+	</LinearLayout>
+
+	<LinearLayout
+			android:id="@+id/tabs_panel"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+		<Button
+				android:id="@+id/tab_private_dir"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:background="?android:selectableItemBackground"
+				android:gravity="center"
+				android:paddingStart="@dimen/spacing_small"
+				android:paddingEnd="@dimen/spacing_small"
+				android:text="@string/private_dir"
+				android:textColor="@color/text_primary_light" />
+
+		<Button
+				android:id="@+id/tab_public_dir"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:background="?android:selectableItemBackground"
+				android:gravity="center"
+				android:paddingStart="@dimen/spacing_small"
+				android:paddingEnd="@dimen/spacing_small"
+				android:text="@string/public_dir"
+				android:textColor="@color/text_primary_light" />
+	</LinearLayout>
+
+	<LinearLayout
+			android:id="@+id/pnl_import_progress"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_horizontal"
+			android:visibility="gone"
+			android:orientation="horizontal"
+			android:layout_marginTop="@dimen/spacing_tiny"
+			android:layout_marginBottom="@dimen/spacing_tiny"
+			tools:visibility="visible">
+
+		<ProgressBar
+				style="?android:attr/progressBarStyleSmall"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"/>
+
+		<TextView
+				android:id="@+id/txt_import_message"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="@dimen/spacing_small"
+				android:textColor="@color/white"
+				android:textSize="@dimen/text_small"
+				android:text="@string/import_progress"/>
+
+	</LinearLayout>
+
+	<TextView
+			android:id="@+id/files_path"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:paddingStart="@dimen/spacing_normal"
+			android:paddingLeft="@dimen/spacing_normal"
+			android:paddingTop="@dimen/spacing_small"
+			android:paddingEnd="@dimen/spacing_normal"
+			android:paddingRight="@dimen/spacing_normal"
+			android:paddingBottom="@dimen/spacing_small"
+			android:text="@string/records_was_removed"
+			android:textColor="@color/text_primary_light" />
+
+	<FrameLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
+
+		<androidx.recyclerview.widget.RecyclerView
+				android:id="@+id/recycler_view"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" />
+
+		<TextView
+				android:id="@+id/txtEmpty"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:drawableTop="@drawable/ic_audiotrack_64"
+				android:drawablePadding="@dimen/spacing_small"
+				android:gravity="center"
+				android:text="@string/empty"
+				android:textColor="@color/text_primary_light"
+				android:textSize="@dimen/text_large"
+				android:visibility="gone"
+				tools:visibility="visible" />
+
+		<ProgressBar
+				android:id="@+id/progress"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center" />
+
+	</FrameLayout>
+</LinearLayout>

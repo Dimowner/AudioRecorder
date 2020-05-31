@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.dimowner.audiorecorder.R;
@@ -127,8 +127,8 @@ public class TrashAdapter extends RecyclerView.Adapter<TrashAdapter.ItemViewHold
 	class ItemViewHolder extends RecyclerView.ViewHolder {
 		TextView name;
 		TextView duration;
-		ImageButton btnDelete;
-		ImageButton btnRestore;
+		Button btnDelete;
+		Button btnRestore;
 		View view;
 
 		ItemViewHolder(View itemView) {

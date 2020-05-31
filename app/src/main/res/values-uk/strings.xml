@@ -42,12 +42,14 @@
 	<string name="bookmarks">Закладки</string>
 	<string name="share_record">Поділитися записом: %s</string>
 	<string name="import_progress">Імпортування аудіо файла&#8230;</string>
+	<string name="btn_import">Імпорт</string>
 	<string name="record_processing">Обробка запису для відображення&#8230;</string>
 	<string name="request">Зворотній зв\'язок</string>
 	<string name="email_clients_not_found">Не знайдено жодного поштового клієнта</string>
 	<string name="send_email">Надіслати по електронній пошті&#8230;</string>
 	<string name="open_record_with">Відкрити %s з допомогою</string>
 	<string name="delete">Видалити</string>
+	<string name="restore">Відновити</string>
 	<string name="info">Інформація</string>
 	<string name="rename">Перейменувати</string>
 	<string name="dont_ask_again_rename">Більше не показувати перейменування</string>
@@ -63,6 +65,7 @@
 	<string name="all_records_deleted_successfully">Всі записи видалені успішно</string>
 	<string name="record_deleted_successfully">Запис видалено успішно</string>
 	<string name="record_restored_successfully">Запис відновлено успішно</string>
+	<string name="record_imported_successfully">Запис успішно імпортовано</string>
 	<string name="by_date">По даті (найновіші)</string>
 	<string name="by_date_desc">По даті (найстаріші)</string>
 	<string name="by_name">По назві (А-Я)</string>
@@ -83,6 +86,12 @@
 	<string name="lost_records">Втрачені записи</string>
 	<string name="trash">Кошик</string>
 	<string name="trash_info">Запис переміщений в кошик автоматично буде видалений назавжди через 60 днів.</string>
+	<string name="file_browser">Файловий менеджер</string>
+	<string name="private_dir">Приватний каталог</string>
+	<string name="public_dir">Публічний каталог</string>
+	<string name="found_in_the_app">Є в додатку</string>
+	<string name="not_found_in_the_app">Не знайдено в додатку</string>
+	<string name="in_trash">В кошику</string>
 
 	<string name="app_settings">Налаштування додатка:</string>
 	<string name="recording_settings">Налаштування запису:</string>

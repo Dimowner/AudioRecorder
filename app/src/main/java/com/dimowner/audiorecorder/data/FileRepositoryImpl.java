@@ -106,6 +106,41 @@ public class FileRepositoryImpl implements FileRepository {
 		throw new CantCreateFileException();
 	}
 
+	@Override
+	public File[] getPrivateDirFiles(Context context) {
+		try {
+			return FileUtil.getPrivateRecordsDir(context).listFiles();
+		} catch (FileNotFoundException e) {
+			Timber.e(e);
+			return new File[] {};
+		}
+	}
+
+	@Override
+	public File[] getPublicDirFiles() {
+		File dir = FileUtil.getAppDir();
+		if (dir != null) {
+			return dir.listFiles();
+		} else {
+			return new File[] {};
+		}
+	}
+
+	@Override
+	public File getPublicDir() {
+		return FileUtil.getAppDir();
+	}
+
+	@Override
+	public File getPrivateDir(Context context) {
+		try {
+			return FileUtil.getPrivateRecordsDir(context);
+		} catch (FileNotFoundException e) {
+			Timber.e(e);
+			return null;
+		}
+	}
+
 //	@Override
 //	public File getRecordFileByName(String name, String extension) {
 //		File recordFile = new File(recordDirectory.getAbsolutePath() + File.separator + FileUtil.generateRecordNameCounted(prefs.getRecordCounter(), extension));

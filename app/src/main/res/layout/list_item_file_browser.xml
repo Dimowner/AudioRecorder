@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~  Copyright 2018 Dmitriy Ponomarenko
+  ~  Copyright 2020 Dmitriy Ponomarenko
   ~
   ~  Licensed under the Apache License, Version 2.0 (the "License");
   ~  you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center_vertical"
+		android:background="?android:selectableItemBackground"
 		android:orientation="vertical">
 
 	<View
@@ -31,29 +32,41 @@
 			android:id="@+id/list_item_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginStart="@dimen/spacing_normal"
-			android:layout_marginTop="@dimen/spacing_small"
-			android:layout_marginEnd="@dimen/spacing_normal"
 			android:ellipsize="end"
 			android:maxLines="2"
+			android:paddingStart="@dimen/spacing_normal"
+			android:paddingTop="@dimen/spacing_small"
+			android:paddingEnd="@dimen/spacing_tiny"
 			android:textColor="@color/text_primary_light"
 			android:textSize="@dimen/text_large"
 			android:textStyle="bold"
-			tools:text="Record-31.m4a" />
+			tools:text="Record-30.m4a" />
 
 	<TextView
-			android:id="@+id/list_item_location"
+			android:id="@+id/list_item_info"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="start"
-			android:layout_marginStart="@dimen/spacing_normal"
-			android:layout_marginEnd="@dimen/spacing_normal"
 			android:maxLines="1"
-			android:paddingStart="@dimen/spacing_zero"
-			android:paddingEnd="@dimen/spacing_small"
-			android:textColor="@color/text_primary_light2"
+			android:paddingStart="@dimen/spacing_normal"
+			android:paddingEnd="@dimen/spacing_tiny"
+			android:textColor="@color/text_secondary_light"
 			android:textSize="@dimen/text_medium"
 			tools:text="22:33" />
+
+	<TextView
+			android:id="@+id/list_item_status"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="start"
+			android:maxLines="1"
+			android:layout_marginStart="@dimen/spacing_normal"
+			android:layout_marginTop="@dimen/spacing_tiny"
+			android:layout_marginBottom="@dimen/spacing_tiny"
+			android:padding="@dimen/spacing_tiny"
+			android:textColor="@color/white"
+			android:textSize="@dimen/text_medium"
+			tools:text="status" />
 
 	<LinearLayout
 			android:id="@+id/list_item_action_panel"
@@ -63,7 +76,7 @@
 			android:orientation="horizontal">
 
 		<Button
-				android:id="@+id/list_item_restore"
+				android:id="@+id/list_item_btn_import"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
@@ -71,11 +84,23 @@
 				android:gravity="center"
 				android:paddingStart="@dimen/spacing_small"
 				android:paddingEnd="@dimen/spacing_small"
-				android:text="@string/restore"
+				android:text="@string/btn_import"
 				android:textColor="@color/text_primary_light" />
 
 		<Button
-				android:id="@+id/list_item_delete"
+				android:id="@+id/list_item_btn_download"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:background="?android:selectableItemBackground"
+				android:gravity="center"
+				android:paddingStart="@dimen/spacing_small"
+				android:paddingEnd="@dimen/spacing_small"
+				android:text="@string/download"
+				android:textColor="@color/text_primary_light" />
+
+		<Button
+				android:id="@+id/list_item_btn_delete"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"

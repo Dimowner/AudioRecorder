@@ -98,7 +98,7 @@ public class TrashActivity extends Activity implements TrashContract.View {
 		adapter.setOnItemClickListener(new TrashAdapter.OnItemClickListener() {
 			@Override
 			public void onItemClick(RecordItem record) {
-				presenter.onRecordInfo(Mapper.toRecordInfo(record));
+				presenter.onRecordInfo(Mapper.toRecordInfoInTrash(record));
 			}
 
 			@Override

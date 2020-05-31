@@ -42,12 +42,14 @@
 	<string name="bookmarks">Закладки</string>
 	<string name="share_record">Поделиться записью: %s</string>
 	<string name="import_progress">Импортирование аудио файла&#8230;</string>
+	<string name="btn_import">Импорт</string>
 	<string name="record_processing">Обработка записи для отображения&#8230;</string>
 	<string name="request">Обратная связь</string>
 	<string name="email_clients_not_found">Не найдено ни одного почтового клиента</string>
 	<string name="send_email">Послать по электронной почте&#8230;</string>
 	<string name="open_record_with">Открыть %s с помощью</string>
 	<string name="delete">Удалить</string>
+	<string name="restore">Восстановить</string>
 	<string name="info">Информация</string>
 	<string name="rename">Переименовать</string>
 	<string name="dont_ask_again_rename">Больше не показывать переименование</string>
@@ -63,6 +65,7 @@
 	<string name="all_records_deleted_successfully">Все записи удалены успешно</string>
 	<string name="record_deleted_successfully">Запись удалена успешно</string>
 	<string name="record_restored_successfully">Запись восстановлено успешно</string>
+	<string name="record_imported_successfully">Запись успешно импортировано</string>
 	<string name="by_date">По дате (новые)</string>
 	<string name="by_date_desc">По дате (старые)</string>
 	<string name="by_name">По имени (А-Я)</string>
@@ -83,6 +86,12 @@
 	<string name="lost_records">Потеряные записи</string>
 	<string name="trash">Корзина</string>
 	<string name="trash_info">Запись помещенная в корзину автоматически будет удалена навсегда через 60 дней.</string>
+	<string name="file_browser">Файловый менеджер</string>
+	<string name="private_dir">Приватный каталог</string>
+	<string name="public_dir">Публичный каталог</string>
+	<string name="found_in_the_app">Есть в приложении</string>
+	<string name="not_found_in_the_app">Не найдено в приложении</string>
+	<string name="in_trash">В корзине</string>
 
 	<string name="app_settings">Настройки приложения:</string>
 	<string name="recording_settings">Настройки записи:</string>

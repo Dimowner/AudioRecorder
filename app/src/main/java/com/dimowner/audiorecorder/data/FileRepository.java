@@ -30,6 +30,14 @@ public interface FileRepository {
 
 //	File getRecordFileByName(String name, String extension);
 
+	File[] getPrivateDirFiles(Context context);
+
+	File[] getPublicDirFiles();
+
+	File getPublicDir();
+
+	File getPrivateDir(Context context);
+
 	File getRecordingDir();
 
 	boolean deleteRecordFile(String path);

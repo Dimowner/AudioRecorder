@@ -1,7 +1,7 @@
 <!-- drawable/ic_play.xmlxml -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:height="36dp"
-    android:width="36dp"
+    android:height="48dp"
+    android:width="48dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
     <path

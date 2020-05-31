@@ -42,12 +42,14 @@
 	<string name="bookmarks">Bookmarks</string>
 	<string name="share_record">Share record: %s</string>
 	<string name="import_progress">Audio file import&#8230;</string>
+	<string name="btn_import">Import</string>
 	<string name="record_processing">Waveform drawing calculations&#8230;</string>
 	<string name="request">Request or feedback</string>
 	<string name="email_clients_not_found">Not found any Email client</string>
 	<string name="send_email">Send by email&#8230;</string>
 	<string name="open_record_with">Open %s with</string>
 	<string name="delete">Delete</string>
+	<string name="restore">Restore</string>
 	<string name="info">Information</string>
 	<string name="rename">Rename</string>
 	<string name="dont_ask_again_rename">Don\'t ask rename again</string>
@@ -63,6 +65,7 @@
 	<string name="all_records_deleted_successfully">All records deleted successfully</string>
 	<string name="record_deleted_successfully">Record deleted successfully</string>
 	<string name="record_restored_successfully">Record restored successfully</string>
+	<string name="record_imported_successfully">Record imported successfully</string>
 	<string name="by_date">By date (newest)</string>
 	<string name="by_date_desc">By date (oldest)</string>
 	<string name="by_name">By name (A-Z)</string>
@@ -83,6 +86,12 @@
 	<string name="lost_records">Lost records</string>
 	<string name="trash">Trash</string>
 	<string name="trash_info">The records moved to trash will be automatically removed forever in 60 days.</string>
+	<string name="file_browser">File browser</string>
+	<string name="private_dir">Private directory</string>
+	<string name="public_dir">Public directory</string>
+	<string name="found_in_the_app">Found in the app</string>
+	<string name="not_found_in_the_app">Not found in the app</string>
+	<string name="in_trash">In trash</string>
 
 	<string name="app_settings">App settings:</string>
 	<string name="recording_settings">Recording settings:</string>

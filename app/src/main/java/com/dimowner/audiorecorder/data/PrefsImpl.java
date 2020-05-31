@@ -81,7 +81,7 @@ public class PrefsImpl implements Prefs {
 	public void firstRunExecuted() {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putBoolean(PREF_KEY_IS_FIRST_RUN, false);
-		editor.putBoolean(PREF_KEY_IS_STORE_DIR_PUBLIC, true);
+		editor.putBoolean(PREF_KEY_IS_STORE_DIR_PUBLIC, false);
 		editor.putBoolean(PREF_KEY_IS_MIGRATED, true);
 		editor.apply();
 //		setStoreDirPublic(true);

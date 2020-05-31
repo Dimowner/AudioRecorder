@@ -51,7 +51,8 @@ public class Mapper {
 				record.getCreated(),
 				record.getSampleRate(),
 				record.getChannelCount(),
-				record.getBitrate()
+				record.getBitrate(),
+				false
 		);
 	}
 
@@ -66,7 +67,24 @@ public class Mapper {
 				record.getCreated(),
 				record.getSampleRate(),
 				record.getChannelCount(),
-				record.getBitrate()
+				record.getBitrate(),
+				false
+		);
+	}
+
+	public static RecordInfo toRecordInfoInTrash(RecordItem record) {
+		if (record == null) return null;
+		return new RecordInfo(
+				record.getName(),
+				record.getFormat(),
+				record.getDuration(),
+				record.getSize(),
+				record.getPath(),
+				record.getCreated(),
+				record.getSampleRate(),
+				record.getChannelCount(),
+				record.getBitrate(),
+				true
 		);
 	}
 
@@ -81,7 +99,8 @@ public class Mapper {
 				record.getCreated(),
 				record.getSampleRate(),
 				record.getChannelCount(),
-				record.getBitrate()
+				record.getBitrate(),
+				false
 		);
 	}
 

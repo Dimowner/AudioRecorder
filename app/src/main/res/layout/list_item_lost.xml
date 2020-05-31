@@ -69,8 +69,7 @@
 					tools:text="/storage/emulated/0/AudioRecorder/Record-30.m4a"
 					android:layout_gravity="start"
 					android:paddingStart="@dimen/spacing_tiny"
-					android:paddingEnd="@dimen/spacing_small"
-					android:maxLines="1"/>
+					android:paddingEnd="@dimen/spacing_small" />
 
 	</LinearLayout>
 

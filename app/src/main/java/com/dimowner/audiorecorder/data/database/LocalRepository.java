@@ -27,6 +27,8 @@ public interface LocalRepository {
 
 	Record getRecord(int id);
 
+	Record findRecordByPath(String path);
+
 	Record getTrashRecord(int id);
 
 	List<Record> getAllRecords();

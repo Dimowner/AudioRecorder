@@ -143,7 +143,7 @@
 					android:id="@+id/record"
 					android:layout_width="wrap_content"
 					android:layout_height="@dimen/waveform_height"
-					android:layout_marginBottom="48dp"
+					android:layout_marginBottom="@dimen/notification_btn"
 					/>
 
 			<ProgressBar
@@ -156,8 +156,8 @@
 
 			<ImageButton
 					android:id="@+id/btn_play"
-					android:layout_width="@dimen/bottom_pnl_small_btn_size"
-					android:layout_height="@dimen/bottom_pnl_small_btn_size"
+					android:layout_width="@dimen/notification_btn"
+					android:layout_height="@dimen/notification_btn"
 					android:adjustViewBounds="true"
 					android:background="?android:selectableItemBackgroundBorderless"
 					android:contentDescription="@null"
@@ -168,8 +168,8 @@
 
 			<ImageButton
 					android:id="@+id/btn_stop"
-					android:layout_width="@dimen/bottom_pnl_small_btn_size"
-					android:layout_height="@dimen/bottom_pnl_small_btn_size"
+					android:layout_width="@dimen/notification_btn"
+					android:layout_height="@dimen/notification_btn"
 					android:adjustViewBounds="true"
 					android:background="?android:selectableItemBackgroundBorderless"
 					android:contentDescription="@null"

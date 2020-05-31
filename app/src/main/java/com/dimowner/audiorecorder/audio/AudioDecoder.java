@@ -52,6 +52,7 @@ public class AudioDecoder {
 
 	private long duration;
 	private static final String[] SUPPORTED_EXT = new String[]{"mp3", "wav", "3gpp", "3gp", "amr", "aac", "m4a", "mp4", "ogg", "flac"};
+	private static final String TRASH_EXT = "del";
 
 	private IntArrayList gains;
 
@@ -243,6 +244,8 @@ public class AudioDecoder {
 
 	public static RecordInfo readRecordInfo(@NonNull final File inputFile)
 			throws OutOfMemoryError, IllegalStateException {
+
+		boolean isInTrash = false;
 		try {
 			if (!inputFile.exists()) {
 				throw new java.io.FileNotFoundException(inputFile.getAbsolutePath());
@@ -252,7 +255,8 @@ public class AudioDecoder {
 			if (components.length < 2) {
 				throw new IOException();
 			}
-			if (!Arrays.asList(SUPPORTED_EXT).contains(components[components.length - 1])) {
+			isInTrash = TRASH_EXT.equalsIgnoreCase(components[components.length - 1]);
+			if (!isInTrash && !isSupportedExtension(components[components.length - 1])) {
 				throw new IOException();
 			}
 
@@ -325,14 +329,25 @@ public class AudioDecoder {
 					inputFile.lastModified(),
 					sampleRate,
 					channelCount,
-					bitrate
+					bitrate,
+					isInTrash
 			);
 		} catch (Exception e) {
+			Timber.e(e);
 			return new RecordInfo(
 					FileUtil.removeFileExtension(inputFile.getName()), "", 0, inputFile.length(),
-					inputFile.getAbsolutePath(), inputFile.lastModified(), 0, 0, 0
+					inputFile.getAbsolutePath(), inputFile.lastModified(), 0, 0, 0, isInTrash
 			);
 		}
+	}
+
+	private static boolean isSupportedExtension(String ext) {
+		for (int i = 0; i < SUPPORTED_EXT.length; i++) {
+			if (SUPPORTED_EXT[i].equalsIgnoreCase(ext)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static String readFileFormat(File file, String mime) {

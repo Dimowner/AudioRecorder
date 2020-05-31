@@ -42,6 +42,7 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.browser.FileBrowserActivity;
 import com.dimowner.audiorecorder.app.trash.TrashActivity;
 import com.dimowner.audiorecorder.app.widget.ChipsView;
 import com.dimowner.audiorecorder.app.widget.SettingView;
@@ -55,6 +56,7 @@ import java.util.List;
 
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import timber.log.Timber;
 
 public class SettingsActivity extends Activity implements SettingsContract.View, View.OnClickListener {
 
@@ -135,6 +137,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		TextView txtAbout = findViewById(R.id.txtAbout);
 		txtAbout.setText(getAboutContent());
 		findViewById(R.id.btnTrash).setOnClickListener(this);
+		findViewById(R.id.btn_file_browser).setOnClickListener(this);
 		findViewById(R.id.btnRate).setOnClickListener(this);
 		findViewById(R.id.btnRequest).setOnClickListener(this);
 		findViewById(R.id.btnPatreon).setOnClickListener(this);
@@ -375,6 +378,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 				break;
 			case R.id.txt_records_location:
 				presenter.onRecordsLocationClick();
+				break;
+			case R.id.btn_file_browser:
+				startActivity(FileBrowserActivity.getStartIntent(getApplicationContext()));
 				break;
 			case R.id.btnRate:
 				rateApp();
@@ -626,7 +632,11 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		intent.setDataAndType(fileUri, DocumentsContract.Document.MIME_TYPE_DIR);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-		startActivity(intent);
+		try {
+			startActivity(intent);
+		} catch (ActivityNotFoundException e) {
+			Timber.e(e);
+		}
 	}
 
 	@Override

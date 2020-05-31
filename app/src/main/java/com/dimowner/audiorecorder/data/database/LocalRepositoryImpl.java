@@ -33,6 +33,8 @@ import java.util.List;
 
 import timber.log.Timber;
 
+import static com.dimowner.audiorecorder.data.database.SQLiteHelper.COLUMN_PATH;
+
 public class LocalRepositoryImpl implements LocalRepository {
 
 //**
@@ -106,6 +108,19 @@ public class LocalRepositoryImpl implements LocalRepository {
 			return r;
 		}
 		return null;
+	}
+
+	@Override
+	public Record findRecordByPath(String path) {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		List<Record> records = dataSource.getItems(COLUMN_PATH + " = '" + path + "'");
+		if (records.isEmpty()) {
+			return null;
+		} else {
+			return records.get(0);
+		}
 	}
 
 	@Override

@@ -65,6 +65,21 @@
 				android:drawablePadding="@dimen/spacing_normal"
 				/>
 
+		<TextView
+				android:id="@+id/btn_file_browser"
+				style="@style/Text.NormalLabel"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/file_browser"
+				android:drawableStart="@drawable/ic_folder_open"
+				android:background="?android:selectableItemBackground"
+				android:paddingStart="@dimen/spacing_normal"
+				android:paddingEnd="@dimen/spacing_normal"
+				android:paddingTop="@dimen/spacing_xsmall"
+				android:paddingBottom="@dimen/spacing_xsmall"
+				android:drawablePadding="@dimen/spacing_normal"
+				/>
+
 		<Spinner
 				android:id="@+id/themeColor"
 				android:layout_width="match_parent"

@@ -44,6 +44,8 @@
 					 android:screenOrientation="portrait"/>
 		<activity android:name="com.dimowner.audiorecorder.app.lostrecords.LostRecordsActivity"
 				android:screenOrientation="portrait"/>
+		<activity android:name="com.dimowner.audiorecorder.app.browser.FileBrowserActivity"
+				android:screenOrientation="portrait"/>
 		<activity android:name="com.dimowner.audiorecorder.app.trash.TrashActivity"
 				android:screenOrientation="portrait"/>
 		<activity android:name="com.dimowner.audiorecorder.app.welcome.WelcomeActivity"

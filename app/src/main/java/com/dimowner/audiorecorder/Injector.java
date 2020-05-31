@@ -20,6 +20,8 @@ import android.content.Context;
 
 import com.dimowner.audiorecorder.app.AppRecorder;
 import com.dimowner.audiorecorder.app.AppRecorderImpl;
+import com.dimowner.audiorecorder.app.browser.FileBrowserContract;
+import com.dimowner.audiorecorder.app.browser.FileBrowserPresenter;
 import com.dimowner.audiorecorder.app.lostrecords.LostRecordsContract;
 import com.dimowner.audiorecorder.app.lostrecords.LostRecordsPresenter;
 import com.dimowner.audiorecorder.app.settings.SettingsMapper;
@@ -62,6 +64,7 @@ public class Injector {
 	private RecordsContract.UserActionsListener recordsPresenter;
 	private SettingsContract.UserActionsListener settingsPresenter;
 	private LostRecordsContract.UserActionsListener lostRecordsPresenter;
+	private FileBrowserContract.UserActionsListener fileBrowserPresenter;
 	private TrashContract.UserActionsListener trashPresenter;
 	private SetupContract.UserActionsListener setupPresenter;
 
@@ -203,6 +206,15 @@ public class Injector {
 		return lostRecordsPresenter;
 	}
 
+	public FileBrowserContract.UserActionsListener provideFileBrowserPresenter() {
+		if (fileBrowserPresenter == null) {
+			fileBrowserPresenter = new FileBrowserPresenter(providePrefs(), provideAppRecorder(), provideImportTasksQueue(),
+					provideLoadingTasksQueue(), provideRecordingTasksQueue(),
+					provideLocalRepository(), provideFileRepository());
+		}
+		return fileBrowserPresenter;
+	}
+
 	public void releaseTrashPresenter() {
 		if (trashPresenter != null) {
 			trashPresenter.clear();
@@ -214,6 +226,13 @@ public class Injector {
 		if (lostRecordsPresenter != null) {
 			lostRecordsPresenter.clear();
 			lostRecordsPresenter = null;
+		}
+	}
+
+	public void releaseFileBrowserPresenter() {
+		if (fileBrowserPresenter != null) {
+			fileBrowserPresenter.clear();
+			fileBrowserPresenter = null;
 		}
 	}
 
