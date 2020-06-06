@@ -82,7 +82,7 @@
 	<string name="rec_location">File location:</string>
 	<string name="naming">Naming:</string>
 	<string name="private_dir_warning">Records will be stored in the app\'s private directory which is not visible for other apps</string>
-	<string name="public_dir_warning">Records will be stored in the common directory on your device which is visible for other apps</string>
+	<string name="public_dir_warning">Records will be stored in a common directory on your device which is visible for other apps</string>
 	<string name="lost_records">Lost records</string>
 	<string name="trash">Trash</string>
 	<string name="trash_info">The records moved to the trash will be automatically removed forever in 60 days.</string>
