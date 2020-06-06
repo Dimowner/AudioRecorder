@@ -11,7 +11,7 @@
 	<string name="title_2">Audio Recorder</string>
 	<string name="title_3">Recordio Audier</string>
 	<string name="rate_app">Rate app</string>
-	<string name="store_records_public">Store records in public dir</string>
+	<string name="store_records_public">Store records in a public dir</string>
 	<string name="record_in_stereo">Record in Stereo</string>
 	<string name="keep_screen_on">Keep screen ON when recording</string>
 	<string name="total_duration">Total recorded duration: %s</string>
@@ -19,7 +19,7 @@
 	<string name="available_space">Available space: %s</string>
 	<string name="delete_all">Delete all records</string>
 	<string name="delete_all2">Delete all</string>
-	<string name="records_was_removed">Some records files was not found in records directory. Possibly they was removed or moved.</string>
+	<string name="records_was_removed">Some records files was not found in the records directory. Possibly they was removed or moved.</string>
 	<string name="warning">Warning!</string>
 	<string name="delete_this_record">Delete this record?</string>
 	<string name="delete_record">Move to trash %s?</string>
@@ -27,8 +27,8 @@
 	<string name="restore_record">Restore record %s?</string>
 	<string name="delete_all_records">Delete all records?</string>
 	<string name="all_records_deleted">All records deleted successfully</string>
-	<string name="failed_to_delete_all_records">Failed to deleted all records</string>
-	<string name="please_select_record_to_share">Please select or record an audio file to share</string>
+	<string name="failed_to_delete_all_records">Failed to delete all records</string>
+	<string name="please_select_record_to_share">Please select a record to share</string>
 	<string name="record_name">New name</string>
 	<string name="recording">Recording: %s</string>
 	<string name="recording_is_on">Recording is ON</string>
@@ -52,7 +52,7 @@
 	<string name="restore">Restore</string>
 	<string name="info">Information</string>
 	<string name="rename">Rename</string>
-	<string name="dont_ask_again_rename">Don\'t ask rename again</string>
+	<string name="dont_ask_again">Don\'t ask again</string>
 	<string name="open_with">Open with&#823;</string>
 	<string name="download">Download</string>
 	<string name="downloading">Downloading: %s</string>
@@ -60,12 +60,12 @@
 	<string name="downloading_failed">Failed to download: %s</string>
 	<string name="downloading_cancel">Downloading canceled</string>
 	<string name="share">Share</string>
-	<string name="ask_to_rename">Show renaming dialog after stop recording</string>
-	<string name="record_moved_into_trash">Record moved to trash</string>
+	<string name="ask_to_rename">Show rename dialog after recording is completed</string>
+	<string name="record_moved_into_trash">The record moved to trash</string>
 	<string name="all_records_deleted_successfully">All records deleted successfully</string>
-	<string name="record_deleted_successfully">Record deleted successfully</string>
-	<string name="record_restored_successfully">Record restored successfully</string>
-	<string name="record_imported_successfully">Record imported successfully</string>
+	<string name="record_deleted_successfully">The record deleted successfully</string>
+	<string name="record_restored_successfully">The record restored successfully</string>
+	<string name="record_imported_successfully">The record imported successfully</string>
 	<string name="by_date">By date (newest)</string>
 	<string name="by_date_desc">By date (oldest)</string>
 	<string name="by_name">By name (A-Z)</string>
@@ -85,13 +85,13 @@
 	<string name="public_dir_warning">Records will be stored in the common directory on your device which is visible for other apps</string>
 	<string name="lost_records">Lost records</string>
 	<string name="trash">Trash</string>
-	<string name="trash_info">The records moved to trash will be automatically removed forever in 60 days.</string>
+	<string name="trash_info">The records moved to the trash will be automatically removed forever in 60 days.</string>
 	<string name="file_browser">File browser</string>
 	<string name="private_dir">Private directory</string>
 	<string name="public_dir">Public directory</string>
 	<string name="found_in_the_app">Found in the app</string>
 	<string name="not_found_in_the_app">Not found in the app</string>
-	<string name="in_trash">In trash</string>
+	<string name="in_trash">In the trash</string>
 
 	<string name="app_settings">App settings:</string>
 	<string name="recording_settings">Recording settings:</string>
@@ -166,10 +166,10 @@
 	<string name="error_cant_create_file">Can\'t create file</string>
 	<string name="error_invalid_output_file">Invalid output file</string>
 	<string name="error_file_exists">File with this name is already exists!</string>
-	<string name="error_failed_to_rename">Failed to rename record!</string>
-	<string name="error_failed_to_init_recorder">Failed to init Recorder</string>
-	<string name="error_failed_to_init_player">Failed to init Player</string>
-	<string name="error_player_data_source">Player can\'t read file</string>
+	<string name="error_failed_to_rename">Failed to rename the record!</string>
+	<string name="error_failed_to_init_recorder">Failed to init the Recorder</string>
+	<string name="error_failed_to_init_player">Failed to init the Player</string>
+	<string name="error_player_data_source">Player can\'t read the file</string>
 	<string name="error_unable_to_read_sound_file">Unable to read sound file</string>
 	<string name="error_permission_denied">Permission denied</string>
 	<string name="error_process_waveform">Can\'t draw waveform</string>

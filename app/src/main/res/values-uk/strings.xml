@@ -52,7 +52,7 @@
 	<string name="restore">Відновити</string>
 	<string name="info">Інформація</string>
 	<string name="rename">Перейменувати</string>
-	<string name="dont_ask_again_rename">Більше не показувати перейменування</string>
+	<string name="dont_ask_again">Більше не показувати</string>
 	<string name="open_with">Відкрити з допомогою&#823;</string>
 	<string name="download">Скачати</string>
 	<string name="downloading">Скачування: %s</string>

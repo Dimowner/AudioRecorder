@@ -52,7 +52,7 @@
 	<string name="restore">Восстановить</string>
 	<string name="info">Информация</string>
 	<string name="rename">Переименовать</string>
-	<string name="dont_ask_again_rename">Больше не показывать переименование</string>
+	<string name="dont_ask_again">Больше не показывать</string>
 	<string name="open_with">Открыть с помощью&#823;</string>
 	<string name="download">Скачать</string>
 	<string name="downloading">Скачивание: %s</string>

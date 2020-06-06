@@ -757,7 +757,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				}
 		);
 		checkBox.setButtonTintList(colorStateList);
-		checkBox.setText(R.string.dont_ask_again_rename);
+		checkBox.setText(R.string.dont_ask_again);
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		int PADD = (int) getResources().getDimension(R.dimen.spacing_normal);
