@@ -107,7 +107,8 @@ public class FileUtil {
 		if (name.contains(AppConstants.EXTENSION_SEPARATOR)) {
 			int extIndex = name.lastIndexOf(AppConstants.EXTENSION_SEPARATOR);
 			if (extIndex >= 0 && extIndex+1 < name.length()
-					&& isSupportedExtension(name.substring(extIndex + 1))) {
+					&& (isSupportedExtension(name.substring(extIndex + 1)) || isDelExtension(name.substring(extIndex + 1)))
+			) {
 				return name.substring(0, name.lastIndexOf(AppConstants.EXTENSION_SEPARATOR));
 			}
 		}
@@ -121,6 +122,10 @@ public class FileUtil {
 			}
 		}
 		return false;
+	}
+
+	public static boolean isDelExtension(String ext) {
+		return AppConstants.TRASH_MARK_EXTENSION.equalsIgnoreCase(ext);
 	}
 
 	/**

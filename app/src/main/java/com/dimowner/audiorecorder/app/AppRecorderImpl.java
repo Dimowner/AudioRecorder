@@ -133,6 +133,7 @@ public class AppRecorderImpl implements AppRecorder {
 							if (localRepository.updateRecord(update)) {
 								recordingData.clear();
 								final Record rec = localRepository.getRecord(update.getId());
+								decodeRecordWaveform(rec);
 								AndroidUtils.runOnUIThread(new Runnable() {
 									@Override
 									public void run() {
@@ -144,6 +145,7 @@ public class AppRecorderImpl implements AppRecorder {
 								if (localRepository.updateRecord(update)) {
 									recordingData.clear();
 									final Record rec = localRepository.getRecord(update.getId());
+									decodeRecordWaveform(rec);
 									AndroidUtils.runOnUIThread(new Runnable() {
 										@Override
 										public void run() {

@@ -100,8 +100,12 @@ public class ARApplication extends Application {
 		audioOutputChangeReceiver = new AudioOutputChangeReceiver();
 		registerReceiver(audioOutputChangeReceiver, intentFilter);
 
-		TelephonyManager mTelephonyMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-		mTelephonyMgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+		try {
+			TelephonyManager mTelephonyMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+			mTelephonyMgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+		} catch (Exception e) {
+			Timber.e(e);
+		}
 	}
 
 	@Override
