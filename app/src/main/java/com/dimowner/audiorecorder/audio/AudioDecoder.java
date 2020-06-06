@@ -35,6 +35,8 @@ import java.util.Arrays;
 import androidx.annotation.NonNull;
 import timber.log.Timber;
 
+import static com.dimowner.audiorecorder.AppConstants.SUPPORTED_EXT;
+
 /**
  * Created on 14.03.2020.
  * @author Dimowner
@@ -51,7 +53,6 @@ public class AudioDecoder {
 	private int frameIndex = 0;
 
 	private long duration;
-	private static final String[] SUPPORTED_EXT = new String[]{"mp3", "wav", "3gpp", "3gp", "amr", "aac", "m4a", "mp4", "ogg", "flac"};
 	private static final String TRASH_EXT = "del";
 
 	private IntArrayList gains;
@@ -256,7 +257,7 @@ public class AudioDecoder {
 				throw new IOException();
 			}
 			isInTrash = TRASH_EXT.equalsIgnoreCase(components[components.length - 1]);
-			if (!isInTrash && !isSupportedExtension(components[components.length - 1])) {
+			if (!isInTrash && !FileUtil.isSupportedExtension(components[components.length - 1])) {
 				throw new IOException();
 			}
 
@@ -339,15 +340,6 @@ public class AudioDecoder {
 					inputFile.getAbsolutePath(), inputFile.lastModified(), 0, 0, 0, isInTrash
 			);
 		}
-	}
-
-	private static boolean isSupportedExtension(String ext) {
-		for (int i = 0; i < SUPPORTED_EXT.length; i++) {
-			if (SUPPORTED_EXT[i].equalsIgnoreCase(ext)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private static String readFileFormat(File file, String mime) {

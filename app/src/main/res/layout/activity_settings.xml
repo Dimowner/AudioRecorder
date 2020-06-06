@@ -60,8 +60,8 @@
 				android:background="?android:selectableItemBackground"
 				android:paddingStart="@dimen/spacing_normal"
 				android:paddingEnd="@dimen/spacing_normal"
-				android:paddingTop="@dimen/spacing_xsmall"
-				android:paddingBottom="@dimen/spacing_xsmall"
+				android:paddingTop="@dimen/spacing_medium"
+				android:paddingBottom="@dimen/spacing_medium"
 				android:drawablePadding="@dimen/spacing_normal"
 				/>
 
@@ -75,8 +75,8 @@
 				android:background="?android:selectableItemBackground"
 				android:paddingStart="@dimen/spacing_normal"
 				android:paddingEnd="@dimen/spacing_normal"
-				android:paddingTop="@dimen/spacing_xsmall"
-				android:paddingBottom="@dimen/spacing_xsmall"
+				android:paddingTop="@dimen/spacing_medium"
+				android:paddingBottom="@dimen/spacing_medium"
 				android:drawablePadding="@dimen/spacing_normal"
 				/>
 

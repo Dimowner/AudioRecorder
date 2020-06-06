@@ -846,6 +846,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 										view.hideProgress();
 										view.hideImportProgress();
 										view.showOptionsMenu();
+										updateInformation(rec.getFormat(), rec.getSampleRate(), rec.getSize());
 									}
 								}
 							});

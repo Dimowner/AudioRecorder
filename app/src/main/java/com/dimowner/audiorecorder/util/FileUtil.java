@@ -43,6 +43,8 @@ import java.io.OutputStream;
 
 import timber.log.Timber;
 
+import static com.dimowner.audiorecorder.AppConstants.SUPPORTED_EXT;
+
 public class FileUtil {
 
 	private static final String LOG_TAG = "FileUtil";
@@ -103,9 +105,22 @@ public class FileUtil {
 	 */
 	public static String removeFileExtension(String name) {
 		if (name.contains(AppConstants.EXTENSION_SEPARATOR)) {
-			return name.substring(0, name.lastIndexOf(AppConstants.EXTENSION_SEPARATOR));
+			int extIndex = name.lastIndexOf(AppConstants.EXTENSION_SEPARATOR);
+			if (extIndex >= 0 && extIndex+1 < name.length()
+					&& isSupportedExtension(name.substring(extIndex + 1))) {
+				return name.substring(0, name.lastIndexOf(AppConstants.EXTENSION_SEPARATOR));
+			}
 		}
 		return name;
+	}
+
+	public static boolean isSupportedExtension(String ext) {
+		for (int i = 0; i < SUPPORTED_EXT.length; i++) {
+			if (SUPPORTED_EXT[i].equalsIgnoreCase(ext)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

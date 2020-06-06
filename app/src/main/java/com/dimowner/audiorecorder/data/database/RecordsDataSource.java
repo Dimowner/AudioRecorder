@@ -80,7 +80,7 @@ public class RecordsDataSource extends DataSource<Record> {
 	public Record recordToItem(Cursor cursor) {
 		return new Record(
 				cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_ID)),
-				FileUtil.removeFileExtension(cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_NAME))),
+				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_NAME)),
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_DURATION)),
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_CREATION_DATE)),
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATE_ADDED)),
