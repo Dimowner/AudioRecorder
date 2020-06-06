@@ -65,6 +65,9 @@ public class SettingsContract {
 		void showRecordsLocation(String location);
 		void hideRecordsLocation();
 		void openRecordsLocation(File file);
+
+		void enableAudioSettings();
+		void disableAudioSettings();
 	}
 
 	public interface UserActionsListener extends Contract.UserActionsListener<SettingsContract.View> {

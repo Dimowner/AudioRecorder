@@ -64,6 +64,7 @@ public class ChipsView extends FrameLayout {
 	private float posY = 0;
 	private boolean orderEffective = true;
 	private boolean multiSelect = true;
+	private boolean isEnabled = true;
 
 	private ValueAnimator heightAnimator;
 
@@ -159,7 +160,7 @@ public class ChipsView extends FrameLayout {
 			@Override
 			public void onClick(View v) {
 				int pos = findById(key);
-				if (pos >= 0) {
+				if (pos >= 0 && isEnabled) {
 					if (chips.get(pos).isSelected()) {
 						if (multiSelect) {
 							setUnselected(chips.get(pos).getView(), color);
@@ -181,6 +182,16 @@ public class ChipsView extends FrameLayout {
 			}
 		});
 		return textView;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return isEnabled;
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		isEnabled = enabled;
 	}
 
 	public void setSelected(String key) {

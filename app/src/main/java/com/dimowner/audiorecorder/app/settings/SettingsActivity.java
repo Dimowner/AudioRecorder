@@ -78,6 +78,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private SettingView sampleRateSetting;
 	private SettingView bitrateSetting;
 	private SettingView channelsSetting;
+	private Button btnReset;
 
 	private SettingsContract.UserActionsListener presenter;
 	private ColorMap colorMap;
@@ -127,7 +128,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		params.height = AndroidUtils.getNavigationBarHeight(getApplicationContext());
 		space.setLayoutParams(params);
 
-		Button btnReset = findViewById(R.id.btnReset);
+		btnReset = findViewById(R.id.btnReset);
 		btnReset.setOnClickListener(this);
 		txtSizePerMin = findViewById(R.id.txt_size_per_min);
 		txtInformation = findViewById(R.id.txt_information);
@@ -637,6 +638,24 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		} catch (ActivityNotFoundException e) {
 			Timber.e(e);
 		}
+	}
+
+	@Override
+	public void enableAudioSettings() {
+		btnReset.setEnabled(true);
+		formatSetting.setEnabled(true);
+		sampleRateSetting.setEnabled(true);
+		bitrateSetting.setEnabled(true);
+		channelsSetting.setEnabled(true);
+	}
+
+	@Override
+	public void disableAudioSettings() {
+		btnReset.setEnabled(false);
+		formatSetting.setEnabled(false);
+		sampleRateSetting.setEnabled(false);
+		bitrateSetting.setEnabled(false);
+		channelsSetting.setEnabled(false);
 	}
 
 	@Override

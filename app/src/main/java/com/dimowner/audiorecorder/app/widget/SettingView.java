@@ -100,6 +100,10 @@ public class SettingView extends LinearLayout {
 		imgInfo.setImageResource(imgRes);
 	}
 
+	public void setEnabled(boolean enabled) {
+		chipsView.setEnabled(enabled);
+	}
+
 	public void setOnInfoClickListener(View.OnClickListener listener) {
 		btnInfo.setOnClickListener(listener);
 	}

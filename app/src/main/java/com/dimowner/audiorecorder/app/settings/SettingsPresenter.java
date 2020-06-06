@@ -20,13 +20,18 @@ import android.content.Context;
 
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
+import com.dimowner.audiorecorder.app.AppRecorder;
+import com.dimowner.audiorecorder.app.AppRecorderCallback;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
+import com.dimowner.audiorecorder.data.database.Record;
+import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.List;
 
@@ -42,16 +47,19 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	private final BackgroundQueue loadingTasks;
 	private final Prefs prefs;
 	private final SettingsMapper settingsMapper;
+	private final AppRecorder appRecorder;
+	private AppRecorderCallback appRecorderCallback;
 
-	public SettingsPresenter(final LocalRepository localRepository, FileRepository fileRepository,
-									 BackgroundQueue recordingsTasks, final BackgroundQueue loadingTasks,
-									 Prefs prefs, SettingsMapper settingsMapper) {
+	public SettingsPresenter(final LocalRepository localRepository, final FileRepository fileRepository,
+									 final BackgroundQueue recordingsTasks, final BackgroundQueue loadingTasks,
+									 final Prefs prefs,  final SettingsMapper settingsMapper,  final AppRecorder appRecorder) {
 		this.localRepository = localRepository;
 		this.fileRepository = fileRepository;
 		this.recordingsTasks = recordingsTasks;
 		this.loadingTasks = loadingTasks;
 		this.prefs = prefs;
 		this.settingsMapper = settingsMapper;
+		this.appRecorder = appRecorder;
 	}
 
 	@Override
@@ -194,14 +202,33 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	}
 
 	@Override
-	public void bindView(SettingsContract.View view) {
+	public void bindView(final SettingsContract.View view) {
 		this.view = view;
+
+		if (appRecorder.isRecording()) {
+			view.disableAudioSettings();
+			appRecorderCallback = new AppRecorderCallback() {
+				@Override public void onRecordingStarted(File file) { }
+				@Override public void onRecordingPaused() { }
+				@Override public void onRecordProcessing() { }
+				@Override public void onRecordFinishProcessing() { }
+				@Override public void onRecordingStopped(File file, Record record) {
+						view.enableAudioSettings();
+				}
+				@Override public void onRecordingProgress(long mills, int amp) { }
+				@Override public void onError(AppException throwable) { }
+			};
+			appRecorder.addRecordingCallback(appRecorderCallback);
+		} else {
+			view.enableAudioSettings();
+		}
 	}
 
 	@Override
 	public void unbindView() {
 		if (view != null) {
 			this.view = null;
+			appRecorder.removeRecordingCallback(appRecorderCallback);
 		}
 	}
 
