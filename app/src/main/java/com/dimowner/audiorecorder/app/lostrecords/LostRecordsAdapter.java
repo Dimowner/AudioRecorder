@@ -61,7 +61,10 @@ public class LostRecordsAdapter extends RecyclerView.Adapter<LostRecordsAdapter.
 		}
 		if (pos >= 0 && pos < data.size()) {
 			data.remove(pos);
-			notifyDataSetChanged();
+			notifyItemRemoved(pos);
+			//this line below gives you the animation and also updates the
+			//list items after the deleted item
+			notifyItemRangeChanged(pos, getItemCount());
 		}
 	}
 

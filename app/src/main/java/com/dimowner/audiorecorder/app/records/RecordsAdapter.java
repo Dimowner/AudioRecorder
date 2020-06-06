@@ -316,19 +316,23 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		return data;
 	}
 
-//	public void deleteItem(long id) {
-//		for (int i = 0; i < data.size(); i++) {
-//			if (data.get(i).getId() == id) {
-//				data.remove(i);
+	public void deleteItem(long id) {
+		for (int i = 0; i < data.size(); i++) {
+			if (data.get(i).getId() == id) {
+				data.remove(i);
 //				if (getAudioRecordsCount() == 0) {
 //					data.clear();
 //					notifyDataSetChanged();
 //				} else {
-//					notifyItemRemoved(i);
+					notifyItemRemoved(i);
+					//this line below gives you the animation and also updates the
+					//list items after the deleted item
+					notifyItemRangeChanged(i, getItemCount());
 //				}
-//			}
-//		}
-//	}
+				break;
+			}
+		}
+	}
 
 	int getAudioRecordsCount() {
 		int count = 0;

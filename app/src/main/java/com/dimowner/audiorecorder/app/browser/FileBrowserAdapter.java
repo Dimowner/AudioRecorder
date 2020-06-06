@@ -88,6 +88,9 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<FileBrowserAdapter.
 		if (pos >= 0 && pos < data.size()) {
 			data.remove(pos);
 			notifyItemRemoved(pos);
+			//this line below gives you the animation and also updates the
+			//list items after the deleted item
+			notifyItemRangeChanged(pos, getItemCount());
 		}
 	}
 

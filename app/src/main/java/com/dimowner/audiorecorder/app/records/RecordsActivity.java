@@ -698,8 +698,8 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	public void onDeleteRecord(long id) {
-//		adapter.deleteItem(id);
-		presenter.loadRecords();
+		adapter.deleteItem(id);
+//		presenter.loadRecords();
 		if (adapter.getAudioRecordsCount() == 0) {
 			showEmptyList();
 		}

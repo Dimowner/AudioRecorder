@@ -37,7 +37,7 @@
 				android:layout_gravity="center"
 				android:contentDescription="@null"
 				android:layout_marginBottom="@dimen/spacing_huge"
-				tools:src="@drawable/waveform"
+				android:src="@drawable/waveform"
 				/>
 
 <!--		<ImageView-->
