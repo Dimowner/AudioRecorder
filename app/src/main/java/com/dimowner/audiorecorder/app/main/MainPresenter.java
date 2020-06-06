@@ -681,7 +681,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					default:
 						view.showInformation(settingsMapper.formatSize(size) + AppConstants.SEPARATOR
 								+ format + AppConstants.SEPARATOR
-								+ settingsMapper.convertSampleRateToString(sampleRate) + AppConstants.SEPARATOR
+								+ settingsMapper.convertSampleRateToString(sampleRate)
 						);
 				}
 			}
