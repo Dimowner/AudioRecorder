@@ -17,9 +17,16 @@
 package com.dimowner.audiorecorder;
 
 import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 
 //import com.crashlytics.android.Crashlytics;
+import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 //import io.fabric.sdk.android.Fabric;
@@ -28,6 +35,9 @@ import timber.log.Timber;
 
 public class ARApplication extends Application {
 
+	final static String AUDIO_BECOMING_NOISY = "android.media.AUDIO_BECOMING_NOISY";
+	private AudioOutputChangeReceiver audioOutputChangeReceiver;
+
 	private static String PACKAGE_NAME ;
 	public static volatile Handler applicationHandler;
 
@@ -35,8 +45,6 @@ public class ARApplication extends Application {
 	private static float screenWidthDp = 0;
 
 	public static Injector injector;
-
-	private static boolean isRecording = false;
 
 	public static Injector getInjector() {
 		return injector;
@@ -86,21 +94,51 @@ public class ARApplication extends Application {
 		if (!prefs.isMigratedSettings()) {
 			prefs.migrateSettings();
 		}
+
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(AUDIO_BECOMING_NOISY);
+		audioOutputChangeReceiver = new AudioOutputChangeReceiver();
+		registerReceiver(audioOutputChangeReceiver, intentFilter);
+
+		TelephonyManager mTelephonyMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+		mTelephonyMgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 	}
 
 	@Override
 	public void onTerminate() {
 		super.onTerminate();
-		Timber.v("onTerminate");
+		//This method is never called on real Android devices
 		injector.releaseMainPresenter();
 		injector.closeTasks();
+
+		unregisterReceiver(audioOutputChangeReceiver);
 	}
 
-	public static boolean isRecording() {
-		return isRecording;
+	private static class AudioOutputChangeReceiver extends BroadcastReceiver {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String actionOfIntent = intent.getAction();
+			if (actionOfIntent != null && actionOfIntent.equals(AUDIO_BECOMING_NOISY)){
+				PlayerContract.Player player = injector.provideAudioPlayer();
+				if (player.isPlaying()) {
+					player.pause();
+				}
+			}
+		}
 	}
 
-	public static void setRecording(boolean recording) {
-		ARApplication.isRecording = recording;
-	}
+	private PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
+		@Override
+		public void onCallStateChanged(int state, String incomingNumber) {
+			if ((state == TelephonyManager.CALL_STATE_RINGING)
+					|| (state == TelephonyManager.CALL_STATE_OFFHOOK)) {
+				//Pause playback when incoming call or on hold
+				PlayerContract.Player player = injector.provideAudioPlayer();
+				if (player.isPlaying()) {
+					player.pause();
+				}
+			}
+			super.onCallStateChanged(state, incomingNumber);
+		}
+	};
 }
