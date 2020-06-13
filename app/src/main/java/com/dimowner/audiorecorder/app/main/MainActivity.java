@@ -78,12 +78,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Fix WaveForm blinking when seek
 // TODO: Fix waveform when long record (there is no waveform)
 // TODO: Ability to search by record name in list
-// TODO: Display recording info on main activity.
 // TODO: Ability to scroll up from the bottom of the list
-// TODO: Guidelines
 // TODO: Stop infinite loop when pause WAV recording
 // TODO: Report some sensitive error to Crashlytics manually.
-// TODO: Add data migration to local database, remove extensions from name, sample rate, format, bitrate...
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -294,9 +291,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				}
 				break;
 			case R.id.txt_name:
-				if (presenter.getActiveRecordId() != -1) {
-					setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()), false, false);
-				}
+//				if (presenter.getActiveRecordId() != -1) {
+//					setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()), false, false);
+//				}
+				presenter.onRenameRecordClick();
 				break;
 		}
 	}
@@ -419,8 +417,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void askRecordingNewName(long id, File file) {
-		setRecordName(id, file, true, true);
+	public void askRecordingNewName(long id, File file,  boolean showCheckbox, final boolean needDecode) {
+		setRecordName(id, file, showCheckbox, needDecode);
 	}
 
 	@Override
@@ -594,6 +592,21 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
+	public void shareRecord(Record record) {
+		AndroidUtils.shareAudioFile(getApplicationContext(), record.getPath(), record.getName(), record.getFormat());
+	}
+
+	@Override
+	public void openFile(Record record) {
+		AndroidUtils.openAudioFile(getApplicationContext(), record.getPath(), record.getName());
+	}
+
+	@Override
+	public void downloadRecord(Record record) {
+		DownloadService.startNotification(getApplicationContext(), record.getNameWithExtension(), record.getPath());
+	}
+
+	@Override
 	public void onPlayProgress(final long mills, final int px, int percent) {
 		playProgress.setProgress(percent);
 		waveformView.setPlayback(px);
@@ -639,25 +652,22 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			public boolean onMenuItemClick(MenuItem item) {
 				switch (item.getItemId()) {
 					case R.id.menu_share:
-						AndroidUtils.shareAudioFile(getApplicationContext(), presenter.getActiveRecordPath(), presenter.getActiveRecordName());
+						presenter.onShareRecordClick();
 						break;
 					case R.id.menu_info:
 						presenter.onRecordInfo();
 						break;
 					case R.id.menu_rename:
-						String path = presenter.getActiveRecordPath();
-						if (path != null) {
-							setRecordName(presenter.getActiveRecordId(), new File(path), false, false);
-						}
+						presenter.onRenameRecordClick();
 						break;
 					case R.id.menu_open_with:
-						AndroidUtils.openAudioFile(getApplicationContext(), presenter.getActiveRecordPath(), presenter.getActiveRecordName());
+						presenter.onOpenFileClick();
 						break;
 					case R.id.menu_download:
-						DownloadService.startNotification(getApplicationContext(), presenter.getActiveRecordFullName(), presenter.getActiveRecordPath());
+						presenter.onDownloadClick();
 						break;
 					case R.id.menu_delete:
-						askDeleteRecord(presenter.getActiveRecordName());
+						presenter.onDeleteClick();
 						break;
 				}
 				return false;

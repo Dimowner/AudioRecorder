@@ -174,7 +174,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					} else {
 						if (view != null) {
 							if (prefs.isAskToRenameAfterStopRecording()) {
-								view.askRecordingNewName(rec.getId(), file);
+								view.askRecordingNewName(rec.getId(), file, true, true);
 							}
 						}
 						record = rec;
@@ -660,6 +660,41 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		fileRepository.updateRecordingDir(context, prefs);
 	}
 
+	@Override
+	public void onShareRecordClick() {
+		if (view != null && record != null) {
+			view.shareRecord(record);
+		}
+	}
+
+	@Override
+	public void onRenameRecordClick() {
+		if (view != null && record != null) {
+			view.askRecordingNewName(record.getId(), new File(record.getPath()), false, false);
+		}
+	}
+
+	@Override
+	public void onOpenFileClick() {
+		if (view != null && record != null) {
+			view.openFile(record);
+		}
+	}
+
+	@Override
+	public void onDownloadClick() {
+		if (view != null && record != null) {
+			view.downloadRecord(record);
+		}
+	}
+
+	@Override
+	public void onDeleteClick() {
+		if (view != null && record != null) {
+			view.askDeleteRecord(record.getName());
+		}
+	}
+
 	private void updateInformation(String format, int sampleRate, long size) {
 		if (format.equals(AppConstants.FORMAT_3GP)) {
 			if (view != null) {
@@ -699,33 +734,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			return record.getPath();
 		} else {
 			return null;
-		}
-	}
-
-	@Override
-	public String getActiveRecordName() {
-		if (record != null) {
-			return record.getName();
-		} else {
-			return null;
-		}
-	}
-
-	@Override
-	public String getActiveRecordFullName() {
-		if (record != null) {
-			return record.getNameWithExtension();
-		} else {
-			return null;
-		}
-	}
-
-	@Override
-	public int getActiveRecordId() {
-		if (record != null) {
-			return record.getId();
-		} else {
-			return -1;
 		}
 	}
 

@@ -38,7 +38,7 @@ public interface MainContract {
 		void onRecordingProgress(long mills, int amp);
 		void startWelcomeScreen();
 
-		void askRecordingNewName(long id, File file);
+		void askRecordingNewName(long id, File file,  boolean showCheckbox, final boolean needDecode);
 
 		void startRecordingService();
 		void stopRecordingService();
@@ -75,6 +75,12 @@ public interface MainContract {
 		void updateRecordingView(IntArrayList data);
 
 		void showRecordsLostMessage(List<Record> list);
+
+		void shareRecord(Record record);
+
+		void openFile(Record record);
+
+		void downloadRecord(Record record);
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
@@ -106,16 +112,20 @@ public interface MainContract {
 
 		void setStoragePrivate(Context context);
 
+		void onShareRecordClick();
+
+		void onRenameRecordClick();
+
+		void onOpenFileClick();
+
+		void onDownloadClick();
+
+		void onDeleteClick();
+
 		//TODO: Remove this getters
 		boolean isStorePublic();
 
 		String getActiveRecordPath();
-
-		String getActiveRecordName();
-
-		String getActiveRecordFullName();
-
-		int getActiveRecordId();
 
 		void deleteActiveRecord(boolean forever);
 

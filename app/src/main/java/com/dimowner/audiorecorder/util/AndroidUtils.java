@@ -333,7 +333,7 @@ public class AndroidUtils {
 		menuItem.setIcon(null);
 	}
 
-	public static void shareAudioFile(Context context, String sharePath, String name) {
+	public static void shareAudioFile(Context context, String sharePath, String name, String format) {
 		if (sharePath != null) {
 			Uri fileUri = FileProvider.getUriForFile(
 					context,
@@ -341,7 +341,7 @@ public class AndroidUtils {
 					new File(sharePath)
 			);
 			Intent share = new Intent(Intent.ACTION_SEND);
-			share.setType("audio/*");
+			share.setType("audio/" + format);
 			share.putExtra(Intent.EXTRA_STREAM, fileUri);
 			share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 

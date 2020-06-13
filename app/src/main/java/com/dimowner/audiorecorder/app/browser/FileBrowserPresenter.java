@@ -170,11 +170,13 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 					files = fileRepository.getPublicDirFiles();
 				}
 				final List<RecordInfo> items = new ArrayList<>();
-				for (int i = 0; i < files.length; i++) {
-					Record rec = localRepository.findRecordByPath(files[i].getAbsolutePath());
-					RecordInfo r = AudioDecoder.readRecordInfo(files[i]);
-					r.setInDatabase(rec != null);
-					items.add(r);
+				if (files != null) {
+					for (int i = 0; i < files.length; i++) {
+						Record rec = localRepository.findRecordByPath(files[i].getAbsolutePath());
+						RecordInfo r = AudioDecoder.readRecordInfo(files[i]);
+						r.setInDatabase(rec != null);
+						items.add(r);
+					}
 				}
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override

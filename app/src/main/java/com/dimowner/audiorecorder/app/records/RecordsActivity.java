@@ -255,7 +255,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			public void onItemOptionSelected(int menuId, final ListItem item) {
 				switch (menuId) {
 					case R.id.menu_share:
-						AndroidUtils.shareAudioFile(getApplicationContext(), item.getPath(), item.getName());
+						AndroidUtils.shareAudioFile(getApplicationContext(), item.getPath(), item.getName(), item.getFormat());
 						break;
 					case R.id.menu_info:
 						presenter.onRecordInfo(Mapper.toRecordInfo(item));
