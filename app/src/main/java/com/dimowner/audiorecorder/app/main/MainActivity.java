@@ -87,6 +87,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public static final int REQ_CODE_WRITE_EXTERNAL_STORAGE = 404;
 	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_IMPORT = 405;
 	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK = 406;
+	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_DOWNLOAD = 407;
 	public static final int REQ_CODE_IMPORT_AUDIO = 11;
 
 	private WaveformView waveformView;
@@ -603,7 +604,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void downloadRecord(Record record) {
-		DownloadService.startNotification(getApplicationContext(), record.getNameWithExtension(), record.getPath());
+		if (checkStoragePermissionDownload()) {
+			DownloadService.startNotification(getApplicationContext(), record.getNameWithExtension(), record.getPath());
+		}
 	}
 
 	@Override
@@ -802,6 +805,21 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
 	}
 
+	private boolean checkStoragePermissionDownload() {
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+					&& checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+				requestPermissions(
+						new String[]{
+								Manifest.permission.WRITE_EXTERNAL_STORAGE,
+								Manifest.permission.READ_EXTERNAL_STORAGE},
+						REQ_CODE_READ_EXTERNAL_STORAGE_DOWNLOAD);
+				return false;
+			}
+		}
+		return true;
+	}
+
 	private boolean checkStoragePermissionImport() {
 		if (presenter.isStorePublic()) {
 			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -896,6 +914,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 			startFileSelector();
+		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE_DOWNLOAD && grantResults.length > 0
+				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
+				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+			presenter.onDownloadClick();
 		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {

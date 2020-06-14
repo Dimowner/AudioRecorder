@@ -142,35 +142,42 @@ public class DownloadService extends Service {
 			public void run() {
 				File file = new File(path, name);
 				if (!file.exists()) {
-					FileUtil.copyFile(new File(path), FileUtil.createFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), name),
-							new OnCopyListener() {
-								@Override
-								public boolean isCancel() {
-									return isCancel;
-								}
-
-								@Override
-								public void onCopyProgress(int percent, final long progress, final long total) {
-									long curTime = System.currentTimeMillis();
-									if (percent >= 95) { percent = 100; }
-									if (percent == 100 || curTime > prevTime + 500) {
-										updateNotification(percent);
-										prevTime = curTime;
+					File created = FileUtil.createFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), name);
+					if (created != null) {
+						FileUtil.copyFile(new File(path), created,
+								new OnCopyListener() {
+									@Override
+									public boolean isCancel() {
+										return isCancel;
 									}
-								}
 
-								@Override
-								public void onCanceled() {
-									Toast.makeText(getApplicationContext(), R.string.downloading_cancel, Toast.LENGTH_LONG).show();
-									stopService();
-								}
+									@Override
+									public void onCopyProgress(int percent, final long progress, final long total) {
+										long curTime = System.currentTimeMillis();
+										if (percent >= 95) {
+											percent = 100;
+										}
+										if (percent == 100 || curTime > prevTime + 500) {
+											updateNotification(percent);
+											prevTime = curTime;
+										}
+									}
 
-								@Override
-								public void onCopyFinish() {
-									Toast.makeText(getApplicationContext(), getResources().getString(R.string.downloading_success, name), Toast.LENGTH_LONG).show();
-									stopService();
-								}
-							});
+									@Override
+									public void onCanceled() {
+										Toast.makeText(getApplicationContext(), R.string.downloading_cancel, Toast.LENGTH_LONG).show();
+										stopService();
+									}
+
+									@Override
+									public void onCopyFinish() {
+										Toast.makeText(getApplicationContext(), getResources().getString(R.string.downloading_success, name), Toast.LENGTH_LONG).show();
+										stopService();
+									}
+								});
+					} else {
+						Toast.makeText(getApplicationContext(), getResources().getString(R.string.downloading_failed, name), Toast.LENGTH_LONG).show();
+					}
 				} else {
 					stopService();
 					Toast.makeText(getApplicationContext(), getResources().getString(R.string.downloading_failed, name), Toast.LENGTH_LONG).show();

@@ -31,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.MenuInflater;
@@ -75,6 +76,7 @@ import timber.log.Timber;
 public class RecordsActivity extends Activity implements RecordsContract.View, View.OnClickListener {
 
 	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK = 406;
+	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_DOWNLOAD = 407;
 
 	private RecyclerView recyclerView;
 	private LinearLayoutManager layoutManager;
@@ -104,6 +106,9 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	private RecordsContract.UserActionsListener presenter;
 	private ColorMap colorMap;
+
+	private String tempName = null;
+	private String tempPath = null;
 
 	public static Intent getStartIntent(Context context) {
 		Intent intent = new Intent(context, RecordsActivity.class);
@@ -267,12 +272,17 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 						AndroidUtils.openAudioFile(getApplicationContext(), item.getPath(), item.getName());
 						break;
 					case R.id.menu_download:
-						//Download record file with Service
-						DownloadService.startNotification(
-								getApplicationContext(),
-								item.getNameWithExtension(),
-								item.getPath()
-						);
+						if (checkStoragePermissionDownload()) {
+							//Download record file with Service
+							DownloadService.startNotification(
+									getApplicationContext(),
+									item.getNameWithExtension(),
+									item.getPath()
+							);
+						} else {
+							tempName = item.getNameWithExtension();
+							tempPath = item.getPath();
+						}
 						break;
 					case R.id.menu_delete:
 						AndroidUtils.showSimpleDialog(
@@ -887,6 +897,14 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	private boolean checkStoragePermissionPlayback() {
+		return checkStoragePermission(REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK);
+	}
+
+	private boolean checkStoragePermissionDownload() {
+		return checkStoragePermission(REQ_CODE_READ_EXTERNAL_STORAGE_DOWNLOAD);
+	}
+
+	private boolean checkStoragePermission(int requestCode) {
 		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
 					&& checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -894,7 +912,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 						new String[]{
 								Manifest.permission.WRITE_EXTERNAL_STORAGE,
 								Manifest.permission.READ_EXTERNAL_STORAGE},
-						REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK);
+						requestCode);
 				return false;
 			}
 		}
@@ -907,6 +925,19 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 			presenter.startPlayback();
+		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE_DOWNLOAD && grantResults.length > 0
+			&& grantResults[0] == PackageManager.PERMISSION_GRANTED
+				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+			if (!TextUtils.isEmpty(tempName) && !TextUtils.isEmpty(tempPath)) {
+				//Download record file with Service
+				DownloadService.startNotification(
+						getApplicationContext(),
+						tempName,
+						tempPath
+				);
+				tempName = null;
+				tempPath = null;
+			}
 		}
 	}
 
