@@ -826,7 +826,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 								info.getDuration() >= 0 ? info.getDuration() : 0,
 								newFile.lastModified(),
 								new Date().getTime(),
-								0,
+								Long.MAX_VALUE,
 								newFile.getAbsolutePath(),
 								info.getFormat(),
 								info.getSize(),

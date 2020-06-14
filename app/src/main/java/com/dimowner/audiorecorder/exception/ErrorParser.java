@@ -39,6 +39,8 @@ public class ErrorParser {
 			return R.string.error_no_available_space;
 		} else if (e.getType() == AppException.RECORDING_ERROR) {
 			return R.string.error_on_recording;
+		} else if (e.getType() == AppException.FAILED_TO_RESTORE) {
+			return R.string.error_failed_to_restore;
 		} else if (e.getType() == AppException.READ_PERMISSION_DENIED) {
 			return R.string.error_permission_denied;
 		}

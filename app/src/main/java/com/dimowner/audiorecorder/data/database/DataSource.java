@@ -104,9 +104,9 @@ public abstract class DataSource<T> {
 	 * Delete item from database for table T.
 	 * @param id Item id of element that will be deleted from table T.
 	 */
-	public void deleteItem(int id) {
+	public int deleteItem(int id) {
 		Log.d(LOG_TAG, tableName + " deleted ID = " + id);
-		db.delete(tableName, SQLiteHelper.COLUMN_ID + " = " + id, null);
+		return db.delete(tableName, SQLiteHelper.COLUMN_ID + " = " + id, null);
 	}
 
 	/**

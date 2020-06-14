@@ -27,6 +27,7 @@ public abstract class AppException extends Exception {
 	public static final int READ_PERMISSION_DENIED = 7;
 	public static final int NO_SPACE_AVAILABLE = 8;
 	public static final int RECORDING_ERROR = 9;
+	public static final int FAILED_TO_RESTORE = 10;
 
 	public abstract int getType();
 }

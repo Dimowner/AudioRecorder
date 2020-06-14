@@ -23,6 +23,7 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
+import com.dimowner.audiorecorder.exception.FailedToRestoreRecord;
 import com.dimowner.audiorecorder.util.FileUtil;
 
 import java.io.File;
@@ -115,6 +116,9 @@ public class LocalRepositoryImpl implements LocalRepository {
 		if (!dataSource.isOpen()) {
 			dataSource.open();
 		}
+		if (path.contains("'")) {
+			path = path.replace("'", "''");
+		}
 		List<Record> records = dataSource.getItems(COLUMN_PATH + " = '" + path + "'");
 		if (records.isEmpty()) {
 			return null;
@@ -166,7 +170,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 					0, //mills
 					file.lastModified(),
 					new Date().getTime(),
-					0,
+					Long.MAX_VALUE,
 					path,
 					prefs.getSettingRecordingFormat(),
 					0,
@@ -256,15 +260,12 @@ public class LocalRepositoryImpl implements LocalRepository {
 				" ORDER BY " + SQLiteHelper.COLUMN_ID + " DESC LIMIT 1");
 		if (c != null && c.moveToFirst()) {
 			Record r = dataSource.recordToItem(c);
-			if (isFileExists(r.getPath())) {
-				return r;
-			} else {
-				//If Audio file deleted then delete record from local database.
+			if (!isFileExists(r.getPath())) {
 				List<Record> l = new ArrayList<>(1);
 				l.add(r);
 				checkForLostRecords(l);
-				return r;
 			}
+			return r;
 		} else {
 			return null;
 		}
@@ -284,8 +285,18 @@ public class LocalRepositoryImpl implements LocalRepository {
 		Record recordToDelete = dataSource.getItem(id);
 		if (recordToDelete != null) {
 			String renamed = fileRepository.markAsTrashRecord(recordToDelete.getPath());
-			recordToDelete.setPath(renamed);
-			trashDataSource.insertItem(recordToDelete);
+			if (renamed != null) {
+				recordToDelete.setPath(renamed);
+				trashDataSource.insertItem(recordToDelete);
+			} else {
+				renamed = fileRepository.markAsTrashRecord(recordToDelete.getPath());
+				if (renamed != null) {
+					recordToDelete.setPath(renamed);
+					trashDataSource.insertItem(recordToDelete);
+				} else {
+					fileRepository.deleteRecordFile(recordToDelete.getPath());
+				}
+			}
 		}
 		dataSource.deleteItem(id);
 	}
@@ -347,14 +358,13 @@ public class LocalRepositoryImpl implements LocalRepository {
 		if (c != null && c.moveToFirst()) {
 			do {
 				Record r = dataSource.recordToItem(c);
-				if (isFileExists(r.getPath())) {
+//				if (isFileExists(r.getPath())) {
 					list.add(r);
-				} else {
-					//If Audio file deleted then delete record from local database.
-					List<Record> l = new ArrayList<>(1);
-					l.add(r);
-					checkForLostRecords(l);
-				}
+//				} else {
+//					List<Record> l = new ArrayList<>(1);
+//					l.add(r);
+//					checkForLostRecords(l);
+//				}
 			} while (c.moveToNext());
 		} else {
 			return new ArrayList<>();
@@ -388,24 +398,44 @@ public class LocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
-	public void restoreFromTrash(int id) {
+	public void restoreFromTrash(int id) throws FailedToRestoreRecord {
 		if (!trashDataSource.isOpen()) {
 			trashDataSource.open();
 		}
-
 		Record recordToRestore = trashDataSource.getItem(id);
-		String renamed = fileRepository.unmarkTrashRecord(recordToRestore.getPath());
-		recordToRestore.setPath(renamed);
-		insertRecord(recordToRestore);
-		trashDataSource.deleteItem(id);
+		if (recordToRestore != null) {
+			if (trashDataSource.deleteItem(id) > 0) {
+				restoreRecord(recordToRestore);
+			} else {
+				throw new FailedToRestoreRecord();
+			}
+		} else {
+			throw new FailedToRestoreRecord();
+		}
+	}
+
+	private void restoreRecord(Record record) throws FailedToRestoreRecord {
+		String renamed = fileRepository.unmarkTrashRecord(record.getPath());
+		if (renamed != null) {
+			record.setPath(renamed);
+			insertRecord(record);
+		} else {
+			renamed = fileRepository.unmarkTrashRecord(record.getPath());
+			if (renamed != null) {
+				record.setPath(renamed);
+				insertRecord(record);
+			} else {
+				throw new FailedToRestoreRecord();
+			}
+		}
 	}
 
 	@Override
-	public void removeFromTrash(int id) {
+	public boolean removeFromTrash(int id) {
 		if (!trashDataSource.isOpen()) {
 			trashDataSource.open();
 		}
-		trashDataSource.deleteItem(id);
+		return trashDataSource.deleteItem(id) > 0;
 	}
 
 	@Override
@@ -431,6 +461,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 		List<Record> list = trashDataSource.getAll();
 		for (int i = 0; i < list.size(); i++) {
 			if (list.get(i).getRemoved() + AppConstants.RECORD_IN_TRASH_MAX_DURATION < curTime) {
+				fileRepository.deleteRecordFile(list.get(i).getPath());
 				trashDataSource.deleteItem(list.get(i).getId());
 			}
 		}
@@ -438,16 +469,17 @@ public class LocalRepositoryImpl implements LocalRepository {
 
 	@Override
 	public boolean deleteAllRecords() {
-		if (!dataSource.isOpen()) {
-			dataSource.open();
-		}
-		try {
-//			dataSource.deleteAll();
-			return true;
-		} catch (SQLException e) {
-			Timber.e(e);
-			return false;
-		}
+		return false;
+//		if (!dataSource.isOpen()) {
+//			dataSource.open();
+//		}
+//		try {
+////			dataSource.deleteAll();
+//			return true;
+//		} catch (SQLException e) {
+//			Timber.e(e);
+//			return false;
+//		}
 	}
 
 	private void checkForLostRecords(List<Record> list) {

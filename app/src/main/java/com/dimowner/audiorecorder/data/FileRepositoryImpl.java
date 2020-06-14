@@ -184,7 +184,8 @@ public class FileRepositoryImpl implements FileRepository {
 
 	@Override
 	public boolean deleteAllRecords() {
-		return FileUtil.deleteFile(recordDirectory);
+//		return FileUtil.deleteFile(recordDirectory);
+		return false;
 	}
 
 	@Override

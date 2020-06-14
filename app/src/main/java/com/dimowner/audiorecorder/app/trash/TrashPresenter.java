@@ -24,6 +24,8 @@ import com.dimowner.audiorecorder.app.lostrecords.RecordItem;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.Record;
+import com.dimowner.audiorecorder.exception.ErrorParser;
+import com.dimowner.audiorecorder.exception.FailedToRestoreRecord;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 
 import java.util.List;
@@ -94,17 +96,33 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 		recordingsTasks.postRunnable(new Runnable() {
 			@Override
 			public void run() {
-				localRepository.removeFromTrash(id);
-				fileRepository.deleteRecordFile(path);
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override
-					public void run() {
-						if (view != null) {
-							view.showMessage(R.string.record_deleted_successfully);
-							view.recordDeleted(id);
+				if (fileRepository.deleteRecordFile(path)) {
+					removeFromTrash(id);
+				} else if (fileRepository.deleteRecordFile(path)) { //Try to delete again.
+					removeFromTrash(id);
+				} else {
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							if (view != null) {
+								view.showMessage(R.string.error_failed_to_delete);
+							}
 						}
-					}
-				});
+					});
+				}
+			}
+		});
+	}
+
+	private void removeFromTrash(final int id) {
+		localRepository.removeFromTrash(id);
+		AndroidUtils.runOnUIThread(new Runnable() {
+			@Override
+			public void run() {
+				if (view != null) {
+					view.showMessage(R.string.record_deleted_successfully);
+					view.recordDeleted(id);
+				}
 			}
 		});
 	}
@@ -137,7 +155,18 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 		recordingsTasks.postRunnable(new Runnable() {
 			@Override
 			public void run() {
-				localRepository.restoreFromTrash(id);
+				try {
+					localRepository.restoreFromTrash(id);
+				} catch (final FailedToRestoreRecord e) {
+					AndroidUtils.runOnUIThread(new Runnable() {
+						@Override
+						public void run() {
+							if (view != null) {
+								view.showMessage(ErrorParser.parseException(e));
+							}
+						}
+					});
+				}
 				AndroidUtils.runOnUIThread(new Runnable() {
 					@Override
 					public void run() {

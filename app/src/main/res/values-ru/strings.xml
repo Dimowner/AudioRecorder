@@ -177,6 +177,8 @@
 	<string name="error_no_available_space">Нет доступной памяти!</string>
 	<string name="error_failed_access_to_storage">Не удалось получить доступ к хранилищу файлов</string>
 	<string name="error_on_recording">Ошибка при записи</string>
+	<string name="error_failed_to_restore">Не удалось восстановить запись!</string>
+	<string name="error_failed_to_delete">Не удалось удалить запись!</string>
 	<string name="become_a_patreon">Become a Patreon</string>
 
 	<!-- Shown in the 'About' window of the app. -->

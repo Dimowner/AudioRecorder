@@ -243,7 +243,7 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 							info.getDuration() >= 0 ? info.getDuration() : 0,
 							file.lastModified(),
 							new Date().getTime(),
-							0,
+							Long.MAX_VALUE,
 							info.getLocation(),
 							info.getFormat(),
 							info.getSize(),

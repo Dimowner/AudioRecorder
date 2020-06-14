@@ -84,7 +84,7 @@ public class RecordsDataSource extends DataSource<Record> {
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_DURATION)),
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_CREATION_DATE)),
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_DATE_ADDED)),
-				0, //Record removed date not needed here.
+				Long.MAX_VALUE, //Record removed date not needed here.
 				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_PATH)),
 				cursor.getString(cursor.getColumnIndex(SQLiteHelper.COLUMN_FORMAT)),
 				cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_SIZE)),

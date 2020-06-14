@@ -16,6 +16,8 @@
 
 package com.dimowner.audiorecorder.data.database;
 
+import com.dimowner.audiorecorder.exception.FailedToRestoreRecord;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -69,9 +71,9 @@ public interface LocalRepository {
 
 	int getTrashRecordsCount();
 
-	void restoreFromTrash(int id);
+	void restoreFromTrash(int id) throws FailedToRestoreRecord;
 
-	void removeFromTrash(int id);
+	boolean removeFromTrash(int id);
 
 	boolean emptyTrash();
 
