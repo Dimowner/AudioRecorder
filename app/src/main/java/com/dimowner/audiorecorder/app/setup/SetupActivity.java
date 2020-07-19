@@ -76,12 +76,12 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_setup);
 
-		getWindow().setFlags(
-				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-
-		LinearLayout toolbar = findViewById(R.id.toolbar);
-		toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
+//		getWindow().setFlags(
+//				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+//				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+//
+//		LinearLayout toolbar = findViewById(R.id.toolbar);
+//		toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
 
 		txtInformation = findViewById(R.id.txt_information);
 		txtSizePerMin = findViewById(R.id.txt_size_per_min);
@@ -91,10 +91,10 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 		btnApply.setOnClickListener(this);
 		btnReset.setOnClickListener(this);
 
-		Space space = findViewById(R.id.space);
-		ViewGroup.LayoutParams params = space.getLayoutParams();
-		params.height = AndroidUtils.getNavigationBarHeight(getApplicationContext());
-		space.setLayoutParams(params);
+//		Space space = findViewById(R.id.space);
+//		ViewGroup.LayoutParams params = space.getLayoutParams();
+//		params.height = AndroidUtils.getNavigationBarHeight(getApplicationContext());
+//		space.setLayoutParams(params);
 
 		formatSetting = findViewById(R.id.setting_recording_format);
 		final String[] formats = getResources().getStringArray(R.array.formats2);

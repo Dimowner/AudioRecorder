@@ -201,9 +201,9 @@
 					android:text="@string/btn_apply"
 					android:textSize="@dimen/text_medium" />
 		</LinearLayout>
-		<Space
-				android:id="@+id/space"
-				android:layout_width="match_parent"
-				android:layout_height="@dimen/spacing_normal" />
+<!--		<Space-->
+<!--				android:id="@+id/space"-->
+<!--				android:layout_width="match_parent"-->
+<!--				android:layout_height="@dimen/spacing_normal" />-->
 	</LinearLayout>
 </LinearLayout>
