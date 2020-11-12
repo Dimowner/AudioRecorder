@@ -19,6 +19,7 @@
 
 	<application
 			android:allowBackup="false"
+			android:requestLegacyExternalStorage="true"
 			android:hardwareAccelerated="@bool/useHardwareAcceleration"
 			android:name="com.dimowner.audiorecorder.ARApplication"
 			android:icon="@mipmap/audio_recorder_logo"
