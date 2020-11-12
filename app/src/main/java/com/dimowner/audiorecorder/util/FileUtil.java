@@ -539,23 +539,19 @@ public class FileUtil {
 	}
 
 	private static boolean isVirtualFile(Context context, Uri uri) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			if (!DocumentsContract.isDocumentUri(context, uri)) {
-				return false;
-			}
-			Cursor cursor = context.getContentResolver().query(
-					uri,
-					new String[]{DocumentsContract.Document.COLUMN_FLAGS},
-					null, null, null);
-			int flags = 0;
-			if (cursor.moveToFirst()) {
-				flags = cursor.getInt(0);
-			}
-			cursor.close();
-			return (flags & DocumentsContract.Document.FLAG_VIRTUAL_DOCUMENT) != 0;
-		} else {
+		if (!DocumentsContract.isDocumentUri(context, uri)) {
 			return false;
 		}
+		Cursor cursor = context.getContentResolver().query(
+				uri,
+				new String[]{DocumentsContract.Document.COLUMN_FLAGS},
+				null, null, null);
+		int flags = 0;
+		if (cursor.moveToFirst()) {
+			flags = cursor.getInt(0);
+		}
+		cursor.close();
+		return (flags & DocumentsContract.Document.FLAG_VIRTUAL_DOCUMENT) != 0;
 	}
 
 	private static InputStream getInputStreamForVirtualFile(Context context, Uri uri, String mimeTypeFilter)
