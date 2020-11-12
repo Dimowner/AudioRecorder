@@ -56,7 +56,7 @@
 	<string name="open_with">Открыть с помощью&#823;</string>
 	<string name="download">Скачать</string>
 	<string name="downloading">Скачивание: %s</string>
-	<string name="downloading_success">%s скачано в паку Download</string>
+	<string name="downloading_success">%s скачано в папку Download</string>
 	<string name="downloading_failed">Ошибка при скачивания: %s</string>
 	<string name="downloading_cancel">Скачивание отменено</string>
 	<string name="share">Поделиться</string>
