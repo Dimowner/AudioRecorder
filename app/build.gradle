@@ -9,34 +9,24 @@
 //}
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 //apply plugin: 'io.fabric'
-
-ext.versions = [
-		// Android
-		targetSdkVersion: 28,
-		minSdkVersion   : 21,
-		buildtools      : "28.0.3",
-		support         : "28.0.0",
-		androidX        : "1.1.0",
-
-		//Timber
-		timber          : "4.7.0",
-]
 
 def versionMajor = 0
 def versionMinor = 9
 def versionPatch = 5
 
 android {
-	compileSdkVersion versions.targetSdkVersion
-	buildToolsVersion versions.buildtools
+	compileSdkVersion 29
+	buildToolsVersion "29.0.3"
 	defaultConfig {
 		applicationId "com.dimowner.audiorecorder"
-		minSdkVersion versions.minSdkVersion
-		targetSdkVersion versions.targetSdkVersion
+		minSdkVersion 21
+		targetSdkVersion 29
 		versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
 		versionName "${versionMajor}.${versionMinor}.${versionPatch}"
-//		vectorDrawables.useSupportLibrary = true
 	}
 
 //	def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -118,6 +108,11 @@ android.variantFilter { variant ->
 }
 
 dependencies {
+	//Kotlin
+	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
+	implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.coroutines"
+	implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$versions.coroutines"
+
 	//Timber
 	implementation "com.jakewharton.timber:timber:$versions.timber"
 	implementation "androidx.recyclerview:recyclerview:$versions.androidX"
