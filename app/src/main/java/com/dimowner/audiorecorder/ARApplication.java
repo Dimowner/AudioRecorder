@@ -25,11 +25,9 @@ import android.os.Handler;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
-//import com.crashlytics.android.Crashlytics;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.util.AndroidUtils;
-//import io.fabric.sdk.android.Fabric;
 
 import timber.log.Timber;
 
@@ -82,9 +80,7 @@ public class ARApplication extends Application {
 				}
 			});
 		}
-
 		super.onCreate();
-//		Fabric.with(this, new Crashlytics());
 
 		PACKAGE_NAME = getApplicationContext().getPackageName();
 		applicationHandler = new Handler(getApplicationContext().getMainLooper());

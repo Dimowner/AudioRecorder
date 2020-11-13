@@ -4,7 +4,6 @@
 
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-<!--	<uses-permission android:name="android.permission.READ_PHONE_STATE" />-->
 	<uses-permission android:name="android.permission.RECORD_AUDIO" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -58,10 +57,6 @@
 		<service android:name="com.dimowner.audiorecorder.app.RecordingService" />
 		<service android:name="com.dimowner.audiorecorder.app.PlaybackService" />
 		<service android:name="com.dimowner.audiorecorder.app.DownloadService" />
-
-<!--	    <meta-data-->
-<!--            android:name="io.fabric.ApiKey"-->
-<!--            android:value="a911efb38fc3ed01944c7ea4410acde51d847864" />-->
 
 		<receiver android:name=".app.RecordingService$StopRecordingReceiver" />
 		<receiver android:name=".app.PlaybackService$StopPlaybackReceiver" />
