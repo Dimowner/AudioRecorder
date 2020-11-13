@@ -28,6 +28,7 @@ import android.telephony.TelephonyManager;
 import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.util.AndroidUtils;
+import com.google.firebase.FirebaseApp;
 
 import timber.log.Timber;
 
@@ -102,6 +103,7 @@ public class ARApplication extends Application {
 		} catch (Exception e) {
 			Timber.e(e);
 		}
+		FirebaseApp.initializeApp(this);
 	}
 
 	@Override
