@@ -66,6 +66,7 @@
 	<string name="record_deleted_successfully">Запись удалена успешно</string>
 	<string name="record_restored_successfully">Запись восстановлено успешно</string>
 	<string name="record_imported_successfully">Запись успешно импортировано</string>
+	<string name="cant_import_files">Невозможно импортировать файлы</string>
 	<string name="by_date">По дате (новые)</string>
 	<string name="by_date_desc">По дате (старые)</string>
 	<string name="by_name">По имени (А-Я)</string>

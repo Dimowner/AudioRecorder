@@ -66,6 +66,7 @@
 	<string name="record_deleted_successfully">The record deleted successfully</string>
 	<string name="record_restored_successfully">The record restored successfully</string>
 	<string name="record_imported_successfully">The record imported successfully</string>
+	<string name="cant_import_files">Can\'t import files</string>
 	<string name="by_date">By date (newest)</string>
 	<string name="by_date_desc">By date (oldest)</string>
 	<string name="by_name">By name (A-Z)</string>

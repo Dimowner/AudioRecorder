@@ -293,8 +293,11 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 	private void updatePath(Context context) {
 		if (view != null) {
 			if (selectedTab == TAB_PRIVATE_DIR) {
-				view.updatePath(fileRepository.getPrivateDir(context).getAbsolutePath());
-				view.showSelectedPrivateDir();
+				File dir = fileRepository.getPrivateDir(context);
+				if (dir != null) {
+					view.updatePath(dir.getAbsolutePath());
+					view.showSelectedPrivateDir();
+				}
 			} else {
 				view.updatePath(fileRepository.getPublicDir().getAbsolutePath());
 				view.showSelectedPublicDir();

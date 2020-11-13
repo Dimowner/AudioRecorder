@@ -231,7 +231,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			playerCallback = new PlayerContract.PlayerCallback() {
 				@Override
 				public void onPreparePlay() {
-					if (record != null) {
+					if (record != null && view != null) {
 						view.startPlaybackService(record.getName());
 					}
 				}

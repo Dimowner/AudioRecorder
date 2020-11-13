@@ -66,6 +66,7 @@
 	<string name="record_deleted_successfully">Запис видалено успішно</string>
 	<string name="record_restored_successfully">Запис відновлено успішно</string>
 	<string name="record_imported_successfully">Запис успішно імпортовано</string>
+	<string name="cant_import_files">Не вдається імпортувати файли</string>
 	<string name="by_date">По даті (найновіші)</string>
 	<string name="by_date_desc">По даті (найстаріші)</string>
 	<string name="by_name">По назві (А-Я)</string>

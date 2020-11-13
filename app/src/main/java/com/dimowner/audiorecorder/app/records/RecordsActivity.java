@@ -695,7 +695,9 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	public void showRename(Record record) {
-		setRecordName(record.getId(), record.getName(), record.getFormat());
+		if (record != null) {
+			setRecordName(record.getId(), record.getName(), record.getFormat());
+		}
 	}
 
 	@Override

@@ -20,6 +20,7 @@ import android.Manifest;
 import android.animation.Animator;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -72,6 +73,7 @@ import java.io.File;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
@@ -306,7 +308,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		intent_upload.addCategory(Intent.CATEGORY_OPENABLE);
 //		intent_upload.setAction(Intent.ACTION_GET_CONTENT);
 		intent_upload.setAction(Intent.ACTION_OPEN_DOCUMENT);
-		startActivityForResult(intent_upload, REQ_CODE_IMPORT_AUDIO);
+		try {
+			startActivityForResult(intent_upload, REQ_CODE_IMPORT_AUDIO);
+		} catch (ActivityNotFoundException e) {
+			Timber.e(e);
+			showError(R.string.cant_import_files);
+		}
 	}
 
 	@Override
