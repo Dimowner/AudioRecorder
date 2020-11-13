@@ -6,7 +6,7 @@ apply plugin: 'com.google.firebase.crashlytics'
 
 def versionMajor = 0
 def versionMinor = 9
-def versionPatch = 6
+def versionPatch = 7
 
 android {
 	compileSdkVersion 29

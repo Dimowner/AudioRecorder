@@ -60,13 +60,6 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 			db.execSQL("ALTER TABLE " + TABLE_RECORDS + " ADD COLUMN " + COLUMN_CHANNEL_COUNT + " INTEGER NOT NULL DEFAULT 0;");
 			db.execSQL("ALTER TABLE " + TABLE_RECORDS + " ADD COLUMN " + COLUMN_BITRATE + " INTEGER NOT NULL DEFAULT 0;");
 
-			//Add new fields to the table Trash.
-			db.execSQL("ALTER TABLE " + TABLE_TRASH + " ADD COLUMN " + COLUMN_FORMAT + " TEXT NOT NULL DEFAULT '';");
-			db.execSQL("ALTER TABLE " + TABLE_TRASH + " ADD COLUMN " + COLUMN_SIZE + " LONG NOT NULL DEFAULT 0;");
-			db.execSQL("ALTER TABLE " + TABLE_TRASH + " ADD COLUMN " + COLUMN_SAMPLE_RATE + " INTEGER NOT NULL DEFAULT 0;");
-			db.execSQL("ALTER TABLE " + TABLE_TRASH + " ADD COLUMN " + COLUMN_CHANNEL_COUNT + " INTEGER NOT NULL DEFAULT 0;");
-			db.execSQL("ALTER TABLE " + TABLE_TRASH + " ADD COLUMN " + COLUMN_BITRATE + " INTEGER NOT NULL DEFAULT 0;");
-
 			db.setTransactionSuccessful();
 			db.endTransaction();
 		} else if (oldVersion == 2 && newVersion == 3) {
