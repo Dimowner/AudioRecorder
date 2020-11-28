@@ -18,14 +18,13 @@ package com.dimowner.audiorecorder.audio.recorder;
 
 import android.media.MediaRecorder;
 import android.os.Build;
+import android.os.Handler;
 
 import com.dimowner.audiorecorder.exception.InvalidOutputFile;
 import com.dimowner.audiorecorder.exception.RecorderInitException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import timber.log.Timber;
 
@@ -35,17 +34,16 @@ public class ThreeGpRecorder implements RecorderContract.Recorder {
 
 	private MediaRecorder recorder = null;
 	private File recordFile = null;
+	private long startTime = 0;
 
-	private boolean isPrepared = false;
 	private boolean isRecording = false;
 	private boolean isPaused = false;
-	private Timer timerProgress;
-	private long progress = 0;
+	private final Handler handler = new Handler();
 
 	private RecorderContract.RecorderCallback recorderCallback;
 
 	private static class RecorderSingletonHolder {
-		private static ThreeGpRecorder singleton = new ThreeGpRecorder();
+		private static final ThreeGpRecorder singleton = new ThreeGpRecorder();
 
 		public static ThreeGpRecorder getSingleton() {
 			return RecorderSingletonHolder.singleton;
@@ -64,7 +62,7 @@ public class ThreeGpRecorder implements RecorderContract.Recorder {
 	}
 
 	@Override
-	public void prepare(String outputFile, int channelCount, int sampleRate, int bitrate) {
+	public void startRecording(String outputFile, int channelCount, int sampleRate, int bitrate) {
 		recordFile = new File(outputFile);
 		if (recordFile.exists() && recordFile.isFile()) {
 			recorder = new MediaRecorder();
@@ -79,10 +77,14 @@ public class ThreeGpRecorder implements RecorderContract.Recorder {
 			recorder.setOutputFile(recordFile.getAbsolutePath());
 			try {
 				recorder.prepare();
-				isPrepared = true;
+				recorder.start();
+				startTime = System.currentTimeMillis();
+				isRecording = true;
+				scheduleRecordingTimeUpdate();
 				if (recorderCallback != null) {
-					recorderCallback.onPrepareRecord();
+					recorderCallback.onStartRecord(recordFile);
 				}
+				isPaused = false;
 			} catch (IOException | IllegalStateException e) {
 				Timber.e(e, "prepare() failed");
 				if (recorderCallback != null) {
@@ -97,11 +99,11 @@ public class ThreeGpRecorder implements RecorderContract.Recorder {
 	}
 
 	@Override
-	public void startRecording() {
+	public void resumeRecording() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isPaused) {
 			try {
 				recorder.resume();
-				startRecordingTimer();
+				scheduleRecordingTimeUpdate();
 				if (recorderCallback != null) {
 					recorderCallback.onStartRecord(recordFile);
 				}
@@ -112,25 +114,6 @@ public class ThreeGpRecorder implements RecorderContract.Recorder {
 					recorderCallback.onError(new RecorderInitException());
 				}
 			}
-		} else {
-			if (isPrepared) {
-				try {
-					recorder.start();
-					isRecording = true;
-					startRecordingTimer();
-					if (recorderCallback != null) {
-						recorderCallback.onStartRecord(recordFile);
-					}
-				} catch (RuntimeException e) {
-					Timber.e(e, "startRecording() failed");
-					if (recorderCallback != null) {
-						recorderCallback.onError(new RecorderInitException());
-					}
-				}
-			} else {
-				Timber.e("Recorder is not prepared!!!");
-			}
-			isPaused = false;
 		}
 	}
 
@@ -172,7 +155,6 @@ public class ThreeGpRecorder implements RecorderContract.Recorder {
 				recorderCallback.onStopRecord(recordFile);
 			}
 			recordFile = null;
-			isPrepared = false;
 			isRecording = false;
 			isPaused = false;
 			recorder = null;
@@ -181,32 +163,27 @@ public class ThreeGpRecorder implements RecorderContract.Recorder {
 		}
 	}
 
-	private void startRecordingTimer() {
-		timerProgress = new Timer();
-		timerProgress.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				if (recorderCallback != null && recorder != null) {
-					try {
-						recorderCallback.onRecordProgress(progress, recorder.getMaxAmplitude());
-					} catch (IllegalStateException e) {
-						Timber.e(e);
-					}
-					progress += VISUALIZATION_INTERVAL;
+	private void scheduleRecordingTimeUpdate() {
+		handler.postDelayed(() -> {
+			if (recorderCallback != null && recorder != null) {
+				try {
+					recorderCallback.onRecordProgress(System.currentTimeMillis() - startTime, recorder.getMaxAmplitude());
+				} catch (IllegalStateException e) {
+					Timber.e(e);
 				}
+				scheduleRecordingTimeUpdate();
+				Timber.v("SystemTime = %s", System.currentTimeMillis());
 			}
-		}, 0, VISUALIZATION_INTERVAL);
+		}, VISUALIZATION_INTERVAL);
 	}
 
 	private void stopRecordingTimer() {
-		timerProgress.cancel();
-		timerProgress.purge();
-		progress = 0;
+		handler.removeCallbacksAndMessages(null);
+		startTime = 0;
 	}
 
 	private void pauseRecordingTimer() {
-		timerProgress.cancel();
-		timerProgress.purge();
+		handler.removeCallbacksAndMessages(null);
 	}
 
 	@Override

@@ -23,7 +23,6 @@ import java.io.File;
 public interface RecorderContract {
 
 	interface RecorderCallback {
-		void onPrepareRecord();
 		void onStartRecord(File output);
 		void onPauseRecord();
 		void onRecordProgress(long mills, int amp);
@@ -33,8 +32,8 @@ public interface RecorderContract {
 
 	interface Recorder {
 		void setRecorderCallback(RecorderCallback callback);
-		void prepare(String outputFile, int channelCount, int sampleRate, int bitrate);
-		void startRecording();
+		void startRecording(String outputFile, int channelCount, int sampleRate, int bitrate);
+		void resumeRecording();
 		void pauseRecording();
 		void stopRecording();
 		boolean isRecording();

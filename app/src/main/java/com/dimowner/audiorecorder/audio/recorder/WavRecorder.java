@@ -19,6 +19,7 @@ package com.dimowner.audiorecorder.audio.recorder;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.Handler;
 
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.exception.InvalidOutputFile;
@@ -33,8 +34,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import timber.log.Timber;
 
@@ -48,26 +47,25 @@ public class WavRecorder implements RecorderContract.Recorder {
 
 	private File recordFile = null;
 	private int bufferSize = 0;
+	private long startTime = 0;
 
 	private Thread recordingThread;
 
 	private boolean isRecording = false;
 	private boolean isPaused = false;
+	private final Handler handler = new Handler();
 
 	private int channelCount = 1;
 
 	/** Value for recording used visualisation. */
 	private int lastVal = 0;
 
-	private Timer timerProgress;
-	private long progress = 0;
-
 	private int sampleRate = AppConstants.RECORD_SAMPLE_RATE_44100;
 
 	private RecorderContract.RecorderCallback recorderCallback;
 
 	private static class WavRecorderSingletonHolder {
-		private static WavRecorder singleton = new WavRecorder();
+		private static final WavRecorder singleton = new WavRecorder();
 
 		public static WavRecorder getSingleton() {
 			return WavRecorderSingletonHolder.singleton;
@@ -86,7 +84,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 	}
 
 	@Override
-	public void prepare(String outputFile, int channelCount, int sampleRate, int bitrate) {
+	public void startRecording(String outputFile, int channelCount, int sampleRate, int bitrate) {
 		this.sampleRate = sampleRate;
 //		this.framesPerVisInterval = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/sampleRate));
 		this.channelCount = channelCount;
@@ -116,9 +114,17 @@ public class WavRecorder implements RecorderContract.Recorder {
 				}
 			}
 			if (recorder != null && recorder.getState() == AudioRecord.STATE_INITIALIZED) {
+				recorder.startRecording();
+				startTime = System.currentTimeMillis();
+				isRecording = true;
+				recordingThread = new Thread(this::writeAudioDataToFile, "AudioRecorder Thread");
+
+				recordingThread.start();
+				scheduleRecordingTimeUpdate();
 				if (recorderCallback != null) {
-					recorderCallback.onPrepareRecord();
+					recorderCallback.onStartRecord(recordFile);
 				}
+				isPaused = false;
 			} else {
 				Timber.e("prepare() failed");
 				if (recorderCallback != null) {
@@ -133,37 +139,15 @@ public class WavRecorder implements RecorderContract.Recorder {
 	}
 
 	@Override
-	public void startRecording() {
+	public void resumeRecording() {
 		if (recorder != null && recorder.getState() == AudioRecord.STATE_INITIALIZED) {
 			if (isPaused) {
-				startRecordingTimer();
+				scheduleRecordingTimeUpdate();
 				recorder.startRecording();
 				if (recorderCallback != null) {
 					recorderCallback.onStartRecord(recordFile);
 				}
 				isPaused = false;
-			} else {
-				try {
-					recorder.startRecording();
-					isRecording = true;
-					recordingThread = new Thread(new Runnable() {
-						@Override
-						public void run() {
-							writeAudioDataToFile();
-						}
-					}, "AudioRecorder Thread");
-
-					recordingThread.start();
-					startRecordingTimer();
-					if (recorderCallback != null) {
-						recorderCallback.onStartRecord(recordFile);
-					}
-				} catch (IllegalStateException e) {
-					Timber.e(e, "startRecording() failed");
-					if (recorderCallback != null) {
-						recorderCallback.onError(new RecorderInitException());
-					}
-				}
 			}
 		}
 	}
@@ -243,11 +227,9 @@ public class WavRecorder implements RecorderContract.Recorder {
 							fos.write(data);
 						} catch (IOException e) {
 							Timber.e(e);
-							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override public void run() {
-									recorderCallback.onError(new RecordingException());
-									stopRecording();
-								}
+							AndroidUtils.runOnUIThread(() -> {
+								recorderCallback.onError(new RecordingException());
+								stopRecording();
 							});
 						}
 					}
@@ -343,27 +325,22 @@ public class WavRecorder implements RecorderContract.Recorder {
 		return header;
 	}
 
-	private void startRecordingTimer() {
-		timerProgress = new Timer();
-		timerProgress.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				if (recorderCallback != null && recorder != null) {
-					recorderCallback.onRecordProgress(progress, lastVal);
-					progress += VISUALIZATION_INTERVAL;
-				}
+	private void scheduleRecordingTimeUpdate() {
+		handler.postDelayed(() -> {
+			if (recorderCallback != null && recorder != null) {
+				recorderCallback.onRecordProgress(System.currentTimeMillis() - startTime, lastVal);
+				scheduleRecordingTimeUpdate();
+				Timber.v("SystemTime = %s", System.currentTimeMillis());
 			}
-		}, 0, VISUALIZATION_INTERVAL);
+		}, VISUALIZATION_INTERVAL);
 	}
 
 	private void stopRecordingTimer() {
-		timerProgress.cancel();
-		timerProgress.purge();
-		progress = 0;
+		handler.removeCallbacksAndMessages(null);
+		startTime = 0;
 	}
 
 	private void pauseRecordingTimer() {
-		timerProgress.cancel();
-		timerProgress.purge();
+		handler.removeCallbacksAndMessages(null);
 	}
 }

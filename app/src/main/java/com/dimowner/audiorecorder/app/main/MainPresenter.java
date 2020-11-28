@@ -198,21 +198,16 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 				@Override
 				public void onRecordingProgress(final long mills, final int amp) {
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							if (view != null) {
-								view.onRecordingProgress(mills, amp);
-								if (recFile != null && mills % 1000 == 0) { //Update record info every second when recording.
-									updateInformation(
-											prefs.getSettingRecordingFormat(),
-											prefs.getSettingSampleRate(),
-											recFile.length()
-									);
-								}
-							}
+					if (view != null) {
+						view.onRecordingProgress(mills, amp);
+						if (recFile != null && mills % 1000 == 0) { //Update record info every second when recording.
+							updateInformation(
+									prefs.getSettingRecordingFormat(),
+									prefs.getSettingSampleRate(),
+									recFile.length()
+							);
 						}
-					});
+					}
 				}
 
 				@Override
@@ -389,26 +384,18 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				} else if (!appRecorder.isRecording()) {
 					try {
 						final String path = fileRepository.provideRecordFile().getAbsolutePath();
-						recordingsTasks.postRunnable(new Runnable() {
-							@Override
-							public void run() {
-								try {
-									record = localRepository.insertEmptyFile(path);
-									prefs.setActiveRecord(record.getId());
-									AndroidUtils.runOnUIThread(new Runnable() {
-										@Override
-										public void run() {
-											appRecorder.startRecording(
-													path,
-													prefs.getSettingChannelCount(),
-													prefs.getSettingSampleRate(),
-													prefs.getSettingBitrate()
-											);
-										}
-									});
-								} catch (IOException | OutOfMemoryError | IllegalStateException e) {
-									Timber.e(e);
-								}
+						recordingsTasks.postRunnable(() -> {
+							try {
+								record = localRepository.insertEmptyFile(path);
+								prefs.setActiveRecord(record.getId());
+								AndroidUtils.runOnUIThread(() -> appRecorder.startRecording(
+										path,
+										prefs.getSettingChannelCount(),
+										prefs.getSettingSampleRate(),
+										prefs.getSettingBitrate()
+								));
+							} catch (IOException | OutOfMemoryError | IllegalStateException e) {
+								Timber.e(e);
 							}
 						});
 					} catch (CantCreateFileException e) {
