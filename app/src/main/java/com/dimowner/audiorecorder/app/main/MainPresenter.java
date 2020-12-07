@@ -368,6 +368,14 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
+	public void storeInPrivateDir(Context context) {
+		if (prefs.isStoreDirPublic()) {
+			prefs.setStoreDirPublic(false);
+			fileRepository.updateRecordingDir(context, prefs);
+		}
+	}
+
+	@Override
 	public void setAudioRecorder(RecorderContract.Recorder recorder) {
 		appRecorder.setRecorder(recorder);
 	}

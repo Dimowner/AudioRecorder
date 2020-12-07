@@ -28,6 +28,8 @@ public class SettingsContract {
 
 		void showStoreInPublicDir(boolean b);
 
+		void showDirectorySetting(boolean b);
+
 		void showKeepScreenOn(boolean b);
 
 		void showAskToRenameAfterRecordingStop(boolean b);

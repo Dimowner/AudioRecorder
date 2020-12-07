@@ -228,6 +228,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	protected void onStart() {
 		super.onStart();
 		presenter.bindView(this);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			//This is needed for scoped storage support
+			presenter.storeInPrivateDir(getApplicationContext());
+		}
 		presenter.checkFirstRun();
 		presenter.setAudioRecorder(ARApplication.getInjector().provideAudioRecorder());
 		presenter.updateRecordingDir(getApplicationContext());

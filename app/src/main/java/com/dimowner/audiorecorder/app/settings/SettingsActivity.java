@@ -44,7 +44,6 @@ import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.browser.FileBrowserActivity;
 import com.dimowner.audiorecorder.app.trash.TrashActivity;
-import com.dimowner.audiorecorder.app.widget.ChipsView;
 import com.dimowner.audiorecorder.app.widget.SettingView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
@@ -66,12 +65,13 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private TextView txtSizePerMin;
 	private TextView txtInformation;
 	private TextView txtLocation;
+	private TextView txtFileBrowser;
+	private View panelPublicDir;
 
 	private Switch swPublicDir;
 	private Switch swKeepScreenOn;
 	private Switch swAskToRename;
 
-	private Spinner themeColor;
 	private Spinner nameFormatSelector;
 
 	private SettingView formatSetting;
@@ -138,9 +138,11 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		TextView txtAbout = findViewById(R.id.txtAbout);
 		txtAbout.setText(getAboutContent());
 		findViewById(R.id.btnTrash).setOnClickListener(this);
-		findViewById(R.id.btn_file_browser).setOnClickListener(this);
 		findViewById(R.id.btnRate).setOnClickListener(this);
 		findViewById(R.id.btnRequest).setOnClickListener(this);
+		panelPublicDir = findViewById(R.id.panelPublicDir);
+		txtFileBrowser = findViewById(R.id.btn_file_browser);
+		txtFileBrowser.setOnClickListener(this);
 		swPublicDir = findViewById(R.id.swPublicDir);
 		swKeepScreenOn = findViewById(R.id.swKeepScreenOn);
 		swAskToRename = findViewById(R.id.swAskToRename);
@@ -151,18 +153,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 		swPublicDir.setOnCheckedChangeListener(publicDirListener);
 
-		swKeepScreenOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
-				presenter.keepScreenOn(isChecked);
-			}
-		});
-		swAskToRename.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
-				presenter.askToRenameAfterRecordingStop(isChecked);
-			}
-		});
+		swKeepScreenOn.setOnCheckedChangeListener((btn, isChecked) -> presenter.keepScreenOn(isChecked));
+		swAskToRename.setOnCheckedChangeListener((btn, isChecked) -> presenter.askToRenameAfterRecordingStop(isChecked));
 
 		formatSetting = findViewById(R.id.setting_recording_format);
 		formats = getResources().getStringArray(R.array.formats2);
@@ -172,19 +164,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 				AppConstants.FORMAT_3GP
 		};
 		formatSetting.setData(formats, formatsKeys);
-		formatSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
-			@Override
-			public void onCheck(String key, String name, boolean checked) {
-				presenter.setSettingRecordingFormat(key);
-			}
-		});
+		formatSetting.setOnChipCheckListener((key, name, checked) -> presenter.setSettingRecordingFormat(key));
 		formatSetting.setTitle(R.string.recording_format);
-		formatSetting.setOnInfoClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				AndroidUtils.showInfoDialog(SettingsActivity.this, R.string.info_format);
-			}
-		});
+		formatSetting.setOnInfoClickListener(v -> AndroidUtils.showInfoDialog(SettingsActivity.this, R.string.info_format));
 
 		sampleRateSetting = findViewById(R.id.setting_frequency);
 		sampleRates = getResources().getStringArray(R.array.sample_rates2);
@@ -197,19 +179,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 				SettingsMapper.SAMPLE_RATE_48000,
 		};
 		sampleRateSetting.setData(sampleRates, sampleRatesKeys);
-		sampleRateSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
-			@Override
-			public void onCheck(String key, String name, boolean checked) {
-				presenter.setSettingSampleRate(SettingsMapper.keyToSampleRate(key));
-			}
-		});
+		sampleRateSetting.setOnChipCheckListener((key, name, checked) -> presenter.setSettingSampleRate(SettingsMapper.keyToSampleRate(key)));
 		sampleRateSetting.setTitle(R.string.sample_rate);
-		sampleRateSetting.setOnInfoClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				AndroidUtils.showInfoDialog(SettingsActivity.this, R.string.info_frequency);
-			}
-		});
+		sampleRateSetting.setOnInfoClickListener(v -> AndroidUtils.showInfoDialog(SettingsActivity.this, R.string.info_frequency));
 
 		bitrateSetting = findViewById(R.id.setting_bitrate);
 		rates = getResources().getStringArray(R.array.bit_rates2);
@@ -222,19 +194,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 				SettingsMapper.BITRATE_256000,
 		};
 		bitrateSetting.setData(rates, rateKeys);
-		bitrateSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
-			@Override
-			public void onCheck(String key, String name, boolean checked) {
-				presenter.setSettingRecordingBitrate(SettingsMapper.keyToBitrate(key));
-			}
-		});
+		bitrateSetting.setOnChipCheckListener((key, name, checked) -> presenter.setSettingRecordingBitrate(SettingsMapper.keyToBitrate(key)));
 		bitrateSetting.setTitle(R.string.bitrate);
-		bitrateSetting.setOnInfoClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				AndroidUtils.showInfoDialog(SettingsActivity.this, R.string.info_bitrate);
-			}
-		});
+		bitrateSetting.setOnInfoClickListener(v -> AndroidUtils.showInfoDialog(SettingsActivity.this, R.string.info_bitrate));
 
 		channelsSetting = findViewById(R.id.setting_channels);
 		recChannels = getResources().getStringArray(R.array.channels);
@@ -243,19 +205,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 				SettingsMapper.CHANNEL_COUNT_MONO
 		};
 		channelsSetting.setData(recChannels, recChannelsKeys);
-		channelsSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
-			@Override
-			public void onCheck(String key, String name, boolean checked) {
-				presenter.setSettingChannelCount(SettingsMapper.keyToChannelCount(key));
-			}
-		});
+		channelsSetting.setOnChipCheckListener((key, name, checked) -> presenter.setSettingChannelCount(SettingsMapper.keyToChannelCount(key)));
 		channelsSetting.setTitle(R.string.channels);
-		channelsSetting.setOnInfoClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				AndroidUtils.showInfoDialog(SettingsActivity.this, R.string.info_channels);
-			}
-		});
+		channelsSetting.setOnInfoClickListener(v -> AndroidUtils.showInfoDialog(SettingsActivity.this, R.string.info_channels));
 
 		presenter = ARApplication.getInjector().provideSettingsPresenter();
 
@@ -287,7 +239,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	}
 
 	private void initThemeColorSelector() {
-		themeColor = findViewById(R.id.themeColor);
+		Spinner themeColor = findViewById(R.id.themeColor);
 		List<AppSpinnerAdapter.ThemeItem> items = new ArrayList<>();
 		String[] values = getResources().getStringArray(R.array.theme_colors2);
 		int[] colorRes = colorMap.getColorResources();
@@ -298,12 +250,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 				R.layout.list_item_spinner, R.id.txtItem, items, R.drawable.ic_color_lens);
 		themeColor.setAdapter(adapter);
 
-		onThemeColorChangeListener = new ColorMap.OnThemeColorChangeListener() {
-			@Override
-			public void onThemeColorChange(String colorKey) {
-				setTheme(colorMap.getAppThemeResource());
-				recreate();
-			}
+		onThemeColorChangeListener = colorKey -> {
+			setTheme(colorMap.getAppThemeResource());
+			recreate();
 		};
 		colorMap.addOnThemeColorChangeListener(onThemeColorChangeListener);
 
@@ -350,6 +299,11 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		super.onStart();
 		presenter.bindView(this);
 		presenter.loadSettings();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			//This is needed for scoped storage support
+			swPublicDir.setChecked(false);
+			swPublicDir.setEnabled(false);
+		}
 	}
 
 	@Override
@@ -474,6 +428,12 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		swPublicDir.setOnCheckedChangeListener(null);
 		swPublicDir.setChecked(b);
 		swPublicDir.setOnCheckedChangeListener(publicDirListener);
+	}
+
+	@Override
+	public void showDirectorySetting(boolean b) {
+		panelPublicDir.setVisibility(b ? View.VISIBLE : View.GONE);
+		txtFileBrowser.setVisibility(b ? View.VISIBLE : View.GONE);
 	}
 
 	@Override

@@ -24,6 +24,9 @@ public interface Prefs {
 	boolean isStoreDirPublic();
 	void setStoreDirPublic(boolean b);
 
+	//This is needed for scoped storage support
+	boolean isShowDirectorySetting();
+
 	boolean isAskToRenameAfterStopRecording();
 	boolean hasAskToRenameAfterStopRecordingSetting();
 	void setAskToRenameAfterStopRecording(boolean b);

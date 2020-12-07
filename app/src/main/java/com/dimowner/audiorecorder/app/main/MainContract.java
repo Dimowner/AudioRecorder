@@ -87,6 +87,8 @@ public interface MainContract {
 
 		void checkFirstRun();
 
+		void storeInPrivateDir(Context context);
+
 		void setAudioRecorder(RecorderContract.Recorder recorder);
 
 		void startRecording(Context context);
