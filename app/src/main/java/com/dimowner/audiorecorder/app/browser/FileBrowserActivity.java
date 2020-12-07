@@ -77,12 +77,9 @@ public class FileBrowserActivity extends Activity implements FileBrowserContract
 		setContentView(R.layout.activity_file_browser);
 
 		ImageButton btnBack = findViewById(R.id.btn_back);
-		btnBack.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ARApplication.getInjector().releaseFileBrowserPresenter();
-				finish();
-			}
+		btnBack.setOnClickListener(v -> {
+			ARApplication.getInjector().releaseFileBrowserPresenter();
+			finish();
 		});
 
 		txtEmpty = findViewById(R.id.txtEmpty);
@@ -122,12 +119,7 @@ public class FileBrowserActivity extends Activity implements FileBrowserContract
 						R.drawable.ic_delete_forever,
 						R.string.warning,
 						getApplicationContext().getString(R.string.delete_record, record.getName()),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								presenter.deleteRecord(record);
-							}
-						}
+						(dialog, which) -> presenter.deleteRecord(record)
 				);
 			}
 		});
@@ -158,15 +150,13 @@ public class FileBrowserActivity extends Activity implements FileBrowserContract
 
 	@Override
 	public void onClick(View v) {
-		switch (v.getId()) {
-			case R.id.tab_private_dir:
-				presenter.selectPrivateDir(getApplicationContext());
-				break;
-			case R.id.tab_public_dir:
-				if (checkStoragePermissionImport(REQ_CODE_READ_EXTERNAL_STORAGE_LOAD_PUBLIC_DIR)) {
-					presenter.selectPublicDir(getApplicationContext());
-				}
-				break;
+		int id = v.getId();
+		if (id == R.id.tab_private_dir) {
+			presenter.selectPrivateDir(getApplicationContext());
+		} else if (id == R.id.tab_public_dir) {
+			if (checkStoragePermissionImport(REQ_CODE_READ_EXTERNAL_STORAGE_LOAD_PUBLIC_DIR)) {
+				presenter.selectPublicDir(getApplicationContext());
+			}
 		}
 	}
 

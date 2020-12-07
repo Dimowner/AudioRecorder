@@ -26,7 +26,6 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -50,7 +49,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 	private List<ListItem> data;
 
-	private SettingsMapper settingsMapper;
+	private final SettingsMapper settingsMapper;
 	private boolean showDateHeaders = true;
 	private int activeItem = -1;
 	private View btnTrash;
@@ -121,33 +120,24 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 				holder.view.setBackgroundResource(android.R.color.transparent);
 			}
 
-			holder.btnBookmark.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (onAddToBookmarkListener != null && data.size() > p) {
-						if(item.isBookmarked()) {
-							onAddToBookmarkListener.onRemoveFromBookmarks((int) item.getId());
-						} else {
-							onAddToBookmarkListener.onAddToBookmarks((int) item.getId());
-						}
+			holder.btnBookmark.setOnClickListener(v -> {
+				if (onAddToBookmarkListener != null && data.size() > p) {
+					if(item.isBookmarked()) {
+						onAddToBookmarkListener.onRemoveFromBookmarks((int) item.getId());
+					} else {
+						onAddToBookmarkListener.onAddToBookmarks((int) item.getId());
 					}
 				}
 			});
-			holder.btnMore.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					showMenu(v, p);
-				}
-			});
+			holder.btnMore.setOnClickListener(v -> showMenu(v, p));
 			holder.waveformView.setWaveform(item.getAmps());
 
-			holder.view.setOnClickListener(new View.OnClickListener() {
-				@Override public void onClick(View v) {
-					if (itemClickListener != null && data.size() > p) {
-						int lpos = viewHolder.getLayoutPosition();
-						itemClickListener.onItemClick(v, data.get(lpos).getId(), data.get(lpos).getPath(), lpos);
-					}
-				}});
+			holder.view.setOnClickListener(v -> {
+				if (itemClickListener != null && data.size() > p) {
+					int lpos = viewHolder.getLayoutPosition();
+					itemClickListener.onItemClick(v, data.get(lpos).getId(), data.get(lpos).getPath(), lpos);
+				}
+			});
 			updateInformation(holder.info, item.getFormat(), item.getSampleRate(), item.getSize());
 		} else if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_DATE) {
 			UniversalViewHolder holder = (UniversalViewHolder) viewHolder;
@@ -162,12 +152,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			btnTrash = holder.itemView.findViewById(R.id.btn_trash);
 			if (btnTrash != null) {
 				if (btnTrashClickListener != null) {
-					btnTrash.setOnClickListener(new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							btnTrashClickListener.onClick();
-						}
-					});
+					btnTrash.setOnClickListener(v -> btnTrashClickListener.onClick());
 				}
 				if (showTrash) {
 					btnTrash.setVisibility(View.VISIBLE);
@@ -199,14 +184,11 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 	private void showMenu(View v, final int pos) {
 		PopupMenu popup = new PopupMenu(v.getContext(), v);
-		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				if (onItemOptionListener != null && data.size() > pos) {
-					onItemOptionListener.onItemOptionSelected(item.getItemId(), data.get(pos));
-				}
-				return false;
+		popup.setOnMenuItemClickListener(item -> {
+			if (onItemOptionListener != null && data.size() > pos) {
+				onItemOptionListener.onItemOptionSelected(item.getItemId(), data.get(pos));
 			}
+			return false;
 		});
 		MenuInflater inflater = popup.getMenuInflater();
 		inflater.inflate(R.menu.menu_more, popup.getMenu());
@@ -551,7 +533,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		void onItemOptionSelected(int menuId, ListItem item);
 	}
 
-	public class ItemViewHolder extends RecyclerView.ViewHolder {
+	public static class ItemViewHolder extends RecyclerView.ViewHolder {
 		TextView name;
 		TextView description;
 		TextView created;
@@ -574,7 +556,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		}
 	}
 
-	public class UniversalViewHolder extends RecyclerView.ViewHolder {
+	public static class UniversalViewHolder extends RecyclerView.ViewHolder {
 		View view;
 
 		UniversalViewHolder(View view) {

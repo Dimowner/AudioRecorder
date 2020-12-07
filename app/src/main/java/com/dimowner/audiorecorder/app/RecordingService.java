@@ -62,7 +62,6 @@ public class RecordingService extends Service {
 	public static final String ACTION_PAUSE_RECORDING = "ACTION_PAUSE_RECORDING";
 
 	private static final int NOTIF_ID = 101;
-	private NotificationCompat.Builder builder;
 	private NotificationManager notificationManager;
 	private RemoteViews remoteViewsSmall;
 	private Notification notification;
@@ -194,7 +193,7 @@ public class RecordingService extends Service {
 //		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
 		// Create notification builder.
-		builder = new NotificationCompat.Builder(this, CHANNEL_ID);
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
 
 		builder.setWhen(System.currentTimeMillis());
 		builder.setSmallIcon(R.drawable.ic_record_rec);
@@ -236,7 +235,7 @@ public class RecordingService extends Service {
 	}
 
 	@RequiresApi(Build.VERSION_CODES.O)
-	private String createNotificationChannel(String channelId, String channelName) {
+	private void createNotificationChannel(String channelId, String channelName) {
 		NotificationChannel channel = notificationManager.getNotificationChannel(channelId);
 		if (channel == null) {
 			NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
@@ -248,7 +247,6 @@ public class RecordingService extends Service {
 
 			notificationManager.createNotificationChannel(chan);
 		}
-		return channelId;
 	}
 
 	private void updateNotificationPause() {

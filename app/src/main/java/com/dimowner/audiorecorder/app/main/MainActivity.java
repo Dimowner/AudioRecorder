@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -32,7 +31,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -104,8 +102,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ImageButton btnDelete;
 	private ImageButton btnRecordingStop;
 	private ImageButton btnShare;
-	private ImageButton btnRecordsList;
-	private ImageButton btnSettings;
 	private ImageButton btnImport;
 	private ProgressBar progressBar;
 	private SeekBar playProgress;
@@ -139,8 +135,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnRecordingStop = findViewById(R.id.btn_record_stop);
 		btnDelete = findViewById(R.id.btn_record_delete);
 		btnStop = findViewById(R.id.btn_stop);
-		btnRecordsList = findViewById(R.id.btn_records_list);
-		btnSettings = findViewById(R.id.btn_settings);
+		ImageButton btnRecordsList = findViewById(R.id.btn_records_list);
+		ImageButton btnSettings = findViewById(R.id.btn_settings);
 		btnShare = findViewById(R.id.btn_share);
 		btnImport = findViewById(R.id.btn_import);
 		progressBar = findViewById(R.id.progress);
@@ -214,12 +210,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 			}
 		});
-		onThemeColorChangeListener = new ColorMap.OnThemeColorChangeListener() {
-			@Override
-			public void onThemeColorChange(String colorKey) {
-				setTheme(colorMap.getAppThemeResource());
-				recreate();
-			}
+		onThemeColorChangeListener = colorKey -> {
+			setTheme(colorMap.getAppThemeResource());
+			recreate();
 		};
 		colorMap.addOnThemeColorChangeListener(onThemeColorChangeListener);
 	}
@@ -254,55 +247,41 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void onClick(View view) {
-		switch (view.getId()) {
-			case R.id.btn_play:
-				//This method Starts or Pause playback.
-				if (FileUtil.isFileInExternalStorage(getApplicationContext(), presenter.getActiveRecordPath())) {
-					if (checkStoragePermissionPlayback()) {
-						presenter.startPlayback();
-					}
-				} else {
+		int id = view.getId();
+		if (id == R.id.btn_play) {
+			//This method Starts or Pause playback.
+			if (FileUtil.isFileInExternalStorage(getApplicationContext(), presenter.getActiveRecordPath())) {
+				if (checkStoragePermissionPlayback()) {
 					presenter.startPlayback();
 				}
-				break;
-			case R.id.btn_record:
-				if (checkRecordPermission2()) {
-					if (checkStoragePermission2()) {
-						//Start or stop recording
-						presenter.startRecording(getApplicationContext());
-					}
+			} else {
+				presenter.startPlayback();
+			}
+		} else if (id == R.id.btn_record) {
+			if (checkRecordPermission2()) {
+				if (checkStoragePermission2()) {
+					//Start or stop recording
+					presenter.startRecording(getApplicationContext());
 				}
-				break;
-			case R.id.btn_record_stop:
-				presenter.stopRecording(false);
-				break;
-			case R.id.btn_record_delete:
-				presenter.cancelRecording();
-				break;
-			case R.id.btn_stop:
-				presenter.stopPlayback();
-				break;
-			case R.id.btn_records_list:
-				startActivity(RecordsActivity.getStartIntent(getApplicationContext()));
-				break;
-			case R.id.btn_settings:
-				startActivity(SettingsActivity.getStartIntent(getApplicationContext()));
-				break;
-			case R.id.btn_share:
-//				AndroidUtils.shareAudioFile(getApplicationContext(), presenter.getActiveRecordPath(), presenter.getActiveRecordName());
-				showMenu(view);
-				break;
-			case R.id.btn_import:
-				if (checkStoragePermissionImport()) {
-					startFileSelector();
-				}
-				break;
-			case R.id.txt_name:
-//				if (presenter.getActiveRecordId() != -1) {
-//					setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()), false, false);
-//				}
-				presenter.onRenameRecordClick();
-				break;
+			}
+		} else if (id == R.id.btn_record_stop) {
+			presenter.stopRecording(false);
+		} else if (id == R.id.btn_record_delete) {
+			presenter.cancelRecording();
+		} else if (id == R.id.btn_stop) {
+			presenter.stopPlayback();
+		} else if (id == R.id.btn_records_list) {
+			startActivity(RecordsActivity.getStartIntent(getApplicationContext()));
+		} else if (id == R.id.btn_settings) {
+			startActivity(SettingsActivity.getStartIntent(getApplicationContext()));
+		} else if (id == R.id.btn_share) {
+			showMenu(view);
+		} else if (id == R.id.btn_import) {
+			if (checkStoragePermissionImport()) {
+				startFileSelector();
+			}
+		} else if (id == R.id.txt_name) {
+			presenter.onRenameRecordClick();
 		}
 	}
 
@@ -562,12 +541,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				R.drawable.ic_delete_forever,
 				R.string.warning,
 				getApplicationContext().getString(R.string.delete_record, name),
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						presenter.deleteActiveRecord(false);
-					}
-				}
+				(dialog, which) -> presenter.deleteActiveRecord(false)
 		);
 	}
 
@@ -578,12 +552,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				R.drawable.ic_delete_forever,
 				R.string.warning,
 				getApplicationContext().getString(R.string.delete_this_record),
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						presenter.stopRecording(true);
-					}
-				}
+				(dialog, which) -> presenter.stopRecording(true)
 		);
 	}
 
@@ -661,31 +630,22 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	private void showMenu(View v) {
 		PopupMenu popup = new PopupMenu(v.getContext(), v);
-		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				switch (item.getItemId()) {
-					case R.id.menu_share:
-						presenter.onShareRecordClick();
-						break;
-					case R.id.menu_info:
-						presenter.onRecordInfo();
-						break;
-					case R.id.menu_rename:
-						presenter.onRenameRecordClick();
-						break;
-					case R.id.menu_open_with:
-						presenter.onOpenFileClick();
-						break;
-					case R.id.menu_download:
-						presenter.onDownloadClick();
-						break;
-					case R.id.menu_delete:
-						presenter.onDeleteClick();
-						break;
-				}
-				return false;
+		popup.setOnMenuItemClickListener(item -> {
+			int id = item.getItemId();
+			if (id == R.id.menu_share) {
+				presenter.onShareRecordClick();
+			} else if (id == R.id.menu_info) {
+				presenter.onRecordInfo();
+			} else if (id == R.id.menu_rename) {
+				presenter.onRenameRecordClick();
+			} else if (id == R.id.menu_open_with) {
+				presenter.onOpenFileClick();
+			} else if (id == R.id.menu_download) {
+				presenter.onDownloadClick();
+			} else if (id == R.id.menu_delete) {
+				presenter.onDeleteClick();
 			}
+			return false;
 		});
 		MenuInflater inflater = popup.getMenuInflater();
 		inflater.inflate(R.menu.menu_more, popup.getMenu());
@@ -734,33 +694,24 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		AlertDialog alertDialog = new AlertDialog.Builder(this)
 				.setTitle(R.string.record_name)
 				.setView(container)
-				.setPositiveButton(R.string.btn_save, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						String newName = editText.getText().toString();
-						if (!info.getName().equalsIgnoreCase(newName)) {
-							presenter.renameRecord(recordId, newName, info.getFormat(), needDecode);
-						} else if (needDecode) {
-							presenter.decodeRecord(recordId);
-						}
-						dialog.dismiss();
+				.setPositiveButton(R.string.btn_save, (dialog, id) -> {
+					String newName = editText.getText().toString();
+					if (!info.getName().equalsIgnoreCase(newName)) {
+						presenter.renameRecord(recordId, newName, info.getFormat(), needDecode);
+					} else if (needDecode) {
+						presenter.decodeRecord(recordId);
 					}
+					dialog.dismiss();
 				})
-				.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.dismiss();
-						if (needDecode) {
-							presenter.decodeRecord(recordId);
-						}
+				.setNegativeButton(R.string.btn_cancel, (dialog, id) -> {
+					dialog.dismiss();
+					if (needDecode) {
+						presenter.decodeRecord(recordId);
 					}
 				})
 				.create();
 		alertDialog.show();
-		alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-			@Override
-			public void onDismiss(DialogInterface dialog) {
-				hideKeyboard();
-			}
-		});
+		alertDialog.setOnDismissListener(dialog -> hideKeyboard());
 		editText.requestFocus();
 		editText.setSelection(editText.getText().length());
 		showKeyboard();
@@ -795,25 +746,24 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				checkBox.getPaddingRight(),
 				checkBox.getPaddingBottom());
 
-		checkBox.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				presenter.dontAskRename();
-			}
-		});
+		checkBox.setOnClickListener(v -> presenter.dontAskRename());
 		return checkBox;
 	}
 
 	/** Show soft keyboard for a dialog. */
 	public void showKeyboard(){
 		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-		inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+		if (inputMethodManager != null) {
+			inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+		}
 	}
 
 	/** Hide soft keyboard after a dialog. */
 	public void hideKeyboard(){
 		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-		inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+		if (inputMethodManager != null) {
+			inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+		}
 	}
 
 	private boolean checkStoragePermissionDownload() {
@@ -878,16 +828,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 				if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 					AndroidUtils.showDialog(this, R.string.warning, R.string.need_write_permission,
-							new View.OnClickListener() {
-								@Override
-								public void onClick(View v) {
-									requestPermissions(
-											new String[]{
-													Manifest.permission.WRITE_EXTERNAL_STORAGE,
-													Manifest.permission.READ_EXTERNAL_STORAGE},
-											REQ_CODE_WRITE_EXTERNAL_STORAGE);
-								}
-							}, null
+							v -> requestPermissions(
+									new String[]{
+											Manifest.permission.WRITE_EXTERNAL_STORAGE,
+											Manifest.permission.READ_EXTERNAL_STORAGE},
+									REQ_CODE_WRITE_EXTERNAL_STORAGE), null
 //							new View.OnClickListener() {
 //								@Override
 //								public void onClick(View v) {

@@ -18,7 +18,7 @@ public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnS
     // True if we are still waiting for the last set of data to load.
     private boolean loading = true;
 
-    private RecyclerView.LayoutManager mLayoutManager;
+    private final RecyclerView.LayoutManager mLayoutManager;
 
     public <L extends RecyclerView.LayoutManager> EndlessRecyclerViewScrollListener(L layoutManager) {
         this.mLayoutManager = layoutManager;

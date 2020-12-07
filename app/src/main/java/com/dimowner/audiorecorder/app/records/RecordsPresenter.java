@@ -44,7 +44,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	private RecordsContract.View view;
 	private final PlayerContract.Player audioPlayer;
-	private AppRecorder appRecorder;
+	private final AppRecorder appRecorder;
 	private PlayerContract.PlayerCallback playerCallback;
 	private AppRecorderCallback appRecorderCallback;
 	private final BackgroundQueue loadingTasks;
@@ -122,17 +122,16 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				@Override
 				public void onPlayProgress(final long mills) {
 					if (view != null && listenPlaybackProgress) {
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override public void run() {
-								Record rec = activeRecord;
-								if (view != null && rec != null) {
-									long duration = rec.getDuration()/1000;
-									if (duration > 0) {
-										view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
-												AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * mills / duration));
-									}
+						AndroidUtils.runOnUIThread(() -> {
+							Record rec = activeRecord;
+							if (view != null && rec != null) {
+								long duration = rec.getDuration()/1000;
+								if (duration > 0) {
+									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
+											AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * mills / duration));
 								}
-							}});
+							}
+						});
 					}
 				}
 
@@ -174,12 +173,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			view.showSortType(prefs.getRecordsOrder());
 		}
 
-		this.localRepository.setOnRecordsLostListener(new OnRecordsLostListener() {
-			@Override
-			public void onLostRecords(List<Record> list) {
-				view.showRecordsLostMessage(list);
-			}
-		});
+		this.localRepository.setOnRecordsLostListener(list -> view.showRecordsLostMessage(list));
 	}
 
 	@Override
@@ -201,21 +195,17 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	@Override
 	public void onResumeView() {
-		loadingTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				final int count = localRepository.getTrashRecordsCount();
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override public void run() {
-						if (view != null) {
-							if (count > 0) {
-								view.showTrashBtn();
-							} else {
-								view.hideTrashBtn();
-							}
-						}
-					}});
-			}
+		loadingTasks.postRunnable(() -> {
+			final int count = localRepository.getTrashRecordsCount();
+			AndroidUtils.runOnUIThread(() -> {
+				if (view != null) {
+					if (count > 0) {
+						view.showTrashBtn();
+					} else {
+						view.hideTrashBtn();
+					}
+				}
+			});
 		});
 	}
 
@@ -269,139 +259,115 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		if (rec != null && rec.getId() == id) {
 			audioPlayer.stop();
 		}
-		recordingsTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				localRepository.deleteRecord((int) id);
+		recordingsTasks.postRunnable(() -> {
+			localRepository.deleteRecord((int) id);
 //				fileRepository.deleteRecordFile(path);
-				if (rec != null && rec.getId() == id) {
-					prefs.setActiveRecord(-1);
-					dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
-				}
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override
-					public void run() {
-						if (view != null) {
-							view.showTrashBtn();
-							view.onDeleteRecord(id);
-							view.showMessage(R.string.record_moved_into_trash);
-							if (rec != null && rec.getId() == id) {
-								view.hidePlayPanel();
-								activeRecord = null;
-							}
-						}
-					}
-				});
+			if (rec != null && rec.getId() == id) {
+				prefs.setActiveRecord(-1);
+				dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 			}
+			AndroidUtils.runOnUIThread(() -> {
+				if (view != null) {
+					view.showTrashBtn();
+					view.onDeleteRecord(id);
+					view.showMessage(R.string.record_moved_into_trash);
+					if (rec != null && rec.getId() == id) {
+						view.hidePlayPanel();
+						activeRecord = null;
+					}
+				}
+			});
 		});
 	}
 
 	@Override
 	public void renameRecord(final long id, String n, final String extension) {
 		if (id < 0 || n == null || n.isEmpty()) {
-			AndroidUtils.runOnUIThread(new Runnable() {
-				@Override public void run() {
-					if (view != null) {
-						view.showError(R.string.error_failed_to_rename);
-					}
-				}});
+			AndroidUtils.runOnUIThread(() -> {
+				if (view != null) {
+					view.showError(R.string.error_failed_to_rename);
+				}
+			});
 			return;
 		}
 		view.showProgress();
 		final String name = FileUtil.removeUnallowedSignsFromName(n);
-		loadingTasks.postRunnable(new Runnable() {
-			@Override public void run() {
-				Record rec2 = localRepository.getRecord((int)id);
-				if (rec2 != null) {
-					String nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + extension;
-					File file = new File(rec2.getPath());
-					File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
+		loadingTasks.postRunnable(() -> {
+			Record rec2 = localRepository.getRecord((int)id);
+			if (rec2 != null) {
+				String nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + extension;
+				File file = new File(rec2.getPath());
+				File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
 
-					if (renamed.exists()) {
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
+				if (renamed.exists()) {
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) {
+							view.showError(R.string.error_file_exists);
+						}
+					});
+				} else {
+					if (fileRepository.renameFile(rec2.getPath(), name, extension)) {
+						activeRecord = new Record(
+								rec2.getId(),
+								name,
+								rec2.getDuration(),
+								rec2.getCreated(),
+								rec2.getAdded(),
+								rec2.getRemoved(),
+								renamed.getAbsolutePath(),
+								rec2.getFormat(),
+								rec2.getSize(),
+								rec2.getSampleRate(),
+								rec2.getChannelCount(),
+								rec2.getBitrate(),
+								rec2.isBookmarked(),
+								rec2.isWaveformProcessed(),
+								rec2.getAmps());
+						if (localRepository.updateRecord(activeRecord)) {
+							AndroidUtils.runOnUIThread(() -> {
 								if (view != null) {
-									view.showError(R.string.error_file_exists);
-								}
-							}
-						});
-					} else {
-						if (fileRepository.renameFile(rec2.getPath(), name, extension)) {
-							activeRecord = new Record(
-									rec2.getId(),
-									name,
-									rec2.getDuration(),
-									rec2.getCreated(),
-									rec2.getAdded(),
-									rec2.getRemoved(),
-									renamed.getAbsolutePath(),
-									rec2.getFormat(),
-									rec2.getSize(),
-									rec2.getSampleRate(),
-									rec2.getChannelCount(),
-									rec2.getBitrate(),
-									rec2.isBookmarked(),
-									rec2.isWaveformProcessed(),
-									rec2.getAmps());
-							if (localRepository.updateRecord(activeRecord)) {
-								AndroidUtils.runOnUIThread(new Runnable() {
-									@Override
-									public void run() {
-										if (view != null) {
-											view.hideProgress();
-											view.showRecordName(name);
-										}
-									}
-								});
-							} else {
-								AndroidUtils.runOnUIThread(new Runnable() {
-									@Override
-									public void run() {
-										if (view != null) {
-											view.showError(R.string.error_failed_to_rename);
-										}
-									}
-								});
-								//Restore file name after fail update path in local database.
-								if (renamed.exists()) {
-									//Try to rename 3 times;
-									if (!renamed.renameTo(file)) {
-										if (!renamed.renameTo(file)) {
-											renamed.renameTo(file);
-										}
-									}
-								}
-							}
-
-						} else {
-							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override
-								public void run() {
-									if (view != null) {
-										view.showError(R.string.error_failed_to_rename);
-									}
+									view.hideProgress();
+									view.showRecordName(name);
 								}
 							});
+						} else {
+							AndroidUtils.runOnUIThread(() -> {
+								if (view != null) {
+									view.showError(R.string.error_failed_to_rename);
+								}
+							});
+							//Restore file name after fail update path in local database.
+							if (renamed.exists()) {
+								//Try to rename 3 times;
+								if (!renamed.renameTo(file)) {
+									if (!renamed.renameTo(file)) {
+										renamed.renameTo(file);
+									}
+								}
+							}
 						}
-					}
-				} else {
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
+
+					} else {
+						AndroidUtils.runOnUIThread(() -> {
 							if (view != null) {
 								view.showError(R.string.error_failed_to_rename);
 							}
-						}
-					});
+						});
+					}
 				}
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override public void run() {
-						if (view != null) {
-							view.hideProgress();
-						}
-					}});
-			}});
+			} else {
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.showError(R.string.error_failed_to_rename);
+					}
+				});
+			}
+			AndroidUtils.runOnUIThread(() -> {
+				if (view != null) {
+					view.hideProgress();
+				}
+			});
+		});
 	}
 
 	@Override
@@ -409,57 +375,51 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		if (view != null) {
 			view.showProgress();
 			view.showPanelProgress();
-			loadingTasks.postRunnable(new Runnable() {
-				@Override
-				public void run() {
-					final int order = prefs.getRecordsOrder();
-					final List<Record> recordList = localRepository.getRecords(0, order);
-					final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
-					activeRecord = rec;
-					if (rec != null) {
-						dpPerSecond = ARApplication.getDpPerSecond((float) rec.getDuration() / 1000000f);
-					}
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							if (view != null) {
-								view.showRecords(Mapper.recordsToListItems(recordList), order);
-								if (rec != null) {
-									view.showWaveForm(rec.getAmps(), rec.getDuration());
-									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
-									view.showRecordName(rec.getName());
-									if (rec.isBookmarked()) {
-										view.bookmarksSelected();
-									} else {
-										view.bookmarksUnselected();
-									}
-									if (audioPlayer.isPlaying() || audioPlayer.isPause()) {
-										view.showActiveRecord(rec.getId());
-									}
-
-									//Set player position is audio player is paused.
-									if (audioPlayer.isPause()) {
-										long duration = rec.getDuration() / 1000;
-										if (duration > 0) {
-											long playProgressMills = audioPlayer.getPauseTime();
-											view.onPlayProgress(playProgressMills, AndroidUtils.convertMillsToPx(playProgressMills,
-													AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * playProgressMills / duration));
-										}
-										view.showPlayerPanel();
-										view.showPlayPause();
-									}
-								}
-
-								view.hideProgress();
-								view.hidePanelProgress();
+			loadingTasks.postRunnable(() -> {
+				final int order = prefs.getRecordsOrder();
+				final List<Record> recordList = localRepository.getRecords(0, order);
+				final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
+				activeRecord = rec;
+				if (rec != null) {
+					dpPerSecond = ARApplication.getDpPerSecond((float) rec.getDuration() / 1000000f);
+				}
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.showRecords(Mapper.recordsToListItems(recordList), order);
+						if (rec != null) {
+							view.showWaveForm(rec.getAmps(), rec.getDuration());
+							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
+							view.showRecordName(rec.getName());
+							if (rec.isBookmarked()) {
+								view.bookmarksSelected();
+							} else {
 								view.bookmarksUnselected();
-								if (recordList.size() == 0) {
-									view.showEmptyList();
+							}
+							if (audioPlayer.isPlaying() || audioPlayer.isPause()) {
+								view.showActiveRecord(rec.getId());
+							}
+
+							//Set player position is audio player is paused.
+							if (audioPlayer.isPause()) {
+								long duration = rec.getDuration() / 1000;
+								if (duration > 0) {
+									long playProgressMills = audioPlayer.getPauseTime();
+									view.onPlayProgress(playProgressMills, AndroidUtils.convertMillsToPx(playProgressMills,
+											AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * playProgressMills / duration));
 								}
+								view.showPlayerPanel();
+								view.showPlayPause();
 							}
 						}
-					});
-				}
+
+						view.hideProgress();
+						view.hidePanelProgress();
+						view.bookmarksUnselected();
+						if (recordList.size() == 0) {
+							view.showEmptyList();
+						}
+					}
+				});
 			});
 		}
 	}
@@ -478,38 +438,32 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		if (view != null) {
 			view.showProgress();
 			view.showPanelProgress();
-			loadingTasks.postRunnable(new Runnable() {
-				@Override
-				public void run() {
-					final int order = prefs.getRecordsOrder();
-					final List<Record> recordList = localRepository.getRecords(page, order);
-					final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
-					activeRecord = rec;
-					if (rec != null) {
-						dpPerSecond = ARApplication.getDpPerSecond((float) rec.getDuration() / 1000000f);
-					}
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							if (view != null) {
-								if (rec != null) {
-									view.addRecords(Mapper.recordsToListItems(recordList), order);
-									view.showWaveForm(rec.getAmps(), rec.getDuration());
-									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
-									view.showRecordName(rec.getName());
-									if (rec.isBookmarked()) {
-										view.bookmarksSelected();
-									} else {
-										view.bookmarksUnselected();
-									}
-								}
-								view.hideProgress();
-								view.hidePanelProgress();
+			loadingTasks.postRunnable(() -> {
+				final int order = prefs.getRecordsOrder();
+				final List<Record> recordList = localRepository.getRecords(page, order);
+				final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
+				activeRecord = rec;
+				if (rec != null) {
+					dpPerSecond = ARApplication.getDpPerSecond((float) rec.getDuration() / 1000000f);
+				}
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						if (rec != null) {
+							view.addRecords(Mapper.recordsToListItems(recordList), order);
+							view.showWaveForm(rec.getAmps(), rec.getDuration());
+							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
+							view.showRecordName(rec.getName());
+							if (rec.isBookmarked()) {
+								view.bookmarksSelected();
+							} else {
 								view.bookmarksUnselected();
 							}
 						}
-					});
-				}
+						view.hideProgress();
+						view.hidePanelProgress();
+						view.bookmarksUnselected();
+					}
+				});
 			});
 		}
 	}
@@ -521,35 +475,29 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			if (view != null) {
 				view.showProgress();
 				view.showPanelProgress();
-				loadingTasks.postRunnable(new Runnable() {
-					@Override
-					public void run() {
-						final List<Record> recordList = localRepository.getBookmarks();
-						final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
-						activeRecord = rec;
-						if (rec != null) {
-							dpPerSecond = ARApplication.getDpPerSecond((float) rec.getDuration() / 1000000f);
-						}
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
-								if (view != null) {
-									view.showRecords(Mapper.recordsToListItems(recordList), AppConstants.SORT_DATE);
-									if (rec != null) {
-										view.showWaveForm(rec.getAmps(), rec.getDuration());
-										view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
-										view.showRecordName(rec.getName());
-									}
-									view.hideProgress();
-									view.hidePanelProgress();
-									view.bookmarksSelected();
-									if (recordList.size() == 0) {
-										view.showEmptyBookmarksList();
-									}
-								}
-							}
-						});
+				loadingTasks.postRunnable(() -> {
+					final List<Record> recordList = localRepository.getBookmarks();
+					final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
+					activeRecord = rec;
+					if (rec != null) {
+						dpPerSecond = ARApplication.getDpPerSecond((float) rec.getDuration() / 1000000f);
 					}
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) {
+							view.showRecords(Mapper.recordsToListItems(recordList), AppConstants.SORT_DATE);
+							if (rec != null) {
+								view.showWaveForm(rec.getAmps(), rec.getDuration());
+								view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
+								view.showRecordName(rec.getName());
+							}
+							view.hideProgress();
+							view.hidePanelProgress();
+							view.bookmarksSelected();
+							if (recordList.size() == 0) {
+								view.showEmptyBookmarksList();
+							}
+						}
+					});
 				});
 			}
 		}
@@ -563,33 +511,27 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	@Override
 	public void checkBookmarkActiveRecord() {
-		recordingsTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				final Record rec = activeRecord;
-				if (rec != null) {
-					boolean success;
-					if (rec.isBookmarked()) {
-						success = localRepository.removeFromBookmarks(rec.getId());
-					} else {
-						success = localRepository.addToBookmarks(rec.getId());
-					}
-					if (success) {
-						rec.setBookmark(!rec.isBookmarked());
+		recordingsTasks.postRunnable(() -> {
+			final Record rec = activeRecord;
+			if (rec != null) {
+				boolean success;
+				if (rec.isBookmarked()) {
+					success = localRepository.removeFromBookmarks(rec.getId());
+				} else {
+					success = localRepository.addToBookmarks(rec.getId());
+				}
+				if (success) {
+					rec.setBookmark(!rec.isBookmarked());
 
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
-								if (view != null) {
-									if (rec.isBookmarked()) {
-										view.addedToBookmarks(rec.getId(), true);
-									} else {
-										view.removedFromBookmarks(rec.getId(), true);
-									}
-								}
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) {
+							if (rec.isBookmarked()) {
+								view.addedToBookmarks(rec.getId(), true);
+							} else {
+								view.removedFromBookmarks(rec.getId(), true);
 							}
-						});
-					}
+						}
+					});
 				}
 			}
 		});
@@ -597,21 +539,15 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	@Override
 	public void addToBookmark(final int id) {
-		recordingsTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				final Record r = localRepository.getRecord(id);
-				if (r != null) {
-					if (localRepository.addToBookmarks(r.getId())) {
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
-								if (view != null) {
-									view.addedToBookmarks(r.getId(), activeRecord != null && r.getId() == activeRecord.getId());
-								}
-							}
-						});
-					}
+		recordingsTasks.postRunnable(() -> {
+			final Record r = localRepository.getRecord(id);
+			if (r != null) {
+				if (localRepository.addToBookmarks(r.getId())) {
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) {
+							view.addedToBookmarks(r.getId(), activeRecord != null && r.getId() == activeRecord.getId());
+						}
+					});
 				}
 			}
 		});
@@ -619,21 +555,15 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	@Override
 	public void removeFromBookmarks(final int id) {
-		recordingsTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				final Record r = localRepository.getRecord(id);
-				if (r != null) {
-					localRepository.removeFromBookmarks(r.getId());
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							if (view != null) {
-								view.removedFromBookmarks(r.getId(), activeRecord != null && r.getId() == activeRecord.getId());
-							}
-						}
-					});
-				}
+		recordingsTasks.postRunnable(() -> {
+			final Record r = localRepository.getRecord(id);
+			if (r != null) {
+				localRepository.removeFromBookmarks(r.getId());
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.removedFromBookmarks(r.getId(), activeRecord != null && r.getId() == activeRecord.getId());
+					}
+				});
 			}
 		});
 	}
@@ -645,42 +575,33 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			if (view != null) {
 				view.showPanelProgress();
 			}
-			loadingTasks.postRunnable(new Runnable() {
-				@Override
-				public void run() {
-					final Record rec = localRepository.getRecord((int) id);
-					activeRecord = rec;
-					if (rec != null) {
-						dpPerSecond = ARApplication.getDpPerSecond((float) rec.getDuration()/1000000f);
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
-								if (view != null) {
-									view.showWaveForm(rec.getAmps(), rec.getDuration());
-									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
-									view.showRecordName(rec.getName());
-									callback.onSuccess();
-									if (rec.isBookmarked()) {
-										view.addedToBookmarks(rec.getId(), true);
-									} else {
-										view.removedFromBookmarks(rec.getId(), true);
-									}
-									view.hidePanelProgress();
-									view.showPlayerPanel();
-								}
+			loadingTasks.postRunnable(() -> {
+				final Record rec = localRepository.getRecord((int) id);
+				activeRecord = rec;
+				if (rec != null) {
+					dpPerSecond = ARApplication.getDpPerSecond((float) rec.getDuration()/1000000f);
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) {
+							view.showWaveForm(rec.getAmps(), rec.getDuration());
+							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
+							view.showRecordName(rec.getName());
+							callback.onSuccess();
+							if (rec.isBookmarked()) {
+								view.addedToBookmarks(rec.getId(), true);
+							} else {
+								view.removedFromBookmarks(rec.getId(), true);
 							}
-						});
-					} else {
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
-								callback.onError(new Exception("Record is NULL!"));
-								if (view != null) {
-									view.hidePanelProgress();
-								}
-							}
-						});
-					}
+							view.hidePanelProgress();
+							view.showPlayerPanel();
+						}
+					});
+				} else {
+					AndroidUtils.runOnUIThread(() -> {
+						callback.onError(new Exception("Record is NULL!"));
+						if (view != null) {
+							view.hidePanelProgress();
+						}
+					});
 				}
 			});
 		}

@@ -56,13 +56,13 @@ public class LocalRepositoryImpl implements LocalRepository {
 //
 // */
 
-	private RecordsDataSource dataSource;
+	private final RecordsDataSource dataSource;
 
-	private TrashDataSource trashDataSource;
+	private final TrashDataSource trashDataSource;
 
-	private FileRepository fileRepository;
+	private final FileRepository fileRepository;
 
-	private Prefs prefs;
+	private final Prefs prefs;
 
 	private volatile static LocalRepositoryImpl instance;
 

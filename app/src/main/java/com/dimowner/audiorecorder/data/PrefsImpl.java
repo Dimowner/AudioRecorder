@@ -55,7 +55,7 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_SETTING_NAMING_FORMAT = "setting_naming_format";
 	private static final String PREF_KEY_SETTING_CHANNEL_COUNT = "setting_channel_count";
 
-	private SharedPreferences sharedPreferences;
+	private final SharedPreferences sharedPreferences;
 
 	private volatile static PrefsImpl instance;
 

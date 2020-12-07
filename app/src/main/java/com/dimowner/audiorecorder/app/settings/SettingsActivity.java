@@ -83,7 +83,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private SettingsContract.UserActionsListener presenter;
 	private ColorMap colorMap;
 	private ColorMap.OnThemeColorChangeListener onThemeColorChangeListener;
-	private CompoundButton.OnCheckedChangeListener publicDirListener = new CompoundButton.OnCheckedChangeListener() {
+	private final CompoundButton.OnCheckedChangeListener publicDirListener = new CompoundButton.OnCheckedChangeListener() {
 		@Override
 		public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
 			presenter.storeInPublicDir(getApplicationContext(), isChecked);
@@ -322,51 +322,23 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	@Override
 	public void onClick(View v) {
-		switch (v.getId()) {
-			case R.id.btnBack:
-				ARApplication.getInjector().releaseSettingsPresenter();
-				finish();
-				break;
-			case R.id.btnTrash:
-				startActivity(TrashActivity.getStartIntent(getApplicationContext()));
-				break;
-			case R.id.txt_records_location:
-				presenter.onRecordsLocationClick();
-				break;
-			case R.id.btn_file_browser:
-				startActivity(FileBrowserActivity.getStartIntent(getApplicationContext()));
-				break;
-			case R.id.btnRate:
-				rateApp();
-				break;
-			case R.id.btnReset:
-				presenter.resetSettings();
-				presenter.loadSettings();
-				break;
-//			case R.id.btnDeleteAll:
-//				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//				builder.setTitle(R.string.warning)
-//						.setIcon(R.drawable.ic_delete_forever)
-//						.setMessage(R.string.delete_all_records)
-//						.setCancelable(false)
-//						.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-//							public void onClick(DialogInterface dialog, int id) {
-//								presenter.deleteAllRecords();
-//								dialog.dismiss();
-//							}
-//						})
-//						.setNegativeButton(R.string.btn_no,
-//								new DialogInterface.OnClickListener() {
-//									public void onClick(DialogInterface dialog, int id) {
-//										dialog.dismiss();
-//									}
-//								});
-//				AlertDialog alert = builder.create();
-//				alert.show();
-//				break;
-			case R.id.btnRequest:
-				requestFeature();
-				break;
+		int id = v.getId();
+		if (id == R.id.btnBack) {
+			ARApplication.getInjector().releaseSettingsPresenter();
+			finish();
+		} else if (id == R.id.btnTrash) {
+			startActivity(TrashActivity.getStartIntent(getApplicationContext()));
+		} else if (id == R.id.txt_records_location) {
+			presenter.onRecordsLocationClick();
+		} else if (id == R.id.btn_file_browser) {
+			startActivity(FileBrowserActivity.getStartIntent(getApplicationContext()));
+		} else if (id == R.id.btnRate) {
+			rateApp();
+		} else if (id == R.id.btnReset) {
+			presenter.resetSettings();
+			presenter.loadSettings();
+		} else if (id == R.id.btnRequest) {
+			requestFeature();
 		}
 	}
 

@@ -204,7 +204,7 @@ public class PlaybackService extends Service {
 	}
 
 	@RequiresApi(Build.VERSION_CODES.O)
-	private String createNotificationChannel(String channelId, String channelName) {
+	private void createNotificationChannel(String channelId, String channelName) {
 		NotificationChannel channel = notificationManager.getNotificationChannel(channelId);
 		if (channel == null) {
 			NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
@@ -216,9 +216,8 @@ public class PlaybackService extends Service {
 
 			notificationManager.createNotificationChannel(chan);
 		} else {
-			Timber.d("Channel already exists: " + CHANNEL_ID);
+			Timber.d("Channel already exists: %s", CHANNEL_ID);
 		}
-		return channelId;
 	}
 
 	public void onPausePlayback() {

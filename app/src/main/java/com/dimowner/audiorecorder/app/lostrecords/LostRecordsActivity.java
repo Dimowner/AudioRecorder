@@ -18,7 +18,6 @@ package com.dimowner.audiorecorder.app.lostrecords;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
@@ -67,39 +66,21 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 		setContentView(R.layout.activity_lost_records);
 
 		ImageButton btnBack = findViewById(R.id.btn_back);
-		btnBack.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ARApplication.getInjector().releaseLostRecordsPresenter();
-				finish();
-			}
+		btnBack.setOnClickListener(v -> {
+			ARApplication.getInjector().releaseLostRecordsPresenter();
+			finish();
 		});
-		findViewById(R.id.btn_file_browser).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startActivity(FileBrowserActivity.getStartIntent(getApplicationContext()));
-			}
-		});
+		findViewById(R.id.btn_file_browser).setOnClickListener(v -> startActivity(FileBrowserActivity.getStartIntent(getApplicationContext())));
 
 		txtEmpty = findViewById(R.id.txtEmpty);
 		Button btnDeleteAll = findViewById(R.id.btn_delete_all);
-		btnDeleteAll.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				AndroidUtils.showSimpleDialog(
-						LostRecordsActivity.this,
-						R.drawable.ic_delete_forever,
-						R.string.warning,
-						R.string.delete_all_records,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								presenter.deleteRecords(adapter.getData());
-							}
-						}
-				);
-			}
-		});
+		btnDeleteAll.setOnClickListener(v -> AndroidUtils.showSimpleDialog(
+				LostRecordsActivity.this,
+				R.drawable.ic_delete_forever,
+				R.string.warning,
+				R.string.delete_all_records,
+				(dialog, which) -> presenter.deleteRecords(adapter.getData())
+		));
 
 		RecyclerView recyclerView = findViewById(R.id.recycler_view);
 		recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -117,12 +98,7 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 						R.drawable.ic_delete_forever,
 						R.string.warning,
 						getApplicationContext().getString(R.string.delete_record, record.getName()),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								presenter.deleteRecord(record);
-							}
-						}
+						(dialog, which) -> presenter.deleteRecord(record)
 				);
 			}
 		});
@@ -130,7 +106,7 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 		if (getIntent() != null) {
 			Bundle extras = getIntent().getExtras();
 			if (extras != null && extras.containsKey(EXTRAS_RECORDS_LIST)) {
-				adapter.setData(extras.<RecordItem>getParcelableArrayList(EXTRAS_RECORDS_LIST));
+				adapter.setData(extras.getParcelableArrayList(EXTRAS_RECORDS_LIST));
 			}
 		}
 

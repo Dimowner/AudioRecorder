@@ -241,16 +241,15 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				@Override
 				public void onPlayProgress(final long mills) {
 					if (view != null && listenPlaybackProgress) {
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override public void run() {
-								if (view != null) {
-									long duration = songDuration/1000;
-									if (duration > 0) {
-										view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
-												AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * mills / duration));
-									}
+						AndroidUtils.runOnUIThread(() -> {
+							if (view != null) {
+								long duration = songDuration/1000;
+								if (duration > 0) {
+									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
+											AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * mills / duration));
 								}
-							}});
+							}
+						});
 					}
 				}
 
@@ -328,12 +327,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				0
 		);
 
-		this.localRepository.setOnRecordsLostListener(new OnRecordsLostListener() {
-			@Override
-			public void onLostRecords(List<Record> list) {
-				view.showRecordsLostMessage(list);
-			}
-		});
+		this.localRepository.setOnRecordsLostListener(list -> view.showRecordsLostMessage(list));
 	}
 
 	@Override
@@ -471,124 +465,100 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void renameRecord(final long id, final String newName, final String extension, final boolean needDecode) {
 		if (id < 0 || newName == null || newName.isEmpty()) {
-			AndroidUtils.runOnUIThread(new Runnable() {
-				@Override public void run() {
-					if (view != null) {
-						view.showError(R.string.error_failed_to_rename);
-					}
-				}});
+			AndroidUtils.runOnUIThread(() -> {
+				if (view != null) {
+					view.showError(R.string.error_failed_to_rename);
+				}
+			});
 			return;
 		}
 		if (view != null) {
 			view.showProgress();
 		}
 		final String name = FileUtil.removeUnallowedSignsFromName(newName);
-		loadingTasks.postRunnable(new Runnable() {
-			@Override public void run() {
-				final Record record = localRepository.getRecord((int)id);
-				if (record != null) {
-					String nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + extension;
-					File file = new File(record.getPath());
-					File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
+		loadingTasks.postRunnable(() -> {
+			final Record record = localRepository.getRecord((int)id);
+			if (record != null) {
+				String nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + extension;
+				File file = new File(record.getPath());
+				File renamed = new File(file.getParentFile().getAbsolutePath() + File.separator + nameWithExt);
 
-					if (renamed.exists()) {
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
-								if (view != null) {
-									view.showError(R.string.error_file_exists);
-								}
-							}
-						});
-					} else {
-						if (fileRepository.renameFile(record.getPath(), name, extension)) {
-							MainPresenter.this.record = new Record(
-									record.getId(),
-									name,
-									record.getDuration(),
-									record.getCreated(),
-									record.getAdded(),
-									record.getRemoved(),
-									renamed.getAbsolutePath(),
-									record.getFormat(),
-									record.getSize(),
-									record.getSampleRate(),
-									record.getChannelCount(),
-									record.getBitrate(),
-									record.isBookmarked(),
-									record.isWaveformProcessed(),
-									record.getAmps());
-							if (localRepository.updateRecord(MainPresenter.this.record)) {
-								AndroidUtils.runOnUIThread(new Runnable() {
-									@Override
-									public void run() {
-										if (view != null) {
-											view.hideProgress();
-											view.showName(name);
-											if (needDecode && record.getDuration()/1000 < AppConstants.DECODE_DURATION) {
-												appRecorder.decodeRecordWaveform(MainPresenter.this.record);
-											}
-										}
-									}
-								});
-							} else {
-								AndroidUtils.runOnUIThread(new Runnable() {
-									@Override
-									public void run() {
-										view.showError(R.string.error_failed_to_rename);
-									}
-								});
-								//Restore file name after fail update path in local database.
-								if (renamed.exists()) {
-									//Try to rename 3 times;
-									if (!renamed.renameTo(file)) {
-										if (!renamed.renameTo(file)) {
-											renamed.renameTo(file);
-										}
-									}
-								}
-							}
-
-						} else {
-							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override
-								public void run() {
-									if (view != null) {
-										view.showError(R.string.error_failed_to_rename);
-									}
-								}
-							});
-						}
-					}
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							if (view != null) {
-								view.hideProgress();
-							}
+				if (renamed.exists()) {
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) {
+							view.showError(R.string.error_file_exists);
 						}
 					});
 				} else {
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override public void run() {
+					if (fileRepository.renameFile(record.getPath(), name, extension)) {
+						MainPresenter.this.record = new Record(
+								record.getId(),
+								name,
+								record.getDuration(),
+								record.getCreated(),
+								record.getAdded(),
+								record.getRemoved(),
+								renamed.getAbsolutePath(),
+								record.getFormat(),
+								record.getSize(),
+								record.getSampleRate(),
+								record.getChannelCount(),
+								record.getBitrate(),
+								record.isBookmarked(),
+								record.isWaveformProcessed(),
+								record.getAmps());
+						if (localRepository.updateRecord(MainPresenter.this.record)) {
+							AndroidUtils.runOnUIThread(() -> {
+								if (view != null) {
+									view.hideProgress();
+									view.showName(name);
+									if (needDecode && record.getDuration()/1000 < AppConstants.DECODE_DURATION) {
+										appRecorder.decodeRecordWaveform(MainPresenter.this.record);
+									}
+								}
+							});
+						} else {
+							AndroidUtils.runOnUIThread(() -> view.showError(R.string.error_failed_to_rename));
+							//Restore file name after fail update path in local database.
+							if (renamed.exists()) {
+								//Try to rename 3 times;
+								if (!renamed.renameTo(file)) {
+									if (!renamed.renameTo(file)) {
+										renamed.renameTo(file);
+									}
+								}
+							}
+						}
+
+					} else {
+						AndroidUtils.runOnUIThread(() -> {
 							if (view != null) {
 								view.showError(R.string.error_failed_to_rename);
 							}
-						}});
+						});
+					}
 				}
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.hideProgress();
+					}
+				});
+			} else {
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.showError(R.string.error_failed_to_rename);
+					}
+				});
 			}
 		});
 	}
 
 	@Override
 	public void decodeRecord(long id) {
-		loadingTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
-				if (rec != null && rec.getDuration()/1000 < AppConstants.DECODE_DURATION) {
-					appRecorder.decodeRecordWaveform(rec);
-				}
+		loadingTasks.postRunnable(() -> {
+			final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
+			if (rec != null && rec.getDuration()/1000 < AppConstants.DECODE_DURATION) {
+				appRecorder.decodeRecordWaveform(rec);
 			}
 		});
 	}
@@ -599,41 +569,32 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			if (view != null) {
 				view.showProgress();
 			}
-			loadingTasks.postRunnable(new Runnable() {
-				@Override
-				public void run() {
-					final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
-					record = rec;
-					if (rec != null) {
-						songDuration = rec.getDuration();
-						dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
-								if (view != null) {
-									view.showWaveForm(rec.getAmps(), songDuration);
-									view.showName(rec.getName());
-									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
-									view.showOptionsMenu();
-									view.hideProgress();
-									updateInformation(rec.getFormat(), rec.getSampleRate(), rec.getSize());
-								}
-							}
-						});
-					} else {
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
-								if (view != null) {
-									view.hideProgress();
-									view.showWaveForm(new int[]{}, 0);
-									view.showName("");
-									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
-									view.hideOptionsMenu();
-								}
-							}
-						});
-					}
+			loadingTasks.postRunnable(() -> {
+				final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
+				record = rec;
+				if (rec != null) {
+					songDuration = rec.getDuration();
+					dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) {
+							view.showWaveForm(rec.getAmps(), songDuration);
+							view.showName(rec.getName());
+							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
+							view.showOptionsMenu();
+							view.hideProgress();
+							updateInformation(rec.getFormat(), rec.getSampleRate(), rec.getSize());
+						}
+					});
+				} else {
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) {
+							view.hideProgress();
+							view.showWaveForm(new int[]{}, 0);
+							view.showName("");
+							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
+							view.hideOptionsMenu();
+						}
+					});
 				}
 			});
 		}
@@ -737,40 +698,34 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		final Record rec = record;
 		if (rec != null) {
 			audioPlayer.stop();
-			recordingsTasks.postRunnable(new Runnable() {
-				@Override
-				public void run() {
-					if (forever) {
-						localRepository.deleteRecordForever(rec.getId());
-						fileRepository.deleteRecordFile(rec.getPath());
-					} else {
-						localRepository.deleteRecord(rec.getId());
-					}
-					prefs.setActiveRecord(-1);
-					dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							if (view != null) {
-								view.showWaveForm(new int[]{}, 0);
-								view.showName("");
-								view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
-								if (!forever) {
-									view.showMessage(R.string.record_moved_into_trash);
-								}
-								view.hideOptionsMenu();
-								view.onPlayProgress(0, 0, 0);
-								view.hideProgress();
-								record = null;
-								updateInformation(
-										prefs.getSettingRecordingFormat(),
-										prefs.getSettingSampleRate(),
-										0
-								);
-							}
-						}
-					});
+			recordingsTasks.postRunnable(() -> {
+				if (forever) {
+					localRepository.deleteRecordForever(rec.getId());
+					fileRepository.deleteRecordFile(rec.getPath());
+				} else {
+					localRepository.deleteRecord(rec.getId());
 				}
+				prefs.setActiveRecord(-1);
+				dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.showWaveForm(new int[]{}, 0);
+						view.showName("");
+						view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
+						if (!forever) {
+							view.showMessage(R.string.record_moved_into_trash);
+						}
+						view.hideOptionsMenu();
+						view.onPlayProgress(0, 0, 0);
+						view.hideProgress();
+						record = null;
+						updateInformation(
+								prefs.getSettingRecordingFormat(),
+								prefs.getSettingSampleRate(),
+								0
+						);
+					}
+				});
 			});
 		}
 	}
@@ -838,19 +793,16 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							prefs.setActiveRecord(id);
 							songDuration = info.getDuration();
 							dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
-							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override
-								public void run() {
-									if (view != null) {
-										audioPlayer.stop();
-										view.showWaveForm(rec.getAmps(), songDuration);
-										view.showName(rec.getName());
-										view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
-										view.hideProgress();
-										view.hideImportProgress();
-										view.showOptionsMenu();
-										updateInformation(rec.getFormat(), rec.getSampleRate(), rec.getSize());
-									}
+							AndroidUtils.runOnUIThread(() -> {
+								if (view != null) {
+									audioPlayer.stop();
+									view.showWaveForm(rec.getAmps(), songDuration);
+									view.showName(rec.getName());
+									view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
+									view.hideProgress();
+									view.hideImportProgress();
+									view.showOptionsMenu();
+									updateInformation(rec.getFormat(), rec.getSampleRate(), rec.getSize());
 								}
 							});
 							if (rec.getDuration()/1000 < AppConstants.DECODE_DURATION) {
@@ -860,88 +812,84 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					}
 				} catch (SecurityException e) {
 					Timber.e(e);
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override public void run() { if (view != null) view.showError(R.string.error_permission_denied); }
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) view.showError(R.string.error_permission_denied);
 					});
 				} catch (IOException | OutOfMemoryError | IllegalStateException e) {
 					Timber.e(e);
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override public void run() { if (view != null) view.showError(R.string.error_unable_to_read_sound_file); }
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) view.showError(R.string.error_unable_to_read_sound_file);
 					});
 				} catch (final CantCreateFileException ex) {
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override public void run() { if (view != null) view.showError(ErrorParser.parseException(ex)); }
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) view.showError(ErrorParser.parseException(ex));
 					});
 				}
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override public void run() {
-						if (view != null) { view.hideImportProgress(); }
-					}});
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) { view.hideImportProgress(); }
+				});
 				showImportProgress = false;
 			}
 		});
 	}
 
 	private void migrateDb3() {
-		processingTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				//Update records table.
-				List<Integer> ids = localRepository.getAllItemsIds();
-				Record rec;
-				for (int i = 0; i < ids.size(); i++) {
-					if (ids.get(i) != null) {
-						rec = localRepository.getRecord(ids.get(i));
-						if (rec != null) {
-							RecordInfo info = AudioDecoder.readRecordInfo(new File(rec.getPath()));
-							localRepository.updateRecord(new Record(
-									rec.getId(),
-									FileUtil.removeFileExtension(rec.getName()),
-									rec.getDuration(),
-									rec.getCreated(),
-									rec.getAdded(),
-									rec.getRemoved(),
-									rec.getPath(),
-									info.getFormat(),
-									info.getSize(),
-									info.getSampleRate(),
-									info.getChannelCount(),
-									info.getBitrate(),
-									rec.isBookmarked(),
-									rec.isWaveformProcessed(),
-									rec.getAmps()));
-						}
+		processingTasks.postRunnable(() -> {
+			//Update records table.
+			List<Integer> ids = localRepository.getAllItemsIds();
+			Record rec;
+			for (int i = 0; i < ids.size(); i++) {
+				if (ids.get(i) != null) {
+					rec = localRepository.getRecord(ids.get(i));
+					if (rec != null) {
+						RecordInfo info = AudioDecoder.readRecordInfo(new File(rec.getPath()));
+						localRepository.updateRecord(new Record(
+								rec.getId(),
+								FileUtil.removeFileExtension(rec.getName()),
+								rec.getDuration(),
+								rec.getCreated(),
+								rec.getAdded(),
+								rec.getRemoved(),
+								rec.getPath(),
+								info.getFormat(),
+								info.getSize(),
+								info.getSampleRate(),
+								info.getChannelCount(),
+								info.getBitrate(),
+								rec.isBookmarked(),
+								rec.isWaveformProcessed(),
+								rec.getAmps()));
 					}
 				}
-				//Update trash records table.
-				List<Integer> trashIds = localRepository.getTrashRecordsIds();
-				Record trashRecord;
-				for (int i = 0; i < trashIds.size(); i++) {
-					if (trashIds.get(i) != null) {
-						trashRecord = localRepository.getTrashRecord(trashIds.get(i));
-						if (trashRecord != null) {
-							RecordInfo info = AudioDecoder.readRecordInfo(new File(trashRecord.getPath()));
-							localRepository.updateTrashRecord(new Record(
-									trashRecord.getId(),
-									FileUtil.removeFileExtension(trashRecord.getName()),
-									trashRecord.getDuration(),
-									trashRecord.getCreated(),
-									trashRecord.getAdded(),
-									trashRecord.getRemoved(),
-									trashRecord.getPath(),
-									info.getFormat(),
-									info.getSize(),
-									info.getSampleRate(),
-									info.getChannelCount(),
-									info.getBitrate(),
-									trashRecord.isBookmarked(),
-									trashRecord.isWaveformProcessed(),
-									trashRecord.getAmps()));
-						}
-					}
-				}
-				prefs.migrateDb3Finished();
 			}
+			//Update trash records table.
+			List<Integer> trashIds = localRepository.getTrashRecordsIds();
+			Record trashRecord;
+			for (int i = 0; i < trashIds.size(); i++) {
+				if (trashIds.get(i) != null) {
+					trashRecord = localRepository.getTrashRecord(trashIds.get(i));
+					if (trashRecord != null) {
+						RecordInfo info = AudioDecoder.readRecordInfo(new File(trashRecord.getPath()));
+						localRepository.updateTrashRecord(new Record(
+								trashRecord.getId(),
+								FileUtil.removeFileExtension(trashRecord.getName()),
+								trashRecord.getDuration(),
+								trashRecord.getCreated(),
+								trashRecord.getAdded(),
+								trashRecord.getRemoved(),
+								trashRecord.getPath(),
+								info.getFormat(),
+								info.getSize(),
+								info.getSampleRate(),
+								info.getChannelCount(),
+								info.getBitrate(),
+								trashRecord.isBookmarked(),
+								trashRecord.isWaveformProcessed(),
+								trashRecord.getAmps()));
+					}
+				}
+			}
+			prefs.migrateDb3Finished();
 		});
 	}
 

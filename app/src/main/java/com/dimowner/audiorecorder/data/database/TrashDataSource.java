@@ -20,8 +20,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
-import com.dimowner.audiorecorder.util.FileUtil;
-
 import java.util.Date;
 
 import timber.log.Timber;

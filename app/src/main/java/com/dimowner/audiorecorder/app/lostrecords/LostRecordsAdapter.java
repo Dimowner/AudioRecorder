@@ -37,7 +37,7 @@ import java.util.List;
  */
 public class LostRecordsAdapter extends RecyclerView.Adapter<LostRecordsAdapter.ItemViewHolder> {
 
-	private List<RecordItem> data;
+	private final List<RecordItem> data;
 	private OnItemClickListener onItemClickListener;
 
 	LostRecordsAdapter() {
@@ -91,20 +91,14 @@ public class LostRecordsAdapter extends RecyclerView.Adapter<LostRecordsAdapter.
 			holder.name.setText(data.get(pos).getName());
 			holder.location.setText(data.get(pos).getPath());
 			holder.duration.setText(TimeUtils.formatTimeIntervalHourMinSec2(data.get(pos).getDuration()/1000));
-			holder.view.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (onItemClickListener != null) {
-						onItemClickListener.onItemClick(data.get(pos));
-					}
+			holder.view.setOnClickListener(v -> {
+				if (onItemClickListener != null) {
+					onItemClickListener.onItemClick(data.get(pos));
 				}
 			});
-			holder.btnDelete.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (onItemClickListener != null) {
-						onItemClickListener.onRemoveItemClick(data.get(pos));
-					}
+			holder.btnDelete.setOnClickListener(v -> {
+				if (onItemClickListener != null) {
+					onItemClickListener.onRemoveItemClick(data.get(pos));
 				}
 			});
 		}
@@ -119,7 +113,7 @@ public class LostRecordsAdapter extends RecyclerView.Adapter<LostRecordsAdapter.
 		this.onItemClickListener = onItemClickListener;
 	}
 
-	class ItemViewHolder extends RecyclerView.ViewHolder {
+	static class ItemViewHolder extends RecyclerView.ViewHolder {
 		TextView name;
 		TextView location;
 		TextView duration;

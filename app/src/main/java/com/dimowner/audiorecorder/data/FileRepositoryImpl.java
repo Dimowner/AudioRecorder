@@ -31,7 +31,7 @@ import com.dimowner.audiorecorder.util.FileUtil;
 public class FileRepositoryImpl implements FileRepository {
 
 	private File recordDirectory;
-	private Prefs prefs;
+	private final Prefs prefs;
 
 	private volatile static FileRepositoryImpl instance;
 

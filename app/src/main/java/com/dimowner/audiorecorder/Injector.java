@@ -52,7 +52,7 @@ import com.dimowner.audiorecorder.data.database.TrashDataSource;
 
 public class Injector {
 
-	private Context context;
+	private final Context context;
 
 	private BackgroundQueue loadingTasks;
 	private BackgroundQueue recordingTasks;

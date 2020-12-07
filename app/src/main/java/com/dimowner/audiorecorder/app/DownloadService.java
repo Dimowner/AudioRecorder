@@ -37,7 +37,6 @@ import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.main.MainActivity;
-import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.OnCopyListener;
 
@@ -68,7 +67,6 @@ public class DownloadService extends Service {
 	private RemoteViews remoteViewsSmall;
 	private String recordName = "";
 	private BackgroundQueue copyTasks;
-	private FileRepository fileRepository;
 	private ColorMap colorMap;
 	private boolean isCancel = false;
 
@@ -94,7 +92,6 @@ public class DownloadService extends Service {
 
 		colorMap = ARApplication.getInjector().provideColorMap();
 		copyTasks = ARApplication.getInjector().provideCopyTasksQueue();
-		fileRepository = ARApplication.getInjector().provideFileRepository();
 	}
 
 	@Override

@@ -69,16 +69,13 @@ public class WelcomeActivity extends Activity implements WelcomeContract.View {
 				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
 		actionButton = findViewById(R.id.btn_action);
-		actionButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
+		actionButton.setOnClickListener(v -> {
 //				if (pager.getCurrentItem() == adapter.getItemCount() - 1) {
-					startActivity(SetupActivity.getStartIntent(getApplicationContext()));
-					finish();
+				startActivity(SetupActivity.getStartIntent(getApplicationContext()));
+				finish();
 //				} else {
 //					pagerPager.advance();
 //				}
-			}
 		});
 
 		View space = findViewById(R.id.navigation_height);

@@ -20,7 +20,7 @@ public class ColorMap {
 	private int primaryColorRes = R.color.md_blue_700;
 	private int playbackPanelBackground = R.drawable.panel_amber;
 	private String selectedKey;
-	private List<OnThemeColorChangeListener> onThemeColorChangeListeners;
+	private final List<OnThemeColorChangeListener> onThemeColorChangeListeners;
 
 	private ColorMap(Prefs prefs) {
 		onThemeColorChangeListeners = new ArrayList<>();

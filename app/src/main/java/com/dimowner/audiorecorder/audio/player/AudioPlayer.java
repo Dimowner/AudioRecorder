@@ -33,7 +33,7 @@ import timber.log.Timber;
 
 public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPreparedListener {
 
-	private List<PlayerContract.PlayerCallback> actionsListeners = new ArrayList<>();
+	private final List<PlayerContract.PlayerCallback> actionsListeners = new ArrayList<>();
 
 	private MediaPlayer mediaPlayer;
 	private Timer timerProgress;
@@ -45,7 +45,7 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 
 
 	private static class SingletonHolder {
-		private static AudioPlayer singleton = new AudioPlayer();
+		private static final AudioPlayer singleton = new AudioPlayer();
 
 		public static AudioPlayer getSingleton() {
 			return SingletonHolder.singleton;
@@ -92,7 +92,7 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 				mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 			} catch (IOException | IllegalArgumentException | IllegalStateException | SecurityException e) {
 				Timber.e(e);
-				if (e.getMessage().contains("Permission denied")) {
+				if (e.getMessage() != null && e.getMessage().contains("Permission denied")) {
 					onError(new PermissionDeniedException());
 				} else {
 					onError(new PlayerDataSourceException());
@@ -128,12 +128,9 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 						mediaPlayer.start();
 						mediaPlayer.seekTo((int) pausePos);
 						onStartPlay();
-						mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-							@Override
-							public void onCompletion(MediaPlayer mp) {
-								stop();
-								onStopPlay();
-							}
+						mediaPlayer.setOnCompletionListener(mp -> {
+							stop();
+							onStopPlay();
 						});
 
 						timerProgress = new Timer();
@@ -171,12 +168,9 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 		mediaPlayer.start();
 		mediaPlayer.seekTo((int) seekPos);
 		onStartPlay();
-		mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-			@Override
-			public void onCompletion(MediaPlayer mp) {
-				stop();
-				onStopPlay();
-			}
+		mediaPlayer.setOnCompletionListener(mp1 -> {
+			stop();
+			onStopPlay();
 		});
 
 		timerProgress = new Timer();

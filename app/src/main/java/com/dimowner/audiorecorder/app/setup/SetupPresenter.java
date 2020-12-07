@@ -24,7 +24,7 @@ import java.text.DecimalFormat;
 
 public class SetupPresenter implements SetupContract.UserActionsListener {
 
-	private DecimalFormat decimalFormat = new DecimalFormat("#.#");
+	private final DecimalFormat decimalFormat = new DecimalFormat("#.#");
 
 	private SetupContract.View view;
 
