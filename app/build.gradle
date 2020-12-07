@@ -2,8 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'com.google.gms.google-services'
+//apply plugin: 'com.google.firebase.crashlytics'
+//apply plugin: 'com.google.gms.google-services'
 
 def versionMajor = 0
 def versionMinor = 9
@@ -44,9 +44,9 @@ android {
 			minifyEnabled true
 			shrinkResources true
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-			firebaseCrashlytics {
-				mappingFileUploadEnabled true
-			}
+//			firebaseCrashlytics {
+//				mappingFileUploadEnabled true
+//			}
 		}
 		debug {
 			minifyEnabled false
@@ -106,10 +106,10 @@ dependencies {
 
 	implementation "androidx.viewpager2:viewpager2:1.0.0"
 
-	// Import the BoM for the Firebase platform
-	implementation platform('com.google.firebase:firebase-bom:26.1.0')
-	// Declare the dependencies for the Crashlytics and Analytics libraries
-	// When using the BoM, you don't specify versions in Firebase library dependencies
-	implementation 'com.google.firebase:firebase-crashlytics'
-	implementation 'com.google.firebase:firebase-analytics'
+//	// Import the BoM for the Firebase platform
+//	implementation platform('com.google.firebase:firebase-bom:26.1.0')
+//	// Declare the dependencies for the Crashlytics and Analytics libraries
+//	// When using the BoM, you don't specify versions in Firebase library dependencies
+//	implementation 'com.google.firebase:firebase-crashlytics'
+//	implementation 'com.google.firebase:firebase-analytics'
 }
