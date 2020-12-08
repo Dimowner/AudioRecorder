@@ -30,9 +30,9 @@ import java.util.List;
 
 public class AppSpinnerAdapter extends ArrayAdapter<AppSpinnerAdapter.ThemeItem> {
 
-	private LayoutInflater inflater;
-	private List<ThemeItem> data;
-	private int iconRes;
+	private final LayoutInflater inflater;
+	private final List<ThemeItem> data;
+	private final int iconRes;
 
 	public AppSpinnerAdapter(Activity context, int res, int txtRes, List<ThemeItem> items, int iconRes){
 

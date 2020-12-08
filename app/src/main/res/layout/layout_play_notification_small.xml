@@ -42,7 +42,7 @@
 				android:layout_marginStart="@dimen/spacing_normal"
 				android:textColor="@color/text_primary_light"
 				android:maxLines="1"
-				android:textStyle="bold"
+				android:fontFamily="sans-serif-medium"
 				android:textSize="@dimen/text_medium"
 				tools:text="Record-15"/>
 

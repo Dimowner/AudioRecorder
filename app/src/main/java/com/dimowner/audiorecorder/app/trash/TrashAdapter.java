@@ -135,7 +135,7 @@ public class TrashAdapter extends RecyclerView.Adapter<TrashAdapter.ItemViewHold
 		}
 	}
 
-	public interface OnItemClickListener {
+	interface OnItemClickListener {
 		void onItemClick(RecordItem record);
 		void onDeleteItemClick(RecordItem record);
 		void onRestoreItemClick(RecordItem record);

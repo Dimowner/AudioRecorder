@@ -43,7 +43,7 @@
 					android:layout_height="wrap_content"
 					android:textSize="@dimen/text_large"
 					android:textColor="@color/text_primary_light"
-					android:textStyle="bold"
+					android:fontFamily="sans-serif-medium"
 					android:ellipsize="end"
 					android:maxLines="2"
 					tools:text="Record-30.m4a" />

@@ -38,7 +38,7 @@
 			android:maxLines="2"
 			android:textColor="@color/text_primary_light"
 			android:textSize="@dimen/text_large"
-			android:textStyle="bold"
+			android:fontFamily="sans-serif-medium"
 			tools:text="Record-31.m4a" />
 
 	<TextView
@@ -51,6 +51,7 @@
 			android:maxLines="1"
 			android:paddingStart="@dimen/spacing_zero"
 			android:paddingEnd="@dimen/spacing_small"
+			android:fontFamily="sans-serif-light"
 			android:textColor="@color/text_primary_light2"
 			android:textSize="@dimen/text_medium"
 			tools:text="22:33" />

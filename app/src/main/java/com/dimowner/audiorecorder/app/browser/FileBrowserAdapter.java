@@ -227,7 +227,7 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<FileBrowserAdapter.
 		}
 	}
 
-	public interface OnItemClickListener {
+	interface OnItemClickListener {
 		void onItemClick(RecordInfo record);
 		void onImportItemClick(RecordInfo record);
 		void onDownloadItemClick(RecordInfo record);

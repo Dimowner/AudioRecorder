@@ -30,7 +30,7 @@
 				android:layout_marginStart="@dimen/spacing_normal"
 				android:layout_marginTop="@dimen/spacing_normal"
 				android:textColor="@color/text_primary_light"
-				android:textStyle="bold"
+				android:fontFamily="sans-serif-medium"
 				android:textSize="@dimen/text_xmedium"
 				android:text="@string/app_name"/>
 		<TextView

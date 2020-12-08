@@ -67,17 +67,6 @@
 					android:paddingStart="0dp"
 					android:paddingEnd="1dp"/>
 
-			<TextView
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:text="@string/recording_settings"
-					android:textStyle="normal"
-					android:visibility="gone"
-					android:textSize="@dimen/text_medium"
-					android:layout_marginStart="@dimen/spacing_normal"
-					android:layout_marginEnd="@dimen/spacing_normal"
-					/>
-
 			<com.dimowner.audiorecorder.app.widget.SettingView
 					android:id="@+id/setting_recording_format"
 					android:layout_width="match_parent"

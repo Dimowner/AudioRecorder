@@ -24,6 +24,7 @@
 			android:id="@+id/recycler_view"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
+			android:overScrollMode="never"
 			/>
 
 	<LinearLayout
@@ -49,6 +50,7 @@
 				android:layout_weight="1"
 				android:gravity="center_vertical"
 				android:orientation="vertical">
+
 			<TextView
 					style="@style/Text.SectionLabel"
 					android:id="@+id/txt_title"
@@ -163,7 +165,7 @@
 						android:padding="@dimen/spacing_medium"
 						android:textColor="@color/text_primary_light"
 						android:textSize="@dimen/text_xlarge"
-						android:textStyle="bold"
+						android:fontFamily="sans-serif-medium"
 						tools:text="00:00:00"/>
 
 				<ImageButton

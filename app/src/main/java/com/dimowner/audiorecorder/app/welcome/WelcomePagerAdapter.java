@@ -46,7 +46,7 @@ public class WelcomePagerAdapter extends RecyclerView.Adapter<PagerItemViewHolde
 		return 1;
 	}
 
-	public static class PagerItemViewHolder extends RecyclerView.ViewHolder {
+	static class PagerItemViewHolder extends RecyclerView.ViewHolder {
 		View view;
 		TextView txtTitle;
 		TextView txtDetails;

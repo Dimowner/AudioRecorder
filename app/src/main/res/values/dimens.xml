@@ -33,7 +33,7 @@
 
 	<dimen name="gradient_radius">320dp</dimen>
 	<dimen name="waveform_height">200dp</dimen>
-	<dimen name="item_waveform_height">80dp</dimen>
+	<dimen name="item_waveform_height">56dp</dimen>
 
 	<dimen name="toolbar_height">56dp</dimen>
 	<dimen name="toolbar_elevation">4dp</dimen>

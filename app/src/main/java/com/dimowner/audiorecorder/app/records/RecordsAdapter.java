@@ -524,16 +524,16 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		this.onItemOptionListener = onItemOptionListener;
 	}
 
-	public interface OnAddToBookmarkListener {
+	interface OnAddToBookmarkListener {
 		void onAddToBookmarks(int id);
 		void onRemoveFromBookmarks(int id);
 	}
 
-	public interface OnItemOptionListener {
+	interface OnItemOptionListener {
 		void onItemOptionSelected(int menuId, ListItem item);
 	}
 
-	public static class ItemViewHolder extends RecyclerView.ViewHolder {
+	static class ItemViewHolder extends RecyclerView.ViewHolder {
 		TextView name;
 		TextView description;
 		TextView created;
@@ -556,7 +556,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		}
 	}
 
-	public static class UniversalViewHolder extends RecyclerView.ViewHolder {
+	static class UniversalViewHolder extends RecyclerView.ViewHolder {
 		View view;
 
 		UniversalViewHolder(View view) {

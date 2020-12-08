@@ -130,7 +130,7 @@ public class LostRecordsAdapter extends RecyclerView.Adapter<LostRecordsAdapter.
 		}
 	}
 
-	public interface OnItemClickListener {
+	interface OnItemClickListener {
 		void onItemClick(RecordItem record);
 		void onRemoveItemClick(RecordItem record);
 	}
