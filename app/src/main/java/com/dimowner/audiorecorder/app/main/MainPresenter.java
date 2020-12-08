@@ -37,7 +37,6 @@ import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
-import com.dimowner.audiorecorder.data.database.OnRecordsLostListener;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.exception.CantCreateFileException;
@@ -57,7 +56,7 @@ import timber.log.Timber;
 public class MainPresenter implements MainContract.UserActionsListener {
 
 	private MainContract.View view;
-	private AppRecorder appRecorder;
+	private final AppRecorder appRecorder;
 	private final PlayerContract.Player audioPlayer;
 	private PlayerContract.PlayerCallback playerCallback;
 	private AppRecorderCallback appRecorderCallback;
@@ -241,15 +240,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				@Override
 				public void onPlayProgress(final long mills) {
 					if (view != null && listenPlaybackProgress) {
-						AndroidUtils.runOnUIThread(() -> {
-							if (view != null) {
-								long duration = songDuration/1000;
-								if (duration > 0) {
-									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
-											AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * mills / duration));
-								}
-							}
-						});
+						long duration = songDuration/1000;
+						if (duration > 0) {
+							view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
+									AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * mills / duration));
+						}
 					}
 				}
 

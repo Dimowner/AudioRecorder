@@ -18,30 +18,32 @@ package com.dimowner.audiorecorder.audio.player;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Handler;
 
-import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.exception.PermissionDeniedException;
 import com.dimowner.audiorecorder.exception.PlayerDataSourceException;
+import com.dimowner.audiorecorder.exception.PlayerInitException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import timber.log.Timber;
+
+import static com.dimowner.audiorecorder.AppConstants.VISUALIZATION_INTERVAL;
 
 public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPreparedListener {
 
 	private final List<PlayerContract.PlayerCallback> actionsListeners = new ArrayList<>();
 
 	private MediaPlayer mediaPlayer;
-	private Timer timerProgress;
 	private boolean isPrepared = false;
 	private boolean isPause = false;
 	private long seekPos = 0;
 	private long pausePos = 0;
 	private String dataSource = null;
+	private final Handler handler = new Handler();
 
 
 	private static class SingletonHolder {
@@ -133,20 +135,7 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 							onStopPlay();
 						});
 
-						timerProgress = new Timer();
-						timerProgress.schedule(new TimerTask() {
-							@Override
-							public void run() {
-								try {
-									if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-										int curPos = mediaPlayer.getCurrentPosition();
-										onPlayProgress(curPos);
-									}
-								} catch(IllegalStateException e){
-									Timber.e(e, "Player is not initialized!");
-								}
-							}
-						}, 0, AppConstants.VISUALIZATION_INTERVAL);
+						schedulePlaybackTimeUpdate();
 					}
 					pausePos = 0;
 				}
@@ -173,20 +162,7 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 			onStopPlay();
 		});
 
-		timerProgress = new Timer();
-		timerProgress.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				try {
-					if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-						int curPos = mediaPlayer.getCurrentPosition();
-						onPlayProgress(curPos);
-					}
-				} catch(IllegalStateException e){
-					Timber.e(e, "Player is not initialized!");
-				}
-			}
-		}, 0, AppConstants.VISUALIZATION_INTERVAL);
+		schedulePlaybackTimeUpdate();
 	}
 
 	@Override
@@ -207,10 +183,7 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 
 	@Override
 	public void pause() {
-		if (timerProgress != null) {
-			timerProgress.cancel();
-			timerProgress.purge();
-		}
+		stopPlaybackTimeUpdate();
 		if (mediaPlayer != null) {
 			if (mediaPlayer.isPlaying()) {
 				mediaPlayer.pause();
@@ -224,10 +197,7 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 
 	@Override
 	public void stop() {
-		if (timerProgress != null) {
-			timerProgress.cancel();
-			timerProgress.purge();
-		}
+		stopPlaybackTimeUpdate();
 		if (mediaPlayer != null) {
 			mediaPlayer.stop();
 			mediaPlayer.setOnCompletionListener(null);
@@ -271,6 +241,25 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 		isPause = false;
 		dataSource = null;
 		actionsListeners.clear();
+	}
+
+	private void schedulePlaybackTimeUpdate() {
+		handler.postDelayed(() -> {
+			try {
+				if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+					int curPos = mediaPlayer.getCurrentPosition();
+					onPlayProgress(curPos);
+				}
+				schedulePlaybackTimeUpdate();
+			} catch(IllegalStateException e){
+				Timber.e(e, "Player is not initialized!");
+				onError(new PlayerInitException());
+			}
+		}, VISUALIZATION_INTERVAL);
+	}
+
+	private void stopPlaybackTimeUpdate() {
+		handler.removeCallbacksAndMessages(null);
 	}
 
 	private void onPreparePlay() {

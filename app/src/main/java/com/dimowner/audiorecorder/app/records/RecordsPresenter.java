@@ -28,7 +28,6 @@ import com.dimowner.audiorecorder.audio.player.PlayerContract;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
-import com.dimowner.audiorecorder.data.database.OnRecordsLostListener;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.exception.ErrorParser;
@@ -122,16 +121,14 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				@Override
 				public void onPlayProgress(final long mills) {
 					if (view != null && listenPlaybackProgress) {
-						AndroidUtils.runOnUIThread(() -> {
-							Record rec = activeRecord;
-							if (view != null && rec != null) {
-								long duration = rec.getDuration()/1000;
-								if (duration > 0) {
-									view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
-											AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * mills / duration));
-								}
+						Record rec = activeRecord;
+						if (rec != null) {
+							long duration = rec.getDuration()/1000;
+							if (duration > 0) {
+								view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
+										AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * mills / duration));
 							}
-						});
+						}
 					}
 				}
 
