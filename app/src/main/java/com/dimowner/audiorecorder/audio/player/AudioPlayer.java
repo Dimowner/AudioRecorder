@@ -33,6 +33,9 @@ import timber.log.Timber;
 
 import static com.dimowner.audiorecorder.AppConstants.VISUALIZATION_INTERVAL;
 
+/**
+ * @deprecated use {@link AudioPlayerNew}
+ * */
 public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPreparedListener {
 
 	private final List<PlayerContract.PlayerCallback> actionsListeners = new ArrayList<>();

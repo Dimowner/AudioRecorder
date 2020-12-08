@@ -32,7 +32,8 @@ import com.dimowner.audiorecorder.app.AppRecorderCallback;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.settings.SettingsMapper;
 import com.dimowner.audiorecorder.audio.AudioDecoder;
-import com.dimowner.audiorecorder.audio.player.PlayerContract;
+import com.dimowner.audiorecorder.audio.player.PlayerContractNew;
+import com.dimowner.audiorecorder.audio.player.PlayerState;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
@@ -51,14 +52,15 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import timber.log.Timber;
 
 public class MainPresenter implements MainContract.UserActionsListener {
 
 	private MainContract.View view;
 	private final AppRecorder appRecorder;
-	private final PlayerContract.Player audioPlayer;
-	private PlayerContract.PlayerCallback playerCallback;
+	private final PlayerContractNew.Player audioPlayer;
+	private PlayerContractNew.PlayerCallback playerCallback;
 	private AppRecorderCallback appRecorderCallback;
 	private final BackgroundQueue loadingTasks;
 	private final BackgroundQueue recordingsTasks;
@@ -80,7 +82,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	public MainPresenter(final Prefs prefs, final FileRepository fileRepository,
 								final LocalRepository localRepository,
-								PlayerContract.Player audioPlayer,
+								PlayerContractNew.Player audioPlayer,
 								AppRecorder appRecorder,
 								final BackgroundQueue recordingTasks,
 								final BackgroundQueue loadingTasks,
@@ -222,17 +224,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		appRecorder.addRecordingCallback(appRecorderCallback);
 
 		if (playerCallback == null) {
-			playerCallback = new PlayerContract.PlayerCallback() {
-				@Override
-				public void onPreparePlay() {
-					if (record != null && view != null) {
-						view.startPlaybackService(record.getName());
-					}
-				}
-
+			playerCallback = new PlayerContractNew.PlayerCallback() {
 				@Override
 				public void onStartPlay() {
-					if (view != null) {
+					if (record != null && view != null) {
+						view.startPlaybackService(record.getName());
 						view.showPlayStart(true);
 					}
 				}
@@ -269,7 +265,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				}
 
 				@Override
-				public void onError(AppException throwable) {
+				public void onError(@NonNull AppException throwable) {
 					Timber.e(throwable);
 					if (view != null) {
 						view.showError(ErrorParser.parseException(throwable));
@@ -280,9 +276,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 		this.audioPlayer.addPlayerCallback(playerCallback);
 
-		if (audioPlayer.isPlaying()) {
+		if (audioPlayer.getPlayerState() == PlayerState.PLAYING) {
 			view.showPlayStart(false);
-		} else if (audioPlayer.isPause()) {
+		} else if (audioPlayer.getPlayerState() == PlayerState.PAUSED) {
 			if (view != null) {
 				long duration = songDuration/1000;
 				if (duration > 0) {
@@ -373,9 +369,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	public void startRecording(Context context) {
 		try {
 			if (fileRepository.hasAvailableSpace(context)) {
-				if (audioPlayer.isPlaying()) {
-					audioPlayer.stop();
-				}
+				audioPlayer.stop();
 				if (appRecorder.isPaused()) {
 					appRecorder.resumeRecording();
 				} else if (!appRecorder.isRecording()) {
@@ -433,17 +427,17 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void startPlayback() {
 		if (record != null) {
-			if (!audioPlayer.isPlaying()) {
-				audioPlayer.setData(record.getPath());
+			switch (audioPlayer.getPlayerState()) {
+				case STOPPED:
+					audioPlayer.play(record.getPath());
+					break;
+				case PLAYING:
+					audioPlayer.pause();
+					break;
+				case PAUSED:
+					audioPlayer.unpause();
+					break;
 			}
-			audioPlayer.playOrPause();
-		}
-	}
-
-	@Override
-	public void pausePlayback() {
-		if (audioPlayer.isPlaying()) {
-			audioPlayer.pause();
 		}
 	}
 

@@ -37,7 +37,7 @@ public class SimpleWaveformView extends View {
 
 	private boolean isInitialized;
 
-	private int[] empty = new int[0];
+	private final int[] empty = new int[0];
 
 	/**
 	 * Values used to prevent call {@link #adjustWaveformHeights} before view is measured because

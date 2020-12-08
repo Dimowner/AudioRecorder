@@ -18,6 +18,9 @@ package com.dimowner.audiorecorder.audio.player;
 
 import com.dimowner.audiorecorder.exception.AppException;
 
+/**
+ * @deprecated use {@link PlayerContractNew}
+ * */
 public interface PlayerContract {
 
 	interface PlayerCallback {

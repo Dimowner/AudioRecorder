@@ -35,8 +35,10 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.main.MainActivity;
-import com.dimowner.audiorecorder.audio.player.PlayerContract;
+import com.dimowner.audiorecorder.audio.player.PlayerContractNew;
 import com.dimowner.audiorecorder.exception.AppException;
+
+import org.jetbrains.annotations.NotNull;
 
 import androidx.core.app.NotificationManagerCompat;
 import timber.log.Timber;
@@ -62,8 +64,8 @@ public class PlaybackService extends Service {
 	private Notification notification;
 	private String recordName = "";
 
-	private PlayerContract.Player audioPlayer;
-	private PlayerContract.PlayerCallback playerCallback;
+	private PlayerContractNew.Player audioPlayer;
+	private PlayerContractNew.PlayerCallback playerCallback;
 	private ColorMap colorMap;
 
 	public PlaybackService() {
@@ -102,7 +104,14 @@ public class PlaybackService extends Service {
 						}
 						break;
 					case ACTION_PAUSE_PLAYBACK:
-						audioPlayer.playOrPause();
+						switch (audioPlayer.getPlayerState()) {
+							case PLAYING:
+								audioPlayer.pause();
+								break;
+							case PAUSED:
+								audioPlayer.unpause();
+								break;
+						}
 						break;
 					case ACTION_CLOSE:
 						audioPlayer.stop();
@@ -117,29 +126,23 @@ public class PlaybackService extends Service {
 	public void startForeground(String name) {
 		recordName = name;
 		if (playerCallback == null) {
-			playerCallback = new PlayerContract.PlayerCallback() {
-				@Override public void onPreparePlay() {}
-				@Override public void onPlayProgress(final long mills) {}
+			playerCallback = new PlayerContractNew.PlayerCallback() {
+				@Override public void onError(@NotNull AppException throwable) {
+					stopForegroundService();
+				}
 				@Override public void onStopPlay() {
 					stopForegroundService();
 				}
-				@Override public void onSeek(long mills) {}
-				@Override public void onError(AppException throwable) {
-					stopForegroundService();
-				}
-
-				@Override
-				public void onStartPlay() {
-					onStartPlayback();
-				}
-
-				@Override
-				public void onPausePlay() {
+				@Override public void onSeek(long mills) { }
+				@Override public void onPausePlay() {
 					onPausePlayback();
+				}
+				@Override public void onPlayProgress(long mills) {}
+				@Override public void onStartPlay() {
+					onStartPlayback();
 				}
 			};
 		}
-
 		this.audioPlayer.addPlayerCallback(playerCallback);
 		startForegroundService();
 	}

@@ -24,7 +24,8 @@ import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.AppRecorder;
 import com.dimowner.audiorecorder.app.AppRecorderCallback;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
-import com.dimowner.audiorecorder.audio.player.PlayerContract;
+import com.dimowner.audiorecorder.audio.player.PlayerContractNew;
+import com.dimowner.audiorecorder.audio.player.PlayerState;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
@@ -37,14 +38,16 @@ import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
 import java.util.List;
+
+import androidx.annotation.NonNull;
 import timber.log.Timber;
 
 public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	private RecordsContract.View view;
-	private final PlayerContract.Player audioPlayer;
+	private final PlayerContractNew.Player audioPlayer;
 	private final AppRecorder appRecorder;
-	private PlayerContract.PlayerCallback playerCallback;
+	private PlayerContractNew.PlayerCallback playerCallback;
 	private AppRecorderCallback appRecorderCallback;
 	private final BackgroundQueue loadingTasks;
 	private final BackgroundQueue recordingsTasks;
@@ -59,7 +62,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	public RecordsPresenter(final LocalRepository localRepository, FileRepository fileRepository,
 									BackgroundQueue loadingTasks, BackgroundQueue recordingsTasks,
-									PlayerContract.Player player, AppRecorder appRecorder, Prefs prefs) {
+									PlayerContractNew.Player player, AppRecorder appRecorder, Prefs prefs) {
 		this.localRepository = localRepository;
 		this.fileRepository = fileRepository;
 		this.loadingTasks = loadingTasks;
@@ -101,19 +104,12 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		appRecorder.addRecordingCallback(appRecorderCallback);
 
 		if (playerCallback == null) {
-			this.playerCallback = new PlayerContract.PlayerCallback() {
-
-				@Override
-				public void onPreparePlay() {
-					Timber.d("onPreparePlay");
-					if (view != null) {
-						view.startPlaybackService();
-					}
-				}
+			this.playerCallback = new PlayerContractNew.PlayerCallback() {
 
 				@Override
 				public void onStartPlay() {
 					if (view != null) {
+						view.startPlaybackService();
 						view.showPlayStart();
 					}
 				}
@@ -151,7 +147,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				}
 
 				@Override
-				public void onError(AppException throwable) {
+				public void onError(@NonNull AppException throwable) {
 					Timber.e(throwable);
 					if (view != null) {
 						view.showError(ErrorParser.parseException(throwable));
@@ -160,7 +156,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			};
 		}
 		audioPlayer.addPlayerCallback(playerCallback);
-		if (audioPlayer.isPlaying()) {
+		if (audioPlayer.getPlayerState() == PlayerState.PLAYING) {
 			if (view != null) {
 				view.showPlayerPanel();
 				view.showPlayStart();
@@ -210,19 +206,24 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	public void startPlayback() {
 		if (!appRecorder.isRecording()) {
 			if (activeRecord != null) {
-				if (!audioPlayer.isPlaying()) {
-					audioPlayer.setData(activeRecord.getPath());
+				switch (audioPlayer.getPlayerState()) {
+					case STOPPED:
+						audioPlayer.play(activeRecord.getPath());
+						break;
+					case PLAYING:
+						audioPlayer.pause();
+						break;
+					case PAUSED:
+						audioPlayer.unpause();
+						break;
 				}
-				audioPlayer.playOrPause();
 			}
 		}
 	}
 
 	@Override
 	public void pausePlayback() {
-		if (audioPlayer.isPlaying()) {
-			audioPlayer.pause();
-		}
+		audioPlayer.pause();
 	}
 
 	@Override
@@ -392,12 +393,13 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 							} else {
 								view.bookmarksUnselected();
 							}
-							if (audioPlayer.isPlaying() || audioPlayer.isPause()) {
+							if (audioPlayer.getPlayerState() == PlayerState.PLAYING
+									|| audioPlayer.getPlayerState() == PlayerState.PAUSED) {
 								view.showActiveRecord(rec.getId());
 							}
 
 							//Set player position is audio player is paused.
-							if (audioPlayer.isPause()) {
+							if (audioPlayer.getPlayerState() == PlayerState.PAUSED) {
 								long duration = rec.getDuration() / 1000;
 								if (duration > 0) {
 									long playProgressMills = audioPlayer.getPauseTime();

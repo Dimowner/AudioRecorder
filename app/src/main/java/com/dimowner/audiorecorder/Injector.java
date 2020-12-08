@@ -29,8 +29,8 @@ import com.dimowner.audiorecorder.app.setup.SetupContract;
 import com.dimowner.audiorecorder.app.setup.SetupPresenter;
 import com.dimowner.audiorecorder.app.trash.TrashContract;
 import com.dimowner.audiorecorder.app.trash.TrashPresenter;
-import com.dimowner.audiorecorder.audio.player.AudioPlayer;
-import com.dimowner.audiorecorder.audio.player.PlayerContract;
+import com.dimowner.audiorecorder.audio.player.AudioPlayerNew;
+import com.dimowner.audiorecorder.audio.player.PlayerContractNew;
 import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
 import com.dimowner.audiorecorder.audio.recorder.ThreeGpRecorder;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
@@ -67,6 +67,8 @@ public class Injector {
 	private FileBrowserContract.UserActionsListener fileBrowserPresenter;
 	private TrashContract.UserActionsListener trashPresenter;
 	private SetupContract.UserActionsListener setupPresenter;
+
+	private AudioPlayerNew audioPlayer = null;
 
 	public Injector(Context context) {
 		this.context = context;
@@ -140,8 +142,15 @@ public class Injector {
 		return SettingsMapper.getInstance(context);
 	}
 
-	public PlayerContract.Player provideAudioPlayer() {
-		return AudioPlayer.getInstance();
+	public PlayerContractNew.Player provideAudioPlayer() {
+		if (audioPlayer == null) {
+			synchronized (PlayerContractNew.Player.class) {
+				if (audioPlayer == null) {
+					audioPlayer = new AudioPlayerNew();
+				}
+			}
+		}
+		return audioPlayer;
 	}
 
 	public RecorderContract.Recorder provideAudioRecorder() {

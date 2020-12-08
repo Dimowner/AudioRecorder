@@ -96,7 +96,6 @@ public interface MainContract {
 		void cancelRecording();
 
 		void startPlayback();
-		void pausePlayback();
 		void seekPlayback(int px);
 		void stopPlayback();
 

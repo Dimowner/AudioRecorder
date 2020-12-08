@@ -581,11 +581,9 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	public void onPlayProgress(final long mills, final int px, final int percent) {
-		runOnUiThread(() -> {
-			waveformView.setPlayback(px);
-			txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
-			playProgress.setProgress(percent);
-		});
+		waveformView.setPlayback(px);
+		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
+		playProgress.setProgress(percent);
 	}
 
 	@Override
