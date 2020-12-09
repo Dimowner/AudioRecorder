@@ -212,7 +212,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 	int findPositionById(long id) {
 		if (id >= 0) {
-			for (int i = 0; i < data.size() - 1; i++) {
+			for (int i = 0; i < data.size(); i++) {
 				if (data.get(i).getId() == id) {
 					return i;
 				}

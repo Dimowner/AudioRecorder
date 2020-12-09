@@ -33,7 +33,6 @@ import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.settings.SettingsMapper;
 import com.dimowner.audiorecorder.audio.AudioDecoder;
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew;
-import com.dimowner.audiorecorder.audio.player.PlayerState;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
@@ -276,9 +275,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 		this.audioPlayer.addPlayerCallback(playerCallback);
 
-		if (audioPlayer.getPlayerState() == PlayerState.PLAYING) {
+		if (audioPlayer.isPlaying()) {
 			view.showPlayStart(false);
-		} else if (audioPlayer.getPlayerState() == PlayerState.PAUSED) {
+		} else if (audioPlayer.isPaused()) {
 			if (view != null) {
 				long duration = songDuration/1000;
 				if (duration > 0) {
@@ -427,16 +426,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void startPlayback() {
 		if (record != null) {
-			switch (audioPlayer.getPlayerState()) {
-				case STOPPED:
-					audioPlayer.play(record.getPath());
-					break;
-				case PLAYING:
-					audioPlayer.pause();
-					break;
-				case PAUSED:
-					audioPlayer.unpause();
-					break;
+			if (audioPlayer.isPlaying()) {
+				audioPlayer.pause();
+			} else if (audioPlayer.isPaused()) {
+				audioPlayer.unpause();
+			} else {
+				audioPlayer.play(record.getPath());
 			}
 		}
 	}

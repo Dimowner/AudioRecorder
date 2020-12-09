@@ -43,10 +43,6 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 		return actionsListeners.remove(callback)
 	}
 
-	override fun getPlayerState(): PlayerState {
-		return playerState
-	}
-
 	private fun restartPlayer(dataSource: String) {
 		try {
 			playerState = PlayerState.STOPPED
@@ -150,6 +146,14 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 
 	override fun getPauseTime(): Long {
 		return pauseTimeMills
+	}
+
+	override fun isPaused(): Boolean {
+		return playerState == PlayerState.PAUSED
+	}
+
+	override fun isPlaying(): Boolean {
+		return playerState == PlayerState.PLAYING
 	}
 
 	private fun schedulePlaybackTimeUpdate() {

@@ -104,13 +104,10 @@ public class PlaybackService extends Service {
 						}
 						break;
 					case ACTION_PAUSE_PLAYBACK:
-						switch (audioPlayer.getPlayerState()) {
-							case PLAYING:
-								audioPlayer.pause();
-								break;
-							case PAUSED:
-								audioPlayer.unpause();
-								break;
+						if (audioPlayer.isPlaying()) {
+							audioPlayer.pause();
+						} else if (audioPlayer.isPaused()) {
+							audioPlayer.unpause();
 						}
 						break;
 					case ACTION_CLOSE:

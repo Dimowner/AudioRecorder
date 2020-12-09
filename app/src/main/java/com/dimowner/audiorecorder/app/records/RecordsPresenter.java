@@ -25,7 +25,6 @@ import com.dimowner.audiorecorder.app.AppRecorder;
 import com.dimowner.audiorecorder.app.AppRecorderCallback;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew;
-import com.dimowner.audiorecorder.audio.player.PlayerState;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
@@ -156,7 +155,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			};
 		}
 		audioPlayer.addPlayerCallback(playerCallback);
-		if (audioPlayer.getPlayerState() == PlayerState.PLAYING) {
+		if (audioPlayer.isPlaying()) {
 			if (view != null) {
 				view.showPlayerPanel();
 				view.showPlayStart();
@@ -206,16 +205,12 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	public void startPlayback() {
 		if (!appRecorder.isRecording()) {
 			if (activeRecord != null) {
-				switch (audioPlayer.getPlayerState()) {
-					case STOPPED:
-						audioPlayer.play(activeRecord.getPath());
-						break;
-					case PLAYING:
-						audioPlayer.pause();
-						break;
-					case PAUSED:
-						audioPlayer.unpause();
-						break;
+				if (audioPlayer.isPlaying()) {
+					audioPlayer.pause();
+				} else if (audioPlayer.isPaused()) {
+					audioPlayer.unpause();
+				} else {
+					audioPlayer.play(activeRecord.getPath());
 				}
 			}
 		}
@@ -393,13 +388,12 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 							} else {
 								view.bookmarksUnselected();
 							}
-							if (audioPlayer.getPlayerState() == PlayerState.PLAYING
-									|| audioPlayer.getPlayerState() == PlayerState.PAUSED) {
+							if (audioPlayer.isPlaying() || audioPlayer.isPaused()) {
 								view.showActiveRecord(rec.getId());
 							}
 
 							//Set player position is audio player is paused.
-							if (audioPlayer.getPlayerState() == PlayerState.PAUSED) {
+							if (audioPlayer.isPaused()) {
 								long duration = rec.getDuration() / 1000;
 								if (duration > 0) {
 									long playProgressMills = audioPlayer.getPauseTime();

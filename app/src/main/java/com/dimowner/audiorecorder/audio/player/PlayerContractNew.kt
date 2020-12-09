@@ -31,7 +31,6 @@ interface PlayerContractNew {
 	interface Player {
 		fun addPlayerCallback(callback: PlayerCallback)
 		fun removePlayerCallback(callback: PlayerCallback): Boolean
-		fun getPlayerState(): PlayerState
 		fun play(filePath: String)
 		fun pause()
 		fun unpause()
@@ -39,6 +38,8 @@ interface PlayerContractNew {
 		fun stop()
 		fun release()
 		fun getPauseTime(): Long
+		fun isPaused(): Boolean
+		fun isPlaying(): Boolean
 	}
 }
 
