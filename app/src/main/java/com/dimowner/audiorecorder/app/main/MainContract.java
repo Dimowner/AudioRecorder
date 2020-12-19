@@ -35,6 +35,7 @@ public interface MainContract {
 		void showRecordingStart();
 		void showRecordingStop();
 		void showRecordingPause();
+		void showRecordingResume();
 		void onRecordingProgress(long mills, int amp);
 		void startWelcomeScreen();
 
@@ -48,7 +49,7 @@ public interface MainContract {
 		void showPlayStart(boolean animate);
 		void showPlayPause();
 		void showPlayStop();
-		void onPlayProgress(long mills, int px, int percent);
+		void onPlayProgress(long mills, int percent);
 
 		void showImportStart();
 		void hideImportProgress();
@@ -72,7 +73,7 @@ public interface MainContract {
 
 		void showRecordInfo(RecordInfo info);
 
-		void updateRecordingView(IntArrayList data);
+		void updateRecordingView(IntArrayList data, long durationMills);
 
 		void showRecordsLostMessage(List<Record> list);
 
@@ -96,7 +97,7 @@ public interface MainContract {
 		void cancelRecording();
 
 		void startPlayback();
-		void seekPlayback(int px);
+		void seekPlayback(long mills);
 		void stopPlayback();
 
 		void renameRecord(long id, String name, String extension, boolean needDecode);

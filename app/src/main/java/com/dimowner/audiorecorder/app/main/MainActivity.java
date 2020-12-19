@@ -59,7 +59,7 @@ import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.records.RecordsActivity;
 import com.dimowner.audiorecorder.app.settings.SettingsActivity;
 import com.dimowner.audiorecorder.app.welcome.WelcomeActivity;
-import com.dimowner.audiorecorder.app.widget.WaveformView;
+import com.dimowner.audiorecorder.app.widget.WaveformViewNew;
 import com.dimowner.audiorecorder.audio.AudioDecoder;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
@@ -90,7 +90,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_DOWNLOAD = 407;
 	public static final int REQ_CODE_IMPORT_AUDIO = 11;
 
-	private WaveformView waveformView;
+	private WaveformViewNew waveformView;
 	private TextView txtProgress;
 	private TextView txtDuration;
 	private TextView txtZeroTime;
@@ -169,7 +169,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				if (fromUser) {
 					int val = (int)AndroidUtils.dpToPx(progress * waveformView.getWaveformLength() / 1000);
 					waveformView.seekPx(val);
-					presenter.seekPlayback(val);
+					//TODO: Find a better way to convert px to mills here
+					presenter.seekPlayback(waveformView.pxToMill(val));
 				}
 			}
 
@@ -184,7 +185,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		presenter = ARApplication.getInjector().provideMainPresenter();
 
-		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
+		waveformView.setOnSeekListener(new WaveformViewNew.OnSeekListener() {
 			@Override
 			public void onStartSeek() {
 				presenter.disablePlaybackProgressListener();
@@ -193,7 +194,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			@Override
 			public void onSeek(int px, long mills) {
 				presenter.enablePlaybackProgressListener();
-				presenter.seekPlayback(px);
+				//TODO: Find a better way to convert px to mills here
+				presenter.seekPlayback(waveformView.pxToMill(px));
 
 				int length = waveformView.getWaveformLength();
 				if (length > 0) {
@@ -361,7 +363,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		playProgress.setProgress(0);
 		playProgress.setEnabled(false);
 		txtDuration.setText(R.string.zero_time);
-		waveformView.showRecording();
+		waveformView.setModeRecording();
 		waveformView.setVisibility(View.VISIBLE);
 		ivPlaceholder.setVisibility(View.GONE);
 	}
@@ -384,8 +386,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnDelete.setEnabled(false);
 		btnRecordingStop.setVisibility(View.INVISIBLE);
 		btnRecordingStop.setEnabled(false);
-		waveformView.hideRecording();
-		waveformView.clearRecordingData();
+		waveformView.setModePlayback();
 	}
 
 	@Override
@@ -408,6 +409,30 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
+	public void showRecordingResume() {
+		txtName.setClickable(false);
+		txtName.setFocusable(false);
+		txtName.setCompoundDrawables(null, null, null, null);
+		txtName.setVisibility(View.VISIBLE);
+		txtName.setText(R.string.recording_progress);
+		txtZeroTime.setVisibility(View.INVISIBLE);
+		txtDuration.setVisibility(View.INVISIBLE);
+		btnRecord.setImageResource(R.drawable.ic_pause_circle_filled);
+		btnPlay.setEnabled(false);
+		btnImport.setEnabled(false);
+		btnShare.setEnabled(false);
+		btnDelete.setVisibility(View.VISIBLE);
+		btnDelete.setEnabled(true);
+		btnRecordingStop.setVisibility(View.VISIBLE);
+		btnRecordingStop.setEnabled(true);
+		playProgress.setProgress(0);
+		playProgress.setEnabled(false);
+		txtDuration.setText(R.string.zero_time);
+		waveformView.setVisibility(View.VISIBLE);
+		ivPlaceholder.setVisibility(View.GONE);
+	}
+
+	@Override
 	public void askRecordingNewName(long id, File file,  boolean showCheckbox, final boolean needDecode) {
 		setRecordName(id, file, showCheckbox, needDecode);
 	}
@@ -415,7 +440,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void onRecordingProgress(long mills, int amp) {
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
-		waveformView.addRecordAmp(amp);
+		waveformView.addRecordAmp(amp, mills);
 	}
 
 	@Override
@@ -500,8 +525,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			ivPlaceholder.setVisibility(View.VISIBLE);
 			waveformView.setVisibility(View.INVISIBLE);
 		}
-		waveformView.setWaveform(waveForm);
-		waveformView.setPxPerSecond(AndroidUtils.dpToPx(ARApplication.getDpPerSecond((float)duration/1000000f)));
+		waveformView.post(() -> waveformView.setWaveform(waveForm, duration/1000));
 	}
 
 	@Override
@@ -562,9 +586,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void updateRecordingView(IntArrayList data) {
-		waveformView.showRecording();
-		waveformView.setRecordingData(data);
+	public void updateRecordingView(IntArrayList data, long durationMills) {
+		if (data != null) {
+			waveformView.setRecordingData(data, durationMills);
+		}
 	}
 
 	@Override
@@ -590,9 +615,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void onPlayProgress(final long mills, final int px, int percent) {
+	public void onPlayProgress(final long mills, int percent) {
 		playProgress.setProgress(percent);
-		waveformView.setPlayback(px);
+		waveformView.setPlayback(mills);
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 	}
 

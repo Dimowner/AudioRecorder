@@ -80,6 +80,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			appRecorderCallback = new AppRecorderCallback() {
 				@Override public void onRecordingStarted(File file) {}
 				@Override public void onRecordingPaused() {}
+				@Override public void onRecordingResumed() { }
 				@Override public void onRecordProcessing() {}
 
 				@Override

@@ -105,7 +105,7 @@ public class ThreeGpRecorder implements RecorderContract.Recorder {
 				recorder.resume();
 				scheduleRecordingTimeUpdate();
 				if (recorderCallback != null) {
-					recorderCallback.onStartRecord(recordFile);
+					recorderCallback.onResumeRecord();
 				}
 				isPaused = false;
 			} catch (IllegalStateException e) {

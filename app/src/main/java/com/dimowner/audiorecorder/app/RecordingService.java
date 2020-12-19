@@ -94,6 +94,7 @@ public class RecordingService extends Service {
 			@Override public void onRecordingPaused() {
 				updateNotificationPause();
 			}
+			@Override public void onRecordingResumed() { }
 			@Override public void onRecordProcessing() { }
 			@Override public void onRecordFinishProcessing() { }
 			@Override public void onRecordingStopped(File file, Record rec) { }

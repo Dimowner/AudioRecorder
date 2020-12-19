@@ -92,6 +92,10 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 				}
 
 				@Override
+				public void onRecordingResumed() {
+				}
+
+				@Override
 				public void onRecordProcessing() {
 					if (view != null) {
 						view.showRecordProcessing();

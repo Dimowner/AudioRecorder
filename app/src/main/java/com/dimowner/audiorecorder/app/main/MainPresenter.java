@@ -70,7 +70,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private final Prefs prefs;
 	private final SettingsMapper settingsMapper;
 	private long songDuration = 0;
-	private float dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
+//	private float dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 	private Record record;
 	private boolean deleteRecord = false;
 	private boolean listenPlaybackProgress = true;
@@ -151,6 +151,14 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				}
 
 				@Override
+				public void onRecordingResumed() {
+					if (view != null) {
+						view.showRecordingResume();
+						view.keepScreenOn(prefs.isKeepScreenOn());
+					}
+				}
+
+				@Override
 				public void onRecordProcessing() {
 					if (view != null) {
 						view.showRecordProcessing();
@@ -179,7 +187,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						}
 						record = rec;
 						songDuration = rec.getDuration();
-						dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
+//						dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
 						if (view != null) {
 							view.showWaveForm(rec.getAmps(), songDuration);
 							view.showName(rec.getName());
@@ -237,8 +245,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					if (view != null && listenPlaybackProgress) {
 						long duration = songDuration/1000;
 						if (duration > 0) {
-							view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
-									AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * mills / duration));
+							view.onPlayProgress(mills, (int) (1000 * mills / duration));
 						}
 					}
 				}
@@ -282,8 +289,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				long duration = songDuration/1000;
 				if (duration > 0) {
 					long playProgressMills = audioPlayer.getPauseTime();
-					view.onPlayProgress(playProgressMills, AndroidUtils.convertMillsToPx(playProgressMills,
-							AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * playProgressMills / duration));
+					view.onPlayProgress(playProgressMills, (int) (1000 * playProgressMills / duration));
 				}
 				view.showPlayPause();
 			}
@@ -296,12 +302,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			view.keepScreenOn(false);
 			view.showRecordingPause();
 			view.showRecordingProgress(TimeUtils.formatTimeIntervalHourMinSec2(appRecorder.getRecordingDuration()));
-			view.updateRecordingView(appRecorder.getRecordingData());
+			view.updateRecordingView(appRecorder.getRecordingData(), appRecorder.getRecordingDuration());
 		} else if (appRecorder.isRecording()) {
 			view.showRecordingStart();
 			view.showRecordingProgress(TimeUtils.formatTimeIntervalHourMinSec2(appRecorder.getRecordingDuration()));
 			view.keepScreenOn(prefs.isKeepScreenOn());
-			view.updateRecordingView(appRecorder.getRecordingData());
+			view.updateRecordingView(appRecorder.getRecordingData(), appRecorder.getRecordingDuration());
 		} else {
 			view.showRecordingStop();
 			view.keepScreenOn(false);
@@ -368,10 +374,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	public void startRecording(Context context) {
 		try {
 			if (fileRepository.hasAvailableSpace(context)) {
-				audioPlayer.stop();
+//				audioPlayer.stop();
 				if (appRecorder.isPaused()) {
 					appRecorder.resumeRecording();
 				} else if (!appRecorder.isRecording()) {
+					audioPlayer.stop();
 					try {
 						final String path = fileRepository.provideRecordFile().getAbsolutePath();
 						recordingsTasks.postRunnable(() -> {
@@ -437,8 +444,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void seekPlayback(int px) {
-		audioPlayer.seek(AndroidUtils.convertPxToMills(px, AndroidUtils.dpToPx(dpPerSecond)));
+	public void seekPlayback(long mills) {
+		audioPlayer.seek(mills);
+//				AndroidUtils.convertPxToMills(px, AndroidUtils.dpToPx(dpPerSecond)));
 	}
 
 	@Override
@@ -558,7 +566,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				record = rec;
 				if (rec != null) {
 					songDuration = rec.getDuration();
-					dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
+//					dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
 					AndroidUtils.runOnUIThread(() -> {
 						if (view != null) {
 							view.showWaveForm(rec.getAmps(), songDuration);
@@ -690,7 +698,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					localRepository.deleteRecord(rec.getId());
 				}
 				prefs.setActiveRecord(-1);
-				dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
+//				dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 				AndroidUtils.runOnUIThread(() -> {
 					if (view != null) {
 						view.showWaveForm(new int[]{}, 0);
@@ -700,7 +708,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							view.showMessage(R.string.record_moved_into_trash);
 						}
 						view.hideOptionsMenu();
-						view.onPlayProgress(0, 0, 0);
+						view.onPlayProgress(0, 0);
 						view.hideProgress();
 						record = null;
 						updateInformation(
@@ -776,7 +784,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 							id = rec.getId();
 							prefs.setActiveRecord(id);
 							songDuration = info.getDuration();
-							dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
+//							dpPerSecond = ARApplication.getDpPerSecond((float) songDuration / 1000000f);
 							AndroidUtils.runOnUIThread(() -> {
 								if (view != null) {
 									audioPlayer.stop();

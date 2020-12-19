@@ -89,6 +89,11 @@ public class AppRecorderImpl implements AppRecorder {
 			}
 
 			@Override
+			public void onResumeRecord() {
+				onRecordingResumed();
+			}
+
+			@Override
 			public void onRecordProgress(final long mills, final int amplitude) {
 				recordingDuration = mills;
 				onRecordingProgress(mills, amplitude);
@@ -329,6 +334,14 @@ public class AppRecorderImpl implements AppRecorder {
 		if (!appCallbacks.isEmpty()) {
 			for (int i = 0; i < appCallbacks.size(); i++) {
 				appCallbacks.get(i).onRecordingPaused();
+			}
+		}
+	}
+
+	private void onRecordingResumed() {
+		if (!appCallbacks.isEmpty()) {
+			for (int i = 0; i < appCallbacks.size(); i++) {
+				appCallbacks.get(i).onRecordingResumed();
 			}
 		}
 	}

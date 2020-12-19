@@ -145,7 +145,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 				scheduleRecordingTimeUpdate();
 				recorder.startRecording();
 				if (recorderCallback != null) {
-					recorderCallback.onStartRecord(recordFile);
+					recorderCallback.onResumeRecord();
 				}
 				isPaused = false;
 			}

@@ -34,7 +34,8 @@ public class AudioRecorder implements RecorderContract.Recorder {
 
 	private MediaRecorder recorder = null;
 	private File recordFile = null;
-	private long startTime = 0;
+	private long updateTime = 0;
+	private long durationMills = 0;
 
 	private boolean isRecording = false;
 	private boolean isPaused = false;
@@ -77,7 +78,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 			try {
 				recorder.prepare();
 				recorder.start();
-				startTime = System.currentTimeMillis();
+				updateTime = System.currentTimeMillis();
 				isRecording = true;
 				scheduleRecordingTimeUpdate();
 				if (recorderCallback != null) {
@@ -102,9 +103,10 @@ public class AudioRecorder implements RecorderContract.Recorder {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isPaused) {
 			try {
 				recorder.resume();
+				updateTime = System.currentTimeMillis();
 				scheduleRecordingTimeUpdate();
 				if (recorderCallback != null) {
-					recorderCallback.onStartRecord(recordFile);
+					recorderCallback.onResumeRecord();
 				}
 				isPaused = false;
 			} catch (IllegalStateException e) {
@@ -122,6 +124,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 				try {
 					recorder.pause();
+					durationMills += System.currentTimeMillis() - updateTime;
 					pauseRecordingTimer();
 					if (recorderCallback != null) {
 						recorderCallback.onPauseRecord();
@@ -166,7 +169,10 @@ public class AudioRecorder implements RecorderContract.Recorder {
 		handler.postDelayed(() -> {
 			if (recorderCallback != null && recorder != null) {
 				try {
-					recorderCallback.onRecordProgress(System.currentTimeMillis() - startTime, recorder.getMaxAmplitude());
+					long curTime = System.currentTimeMillis();
+					durationMills += curTime - updateTime;
+					updateTime = curTime;
+					recorderCallback.onRecordProgress(durationMills, recorder.getMaxAmplitude());
 				} catch (IllegalStateException e) {
 					Timber.e(e);
 				}
@@ -178,11 +184,12 @@ public class AudioRecorder implements RecorderContract.Recorder {
 
 	private void stopRecordingTimer() {
 		handler.removeCallbacksAndMessages(null);
-		startTime = 0;
+		updateTime = 0;
 	}
 
 	private void pauseRecordingTimer() {
 		handler.removeCallbacksAndMessages(null);
+		updateTime = 0;
 	}
 
 	@Override

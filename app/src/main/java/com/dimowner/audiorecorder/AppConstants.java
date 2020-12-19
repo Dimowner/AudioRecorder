@@ -90,7 +90,7 @@ public class AppConstants {
 
 	/** Count of grid lines on visible part of Waveform (actually lines count visible on screen).
 	 *  Used for long records visualisation algorithm. (longer than {@link AppConstants#LONG_RECORD_THRESHOLD_SECONDS} ) */
-	public static final int GRID_LINES_COUNT = 16;
+	public static final int GRID_LINES_COUNT = 10;
 
 	//END-------------- Waveform visualisation constants ----------------------------------------
 

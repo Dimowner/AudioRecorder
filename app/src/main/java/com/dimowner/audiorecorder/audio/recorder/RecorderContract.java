@@ -25,6 +25,7 @@ public interface RecorderContract {
 	interface RecorderCallback {
 		void onStartRecord(File output);
 		void onPauseRecord();
+		void onResumeRecord();
 		void onRecordProgress(long mills, int amp);
 		void onStopRecord(File output);
 		void onError(AppException throwable);
