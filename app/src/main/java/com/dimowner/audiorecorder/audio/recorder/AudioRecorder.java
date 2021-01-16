@@ -156,6 +156,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 			if (recorderCallback != null) {
 				recorderCallback.onStopRecord(recordFile);
 			}
+			durationMills = 0;
 			recordFile = null;
 			isRecording = false;
 			isPaused = false;

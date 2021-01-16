@@ -35,8 +35,8 @@ import timber.log.Timber
 import java.util.*
 
 private const val DEFAULT_GRID_STEP = 2000L //Milliseconds
-private const val SHORT_RECORD = 20000 //Milliseconds
-private const val DEFAULT_WIDTH_SCALE = 1.5f //Const val describes how many screens a record will take.
+private const val SHORT_RECORD = 18000 //Milliseconds
+private const val DEFAULT_WIDTH_SCALE = 1.5 //Const val describes how many screens a record will take.
 private const val ANIMATION_DURATION = 330 //mills.
 
 enum class WaveformMode {
@@ -72,10 +72,12 @@ class WaveformViewNew @JvmOverloads constructor(
 	private var waveformData: IntArray = IntArray(0)
 	private val recordingData: MutableList<Int> = LinkedList<Int>()
 	private var totalRecordingSize: Int = 0
+
 	/** 1 means that waveform will take whole view width. 2 mean that waveform will take double view width to draw.  */
-	private var widthScale: Float = 1F
+	private var widthScale: Double = 1.0
+
 	private var durationMills: Long = 0
-	private var durationPx: Int = 0
+	private var durationPx: Float = 0F
 	private var durationSample: Int = 0
 	private var millsPerPx: Float = 0F
 	private var millsPerSample: Float = 0F
@@ -126,7 +128,7 @@ class WaveformViewNew @JvmOverloads constructor(
 							var shift = (prevScreenShiftPx + event.x - startX).toInt()
 							//Right waveform move edge
 							if (shift <= -durationPx) {
-								shift = -durationPx
+								shift = -durationPx.toInt()
 							}
 							//Left waveform move edge
 							if (shift > 0) {
@@ -152,7 +154,7 @@ class WaveformViewNew @JvmOverloads constructor(
 
 	fun setPlayback(mills: Long) {
 		if (readPlayProgress) {
-			playProgressPx = millsToPx(mills)
+			playProgressPx = millsToPx(mills).toInt()
 			updateShifts(-playProgressPx)
 			prevScreenShiftPx = screenShiftPx
 			invalidate()
@@ -197,7 +199,7 @@ class WaveformViewNew @JvmOverloads constructor(
 		if (recordingData.size > pxToSample(viewWidthPx / 2)) {
 			recordingData.removeAt(0)
 		}
-		playProgressPx = millsToPx(durationMills)
+		playProgressPx = millsToPx(durationMills).toInt()
 		updateShifts(-playProgressPx)
 		prevScreenShiftPx = screenShiftPx
 		invalidate()
@@ -220,7 +222,7 @@ class WaveformViewNew @JvmOverloads constructor(
 			}
 			totalRecordingSize = data.size()
 			updateValues(totalRecordingSize, durationMills)
-			playProgressPx = millsToPx(durationMills)
+			playProgressPx = millsToPx(durationMills).toInt()
 			updateShifts(-playProgressPx)
 			prevScreenShiftPx = screenShiftPx
 			requestLayout()
@@ -233,9 +235,9 @@ class WaveformViewNew @JvmOverloads constructor(
 
 		this.durationMills = durationMills
 		this.durationPx = if (mode == WaveformMode.RECORDING) {
-			(viewWidthPx / 2 * widthScale).toInt()
+			(viewWidthPx / 2 * widthScale).toFloat()
 		} else {
-			(viewWidthPx * widthScale).toInt()
+			(viewWidthPx * widthScale).toFloat()
 		}
 		this.durationSample = size
 
@@ -250,10 +252,10 @@ class WaveformViewNew @JvmOverloads constructor(
 		this.gridStepMills = calculateGridStep(durationMills)
 	}
 
-	private fun calculateScale(mills: Long): Float {
+	private fun calculateScale(mills: Long): Double {
 		return when {
 			mode == WaveformMode.RECORDING -> {
-				mills * (0.5f/4000f) //TODO: move to constants.
+				mills * (DEFAULT_WIDTH_SCALE/(SHORT_RECORD/2))
 			}
 			mills >= SHORT_RECORD -> {
 				DEFAULT_WIDTH_SCALE
@@ -264,8 +266,8 @@ class WaveformViewNew @JvmOverloads constructor(
 		}
 	}
 
-	private fun millsToPx(mills: Long): Int {
-		return (mills * pxPerMill).toInt()
+	private fun millsToPx(mills: Long): Float {
+		return (mills * pxPerMill)
 	}
 
 	private fun millsToSample(mills: Long): Int {
@@ -292,13 +294,13 @@ class WaveformViewNew @JvmOverloads constructor(
 		mode = WaveformMode.RECORDING
 		waveformData = IntArray(0)
 		recordingData.clear()
+		totalRecordingSize = 0
 		updateShifts(0)
 		invalidate()
 	}
 
 	fun setModePlayback() {
 		mode = WaveformMode.PLAYBACK
-		totalRecordingSize = 0
 		updateShifts(0)
 		invalidate()
 	}
@@ -425,9 +427,9 @@ class WaveformViewNew @JvmOverloads constructor(
 	private fun drawWaveForm(canvas: Canvas) {
 		if (waveformData.isNotEmpty()) {
 			val half = (measuredHeight / 2).toFloat()
-			val lines = FloatArray(durationPx * 4)
+			val lines = FloatArray(durationPx.toInt() * 4)
 			var step = 0
-			for (index in 0 until durationPx) {
+			for (index in 0 until durationPx.toInt()) {
 				var sampleIndex = pxToSample(index)
 				if (sampleIndex >= waveformData.size) {
 					sampleIndex = waveformData.size - 1
@@ -448,9 +450,9 @@ class WaveformViewNew @JvmOverloads constructor(
 	private fun drawRecordingWaveform(canvas: Canvas) {
 		if (recordingData.isNotEmpty()) {
 			val half = measuredHeight / 2
-			val lines = FloatArray(durationPx * 4)
+			val lines = FloatArray(durationPx.toInt() * 4)
 			var step = 0
-			for (index in 0 until durationPx) {
+			for (index in 0 until durationPx.toInt()) {
 				var sampleIndex = pxToSample(index)
 				if (sampleIndex >= recordingData.size) {
 					sampleIndex = recordingData.size - 1

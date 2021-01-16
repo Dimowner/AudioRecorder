@@ -38,6 +38,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * @deprecated use {@link WaveformViewNew} instead.
+ **/
 public class WaveformView extends View {
 
 	private static final int DEFAULT_PIXEL_PER_SECOND = (int) AndroidUtils.dpToPx(AppConstants.SHORT_RECORD_DP_PER_SECOND);

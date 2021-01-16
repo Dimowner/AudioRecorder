@@ -81,6 +81,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Ability to scroll up from the bottom of the list
 // TODO: Stop infinite loop when pause WAV recording
 // TODO: Report some sensitive error to Crashlytics manually.
+//	TODO: Bluetooth micro support
+//	TODO: Mp3 support
+//	TODO: Add Noise gate
+//	TODO: Multi select and deletion
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
