@@ -60,7 +60,7 @@ public interface MainContract {
 		void showRecordProcessing();
 		void hideRecordProcessing();
 
-		void showWaveForm(int[] waveForm, long duration);
+		void showWaveForm(int[] waveForm, long duration, long playbackMills);
 		void waveFormToStart();
 		void showDuration(String duration);
 		void showRecordingProgress(String progress);

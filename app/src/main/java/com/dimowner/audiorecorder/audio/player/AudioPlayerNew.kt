@@ -33,6 +33,7 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 	private var mediaPlayer: MediaPlayer = MediaPlayer()
 	private var playerState = PlayerState.STOPPED
 	private var pauseTimeMills: Long = 0
+	private var prevPosMills: Long = 0
 	private val handler = Handler()
 
 	override fun addPlayerCallback(callback: PlayerContractNew.PlayerCallback) {
@@ -57,22 +58,21 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 
 	override fun play(filePath: String) {
 		try {
-			if (playerState == PlayerState.PLAYING) {
-				stop()
-			}
-			restartPlayer(filePath)
-			try {
-				mediaPlayer.setOnPreparedListener(this)
-				mediaPlayer.prepareAsync()
-			} catch (ex: IllegalStateException) {
-				Timber.e(ex)
+			if (playerState != PlayerState.PLAYING) {
 				restartPlayer(filePath)
-				mediaPlayer.setOnPreparedListener(this)
 				try {
+					mediaPlayer.setOnPreparedListener(this)
 					mediaPlayer.prepareAsync()
-				} catch (e: IllegalStateException) {
-					Timber.e(e)
+				} catch (ex: IllegalStateException) {
+					Timber.e(ex)
 					restartPlayer(filePath)
+					mediaPlayer.setOnPreparedListener(this)
+					try {
+						mediaPlayer.prepareAsync()
+					} catch (e: IllegalStateException) {
+						Timber.e(e)
+						restartPlayer(filePath)
+					}
 				}
 			}
 		} catch (e: IllegalStateException) {
@@ -94,6 +94,7 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 
 	override fun seek(mills: Long) {
 		pauseTimeMills = mills
+		prevPosMills = 0
 		try {
 			if (playerState == PlayerState.PLAYING) {
 				mediaPlayer.seekTo(mills.toInt())
@@ -109,6 +110,7 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 		if (playerState == PlayerState.PLAYING) {
 			mediaPlayer.pause()
 			pauseTimeMills = mediaPlayer.currentPosition.toLong()
+			prevPosMills = 0
 			playerState = PlayerState.PAUSED
 			onPausePlay()
 		}
@@ -136,6 +138,7 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 		onStopPlay()
 		playerState = PlayerState.STOPPED
 		pauseTimeMills = 0
+		prevPosMills = 0
 	}
 
 	override fun release() {
@@ -160,7 +163,14 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 		handler.postDelayed({
 			try {
 				if (playerState == PlayerState.PLAYING) {
-					onPlayProgress(mediaPlayer.currentPosition.toLong())
+					var pos = mediaPlayer.currentPosition.toLong()
+					if (pos < prevPosMills) {
+						pos = prevPosMills
+					} else {
+						prevPosMills = pos
+					}
+					onPlayProgress(pos)
+
 				}
 				schedulePlaybackTimeUpdate()
 			} catch (e: IllegalStateException) {

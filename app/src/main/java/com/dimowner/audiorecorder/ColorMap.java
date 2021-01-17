@@ -33,7 +33,7 @@ public class ColorMap {
 			case AppConstants.THEME_BLACK:
 				appThemeResource = R.style.AppTheme_Black;
 				primaryColorRes = R.color.md_black_1000;
-				playbackPanelBackground = R.drawable.panel_red;
+				playbackPanelBackground = R.drawable.panel_dark;
 				break;
 			case AppConstants.THEME_TEAL:
 				appThemeResource = R.style.AppTheme_Teal;

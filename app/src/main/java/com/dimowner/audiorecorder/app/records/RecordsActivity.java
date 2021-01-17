@@ -59,7 +59,7 @@ import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.trash.TrashActivity;
 import com.dimowner.audiorecorder.app.widget.SimpleWaveformView;
 import com.dimowner.audiorecorder.app.widget.TouchLayout;
-import com.dimowner.audiorecorder.app.widget.WaveformView;
+import com.dimowner.audiorecorder.app.widget.WaveformViewNew;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
@@ -94,7 +94,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private TextView txtTitle;
 	private TextView txtSubTitle;
 	private TouchLayout touchLayout;
-	private WaveformView waveformView;
+	private WaveformViewNew waveformView;
 	private ProgressBar panelProgress;
 	private SeekBar playProgress;
 
@@ -113,6 +113,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		colorMap = ARApplication.getInjector().provideColorMap();
+		SimpleWaveformView.setWaveformColorRes(colorMap.getPrimaryColorRes());
 		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_records);
@@ -154,6 +155,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		txtDuration = findViewById(R.id.txt_duration);
 		txtName = findViewById(R.id.txt_name);
 		waveformView = findViewById(R.id.record);
+		waveformView.showTimeline(false);
 
 		txtName.setOnClickListener(this);
 
@@ -163,7 +165,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				if (fromUser) {
 					int val = (int)AndroidUtils.dpToPx(progress * waveformView.getWaveformLength() / 1000);
 					waveformView.seekPx(val);
-					presenter.seekPlayback(val);
+					presenter.seekPlayback(waveformView.pxToMill(val));
 				}
 			}
 
@@ -222,7 +224,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			}
 		});
 
-		SimpleWaveformView.setWaveformColorRes(colorMap.getPrimaryColorRes());
 		adapter = new RecordsAdapter(ARApplication.getInjector().provideSettingsMapper());
 		adapter.setItemClickListener((view, id, path, position) -> presenter.setActiveRecord(id, new RecordsContract.Callback() {
 			@Override public void onSuccess() {
@@ -279,7 +280,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 		presenter = ARApplication.getInjector().provideRecordsPresenter();
 
-		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
+		waveformView.setOnSeekListener(new WaveformViewNew.OnSeekListener() {
 			@Override
 			public void onStartSeek() {
 				presenter.disablePlaybackProgressListener();
@@ -288,17 +289,20 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			@Override
 			public void onSeek(int px, long mills) {
 				presenter.enablePlaybackProgressListener();
-				presenter.seekPlayback(px);
+				//TODO: Find a better way to convert px to mills here
+				presenter.seekPlayback(waveformView.pxToMill(px));
 
-				if (waveformView.getWaveformLength() > 0) {
-					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / waveformView.getWaveformLength());
+				int length = waveformView.getWaveformLength();
+				if (length > 0) {
+					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / length);
 				}
 				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 			}
 			@Override
 			public void onSeeking(int px, long mills) {
-				if (waveformView.getWaveformLength() > 0) {
-					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / waveformView.getWaveformLength());
+				int length = waveformView.getWaveformLength();
+				if (length > 0) {
+					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / length);
 				}
 				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 			}
@@ -568,9 +572,8 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
-	public void showWaveForm(int[] waveForm, long duration) {
-		waveformView.setWaveform(waveForm);
-		waveformView.setPxPerSecond(AndroidUtils.dpToPx(ARApplication.getDpPerSecond((float)duration/1000000f)));
+	public void showWaveForm(int[] waveForm, long duration, long playbackMills) {
+		waveformView.setWaveform(waveForm, duration/1000, playbackMills);
 	}
 
 	@Override
@@ -580,10 +583,10 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
-	public void onPlayProgress(final long mills, final int px, final int percent) {
-		waveformView.setPlayback(px);
-		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
+	public void onPlayProgress(final long mills, final int percent) {
 		playProgress.setProgress(percent);
+		waveformView.setPlayback(mills);
+		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 	}
 
 	@Override

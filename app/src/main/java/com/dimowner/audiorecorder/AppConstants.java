@@ -134,7 +134,7 @@ public class AppConstants {
 	public static final int DEFAULT_CHANNEL_COUNT = RECORD_AUDIO_STEREO;
 
 	/** Time interval for Recording progress visualisation. */
-	public final static int VISUALIZATION_INTERVAL = 1000/SHORT_RECORD_DP_PER_SECOND; //1000 mills/25 dp per sec
+	public final static int VISUALIZATION_INTERVAL = 20;
 
 	public final static int RECORD_BYTES_PER_SECOND = RECORD_ENCODING_BITRATE_48000 /8; //bits per sec converted to bytes per sec.
 

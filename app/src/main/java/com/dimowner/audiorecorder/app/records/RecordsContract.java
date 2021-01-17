@@ -29,7 +29,7 @@ public interface RecordsContract {
 		void showPlayStart();
 		void showPlayPause();
 		void showPlayStop();
-		void onPlayProgress(long mills, int px, int percent);
+		void onPlayProgress(long mills, int percent);
 
 		void showNextRecord();
 		void showPrevRecord();
@@ -41,7 +41,7 @@ public interface RecordsContract {
 
 		void startPlaybackService();
 
-		void showWaveForm(int[] waveForm, long duration);
+		void showWaveForm(int[] waveForm, long duration, long playbackMills);
 		void showDuration(String duration);
 
 		void showRecords(List<ListItem> records, int order);
@@ -84,7 +84,7 @@ public interface RecordsContract {
 
 		void pausePlayback();
 
-		void seekPlayback(int px);
+		void seekPlayback(long mills);
 
 		void stopPlayback();
 

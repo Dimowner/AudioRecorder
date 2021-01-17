@@ -117,6 +117,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ColorMap colorMap;
 	private ColorMap.OnThemeColorChangeListener onThemeColorChangeListener;
 
+	private float space = 75;
+
 	public static Intent getStartIntent(Context context) {
 		return new Intent(context, MainActivity.class);
 	}
@@ -167,6 +169,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnShare.setOnClickListener(this);
 		btnImport.setOnClickListener(this);
 		txtName.setOnClickListener(this);
+		space = getResources().getDimension(R.dimen.spacing_xnormal);
+
 		playProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -476,7 +480,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void showPlayStart(boolean animate) {
 		btnRecord.setEnabled(false);
 		if (animate) {
-			AnimationUtil.viewAnimationX(btnPlay, -75f, new Animator.AnimatorListener() {
+			AnimationUtil.viewAnimationX(btnPlay, -space, new Animator.AnimatorListener() {
 				@Override public void onAnimationStart(Animator animation) { }
 				@Override public void onAnimationEnd(Animator animation) {
 					btnStop.setVisibility(View.VISIBLE);
@@ -486,7 +490,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				@Override public void onAnimationRepeat(Animator animation) { }
 			});
 		} else {
-			btnPlay.setTranslationX(-75f);
+			btnPlay.setTranslationX(-space);
 			btnStop.setVisibility(View.VISIBLE);
 			btnPlay.setImageResource(R.drawable.ic_pause);
 		}
@@ -494,6 +498,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showPlayPause() {
+		btnStop.setVisibility(View.VISIBLE);
+		btnPlay.setTranslationX(-space);
 		btnPlay.setImageResource(R.drawable.ic_play);
 	}
 
@@ -515,7 +521,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void showWaveForm(int[] waveForm, long duration) {
+	public void showWaveForm(int[] waveForm, long duration, long playbackMills) {
 		if (waveForm.length > 0) {
 			btnPlay.setVisibility(View.VISIBLE);
 			txtDuration.setVisibility(View.VISIBLE);
@@ -529,7 +535,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			ivPlaceholder.setVisibility(View.VISIBLE);
 			waveformView.setVisibility(View.INVISIBLE);
 		}
-		waveformView.post(() -> waveformView.setWaveform(waveForm, duration/1000));
+		waveformView.setWaveform(waveForm, duration/1000, playbackMills);
 	}
 
 	@Override

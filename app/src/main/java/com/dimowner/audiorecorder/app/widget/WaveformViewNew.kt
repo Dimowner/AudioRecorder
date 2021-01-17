@@ -73,6 +73,8 @@ class WaveformViewNew @JvmOverloads constructor(
 	private val recordingData: MutableList<Int> = LinkedList<Int>()
 	private var totalRecordingSize: Int = 0
 
+	private var showTimeline: Boolean = true
+
 	/** 1 means that waveform will take whole view width. 2 mean that waveform will take double view width to draw.  */
 	private var widthScale: Double = 1.0
 
@@ -85,7 +87,7 @@ class WaveformViewNew @JvmOverloads constructor(
 	private var pxPerSample: Float = 0F
 	private var samplePerPx: Float = 0F
 	private var samplePerMill: Float = 0F
-	private var gridStepMills: Long = 1000
+	private var gridStepMills: Long = 4000
 
 	private var onSeekListener: OnSeekListener? = null
 
@@ -152,6 +154,12 @@ class WaveformViewNew @JvmOverloads constructor(
 		})
 	}
 
+	fun showTimeline(show: Boolean) {
+		showTimeline = show
+		inset = if (show) { textHeight + PADD } else { 0f }
+		invalidate()
+	}
+
 	fun setPlayback(mills: Long) {
 		if (readPlayProgress) {
 			playProgressPx = millsToPx(mills).toInt()
@@ -186,10 +194,14 @@ class WaveformViewNew @JvmOverloads constructor(
 		onSeekListener?.onSeeking(-screenShiftPx, pxToMill(-screenShiftPx))
 	}
 
-	fun setWaveform(frameGains: IntArray, durationMills: Long) {
-		updateValues(frameGains.size, durationMills)
-		adjustWaveformHeights(frameGains)
-		requestLayout()
+	fun setWaveform(frameGains: IntArray, durationMills: Long, playbackMills: Long) {
+		post {
+			updateValues(frameGains.size, durationMills)
+			adjustWaveformHeights(frameGains)
+			setPlayback(playbackMills)
+			invalidate()
+			requestLayout()
+		}
 	}
 
 	fun addRecordAmp(amp: Int, durationMills: Long) {
@@ -230,25 +242,31 @@ class WaveformViewNew @JvmOverloads constructor(
 	}
 
 	private fun updateValues(size: Int, durationMills: Long) {
-//		Timber.v("updateValues size = " + size + " durationMills = " + durationMills)
 		this.widthScale = calculateScale(durationMills)
-
+		viewWidthPx = width
 		this.durationMills = durationMills
-		this.durationPx = if (mode == WaveformMode.RECORDING) {
-			(viewWidthPx / 2 * widthScale).toFloat()
-		} else {
-			(viewWidthPx * widthScale).toFloat()
+		this.durationPx = when {
+			viewWidthPx == 0 -> {
+				return
+			}
+			mode == WaveformMode.RECORDING -> {
+				(viewWidthPx / 2 * widthScale).toFloat()
+			}
+			else -> {
+				(viewWidthPx * widthScale).toFloat()
+			}
 		}
 		this.durationSample = size
 
-		this.millsPerPx = durationMills.toFloat()/durationPx.toFloat()
+		this.millsPerPx = durationMills.toFloat()/durationPx
 		this.millsPerSample = durationMills.toFloat()/durationSample.toFloat()
-		this.pxPerMill = durationPx.toFloat()/durationMills.toFloat()
-		this.pxPerSample = durationPx.toFloat()/durationSample.toFloat()
-		this.samplePerPx = durationSample.toFloat()/durationPx.toFloat()
+		this.pxPerMill = durationPx/durationMills.toFloat()
+		this.pxPerSample = durationPx/durationSample.toFloat()
+		this.samplePerPx = durationSample.toFloat()/durationPx
 		this.samplePerMill = durationSample.toFloat()/durationMills.toFloat()
 		this.durationPx = millsToPx(durationMills)
 
+		Timber.v("calculateGridStep dur = " + durationMills)
 		this.gridStepMills = calculateGridStep(durationMills)
 	}
 
@@ -377,19 +395,19 @@ class WaveformViewNew @JvmOverloads constructor(
 				k *= 2
 			}
 			//Ranges can be better optimised
-			val gridStepMills: Long = when (actualStepSec) {
+			val gridStep: Long = when (actualStepSec) {
 				in 0..2 -> 2000
 				in 3..7 -> 5000
 				in 8..14 -> 10000
 				in 15..24 -> 20000
-				in 25..59 -> 30000
-				in 60..89 -> 60000
+				in 25..49 -> 30000
+				in 50..89 -> 60000
 				in 90..119 -> 90000
 				in 120..179 -> 120000
 				in 180..239 -> 180000
 				else -> DEFAULT_GRID_STEP
 			}
-			return gridStepMills * k
+			return gridStep * k
 		}
 	}
 
@@ -399,6 +417,7 @@ class WaveformViewNew @JvmOverloads constructor(
 		val gridEndMills = durationMills + halfWidthMills.toInt() + gridStepMills
 		val halfScreenStepCount = (halfWidthMills/gridStepMills).toInt()
 
+		Timber.v("drawGrid gridEndMills = " + gridEndMills)
 		for (indexMills in -halfScreenStepCount*gridStepMills until gridEndMills step gridStepMills) {
 			val sampleIndexPx = millsToPx(indexMills)
 			val xPos = (waveformShiftPx + sampleIndexPx).toFloat()
@@ -412,13 +431,16 @@ class WaveformViewNew @JvmOverloads constructor(
 				//Draw grid bottom sub-line
 				canvas.drawLine(xSubPos, height - GIRD_SUBLINE_HEIGHT - inset, xSubPos, height - inset, gridPaint)
 
-				//Draw timeline texts
-				if (indexMills >= 0) {
-					val text = TimeUtils.formatTimeIntervalHourMin(indexMills)
-					//Bottom timeline text
-					canvas.drawText(text, xPos, height - PADD, textPaint)
-					//Top timeline text
-					canvas.drawText(text, xPos, textHeight, textPaint)
+				Timber.v("drawGrid indexMills = " + indexMills)
+				if (showTimeline) {
+					//Draw timeline texts
+					if (indexMills >= 0) {
+						val text = TimeUtils.formatTimeIntervalHourMin(indexMills)
+						//Bottom timeline text
+						canvas.drawText(text, xPos, height - PADD, textPaint)
+						//Top timeline text
+						canvas.drawText(text, xPos, textHeight, textPaint)
+					}
 				}
 			}
 		}

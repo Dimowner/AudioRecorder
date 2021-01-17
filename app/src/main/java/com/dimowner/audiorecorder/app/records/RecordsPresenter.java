@@ -16,7 +16,6 @@
 
 package com.dimowner.audiorecorder.app.records;
 
-import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.Mapper;
@@ -55,7 +54,6 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	private final Prefs prefs;
 
 	private Record activeRecord;
-	private float dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 	private boolean showBookmarks = false;
 	private boolean listenPlaybackProgress = true;
 
@@ -121,8 +119,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 						if (rec != null) {
 							long duration = rec.getDuration()/1000;
 							if (duration > 0) {
-								view.onPlayProgress(mills, AndroidUtils.convertMillsToPx(mills,
-										AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * mills / duration));
+								view.onPlayProgress(mills, (int) (1000 * mills / duration));
 							}
 						}
 					}
@@ -223,13 +220,15 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	}
 
 	@Override
-	public void seekPlayback(int px) {
-		audioPlayer.seek(AndroidUtils.convertPxToMills(px, AndroidUtils.dpToPx(dpPerSecond)));
+	public void seekPlayback(long mills) {
+		audioPlayer.seek(mills);
 	}
 
 	@Override
 	public void stopPlayback() {
-		audioPlayer.stop();
+		if (audioPlayer.isPlaying() || audioPlayer.isPaused()) {
+			audioPlayer.stop();
+		}
 	}
 
 	@Override
@@ -258,7 +257,6 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 //				fileRepository.deleteRecordFile(path);
 			if (rec != null && rec.getId() == id) {
 				prefs.setActiveRecord(-1);
-				dpPerSecond = AppConstants.SHORT_RECORD_DP_PER_SECOND;
 			}
 			AndroidUtils.runOnUIThread(() -> {
 				if (view != null) {
@@ -374,35 +372,32 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				final List<Record> recordList = localRepository.getRecords(0, order);
 				final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
 				activeRecord = rec;
-				if (rec != null) {
-					dpPerSecond = ARApplication.getDpPerSecond((float) rec.getDuration() / 1000000f);
-				}
 				AndroidUtils.runOnUIThread(() -> {
 					if (view != null) {
 						view.showRecords(Mapper.recordsToListItems(recordList), order);
-						if (rec != null) {
-							view.showWaveForm(rec.getAmps(), rec.getDuration());
-							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
-							view.showRecordName(rec.getName());
-							if (rec.isBookmarked()) {
-								view.bookmarksSelected();
-							} else {
-								view.bookmarksUnselected();
-							}
-							if (audioPlayer.isPlaying() || audioPlayer.isPaused()) {
-								view.showActiveRecord(rec.getId());
-							}
-
-							//Set player position is audio player is paused.
-							if (audioPlayer.isPaused()) {
-								long duration = rec.getDuration() / 1000;
-								if (duration > 0) {
-									long playProgressMills = audioPlayer.getPauseTime();
-									view.onPlayProgress(playProgressMills, AndroidUtils.convertMillsToPx(playProgressMills,
-											AndroidUtils.dpToPx(dpPerSecond)), (int) (1000 * playProgressMills / duration));
+						if (audioPlayer.isPaused() || audioPlayer.isPlaying()) {
+							if (rec != null) {
+								if (audioPlayer.isPaused()) {
+									long duration = rec.getDuration() / 1000;
+									if (duration > 0) {
+										long playProgressMills = audioPlayer.getPauseTime();
+										view.onPlayProgress(playProgressMills, (int) (1000 * playProgressMills / duration));
+										view.showWaveForm(rec.getAmps(), rec.getDuration(), playProgressMills);
+									}
+									view.showPlayPause();
+								} else {
+									view.showWaveForm(rec.getAmps(), rec.getDuration(), 0);
 								}
-								view.showPlayerPanel();
-								view.showPlayPause();
+								view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
+								view.showRecordName(rec.getName());
+								if (rec.isBookmarked()) {
+									view.bookmarksSelected();
+								} else {
+									view.bookmarksUnselected();
+								}
+								if (audioPlayer.isPlaying() || audioPlayer.isPaused()) {
+									view.showActiveRecord(rec.getId());
+								}
 							}
 						}
 
@@ -435,24 +430,9 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			loadingTasks.postRunnable(() -> {
 				final int order = prefs.getRecordsOrder();
 				final List<Record> recordList = localRepository.getRecords(page, order);
-				final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
-				activeRecord = rec;
-				if (rec != null) {
-					dpPerSecond = ARApplication.getDpPerSecond((float) rec.getDuration() / 1000000f);
-				}
 				AndroidUtils.runOnUIThread(() -> {
 					if (view != null) {
-						if (rec != null) {
-							view.addRecords(Mapper.recordsToListItems(recordList), order);
-							view.showWaveForm(rec.getAmps(), rec.getDuration());
-							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
-							view.showRecordName(rec.getName());
-							if (rec.isBookmarked()) {
-								view.bookmarksSelected();
-							} else {
-								view.bookmarksUnselected();
-							}
-						}
+						view.addRecords(Mapper.recordsToListItems(recordList), order);
 						view.hideProgress();
 						view.hidePanelProgress();
 						view.bookmarksUnselected();
@@ -471,19 +451,9 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				view.showPanelProgress();
 				loadingTasks.postRunnable(() -> {
 					final List<Record> recordList = localRepository.getBookmarks();
-					final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
-					activeRecord = rec;
-					if (rec != null) {
-						dpPerSecond = ARApplication.getDpPerSecond((float) rec.getDuration() / 1000000f);
-					}
 					AndroidUtils.runOnUIThread(() -> {
 						if (view != null) {
 							view.showRecords(Mapper.recordsToListItems(recordList), AppConstants.SORT_DATE);
-							if (rec != null) {
-								view.showWaveForm(rec.getAmps(), rec.getDuration());
-								view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
-								view.showRecordName(rec.getName());
-							}
 							view.hideProgress();
 							view.hidePanelProgress();
 							view.bookmarksSelected();
@@ -573,10 +543,9 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				final Record rec = localRepository.getRecord((int) id);
 				activeRecord = rec;
 				if (rec != null) {
-					dpPerSecond = ARApplication.getDpPerSecond((float) rec.getDuration()/1000000f);
 					AndroidUtils.runOnUIThread(() -> {
 						if (view != null) {
-							view.showWaveForm(rec.getAmps(), rec.getDuration());
+							view.showWaveForm(rec.getAmps(), rec.getDuration(), 0);
 							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(rec.getDuration() / 1000));
 							view.showRecordName(rec.getName());
 							callback.onSuccess();
