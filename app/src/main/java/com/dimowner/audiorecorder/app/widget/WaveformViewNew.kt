@@ -31,7 +31,6 @@ import com.dimowner.audiorecorder.IntArrayList
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.util.TimeUtils
-import timber.log.Timber
 import java.util.*
 
 private const val DEFAULT_GRID_STEP = 2000L //Milliseconds
@@ -60,6 +59,7 @@ class WaveformViewNew @JvmOverloads constructor(
 
 	private var mode = WaveformMode.PLAYBACK
 	private var playProgressPx = 0
+	private var playProgressMills = 0L
 
 	private var textHeight = 0f
 	private var inset = 0f
@@ -68,7 +68,9 @@ class WaveformViewNew @JvmOverloads constructor(
 	private var screenShiftPx = 0
 	private var waveformShiftPx = 0
 	private var viewWidthPx = 0
+	private var viewHeightPx = 0
 
+	private var originalData: IntArray = IntArray(0)
 	private var waveformData: IntArray = IntArray(0)
 	private val recordingData: MutableList<Int> = LinkedList<Int>()
 	private var totalRecordingSize: Int = 0
@@ -196,11 +198,20 @@ class WaveformViewNew @JvmOverloads constructor(
 
 	fun setWaveform(frameGains: IntArray, durationMills: Long, playbackMills: Long) {
 		post {
-			updateValues(frameGains.size, durationMills)
+			originalData = frameGains
+			viewWidthPx = width
+			viewHeightPx = height
+			playProgressMills = playbackMills
+			updateWaveform(frameGains, durationMills, playbackMills)
+			requestLayout()
+		}
+	}
+
+	private fun updateWaveform(frameGains: IntArray, durationMills: Long, playbackMills: Long) {
+		updateValues(frameGains.size, durationMills)
+		if (viewHeightPx > 0 && viewWidthPx > 0) {
 			adjustWaveformHeights(frameGains)
 			setPlayback(playbackMills)
-			invalidate()
-			requestLayout()
 		}
 	}
 
@@ -218,7 +229,6 @@ class WaveformViewNew @JvmOverloads constructor(
 	}
 
 	fun setRecordingData(data: IntArrayList, durationMills: Long) {
-		Timber.v("setRecordingData data = " + data.size() + " dur = " + durationMills)
 		mode = WaveformMode.RECORDING
 		post {
 			recordingData.clear()
@@ -243,8 +253,8 @@ class WaveformViewNew @JvmOverloads constructor(
 
 	private fun updateValues(size: Int, durationMills: Long) {
 		this.widthScale = calculateScale(durationMills)
-		viewWidthPx = width
 		this.durationMills = durationMills
+		this.durationSample = size
 		this.durationPx = when {
 			viewWidthPx == 0 -> {
 				return
@@ -256,7 +266,6 @@ class WaveformViewNew @JvmOverloads constructor(
 				(viewWidthPx * widthScale).toFloat()
 			}
 		}
-		this.durationSample = size
 
 		this.millsPerPx = durationMills.toFloat()/durationPx
 		this.millsPerSample = durationMills.toFloat()/durationSample.toFloat()
@@ -266,7 +275,6 @@ class WaveformViewNew @JvmOverloads constructor(
 		this.samplePerMill = durationSample.toFloat()/durationMills.toFloat()
 		this.durationPx = millsToPx(durationMills)
 
-		Timber.v("calculateGridStep dur = " + durationMills)
 		this.gridStepMills = calculateGridStep(durationMills)
 	}
 
@@ -331,32 +339,23 @@ class WaveformViewNew @JvmOverloads constructor(
 	 * Convert dB amp value to view amp.
 	 */
 	private fun convertAmp(amp: Double): Int {
-		return (amp * ((measuredHeight / 2).toFloat() / 32767)).toInt()
+		return (amp * ((viewHeightPx / 2).toFloat() / 32767)).toInt()
 	}
 
 	override fun setSelected(selected: Boolean) {
 		super.setSelected(selected)
 		if (selected) {
-			waveformPaint.color = context.resources.getColor(R.color.md_grey_500)
+			waveformPaint.color = ContextCompat.getColor(context, R.color.md_grey_500)
 		} else {
-			waveformPaint.color = context.resources.getColor(R.color.md_grey_700)
+			waveformPaint.color = ContextCompat.getColor(context, R.color.md_grey_700)
 		}
 	}
 
-	override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-//		if (!isMeasured) isMeasured = true
-		// Reconcile the measured dimensions with the this view's constraints and
-		// set the final measured viewWidth and height.
-		val width = MeasureSpec.getSize(widthMeasureSpec)
+	override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+		super.onLayout(changed, left, top, right, bottom)
 		viewWidthPx = width
-//		screenShiftPx = -playProgressPx
-//		waveformShiftPx = screenShiftPx + viewWidthPx / 2
-		updateShifts(-playProgressPx)
-		prevScreenShiftPx = screenShiftPx
-		setMeasuredDimension(
-				resolveSize(width, widthMeasureSpec),
-				heightMeasureSpec)
+		viewHeightPx = height
+		updateWaveform(originalData, durationMills, playProgressMills)
 	}
 
 	override fun onDraw(canvas: Canvas) {
@@ -417,10 +416,9 @@ class WaveformViewNew @JvmOverloads constructor(
 		val gridEndMills = durationMills + halfWidthMills.toInt() + gridStepMills
 		val halfScreenStepCount = (halfWidthMills/gridStepMills).toInt()
 
-		Timber.v("drawGrid gridEndMills = " + gridEndMills)
 		for (indexMills in -halfScreenStepCount*gridStepMills until gridEndMills step gridStepMills) {
 			val sampleIndexPx = millsToPx(indexMills)
-			val xPos = (waveformShiftPx + sampleIndexPx).toFloat()
+			val xPos = (waveformShiftPx + sampleIndexPx)
 			if (xPos >= -gridStepMills && xPos <= viewWidthPx + gridStepMills) { // Draw only visible grid items +1
 				//Draw grid lines
 				//Draw main grid line
@@ -431,7 +429,6 @@ class WaveformViewNew @JvmOverloads constructor(
 				//Draw grid bottom sub-line
 				canvas.drawLine(xSubPos, height - GIRD_SUBLINE_HEIGHT - inset, xSubPos, height - inset, gridPaint)
 
-				Timber.v("drawGrid indexMills = " + indexMills)
 				if (showTimeline) {
 					//Draw timeline texts
 					if (indexMills >= 0) {
@@ -448,7 +445,7 @@ class WaveformViewNew @JvmOverloads constructor(
 
 	private fun drawWaveForm(canvas: Canvas) {
 		if (waveformData.isNotEmpty()) {
-			val half = (measuredHeight / 2).toFloat()
+			val half = (height / 2).toFloat()
 			val lines = FloatArray(durationPx.toInt() * 4)
 			var step = 0
 			for (index in 0 until durationPx.toInt()) {
@@ -471,7 +468,7 @@ class WaveformViewNew @JvmOverloads constructor(
 
 	private fun drawRecordingWaveform(canvas: Canvas) {
 		if (recordingData.isNotEmpty()) {
-			val half = measuredHeight / 2
+			val half = viewHeightPx / 2
 			val lines = FloatArray(durationPx.toInt() * 4)
 			var step = 0
 			for (index in 0 until durationPx.toInt()) {
@@ -549,7 +546,7 @@ class WaveformViewNew @JvmOverloads constructor(
 			if (value > 1.0) value = 1.0f
 			heights[i] = value * value
 		}
-		val halfHeight = measuredHeight / 2 - inset.toInt() - 1
+		val halfHeight = viewHeightPx / 2 - inset.toInt() - 1
 		waveformData = IntArray(numFrames)
 		for (i in 0 until numFrames) {
 			waveformData[i] = (heights[i] * halfHeight).toInt()
