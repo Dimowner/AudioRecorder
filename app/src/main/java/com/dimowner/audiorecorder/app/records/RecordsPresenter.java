@@ -158,6 +158,11 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				view.showPlayerPanel();
 				view.showPlayStart();
 			}
+		} else if (audioPlayer.isPaused()) {
+			if (view != null) {
+				view.showPlayerPanel();
+				view.showPlayPause();
+			}
 		}
 		if (view != null) {
 			view.showSortType(prefs.getRecordsOrder());
@@ -384,7 +389,6 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 										view.onPlayProgress(playProgressMills, (int) (1000 * playProgressMills / duration));
 										view.showWaveForm(rec.getAmps(), rec.getDuration(), playProgressMills);
 									}
-									view.showPlayPause();
 								} else {
 									view.showWaveForm(rec.getAmps(), rec.getDuration(), 0);
 								}
