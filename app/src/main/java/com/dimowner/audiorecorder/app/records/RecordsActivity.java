@@ -19,7 +19,6 @@ package com.dimowner.audiorecorder.app.records;
 import android.Manifest;
 import android.animation.Animator;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -29,16 +28,10 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.util.TypedValue;
 import android.view.MenuInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
@@ -757,73 +750,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	public void setRecordName(final long recordId, final String name, final String extension) {
-		//Create dialog layout programmatically.
-		LinearLayout container = new LinearLayout(getApplicationContext());
-		container.setOrientation(LinearLayout.VERTICAL);
-		LinearLayout.LayoutParams containerLp = new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT);
-		container.setLayoutParams(containerLp);
-
-		final EditText editText = new EditText(getApplicationContext());
-		ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT,
-				ViewGroup.LayoutParams.WRAP_CONTENT);
-		editText.setLayoutParams(lp);
-		editText.addTextChangedListener(new TextWatcher() {
-			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-			@Override public void afterTextChanged(Editable s) {
-				if (s.length() > AppConstants.MAX_RECORD_NAME_LENGTH) {
-					s.delete(s.length() - 1, s.length());
-				}
+		AndroidUtils.showRenameDialog(this, name, false, newName -> {
+			if (!name.equalsIgnoreCase(newName)) {
+				presenter.renameRecord(recordId, newName, extension);
+				presenter.loadRecords();
 			}
-			@Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
-		});
-		editText.setTextColor(getResources().getColor(R.color.text_primary_light));
-		editText.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_medium));
-
-		int pad = (int) getResources().getDimension(R.dimen.spacing_normal);
-		ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(editText.getLayoutParams());
-		params.setMargins(pad, pad, pad, pad);
-		editText.setLayoutParams(params);
-		container.addView(editText);
-
-		editText.setText(name);
-
-		AlertDialog alertDialog = new AlertDialog.Builder(this)
-				.setTitle(R.string.record_name)
-				.setView(container)
-				.setPositiveButton(R.string.btn_save, (dialog, id) -> {
-					String newName = editText.getText().toString();
-					if (!name.equalsIgnoreCase(newName)) {
-						presenter.renameRecord(recordId, newName, extension);
-						presenter.loadRecords();
-					}
-					dialog.dismiss();
-				})
-				.setNegativeButton(R.string.btn_cancel, (dialog, id) -> dialog.dismiss())
-				.create();
-		alertDialog.show();
-		alertDialog.setOnDismissListener(dialog -> hideKeyboard());
-		editText.requestFocus();
-		editText.setSelection(editText.getText().length());
-		showKeyboard();
-	}
-
-	/** Show soft keyboard for a dialog. */
-	public void showKeyboard(){
-		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-		if (inputMethodManager != null) {
-			inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-		}
-	}
-
-	/** Hide soft keyboard after a dialog. */
-	public void hideKeyboard(){
-		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-		if (inputMethodManager != null) {
-			inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-		}
+		}, v -> {});
 	}
 
 	private boolean checkStoragePermissionPlayback() {

@@ -75,9 +75,9 @@ public class TimeUtils {
 	public static String formatTimeIntervalHourMin(long length) {
 		if (length >= 60 * 60 * 1000) { //60*60*1000 = 1hour in mills
 			TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-			long numHour = timeUnit.toHours(length);
+			String numHour = String.valueOf(timeUnit.toHours(length));
 			long numMinutes = timeUnit.toMinutes(length);
-			return String.format(Locale.getDefault(), "%02dh:%02d", numHour, numMinutes % 60);
+			return String.format(Locale.getDefault(), "%sh:%02d", numHour, numMinutes % 60);
 		} else {
 			return TimeUtils.formatTimeIntervalMinSec(length);
 		}

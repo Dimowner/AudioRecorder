@@ -19,24 +19,15 @@ package com.dimowner.audiorecorder.app.main;
 import android.Manifest;
 import android.animation.Animator;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.TypedValue;
 import android.view.MenuInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -47,7 +38,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
-import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.IntArrayList;
 import com.dimowner.audiorecorder.R;
@@ -689,116 +679,18 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	public void setRecordName(final long recordId, File file, boolean showCheckbox, final boolean needDecode) {
-		//Create dialog layout programmatically.
-		LinearLayout container = new LinearLayout(getApplicationContext());
-		container.setOrientation(LinearLayout.VERTICAL);
-		LinearLayout.LayoutParams containerLp = new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT);
-		container.setLayoutParams(containerLp);
-
-		final EditText editText = new EditText(getApplicationContext());
-		ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT,
-				ViewGroup.LayoutParams.WRAP_CONTENT);
-		editText.setLayoutParams(lp);
-		editText.addTextChangedListener(new TextWatcher() {
-			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-			@Override public void afterTextChanged(Editable s) {
-				if (s.length() > AppConstants.MAX_RECORD_NAME_LENGTH) {
-					s.delete(s.length() - 1, s.length());
-				}
-			}
-			@Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
-		});
-		editText.setTextColor(getResources().getColor(R.color.text_primary_light));
-		editText.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_medium));
-
-		int pad = (int) getResources().getDimension(R.dimen.spacing_normal);
-		ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(editText.getLayoutParams());
-		params.setMargins(pad, pad, pad, pad);
-		editText.setLayoutParams(params);
-		container.addView(editText);
-		if (showCheckbox) {
-			container.addView(createCheckerView());
-		}
-
 		final RecordInfo info = AudioDecoder.readRecordInfo(file);
-		editText.setText(info.getName());
-
-		AlertDialog alertDialog = new AlertDialog.Builder(this)
-				.setTitle(R.string.record_name)
-				.setView(container)
-				.setPositiveButton(R.string.btn_save, (dialog, id) -> {
-					String newName = editText.getText().toString();
-					if (!info.getName().equalsIgnoreCase(newName)) {
-						presenter.renameRecord(recordId, newName, info.getFormat(), needDecode);
-					} else if (needDecode) {
-						presenter.decodeRecord(recordId);
-					}
-					dialog.dismiss();
-				})
-				.setNegativeButton(R.string.btn_cancel, (dialog, id) -> {
-					dialog.dismiss();
-					if (needDecode) {
-						presenter.decodeRecord(recordId);
-					}
-				})
-				.create();
-		alertDialog.show();
-		alertDialog.setOnDismissListener(dialog -> hideKeyboard());
-		editText.requestFocus();
-		editText.setSelection(editText.getText().length());
-		showKeyboard();
-	}
-
-	public CheckBox createCheckerView() {
-		final CheckBox checkBox = new CheckBox(getApplicationContext());
-		int color = getResources().getColor(R.color.dark_white);
-		checkBox.setTextColor(color);
-		ColorStateList colorStateList = new ColorStateList(
-				new int[][]{
-						new int[]{-android.R.attr.state_checked}, // unchecked
-						new int[]{android.R.attr.state_checked}  // checked
-				},
-				new int[]{
-						color,
-						color
-				}
-		);
-		checkBox.setButtonTintList(colorStateList);
-		checkBox.setText(R.string.dont_ask_again);
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-		int PADD = (int) getResources().getDimension(R.dimen.spacing_normal);
-		params.setMargins(PADD, 0, PADD, PADD);
-		checkBox.setLayoutParams(params);
-		checkBox.setSaveEnabled(false);
-		checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-		checkBox.setPadding(
-				checkBox.getPaddingLeft()+(int) getResources().getDimension(R.dimen.spacing_small),
-				checkBox.getPaddingTop(),
-				checkBox.getPaddingRight(),
-				checkBox.getPaddingBottom());
-
-		checkBox.setOnClickListener(v -> presenter.dontAskRename());
-		return checkBox;
-	}
-
-	/** Show soft keyboard for a dialog. */
-	public void showKeyboard(){
-		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-		if (inputMethodManager != null) {
-			inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-		}
-	}
-
-	/** Hide soft keyboard after a dialog. */
-	public void hideKeyboard(){
-		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-		if (inputMethodManager != null) {
-			inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-		}
+		AndroidUtils.showRenameDialog(this, info.getName(), showCheckbox, newName -> {
+			if (!info.getName().equalsIgnoreCase(newName)) {
+				presenter.renameRecord(recordId, newName, info.getFormat(), needDecode);
+			} else if (needDecode) {
+				presenter.decodeRecord(recordId);
+			}
+		}, v -> {
+			if (needDecode) {
+				presenter.decodeRecord(recordId);
+			}
+		});
 	}
 
 	private boolean checkStoragePermissionDownload() {

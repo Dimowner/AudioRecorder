@@ -32,9 +32,10 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.net.Uri;
-import android.os.Build;
 import androidx.core.content.FileProvider;
+import android.text.Editable;
 import android.text.SpannableStringBuilder;
+import android.text.TextWatcher;
 import android.text.style.ImageSpan;
 import android.view.Display;
 import android.view.KeyCharacterMap;
@@ -44,12 +45,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.lostrecords.LostRecordsActivity;
@@ -383,22 +387,18 @@ public class AndroidUtils {
 				.setIcon(icon)
 				.setMessage(resContent)
 				.setCancelable(false)
-				.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						if (positiveListener != null) {
-							positiveListener.onClick(dialog, id);
-						}
-						dialog.dismiss();
+				.setPositiveButton(R.string.btn_yes, (dialog, id) -> {
+					if (positiveListener != null) {
+						positiveListener.onClick(dialog, id);
 					}
+					dialog.dismiss();
 				})
 				.setNegativeButton(R.string.btn_no,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								if (negativeListener != null) {
-									negativeListener.onClick(dialog, id);
-								}
-								dialog.dismiss();
+						(dialog, id) -> {
+							if (negativeListener != null) {
+								negativeListener.onClick(dialog, id);
 							}
+							dialog.dismiss();
 						});
 		AlertDialog alert = builder.create();
 		alert.show();
@@ -417,22 +417,18 @@ public class AndroidUtils {
 				.setIcon(icon)
 				.setMessage(resContent)
 				.setCancelable(false)
-				.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						if (positiveListener != null) {
-							positiveListener.onClick(dialog, id);
-						}
-						dialog.dismiss();
+				.setPositiveButton(R.string.btn_yes, (dialog, id) -> {
+					if (positiveListener != null) {
+						positiveListener.onClick(dialog, id);
 					}
+					dialog.dismiss();
 				})
 				.setNegativeButton(R.string.btn_no,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								if (negativeListener != null) {
-									negativeListener.onClick(dialog, id);
-								}
-								dialog.dismiss();
+						(dialog, id) -> {
+							if (negativeListener != null) {
+								negativeListener.onClick(dialog, id);
 							}
+							dialog.dismiss();
 						});
 		AlertDialog alert = builder.create();
 		alert.show();
@@ -445,23 +441,21 @@ public class AndroidUtils {
 
 	public static void showDialog(Activity activity, int positiveBtnTextRes, int negativeBtnTextRes, int resTitle, int resContent, boolean cancelable,
 											final View.OnClickListener positiveBtnListener, final View.OnClickListener negativeBtnListener){
-		final Dialog dialog = new Dialog(activity);
-		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		dialog.setCancelable(cancelable);
+		final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+		dialogBuilder.setCancelable(cancelable);
 		View view = activity.getLayoutInflater().inflate(R.layout.dialog_layout, null, false);
 		((TextView)view.findViewById(R.id.dialog_title)).setText(resTitle);
 		((TextView)view.findViewById(R.id.dialog_content)).setText(resContent);
+		dialogBuilder.setView(view);
+		AlertDialog alertDialog = dialogBuilder.create();
 		if (negativeBtnListener != null) {
 			Button negativeBtn = view.findViewById(R.id.dialog_negative_btn);
 			if (negativeBtnTextRes >=0) {
 				negativeBtn.setText(negativeBtnTextRes);
 			}
-			negativeBtn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					negativeBtnListener.onClick(v);
-					dialog.dismiss();
-				}
+			negativeBtn.setOnClickListener(v -> {
+				negativeBtnListener.onClick(v);
+				alertDialog.dismiss();
 			});
 		} else {
 			view.findViewById(R.id.dialog_negative_btn).setVisibility(View.GONE);
@@ -471,26 +465,83 @@ public class AndroidUtils {
 			if (positiveBtnTextRes >=0) {
 				positiveBtn.setText(positiveBtnTextRes);
 			}
-			positiveBtn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					positiveBtnListener.onClick(v);
-					dialog.dismiss();
-				}
+			positiveBtn.setOnClickListener(v -> {
+				positiveBtnListener.onClick(v);
+				alertDialog.dismiss();
 			});
 		} else {
 			view.findViewById(R.id.dialog_positive_btn).setVisibility(View.GONE);
 		}
-		dialog.setContentView(view);
-		dialog.show();
+		alertDialog.show();
+	}
+
+	public static void showRenameDialog(Activity activity,
+													final String name,
+													final boolean showCheckbox,
+													final OnSetNameClickListener positiveBtnListener,
+													final View.OnClickListener negativeBtnListener){
+		final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+		dialogBuilder.setCancelable(true);
+		View view = activity.getLayoutInflater().inflate(R.layout.dialog_rename, null, false);
+		view.findViewById(R.id.check_box).setVisibility(showCheckbox ? View.VISIBLE : View.GONE);
+		EditText editText = view.findViewById(R.id.input_name);
+		editText.setText(name);
+		editText.requestFocus();
+		editText.setSelection(editText.getText().length());
+		showKeyboard(activity.getApplicationContext());
+		editText.addTextChangedListener(new TextWatcher() {
+			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+			@Override public void afterTextChanged(Editable s) {
+				if (s.length() > AppConstants.MAX_RECORD_NAME_LENGTH) {
+					s.delete(s.length() - 1, s.length());
+				}
+			}
+			@Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+		});
+
+		dialogBuilder.setView(view);
+		dialogBuilder.setOnDismissListener(dialog -> hideKeyboard(activity.getApplicationContext()));
+		AlertDialog alertDialog = dialogBuilder.create();
+		if (negativeBtnListener != null) {
+			Button negativeBtn = view.findViewById(R.id.dialog_negative_btn);
+			negativeBtn.setOnClickListener(v -> {
+				negativeBtnListener.onClick(v);
+				alertDialog.dismiss();
+			});
+		} else {
+			view.findViewById(R.id.dialog_negative_btn).setVisibility(View.GONE);
+		}
+		if (positiveBtnListener != null) {
+			Button positiveBtn = view.findViewById(R.id.dialog_positive_btn);
+			positiveBtn.setOnClickListener(v -> {
+				positiveBtnListener.onClick(editText.getText().toString());
+				alertDialog.dismiss();
+			});
+		} else {
+			view.findViewById(R.id.dialog_positive_btn).setVisibility(View.GONE);
+		}
+		alertDialog.show();
 	}
 
 	public static void showInfoDialog(Activity activity, int resContent){
 		showDialog(activity, -1, -1, R.string.info, resContent, true,
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {}
-				}, null);
+				v -> {}, null);
+	}
+
+	/** Show soft keyboard for a dialog. */
+	public static void showKeyboard(Context context){
+		InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+		if (inputMethodManager != null) {
+			inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+		}
+	}
+
+	/** Hide soft keyboard after a dialog. */
+	public static void hideKeyboard(Context context){
+		InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+		if (inputMethodManager != null) {
+			inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+		}
 	}
 
 	public static void showLostRecordsDialog(final Activity activity, final List<Record> lostRecords){
@@ -499,22 +550,14 @@ public class AndroidUtils {
 		dialog.setCancelable(false);
 		View view = activity.getLayoutInflater().inflate(R.layout.dialog_lost_records_layout, null, false);
 			Button negativeBtn = view.findViewById(R.id.dialog_ok_btn);
-			negativeBtn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					dialog.dismiss();
-				}
-			});
+			negativeBtn.setOnClickListener(v -> dialog.dismiss());
 			Button positiveBtn = view.findViewById(R.id.dialog_details_btn);
-			positiveBtn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					activity.startActivity(LostRecordsActivity.getStartIntent(
-							activity.getApplicationContext(),
-							(ArrayList<RecordItem>) Mapper.toRecordItemList(lostRecords))
-					);
-					dialog.dismiss();
-				}
+			positiveBtn.setOnClickListener(v -> {
+				activity.startActivity(LostRecordsActivity.getStartIntent(
+						activity.getApplicationContext(),
+						(ArrayList<RecordItem>) Mapper.toRecordItemList(lostRecords))
+				);
+				dialog.dismiss();
 			});
 		dialog.setContentView(view);
 		dialog.show();
@@ -529,5 +572,9 @@ public class AndroidUtils {
 			versionName = "N/A";
 		}
 		return versionName;
+	}
+
+	public interface OnSetNameClickListener {
+		void onClick(String name);
 	}
 }
