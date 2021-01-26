@@ -74,12 +74,12 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 
 		txtEmpty = findViewById(R.id.txtEmpty);
 		Button btnDeleteAll = findViewById(R.id.btn_delete_all);
-		btnDeleteAll.setOnClickListener(v -> AndroidUtils.showSimpleDialog(
+		btnDeleteAll.setOnClickListener(v -> AndroidUtils.showDialogYesNo(
 				LostRecordsActivity.this,
-				R.drawable.ic_delete_forever,
-				R.string.warning,
-				R.string.delete_all_records,
-				(dialog, which) -> presenter.deleteRecords(adapter.getData())
+				R.drawable.ic_delete_forever_dark,
+				getString(R.string.warning),
+				getString(R.string.delete_all_records),
+				view -> presenter.deleteRecords(adapter.getData())
 		));
 
 		RecyclerView recyclerView = findViewById(R.id.recycler_view);
@@ -93,12 +93,11 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 
 			@Override
 			public void onRemoveItemClick(final RecordItem record) {
-				AndroidUtils.showSimpleDialog(
-						LostRecordsActivity.this,
-						R.drawable.ic_delete_forever,
-						R.string.warning,
-						getApplicationContext().getString(R.string.delete_record, record.getName()),
-						(dialog, which) -> presenter.deleteRecord(record)
+				AndroidUtils.showDialogYesNo(LostRecordsActivity.this,
+						R.drawable.ic_delete_forever_dark,
+						getString(R.string.warning),
+						getString(R.string.delete_record, record.getName()),
+						v -> presenter.deleteRecord(record)
 				);
 			}
 		});

@@ -259,12 +259,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 					tempPath = item.getPath();
 				}
 			} else if (menuId == R.id.menu_delete) {
-				AndroidUtils.showSimpleDialog(
+				AndroidUtils.showDialogYesNo(
 						RecordsActivity.this,
-						R.drawable.ic_delete_forever,
-						R.string.warning,
-						getApplicationContext().getString(R.string.delete_record, item.getName()),
-						(dialog, which) -> presenter.deleteRecord(item.getId(), item.getPath())
+						R.drawable.ic_delete_forever_dark,
+						getString(R.string.warning),
+						getString(R.string.delete_record, item.getName()),
+						v -> presenter.deleteRecord(item.getId(), item.getPath())
 				);
 			}
 		});
@@ -434,12 +434,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			});
 		} else if (id == R.id.btn_delete) {
 			presenter.pausePlayback();
-			AndroidUtils.showSimpleDialog(
+			AndroidUtils.showDialogYesNo(
 					RecordsActivity.this,
-					R.drawable.ic_delete_forever,
-					R.string.warning,
-					getApplicationContext().getString(R.string.delete_record, presenter.getRecordName()),
-					(dialog, which) -> presenter.deleteActiveRecord()
+					R.drawable.ic_delete_forever_dark,
+					getString(R.string.warning),
+					getString(R.string.delete_record, presenter.getRecordName()),
+					v -> presenter.deleteActiveRecord()
 			);
 		} else if (id == R.id.btn_check_bookmark) {
 			presenter.checkBookmarkActiveRecord();

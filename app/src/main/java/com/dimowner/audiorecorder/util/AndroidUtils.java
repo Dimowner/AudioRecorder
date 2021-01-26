@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -374,84 +373,78 @@ public class AndroidUtils {
 		}
 	}
 
-	public static void showSimpleDialog(Activity activity, int icon, int resTitle, int resContent,
-													final DialogInterface.OnClickListener positiveListener) {
-		showSimpleDialog(activity, icon, resTitle, resContent, positiveListener, null);
-	}
-
-	public static void showSimpleDialog(Activity activity, int icon, int resTitle, int resContent,
-													final DialogInterface.OnClickListener positiveListener,
-													final DialogInterface.OnClickListener negativeListener) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-		builder.setTitle(resTitle)
-				.setIcon(icon)
-				.setMessage(resContent)
-				.setCancelable(false)
-				.setPositiveButton(R.string.btn_yes, (dialog, id) -> {
-					if (positiveListener != null) {
-						positiveListener.onClick(dialog, id);
-					}
-					dialog.dismiss();
-				})
-				.setNegativeButton(R.string.btn_no,
-						(dialog, id) -> {
-							if (negativeListener != null) {
-								negativeListener.onClick(dialog, id);
-							}
-							dialog.dismiss();
-						});
-		AlertDialog alert = builder.create();
-		alert.show();
-	}
-
-	public static void showSimpleDialog(Activity activity, int icon, int resTitle, String resContent,
-													final DialogInterface.OnClickListener positiveListener) {
-		showSimpleDialog(activity, icon, resTitle, resContent, positiveListener, null);
-	}
-
-	public static void showSimpleDialog(Activity activity, int icon, int resTitle, String resContent,
-													final DialogInterface.OnClickListener positiveListener,
-													final DialogInterface.OnClickListener negativeListener) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-		builder.setTitle(resTitle)
-				.setIcon(icon)
-				.setMessage(resContent)
-				.setCancelable(false)
-				.setPositiveButton(R.string.btn_yes, (dialog, id) -> {
-					if (positiveListener != null) {
-						positiveListener.onClick(dialog, id);
-					}
-					dialog.dismiss();
-				})
-				.setNegativeButton(R.string.btn_no,
-						(dialog, id) -> {
-							if (negativeListener != null) {
-								negativeListener.onClick(dialog, id);
-							}
-							dialog.dismiss();
-						});
-		AlertDialog alert = builder.create();
-		alert.show();
-	}
-
 	public static void showDialog(Activity activity, int resTitle, int resContent,
-											View.OnClickListener positiveBtnListener, View.OnClickListener negativeBtnListener){
-		showDialog(activity, -1, -1, resTitle, resContent, false, positiveBtnListener, negativeBtnListener);
+											View.OnClickListener positiveBtnListener, View.OnClickListener negativeBtnListener) {
+		showDialog(activity, -1, R.string.btn_ok, -1, resTitle, resContent, false, positiveBtnListener, negativeBtnListener);
 	}
 
-	public static void showDialog(Activity activity, int positiveBtnTextRes, int negativeBtnTextRes, int resTitle, int resContent, boolean cancelable,
-											final View.OnClickListener positiveBtnListener, final View.OnClickListener negativeBtnListener){
+	public static void showDialog(Activity activity,
+											int drawableRes,
+											int positiveBtnTextRes,
+											int negativeBtnTextRes,
+											int resTitle,
+											int resContent,
+											boolean cancelable,
+											final View.OnClickListener positiveBtnListener,
+											final View.OnClickListener negativeBtnListener){
+		showDialog(activity,
+				drawableRes,
+				positiveBtnTextRes > 0 ? activity.getString(positiveBtnTextRes) : null,
+				negativeBtnTextRes > 0 ? activity.getString(negativeBtnTextRes) : null,
+				resTitle > 0 ? activity.getString(resTitle) : null,
+				resContent > 0 ? activity.getString(resContent) : null,
+				-1,
+				cancelable,
+				positiveBtnListener,
+				negativeBtnListener);
+	}
+
+	public static void showDialogYesNo(Activity activity,
+											int drawableRes,
+											String titleStr,
+											String contentStr,
+											final View.OnClickListener positiveBtnListener){
+		showDialog(activity,
+				drawableRes,
+				activity.getString(R.string.btn_yes),
+				activity.getString(R.string.btn_no),
+				titleStr,
+				contentStr,
+				-1,
+				true,
+				positiveBtnListener,
+				v -> {});
+	}
+
+	private static void showDialog(Activity activity,
+											int drawableRes,
+											String positiveBtnText,
+											String negativeBtnText,
+											String titleStr,
+											String contentStr,
+											int contentResId,
+											boolean cancelable,
+											final View.OnClickListener positiveBtnListener,
+											final View.OnClickListener negativeBtnListener){
 		final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
 		dialogBuilder.setCancelable(cancelable);
 		View view = activity.getLayoutInflater().inflate(R.layout.dialog_layout, null, false);
-		((TextView)view.findViewById(R.id.dialog_title)).setText(resTitle);
-		((TextView)view.findViewById(R.id.dialog_content)).setText(resContent);
+		TextView title = view.findViewById(R.id.dialog_title);
+		title.setText(titleStr);
+		if (drawableRes > 0) {
+			title.setCompoundDrawablesRelativeWithIntrinsicBounds(drawableRes, 0, 0, 0);
+		}
+		if (contentResId > 0) {
+			((TextView) view.findViewById(R.id.dialog_content)).setText(contentResId);
+		} else {
+			((TextView) view.findViewById(R.id.dialog_content)).setText(contentStr);
+		}
 		dialogBuilder.setView(view);
 		AlertDialog alertDialog = dialogBuilder.create();
 		if (negativeBtnListener != null) {
 			Button negativeBtn = view.findViewById(R.id.dialog_negative_btn);
-			if (negativeBtnTextRes >=0) {
-				negativeBtn.setText(negativeBtnTextRes);
+			if (negativeBtnText != null) {
+				negativeBtn.setText(negativeBtnText);
 			}
 			negativeBtn.setOnClickListener(v -> {
 				negativeBtnListener.onClick(v);
@@ -462,8 +455,8 @@ public class AndroidUtils {
 		}
 		if (positiveBtnListener != null) {
 			Button positiveBtn = view.findViewById(R.id.dialog_positive_btn);
-			if (positiveBtnTextRes >=0) {
-				positiveBtn.setText(positiveBtnTextRes);
+			if (positiveBtnText !=null) {
+				positiveBtn.setText(positiveBtnText);
 			}
 			positiveBtn.setOnClickListener(v -> {
 				positiveBtnListener.onClick(v);
@@ -524,8 +517,10 @@ public class AndroidUtils {
 	}
 
 	public static void showInfoDialog(Activity activity, int resContent){
-		showDialog(activity, -1, -1, R.string.info, resContent, true,
-				v -> {}, null);
+		showDialog(
+				activity, -1, activity.getString(R.string.btn_ok), null,
+				activity.getString(R.string.info), "", resContent, true, v -> {}, null
+		);
 	}
 
 	/** Show soft keyboard for a dialog. */

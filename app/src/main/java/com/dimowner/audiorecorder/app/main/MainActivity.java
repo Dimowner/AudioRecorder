@@ -560,23 +560,23 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void askDeleteRecord(String name) {
-		AndroidUtils.showSimpleDialog(
+		AndroidUtils.showDialogYesNo(
 				MainActivity.this,
-				R.drawable.ic_delete_forever,
-				R.string.warning,
-				getApplicationContext().getString(R.string.delete_record, name),
-				(dialog, which) -> presenter.deleteActiveRecord(false)
+				R.drawable.ic_delete_forever_dark,
+				getString(R.string.warning),
+				getString(R.string.delete_record, name),
+				v -> presenter.deleteActiveRecord(false)
 		);
 	}
 
 	@Override
 	public void askDeleteRecordForever() {
-		AndroidUtils.showSimpleDialog(
+		AndroidUtils.showDialogYesNo(
 				MainActivity.this,
-				R.drawable.ic_delete_forever,
-				R.string.warning,
-				getApplicationContext().getString(R.string.delete_this_record),
-				(dialog, which) -> presenter.stopRecording(true)
+				R.drawable.ic_delete_forever_dark,
+				getString(R.string.warning),
+				getString(R.string.delete_this_record),
+				v -> presenter.stopRecording(true)
 		);
 	}
 

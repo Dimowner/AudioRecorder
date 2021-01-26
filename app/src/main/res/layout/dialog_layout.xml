@@ -36,6 +36,7 @@
 			android:layout_height="wrap_content"
 			android:layout_marginBottom="@dimen/spacing_normal"
 			android:textColor="@color/md_black_1000"
+			android:drawablePadding="16dp"
 			tools:text="Dialog Title"
 			android:textAppearance="@style/TextAppearance.DialogTitle" />
 

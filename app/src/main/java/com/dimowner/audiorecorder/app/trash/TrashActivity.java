@@ -69,12 +69,13 @@ public class TrashActivity extends Activity implements TrashContract.View {
 		});
 
 		btnDeleteAll = findViewById(R.id.btn_delete_all);
-		btnDeleteAll.setOnClickListener(v -> AndroidUtils.showSimpleDialog(
+		btnDeleteAll.setOnClickListener(view ->
+			AndroidUtils.showDialogYesNo(
 				TrashActivity.this,
-				R.drawable.ic_delete_forever,
-				R.string.warning,
-				R.string.delete_all_records,
-				(dialog, which) -> presenter.deleteAllRecordsFromTrash()
+				R.drawable.ic_delete_forever_dark,
+				getString(R.string.warning),
+				getString(R.string.delete_all_records),
+				v -> presenter.deleteAllRecordsFromTrash()
 		));
 
 		txtEmpty = findViewById(R.id.txtEmpty);
@@ -89,23 +90,23 @@ public class TrashActivity extends Activity implements TrashContract.View {
 
 			@Override
 			public void onDeleteItemClick(final RecordItem record) {
-				AndroidUtils.showSimpleDialog(
+				AndroidUtils.showDialogYesNo(
 						TrashActivity.this,
-						R.drawable.ic_delete_forever,
-						R.string.warning,
-						getApplicationContext().getString(R.string.delete_record_forever, record.getName()),
-						(dialog, which) -> presenter.deleteRecordFromTrash(record.getId(), record.getPath())
+						R.drawable.ic_delete_forever_dark,
+						getString(R.string.warning),
+						getString(R.string.delete_record_forever, record.getName()),
+						v -> presenter.deleteRecordFromTrash(record.getId(), record.getPath())
 				);
 			}
 
 			@Override
 			public void onRestoreItemClick(final RecordItem record) {
-				AndroidUtils.showSimpleDialog(
+				AndroidUtils.showDialogYesNo(
 						TrashActivity.this,
 						R.drawable.ic_restore_from_trash,
-						R.string.warning,
-						getApplicationContext().getString(R.string.restore_record, record.getName()),
-						(dialog, which) -> presenter.restoreRecordFromTrash(record.getId())
+						getString(R.string.warning),
+						getString(R.string.restore_record, record.getName()),
+						v -> presenter.restoreRecordFromTrash(record.getId())
 				);
 			}
 		});

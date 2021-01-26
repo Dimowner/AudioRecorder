@@ -19,7 +19,6 @@ package com.dimowner.audiorecorder.app.browser;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -114,12 +113,12 @@ public class FileBrowserActivity extends Activity implements FileBrowserContract
 
 			@Override
 			public void onRemoveItemClick(final RecordInfo record) {
-				AndroidUtils.showSimpleDialog(
+				AndroidUtils.showDialogYesNo(
 						FileBrowserActivity.this,
-						R.drawable.ic_delete_forever,
-						R.string.warning,
-						getApplicationContext().getString(R.string.delete_record, record.getName()),
-						(dialog, which) -> presenter.deleteRecord(record)
+						R.drawable.ic_delete_forever_dark,
+						getString(R.string.warning),
+						getString(R.string.delete_record, record.getName()),
+						v -> presenter.deleteRecord(record)
 				);
 			}
 		});
