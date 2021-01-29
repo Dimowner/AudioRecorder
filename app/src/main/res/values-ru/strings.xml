@@ -24,6 +24,12 @@
 	<string name="delete_this_record">Удалить эту запись?</string>
 	<string name="delete_record">Переместить в корзину %s?</string>
 	<string name="delete_record_forever">Удалить запись %s навсегда?</string>
+	<plurals name="delete_selected_records">
+		<item quantity="one">Переместить в корзину %d выбранную запись?</item>
+		<item quantity="other">Переместить в корзину %d выбранных записей?</item>
+		<item quantity="few">Переместить в корзину %d выбранные записи?</item>
+		<item quantity="many">Переместить в корзину %d выбранных записей?</item>
+	</plurals>
 	<string name="restore_record">Востановить запись %s?</string>
 	<string name="delete_all_records">Удалить все записи?</string>
 	<string name="all_records_deleted">Все записи удалены успешно</string>
@@ -37,6 +43,7 @@
 	<string name="playback">Воспроизведение: %s</string>
 	<string name="zero_time">00:00</string>
 	<string name="empty">Пусто</string>
+	<string name="selected">%s выбрано</string>
 	<string name="no_records">Нет записей</string>
 	<string name="no_bookmarks">Нет закладок</string>
 	<string name="bookmarks">Закладки</string>
@@ -62,6 +69,7 @@
 	<string name="share">Поделиться</string>
 	<string name="ask_to_rename">Показывать диалог переименования после завершения записи</string>
 	<string name="record_moved_into_trash">Запись перемещена в корзину</string>
+	<string name="selected_records_moved_into_trash">Выбранные записи перемещены в корзину</string>
 	<string name="all_records_deleted_successfully">Все записи удалены успешно</string>
 	<string name="record_deleted_successfully">Запись удалена успешно</string>
 	<string name="record_restored_successfully">Запись восстановлено успешно</string>

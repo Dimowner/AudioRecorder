@@ -74,6 +74,8 @@ public interface RecordsContract {
 		void showRecordInfo(RecordInfo info);
 
 		void showRecordsLostMessage(List<Record> list);
+
+		void cancelMultiSelect();
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<RecordsContract.View> {
@@ -95,6 +97,8 @@ public interface RecordsContract {
 		void deleteActiveRecord();
 
 		void deleteRecord(long id, String path);
+
+		void deleteRecords(List<Long> ids);
 
 		void renameRecord(long id, String name, String extension);
 

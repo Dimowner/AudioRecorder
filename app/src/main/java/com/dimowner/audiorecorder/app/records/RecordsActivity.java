@@ -90,6 +90,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private WaveformViewNew waveformView;
 	private ProgressBar panelProgress;
 	private SeekBar playProgress;
+	private View multiSelectPanel;
+	private TextView txtSelectedCount;
+	private ImageButton btnCloseMulti;
+	private ImageButton btnShareMulti;
+	private ImageButton btnDeleteMulti;
+	private ImageButton btnDownloadMulti;
 
 	private RecordsContract.UserActionsListener presenter;
 	private ColorMap colorMap;
@@ -142,6 +148,18 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnBookmarks.setOnClickListener(this);
 		btnCheckBookmark.setOnClickListener(this);
 		btnSort.setOnClickListener(this);
+
+		multiSelectPanel = findViewById(R.id.menu_multi_select);
+		multiSelectPanel.setBackgroundResource(colorMap.getPrimaryDarkColorRes());
+		txtSelectedCount = findViewById(R.id.txt_selected_multi);
+		btnCloseMulti = findViewById(R.id.btn_close_multi_select);
+		btnCloseMulti.setOnClickListener(this);
+		btnShareMulti = findViewById(R.id.btn_share_multi);
+		btnDeleteMulti = findViewById(R.id.btn_delete_multi);
+		btnDownloadMulti = findViewById(R.id.btn_download_multi);
+		btnShareMulti.setOnClickListener(this);
+		btnDeleteMulti.setOnClickListener(this);
+		btnDownloadMulti.setOnClickListener(this);
 
 		playProgress = findViewById(R.id.play_progress);
 		txtProgress = findViewById(R.id.txt_progress);
@@ -269,6 +287,22 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			}
 		});
 		adapter.setBtnTrashClickListener(() -> startActivity(TrashActivity.getStartIntent(getApplicationContext())));
+		adapter.setOnMultiSelectModeListener(new RecordsAdapter.OnMultiSelectModeListener() {
+			@Override
+			public void onMultiSelectMode(boolean selected) {
+				stopPlayback();
+				if (selected) {
+					multiSelectPanel.setVisibility(View.VISIBLE);
+				} else {
+					multiSelectPanel.setVisibility(View.GONE);
+				}
+			}
+
+			@Override
+			public void onSelectDeselect(int selectedCount) {
+				txtSelectedCount.setText(getString(R.string.selected, selectedCount));
+			}
+		});
 		recyclerView.setAdapter(adapter);
 
 		presenter = ARApplication.getInjector().provideRecordsPresenter();
@@ -387,8 +421,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			//This method Starts or Pause playback.
 			startPlayback();
 		} else if (id == R.id.btn_stop) {
-			presenter.stopPlayback();
-			hidePanel();
+			stopPlayback();
 		} else if (id == R.id.btn_next) {
 			presenter.pausePlayback();
 			final long recId = adapter.getNextTo(presenter.getActiveRecordId());
@@ -449,7 +482,35 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			showMenu(view);
 		} else if (id == R.id.txt_name) {
 			presenter.onRenameClick();
+		} else if (id == R.id.btn_close_multi_select) {
+			cancelMultiSelect();
+		} else if (id == R.id.btn_delete_multi) {
+			int count = adapter.getSelected().size();
+			AndroidUtils.showDialogYesNo(
+					RecordsActivity.this,
+					R.drawable.ic_delete_forever_dark,
+					getString(R.string.warning),
+					this.getResources().getQuantityString(R.plurals.delete_selected_records, count, count),
+					v -> deleteSelectedRecords()
+			);
+		} else if (id == R.id.btn_share_multi) {
+		} else if (id == R.id.btn_download_multi) {
 		}
+	}
+
+	private void deleteSelectedRecords() {
+		List<Long> ids = new ArrayList<>();
+		List<Integer> selected = adapter.getSelected();
+		for (int i = 0; i < selected.size(); i++) {
+			ListItem item = adapter.getItem(selected.get(i));
+			ids.add(item.getId());
+		}
+		presenter.deleteRecords(ids);
+	}
+
+	private void stopPlayback() {
+		presenter.stopPlayback();
+		hidePanel();
 	}
 
 	private void showMenu(View v) {
@@ -722,6 +783,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	@Override
 	public void showRecordsLostMessage(List<Record> list) {
 		AndroidUtils.showLostRecordsDialog(this, list);
+	}
+
+	@Override
+	public void cancelMultiSelect() {
+		multiSelectPanel.setVisibility(View.GONE);
+		adapter.cancelMultiSelect();
 	}
 
 	@Override

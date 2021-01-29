@@ -48,6 +48,8 @@ import java.util.List;
 public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 	private List<ListItem> data;
+	private List<Integer> selected;
+	private boolean isMultiSelectMode = false;
 
 	private final SettingsMapper settingsMapper;
 	private boolean showDateHeaders = true;
@@ -59,9 +61,11 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	private BtnTrashClickListener btnTrashClickListener;
 	private OnAddToBookmarkListener onAddToBookmarkListener = null;
 	private OnItemOptionListener onItemOptionListener = null;
+	private OnMultiSelectModeListener onMultiSelectModeListener = null;
 
 	RecordsAdapter(SettingsMapper mapper) {
 		this.data = new ArrayList<>();
+		this.selected = new ArrayList<>();
 		this.settingsMapper = mapper;
 	}
 
@@ -96,7 +100,54 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			return new UniversalViewHolder(textView);
 		} else {
 			View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item, viewGroup, false);
-			return new ItemViewHolder(v);
+			return new ItemViewHolder(v, position -> {
+				if (isMultiSelectMode) {
+					if (!selected.contains(position)) {
+						selected.add(position);
+					} else {
+						int pos = selected.indexOf(position);
+						if (pos != -1) {
+							selected.remove(pos);
+							if (selected.size() == 0) {
+								isMultiSelectMode = !isMultiSelectMode;
+								notifyDataSetChanged();
+								if (onMultiSelectModeListener != null) {
+									onMultiSelectModeListener.onMultiSelectMode(false);
+								}
+							}
+						}
+					}
+					if (onMultiSelectModeListener != null) {
+						onMultiSelectModeListener.onSelectDeselect(selected.size());
+					}
+					notifyItemChanged(position);
+				} else {
+					if (itemClickListener != null && data.size() > position) {
+						itemClickListener.onItemClick(v, data.get(position).getId(), data.get(position).getPath(), position);
+					}
+				}
+			}, position -> {
+				isMultiSelectMode = !isMultiSelectMode;
+				notifyDataSetChanged();
+				if (onMultiSelectModeListener != null) {
+					onMultiSelectModeListener.onMultiSelectMode(isMultiSelectMode);
+				}
+				if (isMultiSelectMode) {
+					if (!selected.contains(position)) {
+						selected.add(position);
+						notifyItemChanged(position);
+					}
+				} else {
+					selected.clear();
+					if (onMultiSelectModeListener != null) {
+						onMultiSelectModeListener.onMultiSelectMode(false);
+					}
+					notifyDataSetChanged();
+				}
+				if (onMultiSelectModeListener != null) {
+					onMultiSelectModeListener.onSelectDeselect(selected.size());
+				}
+			});
 		}
 	}
 
@@ -117,7 +168,11 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			if (viewHolder.getLayoutPosition() == activeItem) {
 				holder.view.setBackgroundResource(R.color.selected_item_color);
 			} else {
-				holder.view.setBackgroundResource(android.R.color.transparent);
+				if (selected.contains(p)) {
+					holder.view.setBackgroundResource(R.color.selected_item_color);
+				} else {
+					holder.view.setBackgroundResource(android.R.color.transparent);
+				}
 			}
 
 			holder.btnBookmark.setOnClickListener(v -> {
@@ -131,13 +186,11 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			});
 			holder.btnMore.setOnClickListener(v -> showMenu(v, p));
 			holder.waveformView.setWaveform(item.getAmps());
-
-			holder.view.setOnClickListener(v -> {
-				if (itemClickListener != null && data.size() > p) {
-					int lpos = viewHolder.getLayoutPosition();
-					itemClickListener.onItemClick(v, data.get(lpos).getId(), data.get(lpos).getPath(), lpos);
-				}
-			});
+			if (isMultiSelectMode) {
+				holder.btnMore.setVisibility(View.GONE);
+			} else {
+				holder.btnMore.setVisibility(View.VISIBLE);
+			}
 			updateInformation(holder.info, item.getFormat(), item.getSampleRate(), item.getSize());
 		} else if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_DATE) {
 			UniversalViewHolder holder = (UniversalViewHolder) viewHolder;
@@ -500,6 +553,19 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		return container;
 	}
 
+	public List<Integer> getSelected() {
+		return selected;
+	}
+
+	public void cancelMultiSelect() {
+		selected.clear();
+		isMultiSelectMode = false;
+		notifyDataSetChanged();
+		if (onMultiSelectModeListener != null) {
+			onMultiSelectModeListener.onMultiSelectMode(false);
+		}
+	}
+
 	public void setBtnTrashClickListener(BtnTrashClickListener btnTrashClickListener) {
 		this.btnTrashClickListener = btnTrashClickListener;
 	}
@@ -524,6 +590,10 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		this.onItemOptionListener = onItemOptionListener;
 	}
 
+	void setOnMultiSelectModeListener(OnMultiSelectModeListener listener) {
+		this.onMultiSelectModeListener = listener;
+	}
+
 	interface OnAddToBookmarkListener {
 		void onAddToBookmarks(int id);
 		void onRemoveFromBookmarks(int id);
@@ -543,9 +613,26 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		SimpleWaveformView waveformView;
 		View view;
 
-		ItemViewHolder(View itemView) {
+		ItemViewHolder(
+				View itemView,
+				OnItemClickListener onItemClickListener,
+				OnItemLongClickListener longClickListener
+		) {
 			super(itemView);
 			view = itemView;
+			view.setOnClickListener(v -> {
+				int pos = getAdapterPosition();
+				if (pos != RecyclerView.NO_POSITION && onItemClickListener != null) {
+					onItemClickListener.onItemClick(pos);
+				}
+			});
+			view.setOnLongClickListener(v -> {
+				int pos = getAdapterPosition();
+				if (pos != RecyclerView.NO_POSITION && longClickListener != null) {
+					longClickListener.onItemLongClick(pos);
+				}
+				return false;
+			});
 			name = itemView.findViewById(R.id.list_item_name);
 			description = itemView.findViewById(R.id.list_item_description);
 			created = itemView.findViewById(R.id.list_item_date);
@@ -563,5 +650,18 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			super(view);
 			this.view = view;
 		}
+	}
+
+	private interface OnItemClickListener {
+		void onItemClick(int position);
+	}
+
+	private interface OnItemLongClickListener {
+		void onItemLongClick(int position);
+	}
+
+	public interface OnMultiSelectModeListener {
+		void onMultiSelectMode(boolean selected);
+		void onSelectDeselect(int selectedCount);
 	}
 }

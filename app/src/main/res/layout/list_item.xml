@@ -29,8 +29,8 @@
 			android:id="@+id/list_item_waveform"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/item_waveform_height"
-			android:layout_marginStart="@dimen/spacing_normal"
-			android:layout_marginEnd="@dimen/spacing_double"
+			android:layout_marginStart="@dimen/spacing_small"
+			android:layout_marginEnd="@dimen/spacing_small"
 			android:layout_marginBottom="@dimen/spacing_tiny"
 			android:layout_marginTop="@dimen/spacing_tiny"
 			android:layout_gravity="start|center_vertical"/>

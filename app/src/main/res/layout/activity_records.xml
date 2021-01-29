@@ -102,6 +102,75 @@
 
 	</LinearLayout>
 
+	<LinearLayout
+			android:id="@+id/menu_multi_select"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="@color/md_grey_700"
+			android:visibility="gone"
+			android:orientation="horizontal"
+			android:elevation="@dimen/toolbar_elevation"
+			tools:visibility="visible">
+
+		<ImageButton
+				android:id="@+id/btn_close_multi_select"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@null"
+				android:layout_gravity="start"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:padding="@dimen/spacing_normal"
+				android:src="@drawable/ic_round_close"/>
+
+		<TextView
+				style="@style/Text.SectionLabel"
+				android:id="@+id/txt_selected_multi"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:layout_gravity="center_vertical"
+				android:paddingStart="@dimen/spacing_normal"
+				android:paddingLeft="@dimen/spacing_normal"
+				android:paddingEnd="@dimen/spacing_normal"
+				android:paddingRight="@dimen/spacing_normal"
+				android:textColor="@color/text_primary_light"
+				android:text="@string/selected"
+				/>
+
+		<ImageButton
+				android:id="@+id/btn_share_multi"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@null"
+				android:layout_gravity="center_vertical|end"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:padding="@dimen/spacing_normal"
+				android:visibility="gone"
+				android:src="@drawable/ic_share"/>
+
+		<ImageButton
+				android:id="@+id/btn_download_multi"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@null"
+				android:layout_gravity="center_vertical|end"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:padding="@dimen/spacing_normal"
+				android:visibility="gone"
+				android:src="@drawable/ic_save_alt"/>
+
+		<ImageButton
+				android:id="@+id/btn_delete_multi"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@null"
+				android:layout_gravity="center_vertical|end"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:padding="@dimen/spacing_normal"
+				android:src="@drawable/ic_delete"/>
+
+	</LinearLayout>
+
 	<View
 			android:id="@+id/bottomDivider"
 			android:layout_width="match_parent"

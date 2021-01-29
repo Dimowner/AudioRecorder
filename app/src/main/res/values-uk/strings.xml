@@ -24,6 +24,12 @@
 	<string name="delete_this_record">Видалити цей запис?</string>
 	<string name="delete_record">Перемістити в кошик %s?</string>
 	<string name="delete_record_forever">Видалити запис %s назавжди?</string>
+	<plurals name="delete_selected_records">
+		<item quantity="one">Перемістити в кошик %d вибраний запис?</item>
+		<item quantity="other">Перемістити в кошик %d вибраних записів?</item>
+		<item quantity="few">Перемістити в кошик %d вибрані записи?</item>
+		<item quantity="many">Перемістити в кошик %d вибраних записів?</item>
+	</plurals>
 	<string name="restore_record">Відновити запис %s?</string>
 	<string name="delete_all_records">Видалити всі записи?</string>
 	<string name="all_records_deleted">Всі записи видалено успішно</string>
@@ -37,6 +43,7 @@
 	<string name="playback">Відтворення: %s</string>
 	<string name="zero_time">00:00</string>
 	<string name="empty">Пусто</string>
+	<string name="selected">%s вибрано</string>
 	<string name="no_records">Нема записів</string>
 	<string name="no_bookmarks">Закладки порожні</string>
 	<string name="bookmarks">Закладки</string>
@@ -62,6 +69,7 @@
 	<string name="share">Поділитися</string>
 	<string name="ask_to_rename">Показувати діалог перейменування після завершення звукозапису</string>
 	<string name="record_moved_into_trash">Запис переміщено в кошик</string>
+	<string name="selected_records_moved_into_trash">Вибрані записи переміщені в кошик </string>
 	<string name="all_records_deleted_successfully">Всі записи видалені успішно</string>
 	<string name="record_deleted_successfully">Запис видалено успішно</string>
 	<string name="record_restored_successfully">Запис відновлено успішно</string>
