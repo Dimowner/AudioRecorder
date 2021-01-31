@@ -330,7 +330,6 @@ public class WavRecorder implements RecorderContract.Recorder {
 			if (recorderCallback != null && recorder != null) {
 				recorderCallback.onRecordProgress(System.currentTimeMillis() - startTime, lastVal);
 				scheduleRecordingTimeUpdate();
-				Timber.v("SystemTime = %s", System.currentTimeMillis());
 			}
 		}, VISUALIZATION_INTERVAL);
 	}

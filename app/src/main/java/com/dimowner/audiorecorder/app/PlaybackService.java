@@ -37,6 +37,7 @@ import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.main.MainActivity;
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew;
 import com.dimowner.audiorecorder.exception.AppException;
+import com.dimowner.audiorecorder.util.TimeUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -124,6 +125,7 @@ public class PlaybackService extends Service {
 		recordName = name;
 		if (playerCallback == null) {
 			playerCallback = new PlayerContractNew.PlayerCallback() {
+				int prevSec = 0;
 				@Override public void onError(@NotNull AppException throwable) {
 					stopForegroundService();
 				}
@@ -134,7 +136,13 @@ public class PlaybackService extends Service {
 				@Override public void onPausePlay() {
 					onPausePlayback();
 				}
-				@Override public void onPlayProgress(long mills) {}
+				@Override public void onPlayProgress(long mills) {
+					int curSec = (int)(mills/1000);
+					if (curSec > prevSec) {
+						updateNotification(mills);
+					}
+					prevSec = curSec;
+				}
 				@Override public void onStartPlay() {
 					onStartPlayback();
 				}
@@ -218,6 +226,17 @@ public class PlaybackService extends Service {
 		} else {
 			Timber.d("Channel already exists: %s", CHANNEL_ID);
 		}
+	}
+
+	private void updateNotification(long mills) {
+		Timber.v("updateNotification: " + mills);
+		remoteViewsSmall.setTextViewText(R.id.txt_playback_progress,
+				getResources().getString(R.string.playback, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
+
+//		remoteViewsBig.setTextViewText(R.id.txt_playback_progress,
+//				getResources().getString(R.string.playback, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
+
+		notificationManager.notify(NOTIF_ID, builder.build());
 	}
 
 	public void onPausePlayback() {

@@ -43,6 +43,7 @@ import com.dimowner.audiorecorder.app.main.MainActivity;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
+import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
 
@@ -88,6 +89,7 @@ public class RecordingService extends Service {
 		fileRepository = ARApplication.getInjector().provideFileRepository();
 
 		appRecorderCallback = new AppRecorderCallback() {
+			int prevSec = 0;
 			@Override public void onRecordingStarted(File file) {
 				updateNotificationResume();
 			}
@@ -101,6 +103,11 @@ public class RecordingService extends Service {
 
 			@Override
 			public void onRecordingProgress(long mills, int amp) {
+				int curSec = (int)(mills/1000);
+				if (curSec > prevSec) {
+					updateNotification(mills);
+				}
+				prevSec = curSec;
 				try {
 					if (mills % (5 * AppConstants.VISUALIZATION_INTERVAL * AppConstants.SHORT_RECORD_DP_PER_SECOND) == 0
 								&& !fileRepository.hasAvailableSpace(getApplicationContext())) {
@@ -261,7 +268,7 @@ public class RecordingService extends Service {
 
 	private void updateNotificationResume() {
 		if (started && remoteViewsSmall != null) {
-			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress, getResources().getString(R.string.recording_is_on));
+//			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress, getResources().getString(R.string.recording_is_on));
 			remoteViewsSmall.setImageViewResource(R.id.btn_recording_pause, R.drawable.ic_pause);
 
 			notificationManager.notify(NOTIF_ID, notification);
@@ -269,16 +276,15 @@ public class RecordingService extends Service {
 	}
 
 	private void updateNotification(long mills) {
-//		Timber.v("updateNotification mills = %s", mills);
-//		if (started && remoteViewsSmall != null) {
-//			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress,
+		if (started && remoteViewsSmall != null) {
+			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress,
+					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
+
+//			remoteViewsBig.setTextViewText(R.id.txt_recording_progress,
 //					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
-//
-////			remoteViewsBig.setTextViewText(R.id.txt_recording_progress,
-////					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
-//
-//			notificationManager.notify(NOTIF_ID, notification);
-//		}
+
+			notificationManager.notify(NOTIF_ID, notification);
+		}
 	}
 
 	public static class StopRecordingReceiver extends BroadcastReceiver {

@@ -172,7 +172,6 @@ public class ThreeGpRecorder implements RecorderContract.Recorder {
 					Timber.e(e);
 				}
 				scheduleRecordingTimeUpdate();
-				Timber.v("SystemTime = %s", System.currentTimeMillis());
 			}
 		}, VISUALIZATION_INTERVAL);
 	}
