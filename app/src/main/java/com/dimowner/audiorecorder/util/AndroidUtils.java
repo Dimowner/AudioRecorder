@@ -353,6 +353,28 @@ public class AndroidUtils {
 		}
 	}
 
+	public static void shareAudioFiles(Context context, List<String> list) {
+		Intent intent = new Intent();
+		intent.setAction(Intent.ACTION_SEND_MULTIPLE);
+		intent.setType("audio/*");
+		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+		ArrayList<Uri> files = new ArrayList<>();
+		for(String path : list) {
+			Uri uri = FileProvider.getUriForFile(
+					context,
+					context.getApplicationContext().getPackageName() + ".app_file_provider",
+					new File(path)
+			);
+			files.add(uri);
+		}
+		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files);
+		String text = context.getResources().getQuantityString(R.plurals.share_records_count, list.size(), list.size());
+		Intent chooser = Intent.createChooser(intent, text);
+		chooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(chooser);
+	}
+
 	public static void openAudioFile(Context context, String sharePath, String name) {
 		if (sharePath != null) {
 			Uri fileUri = FileProvider.getUriForFile(

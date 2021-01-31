@@ -225,6 +225,7 @@ public class FileRepositoryImpl implements FileRepository {
 	public boolean hasAvailableSpace(Context context) throws IllegalArgumentException {
 		long space;
 		if (prefs.isStoreDirPublic()) {
+//			TODO: deprecated fix this
 			space = FileUtil.getAvailableExternalMemorySize();
 		} else {
 			space = FileUtil.getAvailableInternalMemorySize(context);

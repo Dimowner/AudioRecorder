@@ -74,7 +74,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 //	TODO: Bluetooth micro support
 //	TODO: Mp3 support
 //	TODO: Add Noise gate
-//	TODO: Multi select and deletion
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -610,7 +609,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void downloadRecord(Record record) {
 		if (checkStoragePermissionDownload()) {
-			DownloadService.startNotification(getApplicationContext(), record.getNameWithExtension(), record.getPath());
+			DownloadService.startNotification(getApplicationContext(), record.getPath());
 		}
 	}
 

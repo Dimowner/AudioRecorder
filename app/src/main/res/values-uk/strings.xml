@@ -30,6 +30,12 @@
 		<item quantity="few">Перемістити в кошик %d вибрані записи?</item>
 		<item quantity="many">Перемістити в кошик %d вибраних записів?</item>
 	</plurals>
+	<plurals name="download_selected_records">
+		<item quantity="one">Скопіювати %d вибраний запис в папку Download?</item>
+		<item quantity="other">Скопіювати %d вибраних записів в папку Download?</item>
+		<item quantity="few">Скопіювати %d вибрані записи в папку Download?</item>
+		<item quantity="many">Скопіювати %d вибраних записів в папку Download?</item>
+	</plurals>
 	<string name="restore_record">Відновити запис %s?</string>
 	<string name="delete_all_records">Видалити всі записи?</string>
 	<string name="all_records_deleted">Всі записи видалено успішно</string>
@@ -43,11 +49,17 @@
 	<string name="playback">Відтворення: %s</string>
 	<string name="zero_time">00:00</string>
 	<string name="empty">Пусто</string>
-	<string name="selected">%s вибрано</string>
+	<string name="selected">%d вибрано</string>
 	<string name="no_records">Нема записів</string>
 	<string name="no_bookmarks">Закладки порожні</string>
 	<string name="bookmarks">Закладки</string>
 	<string name="share_record">Поділитися записом: %s</string>
+	<plurals name="share_records_count">
+		<item quantity="one">Поділитися %d записом</item>
+		<item quantity="other">Поділитися %d записами</item>
+		<item quantity="few">Поділитися %d записами</item>
+		<item quantity="many">Поділитися %d записами</item>
+	</plurals>
 	<string name="import_progress">Імпортування аудіо файла&#8230;</string>
 	<string name="btn_import">Імпорт</string>
 	<string name="record_processing">Обробка запису для відображення&#8230;</string>
@@ -63,8 +75,22 @@
 	<string name="open_with">Відкрити з допомогою&#823;</string>
 	<string name="download">Скачати</string>
 	<string name="downloading">Скачування: %s</string>
-	<string name="downloading_success">%s скачано папку Download</string>
+	<plurals name="downloading_success_count">
+		<item quantity="one">%d запис успішно завантажено</item>
+		<item quantity="other">%d записів успішно завантажено</item>
+		<item quantity="few">%d записи успішно завантажено</item>
+		<item quantity="many">%d записів успішно завантажено</item>
+	</plurals>
+	<string name="downloading_success_and_fail_count">%d записів успішно завантажено, та %d не вдалося завантажити</string>
+	<string name="downloading_success">%s скачано в папку Download</string>
+	<plurals name="downloading_failed_count">
+		<item quantity="one">Не вдалося завантажити %d запис</item>
+		<item quantity="other">Не вдалося завантажити %d записів</item>
+		<item quantity="few">Не вдалося завантажити %d записи</item>
+		<item quantity="many">Не вдалося завантажити %d записів</item>
+	</plurals>
 	<string name="downloading_failed">Помилка при скачувані: %s</string>
+	<string name="downloading_failed_file_already_exists">Не вдалося завантажити. Файл з ім\'ям %s уже існує</string>
 	<string name="downloading_cancel">Скачування відмінено</string>
 	<string name="share">Поділитися</string>
 	<string name="ask_to_rename">Показувати діалог перейменування після завершення звукозапису</string>

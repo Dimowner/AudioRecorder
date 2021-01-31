@@ -342,6 +342,54 @@ public class AudioDecoder {
 		}
 	}
 
+	public static String readRecordMime(@NonNull final File inputFile) {
+		try {
+			if (!inputFile.exists()) {
+				throw new java.io.FileNotFoundException(inputFile.getAbsolutePath());
+			}
+			String name = inputFile.getName().toLowerCase();
+			String[] components = name.split("\\.");
+			if (components.length < 2) {
+				throw new IOException();
+			}
+
+			final MediaExtractor extractor = new MediaExtractor();
+			MediaFormat format = null;
+			int i;
+
+			extractor.setDataSource(inputFile.getPath());
+			int numTracks = extractor.getTrackCount();
+			// find and select the first audio track present in the file.
+			for (i = 0; i < numTracks; i++) {
+				format = extractor.getTrackFormat(i);
+				try {
+					if (format.getString(MediaFormat.KEY_MIME).startsWith("audio/")) {
+						extractor.selectTrack(i);
+						break;
+					}
+				} catch (Exception e) {
+					Timber.e(e);
+				}
+			}
+
+			if (i == numTracks || format == null) {
+				throw new IOException("No audio track found in " + inputFile.toString());
+			}
+
+			String mimeType;
+			try {
+				mimeType= format.getString(MediaFormat.KEY_MIME);
+			} catch (Exception e) {
+				Timber.e(e);
+				mimeType = "";
+			}
+			return mimeType;
+		} catch (Exception e) {
+			Timber.e(e);
+		}
+		return "audio/*";
+	}
+
 	private static String readFileFormat(File file, String mime) {
 		String name = file.getName().toLowerCase();
 		if (name.contains(AppConstants.FORMAT_M4A) || (mime != null && mime.contains("audio") && mime.contains("mp4a"))) {

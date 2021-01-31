@@ -37,10 +37,12 @@ import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.main.MainActivity;
-import com.dimowner.audiorecorder.util.FileUtil;
+import com.dimowner.audiorecorder.util.DownloadManagerKt;
 import com.dimowner.audiorecorder.util.OnCopyListener;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.core.app.NotificationManagerCompat;
 import timber.log.Timber;
@@ -58,14 +60,13 @@ public class DownloadService extends Service {
 	public static final String ACTION_STOP_DOWNLOAD_SERVICE = "ACTION_STOP_DOWNLOAD_SERVICE";
 	public static final String ACTION_CANCEL_DOWNLOAD = "ACTION_CANCEL_DOWNLOAD";
 
-	public static final String EXTRAS_KEY_RECORD_NAME = "key_record_name";
-	public static final String EXTRAS_KEY_RECORD_PATH = "key_record_path";
+	public static final String EXTRAS_KEY_DOWNLOAD_INFO = "key_download_info";
 
 	private static final int NOTIF_ID = 103;
 	private NotificationCompat.Builder builder;
 	private NotificationManagerCompat notificationManager;
 	private RemoteViews remoteViewsSmall;
-	private String recordName = "";
+	private String downloadingRecordName = "";
 	private BackgroundQueue copyTasks;
 	private ColorMap colorMap;
 	private boolean isCancel = false;
@@ -73,11 +74,16 @@ public class DownloadService extends Service {
 	public DownloadService() {
 	}
 
-	public static void startNotification(Context context, String name, String path) {
+	public static void startNotification(Context context, String downloadInfo) {
+		ArrayList<String> list = new ArrayList<>();
+		list.add(downloadInfo);
+		startNotification(context, list);
+	}
+
+	public static void startNotification(Context context, ArrayList<String> downloadInfoList) {
 		Intent intent = new Intent(context, DownloadService.class);
 		intent.setAction(ACTION_START_DOWNLOAD_SERVICE);
-		intent.putExtra(EXTRAS_KEY_RECORD_NAME, name);
-		intent.putExtra(EXTRAS_KEY_RECORD_PATH, path);
+		intent.putStringArrayListExtra(EXTRAS_KEY_DOWNLOAD_INFO, downloadInfoList);
 		context.startService(intent);
 	}
 
@@ -101,11 +107,8 @@ public class DownloadService extends Service {
 			if (action != null && !action.isEmpty()) {
 				switch (action) {
 					case ACTION_START_DOWNLOAD_SERVICE:
-						if (intent.hasExtra(EXTRAS_KEY_RECORD_NAME) && intent.hasExtra(EXTRAS_KEY_RECORD_PATH)) {
-							startDownload(
-									intent.getStringExtra(EXTRAS_KEY_RECORD_NAME),
-									intent.getStringExtra(EXTRAS_KEY_RECORD_PATH)
-							);
+						if (intent.hasExtra(EXTRAS_KEY_DOWNLOAD_INFO)) {
+							startDownload(intent.getStringArrayListExtra(EXTRAS_KEY_DOWNLOAD_INFO));
 						}
 						break;
 					case ACTION_STOP_DOWNLOAD_SERVICE:
@@ -121,64 +124,61 @@ public class DownloadService extends Service {
 		return super.onStartCommand(intent, flags, startId);
 	}
 
-	public void startDownload(String name, String path) {
-		if (name == null || path == null) {
+	public void startDownload(ArrayList<String> list) {
+		if (list == null || list.isEmpty()) {
 			stopService();
 		} else {
-			recordName = name;
-			copyFile(name, path);
+			List<File> files = new ArrayList<>();
+			for (int i = 0; i < list.size(); i++) {
+				files.add(new File(list.get(i)));
+			}
+			copyFiles(files);
 			startNotification();
 		}
 	}
 
-	private void copyFile(final String name, final String path) {
+	private void copyFiles(final List<File> list) {
 		isCancel = false;
 		copyTasks.postRunnable(new Runnable() {
 			long prevTime = 0;
 			@Override
 			public void run() {
-				File file = new File(path, name);
-				if (!file.exists()) {
-					File created = FileUtil.createFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), name);
-					if (created != null) {
-						FileUtil.copyFile(new File(path), created,
-								new OnCopyListener() {
-									@Override
-									public boolean isCancel() {
-										return isCancel;
-									}
+				DownloadManagerKt.downloadFiles(getApplicationContext(), list,
+						new OnCopyListener() {
+							@Override
+							public boolean isCancel() {
+								return isCancel;
+							}
 
-									@Override
-									public void onCopyProgress(int percent, final long progress, final long total) {
-										long curTime = System.currentTimeMillis();
-										if (percent >= 95) {
-											percent = 100;
-										}
-										if (percent == 100 || curTime > prevTime + 500) {
-											updateNotification(percent);
-											prevTime = curTime;
-										}
-									}
+							@Override
+							public void onCopyProgress(int percent) {
+								long curTime = System.currentTimeMillis();
+								if (percent >= 95) {
+									percent = 100;
+								}
+								if (percent == 100 || curTime > prevTime + 200) {
+									updateNotification(percent);
+									prevTime = curTime;
+								}
+							}
 
-									@Override
-									public void onCanceled() {
-										Toast.makeText(getApplicationContext(), R.string.downloading_cancel, Toast.LENGTH_LONG).show();
-										stopService();
-									}
+							@Override
+							public void onCanceled() {
+								Toast.makeText(getApplicationContext(), R.string.downloading_cancel, Toast.LENGTH_LONG).show();
+								stopService();
+							}
 
-									@Override
-									public void onCopyFinish() {
-										Toast.makeText(getApplicationContext(), getResources().getString(R.string.downloading_success, name), Toast.LENGTH_LONG).show();
-										stopService();
-									}
-								});
-					} else {
-						Toast.makeText(getApplicationContext(), getResources().getString(R.string.downloading_failed, name), Toast.LENGTH_LONG).show();
-					}
-				} else {
-					stopService();
-					Toast.makeText(getApplicationContext(), getResources().getString(R.string.downloading_failed, name), Toast.LENGTH_LONG).show();
-				}
+							@Override
+							public void onCopyFinish(String message) {
+								Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+								stopService();
+							}
+
+							@Override
+							public void onError(String message) {
+								Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+							}
+						});
 				stopService();
 			}
 		});
@@ -193,7 +193,7 @@ public class DownloadService extends Service {
 
 		remoteViewsSmall = new RemoteViews(getPackageName(), R.layout.layout_download_notification);
 		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_close, getPendingSelfIntent(getApplicationContext(), ACTION_CANCEL_DOWNLOAD));
-		remoteViewsSmall.setTextViewText(R.id.txt_name, getResources().getString(R.string.downloading, recordName));
+		remoteViewsSmall.setTextViewText(R.id.txt_name, getResources().getString(R.string.downloading, downloadingRecordName));
 		remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
 		// Create notification default intent.
@@ -240,7 +240,7 @@ public class DownloadService extends Service {
 			NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
 			chan.setLightColor(Color.BLUE);
 			chan.setLockscreenVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-			chan.setSound(null,null);
+			chan.setSound(null, null);
 			chan.enableLights(false);
 			chan.enableVibration(false);
 

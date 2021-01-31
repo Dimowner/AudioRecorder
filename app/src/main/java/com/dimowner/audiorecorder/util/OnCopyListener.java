@@ -22,7 +22,8 @@ package com.dimowner.audiorecorder.util;
  */
 public interface OnCopyListener {
 	boolean isCancel();
-	void onCopyProgress(int percent, long progress, long total);
+	void onCopyProgress(int percent);
 	void onCanceled();
-	void onCopyFinish();
+	void onCopyFinish(String message);
+	void onError(String message);
 }

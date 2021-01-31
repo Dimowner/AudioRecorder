@@ -108,7 +108,7 @@ public class FileBrowserActivity extends Activity implements FileBrowserContract
 
 			@Override
 			public void onDownloadItemClick(RecordInfo record) {
-				DownloadService.startNotification(getApplicationContext(), record.getNameWithExtension(), record.getLocation());
+				DownloadService.startNotification(getApplicationContext(), record.getLocation());
 			}
 
 			@Override

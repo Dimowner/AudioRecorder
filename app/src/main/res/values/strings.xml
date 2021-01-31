@@ -28,6 +28,10 @@
 		<item quantity="one">Move to trash %d selected record?</item>
 		<item quantity="other">Move to trash %d selected records?</item>
 	</plurals>
+	<plurals name="download_selected_records">
+		<item quantity="one">Copy %d selected record to the Download folder?</item>
+		<item quantity="other">Copy %d selected records to the Download folder?</item>
+	</plurals>
 	<string name="restore_record">Restore record %s?</string>
 	<string name="delete_all_records">Delete all records?</string>
 	<string name="all_records_deleted">All records deleted successfully</string>
@@ -41,11 +45,15 @@
 	<string name="playback">Playback: %s</string>
 	<string name="zero_time">00:00</string>
 	<string name="empty">Empty</string>
-	<string name="selected">%d selected</string>
+	<string name="selected"> %d selected</string>
 	<string name="no_records">Records is empty</string>
 	<string name="no_bookmarks">Bookmarks is empty</string>
 	<string name="bookmarks">Bookmarks</string>
 	<string name="share_record">Share record: %s</string>
+	<plurals name="share_records_count">
+		<item quantity="one">Share %d record</item>
+		<item quantity="other">Share %d records</item>
+	</plurals>
 	<string name="import_progress">Audio file import&#8230;</string>
 	<string name="btn_import">Import</string>
 	<string name="record_processing">Waveform drawing calculations&#8230;</string>
@@ -61,8 +69,18 @@
 	<string name="open_with">Open with&#823;</string>
 	<string name="download">Download</string>
 	<string name="downloading">Downloading: %s</string>
+	<plurals name="downloading_success_count">
+		<item quantity="one">%d record downloaded successfully</item>
+		<item quantity="other">%d records downloaded successfully</item>
+	</plurals>
+	<string name="downloading_success_and_fail_count">%d records downloaded successfully and %d failed to download</string>
 	<string name="downloading_success">%s downloaded to the Download directory</string>
+	<plurals name="downloading_failed_count">
+		<item quantity="one">Failed to download %d record</item>
+		<item quantity="other">Failed to download %d records</item>
+	</plurals>
 	<string name="downloading_failed">Failed to download: %s</string>
+	<string name="downloading_failed_file_already_exists">Failed to download. File with name %s already exists</string>
 	<string name="downloading_cancel">Downloading canceled</string>
 	<string name="share">Share</string>
 	<string name="ask_to_rename">Show rename dialog after recording is completed</string>

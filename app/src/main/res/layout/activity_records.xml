@@ -106,7 +106,7 @@
 			android:id="@+id/menu_multi_select"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:background="@color/md_grey_700"
+			android:background="@color/md_blue_gray_500"
 			android:visibility="gone"
 			android:orientation="horizontal"
 			android:elevation="@dimen/toolbar_elevation"
@@ -145,7 +145,6 @@
 				android:layout_gravity="center_vertical|end"
 				android:background="?android:selectableItemBackgroundBorderless"
 				android:padding="@dimen/spacing_normal"
-				android:visibility="gone"
 				android:src="@drawable/ic_share"/>
 
 		<ImageButton
@@ -156,7 +155,6 @@
 				android:layout_gravity="center_vertical|end"
 				android:background="?android:selectableItemBackgroundBorderless"
 				android:padding="@dimen/spacing_normal"
-				android:visibility="gone"
 				android:src="@drawable/ic_save_alt"/>
 
 		<ImageButton

@@ -28,7 +28,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
@@ -100,8 +99,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private RecordsContract.UserActionsListener presenter;
 	private ColorMap colorMap;
 
-	private String tempName = null;
-	private String tempPath = null;
+	final private List<String> downloadRecords = new ArrayList<>();
 
 	public static Intent getStartIntent(Context context) {
 		Intent intent = new Intent(context, RecordsActivity.class);
@@ -269,12 +267,10 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 					//Download record file with Service
 					DownloadService.startNotification(
 							getApplicationContext(),
-							item.getNameWithExtension(),
 							item.getPath()
 					);
 				} else {
-					tempName = item.getNameWithExtension();
-					tempPath = item.getPath();
+					downloadRecords.add(item.getPath());
 				}
 			} else if (menuId == R.id.menu_delete) {
 				AndroidUtils.showDialogYesNo(
@@ -300,7 +296,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 			@Override
 			public void onSelectDeselect(int selectedCount) {
-				txtSelectedCount.setText(getString(R.string.selected, selectedCount));
+				txtSelectedCount.setText(getResources().getString(R.string.selected, selectedCount));
 			}
 		});
 		recyclerView.setAdapter(adapter);
@@ -494,7 +490,44 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 					v -> deleteSelectedRecords()
 			);
 		} else if (id == R.id.btn_share_multi) {
+			shareSelectedRecords();
 		} else if (id == R.id.btn_download_multi) {
+			int count = adapter.getSelected().size();
+			AndroidUtils.showDialogYesNo(
+					RecordsActivity.this,
+					R.drawable.ic_save_alt_dark,
+					getString(R.string.download),
+					this.getResources().getQuantityString(R.plurals.download_selected_records, count, count),
+					v -> downloadSelectedRecords()
+			);
+		}
+	}
+
+	private void shareSelectedRecords() {
+		List<Integer> selected = adapter.getSelected();
+		List<String> share = new ArrayList<>();
+		for (int i = 0; i < selected.size(); i++) {
+			ListItem item = adapter.getItem(selected.get(i));
+			share.add(item.getPath());
+		}
+		AndroidUtils.shareAudioFiles(getApplicationContext(), share);
+		cancelMultiSelect();
+	}
+
+	private void downloadSelectedRecords() {
+		List<Integer> selected = adapter.getSelected();
+		for (int i = 0; i < selected.size(); i++) {
+			ListItem item = adapter.getItem(selected.get(i));
+			downloadRecords.add(item.getPath());
+		}
+		if (checkStoragePermissionDownload()) {
+			//Download record file with Service
+			DownloadService.startNotification(
+					getApplicationContext(),
+					new ArrayList<>(downloadRecords)
+			);
+			downloadRecords.clear();
+			cancelMultiSelect();
 		}
 	}
 
@@ -857,15 +890,13 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE_DOWNLOAD && grantResults.length > 0
 			&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-			if (!TextUtils.isEmpty(tempName) && !TextUtils.isEmpty(tempPath)) {
+			if (!downloadRecords.isEmpty()) {
 				//Download record file with Service
 				DownloadService.startNotification(
 						getApplicationContext(),
-						tempName,
-						tempPath
+						new ArrayList<>(downloadRecords)
 				);
-				tempName = null;
-				tempPath = null;
+				downloadRecords.clear();
 			}
 		}
 	}
