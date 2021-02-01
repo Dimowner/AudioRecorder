@@ -81,12 +81,16 @@ public class FileUtil {
 		return AppConstants.BASE_RECORD_NAME + counter;
 	}
 
-	public static String generateRecordNameDate() {
-		return AppConstants.BASE_RECORD_NAME_SHORT + TimeUtils.formatDateForName(System.currentTimeMillis());
-	}
+//	public static String generateRecordNameDate() {
+//		return AppConstants.BASE_RECORD_NAME_SHORT + TimeUtils.formatDateForName(System.currentTimeMillis());
+//	}
 
 	public static String generateRecordNameDateVariant() {
 		return TimeUtils.formatDateForNameVariant(System.currentTimeMillis());
+	}
+
+	public static String generateRecordNameDateUS() {
+		return TimeUtils.formatDateForNameUS(System.currentTimeMillis());
 	}
 
 	public static String generateRecordNameMills() {

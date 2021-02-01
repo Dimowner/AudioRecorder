@@ -194,7 +194,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			updateInformation(holder.info, item.getFormat(), item.getSampleRate(), item.getSize());
 		} else if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_DATE) {
 			UniversalViewHolder holder = (UniversalViewHolder) viewHolder;
-			((TextView)holder.view).setText(TimeUtils.formatDateSmart(data.get(viewHolder.getAdapterPosition()).getAdded(), holder.view.getContext()));
+			((TextView)holder.view).setText(TimeUtils.formatDateSmartLocale(data.get(viewHolder.getAdapterPosition()).getAdded(), holder.view.getContext()));
 		}
 	}
 

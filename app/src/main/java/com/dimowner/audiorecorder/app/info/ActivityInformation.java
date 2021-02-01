@@ -76,7 +76,7 @@ public class ActivityInformation extends Activity {
 					txtDuration.setText(TimeUtils.formatTimeIntervalHourMinSec2(info.getDuration()/1000));
 					txtSize.setText(ARApplication.getInjector().provideSettingsMapper().formatSize(info.getSize()));
 					txtLocation.setText(info.getLocation());
-					txtCreated.setText(TimeUtils.formatDateTime(info.getCreated()));
+					txtCreated.setText(TimeUtils.formatDateTimeLocale(info.getCreated()));
 					txtSampleRate.setText(getString(R.string.value_hz, info.getSampleRate()));
 					switch (info.getChannelCount()) {
 						case 1:

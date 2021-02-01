@@ -59,6 +59,7 @@ public class AppConstants {
 	public static final String NAME_FORMAT_RECORD = "record";
 	public static final String NAME_FORMAT_TIMESTAMP = "timestamp";
 	public static final String NAME_FORMAT_DATE = "date";
+	public static final String NAME_FORMAT_DATE_US = "date_us";
 
 	public static final int MAX_RECORD_NAME_LENGTH = 50;
 

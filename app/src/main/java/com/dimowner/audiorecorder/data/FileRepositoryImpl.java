@@ -64,6 +64,9 @@ public class FileRepositoryImpl implements FileRepository {
 			case AppConstants.NAME_FORMAT_DATE:
 				recordName = FileUtil.generateRecordNameDateVariant();
 				break;
+			case AppConstants.NAME_FORMAT_DATE_US:
+				recordName = FileUtil.generateRecordNameDateUS();
+				break;
 			case AppConstants.NAME_FORMAT_TIMESTAMP:
 				recordName = FileUtil.generateRecordNameMills();
 				break;
