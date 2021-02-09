@@ -99,7 +99,11 @@ public class RecordingService extends Service {
 			@Override public void onRecordingResumed() { }
 			@Override public void onRecordProcessing() { }
 			@Override public void onRecordFinishProcessing() { }
-			@Override public void onRecordingStopped(File file, Record rec) { }
+			@Override public void onRecordingStopped(File file, Record rec) {
+				if (!rec.isWaveformProcessed()) {
+					DecodeService.Companion.startNotification(getApplicationContext(), rec.getId());
+				}
+			}
 
 			@Override
 			public void onRecordingProgress(long mills, int amp) {

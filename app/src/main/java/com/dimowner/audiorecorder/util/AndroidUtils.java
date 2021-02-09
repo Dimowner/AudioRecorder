@@ -46,6 +46,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -494,11 +496,16 @@ public class AndroidUtils {
 													final String name,
 													final boolean showCheckbox,
 													final OnSetNameClickListener positiveBtnListener,
-													final View.OnClickListener negativeBtnListener){
+													final View.OnClickListener negativeBtnListener,
+													final CompoundButton.OnCheckedChangeListener checkListener){
 		final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
 		dialogBuilder.setCancelable(true);
 		View view = activity.getLayoutInflater().inflate(R.layout.dialog_rename, null, false);
-		view.findViewById(R.id.check_box).setVisibility(showCheckbox ? View.VISIBLE : View.GONE);
+		CheckBox checkBox = view.findViewById(R.id.check_box);
+		checkBox.setVisibility(showCheckbox ? View.VISIBLE : View.GONE);
+		if (checkListener != null) {
+			checkBox.setOnCheckedChangeListener(checkListener);
+		}
 		EditText editText = view.findViewById(R.id.input_name);
 		editText.setText(name);
 		editText.requestFocus();

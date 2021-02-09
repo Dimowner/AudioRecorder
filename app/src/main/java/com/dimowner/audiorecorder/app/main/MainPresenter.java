@@ -181,7 +181,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					} else {
 						if (view != null) {
 							if (prefs.isAskToRenameAfterStopRecording()) {
-								view.askRecordingNewName(rec.getId(), file, true, true);
+								view.askRecordingNewName(rec.getId(), file, true);
 							}
 						}
 						record = rec;
@@ -447,7 +447,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void renameRecord(final long id, final String newName, final String extension, final boolean needDecode) {
+	public void renameRecord(final long id, final String newName, final String extension) {
 		if (id < 0 || newName == null || newName.isEmpty()) {
 			AndroidUtils.runOnUIThread(() -> {
 				if (view != null) {
@@ -460,7 +460,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			view.showProgress();
 		}
 		final String name = FileUtil.removeUnallowedSignsFromName(newName);
-		loadingTasks.postRunnable(() -> {
+		recordingsTasks.postRunnable(() -> {
 			final Record record = localRepository.getRecord((int)id);
 			if (record != null) {
 				String nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + extension;
@@ -496,9 +496,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 								if (view != null) {
 									view.hideProgress();
 									view.showName(name);
-									if (needDecode && record.getDuration()/1000 < AppConstants.DECODE_DURATION) {
-										appRecorder.decodeRecordWaveform(MainPresenter.this.record);
-									}
 								}
 							});
 						} else {
@@ -541,8 +538,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	public void decodeRecord(long id) {
 		loadingTasks.postRunnable(() -> {
 			final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
-			if (rec != null && rec.getDuration()/1000 < AppConstants.DECODE_DURATION) {
-				appRecorder.decodeRecordWaveform(rec);
+			if (view != null && rec != null && rec.getDuration()/1000 < AppConstants.DECODE_DURATION && !rec.isWaveformProcessed()) {
+				view.decodeRecord(rec.getId());
 			}
 		});
 	}
@@ -594,8 +591,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void dontAskRename() {
-		prefs.setAskToRenameAfterStopRecording(false);
+	public void setAskToRename(boolean value) {
+		prefs.setAskToRenameAfterStopRecording(value);
 	}
 
 	@Override
@@ -619,7 +616,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void onRenameRecordClick() {
 		if (view != null && record != null) {
-			view.askRecordingNewName(record.getId(), new File(record.getPath()), false, false);
+			view.askRecordingNewName(record.getId(), new File(record.getPath()), false);
 		}
 	}
 
@@ -796,9 +793,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 									updateInformation(rec.getFormat(), rec.getSampleRate(), rec.getSize());
 								}
 							});
-							if (rec.getDuration()/1000 < AppConstants.DECODE_DURATION) {
-								appRecorder.decodeRecordWaveform(rec);
-							}
+							decodeRecord(rec.getId());
 						}
 					}
 				} catch (SecurityException e) {

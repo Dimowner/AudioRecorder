@@ -237,6 +237,18 @@
 						tools:text="00:00:00"/>
 
 				<ImageButton
+						android:id="@+id/btn_decoding"
+						android:layout_width="48dp"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_vertical|start"
+						android:layout_marginStart="@dimen/spacing_small"
+						android:adjustViewBounds="true"
+						android:background="?android:selectableItemBackgroundBorderless"
+						android:contentDescription="@null"
+						android:scaleType="center"
+						android:src="@drawable/ic_loop" />
+
+				<ImageButton
 						android:id="@+id/btn_check_bookmark"
 						android:layout_width="48dp"
 						android:layout_height="40dp"

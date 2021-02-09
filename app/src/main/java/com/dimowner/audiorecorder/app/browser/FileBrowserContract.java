@@ -33,6 +33,7 @@ public interface FileBrowserContract {
 		void onDeletedRecord(String path);
 		void onImportedRecord(String path);
 		void updatePath(String path);
+		void decodeRecord(int id);
 
 		void showEmpty();
 		void hideEmpty();

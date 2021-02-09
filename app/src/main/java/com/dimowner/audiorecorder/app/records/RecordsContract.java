@@ -53,6 +53,8 @@ public interface RecordsContract {
 		void showPanelProgress();
 		void hidePanelProgress();
 
+		void decodeRecord(int id);
+
 		void showRecordName(String name);
 
 		void showRename(Record record);
@@ -107,6 +109,8 @@ public interface RecordsContract {
 		void updateRecordsOrder(int order);
 
 		void loadRecordsPage(int page);
+
+		void decodeActiveRecord();
 
 		void applyBookmarksFilter();
 		void checkBookmarkActiveRecord();

@@ -29,6 +29,7 @@ import com.dimowner.audiorecorder.app.setup.SetupContract;
 import com.dimowner.audiorecorder.app.setup.SetupPresenter;
 import com.dimowner.audiorecorder.app.trash.TrashContract;
 import com.dimowner.audiorecorder.app.trash.TrashPresenter;
+import com.dimowner.audiorecorder.audio.AudioWaveformVisualization;
 import com.dimowner.audiorecorder.audio.player.AudioPlayerNew;
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew;
 import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
@@ -96,7 +97,11 @@ public class Injector {
 
 	public AppRecorder provideAppRecorder() {
 		return AppRecorderImpl.getInstance(provideAudioRecorder(), provideLocalRepository(),
-				provideLoadingTasksQueue(), provideProcessingTasksQueue(), providePrefs());
+				provideLoadingTasksQueue(), providePrefs());
+	}
+
+	public AudioWaveformVisualization provideAudioWaveformVisualization() {
+		return new AudioWaveformVisualization(provideProcessingTasksQueue());
 	}
 
 	public BackgroundQueue provideLoadingTasksQueue() {
@@ -169,7 +174,7 @@ public class Injector {
 		if (mainPresenter == null) {
 			mainPresenter = new MainPresenter(providePrefs(), provideFileRepository(),
 					provideLocalRepository(), provideAudioPlayer(), provideAppRecorder(),
-					provideLoadingTasksQueue(), provideRecordingTasksQueue(), provideProcessingTasksQueue(),
+					provideRecordingTasksQueue(), provideLoadingTasksQueue(), provideProcessingTasksQueue(),
 					provideImportTasksQueue(), provideSettingsMapper());
 		}
 		return mainPresenter;

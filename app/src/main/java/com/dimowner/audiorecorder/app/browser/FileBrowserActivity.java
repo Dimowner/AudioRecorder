@@ -39,6 +39,7 @@ import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.DecodeService;
 import com.dimowner.audiorecorder.app.DownloadService;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
@@ -196,6 +197,11 @@ public class FileBrowserActivity extends Activity implements FileBrowserContract
 	@Override
 	public void updatePath(String path) {
 		txtPath.setText(getString(R.string.records_location, path));
+	}
+
+	@Override
+	public void decodeRecord(int id) {
+		DecodeService.Companion.startNotification(getApplicationContext(), id);
 	}
 
 	@Override

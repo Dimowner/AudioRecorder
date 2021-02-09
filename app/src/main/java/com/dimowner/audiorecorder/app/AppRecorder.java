@@ -18,7 +18,6 @@ package com.dimowner.audiorecorder.app;
 
 import com.dimowner.audiorecorder.IntArrayList;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
-import com.dimowner.audiorecorder.data.database.Record;
 
 public interface AppRecorder {
 
@@ -29,7 +28,6 @@ public interface AppRecorder {
 	void pauseRecording();
 	void resumeRecording();
 	void stopRecording();
-	void decodeRecordWaveform(final Record decRec);
 	IntArrayList getRecordingData();
 	long getRecordingDuration();
 	boolean isRecording();

@@ -102,7 +102,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item, viewGroup, false);
 			return new ItemViewHolder(v, position -> {
 				if (isMultiSelectMode) {
-					if (!selected.contains(position)) {
+					if (!selected.contains(position) && data.get(position).getDuration() != 0) {
 						selected.add(position);
 					} else {
 						int pos = selected.indexOf(position);
@@ -133,7 +133,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 					onMultiSelectModeListener.onMultiSelectMode(isMultiSelectMode);
 				}
 				if (isMultiSelectMode) {
-					if (!selected.contains(position)) {
+					if (!selected.contains(position) && data.get(position).getDuration() != 0) {
 						selected.add(position);
 						notifyItemChanged(position);
 					}
@@ -186,7 +186,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			});
 			holder.btnMore.setOnClickListener(v -> showMenu(v, p));
 			holder.waveformView.setWaveform(item.getAmps());
-			if (isMultiSelectMode) {
+			if (isMultiSelectMode || item.getDuration() == 0) {
 				holder.btnMore.setVisibility(View.GONE);
 			} else {
 				holder.btnMore.setVisibility(View.VISIBLE);

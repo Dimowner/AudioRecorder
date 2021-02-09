@@ -20,11 +20,14 @@ import android.Manifest;
 import android.animation.Animator;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -41,6 +44,8 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.IntArrayList;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.DecodeService;
+import com.dimowner.audiorecorder.app.DecodeServiceListener;
 import com.dimowner.audiorecorder.app.DownloadService;
 import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.RecordingService;
@@ -105,6 +110,39 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private MainContract.UserActionsListener presenter;
 	private ColorMap colorMap;
 	private ColorMap.OnThemeColorChangeListener onThemeColorChangeListener;
+
+	private final ServiceConnection connection = new ServiceConnection() {
+
+		@Override
+		public void onServiceConnected(ComponentName className, IBinder service) {
+			DecodeService.LocalBinder binder = (DecodeService.LocalBinder) service;
+			DecodeService decodeService = binder.getService();
+			decodeService.setDecodeListener(new DecodeServiceListener() {
+				@Override
+				public void onStartProcessing() {
+					runOnUiThread(MainActivity.this::showRecordProcessing);
+				}
+
+				@Override
+				public void onFinishProcessing() {
+					runOnUiThread(() -> {
+						hideRecordProcessing();
+						presenter.loadActiveRecord();
+					});
+				}
+			});
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName arg0) {
+			hideRecordProcessing();
+		}
+
+		@Override
+		public void onBindingDied(ComponentName name) {
+			hideRecordProcessing();
+		}
+	};
 
 	private float space = 75;
 
@@ -228,11 +266,15 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		presenter.setAudioRecorder(ARApplication.getInjector().provideAudioRecorder());
 		presenter.updateRecordingDir(getApplicationContext());
 		presenter.loadActiveRecord();
+
+		Intent intent = new Intent(this, DecodeService.class);
+		bindService(intent, connection, Context.BIND_AUTO_CREATE);
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
+		unbindService(connection);
 		if (presenter != null) {
 			presenter.unbindView();
 		}
@@ -430,8 +472,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void askRecordingNewName(long id, File file,  boolean showCheckbox, final boolean needDecode) {
-		setRecordName(id, file, showCheckbox, needDecode);
+	public void askRecordingNewName(long id, File file,  boolean showCheckbox) {
+		setRecordName(id, file, showCheckbox);
 	}
 
 	@Override
@@ -558,6 +600,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
+	public void decodeRecord(int id) {
+		DecodeService.Companion.startNotification(getApplicationContext(), id);
+	}
+
+	@Override
 	public void askDeleteRecord(String name) {
 		AndroidUtils.showDialogYesNo(
 				MainActivity.this,
@@ -677,19 +724,13 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		popup.show();
 	}
 
-	public void setRecordName(final long recordId, File file, boolean showCheckbox, final boolean needDecode) {
+	public void setRecordName(final long recordId, File file, boolean showCheckbox) {
 		final RecordInfo info = AudioDecoder.readRecordInfo(file);
 		AndroidUtils.showRenameDialog(this, info.getName(), showCheckbox, newName -> {
 			if (!info.getName().equalsIgnoreCase(newName)) {
-				presenter.renameRecord(recordId, newName, info.getFormat(), needDecode);
-			} else if (needDecode) {
-				presenter.decodeRecord(recordId);
+				presenter.renameRecord(recordId, newName, info.getFormat());
 			}
-		}, v -> {
-			if (needDecode) {
-				presenter.decodeRecord(recordId);
-			}
-		});
+		}, v -> {}, (buttonView, isChecked) -> presenter.setAskToRename(!isChecked));
 	}
 
 	private boolean checkStoragePermissionDownload() {

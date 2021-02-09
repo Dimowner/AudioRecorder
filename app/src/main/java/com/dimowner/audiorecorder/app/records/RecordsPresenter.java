@@ -310,7 +310,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 		}
 		view.showProgress();
 		final String name = FileUtil.removeUnallowedSignsFromName(n);
-		loadingTasks.postRunnable(() -> {
+		recordingsTasks.postRunnable(() -> {
 			Record rec2 = localRepository.getRecord((int)id);
 			if (rec2 != null) {
 				String nameWithExt = name + AppConstants.EXTENSION_SEPARATOR + extension;
@@ -464,6 +464,13 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 					}
 				});
 			});
+		}
+	}
+
+	@Override
+	public void decodeActiveRecord() {
+		if (view != null && activeRecord != null) {
+			view.decodeRecord(activeRecord.getId());
 		}
 	}
 

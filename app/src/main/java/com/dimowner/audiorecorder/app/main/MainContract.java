@@ -39,7 +39,7 @@ public interface MainContract {
 		void onRecordingProgress(long mills, int amp);
 		void startWelcomeScreen();
 
-		void askRecordingNewName(long id, File file,  boolean showCheckbox, final boolean needDecode);
+		void askRecordingNewName(long id, File file,  boolean showCheckbox);
 
 		void startRecordingService();
 		void stopRecordingService();
@@ -66,6 +66,7 @@ public interface MainContract {
 		void showRecordingProgress(String progress);
 		void showName(String name);
 		void showInformation(String info);
+		void decodeRecord(int id);
 
 		void askDeleteRecord(String name);
 
@@ -100,13 +101,13 @@ public interface MainContract {
 		void seekPlayback(long mills);
 		void stopPlayback();
 
-		void renameRecord(long id, String name, String extension, boolean needDecode);
+		void renameRecord(long id, String name, String extension);
 
 		void decodeRecord(long id);
 
 		void loadActiveRecord();
 
-		void dontAskRename();
+		void setAskToRename(boolean value);
 
 		void importAudioFile(Context context, Uri uri);
 

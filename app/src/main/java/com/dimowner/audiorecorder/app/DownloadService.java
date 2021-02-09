@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
-import android.os.Environment;
 import android.os.IBinder;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
@@ -177,9 +176,9 @@ public class DownloadService extends Service {
 							@Override
 							public void onError(String message) {
 								Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+								stopService();
 							}
 						});
-				stopService();
 			}
 		});
 	}
@@ -191,7 +190,7 @@ public class DownloadService extends Service {
 			createNotificationChannel(CHANNEL_ID, CHANNEL_NAME);
 		}
 
-		remoteViewsSmall = new RemoteViews(getPackageName(), R.layout.layout_download_notification);
+		remoteViewsSmall = new RemoteViews(getPackageName(), R.layout.layout_progress_notification);
 		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_close, getPendingSelfIntent(getApplicationContext(), ACTION_CANCEL_DOWNLOAD));
 		remoteViewsSmall.setTextViewText(R.id.txt_name, getResources().getString(R.string.downloading, downloadingRecordName));
 		remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
@@ -237,7 +236,7 @@ public class DownloadService extends Service {
 	private void createNotificationChannel(String channelId, String channelName) {
 		NotificationChannel channel = notificationManager.getNotificationChannel(channelId);
 		if (channel == null) {
-			NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
+			NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT);
 			chan.setLightColor(Color.BLUE);
 			chan.setLockscreenVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 			chan.setSound(null, null);

@@ -252,8 +252,8 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 								view.onImportedRecord(info.getLocation());
 							}
 						});
-						if (rec.getDuration() / 1000 < AppConstants.DECODE_DURATION) {
-							appRecorder.decodeRecordWaveform(rec);
+						if (view != null && !rec.isWaveformProcessed() && rec.getDuration() / 1000 < AppConstants.DECODE_DURATION) {
+							view.decodeRecord(rec.getId());
 						}
 					}
 				} catch (SecurityException e) {

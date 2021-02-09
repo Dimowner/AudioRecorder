@@ -44,6 +44,7 @@ import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.DecodeService;
 import com.dimowner.audiorecorder.app.DownloadService;
 import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
@@ -79,6 +80,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private ImageButton btnBookmarks;
 	private ImageButton btnSort;
 	private ImageButton btnCheckBookmark;
+	private ImageButton btnDecoding;
 	private TextView txtProgress;
 	private TextView txtDuration;
 	private TextView txtName;
@@ -135,6 +137,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnBookmarks = findViewById(R.id.btn_bookmarks);
 		btnSort = findViewById(R.id.btn_sort);
 		btnCheckBookmark = findViewById(R.id.btn_check_bookmark);
+		btnDecoding = findViewById(R.id.btn_decoding);
 		txtEmpty = findViewById(R.id.txtEmpty);
 		txtTitle = findViewById(R.id.txt_title);
 		txtSubTitle = findViewById(R.id.txt_sub_title);
@@ -145,6 +148,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnDelete.setOnClickListener(this);
 		btnBookmarks.setOnClickListener(this);
 		btnCheckBookmark.setOnClickListener(this);
+		btnDecoding.setOnClickListener(this);
 		btnSort.setOnClickListener(this);
 
 		multiSelectPanel = findViewById(R.id.menu_multi_select);
@@ -472,6 +476,8 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			);
 		} else if (id == R.id.btn_check_bookmark) {
 			presenter.checkBookmarkActiveRecord();
+		} else if (id == R.id.btn_decoding) {
+			presenter.decodeActiveRecord();
 		} else if (id == R.id.btn_bookmarks) {
 			presenter.applyBookmarksFilter();
 		} else if (id == R.id.btn_sort) {
@@ -719,6 +725,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
+	public void decodeRecord(int id) {
+		DecodeService.Companion.startNotification(getApplicationContext(), id);
+	}
+
+	@Override
 	public void showRecordName(String name) {
 		txtName.setText(name);
 	}
@@ -855,7 +866,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				presenter.renameRecord(recordId, newName, extension);
 				presenter.loadRecords();
 			}
-		}, v -> {});
+		}, v -> {}, null);
 	}
 
 	private boolean checkStoragePermissionPlayback() {

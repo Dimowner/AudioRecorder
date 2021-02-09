@@ -62,6 +62,8 @@
 	</plurals>
 	<string name="import_progress">Імпортування аудіо файла&#8230;</string>
 	<string name="btn_import">Імпорт</string>
+	<string name="processing_canceled">Обробка відмінена</string>
+	<string name="record_calculation">Обробка для відображення&#8230;</string>
 	<string name="record_processing">Обробка запису для відображення&#8230;</string>
 	<string name="request">Зворотній зв\'язок</string>
 	<string name="email_clients_not_found">Не знайдено жодного поштового клієнта</string>

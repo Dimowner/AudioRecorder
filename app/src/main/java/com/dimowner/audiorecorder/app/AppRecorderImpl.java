@@ -40,7 +40,6 @@ public class AppRecorderImpl implements AppRecorder {
 	private RecorderContract.Recorder audioRecorder;
 	private final BackgroundQueue recordingsTasks;
 
-	private final BackgroundQueue processingTasks;
 	private final LocalRepository localRepository;
 	private final RecorderContract.RecorderCallback recorderCallback;
 	private final List<AppRecorderCallback> appCallbacks;
@@ -52,12 +51,11 @@ public class AppRecorderImpl implements AppRecorder {
 	private volatile static AppRecorderImpl instance;
 
 	public static AppRecorderImpl getInstance(RecorderContract.Recorder recorder,
-															LocalRepository localRep, BackgroundQueue tasks,
-															BackgroundQueue processingTasks, Prefs prefs) {
+															LocalRepository localRep, BackgroundQueue tasks, Prefs prefs) {
 		if (instance == null) {
 			synchronized (AppRecorderImpl.class) {
 				if (instance == null) {
-					instance = new AppRecorderImpl(recorder, localRep, tasks, processingTasks, prefs);
+					instance = new AppRecorderImpl(recorder, localRep, tasks, prefs);
 				}
 			}
 		}
@@ -65,12 +63,10 @@ public class AppRecorderImpl implements AppRecorder {
 	}
 
 	private AppRecorderImpl(RecorderContract.Recorder recorder,
-									LocalRepository localRep, BackgroundQueue tasks,
-									final BackgroundQueue processingTasks, Prefs pr) {
+									LocalRepository localRep, BackgroundQueue tasks, Prefs pr) {
 		this.audioRecorder = recorder;
 		this.localRepository = localRep;
 		this.recordingsTasks = tasks;
-		this.processingTasks = processingTasks;
 		this.prefs = pr;
 		this.appCallbacks = new ArrayList<>();
 		this.recordingData = new IntArrayList();
@@ -132,17 +128,15 @@ public class AppRecorderImpl implements AppRecorder {
 						if (localRepository.updateRecord(update)) {
 							recordingData.clear();
 							final Record rec = localRepository.getRecord(update.getId());
-							decodeRecordWaveform(rec);
 							AndroidUtils.runOnUIThread(() -> onRecordingStopped(output, rec));
 						} else {
 							//Try to update record again if failed.
 							if (localRepository.updateRecord(update)) {
 								recordingData.clear();
 								final Record rec = localRepository.getRecord(update.getId());
-								decodeRecordWaveform(rec);
 								AndroidUtils.runOnUIThread(() -> onRecordingStopped(output, rec));
 							} else {
-								onRecordingStopped(output, record);
+								AndroidUtils.runOnUIThread(() -> onRecordingStopped(output, record));
 							}
 						}
 					} else {
@@ -196,54 +190,6 @@ public class AppRecorderImpl implements AppRecorder {
 	 */
 	private int convertAmp(double amp) {
 		return (int)(255*(amp/32767f));
-	}
-
-	@Override
-	public void decodeRecordWaveform(final Record decRec) {
-		processingTasks.postRunnable(() -> {
-			isProcessing = true;
-			final String path = decRec.getPath();
-			if (path != null && !path.isEmpty()) {
-				AudioDecoder.decode(path, new AudioDecoder.DecodeListener() {
-					@Override
-					public void onStartDecode(long duration, int channelsCount, int sampleRate) {
-						decRec.setDuration(duration);
-						AndroidUtils.runOnUIThread(() -> onRecordProcessing());
-					}
-
-					@Override
-					public void onFinishDecode(int[] data, long duration) {
-						final Record rec = new Record(
-								decRec.getId(),
-								decRec.getName(),
-								decRec.getDuration(),
-								decRec.getCreated(),
-								decRec.getAdded(),
-								decRec.getRemoved(),
-								decRec.getPath(),
-								decRec.getFormat(),
-								decRec.getSize(),
-								decRec.getSampleRate(),
-								decRec.getChannelCount(),
-								decRec.getBitrate(),
-								decRec.isBookmarked(),
-								true,
-								data);
-						localRepository.updateRecord(rec);
-						isProcessing = false;
-						AndroidUtils.runOnUIThread(() -> onRecordFinishProcessing());
-					}
-
-					@Override
-					public void onError(Exception exception) {
-						isProcessing = false;
-					}
-				});
-			} else {
-				isProcessing = false;
-				Timber.e("File path is null or empty");
-			}
-		});
 	}
 
 	@Override
