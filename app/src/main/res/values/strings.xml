@@ -187,6 +187,7 @@
 	<string name="stereo">Stereo</string>
 	<string name="mono">Mono</string>
 	<string name="records_location">Records location:\n%s</string>
+	<string name="feature_not_available_in_android_10">This feature is no longer available in Android 10 or higher.</string>
 	<string name="size">%s Mb</string>
 
 	<string name="error_unknown">Unexpected error</string>

@@ -65,6 +65,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private TextView txtSizePerMin;
 	private TextView txtInformation;
 	private TextView txtLocation;
+	private TextView txtStorageInfo;
 	private TextView txtFileBrowser;
 	private View panelPublicDir;
 
@@ -133,6 +134,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		txtSizePerMin = findViewById(R.id.txt_size_per_min);
 		txtInformation = findViewById(R.id.txt_information);
 		txtLocation = findViewById(R.id.txt_records_location);
+		txtStorageInfo = findViewById(R.id.txt_storage_info);
 		txtLocation.setOnClickListener(this);
 		findViewById(R.id.btnBack).setOnClickListener(this);
 		TextView txtAbout = findViewById(R.id.txtAbout);
@@ -407,6 +409,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	public void showDirectorySetting(boolean b) {
 		panelPublicDir.setVisibility(b ? View.VISIBLE : View.GONE);
 		txtFileBrowser.setVisibility(b ? View.VISIBLE : View.GONE);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			txtStorageInfo.setVisibility(b ? View.VISIBLE : View.GONE);
+		}
 	}
 
 	@Override

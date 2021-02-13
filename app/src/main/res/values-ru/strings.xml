@@ -197,6 +197,7 @@
 	<string name="stereo">Стерео</string>
 	<string name="mono">Моно</string>
 	<string name="records_location">Расположение записей:\n%s</string>
+	<string name="feature_not_available_in_android_10">Эта функция больше недоступна в Android 10 и выше.</string>
 	<string name="size">%s Мб</string>
 
 	<string name="error_unknown">Неожиданная ошибка</string>

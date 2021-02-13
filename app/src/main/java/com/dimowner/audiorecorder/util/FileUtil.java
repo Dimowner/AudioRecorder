@@ -274,6 +274,7 @@ public class FileUtil {
 
 	public static long getAvailableExternalMemorySize() throws IllegalArgumentException {
 		if (externalMemoryAvailable()) {
+//			TODO: deprecated fix this
 			File path = Environment.getExternalStorageDirectory();
 			StatFs fsi = new StatFs(path.getPath());
 			if (Build.VERSION.SDK_INT >= 18) {
