@@ -73,6 +73,7 @@ class WaveformViewNew @JvmOverloads constructor(
 	private var originalData: IntArray = IntArray(0)
 	private var waveformData: IntArray = IntArray(0)
 	private val recordingData: MutableList<Int> = LinkedList<Int>()
+	lateinit var drawLinesArray: FloatArray
 	private var totalRecordingSize: Int = 0
 
 	private var showTimeline: Boolean = true
@@ -208,6 +209,7 @@ class WaveformViewNew @JvmOverloads constructor(
 	}
 
 	private fun updateWaveform(frameGains: IntArray, durationMills: Long, playbackMills: Long) {
+		drawLinesArray = FloatArray(viewWidthPx * 4)
 		updateValues(frameGains.size, durationMills)
 		if (viewHeightPx > 0 && viewWidthPx > 0) {
 			adjustWaveformHeights(frameGains)
@@ -445,8 +447,8 @@ class WaveformViewNew @JvmOverloads constructor(
 
 	private fun drawWaveForm(canvas: Canvas) {
 		if (waveformData.isNotEmpty()) {
+			clearDrawLines()
 			val half = (height / 2).toFloat()
-			val lines = FloatArray(durationPx.toInt() * 4)
 			var step = 0
 			for (index in 0 until durationPx.toInt()) {
 				var sampleIndex = pxToSample(index)
@@ -454,22 +456,22 @@ class WaveformViewNew @JvmOverloads constructor(
 					sampleIndex = waveformData.size - 1
 				}
 				val xPos = (waveformShiftPx + index).toFloat()
-				if (xPos >= 0 && xPos <= viewWidthPx) {  // Draw only visible part of waveform
-					lines[step] = xPos
-					lines[step + 1] = (half + waveformData[sampleIndex] + 1)
-					lines[step + 2] = xPos
-					lines[step + 3] = (half - waveformData[sampleIndex] - 1)
+				if (xPos >= 0 && xPos <= viewWidthPx && step + 3 < drawLinesArray.size) {  // Draw only visible part of waveform
+					drawLinesArray[step] = xPos
+					drawLinesArray[step + 1] = (half + waveformData[sampleIndex] + 1)
+					drawLinesArray[step + 2] = xPos
+					drawLinesArray[step + 3] = (half - waveformData[sampleIndex] - 1)
+					step += 4
 				}
-				step += 4
 			}
-			canvas.drawLines(lines, 0, lines.size, waveformPaint)
+			canvas.drawLines(drawLinesArray, 0, drawLinesArray.size, waveformPaint)
 		}
 	}
 
 	private fun drawRecordingWaveform(canvas: Canvas) {
 		if (recordingData.isNotEmpty()) {
+			clearDrawLines()
 			val half = viewHeightPx / 2
-			val lines = FloatArray(durationPx.toInt() * 4)
 			var step = 0
 			for (index in 0 until durationPx.toInt()) {
 				var sampleIndex = pxToSample(index)
@@ -477,15 +479,21 @@ class WaveformViewNew @JvmOverloads constructor(
 					sampleIndex = recordingData.size - 1
 				}
 				val xPos = (viewWidthPx / 2 - index).toFloat()
-				if (xPos >= 0 && xPos <= viewWidthPx) {  // Draw only visible part of waveform
-					lines[step] = xPos
-					lines[step + 1] = (half + recordingData[recordingData.size - 1 - sampleIndex] + 1).toFloat()
-					lines[step + 2] = xPos
-					lines[step + 3] = (half - recordingData[recordingData.size - 1 - sampleIndex] - 1).toFloat()
+				if (xPos >= 0 && xPos <= viewWidthPx && step + 3 < drawLinesArray.size) {  // Draw only visible part of waveform
+					drawLinesArray[step] = xPos
+					drawLinesArray[step + 1] = (half + recordingData[recordingData.size - 1 - sampleIndex] + 1).toFloat()
+					drawLinesArray[step + 2] = xPos
+					drawLinesArray[step + 3] = (half - recordingData[recordingData.size - 1 - sampleIndex] - 1).toFloat()
 					step += 4
 				}
 			}
-			canvas.drawLines(lines, 0, lines.size, waveformPaint)
+			canvas.drawLines(drawLinesArray, 0, drawLinesArray.size, waveformPaint)
+		}
+	}
+
+	private fun clearDrawLines() {
+		for (i in drawLinesArray.indices) {
+			drawLinesArray[i] = 0f
 		}
 	}
 
