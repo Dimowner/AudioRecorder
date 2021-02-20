@@ -146,6 +146,14 @@
 					android:layout_marginBottom="@dimen/notification_btn"
 					/>
 
+			<com.dimowner.audiorecorder.app.widget.RecordingWaveformView
+					android:id="@+id/recording_view"
+					android:layout_width="wrap_content"
+					android:layout_height="@dimen/waveform_height"
+					android:visibility="gone"
+					android:layout_marginBottom="@dimen/notification_btn"
+					/>
+
 			<ProgressBar
 					android:id="@+id/progress"
 					android:layout_width="wrap_content"

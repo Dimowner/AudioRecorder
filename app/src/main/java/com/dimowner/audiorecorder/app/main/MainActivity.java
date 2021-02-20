@@ -54,6 +54,7 @@ import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.records.RecordsActivity;
 import com.dimowner.audiorecorder.app.settings.SettingsActivity;
 import com.dimowner.audiorecorder.app.welcome.WelcomeActivity;
+import com.dimowner.audiorecorder.app.widget.RecordingWaveformView;
 import com.dimowner.audiorecorder.app.widget.WaveformViewNew;
 import com.dimowner.audiorecorder.audio.AudioDecoder;
 import com.dimowner.audiorecorder.data.database.Record;
@@ -89,6 +90,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public static final int REQ_CODE_IMPORT_AUDIO = 11;
 
 	private WaveformViewNew waveformView;
+	private RecordingWaveformView recordingWaveformView;
 	private TextView txtProgress;
 	private TextView txtDuration;
 	private TextView txtZeroTime;
@@ -158,6 +160,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		setContentView(R.layout.activity_main);
 
 		waveformView = findViewById(R.id.record);
+		recordingWaveformView = findViewById(R.id.recording_view);
 		txtProgress = findViewById(R.id.txt_progress);
 		txtDuration = findViewById(R.id.txt_duration);
 		txtZeroTime = findViewById(R.id.txt_zero_time);
@@ -395,6 +398,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnPlay.setEnabled(false);
 		btnImport.setEnabled(false);
 		btnShare.setEnabled(false);
+		btnPlay.setVisibility(View.GONE);
+		btnImport.setVisibility(View.GONE);
+		btnShare.setVisibility(View.GONE);
 		btnDelete.setVisibility(View.VISIBLE);
 		btnDelete.setEnabled(true);
 		btnRecordingStop.setVisibility(View.VISIBLE);
@@ -402,8 +408,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		playProgress.setProgress(0);
 		playProgress.setEnabled(false);
 		txtDuration.setText(R.string.zero_time);
-		waveformView.setModeRecording();
-		waveformView.setVisibility(View.VISIBLE);
+		waveformView.setVisibility(View.GONE);
+		recordingWaveformView.setVisibility(View.VISIBLE);
 		ivPlaceholder.setVisibility(View.GONE);
 	}
 
@@ -420,12 +426,17 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnPlay.setEnabled(true);
 		btnImport.setEnabled(true);
 		btnShare.setEnabled(true);
+		btnPlay.setVisibility(View.VISIBLE);
+		btnImport.setVisibility(View.VISIBLE);
+		btnShare.setVisibility(View.VISIBLE);
 		playProgress.setEnabled(true);
 		btnDelete.setVisibility(View.INVISIBLE);
 		btnDelete.setEnabled(false);
 		btnRecordingStop.setVisibility(View.INVISIBLE);
 		btnRecordingStop.setEnabled(false);
-		waveformView.setModePlayback();
+		waveformView.setVisibility(View.VISIBLE);
+		recordingWaveformView.setVisibility(View.GONE);
+		recordingWaveformView.reset();
 	}
 
 	@Override
@@ -435,16 +446,20 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtName.setCompoundDrawables(null, null, null, null);
 		txtName.setText(R.string.recording_paused);
 		txtName.setVisibility(View.VISIBLE);
+		btnPlay.setEnabled(false);
 		btnImport.setEnabled(false);
+		btnShare.setEnabled(false);
+		btnPlay.setVisibility(View.GONE);
+		btnImport.setVisibility(View.GONE);
+		btnShare.setVisibility(View.GONE);
 		btnRecord.setImageResource(R.drawable.ic_record_rec);
 		btnDelete.setVisibility(View.VISIBLE);
 		btnDelete.setEnabled(true);
 		btnRecordingStop.setVisibility(View.VISIBLE);
 		btnRecordingStop.setEnabled(true);
 		playProgress.setEnabled(false);
-		btnShare.setEnabled(false);
-		waveformView.setVisibility(View.VISIBLE);
 		ivPlaceholder.setVisibility(View.GONE);
+		recordingWaveformView.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -460,6 +475,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnPlay.setEnabled(false);
 		btnImport.setEnabled(false);
 		btnShare.setEnabled(false);
+		btnPlay.setVisibility(View.GONE);
+		btnImport.setVisibility(View.GONE);
+		btnShare.setVisibility(View.GONE);
 		btnDelete.setVisibility(View.VISIBLE);
 		btnDelete.setEnabled(true);
 		btnRecordingStop.setVisibility(View.VISIBLE);
@@ -467,7 +485,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		playProgress.setProgress(0);
 		playProgress.setEnabled(false);
 		txtDuration.setText(R.string.zero_time);
-		waveformView.setVisibility(View.VISIBLE);
 		ivPlaceholder.setVisibility(View.GONE);
 	}
 
@@ -479,7 +496,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void onRecordingProgress(long mills, int amp) {
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
-		waveformView.addRecordAmp(amp, mills);
+		recordingWaveformView.addRecordAmp(amp, mills);
 	}
 
 	@Override
@@ -634,7 +651,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void updateRecordingView(IntArrayList data, long durationMills) {
 		if (data != null) {
-			waveformView.setRecordingData(data, durationMills);
+			recordingWaveformView.setRecordingData(data, durationMills);
 		}
 	}
 

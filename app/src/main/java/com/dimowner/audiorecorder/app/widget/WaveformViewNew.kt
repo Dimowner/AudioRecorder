@@ -27,21 +27,14 @@ import android.view.View
 import android.view.animation.DecelerateInterpolator
 import androidx.core.content.ContextCompat
 import com.dimowner.audiorecorder.AppConstants
-import com.dimowner.audiorecorder.IntArrayList
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.util.TimeUtils
-import java.util.*
 
 private const val DEFAULT_GRID_STEP = 2000L //Milliseconds
 private const val SHORT_RECORD = 18000 //Milliseconds
 private const val DEFAULT_WIDTH_SCALE = 1.5 //Const val describes how many screens a record will take.
 private const val ANIMATION_DURATION = 330 //mills.
-
-enum class WaveformMode {
-	PLAYBACK,
-	RECORDING
-}
 
 class WaveformViewNew @JvmOverloads constructor(
 		context: Context,
@@ -53,11 +46,11 @@ class WaveformViewNew @JvmOverloads constructor(
 	private val PADD = AndroidUtils.dpToPx(6)
 
 	private val waveformPaint = Paint()
+	private val linePaint = Paint()
 	private val gridPaint = Paint()
 	private val scrubberPaint = Paint()
 	private val textPaint = TextPaint(TextPaint.ANTI_ALIAS_FLAG)
 
-	private var mode = WaveformMode.PLAYBACK
 	private var playProgressPx = 0
 	private var playProgressMills = 0L
 
@@ -72,9 +65,7 @@ class WaveformViewNew @JvmOverloads constructor(
 
 	private var originalData: IntArray = IntArray(0)
 	private var waveformData: IntArray = IntArray(0)
-	private val recordingData: MutableList<Int> = LinkedList<Int>()
 	lateinit var drawLinesArray: FloatArray
-	private var totalRecordingSize: Int = 0
 
 	private var showTimeline: Boolean = true
 
@@ -85,7 +76,6 @@ class WaveformViewNew @JvmOverloads constructor(
 	private var durationPx: Float = 0F
 	private var durationSample: Int = 0
 	private var millsPerPx: Float = 0F
-	private var millsPerSample: Float = 0F
 	private var pxPerMill: Float = 0F
 	private var pxPerSample: Float = 0F
 	private var samplePerPx: Float = 0F
@@ -98,9 +88,14 @@ class WaveformViewNew @JvmOverloads constructor(
 		isFocusable = false
 
 		waveformPaint.style = Paint.Style.STROKE
-		waveformPaint.strokeWidth = AndroidUtils.dpToPx(1.2f)
+		waveformPaint.strokeWidth = 1f
 		waveformPaint.isAntiAlias = true
 		waveformPaint.color = ContextCompat.getColor(context, R.color.dark_white)
+
+		linePaint.style = Paint.Style.STROKE
+		linePaint.strokeWidth = AndroidUtils.dpToPx(1.5f)
+		linePaint.isAntiAlias = true
+		linePaint.color = ContextCompat.getColor(context, R.color.dark_white)
 
 		scrubberPaint.isAntiAlias = false
 		scrubberPaint.style = Paint.Style.STROKE
@@ -122,34 +117,32 @@ class WaveformViewNew @JvmOverloads constructor(
 		setOnTouchListener(object : OnTouchListener {
 			var startX = 0F
 			override fun onTouch(v: View?, event: MotionEvent): Boolean {
-				if (mode != WaveformMode.RECORDING) {
-					when (event.action and MotionEvent.ACTION_MASK) {
-						MotionEvent.ACTION_DOWN -> {
-							readPlayProgress = false
-							startX = event.x
-							onSeekListener?.onStartSeek()
+				when (event.action and MotionEvent.ACTION_MASK) {
+					MotionEvent.ACTION_DOWN -> {
+						readPlayProgress = false
+						startX = event.x
+						onSeekListener?.onStartSeek()
+					}
+					MotionEvent.ACTION_MOVE -> {
+						var shift = (prevScreenShiftPx + event.x - startX).toInt()
+						//Right waveform move edge
+						if (shift <= -durationPx) {
+							shift = -durationPx.toInt()
 						}
-						MotionEvent.ACTION_MOVE -> {
-							var shift = (prevScreenShiftPx + event.x - startX).toInt()
-							//Right waveform move edge
-							if (shift <= -durationPx) {
-								shift = -durationPx.toInt()
-							}
-							//Left waveform move edge
-							if (shift > 0) {
-								shift = 0
-							}
-							onSeekListener?.onSeeking(-screenShiftPx, pxToMill(-screenShiftPx))
-							playProgressPx = -shift
-							updateShifts(shift)
-							invalidate()
+						//Left waveform move edge
+						if (shift > 0) {
+							shift = 0
 						}
-						MotionEvent.ACTION_UP -> {
-							onSeekListener?.onSeek(-screenShiftPx, pxToMill(-screenShiftPx))
-							prevScreenShiftPx = screenShiftPx
-							readPlayProgress = true
-							performClick()
-						}
+						onSeekListener?.onSeeking(-screenShiftPx, pxToMill(-screenShiftPx))
+						playProgressPx = -shift
+						updateShifts(shift)
+						invalidate()
+					}
+					MotionEvent.ACTION_UP -> {
+						onSeekListener?.onSeek(-screenShiftPx, pxToMill(-screenShiftPx))
+						prevScreenShiftPx = screenShiftPx
+						readPlayProgress = true
+						performClick()
 					}
 				}
 				return true
@@ -173,16 +166,14 @@ class WaveformViewNew @JvmOverloads constructor(
 	}
 
 	fun moveToStart() {
-		if (mode == WaveformMode.PLAYBACK) {
-			val moveAnimator = ValueAnimator.ofInt(playProgressPx, 0)
-			moveAnimator.interpolator = DecelerateInterpolator()
-			moveAnimator.duration = ANIMATION_DURATION.toLong()
-			moveAnimator.addUpdateListener { animation: ValueAnimator ->
-				val moveValPx = animation.animatedValue as Int
-				setPlayback(pxToMill(moveValPx))
-			}
-			moveAnimator.start()
+		val moveAnimator = ValueAnimator.ofInt(playProgressPx, 0)
+		moveAnimator.interpolator = DecelerateInterpolator()
+		moveAnimator.duration = ANIMATION_DURATION.toLong()
+		moveAnimator.addUpdateListener { animation: ValueAnimator ->
+			val moveValPx = animation.animatedValue as Int
+			setPlayback(pxToMill(moveValPx))
 		}
+		moveAnimator.start()
 	}
 
 	/**
@@ -217,42 +208,6 @@ class WaveformViewNew @JvmOverloads constructor(
 		}
 	}
 
-	fun addRecordAmp(amp: Int, durationMills: Long) {
-		recordingData.add(convertAmp(amp.toDouble()))
-		totalRecordingSize++
-		updateValues(totalRecordingSize, durationMills)
-		if (recordingData.size > pxToSample(viewWidthPx / 2)) {
-			recordingData.removeAt(0)
-		}
-		playProgressPx = millsToPx(durationMills).toInt()
-		updateShifts(-playProgressPx)
-		prevScreenShiftPx = screenShiftPx
-		invalidate()
-	}
-
-	fun setRecordingData(data: IntArrayList, durationMills: Long) {
-		mode = WaveformMode.RECORDING
-		post {
-			recordingData.clear()
-			val count = pxToSample(viewWidthPx / 2)
-			if (data.size() > count) {
-				for (i in data.size() - count until data.size()) {
-					recordingData.add(convertAmp(data[i].toDouble()))
-				}
-			} else {
-				for (i in 0 until data.size()) {
-					recordingData.add(convertAmp(data[i].toDouble()))
-				}
-			}
-			totalRecordingSize = data.size()
-			updateValues(totalRecordingSize, durationMills)
-			playProgressPx = millsToPx(durationMills).toInt()
-			updateShifts(-playProgressPx)
-			prevScreenShiftPx = screenShiftPx
-			requestLayout()
-		}
-	}
-
 	private fun updateValues(size: Int, durationMills: Long) {
 		this.widthScale = calculateScale(durationMills)
 		this.durationMills = durationMills
@@ -261,16 +216,12 @@ class WaveformViewNew @JvmOverloads constructor(
 			viewWidthPx == 0 -> {
 				return
 			}
-			mode == WaveformMode.RECORDING -> {
-				(viewWidthPx / 2 * widthScale).toFloat()
-			}
 			else -> {
 				(viewWidthPx * widthScale).toFloat()
 			}
 		}
 
 		this.millsPerPx = durationMills.toFloat()/durationPx
-		this.millsPerSample = durationMills.toFloat()/durationSample.toFloat()
 		this.pxPerMill = durationPx/durationMills.toFloat()
 		this.pxPerSample = durationPx/durationSample.toFloat()
 		this.samplePerPx = durationSample.toFloat()/durationPx
@@ -282,9 +233,6 @@ class WaveformViewNew @JvmOverloads constructor(
 
 	private fun calculateScale(mills: Long): Double {
 		return when {
-			mode == WaveformMode.RECORDING -> {
-				mills * (DEFAULT_WIDTH_SCALE/(SHORT_RECORD/2))
-			}
 			mills >= SHORT_RECORD -> {
 				DEFAULT_WIDTH_SCALE
 			}
@@ -296,10 +244,6 @@ class WaveformViewNew @JvmOverloads constructor(
 
 	private fun millsToPx(mills: Long): Float {
 		return (mills * pxPerMill)
-	}
-
-	private fun millsToSample(mills: Long): Int {
-		return (mills * samplePerMill).toInt()
 	}
 
 	fun pxToMill(px: Int): Long {
@@ -314,34 +258,8 @@ class WaveformViewNew @JvmOverloads constructor(
 		return sample * pxPerSample
 	}
 
-	private fun sampleToMill(sample: Int): Int {
-		return (sample * millsPerSample).toInt()
-	}
-
-	fun setModeRecording() {
-		mode = WaveformMode.RECORDING
-		waveformData = IntArray(0)
-		recordingData.clear()
-		totalRecordingSize = 0
-		updateShifts(0)
-		invalidate()
-	}
-
-	fun setModePlayback() {
-		mode = WaveformMode.PLAYBACK
-		updateShifts(0)
-		invalidate()
-	}
-
 	fun getWaveformLength(): Int {
 		return waveformData.size
-	}
-
-	/**
-	 * Convert dB amp value to view amp.
-	 */
-	private fun convertAmp(amp: Double): Int {
-		return (amp * ((viewHeightPx / 2).toFloat() / 32767)).toInt()
 	}
 
 	override fun setSelected(selected: Boolean) {
@@ -362,20 +280,13 @@ class WaveformViewNew @JvmOverloads constructor(
 
 	override fun onDraw(canvas: Canvas) {
 		super.onDraw(canvas)
-
 		drawGrid(canvas)
-		when (mode) {
-			WaveformMode.PLAYBACK -> {
-				drawWaveForm(canvas)
-				//Draw waveform start indication
-				canvas.drawLine(waveformShiftPx.toFloat(), inset, waveformShiftPx.toFloat(), height - inset, waveformPaint)
-				//Draw waveform end indication
-				canvas.drawLine(waveformShiftPx + sampleToPx(waveformData.size), inset,
-						waveformShiftPx + sampleToPx(waveformData.size), height - inset, waveformPaint)
-			}
-			WaveformMode.RECORDING -> drawRecordingWaveform(canvas)
-//			WaveformMode.RECORDING -> drawWaveForm(canvas)
-		}
+		drawWaveForm(canvas)
+		//Draw waveform start indication
+		canvas.drawLine(waveformShiftPx.toFloat(), inset, waveformShiftPx.toFloat(), height - inset, linePaint)
+		//Draw waveform end indication
+		canvas.drawLine(waveformShiftPx + sampleToPx(waveformData.size), inset,
+				waveformShiftPx + sampleToPx(waveformData.size), height - inset, linePaint)
 		//Draw scrubber
 		canvas.drawLine(viewWidthPx / 2f, 0f, viewWidthPx / 2f, height.toFloat(), scrubberPaint)
 	}
@@ -386,30 +297,26 @@ class WaveformViewNew @JvmOverloads constructor(
 	}
 
 	private fun calculateGridStep(durationMills: Long): Long {
-		if (mode == WaveformMode.RECORDING) {
-			return DEFAULT_GRID_STEP
-		} else {
-			var actualStepSec = (durationMills / 1000) / AppConstants.GRID_LINES_COUNT
-			var k = 1
-			while (actualStepSec > 239) {
-				actualStepSec /= 2
-				k *= 2
-			}
-			//Ranges can be better optimised
-			val gridStep: Long = when (actualStepSec) {
-				in 0..2 -> 2000
-				in 3..7 -> 5000
-				in 8..14 -> 10000
-				in 15..24 -> 20000
-				in 25..49 -> 30000
-				in 50..89 -> 60000
-				in 90..119 -> 90000
-				in 120..179 -> 120000
-				in 180..239 -> 180000
-				else -> DEFAULT_GRID_STEP
-			}
-			return gridStep * k
+		var actualStepSec = (durationMills / 1000) / AppConstants.GRID_LINES_COUNT
+		var k = 1
+		while (actualStepSec > 239) {
+			actualStepSec /= 2
+			k *= 2
 		}
+		//Ranges can be better optimised
+		val gridStep: Long = when (actualStepSec) {
+			in 0..2 -> 2000
+			in 3..7 -> 5000
+			in 8..14 -> 10000
+			in 15..24 -> 20000
+			in 25..49 -> 30000
+			in 50..89 -> 60000
+			in 90..119 -> 90000
+			in 120..179 -> 120000
+			in 180..239 -> 180000
+			else -> DEFAULT_GRID_STEP
+		}
+		return gridStep * k
 	}
 
 	private fun drawGrid(canvas: Canvas) {
@@ -461,29 +368,6 @@ class WaveformViewNew @JvmOverloads constructor(
 					drawLinesArray[step + 1] = (half + waveformData[sampleIndex] + 1)
 					drawLinesArray[step + 2] = xPos
 					drawLinesArray[step + 3] = (half - waveformData[sampleIndex] - 1)
-					step += 4
-				}
-			}
-			canvas.drawLines(drawLinesArray, 0, drawLinesArray.size, waveformPaint)
-		}
-	}
-
-	private fun drawRecordingWaveform(canvas: Canvas) {
-		if (recordingData.isNotEmpty()) {
-			clearDrawLines()
-			val half = viewHeightPx / 2
-			var step = 0
-			for (index in 0 until durationPx.toInt()) {
-				var sampleIndex = pxToSample(index)
-				if (sampleIndex >= recordingData.size) {
-					sampleIndex = recordingData.size - 1
-				}
-				val xPos = (viewWidthPx / 2 - index).toFloat()
-				if (xPos >= 0 && xPos <= viewWidthPx && step + 3 < drawLinesArray.size) {  // Draw only visible part of waveform
-					drawLinesArray[step] = xPos
-					drawLinesArray[step + 1] = (half + recordingData[recordingData.size - 1 - sampleIndex] + 1).toFloat()
-					drawLinesArray[step + 2] = xPos
-					drawLinesArray[step + 3] = (half - recordingData[recordingData.size - 1 - sampleIndex] - 1).toFloat()
 					step += 4
 				}
 			}
