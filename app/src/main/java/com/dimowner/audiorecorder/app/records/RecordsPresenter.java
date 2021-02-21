@@ -79,12 +79,6 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 				@Override public void onRecordingStarted(File file) {}
 				@Override public void onRecordingPaused() {}
 				@Override public void onRecordingResumed() { }
-				@Override public void onRecordProcessing() {}
-
-				@Override
-				public void onRecordFinishProcessing() {
-					loadRecords();
-				}
 
 				@Override public void onRecordingProgress(long mills, int amp) {}
 

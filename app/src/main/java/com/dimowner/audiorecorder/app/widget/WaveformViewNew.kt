@@ -88,7 +88,7 @@ class WaveformViewNew @JvmOverloads constructor(
 		isFocusable = false
 
 		waveformPaint.style = Paint.Style.STROKE
-		waveformPaint.strokeWidth = 1f
+		waveformPaint.strokeWidth = 1.3f
 		waveformPaint.isAntiAlias = true
 		waveformPaint.color = ContextCompat.getColor(context, R.color.dark_white)
 
@@ -306,15 +306,28 @@ class WaveformViewNew @JvmOverloads constructor(
 		//Ranges can be better optimised
 		val gridStep: Long = when (actualStepSec) {
 			in 0..2 -> 2000
-			in 3..7 -> 5000
-			in 8..14 -> 10000
+			in 3..6 -> 5000
+			in 7..14 -> 10000
 			in 15..24 -> 20000
-			in 25..49 -> 30000
-			in 50..89 -> 60000
-			in 90..119 -> 90000
-			in 120..179 -> 120000
-			in 180..239 -> 180000
-			else -> DEFAULT_GRID_STEP
+			in 25..44 -> 30000
+			in 45..74 -> 60000
+			in 75..104 -> 90000
+			in 105..149 -> 120000
+			in 150..209 -> 180000
+			in 210..269 -> 240000
+			in 270..329 -> 300000
+			in 330..419 -> 360000
+			in 420..539 -> 480000
+			in 540..659 -> 600000
+			in 660..809 -> 720000
+			in 810..1049 -> 900000
+			in 1050..1349 -> 1200000
+			in 1350..1649 -> 1500000
+			in 1650..2099 -> 1800000
+			in 2100..2699 -> 2400000
+			in 2700..3299 -> 3000000
+			in 3300..3899 -> 3600000
+			else -> 4200000
 		}
 		return gridStep * k
 	}

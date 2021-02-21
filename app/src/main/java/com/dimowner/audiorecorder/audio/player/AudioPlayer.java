@@ -31,7 +31,7 @@ import java.util.List;
 
 import timber.log.Timber;
 
-import static com.dimowner.audiorecorder.AppConstants.VISUALIZATION_INTERVAL;
+import static com.dimowner.audiorecorder.AppConstants.PLAYBACK_VISUALIZATION_INTERVAL;
 
 /**
  * @deprecated use {@link AudioPlayerNew}
@@ -258,7 +258,7 @@ public class AudioPlayer implements PlayerContract.Player, MediaPlayer.OnPrepare
 				Timber.e(e, "Player is not initialized!");
 				onError(new PlayerInitException());
 			}
-		}, VISUALIZATION_INTERVAL);
+		}, PLAYBACK_VISUALIZATION_INTERVAL);
 	}
 
 	private void stopPlaybackTimeUpdate() {

@@ -25,8 +25,6 @@ public interface AppRecorderCallback {
 	void onRecordingStarted(File file);
 	void onRecordingPaused();
 	void onRecordingResumed();
-	void onRecordProcessing();
-	void onRecordFinishProcessing();
 	void onRecordingStopped(File file, Record record);
 	void onRecordingProgress(long mills, int amp);
 	void onError(AppException throwable);

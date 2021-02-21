@@ -32,8 +32,12 @@ import com.dimowner.audiorecorder.util.AndroidUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import timber.log.Timber;
+
+import static com.dimowner.audiorecorder.AppConstants.PLAYBACK_VISUALIZATION_INTERVAL;
 
 public class AppRecorderImpl implements AppRecorder {
 
@@ -45,8 +49,11 @@ public class AppRecorderImpl implements AppRecorder {
 	private final List<AppRecorderCallback> appCallbacks;
 	private final Prefs prefs;
 	private final IntArrayList recordingData;
-	private long recordingDuration;
-	private boolean isProcessing = false;
+//	private long recordingDuration;
+	private final IntArrayList apmpPool;
+	private long durationMills = 0;
+	private long updateTime = 0;
+	private Timer timerProgress;
 
 	private volatile static AppRecorderImpl instance;
 
@@ -70,41 +77,46 @@ public class AppRecorderImpl implements AppRecorder {
 		this.prefs = pr;
 		this.appCallbacks = new ArrayList<>();
 		this.recordingData = new IntArrayList();
+		this.apmpPool = new IntArrayList();
 
 		recorderCallback = new RecorderContract.RecorderCallback() {
 
 			@Override
 			public void onStartRecord(File output) {
-				recordingDuration = 0;
+//				recordingDuration = 0;
+				durationMills = 0;
+				scheduleRecordingTimeUpdate();
 				onRecordingStarted(output);
 			}
 
 			@Override
 			public void onPauseRecord() {
 				onRecordingPaused();
+				pauseRecordingTimer();
 			}
 
 			@Override
 			public void onResumeRecord() {
+				scheduleRecordingTimeUpdate();
 				onRecordingResumed();
 			}
 
 			@Override
 			public void onRecordProgress(final long mills, final int amplitude) {
-				recordingDuration = mills;
-				onRecordingProgress(mills, amplitude);
-				recordingData.add(amplitude);
+				apmpPool.add(amplitude);
 			}
 
 			@Override
 			public void onStopRecord(final File output) {
+				stopRecordingTimer();
 				recordingsTasks.postRunnable(() -> {
 					RecordInfo info = AudioDecoder.readRecordInfo(output);
 					long duration = info.getDuration();
 					if (duration <= 0) {
-						duration = recordingDuration;
+						duration = durationMills;
 					}
-					recordingDuration = 0;
+//					recordingDuration = 0;
+					durationMills = 0;
 
 					int[] waveForm = convertRecordingData(recordingData, (int) (duration / 1000000f));
 					final Record record = localRepository.getRecord((int) prefs.getActiveRecord());
@@ -243,7 +255,8 @@ public class AppRecorderImpl implements AppRecorder {
 
 	@Override
 	public long getRecordingDuration() {
-		return recordingDuration;
+//		return recordingDuration;
+		return durationMills;
 	}
 
 	@Override
@@ -258,14 +271,11 @@ public class AppRecorderImpl implements AppRecorder {
 
 	@Override
 	public void release() {
+		stopRecordingTimer();
 		recordingData.clear();
+		apmpPool.clear();
 		audioRecorder.stopRecording();
 		appCallbacks.clear();
-	}
-
-	@Override
-	public boolean isProcessing() {
-		return isProcessing;
 	}
 
 	private void onRecordingStarted(File output) {
@@ -292,24 +302,6 @@ public class AppRecorderImpl implements AppRecorder {
 		}
 	}
 
-	private void onRecordProcessing() {
-		isProcessing = true;
-		if (!appCallbacks.isEmpty()) {
-			for (int i = 0; i < appCallbacks.size(); i++) {
-				appCallbacks.get(i).onRecordProcessing();
-			}
-		}
-	}
-
-	private void onRecordFinishProcessing() {
-		isProcessing = false;
-		if (!appCallbacks.isEmpty()) {
-			for (int i = 0; i < appCallbacks.size(); i++) {
-				appCallbacks.get(i).onRecordFinishProcessing();
-			}
-		}
-	}
-
 	private void onRecordingStopped(File file, Record record) {
 		if (!appCallbacks.isEmpty()) {
 			for (int i = 0; i < appCallbacks.size(); i++) {
@@ -332,5 +324,48 @@ public class AppRecorderImpl implements AppRecorder {
 				appCallbacks.get(i).onError(e);
 			}
 		}
+	}
+
+	private void scheduleRecordingTimeUpdate() {
+		updateTime = System.currentTimeMillis();
+		timerProgress = new Timer();
+		timerProgress.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				try {
+					readProgress();
+				} catch (IllegalStateException e) {
+					Timber.e(e);
+				}
+				long curTime = System.currentTimeMillis();
+				durationMills += curTime - updateTime;
+				updateTime = curTime;
+
+//				recordingDuration += VISUALIZATION_INTERVAL2;
+			}
+		}, 0, PLAYBACK_VISUALIZATION_INTERVAL);
+	}
+
+	private void readProgress() {
+		if (apmpPool.size() > 0) {
+			int amp = apmpPool.get(apmpPool.size()-1);
+			apmpPool.clear();
+			apmpPool.add(amp);
+			recordingData.add(amp);
+			onRecordingProgress(durationMills, amp);
+		}
+	}
+
+	private void stopRecordingTimer() {
+		readProgress();
+		timerProgress.cancel();
+		timerProgress.purge();
+		updateTime = 0;
+	}
+
+	private void pauseRecordingTimer() {
+		timerProgress.cancel();
+		timerProgress.purge();
+		updateTime = 0;
 	}
 }

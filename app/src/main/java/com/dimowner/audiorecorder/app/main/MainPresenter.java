@@ -158,21 +158,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				}
 
 				@Override
-				public void onRecordProcessing() {
-					if (view != null) {
-						view.showRecordProcessing();
-					}
-				}
-
-				@Override
-				public void onRecordFinishProcessing() {
-					if (view != null) {
-						view.hideRecordProcessing();
-					}
-					loadActiveRecord();
-				}
-
-				@Override
 				public void onRecordingStopped(final File file, final Record rec) {
 					recFile = null;
 					if (deleteRecord) {
@@ -303,11 +288,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			view.showRecordingStop();
 			view.keepScreenOn(false);
 		}
-		if (appRecorder.isProcessing()) {
-			view.showRecordProcessing();
-		} else {
-			view.hideRecordProcessing();
-		}
+		view.hideRecordProcessing();
 		updateInformation(
 				prefs.getSettingRecordingFormat(),
 				prefs.getSettingSampleRate(),

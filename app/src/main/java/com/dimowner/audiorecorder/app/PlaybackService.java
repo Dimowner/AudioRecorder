@@ -125,7 +125,7 @@ public class PlaybackService extends Service {
 		recordName = name;
 		if (playerCallback == null) {
 			playerCallback = new PlayerContractNew.PlayerCallback() {
-				int prevSec = 0;
+//				int prevSec = 0;
 				@Override public void onError(@NotNull AppException throwable) {
 					stopForegroundService();
 				}
@@ -137,11 +137,11 @@ public class PlaybackService extends Service {
 					onPausePlayback();
 				}
 				@Override public void onPlayProgress(long mills) {
-					int curSec = (int)(mills/1000);
-					if (curSec > prevSec) {
-						updateNotification(mills);
-					}
-					prevSec = curSec;
+//					int curSec = (int)(mills/1000);
+//					if (curSec > prevSec) {
+//						updateNotification(mills);
+//					}
+//					prevSec = curSec;
 				}
 				@Override public void onStartPlay() {
 					onStartPlayback();

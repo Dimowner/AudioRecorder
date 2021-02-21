@@ -29,6 +29,7 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.util.TimeUtils
 import java.util.*
+import kotlin.math.roundToInt
 
 private const val DEFAULT_GRID_STEP = 2000L //Milliseconds
 
@@ -74,7 +75,7 @@ class RecordingWaveformView @JvmOverloads constructor(
 		isFocusable = false
 
 		waveformPaint.style = Paint.Style.STROKE
-		waveformPaint.strokeWidth = 1.5f
+		waveformPaint.strokeWidth = AndroidUtils.dpToPx(1)
 		waveformPaint.isAntiAlias = true
 		waveformPaint.color = ContextCompat.getColor(context, R.color.dark_white)
 
@@ -95,14 +96,14 @@ class RecordingWaveformView @JvmOverloads constructor(
 		textPaint.textSize = textHeight
 	}
 
-	fun addRecordAmp(amp: Int, durationMills: Long) {
+	fun addRecordAmp(amp: Int, mills: Long) {
 		recordingData.add(convertAmp(amp.toDouble()))
 		totalRecordingSize++
-		updateValues(totalRecordingSize, durationMills)
+		updateValues(totalRecordingSize, mills)
 		if (recordingData.size > pxToSample(viewWidthPx / 2)) {
 			recordingData.removeAt(0)
 		}
-		updateShifts(-millsToPx(durationMills).toInt())
+		updateShifts(-millsToPx(mills).toInt())
 		prevScreenShiftPx = screenShiftPx
 		invalidate()
 	}
@@ -112,7 +113,7 @@ class RecordingWaveformView @JvmOverloads constructor(
 			recordingData.clear()
 			totalRecordingSize = data.size()
 			updateValues(totalRecordingSize, durationMills)
-			val count = pxToSample(width / 2)
+			val count = pxToSample(viewWidthPx / 2).toInt()
 			if (data.size() > count) {
 				for (i in data.size() - count until data.size()) {
 					recordingData.add(convertAmp(data[i].toDouble()))
@@ -133,7 +134,7 @@ class RecordingWaveformView @JvmOverloads constructor(
 		this.durationSample = size
 		this.pxPerMill = DEFAULT_PIXEL_PER_SECOND/1000.0
 		this.durationPx = durationMills*pxPerMill
-		this.millsPerPx = durationMills.toFloat()/durationPx
+		this.millsPerPx = 1/pxPerMill
 		this.samplePerMill = durationSample.toDouble()/durationMills.toDouble()
 		this.samplePerPx = samplePerMill/pxPerMill
 	}
@@ -147,9 +148,7 @@ class RecordingWaveformView @JvmOverloads constructor(
 		durationMills = 0
 		durationSample = 0
 		pxPerMill = 0.0
-		durationPx = 0.0
 		millsPerPx = 0.0
-		samplePerMill = 0.0
 		samplePerPx = 0.0
 	}
 
@@ -157,12 +156,12 @@ class RecordingWaveformView @JvmOverloads constructor(
 		return (mills * pxPerMill)
 	}
 
-	private fun pxToMill(px: Int): Long {
-		return (px * millsPerPx).toLong()
+	private fun pxToMill(px: Int): Double {
+		return (px * millsPerPx)
 	}
 
-	private fun pxToSample(px: Int): Int {
-		return (px * samplePerPx).toInt()
+	private fun pxToSample(px: Int): Double {
+		return (px * samplePerPx)
 	}
 
 	/**
@@ -242,7 +241,7 @@ class RecordingWaveformView @JvmOverloads constructor(
 			val half = viewHeightPx / 2
 			var step = 0
 			for (index in 0 until durationPx.toInt()) {
-				var sampleIndex = pxToSample(index)
+				var sampleIndex = pxToSample(index).roundToInt()
 				if (sampleIndex >= recordingData.size) {
 					sampleIndex = recordingData.size - 1
 				}

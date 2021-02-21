@@ -205,8 +205,6 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 				@Override public void onRecordingStarted(File file) { }
 				@Override public void onRecordingPaused() { }
 				@Override public void onRecordingResumed() { }
-				@Override public void onRecordProcessing() { }
-				@Override public void onRecordFinishProcessing() { }
 				@Override public void onRecordingStopped(File file, Record record) {
 						view.enableAudioSettings();
 				}

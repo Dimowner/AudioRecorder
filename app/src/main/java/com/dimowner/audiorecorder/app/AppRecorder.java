@@ -33,5 +33,4 @@ public interface AppRecorder {
 	boolean isRecording();
 	boolean isPaused();
 	void release();
-	boolean isProcessing();
 }

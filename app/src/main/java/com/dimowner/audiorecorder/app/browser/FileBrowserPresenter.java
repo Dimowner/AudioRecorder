@@ -96,20 +96,6 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 				}
 
 				@Override
-				public void onRecordProcessing() {
-					if (view != null) {
-						view.showRecordProcessing();
-					}
-				}
-
-				@Override
-				public void onRecordFinishProcessing() {
-					if (view != null) {
-						view.hideRecordProcessing();
-					}
-				}
-
-				@Override
 				public void onRecordingStopped(final File file, final Record rec) {
 				}
 

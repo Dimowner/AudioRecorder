@@ -437,6 +437,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		waveformView.setVisibility(View.VISIBLE);
 		recordingWaveformView.setVisibility(View.GONE);
 		recordingWaveformView.reset();
+		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 	}
 
 	@Override
@@ -495,8 +496,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void onRecordingProgress(long mills, int amp) {
-		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
-		recordingWaveformView.addRecordAmp(amp, mills);
+		runOnUiThread(() ->{
+			txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
+			recordingWaveformView.addRecordAmp(amp, mills);
+		});
 	}
 
 	@Override
@@ -613,7 +616,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showInformation(String info) {
-		txtRecordInfo.setText(info);
+		runOnUiThread(() -> txtRecordInfo.setText(info));
 	}
 
 	@Override

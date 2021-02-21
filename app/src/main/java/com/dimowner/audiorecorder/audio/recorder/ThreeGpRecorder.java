@@ -28,7 +28,7 @@ import java.io.IOException;
 
 import timber.log.Timber;
 
-import static com.dimowner.audiorecorder.AppConstants.VISUALIZATION_INTERVAL;
+import static com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL;
 
 public class ThreeGpRecorder implements RecorderContract.Recorder {
 
@@ -173,7 +173,7 @@ public class ThreeGpRecorder implements RecorderContract.Recorder {
 				}
 				scheduleRecordingTimeUpdate();
 			}
-		}, VISUALIZATION_INTERVAL);
+		}, RECORDING_VISUALIZATION_INTERVAL);
 	}
 
 	private void stopRecordingTimer() {

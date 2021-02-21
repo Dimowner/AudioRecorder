@@ -89,7 +89,7 @@ public class RecordingService extends Service {
 		fileRepository = ARApplication.getInjector().provideFileRepository();
 
 		appRecorderCallback = new AppRecorderCallback() {
-			int prevSec = 0;
+//			int prevSec = 0;
 			@Override public void onRecordingStarted(File file) {
 				updateNotificationResume();
 			}
@@ -97,8 +97,6 @@ public class RecordingService extends Service {
 				updateNotificationPause();
 			}
 			@Override public void onRecordingResumed() { }
-			@Override public void onRecordProcessing() { }
-			@Override public void onRecordFinishProcessing() { }
 			@Override public void onRecordingStopped(File file, Record rec) {
 				if (!rec.isWaveformProcessed()) {
 					DecodeService.Companion.startNotification(getApplicationContext(), rec.getId());
@@ -107,13 +105,13 @@ public class RecordingService extends Service {
 
 			@Override
 			public void onRecordingProgress(long mills, int amp) {
-				int curSec = (int)(mills/1000);
-				if (curSec > prevSec) {
-					updateNotification(mills);
-				}
-				prevSec = curSec;
+//				int curSec = (int)(mills/1000);
+//				if (curSec > prevSec) {
+//					updateNotification(mills);
+//				}
+//				prevSec = curSec;
 				try {
-					if (mills % (5 * AppConstants.VISUALIZATION_INTERVAL * AppConstants.SHORT_RECORD_DP_PER_SECOND) == 0
+					if (mills % (5 * AppConstants.PLAYBACK_VISUALIZATION_INTERVAL * AppConstants.SHORT_RECORD_DP_PER_SECOND) == 0
 								&& !fileRepository.hasAvailableSpace(getApplicationContext())) {
 						stopRecording();
 						Toast.makeText(getApplicationContext(), R.string.error_no_available_space, Toast.LENGTH_LONG).show();

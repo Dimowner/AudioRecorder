@@ -177,7 +177,7 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 				Timber.e(e, "Player is not initialized!")
 				onError(PlayerInitException())
 			}
-		}, AppConstants.VISUALIZATION_INTERVAL.toLong())
+		}, AppConstants.PLAYBACK_VISUALIZATION_INTERVAL.toLong())
 	}
 
 	private fun stopPlaybackTimeUpdate() {
