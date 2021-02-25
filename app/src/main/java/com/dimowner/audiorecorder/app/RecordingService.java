@@ -96,7 +96,9 @@ public class RecordingService extends Service {
 			@Override public void onRecordingPaused() {
 				updateNotificationPause();
 			}
-			@Override public void onRecordingResumed() { }
+			@Override public void onRecordingResumed() {
+				updateNotificationResume();
+			}
 			@Override public void onRecordingStopped(File file, Record rec) {
 				if (!rec.isWaveformProcessed()) {
 					DecodeService.Companion.startNotification(getApplicationContext(), rec.getId());
@@ -105,11 +107,6 @@ public class RecordingService extends Service {
 
 			@Override
 			public void onRecordingProgress(long mills, int amp) {
-//				int curSec = (int)(mills/1000);
-//				if (curSec > prevSec) {
-//					updateNotification(mills);
-//				}
-//				prevSec = curSec;
 				try {
 					if (mills % (5 * AppConstants.PLAYBACK_VISUALIZATION_INTERVAL * AppConstants.SHORT_RECORD_DP_PER_SECOND) == 0
 								&& !fileRepository.hasAvailableSpace(getApplicationContext())) {
@@ -156,7 +153,9 @@ public class RecordingService extends Service {
 			if (action != null && !action.isEmpty()) {
 				switch (action) {
 					case ACTION_START_RECORDING_SERVICE:
-						startForegroundService();
+						if (!started) {
+							startForegroundService();
+						}
 						break;
 					case ACTION_STOP_RECORDING_SERVICE:
 						stopForegroundService();
@@ -167,10 +166,8 @@ public class RecordingService extends Service {
 					case ACTION_PAUSE_RECORDING:
 						if (appRecorder.isPaused()) {
 							appRecorder.resumeRecording();
-							updateNotificationResume();
 						} else {
 							appRecorder.pauseRecording();
-							updateNotificationPause();
 						}
 						break;
 				}
@@ -270,7 +267,7 @@ public class RecordingService extends Service {
 
 	private void updateNotificationResume() {
 		if (started && remoteViewsSmall != null) {
-//			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress, getResources().getString(R.string.recording_is_on));
+			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress, getResources().getString(R.string.recording_is_on));
 			remoteViewsSmall.setImageViewResource(R.id.btn_recording_pause, R.drawable.ic_pause);
 
 			notificationManager.notify(NOTIF_ID, notification);

@@ -54,6 +54,7 @@
 				android:textColor="@color/text_secondary_light"
 				android:layout_marginStart="@dimen/spacing_normal"
 				android:layout_marginBottom="@dimen/spacing_small"
+				android:visibility="gone"
 				tools:text="Playback: 00:01:24"/>
 	</LinearLayout>
 

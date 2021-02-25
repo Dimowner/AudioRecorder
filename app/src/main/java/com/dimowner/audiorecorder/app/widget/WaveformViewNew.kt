@@ -55,7 +55,7 @@ class WaveformViewNew @JvmOverloads constructor(
 	private var playProgressMills = 0L
 
 	private var textHeight = 0f
-	private var inset = 0f
+	private var textIndent = 0f
 	private var prevScreenShiftPx = 0
 	private var readPlayProgress = true
 	private var screenShiftPx = 0
@@ -106,7 +106,7 @@ class WaveformViewNew @JvmOverloads constructor(
 		gridPaint.strokeWidth = AndroidUtils.dpToPx(1) / 2
 
 		textHeight = context.resources.getDimension(R.dimen.text_normal)
-		inset = textHeight + PADD
+		textIndent = textHeight + PADD
 		textPaint.color = ContextCompat.getColor(context, R.color.md_grey_100)
 		textPaint.strokeWidth = AndroidUtils.dpToPx(1)
 		textPaint.textAlign = Paint.Align.CENTER
@@ -152,7 +152,7 @@ class WaveformViewNew @JvmOverloads constructor(
 
 	fun showTimeline(show: Boolean) {
 		showTimeline = show
-		inset = if (show) { textHeight + PADD } else { 0f }
+		textIndent = if (show) { textHeight + PADD } else { 0f }
 		invalidate()
 	}
 
@@ -283,10 +283,10 @@ class WaveformViewNew @JvmOverloads constructor(
 		drawGrid(canvas)
 		drawWaveForm(canvas)
 		//Draw waveform start indication
-		canvas.drawLine(waveformShiftPx.toFloat(), inset, waveformShiftPx.toFloat(), height - inset, linePaint)
+		canvas.drawLine(waveformShiftPx.toFloat(), textIndent, waveformShiftPx.toFloat(), height - textIndent, linePaint)
 		//Draw waveform end indication
-		canvas.drawLine(waveformShiftPx + sampleToPx(waveformData.size), inset,
-				waveformShiftPx + sampleToPx(waveformData.size), height - inset, linePaint)
+		canvas.drawLine(waveformShiftPx + sampleToPx(waveformData.size), textIndent,
+				waveformShiftPx + sampleToPx(waveformData.size), height - textIndent, linePaint)
 		//Draw scrubber
 		canvas.drawLine(viewWidthPx / 2f, 0f, viewWidthPx / 2f, height.toFloat(), scrubberPaint)
 	}
@@ -344,12 +344,12 @@ class WaveformViewNew @JvmOverloads constructor(
 			if (xPos >= -gridStepMills && xPos <= viewWidthPx + gridStepMills) { // Draw only visible grid items +1
 				//Draw grid lines
 				//Draw main grid line
-				canvas.drawLine(xPos, inset, xPos, height - inset, gridPaint)
+				canvas.drawLine(xPos, textIndent, xPos, height - textIndent, gridPaint)
 				val xSubPos = xPos + subStepPx
 				//Draw grid top sub-line
-				canvas.drawLine(xSubPos, inset, xSubPos, GIRD_SUBLINE_HEIGHT + inset, gridPaint)
+				canvas.drawLine(xSubPos, textIndent, xSubPos, GIRD_SUBLINE_HEIGHT + textIndent, gridPaint)
 				//Draw grid bottom sub-line
-				canvas.drawLine(xSubPos, height - GIRD_SUBLINE_HEIGHT - inset, xSubPos, height - inset, gridPaint)
+				canvas.drawLine(xSubPos, height - GIRD_SUBLINE_HEIGHT - textIndent, xSubPos, height - textIndent, gridPaint)
 
 				if (showTimeline) {
 					//Draw timeline texts
@@ -451,7 +451,7 @@ class WaveformViewNew @JvmOverloads constructor(
 			if (value > 1.0) value = 1.0f
 			heights[i] = value * value
 		}
-		val halfHeight = viewHeightPx / 2 - inset.toInt() - 1
+		val halfHeight = viewHeightPx / 2 - textIndent.toInt() - 1
 		waveformData = IntArray(numFrames)
 		for (i in 0 until numFrames) {
 			waveformData[i] = (heights[i] * halfHeight).toInt()

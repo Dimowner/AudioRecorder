@@ -47,7 +47,8 @@ public class WavRecorder implements RecorderContract.Recorder {
 
 	private File recordFile = null;
 	private int bufferSize = 0;
-	private long startTime = 0;
+	private long updateTime = 0;
+	private long durationMills = 0;
 
 	private Thread recordingThread;
 
@@ -115,7 +116,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 			}
 			if (recorder != null && recorder.getState() == AudioRecord.STATE_INITIALIZED) {
 				recorder.startRecording();
-				startTime = System.currentTimeMillis();
+				updateTime = System.currentTimeMillis();
 				isRecording = true;
 				recordingThread = new Thread(this::writeAudioDataToFile, "AudioRecorder Thread");
 
@@ -142,6 +143,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 	public void resumeRecording() {
 		if (recorder != null && recorder.getState() == AudioRecord.STATE_INITIALIZED) {
 			if (isPaused) {
+				updateTime = System.currentTimeMillis();
 				scheduleRecordingTimeUpdate();
 				recorder.startRecording();
 				if (recorderCallback != null) {
@@ -156,6 +158,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 	public void pauseRecording() {
 		if (isRecording) {
 			recorder.stop();
+			durationMills += System.currentTimeMillis() - updateTime;
 			pauseRecordingTimer();
 
 			isPaused = true;
@@ -178,6 +181,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 					Timber.e(e, "stopRecording() problems");
 				}
 			}
+			durationMills = 0;
 			recorder.release();
 			recordingThread.interrupt();
 			if (recorderCallback != null) {
@@ -328,7 +332,10 @@ public class WavRecorder implements RecorderContract.Recorder {
 	private void scheduleRecordingTimeUpdate() {
 		handler.postDelayed(() -> {
 			if (recorderCallback != null && recorder != null) {
-				recorderCallback.onRecordProgress(System.currentTimeMillis() - startTime, lastVal);
+				long curTime = System.currentTimeMillis();
+				durationMills += curTime - updateTime;
+				updateTime = curTime;
+				recorderCallback.onRecordProgress(durationMills, lastVal);
 				scheduleRecordingTimeUpdate();
 			}
 		}, RECORDING_VISUALIZATION_INTERVAL);
@@ -336,10 +343,11 @@ public class WavRecorder implements RecorderContract.Recorder {
 
 	private void stopRecordingTimer() {
 		handler.removeCallbacksAndMessages(null);
-		startTime = 0;
+		updateTime = 0;
 	}
 
 	private void pauseRecordingTimer() {
 		handler.removeCallbacksAndMessages(null);
+		updateTime = 0;
 	}
 }

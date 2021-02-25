@@ -122,19 +122,21 @@ public class AudioRecorder implements RecorderContract.Recorder {
 	public void pauseRecording() {
 		if (isRecording) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-				try {
-					recorder.pause();
-					durationMills += System.currentTimeMillis() - updateTime;
-					pauseRecordingTimer();
-					if (recorderCallback != null) {
-						recorderCallback.onPauseRecord();
-					}
-					isPaused = true;
-				} catch (IllegalStateException e) {
-					Timber.e(e, "pauseRecording() failed");
-					if (recorderCallback != null) {
-						//TODO: Fix exception
-						recorderCallback.onError(new RecorderInitException());
+				if (!isPaused) {
+					try {
+						recorder.pause();
+						durationMills += System.currentTimeMillis() - updateTime;
+						pauseRecordingTimer();
+						if (recorderCallback != null) {
+							recorderCallback.onPauseRecord();
+						}
+						isPaused = true;
+					} catch (IllegalStateException e) {
+						Timber.e(e, "pauseRecording() failed");
+						if (recorderCallback != null) {
+							//TODO: Fix exception
+							recorderCallback.onError(new RecorderInitException());
+						}
 					}
 				}
 			} else {

@@ -170,6 +170,8 @@ class DecodeService : Service() {
 						stopService()
 					}
 				})
+			} else {
+				stopService()
 			}
 		}
 		startNotification()

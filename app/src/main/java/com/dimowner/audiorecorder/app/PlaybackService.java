@@ -64,6 +64,7 @@ public class PlaybackService extends Service {
 //	private RemoteViews remoteViewsBig;
 	private Notification notification;
 	private String recordName = "";
+	private boolean started = false;
 
 	private PlayerContractNew.Player audioPlayer;
 	private PlayerContractNew.PlayerCallback playerCallback;
@@ -90,6 +91,26 @@ public class PlaybackService extends Service {
 
 		audioPlayer = ARApplication.getInjector().provideAudioPlayer();
 		colorMap = ARApplication.getInjector().provideColorMap();
+
+		if (playerCallback == null) {
+			playerCallback = new PlayerContractNew.PlayerCallback() {
+				@Override public void onError(@NotNull AppException throwable) {
+					stopForegroundService();
+				}
+				@Override public void onStopPlay() {
+					stopForegroundService();
+				}
+				@Override public void onSeek(long mills) { }
+				@Override public void onPausePlay() {
+					onPausePlayback();
+				}
+				@Override public void onPlayProgress(long mills) { }
+				@Override public void onStartPlay() {
+					onStartPlayback();
+				}
+			};
+			this.audioPlayer.addPlayerCallback(playerCallback);
+		}
 	}
 
 	@Override
@@ -100,8 +121,9 @@ public class PlaybackService extends Service {
 			if (action != null && !action.isEmpty()) {
 				switch (action) {
 					case ACTION_START_PLAYBACK_SERVICE:
-						if (intent.hasExtra(EXTRAS_KEY_RECORD_NAME)) {
-							startForeground(intent.getStringExtra(EXTRAS_KEY_RECORD_NAME));
+						if (!started && intent.hasExtra(EXTRAS_KEY_RECORD_NAME)) {
+							recordName = intent.getStringExtra(EXTRAS_KEY_RECORD_NAME);
+							startForegroundService();
 						}
 						break;
 					case ACTION_PAUSE_PLAYBACK:
@@ -119,37 +141,6 @@ public class PlaybackService extends Service {
 			}
 		}
 		return super.onStartCommand(intent, flags, startId);
-	}
-
-	public void startForeground(String name) {
-		recordName = name;
-		if (playerCallback == null) {
-			playerCallback = new PlayerContractNew.PlayerCallback() {
-//				int prevSec = 0;
-				@Override public void onError(@NotNull AppException throwable) {
-					stopForegroundService();
-				}
-				@Override public void onStopPlay() {
-					stopForegroundService();
-				}
-				@Override public void onSeek(long mills) { }
-				@Override public void onPausePlay() {
-					onPausePlayback();
-				}
-				@Override public void onPlayProgress(long mills) {
-//					int curSec = (int)(mills/1000);
-//					if (curSec > prevSec) {
-//						updateNotification(mills);
-//					}
-//					prevSec = curSec;
-				}
-				@Override public void onStartPlay() {
-					onStartPlayback();
-				}
-			};
-		}
-		this.audioPlayer.addPlayerCallback(playerCallback);
-		startForegroundService();
 	}
 
 	private void startForegroundService() {
@@ -197,12 +188,14 @@ public class PlaybackService extends Service {
 		builder.setSound(null);
 		notification = builder.build();
 		startForeground(NOTIF_ID, notification);
+		started = true;
 	}
 
 	public void stopForegroundService() {
 		audioPlayer.removePlayerCallback(playerCallback);
 		stopForeground(true);
 		stopSelf();
+		started = false;
 	}
 
 	protected PendingIntent getPendingSelfIntent(Context context, String action) {
@@ -229,32 +222,29 @@ public class PlaybackService extends Service {
 	}
 
 	private void updateNotification(long mills) {
-		Timber.v("updateNotification: " + mills);
-		remoteViewsSmall.setTextViewText(R.id.txt_playback_progress,
-				getResources().getString(R.string.playback, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
+		if (started && remoteViewsSmall != null) {
+			remoteViewsSmall.setTextViewText(R.id.txt_playback_progress,
+					getResources().getString(R.string.playback, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
 
 //		remoteViewsBig.setTextViewText(R.id.txt_playback_progress,
 //				getResources().getString(R.string.playback, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
 
-		notificationManager.notify(NOTIF_ID, builder.build());
+			notificationManager.notify(NOTIF_ID, builder.build());
+		}
 	}
 
 	public void onPausePlayback() {
-//		if (remoteViewsBig != null && remoteViewsSmall != null) {
-		if (remoteViewsSmall != null) {
+		if (started && remoteViewsSmall != null) {
 //			remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_play);
 			remoteViewsSmall.setImageViewResource(R.id.btn_pause, R.drawable.ic_play);
-			builder.setOngoing(false);
 			notificationManager.notify(NOTIF_ID, notification);
 		}
 	}
 
 	public void onStartPlayback() {
-//		if (remoteViewsBig != null && remoteViewsSmall != null) {
-		if (remoteViewsSmall != null) {
+		if (started && remoteViewsSmall != null) {
 //			remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_pause);
 			remoteViewsSmall.setImageViewResource(R.id.btn_pause, R.drawable.ic_pause);
-			builder.setOngoing(true);
 			notificationManager.notify(NOTIF_ID, notification);
 		}
 	}

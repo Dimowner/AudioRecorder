@@ -29,7 +29,7 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.util.TimeUtils
 import java.util.*
-import kotlin.math.roundToInt
+import kotlin.math.ceil
 
 private const val DEFAULT_GRID_STEP = 2000L //Milliseconds
 
@@ -49,10 +49,8 @@ class RecordingWaveformView @JvmOverloads constructor(
 	private val textPaint = TextPaint(TextPaint.ANTI_ALIAS_FLAG)
 
 	private var textHeight = 0f
-	private var inset = 0f
-	private var prevScreenShiftPx = 0
-	private var screenShiftPx = 0
-	private var waveformShiftPx = 0
+	private var textIndent = 0f
+
 	private var viewWidthPx = 0
 	private var viewHeightPx = 0
 
@@ -64,7 +62,6 @@ class RecordingWaveformView @JvmOverloads constructor(
 
 	private var durationMills: Long = 0
 	private var durationPx: Double = 0.0
-	private var durationSample: Int = 0
 	private var millsPerPx: Double = 0.0
 	private var pxPerMill: Double = 0.0
 	private var samplePerPx: Double = 0.0
@@ -88,7 +85,7 @@ class RecordingWaveformView @JvmOverloads constructor(
 		gridPaint.strokeWidth = AndroidUtils.dpToPx(1) / 2
 
 		textHeight = context.resources.getDimension(R.dimen.text_normal)
-		inset = textHeight + PADD
+		textIndent = textHeight + PADD
 		textPaint.color = ContextCompat.getColor(context, R.color.md_grey_100)
 		textPaint.strokeWidth = AndroidUtils.dpToPx(1)
 		textPaint.textAlign = Paint.Align.CENTER
@@ -103,8 +100,6 @@ class RecordingWaveformView @JvmOverloads constructor(
 		if (recordingData.size > pxToSample(viewWidthPx / 2)) {
 			recordingData.removeAt(0)
 		}
-		updateShifts(-millsToPx(mills).toInt())
-		prevScreenShiftPx = screenShiftPx
 		invalidate()
 	}
 
@@ -123,30 +118,24 @@ class RecordingWaveformView @JvmOverloads constructor(
 					recordingData.add(convertAmp(data[i].toDouble()))
 				}
 			}
-			updateShifts(-millsToPx(durationMills).toInt())
-			prevScreenShiftPx = screenShiftPx
 			requestLayout()
 		}
 	}
 
 	private fun updateValues(size: Int, durationMills: Long) {
 		this.durationMills = durationMills
-		this.durationSample = size
 		this.pxPerMill = DEFAULT_PIXEL_PER_SECOND/1000.0
 		this.durationPx = durationMills*pxPerMill
 		this.millsPerPx = 1/pxPerMill
-		this.samplePerMill = durationSample.toDouble()/durationMills.toDouble()
+		this.samplePerMill = size/durationMills.toDouble()
 		this.samplePerPx = samplePerMill/pxPerMill
 	}
 
 	fun reset() {
 		recordingData.clear()
 		totalRecordingSize = 0
-		prevScreenShiftPx = 0
-		waveformShiftPx = 0
 
 		durationMills = 0
-		durationSample = 0
 		pxPerMill = 0.0
 		millsPerPx = 0.0
 		samplePerPx = 0.0
@@ -197,39 +186,33 @@ class RecordingWaveformView @JvmOverloads constructor(
 		canvas.drawLine(viewWidthPx / 2f, 0f, viewWidthPx / 2f, height.toFloat(), scrubberPaint)
 	}
 
-	private fun updateShifts(px: Int) {
-		screenShiftPx = px
-		waveformShiftPx = screenShiftPx + viewWidthPx / 2
-	}
-
 	private fun drawGrid(canvas: Canvas) {
 		val subStepPx = millsToPx(gridStepMills / 2)
-		val halfWidthMills = pxToMill(viewWidthPx / 2)
-		val gridEndMills = durationMills + halfWidthMills.toInt() + gridStepMills
-		val halfScreenStepCount = (halfWidthMills/gridStepMills).toInt()
+		val halfWidthMills = pxToMill(viewWidthPx / 2).toLong()
+		val shiftDeltaMills = (-durationMills+halfWidthMills)%gridStepMills
+		val end = ceil(pxToMill(viewWidthPx)/gridStepMills).toInt()
 
-		for (indexMills in -halfScreenStepCount*gridStepMills until gridEndMills step gridStepMills) {
-			val sampleIndexPx = millsToPx(indexMills)
-			val xPos = (waveformShiftPx + sampleIndexPx).toFloat()
-			if (xPos >= -gridStepMills && xPos <= viewWidthPx + gridStepMills) { // Draw only visible grid items +1
-				//Draw grid lines
-				//Draw main grid line
-				canvas.drawLine(xPos, inset, xPos, height - inset, gridPaint)
-				val xSubPos = xPos + subStepPx.toFloat()
-				//Draw grid top sub-line
-				canvas.drawLine(xSubPos, inset, xSubPos, GIRD_SUBLINE_HEIGHT + inset, gridPaint)
-				//Draw grid bottom sub-line
-				canvas.drawLine(xSubPos, height - GIRD_SUBLINE_HEIGHT - inset, xSubPos, height - inset, gridPaint)
+		for (index in -1 until end+1) {
+			val indexMills = (index*gridStepMills + shiftDeltaMills)
+			val xPos = millsToPx(indexMills).toFloat()
+			//Draw grid lines
+			//Draw main grid line
+			canvas.drawLine(xPos, textIndent, xPos, height - textIndent, gridPaint)
+			val xSubPos = xPos + subStepPx.toFloat()
+			//Draw grid top sub-line
+			canvas.drawLine(xSubPos, textIndent, xSubPos, GIRD_SUBLINE_HEIGHT + textIndent, gridPaint)
+			//Draw grid bottom sub-line
+			canvas.drawLine(xSubPos, height - GIRD_SUBLINE_HEIGHT - textIndent, xSubPos, height - textIndent, gridPaint)
 
-				if (showTimeline) {
-					//Draw timeline texts
-					if (indexMills >= 0) {
-						val text = TimeUtils.formatTimeIntervalHourMin(indexMills)
-						//Bottom timeline text
-						canvas.drawText(text, xPos, height - PADD, textPaint)
-						//Top timeline text
-						canvas.drawText(text, xPos, textHeight, textPaint)
-					}
+			if (showTimeline) {
+				val timeMills = indexMills+durationMills-halfWidthMills
+				//Draw timeline texts
+				if (timeMills >= 0) {
+					val text = TimeUtils.formatTimeIntervalMinSec(timeMills)
+					//Bottom timeline text
+					canvas.drawText(text, xPos, height - PADD, textPaint)
+					//Top timeline text
+					canvas.drawText(text, xPos, textHeight, textPaint)
 				}
 			}
 		}
@@ -239,9 +222,11 @@ class RecordingWaveformView @JvmOverloads constructor(
 		if (recordingData.isNotEmpty()) {
 			clearDrawLines()
 			val half = viewHeightPx / 2
+			val halfWidth = viewWidthPx / 2
+			val endPx = if (durationPx < halfWidth) { durationPx.toInt() } else { halfWidth }
 			var step = 0
-			for (index in 0 until durationPx.toInt()) {
-				var sampleIndex = pxToSample(index).roundToInt()
+			for (index in 0 until endPx ) {
+				var sampleIndex = pxToSample(index).toInt()
 				if (sampleIndex >= recordingData.size) {
 					sampleIndex = recordingData.size - 1
 				}
