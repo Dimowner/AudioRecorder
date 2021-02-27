@@ -16,8 +16,10 @@ android {
 		applicationId "com.dimowner.audiorecorder"
 		minSdkVersion 21
 		targetSdkVersion 29
-		versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
-		versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+//		versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
+//		versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+		versionCode 914
+		versionName "0.9.14"
 	}
 
 //	def keystorePropertiesFile = rootProject.file("keystore.properties")
