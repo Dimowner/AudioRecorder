@@ -1,4 +1,4 @@
-<i>Audiorecorder</i> ermöglicht einfache Audioaufnahme. Die App ist für den schnellstmöglichen Start optimiert und hilft dabei, wichtige Sounds für den Benutzer nicht zu verpassen.
+<i>Audiorecorder</i> ermöglicht einfache Audioaufnahmen. Die App ist für den schnellstmöglichen Start optimiert und hilft dabei, wichtige Sounds für den Benutzer nicht zu verpassen.
 
 Es stehen zwei Aufnahmeformate zur Verfügung:
 
@@ -11,7 +11,7 @@ Wählen Sie in den Einstellungen Samplerate, Bitrate (nur für M4A) und Stereo o
 
 * Audio aufnehmen
 * Wiedergabe von Aufzeichnungen
-* Unterstützte Aufnahmeformate: M4A und WAV
+* Unterstützte Aufnahmeformate: M4A/AAC und WAV
 * Stellen Sie die Abtastrate und die Bitrate ein
 * Aufnahme und Wiedergabe im Hintergrund
 * Aufzeichnungswellenform anzeigen
@@ -19,5 +19,5 @@ Wählen Sie in den Einstellungen Samplerate, Bitrate (nur für M4A) und Stereo o
 * Datei teilen
 * Importieren von Audiodateien
 * Dateiliste
-* ausgewählte Datei den Lesezeichen hinzu
+* ausgewählte Datei den Lesezeichen hinzufügen
 * Farbige Themen
