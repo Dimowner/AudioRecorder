@@ -246,6 +246,7 @@
 						android:background="?android:selectableItemBackgroundBorderless"
 						android:contentDescription="@null"
 						android:scaleType="center"
+						android:visibility="gone"
 						android:src="@drawable/ic_loop" />
 
 				<ImageButton
