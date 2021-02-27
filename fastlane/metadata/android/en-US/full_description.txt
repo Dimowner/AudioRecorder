@@ -12,7 +12,7 @@ In settings, select sample rate, bitrate (for AAC only) and stereo or mono. Sele
 * Recording audio
 * Playing back recordings
 * Make recordings in M4A and WAV
-* Settting sample rate and bitrate
+* Setting sample rate and bitrate
 * Recording and playing back in background
 * Displaying waveform of the recording
 * Rename recordings
