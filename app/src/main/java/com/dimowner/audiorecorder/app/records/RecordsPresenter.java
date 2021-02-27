@@ -443,7 +443,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 	@Override
 	public void loadRecordsPage(final int page) {
-		if (view != null) {
+		if (view != null && !showBookmarks) {
 			view.showProgress();
 			view.showPanelProgress();
 			loadingTasks.postRunnable(() -> {
