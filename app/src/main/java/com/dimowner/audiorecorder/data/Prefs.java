@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,9 @@ public interface Prefs {
 
 	boolean isStoreDirPublic();
 	void setStoreDirPublic(boolean b);
+
+	//This is needed for scoped storage support
+	boolean isShowDirectorySetting();
 
 	boolean isAskToRenameAfterStopRecording();
 	boolean hasAskToRenameAfterStopRecordingSetting();

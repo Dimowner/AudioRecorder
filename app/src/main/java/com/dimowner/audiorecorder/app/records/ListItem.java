@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -173,7 +173,7 @@ public class ListItem implements Parcelable {
 	}
 
 	private String convertTimeToStr(long time) {
-		return TimeUtils.formatDateForNameVariant(time);
+		return TimeUtils.formatDateTimeLocale(time);
 //		return TimeUtils.formatTime(time);
 	}
 

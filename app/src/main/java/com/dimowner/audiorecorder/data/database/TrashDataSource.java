@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@ package com.dimowner.audiorecorder.data.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-
-import com.dimowner.audiorecorder.util.FileUtil;
 
 import java.util.Date;
 

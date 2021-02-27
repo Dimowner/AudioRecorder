@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,26 +67,21 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		if (view != null) {
 			view.showProgress();
 		}
-		loadingTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				final List<Long> durations = localRepository.getRecordsDurations();
-				long totalDuration = 0;
-				for (int i = 0; i < durations.size(); i++) {
-					totalDuration += durations.get(i);
-				}
-				final long finalTotalDuration = totalDuration;
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override public void run() {
-						if (view != null) {
-							view.showTotalRecordsDuration(TimeUtils.formatTimeIntervalHourMinSec(finalTotalDuration / 1000));
-							view.showRecordsCount(durations.size());
-							updateAvailableSpace();
-							view.hideProgress();
-						}
-					}
-				});
+		loadingTasks.postRunnable(() -> {
+			final List<Long> durations = localRepository.getRecordsDurations();
+			long totalDuration = 0;
+			for (int i = 0; i < durations.size(); i++) {
+				totalDuration += durations.get(i);
 			}
+			final long finalTotalDuration = totalDuration;
+			AndroidUtils.runOnUIThread(() -> {
+				if (view != null) {
+					view.showTotalRecordsDuration(TimeUtils.formatTimeIntervalHourMinSec(finalTotalDuration / 1000));
+					view.showRecordsCount(durations.size());
+					updateAvailableSpace();
+					view.hideProgress();
+				}
+			});
 		});
 		if (view != null) {
 			view.updateRecordingInfo(prefs.getSettingRecordingFormat());
@@ -106,6 +101,8 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 			view.showNamingFormat(prefs.getSettingNamingFormat());
 			view.showRecordingBitrate(prefs.getSettingBitrate());
 			view.showRecordingSampleRate(prefs.getSettingSampleRate());
+			//This is needed for scoped storage support
+			view.showDirectorySetting(prefs.isShowDirectorySetting());
 		}
 	}
 
@@ -171,9 +168,7 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 
 	@Override
 	public void deleteAllRecords() {
-		recordingsTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
+		recordingsTasks.postRunnable(() -> {
 //				List<Record> records  = localRepository.getAllRecords();
 //				for (int i = 0; i < records.size(); i++) {
 //					fileRepository.deleteRecordFile(records.get(i).getPath());
@@ -197,7 +192,6 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 //							}
 //						}});
 //				}
-			}
 		});
 	}
 
@@ -210,8 +204,7 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 			appRecorderCallback = new AppRecorderCallback() {
 				@Override public void onRecordingStarted(File file) { }
 				@Override public void onRecordingPaused() { }
-				@Override public void onRecordProcessing() { }
-				@Override public void onRecordFinishProcessing() { }
+				@Override public void onRecordingResumed() { }
 				@Override public void onRecordingStopped(File file, Record record) {
 						view.enableAudioSettings();
 				}

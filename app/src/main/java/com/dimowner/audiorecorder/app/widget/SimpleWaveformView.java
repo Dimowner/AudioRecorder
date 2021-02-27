@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class SimpleWaveformView extends View {
 
 	private boolean isInitialized;
 
-	private int[] empty = new int[0];
+	private final int[] empty = new int[0];
 
 	/**
 	 * Values used to prevent call {@link #adjustWaveformHeights} before view is measured because

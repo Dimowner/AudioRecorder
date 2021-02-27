@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,11 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.main.MainActivity;
-import com.dimowner.audiorecorder.audio.player.PlayerContract;
+import com.dimowner.audiorecorder.audio.player.PlayerContractNew;
 import com.dimowner.audiorecorder.exception.AppException;
+import com.dimowner.audiorecorder.util.TimeUtils;
+
+import org.jetbrains.annotations.NotNull;
 
 import androidx.core.app.NotificationManagerCompat;
 import timber.log.Timber;
@@ -61,9 +64,10 @@ public class PlaybackService extends Service {
 //	private RemoteViews remoteViewsBig;
 	private Notification notification;
 	private String recordName = "";
+	private boolean started = false;
 
-	private PlayerContract.Player audioPlayer;
-	private PlayerContract.PlayerCallback playerCallback;
+	private PlayerContractNew.Player audioPlayer;
+	private PlayerContractNew.PlayerCallback playerCallback;
 	private ColorMap colorMap;
 
 	public PlaybackService() {
@@ -87,6 +91,26 @@ public class PlaybackService extends Service {
 
 		audioPlayer = ARApplication.getInjector().provideAudioPlayer();
 		colorMap = ARApplication.getInjector().provideColorMap();
+
+		if (playerCallback == null) {
+			playerCallback = new PlayerContractNew.PlayerCallback() {
+				@Override public void onError(@NotNull AppException throwable) {
+					stopForegroundService();
+				}
+				@Override public void onStopPlay() {
+					stopForegroundService();
+				}
+				@Override public void onSeek(long mills) { }
+				@Override public void onPausePlay() {
+					onPausePlayback();
+				}
+				@Override public void onPlayProgress(long mills) { }
+				@Override public void onStartPlay() {
+					onStartPlayback();
+				}
+			};
+			this.audioPlayer.addPlayerCallback(playerCallback);
+		}
 	}
 
 	@Override
@@ -97,12 +121,17 @@ public class PlaybackService extends Service {
 			if (action != null && !action.isEmpty()) {
 				switch (action) {
 					case ACTION_START_PLAYBACK_SERVICE:
-						if (intent.hasExtra(EXTRAS_KEY_RECORD_NAME)) {
-							startForeground(intent.getStringExtra(EXTRAS_KEY_RECORD_NAME));
+						if (!started && intent.hasExtra(EXTRAS_KEY_RECORD_NAME)) {
+							recordName = intent.getStringExtra(EXTRAS_KEY_RECORD_NAME);
+							startForegroundService();
 						}
 						break;
 					case ACTION_PAUSE_PLAYBACK:
-						audioPlayer.playOrPause();
+						if (audioPlayer.isPlaying()) {
+							audioPlayer.pause();
+						} else if (audioPlayer.isPaused()) {
+							audioPlayer.unpause();
+						}
 						break;
 					case ACTION_CLOSE:
 						audioPlayer.stop();
@@ -112,36 +141,6 @@ public class PlaybackService extends Service {
 			}
 		}
 		return super.onStartCommand(intent, flags, startId);
-	}
-
-	public void startForeground(String name) {
-		recordName = name;
-		if (playerCallback == null) {
-			playerCallback = new PlayerContract.PlayerCallback() {
-				@Override public void onPreparePlay() {}
-				@Override public void onPlayProgress(final long mills) {}
-				@Override public void onStopPlay() {
-					stopForegroundService();
-				}
-				@Override public void onSeek(long mills) {}
-				@Override public void onError(AppException throwable) {
-					stopForegroundService();
-				}
-
-				@Override
-				public void onStartPlay() {
-					onStartPlayback();
-				}
-
-				@Override
-				public void onPausePlay() {
-					onPausePlayback();
-				}
-			};
-		}
-
-		this.audioPlayer.addPlayerCallback(playerCallback);
-		startForegroundService();
 	}
 
 	private void startForegroundService() {
@@ -189,12 +188,14 @@ public class PlaybackService extends Service {
 		builder.setSound(null);
 		notification = builder.build();
 		startForeground(NOTIF_ID, notification);
+		started = true;
 	}
 
 	public void stopForegroundService() {
 		audioPlayer.removePlayerCallback(playerCallback);
 		stopForeground(true);
 		stopSelf();
+		started = false;
 	}
 
 	protected PendingIntent getPendingSelfIntent(Context context, String action) {
@@ -204,7 +205,7 @@ public class PlaybackService extends Service {
 	}
 
 	@RequiresApi(Build.VERSION_CODES.O)
-	private String createNotificationChannel(String channelId, String channelName) {
+	private void createNotificationChannel(String channelId, String channelName) {
 		NotificationChannel channel = notificationManager.getNotificationChannel(channelId);
 		if (channel == null) {
 			NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
@@ -216,27 +217,34 @@ public class PlaybackService extends Service {
 
 			notificationManager.createNotificationChannel(chan);
 		} else {
-			Timber.d("Channel already exists: " + CHANNEL_ID);
+			Timber.d("Channel already exists: %s", CHANNEL_ID);
 		}
-		return channelId;
+	}
+
+	private void updateNotification(long mills) {
+		if (started && remoteViewsSmall != null) {
+			remoteViewsSmall.setTextViewText(R.id.txt_playback_progress,
+					getResources().getString(R.string.playback, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
+
+//		remoteViewsBig.setTextViewText(R.id.txt_playback_progress,
+//				getResources().getString(R.string.playback, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
+
+			notificationManager.notify(NOTIF_ID, builder.build());
+		}
 	}
 
 	public void onPausePlayback() {
-//		if (remoteViewsBig != null && remoteViewsSmall != null) {
-		if (remoteViewsSmall != null) {
+		if (started && remoteViewsSmall != null) {
 //			remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_play);
 			remoteViewsSmall.setImageViewResource(R.id.btn_pause, R.drawable.ic_play);
-			builder.setOngoing(false);
 			notificationManager.notify(NOTIF_ID, notification);
 		}
 	}
 
 	public void onStartPlayback() {
-//		if (remoteViewsBig != null && remoteViewsSmall != null) {
-		if (remoteViewsSmall != null) {
+		if (started && remoteViewsSmall != null) {
 //			remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_pause);
 			remoteViewsSmall.setImageViewResource(R.id.btn_pause, R.drawable.ic_pause);
-			builder.setOngoing(true);
 			notificationManager.notify(NOTIF_ID, notification);
 		}
 	}

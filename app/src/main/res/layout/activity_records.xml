@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~  Copyright 2018 Dmitriy Ponomarenko
+  ~  Copyright 2018 Dmytro Ponomarenko
   ~
   ~  Licensed under the Apache License, Version 2.0 (the "License");
   ~  you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 			android:id="@+id/recycler_view"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
+			android:overScrollMode="never"
 			/>
 
 	<LinearLayout
@@ -49,6 +50,7 @@
 				android:layout_weight="1"
 				android:gravity="center_vertical"
 				android:orientation="vertical">
+
 			<TextView
 					style="@style/Text.SectionLabel"
 					android:id="@+id/txt_title"
@@ -100,6 +102,73 @@
 
 	</LinearLayout>
 
+	<LinearLayout
+			android:id="@+id/menu_multi_select"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="@color/md_blue_gray_500"
+			android:visibility="gone"
+			android:orientation="horizontal"
+			android:elevation="@dimen/toolbar_elevation"
+			tools:visibility="visible">
+
+		<ImageButton
+				android:id="@+id/btn_close_multi_select"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@null"
+				android:layout_gravity="start"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:padding="@dimen/spacing_normal"
+				android:src="@drawable/ic_round_close"/>
+
+		<TextView
+				style="@style/Text.SectionLabel"
+				android:id="@+id/txt_selected_multi"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:layout_gravity="center_vertical"
+				android:paddingStart="@dimen/spacing_normal"
+				android:paddingLeft="@dimen/spacing_normal"
+				android:paddingEnd="@dimen/spacing_normal"
+				android:paddingRight="@dimen/spacing_normal"
+				android:textColor="@color/text_primary_light"
+				android:text="@string/selected"
+				/>
+
+		<ImageButton
+				android:id="@+id/btn_share_multi"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@null"
+				android:layout_gravity="center_vertical|end"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:padding="@dimen/spacing_normal"
+				android:src="@drawable/ic_share"/>
+
+		<ImageButton
+				android:id="@+id/btn_download_multi"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@null"
+				android:layout_gravity="center_vertical|end"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:padding="@dimen/spacing_normal"
+				android:src="@drawable/ic_save_alt"/>
+
+		<ImageButton
+				android:id="@+id/btn_delete_multi"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@null"
+				android:layout_gravity="center_vertical|end"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:padding="@dimen/spacing_normal"
+				android:src="@drawable/ic_delete"/>
+
+	</LinearLayout>
+
 	<View
 			android:id="@+id/bottomDivider"
 			android:layout_width="match_parent"
@@ -138,9 +207,9 @@
 			android:layout_height="wrap_content"
 			android:clipToPadding="false"
 			android:layout_gravity="bottom"
-			android:layout_marginBottom="@dimen/spacing_small"
-			android:layout_marginStart="@dimen/spacing_small"
-			android:layout_marginEnd="@dimen/spacing_small"
+			android:layout_marginBottom="2dp"
+			android:layout_marginStart="2dp"
+			android:layout_marginEnd="2dp"
 			android:elevation="@dimen/toolbar_elevation"
 			android:visibility="gone"
 			android:background="@drawable/panel_amber"
@@ -155,6 +224,7 @@
 			<FrameLayout
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content">
+
 				<TextView
 						android:id="@+id/txt_progress"
 						android:layout_width="wrap_content"
@@ -163,13 +233,25 @@
 						android:padding="@dimen/spacing_medium"
 						android:textColor="@color/text_primary_light"
 						android:textSize="@dimen/text_xlarge"
-						android:textStyle="bold"
+						android:fontFamily="sans-serif-medium"
 						tools:text="00:00:00"/>
 
 				<ImageButton
+						android:id="@+id/btn_decoding"
+						android:layout_width="48dp"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_vertical|start"
+						android:layout_marginStart="@dimen/spacing_small"
+						android:adjustViewBounds="true"
+						android:background="?android:selectableItemBackgroundBorderless"
+						android:contentDescription="@null"
+						android:scaleType="center"
+						android:src="@drawable/ic_loop" />
+
+				<ImageButton
 						android:id="@+id/btn_check_bookmark"
-						android:layout_width="@dimen/bottom_pnl_small_btn_size"
-						android:layout_height="@dimen/bottom_pnl_small_btn_size"
+						android:layout_width="48dp"
+						android:layout_height="40dp"
 						android:adjustViewBounds="true"
 						android:background="?android:selectableItemBackgroundBorderless"
 						android:contentDescription="@null"
@@ -181,13 +263,13 @@
 
 			<FrameLayout
 					android:layout_width="match_parent"
-					android:layout_height="100dp"
+					android:layout_height="60dp"
 					>
 
-				<com.dimowner.audiorecorder.app.widget.WaveformView
+				<com.dimowner.audiorecorder.app.widget.WaveformViewNew
 						android:id="@+id/record"
 						android:layout_width="wrap_content"
-						android:layout_height="100dp"
+						android:layout_height="60dp"
 						android:layout_gravity="center"
 						/>
 
@@ -203,7 +285,7 @@
 			<FrameLayout
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:layout_marginBottom="@dimen/spacing_small">
+					android:layout_marginBottom="@dimen/spacing_tiny">
 
 				<TextView
 						android:layout_width="wrap_content"
@@ -252,18 +334,20 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_gravity="bottom|center_horizontal"
-					android:layout_margin="@dimen/spacing_small"
+					android:layout_marginBottom="@dimen/spacing_tiny"
+					android:layout_marginTop="@dimen/spacing_tiny"
 					android:orientation="horizontal">
 
 				<ImageButton
 						android:id="@+id/btn_prev"
-						android:layout_width="@dimen/bottom_pnl_small_btn_size"
-						android:layout_height="@dimen/bottom_pnl_small_btn_size"
+						android:layout_width="@dimen/bottom_pnl_small_btn_size2"
+						android:layout_height="@dimen/bottom_pnl_small_btn_size2"
 						android:adjustViewBounds="true"
 						android:background="?android:selectableItemBackgroundBorderless"
 						android:contentDescription="@null"
 						android:layout_gravity="center"
 						android:scaleType="center"
+						android:layout_marginStart="@dimen/spacing_small"
 						android:src="@drawable/ic_skip_previous"/>
 
 				<View
@@ -274,8 +358,8 @@
 
 				<ImageButton
 						android:id="@+id/btn_delete"
-						android:layout_width="@dimen/bottom_pnl_small_btn_size"
-						android:layout_height="@dimen/bottom_pnl_small_btn_size"
+						android:layout_width="@dimen/bottom_pnl_small_btn_size2"
+						android:layout_height="@dimen/bottom_pnl_small_btn_size2"
 						android:adjustViewBounds="true"
 						android:background="?android:selectableItemBackgroundBorderless"
 						android:contentDescription="@null"
@@ -286,20 +370,20 @@
 				<ImageButton
 						android:id="@+id/btn_play"
 						android:layout_width="64dp"
-						android:layout_height="64dp"
+						android:layout_height="50dp"
 						android:adjustViewBounds="true"
 						android:background="?android:selectableItemBackgroundBorderless"
 						android:contentDescription="@null"
 						android:layout_gravity="center"
 						android:scaleType="center"
-						android:layout_marginStart="@dimen/spacing_small"
-						android:layout_marginEnd="@dimen/spacing_small"
+						android:layout_marginStart="@dimen/spacing_medium"
+						android:layout_marginEnd="@dimen/spacing_medium"
 						android:src="@drawable/ic_play_64"/>
 
 				<ImageButton
 						android:id="@+id/btn_stop"
-						android:layout_width="@dimen/bottom_pnl_small_btn_size"
-						android:layout_height="@dimen/bottom_pnl_small_btn_size"
+						android:layout_width="@dimen/bottom_pnl_small_btn_size2"
+						android:layout_height="@dimen/bottom_pnl_small_btn_size2"
 						android:adjustViewBounds="true"
 						android:background="?android:selectableItemBackgroundBorderless"
 						android:contentDescription="@null"
@@ -314,13 +398,14 @@
 						/>
 				<ImageButton
 						android:id="@+id/btn_next"
-						android:layout_width="@dimen/bottom_pnl_small_btn_size"
-						android:layout_height="@dimen/bottom_pnl_small_btn_size"
+						android:layout_width="@dimen/bottom_pnl_small_btn_size2"
+						android:layout_height="@dimen/bottom_pnl_small_btn_size2"
 						android:adjustViewBounds="true"
 						android:background="?android:selectableItemBackgroundBorderless"
 						android:contentDescription="@null"
 						android:layout_gravity="center"
 						android:scaleType="center"
+						android:layout_marginEnd="@dimen/spacing_small"
 						android:src="@drawable/ic_skip_next"/>
 
 			</LinearLayout>

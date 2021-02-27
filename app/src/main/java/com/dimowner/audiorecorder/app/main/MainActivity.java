@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,26 +19,18 @@ package com.dimowner.audiorecorder.app.main;
 import android.Manifest;
 import android.animation.Animator;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.TypedValue;
+import android.os.IBinder;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -49,10 +41,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
-import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.IntArrayList;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.DecodeService;
+import com.dimowner.audiorecorder.app.DecodeServiceListener;
 import com.dimowner.audiorecorder.app.DownloadService;
 import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.RecordingService;
@@ -61,7 +54,8 @@ import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.records.RecordsActivity;
 import com.dimowner.audiorecorder.app.settings.SettingsActivity;
 import com.dimowner.audiorecorder.app.welcome.WelcomeActivity;
-import com.dimowner.audiorecorder.app.widget.WaveformView;
+import com.dimowner.audiorecorder.app.widget.RecordingWaveformView;
+import com.dimowner.audiorecorder.app.widget.WaveformViewNew;
 import com.dimowner.audiorecorder.audio.AudioDecoder;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
@@ -83,6 +77,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 // TODO: Ability to scroll up from the bottom of the list
 // TODO: Stop infinite loop when pause WAV recording
 // TODO: Report some sensitive error to Crashlytics manually.
+//	TODO: Bluetooth micro support
+//	TODO: Mp3 support
+//	TODO: Add Noise gate
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -92,7 +89,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_DOWNLOAD = 407;
 	public static final int REQ_CODE_IMPORT_AUDIO = 11;
 
-	private WaveformView waveformView;
+	private WaveformViewNew waveformView;
+	private RecordingWaveformView recordingWaveformView;
 	private TextView txtProgress;
 	private TextView txtDuration;
 	private TextView txtZeroTime;
@@ -104,8 +102,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ImageButton btnDelete;
 	private ImageButton btnRecordingStop;
 	private ImageButton btnShare;
-	private ImageButton btnRecordsList;
-	private ImageButton btnSettings;
 	private ImageButton btnImport;
 	private ProgressBar progressBar;
 	private SeekBar playProgress;
@@ -116,6 +112,41 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private MainContract.UserActionsListener presenter;
 	private ColorMap colorMap;
 	private ColorMap.OnThemeColorChangeListener onThemeColorChangeListener;
+
+	private final ServiceConnection connection = new ServiceConnection() {
+
+		@Override
+		public void onServiceConnected(ComponentName className, IBinder service) {
+			DecodeService.LocalBinder binder = (DecodeService.LocalBinder) service;
+			DecodeService decodeService = binder.getService();
+			decodeService.setDecodeListener(new DecodeServiceListener() {
+				@Override
+				public void onStartProcessing() {
+					runOnUiThread(MainActivity.this::showRecordProcessing);
+				}
+
+				@Override
+				public void onFinishProcessing() {
+					runOnUiThread(() -> {
+						hideRecordProcessing();
+						presenter.loadActiveRecord();
+					});
+				}
+			});
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName arg0) {
+			hideRecordProcessing();
+		}
+
+		@Override
+		public void onBindingDied(ComponentName name) {
+			hideRecordProcessing();
+		}
+	};
+
+	private float space = 75;
 
 	public static Intent getStartIntent(Context context) {
 		return new Intent(context, MainActivity.class);
@@ -129,6 +160,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		setContentView(R.layout.activity_main);
 
 		waveformView = findViewById(R.id.record);
+		recordingWaveformView = findViewById(R.id.recording_view);
 		txtProgress = findViewById(R.id.txt_progress);
 		txtDuration = findViewById(R.id.txt_duration);
 		txtZeroTime = findViewById(R.id.txt_zero_time);
@@ -139,8 +171,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnRecordingStop = findViewById(R.id.btn_record_stop);
 		btnDelete = findViewById(R.id.btn_record_delete);
 		btnStop = findViewById(R.id.btn_stop);
-		btnRecordsList = findViewById(R.id.btn_records_list);
-		btnSettings = findViewById(R.id.btn_settings);
+		ImageButton btnRecordsList = findViewById(R.id.btn_records_list);
+		ImageButton btnSettings = findViewById(R.id.btn_settings);
 		btnShare = findViewById(R.id.btn_share);
 		btnImport = findViewById(R.id.btn_import);
 		progressBar = findViewById(R.id.progress);
@@ -167,13 +199,16 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnShare.setOnClickListener(this);
 		btnImport.setOnClickListener(this);
 		txtName.setOnClickListener(this);
+		space = getResources().getDimension(R.dimen.spacing_xnormal);
+
 		playProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 				if (fromUser) {
 					int val = (int)AndroidUtils.dpToPx(progress * waveformView.getWaveformLength() / 1000);
 					waveformView.seekPx(val);
-					presenter.seekPlayback(val);
+					//TODO: Find a better way to convert px to mills here
+					presenter.seekPlayback(waveformView.pxToMill(val));
 				}
 			}
 
@@ -188,7 +223,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		presenter = ARApplication.getInjector().provideMainPresenter();
 
-		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
+		waveformView.setOnSeekListener(new WaveformViewNew.OnSeekListener() {
 			@Override
 			public void onStartSeek() {
 				presenter.disablePlaybackProgressListener();
@@ -197,7 +232,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			@Override
 			public void onSeek(int px, long mills) {
 				presenter.enablePlaybackProgressListener();
-				presenter.seekPlayback(px);
+				//TODO: Find a better way to convert px to mills here
+				presenter.seekPlayback(waveformView.pxToMill(px));
 
 				int length = waveformView.getWaveformLength();
 				if (length > 0) {
@@ -214,12 +250,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 			}
 		});
-		onThemeColorChangeListener = new ColorMap.OnThemeColorChangeListener() {
-			@Override
-			public void onThemeColorChange(String colorKey) {
-				setTheme(colorMap.getAppThemeResource());
-				recreate();
-			}
+		onThemeColorChangeListener = colorKey -> {
+			setTheme(colorMap.getAppThemeResource());
+			recreate();
 		};
 		colorMap.addOnThemeColorChangeListener(onThemeColorChangeListener);
 	}
@@ -228,15 +261,23 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	protected void onStart() {
 		super.onStart();
 		presenter.bindView(this);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			//This is needed for scoped storage support
+			presenter.storeInPrivateDir(getApplicationContext());
+		}
 		presenter.checkFirstRun();
 		presenter.setAudioRecorder(ARApplication.getInjector().provideAudioRecorder());
 		presenter.updateRecordingDir(getApplicationContext());
 		presenter.loadActiveRecord();
+
+		Intent intent = new Intent(this, DecodeService.class);
+		bindService(intent, connection, Context.BIND_AUTO_CREATE);
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
+		unbindService(connection);
 		if (presenter != null) {
 			presenter.unbindView();
 		}
@@ -250,55 +291,41 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void onClick(View view) {
-		switch (view.getId()) {
-			case R.id.btn_play:
-				//This method Starts or Pause playback.
-				if (FileUtil.isFileInExternalStorage(getApplicationContext(), presenter.getActiveRecordPath())) {
-					if (checkStoragePermissionPlayback()) {
-						presenter.startPlayback();
-					}
-				} else {
+		int id = view.getId();
+		if (id == R.id.btn_play) {
+			//This method Starts or Pause playback.
+			if (FileUtil.isFileInExternalStorage(getApplicationContext(), presenter.getActiveRecordPath())) {
+				if (checkStoragePermissionPlayback()) {
 					presenter.startPlayback();
 				}
-				break;
-			case R.id.btn_record:
-				if (checkRecordPermission2()) {
-					if (checkStoragePermission2()) {
-						//Start or stop recording
-						presenter.startRecording(getApplicationContext());
-					}
+			} else {
+				presenter.startPlayback();
+			}
+		} else if (id == R.id.btn_record) {
+			if (checkRecordPermission2()) {
+				if (checkStoragePermission2()) {
+					//Start or stop recording
+					presenter.startRecording(getApplicationContext());
 				}
-				break;
-			case R.id.btn_record_stop:
-				presenter.stopRecording(false);
-				break;
-			case R.id.btn_record_delete:
-				presenter.cancelRecording();
-				break;
-			case R.id.btn_stop:
-				presenter.stopPlayback();
-				break;
-			case R.id.btn_records_list:
-				startActivity(RecordsActivity.getStartIntent(getApplicationContext()));
-				break;
-			case R.id.btn_settings:
-				startActivity(SettingsActivity.getStartIntent(getApplicationContext()));
-				break;
-			case R.id.btn_share:
-//				AndroidUtils.shareAudioFile(getApplicationContext(), presenter.getActiveRecordPath(), presenter.getActiveRecordName());
-				showMenu(view);
-				break;
-			case R.id.btn_import:
-				if (checkStoragePermissionImport()) {
-					startFileSelector();
-				}
-				break;
-			case R.id.txt_name:
-//				if (presenter.getActiveRecordId() != -1) {
-//					setRecordName(presenter.getActiveRecordId(), new File(presenter.getActiveRecordPath()), false, false);
-//				}
-				presenter.onRenameRecordClick();
-				break;
+			}
+		} else if (id == R.id.btn_record_stop) {
+			presenter.stopRecording(false);
+		} else if (id == R.id.btn_record_delete) {
+			presenter.cancelRecording();
+		} else if (id == R.id.btn_stop) {
+			presenter.stopPlayback();
+		} else if (id == R.id.btn_records_list) {
+			startActivity(RecordsActivity.getStartIntent(getApplicationContext()));
+		} else if (id == R.id.btn_settings) {
+			startActivity(SettingsActivity.getStartIntent(getApplicationContext()));
+		} else if (id == R.id.btn_share) {
+			showMenu(view);
+		} else if (id == R.id.btn_import) {
+			if (checkStoragePermissionImport()) {
+				startFileSelector();
+			}
+		} else if (id == R.id.txt_name) {
+			presenter.onRenameRecordClick();
 		}
 	}
 
@@ -371,6 +398,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnPlay.setEnabled(false);
 		btnImport.setEnabled(false);
 		btnShare.setEnabled(false);
+		btnPlay.setVisibility(View.GONE);
+		btnImport.setVisibility(View.GONE);
+		btnShare.setVisibility(View.GONE);
 		btnDelete.setVisibility(View.VISIBLE);
 		btnDelete.setEnabled(true);
 		btnRecordingStop.setVisibility(View.VISIBLE);
@@ -378,8 +408,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		playProgress.setProgress(0);
 		playProgress.setEnabled(false);
 		txtDuration.setText(R.string.zero_time);
-		waveformView.showRecording();
-		waveformView.setVisibility(View.VISIBLE);
+		waveformView.setVisibility(View.GONE);
+		recordingWaveformView.setVisibility(View.VISIBLE);
 		ivPlaceholder.setVisibility(View.GONE);
 	}
 
@@ -396,13 +426,18 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnPlay.setEnabled(true);
 		btnImport.setEnabled(true);
 		btnShare.setEnabled(true);
+		btnPlay.setVisibility(View.VISIBLE);
+		btnImport.setVisibility(View.VISIBLE);
+		btnShare.setVisibility(View.VISIBLE);
 		playProgress.setEnabled(true);
 		btnDelete.setVisibility(View.INVISIBLE);
 		btnDelete.setEnabled(false);
 		btnRecordingStop.setVisibility(View.INVISIBLE);
 		btnRecordingStop.setEnabled(false);
-		waveformView.hideRecording();
-		waveformView.clearRecordingData();
+		waveformView.setVisibility(View.VISIBLE);
+		recordingWaveformView.setVisibility(View.GONE);
+		recordingWaveformView.reset();
+		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 	}
 
 	@Override
@@ -412,27 +447,59 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtName.setCompoundDrawables(null, null, null, null);
 		txtName.setText(R.string.recording_paused);
 		txtName.setVisibility(View.VISIBLE);
+		btnPlay.setEnabled(false);
 		btnImport.setEnabled(false);
+		btnShare.setEnabled(false);
+		btnPlay.setVisibility(View.GONE);
+		btnImport.setVisibility(View.GONE);
+		btnShare.setVisibility(View.GONE);
 		btnRecord.setImageResource(R.drawable.ic_record_rec);
 		btnDelete.setVisibility(View.VISIBLE);
 		btnDelete.setEnabled(true);
 		btnRecordingStop.setVisibility(View.VISIBLE);
 		btnRecordingStop.setEnabled(true);
 		playProgress.setEnabled(false);
+		ivPlaceholder.setVisibility(View.GONE);
+		recordingWaveformView.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void showRecordingResume() {
+		txtName.setClickable(false);
+		txtName.setFocusable(false);
+		txtName.setCompoundDrawables(null, null, null, null);
+		txtName.setVisibility(View.VISIBLE);
+		txtName.setText(R.string.recording_progress);
+		txtZeroTime.setVisibility(View.INVISIBLE);
+		txtDuration.setVisibility(View.INVISIBLE);
+		btnRecord.setImageResource(R.drawable.ic_pause_circle_filled);
+		btnPlay.setEnabled(false);
+		btnImport.setEnabled(false);
 		btnShare.setEnabled(false);
-		waveformView.setVisibility(View.VISIBLE);
+		btnPlay.setVisibility(View.GONE);
+		btnImport.setVisibility(View.GONE);
+		btnShare.setVisibility(View.GONE);
+		btnDelete.setVisibility(View.VISIBLE);
+		btnDelete.setEnabled(true);
+		btnRecordingStop.setVisibility(View.VISIBLE);
+		btnRecordingStop.setEnabled(true);
+		playProgress.setProgress(0);
+		playProgress.setEnabled(false);
+		txtDuration.setText(R.string.zero_time);
 		ivPlaceholder.setVisibility(View.GONE);
 	}
 
 	@Override
-	public void askRecordingNewName(long id, File file,  boolean showCheckbox, final boolean needDecode) {
-		setRecordName(id, file, showCheckbox, needDecode);
+	public void askRecordingNewName(long id, File file,  boolean showCheckbox) {
+		setRecordName(id, file, showCheckbox);
 	}
 
 	@Override
 	public void onRecordingProgress(long mills, int amp) {
-		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
-		waveformView.addRecordAmp(amp);
+		runOnUiThread(() ->{
+			txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
+			recordingWaveformView.addRecordAmp(amp, mills);
+		});
 	}
 
 	@Override
@@ -464,7 +531,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void showPlayStart(boolean animate) {
 		btnRecord.setEnabled(false);
 		if (animate) {
-			AnimationUtil.viewAnimationX(btnPlay, -75f, new Animator.AnimatorListener() {
+			AnimationUtil.viewAnimationX(btnPlay, -space, new Animator.AnimatorListener() {
 				@Override public void onAnimationStart(Animator animation) { }
 				@Override public void onAnimationEnd(Animator animation) {
 					btnStop.setVisibility(View.VISIBLE);
@@ -474,7 +541,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				@Override public void onAnimationRepeat(Animator animation) { }
 			});
 		} else {
-			btnPlay.setTranslationX(-75f);
+			btnPlay.setTranslationX(-space);
 			btnStop.setVisibility(View.VISIBLE);
 			btnPlay.setImageResource(R.drawable.ic_pause);
 		}
@@ -482,6 +549,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showPlayPause() {
+		btnStop.setVisibility(View.VISIBLE);
+		btnPlay.setTranslationX(-space);
 		btnPlay.setImageResource(R.drawable.ic_play);
 	}
 
@@ -503,7 +572,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void showWaveForm(int[] waveForm, long duration) {
+	public void showWaveForm(int[] waveForm, long duration, long playbackMills) {
 		if (waveForm.length > 0) {
 			btnPlay.setVisibility(View.VISIBLE);
 			txtDuration.setVisibility(View.VISIBLE);
@@ -517,8 +586,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			ivPlaceholder.setVisibility(View.VISIBLE);
 			waveformView.setVisibility(View.INVISIBLE);
 		}
-		waveformView.setWaveform(waveForm);
-		waveformView.setPxPerSecond(AndroidUtils.dpToPx(ARApplication.getDpPerSecond((float)duration/1000000f)));
+		waveformView.setWaveform(waveForm, duration/1000, playbackMills);
 	}
 
 	@Override
@@ -548,38 +616,33 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showInformation(String info) {
-		txtRecordInfo.setText(info);
+		runOnUiThread(() -> txtRecordInfo.setText(info));
+	}
+
+	@Override
+	public void decodeRecord(int id) {
+		DecodeService.Companion.startNotification(getApplicationContext(), id);
 	}
 
 	@Override
 	public void askDeleteRecord(String name) {
-		AndroidUtils.showSimpleDialog(
+		AndroidUtils.showDialogYesNo(
 				MainActivity.this,
-				R.drawable.ic_delete_forever,
-				R.string.warning,
-				getApplicationContext().getString(R.string.delete_record, name),
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						presenter.deleteActiveRecord(false);
-					}
-				}
+				R.drawable.ic_delete_forever_dark,
+				getString(R.string.warning),
+				getString(R.string.delete_record, name),
+				v -> presenter.deleteActiveRecord(false)
 		);
 	}
 
 	@Override
 	public void askDeleteRecordForever() {
-		AndroidUtils.showSimpleDialog(
+		AndroidUtils.showDialogYesNo(
 				MainActivity.this,
-				R.drawable.ic_delete_forever,
-				R.string.warning,
-				getApplicationContext().getString(R.string.delete_this_record),
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						presenter.stopRecording(true);
-					}
-				}
+				R.drawable.ic_delete_forever_dark,
+				getString(R.string.warning),
+				getString(R.string.delete_this_record),
+				v -> presenter.stopRecording(true)
 		);
 	}
 
@@ -589,9 +652,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void updateRecordingView(IntArrayList data) {
-		waveformView.showRecording();
-		waveformView.setRecordingData(data);
+	public void updateRecordingView(IntArrayList data, long durationMills) {
+		if (data != null) {
+			recordingWaveformView.setRecordingData(data, durationMills);
+		}
 	}
 
 	@Override
@@ -612,14 +676,14 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void downloadRecord(Record record) {
 		if (checkStoragePermissionDownload()) {
-			DownloadService.startNotification(getApplicationContext(), record.getNameWithExtension(), record.getPath());
+			DownloadService.startNotification(getApplicationContext(), record.getPath());
 		}
 	}
 
 	@Override
-	public void onPlayProgress(final long mills, final int px, int percent) {
+	public void onPlayProgress(final long mills, int percent) {
 		playProgress.setProgress(percent);
-		waveformView.setPlayback(px);
+		waveformView.setPlayback(mills);
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 	}
 
@@ -657,31 +721,22 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	private void showMenu(View v) {
 		PopupMenu popup = new PopupMenu(v.getContext(), v);
-		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				switch (item.getItemId()) {
-					case R.id.menu_share:
-						presenter.onShareRecordClick();
-						break;
-					case R.id.menu_info:
-						presenter.onRecordInfo();
-						break;
-					case R.id.menu_rename:
-						presenter.onRenameRecordClick();
-						break;
-					case R.id.menu_open_with:
-						presenter.onOpenFileClick();
-						break;
-					case R.id.menu_download:
-						presenter.onDownloadClick();
-						break;
-					case R.id.menu_delete:
-						presenter.onDeleteClick();
-						break;
-				}
-				return false;
+		popup.setOnMenuItemClickListener(item -> {
+			int id = item.getItemId();
+			if (id == R.id.menu_share) {
+				presenter.onShareRecordClick();
+			} else if (id == R.id.menu_info) {
+				presenter.onRecordInfo();
+			} else if (id == R.id.menu_rename) {
+				presenter.onRenameRecordClick();
+			} else if (id == R.id.menu_open_with) {
+				presenter.onOpenFileClick();
+			} else if (id == R.id.menu_download) {
+				presenter.onDownloadClick();
+			} else if (id == R.id.menu_delete) {
+				presenter.onDeleteClick();
 			}
+			return false;
 		});
 		MenuInflater inflater = popup.getMenuInflater();
 		inflater.inflate(R.menu.menu_more, popup.getMenu());
@@ -689,127 +744,13 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		popup.show();
 	}
 
-	public void setRecordName(final long recordId, File file, boolean showCheckbox, final boolean needDecode) {
-		//Create dialog layout programmatically.
-		LinearLayout container = new LinearLayout(getApplicationContext());
-		container.setOrientation(LinearLayout.VERTICAL);
-		LinearLayout.LayoutParams containerLp = new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT);
-		container.setLayoutParams(containerLp);
-
-		final EditText editText = new EditText(getApplicationContext());
-		ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT,
-				ViewGroup.LayoutParams.WRAP_CONTENT);
-		editText.setLayoutParams(lp);
-		editText.addTextChangedListener(new TextWatcher() {
-			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-			@Override public void afterTextChanged(Editable s) {
-				if (s.length() > AppConstants.MAX_RECORD_NAME_LENGTH) {
-					s.delete(s.length() - 1, s.length());
-				}
-			}
-			@Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
-		});
-		editText.setTextColor(getResources().getColor(R.color.text_primary_light));
-		editText.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_medium));
-
-		int pad = (int) getResources().getDimension(R.dimen.spacing_normal);
-		ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(editText.getLayoutParams());
-		params.setMargins(pad, pad, pad, pad);
-		editText.setLayoutParams(params);
-		container.addView(editText);
-		if (showCheckbox) {
-			container.addView(createCheckerView());
-		}
-
+	public void setRecordName(final long recordId, File file, boolean showCheckbox) {
 		final RecordInfo info = AudioDecoder.readRecordInfo(file);
-		editText.setText(info.getName());
-
-		AlertDialog alertDialog = new AlertDialog.Builder(this)
-				.setTitle(R.string.record_name)
-				.setView(container)
-				.setPositiveButton(R.string.btn_save, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						String newName = editText.getText().toString();
-						if (!info.getName().equalsIgnoreCase(newName)) {
-							presenter.renameRecord(recordId, newName, info.getFormat(), needDecode);
-						} else if (needDecode) {
-							presenter.decodeRecord(recordId);
-						}
-						dialog.dismiss();
-					}
-				})
-				.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.dismiss();
-						if (needDecode) {
-							presenter.decodeRecord(recordId);
-						}
-					}
-				})
-				.create();
-		alertDialog.show();
-		alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-			@Override
-			public void onDismiss(DialogInterface dialog) {
-				hideKeyboard();
+		AndroidUtils.showRenameDialog(this, info.getName(), showCheckbox, newName -> {
+			if (!info.getName().equalsIgnoreCase(newName)) {
+				presenter.renameRecord(recordId, newName, info.getFormat());
 			}
-		});
-		editText.requestFocus();
-		editText.setSelection(editText.getText().length());
-		showKeyboard();
-	}
-
-	public CheckBox createCheckerView() {
-		final CheckBox checkBox = new CheckBox(getApplicationContext());
-		int color = getResources().getColor(R.color.dark_white);
-		checkBox.setTextColor(color);
-		ColorStateList colorStateList = new ColorStateList(
-				new int[][]{
-						new int[]{-android.R.attr.state_checked}, // unchecked
-						new int[]{android.R.attr.state_checked}  // checked
-				},
-				new int[]{
-						color,
-						color
-				}
-		);
-		checkBox.setButtonTintList(colorStateList);
-		checkBox.setText(R.string.dont_ask_again);
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-		int PADD = (int) getResources().getDimension(R.dimen.spacing_normal);
-		params.setMargins(PADD, 0, PADD, PADD);
-		checkBox.setLayoutParams(params);
-		checkBox.setSaveEnabled(false);
-		checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-		checkBox.setPadding(
-				checkBox.getPaddingLeft()+(int) getResources().getDimension(R.dimen.spacing_small),
-				checkBox.getPaddingTop(),
-				checkBox.getPaddingRight(),
-				checkBox.getPaddingBottom());
-
-		checkBox.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				presenter.dontAskRename();
-			}
-		});
-		return checkBox;
-	}
-
-	/** Show soft keyboard for a dialog. */
-	public void showKeyboard(){
-		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-		inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-	}
-
-	/** Hide soft keyboard after a dialog. */
-	public void hideKeyboard(){
-		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-		inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+		}, v -> {}, (buttonView, isChecked) -> presenter.setAskToRename(!isChecked));
 	}
 
 	private boolean checkStoragePermissionDownload() {
@@ -874,16 +815,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 				if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 					AndroidUtils.showDialog(this, R.string.warning, R.string.need_write_permission,
-							new View.OnClickListener() {
-								@Override
-								public void onClick(View v) {
-									requestPermissions(
-											new String[]{
-													Manifest.permission.WRITE_EXTERNAL_STORAGE,
-													Manifest.permission.READ_EXTERNAL_STORAGE},
-											REQ_CODE_WRITE_EXTERNAL_STORAGE);
-								}
-							}, null
+							v -> requestPermissions(
+									new String[]{
+											Manifest.permission.WRITE_EXTERNAL_STORAGE,
+											Manifest.permission.READ_EXTERNAL_STORAGE},
+									REQ_CODE_WRITE_EXTERNAL_STORAGE), null
 //							new View.OnClickListener() {
 //								@Override
 //								public void onClick(View v) {

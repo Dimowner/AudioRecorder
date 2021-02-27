@@ -18,9 +18,10 @@ public class ColorMap {
 
 	private int appThemeResource = 0;
 	private int primaryColorRes = R.color.md_blue_700;
+	private int primaryDarkRes = R.color.md_blue_gray_500;
 	private int playbackPanelBackground = R.drawable.panel_amber;
 	private String selectedKey;
-	private List<OnThemeColorChangeListener> onThemeColorChangeListeners;
+	private final List<OnThemeColorChangeListener> onThemeColorChangeListeners;
 
 	private ColorMap(Prefs prefs) {
 		onThemeColorChangeListeners = new ArrayList<>();
@@ -33,47 +34,56 @@ public class ColorMap {
 			case AppConstants.THEME_BLACK:
 				appThemeResource = R.style.AppTheme_Black;
 				primaryColorRes = R.color.md_black_1000;
-				playbackPanelBackground = R.drawable.panel_red;
+				primaryDarkRes = R.color.md_grey_900x;
+				playbackPanelBackground = R.drawable.panel_dark;
 				break;
 			case AppConstants.THEME_TEAL:
 				appThemeResource = R.style.AppTheme_Teal;
 				primaryColorRes = R.color.md_teal_700;
+				primaryDarkRes = R.color.md_teal_700x;
 				playbackPanelBackground = R.drawable.panel_green;
 				break;
 			case AppConstants.THEME_PURPLE:
 				appThemeResource = R.style.AppTheme_Purple;
 				primaryColorRes = R.color.md_deep_purple_700;
+				primaryDarkRes = R.color.md_deep_purple_700x;
 				playbackPanelBackground = R.drawable.panel_pink;
 				break;
 			case AppConstants.THEME_PINK:
 				appThemeResource = R.style.AppTheme_Pink;
 				primaryColorRes = R.color.md_pink_800;
+				primaryDarkRes = R.color.md_pink_800x;
 				playbackPanelBackground = R.drawable.panel_purple;
 				break;
 			case AppConstants.THEME_ORANGE:
 				appThemeResource = R.style.AppTheme_DeepOrange;
 				primaryColorRes = R.color.md_deep_orange_800;
+				primaryDarkRes = R.color.md_deep_orange_900;
 				playbackPanelBackground = R.drawable.panel_yellow;
 				break;
 			case AppConstants.THEME_RED:
 				appThemeResource = R.style.AppTheme_Red;
 				primaryColorRes = R.color.md_red_700;
+				primaryDarkRes = R.color.md_red_900;
 				playbackPanelBackground = R.drawable.panel_purple_light;
 				break;
 			case AppConstants.THEME_BROWN:
 				appThemeResource = R.style.AppTheme_Brown;
 				primaryColorRes = R.color.md_brown_700;
+				primaryDarkRes = R.color.md_brown_800;
 				playbackPanelBackground = R.drawable.panel_deep_orange;
 				break;
 			case AppConstants.THEME_BLUE:
 				primaryColorRes = R.color.md_blue_700;
 				appThemeResource = R.style.AppTheme_Blue;
+				primaryDarkRes = R.color.md_blue_700x;
 				playbackPanelBackground = R.drawable.panel_amber;
 				break;
 			case AppConstants.THEME_BLUE_GREY:
 			default:
 				appThemeResource = R.style.AppTheme_Gray;
 				primaryColorRes = R.color.md_blue_gray_700;
+				primaryDarkRes = R.color.md_blue_gray_500;
 				playbackPanelBackground = R.drawable.panel_red;
 		}
 	}
@@ -97,6 +107,10 @@ public class ColorMap {
 
 	public int getPrimaryColorRes() {
 		return primaryColorRes;
+	}
+
+	public int getPrimaryDarkColorRes() {
+		return primaryDarkRes;
 	}
 
 	public int getPlaybackPanelBackground() {

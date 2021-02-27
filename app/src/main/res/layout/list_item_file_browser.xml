@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~  Copyright 2020 Dmitriy Ponomarenko
+  ~  Copyright 2020 Dmytro Ponomarenko
   ~
   ~  Licensed under the Apache License, Version 2.0 (the "License");
   ~  you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@
 			android:paddingEnd="@dimen/spacing_tiny"
 			android:textColor="@color/text_primary_light"
 			android:textSize="@dimen/text_large"
-			android:textStyle="bold"
+			android:fontFamily="sans-serif-medium"
 			tools:text="Record-30.m4a" />
 
 	<TextView
@@ -50,8 +50,9 @@
 			android:maxLines="1"
 			android:paddingStart="@dimen/spacing_normal"
 			android:paddingEnd="@dimen/spacing_tiny"
+			android:fontFamily="sans-serif-light"
 			android:textColor="@color/text_secondary_light"
-			android:textSize="@dimen/text_medium"
+			android:textSize="@dimen/text_normal"
 			tools:text="22:33" />
 
 	<TextView

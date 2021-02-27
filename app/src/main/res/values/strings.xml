@@ -13,7 +13,7 @@
 	<string name="rate_app">Rate app</string>
 	<string name="store_records_public">Store records in a public dir</string>
 	<string name="record_in_stereo">Record in Stereo</string>
-	<string name="keep_screen_on">Keep screen ON when recording</string>
+	<string name="keep_screen_on">Keep screen ON while recording</string>
 	<string name="total_duration">Total recorded duration: %s</string>
 	<string name="total_record_count">Total records count: %d</string>
 	<string name="available_space">Available space: %s</string>
@@ -24,6 +24,14 @@
 	<string name="delete_this_record">Delete this record?</string>
 	<string name="delete_record">Move to trash %s?</string>
 	<string name="delete_record_forever">Delete record %s forever?</string>
+	<plurals name="delete_selected_records">
+		<item quantity="one">Move to trash %d selected record?</item>
+		<item quantity="other">Move to trash %d selected records?</item>
+	</plurals>
+	<plurals name="download_selected_records">
+		<item quantity="one">Copy %d selected record to the Download folder?</item>
+		<item quantity="other">Copy %d selected records to the Download folder?</item>
+	</plurals>
 	<string name="restore_record">Restore record %s?</string>
 	<string name="delete_all_records">Delete all records?</string>
 	<string name="all_records_deleted">All records deleted successfully</string>
@@ -37,12 +45,19 @@
 	<string name="playback">Playback: %s</string>
 	<string name="zero_time">00:00</string>
 	<string name="empty">Empty</string>
+	<string name="selected"> %d selected</string>
 	<string name="no_records">Records is empty</string>
 	<string name="no_bookmarks">Bookmarks is empty</string>
 	<string name="bookmarks">Bookmarks</string>
 	<string name="share_record">Share record: %s</string>
+	<plurals name="share_records_count">
+		<item quantity="one">Share %d record</item>
+		<item quantity="other">Share %d records</item>
+	</plurals>
 	<string name="import_progress">Audio file import&#8230;</string>
 	<string name="btn_import">Import</string>
+	<string name="processing_canceled">Processing is canceled</string>
+	<string name="record_calculation">Waveform calculations&#8230;</string>
 	<string name="record_processing">Waveform drawing calculations&#8230;</string>
 	<string name="request">Request or feedback</string>
 	<string name="email_clients_not_found">Not found any Email client</string>
@@ -56,12 +71,23 @@
 	<string name="open_with">Open with&#823;</string>
 	<string name="download">Download</string>
 	<string name="downloading">Downloading: %s</string>
+	<plurals name="downloading_success_count">
+		<item quantity="one">%d record downloaded successfully</item>
+		<item quantity="other">%d records downloaded successfully</item>
+	</plurals>
+	<string name="downloading_success_and_fail_count">%d records downloaded successfully and %d failed to download</string>
 	<string name="downloading_success">%s downloaded to the Download directory</string>
+	<plurals name="downloading_failed_count">
+		<item quantity="one">Failed to download %d record</item>
+		<item quantity="other">Failed to download %d records</item>
+	</plurals>
 	<string name="downloading_failed">Failed to download: %s</string>
+	<string name="downloading_failed_file_already_exists">Failed to download. File with name %s already exists</string>
 	<string name="downloading_cancel">Downloading canceled</string>
 	<string name="share">Share</string>
 	<string name="ask_to_rename">Show rename dialog after recording is completed</string>
 	<string name="record_moved_into_trash">The record moved to trash</string>
+	<string name="selected_records_moved_into_trash">Selected records moved to trash</string>
 	<string name="all_records_deleted_successfully">All records deleted successfully</string>
 	<string name="record_deleted_successfully">The record deleted successfully</string>
 	<string name="record_restored_successfully">The record restored successfully</string>
@@ -161,6 +187,7 @@
 	<string name="stereo">Stereo</string>
 	<string name="mono">Mono</string>
 	<string name="records_location">Records location:\n%s</string>
+	<string name="feature_not_available_in_android_10">This feature is no longer available in Android 10 or higher.</string>
 	<string name="size">%s Mb</string>
 
 	<string name="error_unknown">Unexpected error</string>
@@ -183,7 +210,7 @@
 
 	<!-- Shown in the 'About' window of the app. -->
 	<string name="about_body"><![CDATA[
-    	<b>Audio Recorder 2020</b><br>
+    	<b>Audio Recorder 2021</b><br>
 		Version %s
 	]]></string>
 	<!--<a href="http://#/">Application site</a>-->

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,7 @@ import java.io.File;
 public interface AppRecorderCallback {
 	void onRecordingStarted(File file);
 	void onRecordingPaused();
-	void onRecordProcessing();
-	void onRecordFinishProcessing();
+	void onRecordingResumed();
 	void onRecordingStopped(File file, Record record);
 	void onRecordingProgress(long mills, int amp);
 	void onError(AppException throwable);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~  Copyright 2018 Dmitriy Ponomarenko
+  ~  Copyright 2018 Dmytro Ponomarenko
   ~
   ~  Licensed under the Apache License, Version 2.0 (the "License");
   ~  you may not use this file except in compliance with the License.
@@ -90,6 +90,7 @@
 				android:paddingEnd="1dp"/>
 
 		<LinearLayout
+				android:id="@+id/panelPublicDir"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="@dimen/spacing_small"
@@ -130,6 +131,22 @@
 				android:textColor="@color/text_secondary_light"
 				android:textSize="@dimen/text_normal"
 				tools:text="@string/records_location" />
+
+		<TextView
+				android:id="@+id/txt_storage_info"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:background="?android:selectableItemBackground"
+				android:fontFamily="sans-serif-light"
+				android:gravity="start"
+				android:paddingStart="@dimen/spacing_xxdouble"
+				android:paddingEnd="@dimen/spacing_small"
+				android:paddingBottom="@dimen/spacing_small"
+				android:textColor="@color/text_secondary_light"
+				android:textSize="@dimen/text_normal"
+				android:visibility="gone"
+				android:text="@string/feature_not_available_in_android_10"
+				tools:visibility="visible" />
 
 		<LinearLayout
 				android:layout_width="match_parent"

@@ -42,19 +42,20 @@
 				android:layout_marginStart="@dimen/spacing_normal"
 				android:textColor="@color/text_primary_light"
 				android:maxLines="1"
-				android:textStyle="bold"
+				android:fontFamily="sans-serif-medium"
 				android:textSize="@dimen/text_medium"
 				tools:text="Record-15"/>
 
-		<!--<TextView-->
-				<!--android:id="@+id/txt_playback_progress"-->
-				<!--android:layout_width="wrap_content"-->
-				<!--android:layout_height="wrap_content"-->
-				<!--android:textSize="@dimen/text_normal"-->
-				<!--android:textColor="@color/text_secondary_light"-->
-				<!--android:layout_marginStart="@dimen/spacing_small"-->
-				<!--android:layout_marginBottom="@dimen/spacing_small"-->
-				<!--tools:text="Playback: 00:01:24"/>-->
+		<TextView
+				android:id="@+id/txt_playback_progress"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textSize="@dimen/text_normal"
+				android:textColor="@color/text_secondary_light"
+				android:layout_marginStart="@dimen/spacing_normal"
+				android:layout_marginBottom="@dimen/spacing_small"
+				android:visibility="gone"
+				tools:text="Playback: 00:01:24"/>
 	</LinearLayout>
 
 	<!--<ImageButton-->

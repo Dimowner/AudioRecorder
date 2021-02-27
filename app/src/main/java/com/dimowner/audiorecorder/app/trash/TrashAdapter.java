@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import java.util.List;
  */
 public class TrashAdapter extends RecyclerView.Adapter<TrashAdapter.ItemViewHolder> {
 
-	private List<RecordItem> data;
+	private final List<RecordItem> data;
 	private OnItemClickListener onItemClickListener;
 
 	TrashAdapter() {
@@ -91,28 +91,19 @@ public class TrashAdapter extends RecyclerView.Adapter<TrashAdapter.ItemViewHold
 		if (pos != RecyclerView.NO_POSITION) {
 			holder.name.setText(data.get(position).getName());
 			holder.duration.setText(TimeUtils.formatTimeIntervalHourMinSec2(data.get(position).getDuration()/1000));
-			holder.view.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (onItemClickListener != null) {
-						onItemClickListener.onItemClick(data.get(position));
-					}
+			holder.view.setOnClickListener(v -> {
+				if (onItemClickListener != null) {
+					onItemClickListener.onItemClick(data.get(position));
 				}
 			});
-			holder.btnDelete.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (onItemClickListener != null) {
-						onItemClickListener.onDeleteItemClick(data.get(position));
-					}
+			holder.btnDelete.setOnClickListener(v -> {
+				if (onItemClickListener != null) {
+					onItemClickListener.onDeleteItemClick(data.get(position));
 				}
 			});
-			holder.btnRestore.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (onItemClickListener != null) {
-						onItemClickListener.onRestoreItemClick(data.get(position));
-					}
+			holder.btnRestore.setOnClickListener(v -> {
+				if (onItemClickListener != null) {
+					onItemClickListener.onRestoreItemClick(data.get(position));
 				}
 			});
 		}
@@ -127,7 +118,7 @@ public class TrashAdapter extends RecyclerView.Adapter<TrashAdapter.ItemViewHold
 		this.onItemClickListener = onItemClickListener;
 	}
 
-	class ItemViewHolder extends RecyclerView.ViewHolder {
+	static class ItemViewHolder extends RecyclerView.ViewHolder {
 		TextView name;
 		TextView duration;
 		Button btnDelete;
@@ -144,7 +135,7 @@ public class TrashAdapter extends RecyclerView.Adapter<TrashAdapter.ItemViewHold
 		}
 	}
 
-	public interface OnItemClickListener {
+	interface OnItemClickListener {
 		void onItemClick(RecordItem record);
 		void onDeleteItemClick(RecordItem record);
 		void onRestoreItemClick(RecordItem record);

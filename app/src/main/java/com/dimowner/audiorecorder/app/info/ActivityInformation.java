@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Dmitriy Ponomarenko
+ * Copyright 2019 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ public class ActivityInformation extends Activity {
 					txtDuration.setText(TimeUtils.formatTimeIntervalHourMinSec2(info.getDuration()/1000));
 					txtSize.setText(ARApplication.getInjector().provideSettingsMapper().formatSize(info.getSize()));
 					txtLocation.setText(info.getLocation());
-					txtCreated.setText(TimeUtils.formatDateTime(info.getCreated()));
+					txtCreated.setText(TimeUtils.formatDateTimeLocale(info.getCreated()));
 					txtSampleRate.setText(getString(R.string.value_hz, info.getSampleRate()));
 					switch (info.getChannelCount()) {
 						case 1:
@@ -98,11 +98,6 @@ public class ActivityInformation extends Activity {
 			}
 		}
 
-		findViewById(R.id.btn_back).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				finish();
-			}
-		});
+		findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 	}
 }

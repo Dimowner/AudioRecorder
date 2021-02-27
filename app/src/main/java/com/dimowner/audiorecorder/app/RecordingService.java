@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ import com.dimowner.audiorecorder.app.main.MainActivity;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
-import com.dimowner.audiorecorder.util.AndroidUtils;
+import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
 
@@ -63,7 +63,6 @@ public class RecordingService extends Service {
 	public static final String ACTION_PAUSE_RECORDING = "ACTION_PAUSE_RECORDING";
 
 	private static final int NOTIF_ID = 101;
-	private NotificationCompat.Builder builder;
 	private NotificationManager notificationManager;
 	private RemoteViews remoteViewsSmall;
 	private Notification notification;
@@ -90,39 +89,35 @@ public class RecordingService extends Service {
 		fileRepository = ARApplication.getInjector().provideFileRepository();
 
 		appRecorderCallback = new AppRecorderCallback() {
+//			int prevSec = 0;
 			@Override public void onRecordingStarted(File file) {
 				updateNotificationResume();
 			}
 			@Override public void onRecordingPaused() {
 				updateNotificationPause();
 			}
-			@Override public void onRecordProcessing() { }
-			@Override public void onRecordFinishProcessing() { }
-			@Override public void onRecordingStopped(File file, Record rec) { }
+			@Override public void onRecordingResumed() {
+				updateNotificationResume();
+			}
+			@Override public void onRecordingStopped(File file, Record rec) {
+				if (!rec.isWaveformProcessed()) {
+					DecodeService.Companion.startNotification(getApplicationContext(), rec.getId());
+				}
+			}
 
 			@Override
 			public void onRecordingProgress(long mills, int amp) {
 				try {
-					if (mills % (5 * AppConstants.VISUALIZATION_INTERVAL * AppConstants.SHORT_RECORD_DP_PER_SECOND) == 0
-							&& !fileRepository.hasAvailableSpace(getApplicationContext())) {
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
-								stopRecording();
-								Toast.makeText(getApplicationContext(), R.string.error_no_available_space, Toast.LENGTH_LONG).show();
-								showNoSpaceNotification();
-							}
-						});
+					if (mills % (5 * AppConstants.PLAYBACK_VISUALIZATION_INTERVAL * AppConstants.SHORT_RECORD_DP_PER_SECOND) == 0
+								&& !fileRepository.hasAvailableSpace(getApplicationContext())) {
+						stopRecording();
+						Toast.makeText(getApplicationContext(), R.string.error_no_available_space, Toast.LENGTH_LONG).show();
+						showNoSpaceNotification();
 					}
 				} catch (IllegalArgumentException e) {
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							stopRecording();
-							Toast.makeText(getApplicationContext(), R.string.error_failed_access_to_storage, Toast.LENGTH_LONG).show();
-							showNoSpaceNotification();
-						}
-					});
+					stopRecording();
+					Toast.makeText(getApplicationContext(), R.string.error_failed_access_to_storage, Toast.LENGTH_LONG).show();
+					showNoSpaceNotification();
 				}
 			}
 
@@ -158,7 +153,9 @@ public class RecordingService extends Service {
 			if (action != null && !action.isEmpty()) {
 				switch (action) {
 					case ACTION_START_RECORDING_SERVICE:
-						startForegroundService();
+						if (!started) {
+							startForegroundService();
+						}
 						break;
 					case ACTION_STOP_RECORDING_SERVICE:
 						stopForegroundService();
@@ -169,10 +166,8 @@ public class RecordingService extends Service {
 					case ACTION_PAUSE_RECORDING:
 						if (appRecorder.isPaused()) {
 							appRecorder.resumeRecording();
-							updateNotificationResume();
 						} else {
 							appRecorder.pauseRecording();
-							updateNotificationPause();
 						}
 						break;
 				}
@@ -205,7 +200,7 @@ public class RecordingService extends Service {
 //		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
 		// Create notification builder.
-		builder = new NotificationCompat.Builder(this, CHANNEL_ID);
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
 
 		builder.setWhen(System.currentTimeMillis());
 		builder.setSmallIcon(R.drawable.ic_record_rec);
@@ -247,7 +242,7 @@ public class RecordingService extends Service {
 	}
 
 	@RequiresApi(Build.VERSION_CODES.O)
-	private String createNotificationChannel(String channelId, String channelName) {
+	private void createNotificationChannel(String channelId, String channelName) {
 		NotificationChannel channel = notificationManager.getNotificationChannel(channelId);
 		if (channel == null) {
 			NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
@@ -259,7 +254,6 @@ public class RecordingService extends Service {
 
 			notificationManager.createNotificationChannel(chan);
 		}
-		return channelId;
 	}
 
 	private void updateNotificationPause() {
@@ -281,16 +275,15 @@ public class RecordingService extends Service {
 	}
 
 	private void updateNotification(long mills) {
-//		Timber.v("updateNotification mills = %s", mills);
-//		if (started && remoteViewsSmall != null) {
-//			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress,
+		if (started && remoteViewsSmall != null) {
+			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress,
+					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
+
+//			remoteViewsBig.setTextViewText(R.id.txt_recording_progress,
 //					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
-//
-////			remoteViewsBig.setTextViewText(R.id.txt_recording_progress,
-////					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
-//
-//			notificationManager.notify(NOTIF_ID, notification);
-//		}
+
+			notificationManager.notify(NOTIF_ID, notification);
+		}
 	}
 
 	public static class StopRecordingReceiver extends BroadcastReceiver {

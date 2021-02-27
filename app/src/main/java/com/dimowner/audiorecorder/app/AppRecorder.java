@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.dimowner.audiorecorder.app;
 
 import com.dimowner.audiorecorder.IntArrayList;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
-import com.dimowner.audiorecorder.data.database.Record;
 
 public interface AppRecorder {
 
@@ -29,11 +28,9 @@ public interface AppRecorder {
 	void pauseRecording();
 	void resumeRecording();
 	void stopRecording();
-	void decodeRecordWaveform(final Record decRec);
 	IntArrayList getRecordingData();
 	long getRecordingDuration();
 	boolean isRecording();
 	boolean isPaused();
 	void release();
-	boolean isProcessing();
 }

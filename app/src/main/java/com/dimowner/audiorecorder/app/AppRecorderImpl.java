@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,32 +32,37 @@ import com.dimowner.audiorecorder.util.AndroidUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import timber.log.Timber;
+
+import static com.dimowner.audiorecorder.AppConstants.PLAYBACK_VISUALIZATION_INTERVAL;
 
 public class AppRecorderImpl implements AppRecorder {
 
 	private RecorderContract.Recorder audioRecorder;
 	private final BackgroundQueue recordingsTasks;
 
-	private final BackgroundQueue processingTasks;
 	private final LocalRepository localRepository;
 	private final RecorderContract.RecorderCallback recorderCallback;
 	private final List<AppRecorderCallback> appCallbacks;
 	private final Prefs prefs;
-	private IntArrayList recordingData;
-	private long recordingDuration;
-	private boolean isProcessing = false;
+	private final IntArrayList recordingData;
+//	private long recordingDuration;
+	private final IntArrayList apmpPool;
+	private long durationMills = 0;
+	private long updateTime = 0;
+	private Timer timerProgress;
 
 	private volatile static AppRecorderImpl instance;
 
 	public static AppRecorderImpl getInstance(RecorderContract.Recorder recorder,
-															LocalRepository localRep, BackgroundQueue tasks,
-															BackgroundQueue processingTasks, Prefs prefs) {
+															LocalRepository localRep, BackgroundQueue tasks, Prefs prefs) {
 		if (instance == null) {
 			synchronized (AppRecorderImpl.class) {
 				if (instance == null) {
-					instance = new AppRecorderImpl(recorder, localRep, tasks, processingTasks, prefs);
+					instance = new AppRecorderImpl(recorder, localRep, tasks, prefs);
 				}
 			}
 		}
@@ -65,100 +70,89 @@ public class AppRecorderImpl implements AppRecorder {
 	}
 
 	private AppRecorderImpl(RecorderContract.Recorder recorder,
-									LocalRepository localRep, BackgroundQueue tasks,
-									final BackgroundQueue processingTasks, Prefs pr) {
+									LocalRepository localRep, BackgroundQueue tasks, Prefs pr) {
 		this.audioRecorder = recorder;
 		this.localRepository = localRep;
 		this.recordingsTasks = tasks;
-		this.processingTasks = processingTasks;
 		this.prefs = pr;
 		this.appCallbacks = new ArrayList<>();
 		this.recordingData = new IntArrayList();
+		this.apmpPool = new IntArrayList();
 
 		recorderCallback = new RecorderContract.RecorderCallback() {
-			@Override
-			public void onPrepareRecord() {
-				audioRecorder.startRecording();
-			}
 
 			@Override
 			public void onStartRecord(File output) {
-				recordingDuration = 0;
+//				recordingDuration = 0;
+				durationMills = 0;
+				scheduleRecordingTimeUpdate();
 				onRecordingStarted(output);
 			}
 
 			@Override
 			public void onPauseRecord() {
 				onRecordingPaused();
+				pauseRecordingTimer();
+			}
+
+			@Override
+			public void onResumeRecord() {
+				scheduleRecordingTimeUpdate();
+				onRecordingResumed();
 			}
 
 			@Override
 			public void onRecordProgress(final long mills, final int amplitude) {
-				recordingDuration = mills;
-				onRecordingProgress(mills, amplitude);
-				recordingData.add(amplitude);
+				apmpPool.add(amplitude);
 			}
 
 			@Override
 			public void onStopRecord(final File output) {
-				recordingsTasks.postRunnable(new Runnable() {
-					@Override
-					public void run() {
-						RecordInfo info = AudioDecoder.readRecordInfo(output);
-						long duration = info.getDuration();
-						if (duration <= 0) {
-							duration = recordingDuration;
-						}
-						recordingDuration = 0;
+				stopRecordingTimer();
+				recordingsTasks.postRunnable(() -> {
+					RecordInfo info = AudioDecoder.readRecordInfo(output);
+					long duration = info.getDuration();
+					if (duration <= 0) {
+						duration = durationMills;
+					}
+//					recordingDuration = 0;
+					durationMills = 0;
 
-						int[] waveForm = convertRecordingData(recordingData, (int) (duration / 1000000f));
-						final Record record = localRepository.getRecord((int) prefs.getActiveRecord());
-						if (record != null) {
-							final Record update = new Record(
-									record.getId(),
-									record.getName(),
-									duration,
-									record.getCreated(),
-									record.getAdded(),
-									record.getRemoved(),
-									record.getPath(),
-									info.getFormat(),
-									info.getSize(),
-									info.getSampleRate(),
-									info.getChannelCount(),
-									info.getBitrate(),
-									record.isBookmarked(),
-									record.isWaveformProcessed(),
-									waveForm);
+					int[] waveForm = convertRecordingData(recordingData, (int) (duration / 1000000f));
+					final Record record = localRepository.getRecord((int) prefs.getActiveRecord());
+					if (record != null) {
+						final Record update = new Record(
+								record.getId(),
+								record.getName(),
+								duration,
+								record.getCreated(),
+								record.getAdded(),
+								record.getRemoved(),
+								record.getPath(),
+								info.getFormat(),
+								info.getSize(),
+								info.getSampleRate(),
+								info.getChannelCount(),
+								info.getBitrate(),
+								record.isBookmarked(),
+								record.isWaveformProcessed(),
+								waveForm);
+						if (localRepository.updateRecord(update)) {
+							recordingData.clear();
+							final Record rec = localRepository.getRecord(update.getId());
+							AndroidUtils.runOnUIThread(() -> onRecordingStopped(output, rec));
+						} else {
+							//Try to update record again if failed.
 							if (localRepository.updateRecord(update)) {
 								recordingData.clear();
 								final Record rec = localRepository.getRecord(update.getId());
-								decodeRecordWaveform(rec);
-								AndroidUtils.runOnUIThread(new Runnable() {
-									@Override
-									public void run() {
-										onRecordingStopped(output, rec);
-									}
-								});
+								AndroidUtils.runOnUIThread(() -> onRecordingStopped(output, rec));
 							} else {
-								//Try to update record again if failed.
-								if (localRepository.updateRecord(update)) {
-									recordingData.clear();
-									final Record rec = localRepository.getRecord(update.getId());
-									decodeRecordWaveform(rec);
-									AndroidUtils.runOnUIThread(new Runnable() {
-										@Override
-										public void run() {
-											onRecordingStopped(output, rec);
-										}
-									});
-								} else {
-									onRecordingStopped(output, record);
-								}
+								AndroidUtils.runOnUIThread(() -> onRecordingStopped(output, record));
 							}
-						} else {
-							//TODO: Error on record update.
 						}
+					} else {
+						//TODO: Error on record update.
 					}
 				});
 			}
@@ -211,67 +205,6 @@ public class AppRecorderImpl implements AppRecorder {
 	}
 
 	@Override
-	public void decodeRecordWaveform(final Record decRec) {
-		processingTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				isProcessing = true;
-				final String path = decRec.getPath();
-				if (path != null && !path.isEmpty()) {
-					AudioDecoder.decode(path, new AudioDecoder.DecodeListener() {
-						@Override
-						public void onStartDecode(long duration, int channelsCount, int sampleRate) {
-							decRec.setDuration(duration);
-							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override
-								public void run() {
-									onRecordProcessing();
-								}
-							});
-						}
-
-						@Override
-						public void onFinishDecode(int[] data, long duration) {
-							final Record rec = new Record(
-									decRec.getId(),
-									decRec.getName(),
-									decRec.getDuration(),
-									decRec.getCreated(),
-									decRec.getAdded(),
-									decRec.getRemoved(),
-									decRec.getPath(),
-									decRec.getFormat(),
-									decRec.getSize(),
-									decRec.getSampleRate(),
-									decRec.getChannelCount(),
-									decRec.getBitrate(),
-									decRec.isBookmarked(),
-									true,
-									data);
-							localRepository.updateRecord(rec);
-							isProcessing = false;
-							AndroidUtils.runOnUIThread(new Runnable() {
-								@Override
-								public void run() {
-									onRecordFinishProcessing();
-								}
-							});
-						}
-
-						@Override
-						public void onError(Exception exception) {
-							isProcessing = false;
-						}
-					});
-				} else {
-					isProcessing = false;
-					Timber.e("File path is null or empty");
-				}
-			}
-		});
-	}
-
-	@Override
 	public void addRecordingCallback(AppRecorderCallback callback) {
 		appCallbacks.add(callback);
 	}
@@ -290,7 +223,7 @@ public class AppRecorderImpl implements AppRecorder {
 	@Override
 	public void startRecording(String filePath, int channelCount, int sampleRate, int bitrate) {
 		if (!audioRecorder.isRecording()) {
-			audioRecorder.prepare(filePath, channelCount, sampleRate, bitrate);
+			audioRecorder.startRecording(filePath, channelCount, sampleRate, bitrate);
 		}
 	}
 
@@ -304,7 +237,7 @@ public class AppRecorderImpl implements AppRecorder {
 	@Override
 	public void resumeRecording() {
 		if (audioRecorder.isPaused()) {
-			audioRecorder.startRecording();
+			audioRecorder.resumeRecording();
 		}
 	}
 
@@ -322,7 +255,8 @@ public class AppRecorderImpl implements AppRecorder {
 
 	@Override
 	public long getRecordingDuration() {
-		return recordingDuration;
+//		return recordingDuration;
+		return durationMills;
 	}
 
 	@Override
@@ -337,14 +271,11 @@ public class AppRecorderImpl implements AppRecorder {
 
 	@Override
 	public void release() {
+		stopRecordingTimer();
 		recordingData.clear();
+		apmpPool.clear();
 		audioRecorder.stopRecording();
 		appCallbacks.clear();
-	}
-
-	@Override
-	public boolean isProcessing() {
-		return isProcessing;
 	}
 
 	private void onRecordingStarted(File output) {
@@ -363,20 +294,10 @@ public class AppRecorderImpl implements AppRecorder {
 		}
 	}
 
-	private void onRecordProcessing() {
-		isProcessing = true;
+	private void onRecordingResumed() {
 		if (!appCallbacks.isEmpty()) {
 			for (int i = 0; i < appCallbacks.size(); i++) {
-				appCallbacks.get(i).onRecordProcessing();
-			}
-		}
-	}
-
-	private void onRecordFinishProcessing() {
-		isProcessing = false;
-		if (!appCallbacks.isEmpty()) {
-			for (int i = 0; i < appCallbacks.size(); i++) {
-				appCallbacks.get(i).onRecordFinishProcessing();
+				appCallbacks.get(i).onRecordingResumed();
 			}
 		}
 	}
@@ -403,5 +324,48 @@ public class AppRecorderImpl implements AppRecorder {
 				appCallbacks.get(i).onError(e);
 			}
 		}
+	}
+
+	private void scheduleRecordingTimeUpdate() {
+		updateTime = System.currentTimeMillis();
+		timerProgress = new Timer();
+		timerProgress.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				try {
+					readProgress();
+				} catch (IllegalStateException e) {
+					Timber.e(e);
+				}
+				long curTime = System.currentTimeMillis();
+				durationMills += curTime - updateTime;
+				updateTime = curTime;
+
+//				recordingDuration += VISUALIZATION_INTERVAL2;
+			}
+		}, 0, PLAYBACK_VISUALIZATION_INTERVAL);
+	}
+
+	private void readProgress() {
+		if (apmpPool.size() > 0) {
+			int amp = apmpPool.get(apmpPool.size()-1);
+			apmpPool.clear();
+			apmpPool.add(amp);
+			recordingData.add(amp);
+			onRecordingProgress(durationMills, amp);
+		}
+	}
+
+	private void stopRecordingTimer() {
+		readProgress();
+		timerProgress.cancel();
+		timerProgress.purge();
+		updateTime = 0;
+	}
+
+	private void pauseRecordingTimer() {
+		timerProgress.cancel();
+		timerProgress.purge();
+		updateTime = 0;
 	}
 }

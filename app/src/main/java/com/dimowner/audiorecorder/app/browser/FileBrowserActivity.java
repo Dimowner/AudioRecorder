@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package com.dimowner.audiorecorder.app.browser;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -40,6 +39,7 @@ import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.DecodeService;
 import com.dimowner.audiorecorder.app.DownloadService;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
@@ -77,12 +77,9 @@ public class FileBrowserActivity extends Activity implements FileBrowserContract
 		setContentView(R.layout.activity_file_browser);
 
 		ImageButton btnBack = findViewById(R.id.btn_back);
-		btnBack.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ARApplication.getInjector().releaseFileBrowserPresenter();
-				finish();
-			}
+		btnBack.setOnClickListener(v -> {
+			ARApplication.getInjector().releaseFileBrowserPresenter();
+			finish();
 		});
 
 		txtEmpty = findViewById(R.id.txtEmpty);
@@ -112,22 +109,17 @@ public class FileBrowserActivity extends Activity implements FileBrowserContract
 
 			@Override
 			public void onDownloadItemClick(RecordInfo record) {
-				DownloadService.startNotification(getApplicationContext(), record.getNameWithExtension(), record.getLocation());
+				DownloadService.startNotification(getApplicationContext(), record.getLocation());
 			}
 
 			@Override
 			public void onRemoveItemClick(final RecordInfo record) {
-				AndroidUtils.showSimpleDialog(
+				AndroidUtils.showDialogYesNo(
 						FileBrowserActivity.this,
-						R.drawable.ic_delete_forever,
-						R.string.warning,
-						getApplicationContext().getString(R.string.delete_record, record.getName()),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								presenter.deleteRecord(record);
-							}
-						}
+						R.drawable.ic_delete_forever_dark,
+						getString(R.string.warning),
+						getString(R.string.delete_record, record.getName()),
+						v -> presenter.deleteRecord(record)
 				);
 			}
 		});
@@ -158,15 +150,13 @@ public class FileBrowserActivity extends Activity implements FileBrowserContract
 
 	@Override
 	public void onClick(View v) {
-		switch (v.getId()) {
-			case R.id.tab_private_dir:
-				presenter.selectPrivateDir(getApplicationContext());
-				break;
-			case R.id.tab_public_dir:
-				if (checkStoragePermissionImport(REQ_CODE_READ_EXTERNAL_STORAGE_LOAD_PUBLIC_DIR)) {
-					presenter.selectPublicDir(getApplicationContext());
-				}
-				break;
+		int id = v.getId();
+		if (id == R.id.tab_private_dir) {
+			presenter.selectPrivateDir(getApplicationContext());
+		} else if (id == R.id.tab_public_dir) {
+			if (checkStoragePermissionImport(REQ_CODE_READ_EXTERNAL_STORAGE_LOAD_PUBLIC_DIR)) {
+				presenter.selectPublicDir(getApplicationContext());
+			}
 		}
 	}
 
@@ -207,6 +197,11 @@ public class FileBrowserActivity extends Activity implements FileBrowserContract
 	@Override
 	public void updatePath(String path) {
 		txtPath.setText(getString(R.string.records_location, path));
+	}
+
+	@Override
+	public void decodeRecord(int id) {
+		DecodeService.Companion.startNotification(getApplicationContext(), id);
 	}
 
 	@Override

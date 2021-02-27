@@ -11,17 +11,17 @@ import com.dimowner.audiorecorder.AppConstants;
  */
 public class RecordInfo implements Parcelable {
 
-	private String name;
-	private String format;
-	private String location;
-	private long duration;
-	private long created;
-	private long size;
-	private int sampleRate;
-	private int channelCount;
-	private int bitrate;
+	private final String name;
+	private final String format;
+	private final String location;
+	private final long duration;
+	private final long created;
+	private final long size;
+	private final int sampleRate;
+	private final int channelCount;
+	private final int bitrate;
 	private boolean isInDatabase;
-	private boolean isInTrash;
+	private final boolean isInTrash;
 
 	public RecordInfo(String name, String format, long duration, long size, String location, long created,
 							int sampleRate, int channelCount, int bitrate, boolean isInTrash) {
@@ -107,10 +107,10 @@ public class RecordInfo implements Parcelable {
 		sampleRate = ints[0];
 		channelCount = ints[1];
 		bitrate = ints[2];
-		boolean[] bools = new boolean[2];
-		in.readBooleanArray(bools);
-		isInDatabase = bools[0];
-		isInTrash = bools[1];
+		boolean[] booleans = new boolean[2];
+		in.readBooleanArray(booleans);
+		isInDatabase = booleans[0];
+		isInTrash = booleans[1];
 	}
 
 	public int describeContents() {

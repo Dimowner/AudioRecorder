@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@ package com.dimowner.audiorecorder.audio.player;
 
 import com.dimowner.audiorecorder.exception.AppException;
 
+/**
+ * @deprecated use {@link PlayerContractNew}
+ * */
 public interface PlayerContract {
 
 	interface PlayerCallback {

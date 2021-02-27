@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,22 +27,22 @@ public class Record {
 	public static final int NO_ID = -1;
 //	private static final String DELIMITER = ",";
 
-	private int id;
-	private String name;
+	private final int id;
+	private final String name;
 	private long duration;
-	private long created;
-	private long added;
-	private long removed;
+	private final long created;
+	private final long added;
+	private final long removed;
 	private String path;
-	private String format;
-	private long size;
-	private int sampleRate;
-	private int channelCount;
-	private int bitrate;
+	private final String format;
+	private final long size;
+	private final int sampleRate;
+	private final int channelCount;
+	private final int bitrate;
 	private boolean bookmark;
-	private boolean waveformProcessed;
-	private int[] amps;
-	private byte[] data;
+	private final boolean waveformProcessed;
+	private final int[] amps;
+	private final byte[] data;
 	//TODO: Remove not needed data clusters.
 
 	public Record(int id, String name, long duration, long created, long added, long removed, String path,

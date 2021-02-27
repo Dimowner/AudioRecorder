@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,12 +133,7 @@ public class ChipsView extends FrameLayout {
 	@Override
 	public void setVisibility(int visibility) {
 		super.setVisibility(visibility);
-		post(new Runnable() {
-			@Override
-			public void run() {
-				updateChipPositions();
-			}
-		});
+		post(this::updateChipPositions);
 	}
 
 	public TextView createChipView(int id, final String key, final Context context, final String name, final int color, boolean checked) {
@@ -156,29 +151,26 @@ public class ChipsView extends FrameLayout {
 		textView.setId(id);
 		textView.setVisibility(INVISIBLE);
 		textView.setTypeface(textView.getTypeface(), Typeface.NORMAL);
-		textView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				int pos = findById(key);
-				if (pos >= 0 && isEnabled) {
-					if (chips.get(pos).isSelected()) {
-						if (multiSelect) {
-							setUnselected(chips.get(pos).getView(), color);
-							if (listener != null) {
-								listener.onCheck(key, name, false);
-							}
-						}
-					} else {
-						setSelected(context, chips.get(pos).getView(), color);
-						if (!multiSelect) {
-							unselectAll(pos);
-						}
+		textView.setOnClickListener(v -> {
+			int pos = findById(key);
+			if (pos >= 0 && isEnabled) {
+				if (chips.get(pos).isSelected()) {
+					if (multiSelect) {
+						setUnselected(chips.get(pos).getView(), color);
 						if (listener != null) {
-							listener.onCheck(key, name, true);
+							listener.onCheck(key, name, false);
 						}
 					}
-					chips.get(pos).setSelected(!chips.get(pos).isSelected());
+				} else {
+					setSelected(context, chips.get(pos).getView(), color);
+					if (!multiSelect) {
+						unselectAll(pos);
+					}
+					if (listener != null) {
+						listener.onCheck(key, name, true);
+					}
 				}
+				chips.get(pos).setSelected(!chips.get(pos).isSelected());
 			}
 		});
 		return textView;
@@ -268,12 +260,7 @@ public class ChipsView extends FrameLayout {
 					}
 					addView(chips.get(i).getView());
 				}
-				post(new Runnable() {
-					@Override
-					public void run() {
-						updateChipPositions();
-					}
-				});
+				post(this::updateChipPositions);
 			}
 		}
 	}
@@ -300,12 +287,7 @@ public class ChipsView extends FrameLayout {
 				addView(chips.get(chips.size() - 1).getView());
 			}
 		}
-		post(new Runnable() {
-			@Override
-			public void run() {
-				updateChipPositions();
-			}
-		});
+		post(this::updateChipPositions);
 	}
 
 	private void updateChipPositions() {
@@ -353,12 +335,9 @@ public class ChipsView extends FrameLayout {
 		heightAnimator = ValueAnimator.ofInt(lp.height, newHeight);
 		heightAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
 		heightAnimator.setDuration(HEIGHT_ANIMATION_DURATION);
-		heightAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-			@Override
-			public void onAnimationUpdate(ValueAnimator animation) {
-				lp.height = (int)animation.getAnimatedValue();
-				setLayoutParams(lp);
-			}
+		heightAnimator.addUpdateListener(animation -> {
+			lp.height = (int)animation.getAnimatedValue();
+			setLayoutParams(lp);
 		});
 		heightAnimator.start();
 	}

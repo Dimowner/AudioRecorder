@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~  Copyright 2018 Dmitriy Ponomarenko
+  ~  Copyright 2018 Dmytro Ponomarenko
   ~
   ~  Licensed under the Apache License, Version 2.0 (the "License");
   ~  you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@
 				android:layout_marginBottom="@dimen/spacing_normal"
 				android:textColor="@color/text_primary_light"
 				android:textSize="@dimen/text_xlarge"
-				android:textStyle="bold"
+				android:fontFamily="sans-serif-medium"
 				android:text="@string/app_name"/>
 
 		<ImageButton
@@ -139,10 +139,18 @@
 					android:layout_gravity="center"
 					tools:visibility="visible"/>
 
-			<com.dimowner.audiorecorder.app.widget.WaveformView
+			<com.dimowner.audiorecorder.app.widget.WaveformViewNew
 					android:id="@+id/record"
 					android:layout_width="wrap_content"
 					android:layout_height="@dimen/waveform_height"
+					android:layout_marginBottom="@dimen/notification_btn"
+					/>
+
+			<com.dimowner.audiorecorder.app.widget.RecordingWaveformView
+					android:id="@+id/recording_view"
+					android:layout_width="wrap_content"
+					android:layout_height="@dimen/waveform_height"
+					android:visibility="gone"
 					android:layout_marginBottom="@dimen/notification_btn"
 					/>
 
@@ -219,8 +227,8 @@
 					android:layout_height="wrap_content"
 					android:layout_gravity="bottom|center_horizontal"
 					android:gravity="center_horizontal"
-					android:layout_marginStart="@dimen/spacing_xxdouble"
-					android:layout_marginEnd="@dimen/spacing_xxdouble"
+					android:layout_marginStart="@dimen/spacing_xnormal"
+					android:layout_marginEnd="@dimen/spacing_xnormal"
 					android:layout_marginBottom="@dimen/spacing_tiny"
 					android:drawableEnd="@drawable/ic_pencil_small"
 					android:ellipsize="end"

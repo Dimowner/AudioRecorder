@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ public interface RecordsContract {
 		void showPlayStart();
 		void showPlayPause();
 		void showPlayStop();
-		void onPlayProgress(long mills, int px, int percent);
+		void onPlayProgress(long mills, int percent);
 
 		void showNextRecord();
 		void showPrevRecord();
@@ -41,7 +41,7 @@ public interface RecordsContract {
 
 		void startPlaybackService();
 
-		void showWaveForm(int[] waveForm, long duration);
+		void showWaveForm(int[] waveForm, long duration, long playbackMills);
 		void showDuration(String duration);
 
 		void showRecords(List<ListItem> records, int order);
@@ -52,6 +52,8 @@ public interface RecordsContract {
 
 		void showPanelProgress();
 		void hidePanelProgress();
+
+		void decodeRecord(int id);
 
 		void showRecordName(String name);
 
@@ -74,6 +76,8 @@ public interface RecordsContract {
 		void showRecordInfo(RecordInfo info);
 
 		void showRecordsLostMessage(List<Record> list);
+
+		void cancelMultiSelect();
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<RecordsContract.View> {
@@ -84,7 +88,7 @@ public interface RecordsContract {
 
 		void pausePlayback();
 
-		void seekPlayback(int px);
+		void seekPlayback(long mills);
 
 		void stopPlayback();
 
@@ -96,6 +100,8 @@ public interface RecordsContract {
 
 		void deleteRecord(long id, String path);
 
+		void deleteRecords(List<Long> ids);
+
 		void renameRecord(long id, String name, String extension);
 
 		void loadRecords();
@@ -103,6 +109,8 @@ public interface RecordsContract {
 		void updateRecordsOrder(int order);
 
 		void loadRecordsPage(int page);
+
+		void decodeActiveRecord();
 
 		void applyBookmarksFilter();
 		void checkBookmarkActiveRecord();

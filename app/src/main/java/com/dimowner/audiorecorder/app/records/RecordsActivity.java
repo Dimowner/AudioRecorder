@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,7 @@ package com.dimowner.audiorecorder.app.records;
 import android.Manifest;
 import android.animation.Animator;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -30,17 +28,9 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.util.TypedValue;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
@@ -54,6 +44,7 @@ import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.app.DecodeService;
 import com.dimowner.audiorecorder.app.DownloadService;
 import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
@@ -61,7 +52,7 @@ import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.trash.TrashActivity;
 import com.dimowner.audiorecorder.app.widget.SimpleWaveformView;
 import com.dimowner.audiorecorder.app.widget.TouchLayout;
-import com.dimowner.audiorecorder.app.widget.WaveformView;
+import com.dimowner.audiorecorder.app.widget.WaveformViewNew;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
@@ -86,13 +77,10 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private ProgressBar progressBar;
 	private View bottomDivider;
 	private ImageButton btnPlay;
-	private ImageButton btnStop;
-	private ImageButton btnNext;
-	private ImageButton btnPrev;
-	private ImageButton btnDelete;
 	private ImageButton btnBookmarks;
 	private ImageButton btnSort;
 	private ImageButton btnCheckBookmark;
+	private ImageButton btnDecoding;
 	private TextView txtProgress;
 	private TextView txtDuration;
 	private TextView txtName;
@@ -100,15 +88,20 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private TextView txtTitle;
 	private TextView txtSubTitle;
 	private TouchLayout touchLayout;
-	private WaveformView waveformView;
+	private WaveformViewNew waveformView;
 	private ProgressBar panelProgress;
 	private SeekBar playProgress;
+	private View multiSelectPanel;
+	private TextView txtSelectedCount;
+	private ImageButton btnCloseMulti;
+	private ImageButton btnShareMulti;
+	private ImageButton btnDeleteMulti;
+	private ImageButton btnDownloadMulti;
 
 	private RecordsContract.UserActionsListener presenter;
 	private ColorMap colorMap;
 
-	private String tempName = null;
-	private String tempPath = null;
+	final private List<String> downloadRecords = new ArrayList<>();
 
 	public static Intent getStartIntent(Context context) {
 		Intent intent = new Intent(context, RecordsActivity.class);
@@ -119,6 +112,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		colorMap = ARApplication.getInjector().provideColorMap();
+		SimpleWaveformView.setWaveformColorRes(colorMap.getPrimaryColorRes());
 		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_records);
@@ -127,23 +121,23 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 //		AndroidUtils.setTranslucent(this, true);
 
 		ImageButton btnBack = findViewById(R.id.btn_back);
-		btnBack.setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View view) {
-				finish();
-				ARApplication.getInjector().releaseRecordsPresenter();
-			}});
+		btnBack.setOnClickListener(view -> {
+			finish();
+			ARApplication.getInjector().releaseRecordsPresenter();
+		});
 
 		bottomDivider = findViewById(R.id.bottomDivider);
 		progressBar = findViewById(R.id.progress);
 		panelProgress = findViewById(R.id.wave_progress);
 		btnPlay = findViewById(R.id.btn_play);
-		btnStop = findViewById(R.id.btn_stop);
-		btnNext = findViewById(R.id.btn_next);
-		btnPrev = findViewById(R.id.btn_prev);
-		btnDelete = findViewById(R.id.btn_delete);
+		ImageButton btnStop = findViewById(R.id.btn_stop);
+		ImageButton btnNext = findViewById(R.id.btn_next);
+		ImageButton btnPrev = findViewById(R.id.btn_prev);
+		ImageButton btnDelete = findViewById(R.id.btn_delete);
 		btnBookmarks = findViewById(R.id.btn_bookmarks);
 		btnSort = findViewById(R.id.btn_sort);
 		btnCheckBookmark = findViewById(R.id.btn_check_bookmark);
+		btnDecoding = findViewById(R.id.btn_decoding);
 		txtEmpty = findViewById(R.id.txtEmpty);
 		txtTitle = findViewById(R.id.txt_title);
 		txtSubTitle = findViewById(R.id.txt_sub_title);
@@ -154,13 +148,27 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		btnDelete.setOnClickListener(this);
 		btnBookmarks.setOnClickListener(this);
 		btnCheckBookmark.setOnClickListener(this);
+		btnDecoding.setOnClickListener(this);
 		btnSort.setOnClickListener(this);
+
+		multiSelectPanel = findViewById(R.id.menu_multi_select);
+		multiSelectPanel.setBackgroundResource(colorMap.getPrimaryDarkColorRes());
+		txtSelectedCount = findViewById(R.id.txt_selected_multi);
+		btnCloseMulti = findViewById(R.id.btn_close_multi_select);
+		btnCloseMulti.setOnClickListener(this);
+		btnShareMulti = findViewById(R.id.btn_share_multi);
+		btnDeleteMulti = findViewById(R.id.btn_delete_multi);
+		btnDownloadMulti = findViewById(R.id.btn_download_multi);
+		btnShareMulti.setOnClickListener(this);
+		btnDeleteMulti.setOnClickListener(this);
+		btnDownloadMulti.setOnClickListener(this);
 
 		playProgress = findViewById(R.id.play_progress);
 		txtProgress = findViewById(R.id.txt_progress);
 		txtDuration = findViewById(R.id.txt_duration);
 		txtName = findViewById(R.id.txt_name);
 		waveformView = findViewById(R.id.record);
+		waveformView.showTimeline(false);
 
 		txtName.setOnClickListener(this);
 
@@ -170,7 +178,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				if (fromUser) {
 					int val = (int)AndroidUtils.dpToPx(progress * waveformView.getWaveformLength() / 1000);
 					waveformView.seekPx(val);
-					presenter.seekPlayback(val);
+					presenter.seekPlayback(waveformView.pxToMill(val));
 				}
 			}
 
@@ -229,24 +237,18 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			}
 		});
 
-		SimpleWaveformView.setWaveformColorRes(colorMap.getPrimaryColorRes());
 		adapter = new RecordsAdapter(ARApplication.getInjector().provideSettingsMapper());
-		adapter.setItemClickListener(new RecordsAdapter.ItemClickListener() {
-			@Override
-			public void onItemClick(View view, long id, String path, final int position) {
-				presenter.setActiveRecord(id, new RecordsContract.Callback() {
-					@Override public void onSuccess() {
-						presenter.stopPlayback();
-						if (startPlayback()) {
-							adapter.setActiveItem(position);
-						}
-					}
-					@Override public void onError(Exception e) {
-						Timber.e(e);
-					}
-				});
+		adapter.setItemClickListener((view, id, path, position) -> presenter.setActiveRecord(id, new RecordsContract.Callback() {
+			@Override public void onSuccess() {
+				presenter.stopPlayback();
+				if (startPlayback()) {
+					adapter.setActiveItem(position);
+				}
 			}
-		});
+			@Override public void onError(Exception e) {
+				Timber.e(e);
+			}
+		}));
 		adapter.setOnAddToBookmarkListener(new RecordsAdapter.OnAddToBookmarkListener() {
 			@Override public void onAddToBookmarks(int id) {
 				presenter.addToBookmark(id);
@@ -255,63 +257,57 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				presenter.removeFromBookmarks(id);
 			}
 		});
-		adapter.setOnItemOptionListener(new RecordsAdapter.OnItemOptionListener() {
-			@Override
-			public void onItemOptionSelected(int menuId, final ListItem item) {
-				switch (menuId) {
-					case R.id.menu_share:
-						AndroidUtils.shareAudioFile(getApplicationContext(), item.getPath(), item.getName(), item.getFormat());
-						break;
-					case R.id.menu_info:
-						presenter.onRecordInfo(Mapper.toRecordInfo(item));
-						break;
-					case R.id.menu_rename:
-						setRecordName(item.getId(), item.getName(), item.getFormat());
-						break;
-					case R.id.menu_open_with:
-						AndroidUtils.openAudioFile(getApplicationContext(), item.getPath(), item.getName());
-						break;
-					case R.id.menu_download:
-						if (checkStoragePermissionDownload()) {
-							//Download record file with Service
-							DownloadService.startNotification(
-									getApplicationContext(),
-									item.getNameWithExtension(),
-									item.getPath()
-							);
-						} else {
-							tempName = item.getNameWithExtension();
-							tempPath = item.getPath();
-						}
-						break;
-					case R.id.menu_delete:
-						AndroidUtils.showSimpleDialog(
-								RecordsActivity.this,
-								R.drawable.ic_delete_forever,
-								R.string.warning,
-								getApplicationContext().getString(R.string.delete_record, item.getName()),
-								new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										presenter.deleteRecord(item.getId(), item.getPath());
-									}
-								}
-						);
-						break;
+		adapter.setOnItemOptionListener((menuId, item) -> {
+			if (menuId == R.id.menu_share) {
+				AndroidUtils.shareAudioFile(getApplicationContext(), item.getPath(), item.getName(), item.getFormat());
+			} else if (menuId == R.id.menu_info) {
+				presenter.onRecordInfo(Mapper.toRecordInfo(item));
+			} else if (menuId == R.id.menu_rename) {
+				setRecordName(item.getId(), item.getName(), item.getFormat());
+			} else if (menuId == R.id.menu_open_with) {
+				AndroidUtils.openAudioFile(getApplicationContext(), item.getPath(), item.getName());
+			} else if (menuId == R.id.menu_download) {
+				if (checkStoragePermissionDownload()) {
+					//Download record file with Service
+					DownloadService.startNotification(
+							getApplicationContext(),
+							item.getPath()
+					);
+				} else {
+					downloadRecords.add(item.getPath());
 				}
+			} else if (menuId == R.id.menu_delete) {
+				AndroidUtils.showDialogYesNo(
+						RecordsActivity.this,
+						R.drawable.ic_delete_forever_dark,
+						getString(R.string.warning),
+						getString(R.string.delete_record, item.getName()),
+						v -> presenter.deleteRecord(item.getId(), item.getPath())
+				);
 			}
 		});
-		adapter.setBtnTrashClickListener(new RecordsAdapter.BtnTrashClickListener() {
+		adapter.setBtnTrashClickListener(() -> startActivity(TrashActivity.getStartIntent(getApplicationContext())));
+		adapter.setOnMultiSelectModeListener(new RecordsAdapter.OnMultiSelectModeListener() {
 			@Override
-			public void onClick() {
-				startActivity(TrashActivity.getStartIntent(getApplicationContext()));
+			public void onMultiSelectMode(boolean selected) {
+				stopPlayback();
+				if (selected) {
+					multiSelectPanel.setVisibility(View.VISIBLE);
+				} else {
+					multiSelectPanel.setVisibility(View.GONE);
+				}
+			}
+
+			@Override
+			public void onSelectDeselect(int selectedCount) {
+				txtSelectedCount.setText(getResources().getString(R.string.selected, selectedCount));
 			}
 		});
 		recyclerView.setAdapter(adapter);
 
 		presenter = ARApplication.getInjector().provideRecordsPresenter();
 
-		waveformView.setOnSeekListener(new WaveformView.OnSeekListener() {
+		waveformView.setOnSeekListener(new WaveformViewNew.OnSeekListener() {
 			@Override
 			public void onStartSeek() {
 				presenter.disablePlaybackProgressListener();
@@ -320,17 +316,20 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			@Override
 			public void onSeek(int px, long mills) {
 				presenter.enablePlaybackProgressListener();
-				presenter.seekPlayback(px);
+				//TODO: Find a better way to convert px to mills here
+				presenter.seekPlayback(waveformView.pxToMill(px));
 
-				if (waveformView.getWaveformLength() > 0) {
-					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / waveformView.getWaveformLength());
+				int length = waveformView.getWaveformLength();
+				if (length > 0) {
+					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / length);
 				}
 				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 			}
 			@Override
 			public void onSeeking(int px, long mills) {
-				if (waveformView.getWaveformLength() > 0) {
-					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / waveformView.getWaveformLength());
+				int length = waveformView.getWaveformLength();
+				if (length > 0) {
+					playProgress.setProgress(1000 * (int) AndroidUtils.pxToDp(px) / length);
 				}
 				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 			}
@@ -417,117 +416,160 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	public void onClick(View view) {
-		switch (view.getId()) {
-			case R.id.btn_play:
-				//This method Starts or Pause playback.
-				startPlayback();
-				break;
-			case R.id.btn_stop:
-				presenter.stopPlayback();
-				hidePanel();
-				break;
-			case R.id.btn_next:
-				presenter.pausePlayback();
-				final long id = adapter.getNextTo(presenter.getActiveRecordId());
-				presenter.setActiveRecord(id, new RecordsContract.Callback() {
-					@Override public void onSuccess() {
-						presenter.stopPlayback();
-						if (startPlayback()) {
-							int pos = adapter.findPositionById(id);
-							if (pos >= 0) {
-								recyclerView.scrollToPosition(pos);
-								int o = recyclerView.computeVerticalScrollOffset();
-								if (o > 0) {
-									if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-										toolbar.setTranslationZ(getResources().getDimension(R.dimen.toolbar_elevation));
-										toolbar.setBackgroundResource(colorMap.getPrimaryColorRes());
-									}
+		int id = view.getId();
+		if (id == R.id.btn_play) {
+			//This method Starts or Pause playback.
+			startPlayback();
+		} else if (id == R.id.btn_stop) {
+			stopPlayback();
+		} else if (id == R.id.btn_next) {
+			presenter.pausePlayback();
+			final long recId = adapter.getNextTo(presenter.getActiveRecordId());
+			presenter.setActiveRecord(recId, new RecordsContract.Callback() {
+				@Override public void onSuccess() {
+					presenter.stopPlayback();
+					if (startPlayback()) {
+						int pos = adapter.findPositionById(recId);
+						if (pos >= 0) {
+							recyclerView.scrollToPosition(pos);
+							int o = recyclerView.computeVerticalScrollOffset();
+							if (o > 0) {
+								if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+									toolbar.setTranslationZ(getResources().getDimension(R.dimen.toolbar_elevation));
+									toolbar.setBackgroundResource(colorMap.getPrimaryColorRes());
 								}
-								adapter.setActiveItem(pos);
 							}
+							adapter.setActiveItem(pos);
 						}
 					}
-					@Override public void onError(Exception e) {
-						Timber.e(e);
-					}
-				});
-				break;
-			case R.id.btn_prev:
-				presenter.pausePlayback();
-				final long id2 = adapter.getPrevTo(presenter.getActiveRecordId());
-				presenter.setActiveRecord(id2, new RecordsContract.Callback() {
-					@Override public void onSuccess() {
-						presenter.stopPlayback();
-						if (startPlayback()) {
-							int pos2 = adapter.findPositionById(id2);
-							if (pos2 >= 0) {
-								recyclerView.scrollToPosition(pos2);
-								adapter.setActiveItem(pos2);
-							}
+				}
+				@Override public void onError(Exception e) {
+					Timber.e(e);
+				}
+			});
+		} else if (id == R.id.btn_prev) {
+			presenter.pausePlayback();
+			final long prevRecId = adapter.getPrevTo(presenter.getActiveRecordId());
+			presenter.setActiveRecord(prevRecId, new RecordsContract.Callback() {
+				@Override public void onSuccess() {
+					presenter.stopPlayback();
+					if (startPlayback()) {
+						int pos2 = adapter.findPositionById(prevRecId);
+						if (pos2 >= 0) {
+							recyclerView.scrollToPosition(pos2);
+							adapter.setActiveItem(pos2);
 						}
 					}
-					@Override public void onError(Exception e) {
-						Timber.e(e);
-					}
-				});
-				break;
-			case R.id.btn_delete:
-				presenter.pausePlayback();
-				AndroidUtils.showSimpleDialog(
-						RecordsActivity.this,
-						R.drawable.ic_delete_forever,
-						R.string.warning,
-						getApplicationContext().getString(R.string.delete_record, presenter.getRecordName()),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								presenter.deleteActiveRecord();
-							}
-						}
-				);
-				break;
-			case R.id.btn_check_bookmark:
-				presenter.checkBookmarkActiveRecord();
-				break;
-			case R.id.btn_bookmarks:
-				presenter.applyBookmarksFilter();
-				break;
-			case R.id.btn_sort:
-				showMenu(view);
-				break;
-			case R.id.txt_name:
-				presenter.onRenameClick();
-				break;
+				}
+				@Override public void onError(Exception e) {
+					Timber.e(e);
+				}
+			});
+		} else if (id == R.id.btn_delete) {
+			presenter.pausePlayback();
+			AndroidUtils.showDialogYesNo(
+					RecordsActivity.this,
+					R.drawable.ic_delete_forever_dark,
+					getString(R.string.warning),
+					getString(R.string.delete_record, presenter.getRecordName()),
+					v -> presenter.deleteActiveRecord()
+			);
+		} else if (id == R.id.btn_check_bookmark) {
+			presenter.checkBookmarkActiveRecord();
+		} else if (id == R.id.btn_decoding) {
+			presenter.decodeActiveRecord();
+		} else if (id == R.id.btn_bookmarks) {
+			presenter.applyBookmarksFilter();
+		} else if (id == R.id.btn_sort) {
+			showMenu(view);
+		} else if (id == R.id.txt_name) {
+			presenter.onRenameClick();
+		} else if (id == R.id.btn_close_multi_select) {
+			cancelMultiSelect();
+		} else if (id == R.id.btn_delete_multi) {
+			int count = adapter.getSelected().size();
+			AndroidUtils.showDialogYesNo(
+					RecordsActivity.this,
+					R.drawable.ic_delete_forever_dark,
+					getString(R.string.warning),
+					this.getResources().getQuantityString(R.plurals.delete_selected_records, count, count),
+					v -> deleteSelectedRecords()
+			);
+		} else if (id == R.id.btn_share_multi) {
+			shareSelectedRecords();
+		} else if (id == R.id.btn_download_multi) {
+			int count = adapter.getSelected().size();
+			AndroidUtils.showDialogYesNo(
+					RecordsActivity.this,
+					R.drawable.ic_save_alt_dark,
+					getString(R.string.download),
+					this.getResources().getQuantityString(R.plurals.download_selected_records, count, count),
+					v -> downloadSelectedRecords()
+			);
 		}
+	}
+
+	private void shareSelectedRecords() {
+		List<Integer> selected = adapter.getSelected();
+		List<String> share = new ArrayList<>();
+		for (int i = 0; i < selected.size(); i++) {
+			ListItem item = adapter.getItem(selected.get(i));
+			share.add(item.getPath());
+		}
+		AndroidUtils.shareAudioFiles(getApplicationContext(), share);
+		cancelMultiSelect();
+	}
+
+	private void downloadSelectedRecords() {
+		List<Integer> selected = adapter.getSelected();
+		for (int i = 0; i < selected.size(); i++) {
+			ListItem item = adapter.getItem(selected.get(i));
+			downloadRecords.add(item.getPath());
+		}
+		if (checkStoragePermissionDownload()) {
+			//Download record file with Service
+			DownloadService.startNotification(
+					getApplicationContext(),
+					new ArrayList<>(downloadRecords)
+			);
+			downloadRecords.clear();
+			cancelMultiSelect();
+		}
+	}
+
+	private void deleteSelectedRecords() {
+		List<Long> ids = new ArrayList<>();
+		List<Integer> selected = adapter.getSelected();
+		for (int i = 0; i < selected.size(); i++) {
+			ListItem item = adapter.getItem(selected.get(i));
+			ids.add(item.getId());
+		}
+		presenter.deleteRecords(ids);
+	}
+
+	private void stopPlayback() {
+		presenter.stopPlayback();
+		hidePanel();
 	}
 
 	private void showMenu(View v) {
 		PopupMenu popup = new PopupMenu(v.getContext(), v);
-		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				switch (item.getItemId()) {
-					case R.id.menu_date:
-						presenter.updateRecordsOrder(AppConstants.SORT_DATE);
-						break;
-					case R.id.menu_date_desc:
-						presenter.updateRecordsOrder(AppConstants.SORT_DATE_DESC);
-						break;
-					case R.id.menu_name:
-						presenter.updateRecordsOrder(AppConstants.SORT_NAME);
-						break;
-					case R.id.menu_name_desc:
-						presenter.updateRecordsOrder(AppConstants.SORT_NAME_DESC);
-						break;
-					case R.id.menu_duration:
-						presenter.updateRecordsOrder(AppConstants.SORT_DURATION);
-						break;
-					case R.id.menu_duration_desc:
-						presenter.updateRecordsOrder(AppConstants.SORT_DURATION_DESC);
-						break;
-				}
-				return false;
+		popup.setOnMenuItemClickListener(item -> {
+			int id = item.getItemId();
+			if (id == R.id.menu_date) {
+				presenter.updateRecordsOrder(AppConstants.SORT_DATE);
+			} else if (id == R.id.menu_date_desc) {
+				presenter.updateRecordsOrder(AppConstants.SORT_DATE_DESC);
+			} else if (id == R.id.menu_name) {
+				presenter.updateRecordsOrder(AppConstants.SORT_NAME);
+			} else if (id == R.id.menu_name_desc) {
+				presenter.updateRecordsOrder(AppConstants.SORT_NAME_DESC);
+			} else if (id == R.id.menu_duration) {
+				presenter.updateRecordsOrder(AppConstants.SORT_DURATION);
+			} else if (id == R.id.menu_duration_desc) {
+				presenter.updateRecordsOrder(AppConstants.SORT_DURATION_DESC);
 			}
+			return false;
 		});
 		MenuInflater inflater = popup.getMenuInflater();
 		inflater.inflate(R.menu.menu_sort, popup.getMenu());
@@ -623,9 +665,8 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
-	public void showWaveForm(int[] waveForm, long duration) {
-		waveformView.setWaveform(waveForm);
-		waveformView.setPxPerSecond(AndroidUtils.dpToPx(ARApplication.getDpPerSecond((float)duration/1000000f)));
+	public void showWaveForm(int[] waveForm, long duration, long playbackMills) {
+		waveformView.setWaveform(waveForm, duration/1000, playbackMills);
 	}
 
 	@Override
@@ -635,22 +676,17 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
-	public void onPlayProgress(final long mills, final int px, final int percent) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				waveformView.setPlayback(px);
-				txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
-				playProgress.setProgress(percent);
-			}
-		});
+	public void onPlayProgress(final long mills, final int percent) {
+		playProgress.setProgress(percent);
+		waveformView.setPlayback(mills);
+		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(mills));
 	}
 
 	@Override
 	public void showRecords(List<ListItem> records, int order) {
 		if (records.size() == 0) {
 			txtEmpty.setVisibility(View.VISIBLE);
-			adapter.setData(new ArrayList<ListItem>(), order);
+			adapter.setData(new ArrayList<>(), order);
 		} else {
 			adapter.setData(records, order);
 			txtEmpty.setVisibility(View.GONE);
@@ -686,6 +722,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	@Override
 	public void hidePanelProgress() {
 		panelProgress.setVisibility(View.GONE);
+	}
+
+	@Override
+	public void decodeRecord(int id) {
+		DecodeService.Companion.startNotification(getApplicationContext(), id);
 	}
 
 	@Override
@@ -789,6 +830,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	@Override
+	public void cancelMultiSelect() {
+		multiSelectPanel.setVisibility(View.GONE);
+		adapter.cancelMultiSelect();
+	}
+
+	@Override
 	public void showProgress() {
 		progressBar.setVisibility(View.VISIBLE);
 	}
@@ -814,80 +861,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	public void setRecordName(final long recordId, final String name, final String extension) {
-		//Create dialog layout programmatically.
-		LinearLayout container = new LinearLayout(getApplicationContext());
-		container.setOrientation(LinearLayout.VERTICAL);
-		LinearLayout.LayoutParams containerLp = new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT,
-				LinearLayout.LayoutParams.WRAP_CONTENT);
-		container.setLayoutParams(containerLp);
-
-		final EditText editText = new EditText(getApplicationContext());
-		ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT,
-				ViewGroup.LayoutParams.WRAP_CONTENT);
-		editText.setLayoutParams(lp);
-		editText.addTextChangedListener(new TextWatcher() {
-			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-			@Override public void afterTextChanged(Editable s) {
-				if (s.length() > AppConstants.MAX_RECORD_NAME_LENGTH) {
-					s.delete(s.length() - 1, s.length());
-				}
+		AndroidUtils.showRenameDialog(this, name, false, newName -> {
+			if (!name.equalsIgnoreCase(newName)) {
+				presenter.renameRecord(recordId, newName, extension);
+				presenter.loadRecords();
 			}
-			@Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
-		});
-		editText.setTextColor(getResources().getColor(R.color.text_primary_light));
-		editText.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_medium));
-
-		int pad = (int) getResources().getDimension(R.dimen.spacing_normal);
-		ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(editText.getLayoutParams());
-		params.setMargins(pad, pad, pad, pad);
-		editText.setLayoutParams(params);
-		container.addView(editText);
-
-		editText.setText(name);
-
-		AlertDialog alertDialog = new AlertDialog.Builder(this)
-				.setTitle(R.string.record_name)
-				.setView(container)
-				.setPositiveButton(R.string.btn_save, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						String newName = editText.getText().toString();
-						if (!name.equalsIgnoreCase(newName)) {
-							presenter.renameRecord(recordId, newName, extension);
-							presenter.loadRecords();
-						}
-						dialog.dismiss();
-					}
-				})
-				.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.dismiss();
-					}
-				})
-				.create();
-		alertDialog.show();
-		alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-			@Override
-			public void onDismiss(DialogInterface dialog) {
-				hideKeyboard();
-			}
-		});
-		editText.requestFocus();
-		editText.setSelection(editText.getText().length());
-		showKeyboard();
-	}
-
-	/** Show soft keyboard for a dialog. */
-	public void showKeyboard(){
-		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-		inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-	}
-
-	/** Hide soft keyboard after a dialog. */
-	public void hideKeyboard(){
-		InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-		inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+		}, v -> {}, null);
 	}
 
 	private boolean checkStoragePermissionPlayback() {
@@ -922,15 +901,13 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE_DOWNLOAD && grantResults.length > 0
 			&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-			if (!TextUtils.isEmpty(tempName) && !TextUtils.isEmpty(tempPath)) {
+			if (!downloadRecords.isEmpty()) {
 				//Download record file with Service
 				DownloadService.startNotification(
 						getApplicationContext(),
-						tempName,
-						tempPath
+						new ArrayList<>(downloadRecords)
 				);
-				tempName = null;
-				tempPath = null;
+				downloadRecords.clear();
 			}
 		}
 	}

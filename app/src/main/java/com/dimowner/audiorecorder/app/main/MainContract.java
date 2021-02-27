@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,10 +35,11 @@ public interface MainContract {
 		void showRecordingStart();
 		void showRecordingStop();
 		void showRecordingPause();
+		void showRecordingResume();
 		void onRecordingProgress(long mills, int amp);
 		void startWelcomeScreen();
 
-		void askRecordingNewName(long id, File file,  boolean showCheckbox, final boolean needDecode);
+		void askRecordingNewName(long id, File file,  boolean showCheckbox);
 
 		void startRecordingService();
 		void stopRecordingService();
@@ -48,7 +49,7 @@ public interface MainContract {
 		void showPlayStart(boolean animate);
 		void showPlayPause();
 		void showPlayStop();
-		void onPlayProgress(long mills, int px, int percent);
+		void onPlayProgress(long mills, int percent);
 
 		void showImportStart();
 		void hideImportProgress();
@@ -59,12 +60,13 @@ public interface MainContract {
 		void showRecordProcessing();
 		void hideRecordProcessing();
 
-		void showWaveForm(int[] waveForm, long duration);
+		void showWaveForm(int[] waveForm, long duration, long playbackMills);
 		void waveFormToStart();
 		void showDuration(String duration);
 		void showRecordingProgress(String progress);
 		void showName(String name);
 		void showInformation(String info);
+		void decodeRecord(int id);
 
 		void askDeleteRecord(String name);
 
@@ -72,7 +74,7 @@ public interface MainContract {
 
 		void showRecordInfo(RecordInfo info);
 
-		void updateRecordingView(IntArrayList data);
+		void updateRecordingView(IntArrayList data, long durationMills);
 
 		void showRecordsLostMessage(List<Record> list);
 
@@ -87,6 +89,8 @@ public interface MainContract {
 
 		void checkFirstRun();
 
+		void storeInPrivateDir(Context context);
+
 		void setAudioRecorder(RecorderContract.Recorder recorder);
 
 		void startRecording(Context context);
@@ -94,17 +98,16 @@ public interface MainContract {
 		void cancelRecording();
 
 		void startPlayback();
-		void pausePlayback();
-		void seekPlayback(int px);
+		void seekPlayback(long mills);
 		void stopPlayback();
 
-		void renameRecord(long id, String name, String extension, boolean needDecode);
+		void renameRecord(long id, String name, String extension);
 
 		void decodeRecord(long id);
 
 		void loadActiveRecord();
 
-		void dontAskRename();
+		void setAskToRename(boolean value);
 
 		void importAudioFile(Context context, Uri uri);
 

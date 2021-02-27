@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~  Copyright 2019 Dmitriy Ponomarenko
+  ~  Copyright 2019 Dmytro Ponomarenko
   ~
   ~  Licensed under the Apache License, Version 2.0 (the "License");
   ~  you may not use this file except in compliance with the License.
@@ -61,7 +61,6 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="@string/rec_name"
-				android:textStyle="normal"
 				android:fontFamily="sans-serif-light"
 				android:textSize="@dimen/text_medium"
 				android:layout_marginTop="@dimen/spacing_medium"
@@ -83,7 +82,6 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="@string/rec_format"
-				android:textStyle="normal"
 				android:fontFamily="sans-serif-light"
 				android:textSize="@dimen/text_medium"
 				android:layout_marginTop="@dimen/spacing_medium"
@@ -106,7 +104,6 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="@string/bitrate"
-				android:textStyle="normal"
 				android:fontFamily="sans-serif-light"
 				android:textSize="@dimen/text_medium"
 				android:layout_marginTop="@dimen/spacing_medium"
@@ -127,7 +124,6 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="@string/channels"
-				android:textStyle="normal"
 				android:fontFamily="sans-serif-light"
 				android:textSize="@dimen/text_medium"
 				android:layout_marginTop="@dimen/spacing_medium"
@@ -148,7 +144,6 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="@string/sample_rate"
-				android:textStyle="normal"
 				android:fontFamily="sans-serif-light"
 				android:textSize="@dimen/text_medium"
 				android:layout_marginTop="@dimen/spacing_medium"
@@ -169,7 +164,6 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="@string/rec_duration"
-				android:textStyle="normal"
 				android:fontFamily="sans-serif-light"
 				android:textSize="@dimen/text_medium"
 				android:layout_marginTop="@dimen/spacing_medium"
@@ -191,7 +185,6 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="@string/rec_size"
-				android:textStyle="normal"
 				android:fontFamily="sans-serif-light"
 				android:textSize="@dimen/text_medium"
 				android:layout_marginTop="@dimen/spacing_medium"
@@ -213,7 +206,6 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="@string/rec_location"
-				android:textStyle="normal"
 				android:fontFamily="sans-serif-light"
 				android:textSize="@dimen/text_medium"
 				android:layout_marginTop="@dimen/spacing_medium"
@@ -234,7 +226,6 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:text="@string/rec_created"
-				android:textStyle="normal"
 				android:fontFamily="sans-serif-light"
 				android:textSize="@dimen/text_medium"
 				android:layout_marginTop="@dimen/spacing_medium"

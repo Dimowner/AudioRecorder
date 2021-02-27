@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~  Copyright 2018 Dmitriy Ponomarenko
+  ~  Copyright 2018 Dmytro Ponomarenko
   ~
   ~  Licensed under the Apache License, Version 2.0 (the "License");
   ~  you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@
 					android:layout_height="wrap_content"
 					android:textSize="@dimen/text_large"
 					android:textColor="@color/text_primary_light"
-					android:textStyle="bold"
+					android:fontFamily="sans-serif-medium"
 					android:ellipsize="end"
 					android:maxLines="2"
 					tools:text="Record-30.m4a" />

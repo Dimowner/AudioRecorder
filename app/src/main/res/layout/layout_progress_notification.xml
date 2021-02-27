@@ -41,7 +41,7 @@
 				android:layout_height="wrap_content"
 				android:textColor="@color/text_primary_light"
 				android:maxLines="2"
-				android:textStyle="bold"
+				android:fontFamily="sans-serif-medium"
 				android:textSize="@dimen/text_medium"
 				tools:text="Downloading: Record-14.m4a"/>
 

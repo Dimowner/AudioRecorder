@@ -34,7 +34,7 @@ Colorful themes allow customizing the app look, making the experience better.
 ### License
 
 ```
-Copyright 2019 Dmitriy Ponomarenko
+Copyright 2019 Dmytro Ponomarenko
 
 Licensed to the Apache Software Foundation (ASF) under one or more contributor
 license agreements. See the NOTICE file distributed with this work for

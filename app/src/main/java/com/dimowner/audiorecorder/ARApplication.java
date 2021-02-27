@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import android.os.Handler;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
-import com.dimowner.audiorecorder.audio.player.PlayerContract;
+import com.dimowner.audiorecorder.audio.player.PlayerContractNew;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 //import com.google.firebase.FirebaseApp;
@@ -121,10 +121,8 @@ public class ARApplication extends Application {
 		public void onReceive(Context context, Intent intent) {
 			String actionOfIntent = intent.getAction();
 			if (actionOfIntent != null && actionOfIntent.equals(AUDIO_BECOMING_NOISY)){
-				PlayerContract.Player player = injector.provideAudioPlayer();
-				if (player.isPlaying()) {
-					player.pause();
-				}
+				PlayerContractNew.Player player = injector.provideAudioPlayer();
+				player.pause();
 			}
 		}
 	}
@@ -135,10 +133,8 @@ public class ARApplication extends Application {
 			if ((state == TelephonyManager.CALL_STATE_RINGING)
 					|| (state == TelephonyManager.CALL_STATE_OFFHOOK)) {
 				//Pause playback when incoming call or on hold
-				PlayerContract.Player player = injector.provideAudioPlayer();
-				if (player.isPlaying()) {
-					player.pause();
-				}
+				PlayerContractNew.Player player = injector.provideAudioPlayer();
+				player.pause();
 			}
 			super.onCallStateChanged(state, incomingNumber);
 		}

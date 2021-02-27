@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,8 +51,7 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 	public static final int TAB_PUBLIC_DIR = 2;
 
 	private FileBrowserContract.View view;
-	private AppRecorder appRecorder;
-	private Prefs prefs;
+	private final AppRecorder appRecorder;
 	private AppRecorderCallback appRecorderCallback;
 	private final BackgroundQueue importTasks;
 	private final BackgroundQueue loadingTasks;
@@ -63,7 +62,6 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 
 	public FileBrowserPresenter(Prefs prefs, AppRecorder appRecorder, BackgroundQueue importTasks, BackgroundQueue loadingTasks, BackgroundQueue recordingsTasks,
 										 LocalRepository localRepository, FileRepository fileRepository) {
-		this.prefs = prefs;
 		this.appRecorder = appRecorder;
 		this.importTasks = importTasks;
 		this.loadingTasks = loadingTasks;
@@ -94,17 +92,7 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 				}
 
 				@Override
-				public void onRecordProcessing() {
-					if (view != null) {
-						view.showRecordProcessing();
-					}
-				}
-
-				@Override
-				public void onRecordFinishProcessing() {
-					if (view != null) {
-						view.hideRecordProcessing();
-					}
+				public void onRecordingResumed() {
 				}
 
 				@Override
@@ -160,39 +148,33 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 		if (view != null) {
 			view.showProgress();
 		}
-		loadingTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				File[] files;
-				if (selectedTab == TAB_PRIVATE_DIR) {
-					files = fileRepository.getPrivateDirFiles(context);
-				} else {
-					files = fileRepository.getPublicDirFiles();
-				}
-				final List<RecordInfo> items = new ArrayList<>();
-				if (files != null) {
-					for (int i = 0; i < files.length; i++) {
-						Record rec = localRepository.findRecordByPath(files[i].getAbsolutePath());
-						RecordInfo r = AudioDecoder.readRecordInfo(files[i]);
-						r.setInDatabase(rec != null);
-						items.add(r);
-					}
-				}
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override
-					public void run() {
-						if (view != null) {
-							view.hideProgress();
-							if (items.isEmpty()) {
-								view.showEmpty();
-							} else {
-								view.showFileItems(items);
-								view.hideEmpty();
-							}
-						}
-					}
-				});
+		loadingTasks.postRunnable(() -> {
+			File[] files;
+			if (selectedTab == TAB_PRIVATE_DIR) {
+				files = fileRepository.getPrivateDirFiles(context);
+			} else {
+				files = fileRepository.getPublicDirFiles();
 			}
+			final List<RecordInfo> items = new ArrayList<>();
+			if (files != null) {
+				for (int i = 0; i < files.length; i++) {
+					Record rec = localRepository.findRecordByPath(files[i].getAbsolutePath());
+					RecordInfo r = AudioDecoder.readRecordInfo(files[i]);
+					r.setInDatabase(rec != null);
+					items.add(r);
+				}
+			}
+			AndroidUtils.runOnUIThread(() -> {
+				if (view != null) {
+					view.hideProgress();
+					if (items.isEmpty()) {
+						view.showEmpty();
+					} else {
+						view.showFileItems(items);
+						view.hideEmpty();
+					}
+				}
+			});
 		});
 	}
 
@@ -205,19 +187,13 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 
 	@Override
 	public void deleteRecord(final RecordInfo record) {
-		recordingsTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				if (fileRepository.deleteRecordFile(record.getLocation())) {
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							if (view != null) {
-								view.onDeletedRecord(record.getLocation());
-							}
-						}
-					});
-				}
+		recordingsTasks.postRunnable(() -> {
+			if (fileRepository.deleteRecordFile(record.getLocation())) {
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.onDeletedRecord(record.getLocation());
+					}
+				});
 			}
 		});
 	}
@@ -256,34 +232,25 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 					final Record rec = localRepository.insertRecord(r);
 					if (rec != null) {
 						id = rec.getId();
-						AndroidUtils.runOnUIThread(new Runnable() {
-							@Override
-							public void run() {
-								if (view != null) {
-									view.hideImportProgress();
-									view.onImportedRecord(info.getLocation());
-								}
+						AndroidUtils.runOnUIThread(() -> {
+							if (view != null) {
+								view.hideImportProgress();
+								view.onImportedRecord(info.getLocation());
 							}
 						});
-						if (rec.getDuration() / 1000 < AppConstants.DECODE_DURATION) {
-							appRecorder.decodeRecordWaveform(rec);
+						if (view != null && !rec.isWaveformProcessed() && rec.getDuration() / 1000 < AppConstants.DECODE_DURATION) {
+							view.decodeRecord(rec.getId());
 						}
 					}
 				} catch (SecurityException e) {
 					Timber.e(e);
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							if (view != null) view.showError(R.string.error_permission_denied);
-						}
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) view.showError(R.string.error_permission_denied);
 					});
 				} catch (OutOfMemoryError | IllegalStateException e) {
 					Timber.e(e);
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							if (view != null) view.showError(R.string.error_unable_to_read_sound_file);
-						}
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) view.showError(R.string.error_unable_to_read_sound_file);
 					});
 				}
 			}

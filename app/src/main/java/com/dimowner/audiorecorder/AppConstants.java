@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ public class AppConstants {
 	public static final String NAME_FORMAT_RECORD = "record";
 	public static final String NAME_FORMAT_TIMESTAMP = "timestamp";
 	public static final String NAME_FORMAT_DATE = "date";
+	public static final String NAME_FORMAT_DATE_US = "date_us";
 
 	public static final int MAX_RECORD_NAME_LENGTH = 50;
 
@@ -90,7 +91,7 @@ public class AppConstants {
 
 	/** Count of grid lines on visible part of Waveform (actually lines count visible on screen).
 	 *  Used for long records visualisation algorithm. (longer than {@link AppConstants#LONG_RECORD_THRESHOLD_SECONDS} ) */
-	public static final int GRID_LINES_COUNT = 16;
+	public static final int GRID_LINES_COUNT = 10;
 
 	//END-------------- Waveform visualisation constants ----------------------------------------
 
@@ -134,7 +135,8 @@ public class AppConstants {
 	public static final int DEFAULT_CHANNEL_COUNT = RECORD_AUDIO_STEREO;
 
 	/** Time interval for Recording progress visualisation. */
-	public final static int VISUALIZATION_INTERVAL = 1000/SHORT_RECORD_DP_PER_SECOND; //1000 mills/25 dp per sec
+	public final static int RECORDING_VISUALIZATION_INTERVAL = 13; //mills
+	public final static int PLAYBACK_VISUALIZATION_INTERVAL = (int)(2.1* RECORDING_VISUALIZATION_INTERVAL); //mills
 
 	public final static int RECORD_BYTES_PER_SECOND = RECORD_ENCODING_BITRATE_48000 /8; //bits per sec converted to bytes per sec.
 

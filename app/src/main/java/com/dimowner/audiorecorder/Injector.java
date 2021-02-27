@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,9 @@ import com.dimowner.audiorecorder.app.setup.SetupContract;
 import com.dimowner.audiorecorder.app.setup.SetupPresenter;
 import com.dimowner.audiorecorder.app.trash.TrashContract;
 import com.dimowner.audiorecorder.app.trash.TrashPresenter;
-import com.dimowner.audiorecorder.audio.player.AudioPlayer;
-import com.dimowner.audiorecorder.audio.player.PlayerContract;
+import com.dimowner.audiorecorder.audio.AudioWaveformVisualization;
+import com.dimowner.audiorecorder.audio.player.AudioPlayerNew;
+import com.dimowner.audiorecorder.audio.player.PlayerContractNew;
 import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
 import com.dimowner.audiorecorder.audio.recorder.ThreeGpRecorder;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
@@ -52,7 +53,7 @@ import com.dimowner.audiorecorder.data.database.TrashDataSource;
 
 public class Injector {
 
-	private Context context;
+	private final Context context;
 
 	private BackgroundQueue loadingTasks;
 	private BackgroundQueue recordingTasks;
@@ -67,6 +68,8 @@ public class Injector {
 	private FileBrowserContract.UserActionsListener fileBrowserPresenter;
 	private TrashContract.UserActionsListener trashPresenter;
 	private SetupContract.UserActionsListener setupPresenter;
+
+	private AudioPlayerNew audioPlayer = null;
 
 	public Injector(Context context) {
 		this.context = context;
@@ -94,7 +97,11 @@ public class Injector {
 
 	public AppRecorder provideAppRecorder() {
 		return AppRecorderImpl.getInstance(provideAudioRecorder(), provideLocalRepository(),
-				provideLoadingTasksQueue(), provideProcessingTasksQueue(), providePrefs());
+				provideLoadingTasksQueue(), providePrefs());
+	}
+
+	public AudioWaveformVisualization provideAudioWaveformVisualization() {
+		return new AudioWaveformVisualization(provideProcessingTasksQueue());
 	}
 
 	public BackgroundQueue provideLoadingTasksQueue() {
@@ -140,8 +147,15 @@ public class Injector {
 		return SettingsMapper.getInstance(context);
 	}
 
-	public PlayerContract.Player provideAudioPlayer() {
-		return AudioPlayer.getInstance();
+	public PlayerContractNew.Player provideAudioPlayer() {
+		if (audioPlayer == null) {
+			synchronized (PlayerContractNew.Player.class) {
+				if (audioPlayer == null) {
+					audioPlayer = new AudioPlayerNew();
+				}
+			}
+		}
+		return audioPlayer;
 	}
 
 	public RecorderContract.Recorder provideAudioRecorder() {
@@ -160,7 +174,7 @@ public class Injector {
 		if (mainPresenter == null) {
 			mainPresenter = new MainPresenter(providePrefs(), provideFileRepository(),
 					provideLocalRepository(), provideAudioPlayer(), provideAppRecorder(),
-					provideLoadingTasksQueue(), provideRecordingTasksQueue(), provideProcessingTasksQueue(),
+					provideRecordingTasksQueue(), provideLoadingTasksQueue(), provideProcessingTasksQueue(),
 					provideImportTasksQueue(), provideSettingsMapper());
 		}
 		return mainPresenter;

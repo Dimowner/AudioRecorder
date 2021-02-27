@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.Space;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,7 +34,6 @@ import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.main.MainActivity;
 import com.dimowner.audiorecorder.app.settings.AppSpinnerAdapter;
 import com.dimowner.audiorecorder.app.settings.SettingsMapper;
-import com.dimowner.audiorecorder.app.widget.ChipsView;
 import com.dimowner.audiorecorder.app.widget.SettingView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
@@ -50,7 +44,6 @@ import java.util.List;
 public class SetupActivity extends Activity implements SetupContract.View, View.OnClickListener {
 
 	private Spinner nameFormatSelector;
-	private Spinner themeColor;
 
 	private SettingView formatSetting;
 	private SettingView sampleRateSetting;
@@ -104,19 +97,9 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 				AppConstants.FORMAT_3GP
 		};
 		formatSetting.setData(formats, formatsKeys);
-		formatSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
-			@Override
-			public void onCheck(String key, String name, boolean checked) {
-				presenter.setSettingRecordingFormat(key);
-			}
-		});
+		formatSetting.setOnChipCheckListener((key, name, checked) -> presenter.setSettingRecordingFormat(key));
 		formatSetting.setTitle(R.string.recording_format);
-		formatSetting.setOnInfoClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				AndroidUtils.showInfoDialog(SetupActivity.this, R.string.info_format);
-			}
-		});
+		formatSetting.setOnInfoClickListener(v -> AndroidUtils.showInfoDialog(SetupActivity.this, R.string.info_format));
 
 		sampleRateSetting = findViewById(R.id.setting_frequency);
 		final String[] sampleRates = getResources().getStringArray(R.array.sample_rates2);
@@ -129,19 +112,9 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 				SettingsMapper.SAMPLE_RATE_48000,
 		};
 		sampleRateSetting.setData(sampleRates, sampleRatesKeys);
-		sampleRateSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
-			@Override
-			public void onCheck(String key, String name, boolean checked) {
-				presenter.setSettingSampleRate(SettingsMapper.keyToSampleRate(key));
-			}
-		});
+		sampleRateSetting.setOnChipCheckListener((key, name, checked) -> presenter.setSettingSampleRate(SettingsMapper.keyToSampleRate(key)));
 		sampleRateSetting.setTitle(R.string.sample_rate);
-		sampleRateSetting.setOnInfoClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				AndroidUtils.showInfoDialog(SetupActivity.this, R.string.info_frequency);
-			}
-		});
+		sampleRateSetting.setOnInfoClickListener(v -> AndroidUtils.showInfoDialog(SetupActivity.this, R.string.info_frequency));
 
 		bitrateSetting = findViewById(R.id.setting_bitrate);
 		final String[] rates = getResources().getStringArray(R.array.bit_rates2);
@@ -154,19 +127,9 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 				SettingsMapper.BITRATE_256000,
 		};
 		bitrateSetting.setData(rates, rateKeys);
-		bitrateSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
-			@Override
-			public void onCheck(String key, String name, boolean checked) {
-				presenter.setSettingRecordingBitrate(SettingsMapper.keyToBitrate(key));
-			}
-		});
+		bitrateSetting.setOnChipCheckListener((key, name, checked) -> presenter.setSettingRecordingBitrate(SettingsMapper.keyToBitrate(key)));
 		bitrateSetting.setTitle(R.string.bitrate);
-		bitrateSetting.setOnInfoClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				AndroidUtils.showInfoDialog(SetupActivity.this, R.string.info_bitrate);
-			}
-		});
+		bitrateSetting.setOnInfoClickListener(v -> AndroidUtils.showInfoDialog(SetupActivity.this, R.string.info_bitrate));
 
 		channelsSetting = findViewById(R.id.setting_channels);
 		final String[] recChannels = getResources().getStringArray(R.array.channels);
@@ -175,19 +138,9 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 				SettingsMapper.CHANNEL_COUNT_MONO
 		};
 		channelsSetting.setData(recChannels, recChannelsKeys);
-		channelsSetting.setOnChipCheckListener(new ChipsView.OnCheckListener() {
-			@Override
-			public void onCheck(String key, String name, boolean checked) {
-				presenter.setSettingChannelCount(SettingsMapper.keyToChannelCount(key));
-			}
-		});
+		channelsSetting.setOnChipCheckListener((key, name, checked) -> presenter.setSettingChannelCount(SettingsMapper.keyToChannelCount(key)));
 		channelsSetting.setTitle(R.string.channels);
-		channelsSetting.setOnInfoClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				AndroidUtils.showInfoDialog(SetupActivity.this, R.string.info_channels);
-			}
-		});
+		channelsSetting.setOnInfoClickListener(v -> AndroidUtils.showInfoDialog(SetupActivity.this, R.string.info_channels));
 
 		presenter = ARApplication.getInjector().provideSetupPresenter();
 
@@ -196,7 +149,7 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 	}
 
 	private void initThemeColorSelector() {
-		themeColor = findViewById(R.id.themeColor);
+		Spinner themeColor = findViewById(R.id.themeColor);
 		List<AppSpinnerAdapter.ThemeItem> items = new ArrayList<>();
 		String[] values = getResources().getStringArray(R.array.theme_colors2);
 		int[] colorRes = colorMap.getColorResources();
@@ -207,12 +160,9 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 				R.layout.list_item_spinner, R.id.txtItem, items, R.drawable.ic_color_lens);
 		themeColor.setAdapter(adapter);
 
-		onThemeColorChangeListener = new ColorMap.OnThemeColorChangeListener() {
-			@Override
-			public void onThemeColorChange(String colorKey) {
-				setTheme(colorMap.getAppThemeResource());
-				recreate();
-			}
+		onThemeColorChangeListener = colorKey -> {
+			setTheme(colorMap.getAppThemeResource());
+			recreate();
 		};
 		colorMap.addOnThemeColorChangeListener(onThemeColorChangeListener);
 
@@ -233,11 +183,12 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 	private void initNameFormatSelector() {
 		nameFormatSelector = findViewById(R.id.name_format);
 		List<AppSpinnerAdapter.ThemeItem> items = new ArrayList<>();
-		String[] values = new String[3];
+		String[] values = new String[4];
 		values[0] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameCounted(1) + ".m4a";
 //		values[1] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameDate() + ".m4a";
 		values[1] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameDateVariant() + ".m4a";
-		values[2] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameMills() + ".m4a";
+		values[2] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameDateUS() + ".m4a";
+		values[3] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameMills() + ".m4a";
 		for (int i = 0; i < values.length; i++) {
 			items.add(new AppSpinnerAdapter.ThemeItem(values[i],
 					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
@@ -256,16 +207,14 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 
 	@Override
 	public void onClick(View v) {
-		switch (v.getId()) {
-			case R.id.btn_apply:
-				presenter.executeFirstRun();
-				startActivity(MainActivity.getStartIntent(getApplicationContext()));
-				finish();
-				break;
-			case R.id.btn_reset:
-				presenter.resetSettings();
-				presenter.loadSettings();
-				break;
+		int id = v.getId();
+		if (id == R.id.btn_apply) {
+			presenter.executeFirstRun();
+			startActivity(MainActivity.getStartIntent(getApplicationContext()));
+			finish();
+		} else if (id == R.id.btn_reset) {
+			presenter.resetSettings();
+			presenter.loadSettings();
 		}
 	}
 

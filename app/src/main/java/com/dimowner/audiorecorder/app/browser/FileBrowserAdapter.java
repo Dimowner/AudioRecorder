@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,8 @@ import java.util.List;
  */
 public class FileBrowserAdapter extends RecyclerView.Adapter<FileBrowserAdapter.ItemViewHolder> {
 
-	private List<RecordInfo> data;
-	private SettingsMapper settingsMapper;
+	private final List<RecordInfo> data;
+	private final SettingsMapper settingsMapper;
 	private OnItemClickListener onItemClickListener;
 	private int colorInTrash;
 	private int colorFound;
@@ -145,36 +145,24 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<FileBrowserAdapter.
 			} else {
 				holder.actionPanel.setVisibility(View.VISIBLE);
 			}
-			holder.view.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (onItemClickListener != null) {
-						onItemClickListener.onItemClick(data.get(pos));
-					}
+			holder.view.setOnClickListener(v -> {
+				if (onItemClickListener != null) {
+					onItemClickListener.onItemClick(data.get(pos));
 				}
 			});
-			holder.btnImport.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (onItemClickListener != null) {
-						onItemClickListener.onImportItemClick(data.get(pos));
-					}
+			holder.btnImport.setOnClickListener(v -> {
+				if (onItemClickListener != null) {
+					onItemClickListener.onImportItemClick(data.get(pos));
 				}
 			});
-			holder.btnDownload.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (onItemClickListener != null) {
-						onItemClickListener.onDownloadItemClick(data.get(pos));
-					}
+			holder.btnDownload.setOnClickListener(v -> {
+				if (onItemClickListener != null) {
+					onItemClickListener.onDownloadItemClick(data.get(pos));
 				}
 			});
-			holder.btnDelete.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (onItemClickListener != null) {
-						onItemClickListener.onRemoveItemClick(data.get(pos));
-					}
+			holder.btnDelete.setOnClickListener(v -> {
+				if (onItemClickListener != null) {
+					onItemClickListener.onRemoveItemClick(data.get(pos));
 				}
 			});
 		}
@@ -216,7 +204,7 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<FileBrowserAdapter.
 		this.onItemClickListener = onItemClickListener;
 	}
 
-	class ItemViewHolder extends RecyclerView.ViewHolder {
+	static class ItemViewHolder extends RecyclerView.ViewHolder {
 		TextView name;
 		TextView info;
 		TextView status;
@@ -239,7 +227,7 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<FileBrowserAdapter.
 		}
 	}
 
-	public interface OnItemClickListener {
+	interface OnItemClickListener {
 		void onItemClick(RecordInfo record);
 		void onImportItemClick(RecordInfo record);
 		void onDownloadItemClick(RecordInfo record);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Dmitriy Ponomarenko
+ * Copyright 2019 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ public interface FileBrowserContract {
 		void onDeletedRecord(String path);
 		void onImportedRecord(String path);
 		void updatePath(String path);
+		void decodeRecord(int id);
 
 		void showEmpty();
 		void hideEmpty();

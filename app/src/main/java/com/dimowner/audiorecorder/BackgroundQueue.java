@@ -11,7 +11,7 @@ import timber.log.Timber;
 public class BackgroundQueue extends Thread {
 
 	private volatile Handler handler = null;
-	private CountDownLatch countDownLatch = new CountDownLatch(1);
+	private final CountDownLatch countDownLatch = new CountDownLatch(1);
 
 	public BackgroundQueue(final String threadName) {
 		setName(threadName);

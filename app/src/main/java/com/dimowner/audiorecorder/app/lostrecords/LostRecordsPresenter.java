@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
-import com.dimowner.audiorecorder.data.database.OnRecordsLostListener;
-import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 
 import java.util.List;
@@ -51,31 +49,18 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 	public void bindView(LostRecordsContract.View v) {
 		this.view = v;
 
-		localRepository.setOnRecordsLostListener(new OnRecordsLostListener() {
-			@Override
-			public void onLostRecords(final List<Record> lostRecords) {
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override
-					public void run() {
-						List<RecordItem> list = Mapper.toRecordItemList(lostRecords);
-						if (view != null) {
-							if (list.isEmpty()) {
-								view.showEmpty();
-							} else {
-								view.showLostRecords(list);
-								view.hideEmpty();
-							}
-						}
-					}
-				});
+		localRepository.setOnRecordsLostListener(lostRecords -> AndroidUtils.runOnUIThread(() -> {
+			List<RecordItem> list = Mapper.toRecordItemList(lostRecords);
+			if (view != null) {
+				if (list.isEmpty()) {
+					view.showEmpty();
+				} else {
+					view.showLostRecords(list);
+					view.hideEmpty();
+				}
 			}
-		});
-		loadingTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				localRepository.getAllRecords();
-			}
-		});
+		}));
+		loadingTasks.postRunnable(localRepository::getAllRecords);
 	}
 
 	@Override
@@ -91,25 +76,19 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 
 	@Override
 	public void deleteRecords(final List<RecordItem> list) {
-		recordingsTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				for (RecordItem rec : list) {
-					localRepository.deleteRecord(rec.getId());
-//					fileRepository.deleteRecordFile(rec.getPath());
-					if (prefs.getActiveRecord() == rec.getId()) {
-						prefs.setActiveRecord(-1);
-					}
+		recordingsTasks.postRunnable(() -> {
+			for (RecordItem rec : list) {
+				localRepository.deleteRecord(rec.getId());
+//				fileRepository.deleteRecordFile(rec.getPath());
+				if (prefs.getActiveRecord() == rec.getId()) {
+					prefs.setActiveRecord(-1);
 				}
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override
-					public void run() {
-						if (view != null) {
-							view.showEmpty();
-						}
-					}
-				});
 			}
+			AndroidUtils.runOnUIThread(() -> {
+				if (view != null) {
+					view.showEmpty();
+				}
+			});
 		});
 	}
 
@@ -122,23 +101,17 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 
 	@Override
 	public void deleteRecord(final RecordItem rec) {
-		recordingsTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				localRepository.deleteRecord(rec.getId());
+		recordingsTasks.postRunnable(() -> {
+			localRepository.deleteRecord(rec.getId());
 //				fileRepository.deleteRecordFile(rec.getPath());
-				if (prefs.getActiveRecord() == rec.getId()) {
-					prefs.setActiveRecord(-1);
-				}
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override
-					public void run() {
-						if (view != null) {
-							view.onDeletedRecord(rec.getId());
-						}
-					}
-				});
+			if (prefs.getActiveRecord() == rec.getId()) {
+				prefs.setActiveRecord(-1);
 			}
+			AndroidUtils.runOnUIThread(() -> {
+				if (view != null) {
+					view.onDeletedRecord(rec.getId());
+				}
+			});
 		});
 	}
 

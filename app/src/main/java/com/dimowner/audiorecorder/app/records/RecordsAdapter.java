@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -49,8 +48,10 @@ import java.util.List;
 public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 	private List<ListItem> data;
+	private List<Integer> selected;
+	private boolean isMultiSelectMode = false;
 
-	private SettingsMapper settingsMapper;
+	private final SettingsMapper settingsMapper;
 	private boolean showDateHeaders = true;
 	private int activeItem = -1;
 	private View btnTrash;
@@ -60,9 +61,11 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	private BtnTrashClickListener btnTrashClickListener;
 	private OnAddToBookmarkListener onAddToBookmarkListener = null;
 	private OnItemOptionListener onItemOptionListener = null;
+	private OnMultiSelectModeListener onMultiSelectModeListener = null;
 
 	RecordsAdapter(SettingsMapper mapper) {
 		this.data = new ArrayList<>();
+		this.selected = new ArrayList<>();
 		this.settingsMapper = mapper;
 	}
 
@@ -97,7 +100,54 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			return new UniversalViewHolder(textView);
 		} else {
 			View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item, viewGroup, false);
-			return new ItemViewHolder(v);
+			return new ItemViewHolder(v, position -> {
+				if (isMultiSelectMode) {
+					if (!selected.contains(position) && data.get(position).getDuration() != 0) {
+						selected.add(position);
+					} else {
+						int pos = selected.indexOf(position);
+						if (pos != -1) {
+							selected.remove(pos);
+							if (selected.size() == 0) {
+								isMultiSelectMode = !isMultiSelectMode;
+								notifyDataSetChanged();
+								if (onMultiSelectModeListener != null) {
+									onMultiSelectModeListener.onMultiSelectMode(false);
+								}
+							}
+						}
+					}
+					if (onMultiSelectModeListener != null) {
+						onMultiSelectModeListener.onSelectDeselect(selected.size());
+					}
+					notifyItemChanged(position);
+				} else {
+					if (itemClickListener != null && data.size() > position) {
+						itemClickListener.onItemClick(v, data.get(position).getId(), data.get(position).getPath(), position);
+					}
+				}
+			}, position -> {
+				isMultiSelectMode = !isMultiSelectMode;
+				notifyDataSetChanged();
+				if (onMultiSelectModeListener != null) {
+					onMultiSelectModeListener.onMultiSelectMode(isMultiSelectMode);
+				}
+				if (isMultiSelectMode) {
+					if (!selected.contains(position) && data.get(position).getDuration() != 0) {
+						selected.add(position);
+						notifyItemChanged(position);
+					}
+				} else {
+					selected.clear();
+					if (onMultiSelectModeListener != null) {
+						onMultiSelectModeListener.onMultiSelectMode(false);
+					}
+					notifyDataSetChanged();
+				}
+				if (onMultiSelectModeListener != null) {
+					onMultiSelectModeListener.onSelectDeselect(selected.size());
+				}
+			});
 		}
 	}
 
@@ -118,40 +168,33 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			if (viewHolder.getLayoutPosition() == activeItem) {
 				holder.view.setBackgroundResource(R.color.selected_item_color);
 			} else {
-				holder.view.setBackgroundResource(android.R.color.transparent);
+				if (selected.contains(p)) {
+					holder.view.setBackgroundResource(R.color.selected_item_color);
+				} else {
+					holder.view.setBackgroundResource(android.R.color.transparent);
+				}
 			}
 
-			holder.btnBookmark.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (onAddToBookmarkListener != null && data.size() > p) {
-						if(item.isBookmarked()) {
-							onAddToBookmarkListener.onRemoveFromBookmarks((int) item.getId());
-						} else {
-							onAddToBookmarkListener.onAddToBookmarks((int) item.getId());
-						}
+			holder.btnBookmark.setOnClickListener(v -> {
+				if (onAddToBookmarkListener != null && data.size() > p) {
+					if(item.isBookmarked()) {
+						onAddToBookmarkListener.onRemoveFromBookmarks((int) item.getId());
+					} else {
+						onAddToBookmarkListener.onAddToBookmarks((int) item.getId());
 					}
 				}
 			});
-			holder.btnMore.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					showMenu(v, p);
-				}
-			});
+			holder.btnMore.setOnClickListener(v -> showMenu(v, p));
 			holder.waveformView.setWaveform(item.getAmps());
-
-			holder.view.setOnClickListener(new View.OnClickListener() {
-				@Override public void onClick(View v) {
-					if (itemClickListener != null && data.size() > p) {
-						int lpos = viewHolder.getLayoutPosition();
-						itemClickListener.onItemClick(v, data.get(lpos).getId(), data.get(lpos).getPath(), lpos);
-					}
-				}});
+			if (isMultiSelectMode || item.getDuration() == 0) {
+				holder.btnMore.setVisibility(View.GONE);
+			} else {
+				holder.btnMore.setVisibility(View.VISIBLE);
+			}
 			updateInformation(holder.info, item.getFormat(), item.getSampleRate(), item.getSize());
 		} else if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_DATE) {
 			UniversalViewHolder holder = (UniversalViewHolder) viewHolder;
-			((TextView)holder.view).setText(TimeUtils.formatDateSmart(data.get(viewHolder.getAdapterPosition()).getAdded(), holder.view.getContext()));
+			((TextView)holder.view).setText(TimeUtils.formatDateSmartLocale(data.get(viewHolder.getAdapterPosition()).getAdded(), holder.view.getContext()));
 		}
 	}
 
@@ -162,12 +205,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			btnTrash = holder.itemView.findViewById(R.id.btn_trash);
 			if (btnTrash != null) {
 				if (btnTrashClickListener != null) {
-					btnTrash.setOnClickListener(new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							btnTrashClickListener.onClick();
-						}
-					});
+					btnTrash.setOnClickListener(v -> btnTrashClickListener.onClick());
 				}
 				if (showTrash) {
 					btnTrash.setVisibility(View.VISIBLE);
@@ -199,14 +237,11 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 	private void showMenu(View v, final int pos) {
 		PopupMenu popup = new PopupMenu(v.getContext(), v);
-		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				if (onItemOptionListener != null && data.size() > pos) {
-					onItemOptionListener.onItemOptionSelected(item.getItemId(), data.get(pos));
-				}
-				return false;
+		popup.setOnMenuItemClickListener(item -> {
+			if (onItemOptionListener != null && data.size() > pos) {
+				onItemOptionListener.onItemOptionSelected(item.getItemId(), data.get(pos));
 			}
+			return false;
 		});
 		MenuInflater inflater = popup.getMenuInflater();
 		inflater.inflate(R.menu.menu_more, popup.getMenu());
@@ -230,7 +265,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
 	int findPositionById(long id) {
 		if (id >= 0) {
-			for (int i = 0; i < data.size() - 1; i++) {
+			for (int i = 0; i < data.size(); i++) {
 				if (data.get(i).getId() == id) {
 					return i;
 				}
@@ -518,6 +553,19 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		return container;
 	}
 
+	public List<Integer> getSelected() {
+		return selected;
+	}
+
+	public void cancelMultiSelect() {
+		selected.clear();
+		isMultiSelectMode = false;
+		notifyDataSetChanged();
+		if (onMultiSelectModeListener != null) {
+			onMultiSelectModeListener.onMultiSelectMode(false);
+		}
+	}
+
 	public void setBtnTrashClickListener(BtnTrashClickListener btnTrashClickListener) {
 		this.btnTrashClickListener = btnTrashClickListener;
 	}
@@ -542,16 +590,20 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		this.onItemOptionListener = onItemOptionListener;
 	}
 
-	public interface OnAddToBookmarkListener {
+	void setOnMultiSelectModeListener(OnMultiSelectModeListener listener) {
+		this.onMultiSelectModeListener = listener;
+	}
+
+	interface OnAddToBookmarkListener {
 		void onAddToBookmarks(int id);
 		void onRemoveFromBookmarks(int id);
 	}
 
-	public interface OnItemOptionListener {
+	interface OnItemOptionListener {
 		void onItemOptionSelected(int menuId, ListItem item);
 	}
 
-	public class ItemViewHolder extends RecyclerView.ViewHolder {
+	static class ItemViewHolder extends RecyclerView.ViewHolder {
 		TextView name;
 		TextView description;
 		TextView created;
@@ -561,9 +613,26 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		SimpleWaveformView waveformView;
 		View view;
 
-		ItemViewHolder(View itemView) {
+		ItemViewHolder(
+				View itemView,
+				OnItemClickListener onItemClickListener,
+				OnItemLongClickListener longClickListener
+		) {
 			super(itemView);
 			view = itemView;
+			view.setOnClickListener(v -> {
+				int pos = getAdapterPosition();
+				if (pos != RecyclerView.NO_POSITION && onItemClickListener != null) {
+					onItemClickListener.onItemClick(pos);
+				}
+			});
+			view.setOnLongClickListener(v -> {
+				int pos = getAdapterPosition();
+				if (pos != RecyclerView.NO_POSITION && longClickListener != null) {
+					longClickListener.onItemLongClick(pos);
+				}
+				return false;
+			});
 			name = itemView.findViewById(R.id.list_item_name);
 			description = itemView.findViewById(R.id.list_item_description);
 			created = itemView.findViewById(R.id.list_item_date);
@@ -574,12 +643,25 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 		}
 	}
 
-	public class UniversalViewHolder extends RecyclerView.ViewHolder {
+	static class UniversalViewHolder extends RecyclerView.ViewHolder {
 		View view;
 
 		UniversalViewHolder(View view) {
 			super(view);
 			this.view = view;
 		}
+	}
+
+	private interface OnItemClickListener {
+		void onItemClick(int position);
+	}
+
+	private interface OnItemLongClickListener {
+		void onItemLongClick(int position);
+	}
+
+	public interface OnMultiSelectModeListener {
+		void onMultiSelectMode(boolean selected);
+		void onSelectDeselect(int selectedCount);
 	}
 }

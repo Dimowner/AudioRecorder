@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,23 +54,18 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 	public void bindView(final TrashContract.View v) {
 		this.view = v;
 
-		loadingTasks.postRunnable(new Runnable() {
-			@Override public void run() {
-				final List<RecordItem> list = Mapper.toRecordItemList(localRepository.getTrashRecords());
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override
-					public void run() {
-						if (view != null) {
-							if (list.isEmpty()) {
-								view.showEmpty();
-							} else {
-								view.showRecords(list);
-								view.hideEmpty();
-							}
-						}
+		loadingTasks.postRunnable(() -> {
+			final List<RecordItem> list = Mapper.toRecordItemList(localRepository.getTrashRecords());
+			AndroidUtils.runOnUIThread(() -> {
+				if (view != null) {
+					if (list.isEmpty()) {
+						view.showEmpty();
+					} else {
+						view.showRecords(list);
+						view.hideEmpty();
 					}
-				});
-			}
+				}
+			});
 		});
 	}
 
@@ -93,90 +88,66 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 
 	@Override
 	public void deleteRecordFromTrash(final int id, final String path) {
-		recordingsTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				if (fileRepository.deleteRecordFile(path)) {
-					removeFromTrash(id);
-				} else if (fileRepository.deleteRecordFile(path)) { //Try to delete again.
-					removeFromTrash(id);
-				} else {
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							if (view != null) {
-								view.showMessage(R.string.error_failed_to_delete);
-							}
-						}
-					});
-				}
+		recordingsTasks.postRunnable(() -> {
+			if (fileRepository.deleteRecordFile(path)) {
+				removeFromTrash(id);
+			} else if (fileRepository.deleteRecordFile(path)) { //Try to delete again.
+				removeFromTrash(id);
+			} else {
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.showMessage(R.string.error_failed_to_delete);
+					}
+				});
 			}
 		});
 	}
 
 	private void removeFromTrash(final int id) {
 		localRepository.removeFromTrash(id);
-		AndroidUtils.runOnUIThread(new Runnable() {
-			@Override
-			public void run() {
-				if (view != null) {
-					view.showMessage(R.string.record_deleted_successfully);
-					view.recordDeleted(id);
-				}
+		AndroidUtils.runOnUIThread(() -> {
+			if (view != null) {
+				view.showMessage(R.string.record_deleted_successfully);
+				view.recordDeleted(id);
 			}
 		});
 	}
 
 	@Override
 	public void deleteAllRecordsFromTrash() {
-		recordingsTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				List<Record> records  = localRepository.getTrashRecords();
-				for (int i = 0; i < records.size(); i++) {
-					fileRepository.deleteRecordFile(records.get(i).getPath());
-				}
-				localRepository.emptyTrash();
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override
-					public void run() {
-						if (view != null) {
-							view.showMessage(R.string.all_records_deleted_successfully);
-							view.allRecordsRemoved();
-						}
-					}
-				});
+		recordingsTasks.postRunnable(() -> {
+			List<Record> records  = localRepository.getTrashRecords();
+			for (int i = 0; i < records.size(); i++) {
+				fileRepository.deleteRecordFile(records.get(i).getPath());
 			}
+			localRepository.emptyTrash();
+			AndroidUtils.runOnUIThread(() -> {
+				if (view != null) {
+					view.showMessage(R.string.all_records_deleted_successfully);
+					view.allRecordsRemoved();
+				}
+			});
 		});
 	}
 
 	@Override
 	public void restoreRecordFromTrash(final int id) {
-		recordingsTasks.postRunnable(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					localRepository.restoreFromTrash(id);
-				} catch (final FailedToRestoreRecord e) {
-					AndroidUtils.runOnUIThread(new Runnable() {
-						@Override
-						public void run() {
-							if (view != null) {
-								view.showMessage(ErrorParser.parseException(e));
-							}
-						}
-					});
-				}
-				AndroidUtils.runOnUIThread(new Runnable() {
-					@Override
-					public void run() {
-						if (view != null) {
-							view.showMessage(R.string.record_restored_successfully);
-							view.recordRestored(id);
-						}
+		recordingsTasks.postRunnable(() -> {
+			try {
+				localRepository.restoreFromTrash(id);
+			} catch (final FailedToRestoreRecord e) {
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.showMessage(ErrorParser.parseException(e));
 					}
 				});
 			}
+			AndroidUtils.runOnUIThread(() -> {
+				if (view != null) {
+					view.showMessage(R.string.record_restored_successfully);
+					view.recordRestored(id);
+				}
+			});
 		});
 	}
 }

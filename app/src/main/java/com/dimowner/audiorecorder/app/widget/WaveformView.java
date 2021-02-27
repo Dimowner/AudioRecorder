@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * @deprecated use {@link WaveformViewNew} instead.
+ **/
 public class WaveformView extends View {
 
 	private static final int DEFAULT_PIXEL_PER_SECOND = (int) AndroidUtils.dpToPx(AppConstants.SHORT_RECORD_DP_PER_SECOND);
@@ -139,47 +142,44 @@ public class WaveformView extends View {
 		waveForm = null;
 		isInitialized = false;
 
-		setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent motionEvent) {
-				if (!showRecording) {
-					switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
-						case MotionEvent.ACTION_DOWN:
-							readPlayProgress = false;
-							startX = motionEvent.getX();
-							if (onSeekListener != null) {
-								onSeekListener.onStartSeek();
-							}
-							break;
-						case MotionEvent.ACTION_MOVE:
-							int shift = (int) (prevScreenShift + (motionEvent.getX()) - startX);
-							//Right waveform move edge
-							if (shift <= -AndroidUtils.dpToPx(waveformData.length)) {
-								shift = (int) -AndroidUtils.dpToPx(waveformData.length);
-							}
-							//Left waveform move edge
-							if (shift > 0) {
-								shift = 0;
-							}
-							if (onSeekListener != null) {
-								onSeekListener.onSeeking(-screenShift, AndroidUtils.convertPxToMills(-screenShift, pxPerSecond));
-							}
-							playProgressPx = -shift;
-							updateShifts(shift);
-							invalidate();
-							break;
-						case MotionEvent.ACTION_UP:
-							if (onSeekListener != null) {
-								onSeekListener.onSeek(-screenShift, AndroidUtils.convertPxToMills(-screenShift, pxPerSecond));
-							}
-							prevScreenShift = screenShift;
-							readPlayProgress = true;
-							performClick();
-							break;
-					}
+		setOnTouchListener((v, motionEvent) -> {
+			if (!showRecording) {
+				switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
+					case MotionEvent.ACTION_DOWN:
+						readPlayProgress = false;
+						startX = motionEvent.getX();
+						if (onSeekListener != null) {
+							onSeekListener.onStartSeek();
+						}
+						break;
+					case MotionEvent.ACTION_MOVE:
+						int shift = (int) (prevScreenShift + (motionEvent.getX()) - startX);
+						//Right waveform move edge
+						if (shift <= -AndroidUtils.dpToPx(waveformData.length)) {
+							shift = (int) -AndroidUtils.dpToPx(waveformData.length);
+						}
+						//Left waveform move edge
+						if (shift > 0) {
+							shift = 0;
+						}
+						if (onSeekListener != null) {
+							onSeekListener.onSeeking(-screenShift, AndroidUtils.convertPxToMills(-screenShift, pxPerSecond));
+						}
+						playProgressPx = -shift;
+						updateShifts(shift);
+						invalidate();
+						break;
+					case MotionEvent.ACTION_UP:
+						if (onSeekListener != null) {
+							onSeekListener.onSeek(-screenShift, AndroidUtils.convertPxToMills(-screenShift, pxPerSecond));
+						}
+						prevScreenShift = screenShift;
+						readPlayProgress = true;
+						performClick();
+						break;
 				}
-				return true;
 			}
+			return true;
 		});
 	}
 
@@ -197,12 +197,9 @@ public class WaveformView extends View {
 		moveAnimator = ValueAnimator.ofInt(playProgressPx, 0);
 		moveAnimator.setInterpolator(new DecelerateInterpolator());
 		moveAnimator.setDuration(ANIMATION_DURATION);
-		moveAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-			@Override
-			public void onAnimationUpdate(ValueAnimator animation) {
-				int moveVal = (int)animation.getAnimatedValue();
-				setPlayback(moveVal);
-			}
+		moveAnimator.addUpdateListener(animation -> {
+			int moveVal = (int)animation.getAnimatedValue();
+			setPlayback(moveVal);
 		});
 		moveAnimator.start();
 	}
@@ -289,25 +286,22 @@ public class WaveformView extends View {
 	}
 
 	public void setRecordingData(final IntArrayList data) {
-		post(new Runnable() {
-			@Override
-			public void run() {
-				if (data != null) {
-					recordingData.clear();
-					int count = (int)AndroidUtils.pxToDp(viewWidth/2);
-					if (data.size() > count) {
-						for (int i = data.size() - count; i < data.size(); i++) {
-							recordingData.add(convertAmp(data.get(i)));
-						}
-					} else {
-						for (int i = 0; i < data.size(); i++) {
-							recordingData.add(convertAmp(data.get(i)));
-						}
+		post(() -> {
+			if (data != null) {
+				recordingData.clear();
+				int count = (int)AndroidUtils.pxToDp(viewWidth/2);
+				if (data.size() > count) {
+					for (int i = data.size() - count; i < data.size(); i++) {
+						recordingData.add(convertAmp(data.get(i)));
 					}
-					totalRecordingSize = data.size();
-					updateShifts((int) -AndroidUtils.dpToPx(totalRecordingSize));
-					invalidate();
+				} else {
+					for (int i = 0; i < data.size(); i++) {
+						recordingData.add(convertAmp(data.get(i)));
+					}
 				}
+				totalRecordingSize = data.size();
+				updateShifts((int) -AndroidUtils.dpToPx(totalRecordingSize));
+				invalidate();
 			}
 		});
 	}

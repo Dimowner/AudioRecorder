@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,16 +57,10 @@ public class AudioDecoder {
 
 	private IntArrayList gains;
 
-	public interface DecodeListener {
-		void onStartDecode(long duration, int channelsCount, int sampleRate);
-		void onFinishDecode(int[] data, long duration);
-		void onError(Exception exception);
-	}
-
 	private AudioDecoder() {
 	}
 
-	public static void decode(@NonNull String fileName, @NonNull DecodeListener decodeListener) {
+	public static void decode(@NonNull String fileName, @NonNull AudioDecodingListener decodeListener) {
 		try {
 			File file = new File(fileName);
 			if (!file.exists()) {
@@ -91,7 +85,7 @@ public class AudioDecoder {
 		return (int)(sampleRate / dpPerSec);
 	}
 
-	private void decodeFile(@NonNull final File mInputFile, @NonNull final DecodeListener decodeListener, final int queueType)
+	private void decodeFile(@NonNull final File mInputFile, @NonNull final AudioDecodingListener decodeListener, final int queueType)
 			throws IOException, OutOfMemoryError, IllegalStateException {
 		gains = new IntArrayList();
 		final MediaExtractor extractor = new MediaExtractor();
@@ -125,11 +119,14 @@ public class AudioDecoder {
 		//Start decoding
 		MediaCodec decoder = MediaCodec.createDecoderByType(mimeType);
 
-		decodeListener.onStartDecode(duration, channelCount, sampleRate);
+		decodeListener.onStartProcessing(duration, channelCount, sampleRate);
 		decoder.setCallback(new MediaCodec.Callback() {
 
 			private boolean mOutputEOS = false;
 			private boolean mInputEOS = false;
+			private long decoded = 0;
+			private long totalSize = mInputFile.length();
+			private int percent = 0;
 
 			@Override
 			public void onError(@NonNull MediaCodec codec, @NonNull MediaCodec.CodecException exception) {
@@ -153,9 +150,13 @@ public class AudioDecoder {
 			@Override
 			public void onInputBufferAvailable(@NonNull MediaCodec codec, int index) {
 				if (mOutputEOS | mInputEOS) return;
+				if (decodeListener.isCanceled()) {
+					codec.queueInputBuffer(index, 0, 0, -1, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+					mInputEOS = true;
+					return;
+				}
 				try {
-					ByteBuffer inputBuffer;
-					inputBuffer = codec.getInputBuffer(index);
+					ByteBuffer inputBuffer = codec.getInputBuffer(index);
 					if (inputBuffer == null) return;
 					long sampleTime = 0;
 					int result;
@@ -172,6 +173,7 @@ public class AudioDecoder {
 								maxresult = Math.max(maxresult, result);
 							}
 						} while (result >= 0 && total < maxresult * 5 && advanced && inputBuffer.capacity() - inputBuffer.limit() > maxresult*3);//3 it is just for insurance. When remove it crash happens. it is ok if replace it by 2 number.
+						decoded += total;
 						if (advanced) {
 							codec.queueInputBuffer(index, 0, total, sampleTime, 0);
 						} else {
@@ -181,6 +183,7 @@ public class AudioDecoder {
 					} else {
 						//If QUEUE_INPUT_BUFFER_EFFECTIVE failed then trying this way.
 						result = extractor.readSampleData(inputBuffer, 0);
+						decoded += result;
 						if (result >= 0) {
 							sampleTime = extractor.getSampleTime();
 							codec.queueInputBuffer(index, 0, result, sampleTime, 0);
@@ -192,6 +195,11 @@ public class AudioDecoder {
 					}
 				} catch (IllegalStateException | IllegalArgumentException e) {
 					Timber.e(e);
+				}
+				int curProgress = (int)(100*decoded/(float)totalSize);
+				if (curProgress != percent) {
+					percent = curProgress;
+					decodeListener.onProcessingProgress(percent);
 				}
 			}
 
@@ -229,7 +237,12 @@ public class AudioDecoder {
 					codec.releaseOutputBuffer(index, false);
 
 					if (mOutputEOS) {
-						decodeListener.onFinishDecode(gains.getData(), duration);
+						if (decodeListener.isCanceled()) {
+							decodeListener.onProcessingCancel();
+						} else {
+							decodeListener.onProcessingProgress(100);
+							decodeListener.onFinishProcessing(gains.getData(), duration);
+						}
 						codec.stop();
 						codec.release();
 						extractor.release();
@@ -340,6 +353,54 @@ public class AudioDecoder {
 					inputFile.getAbsolutePath(), inputFile.lastModified(), 0, 0, 0, isInTrash
 			);
 		}
+	}
+
+	public static String readRecordMime(@NonNull final File inputFile) {
+		try {
+			if (!inputFile.exists()) {
+				throw new java.io.FileNotFoundException(inputFile.getAbsolutePath());
+			}
+			String name = inputFile.getName().toLowerCase();
+			String[] components = name.split("\\.");
+			if (components.length < 2) {
+				throw new IOException();
+			}
+
+			final MediaExtractor extractor = new MediaExtractor();
+			MediaFormat format = null;
+			int i;
+
+			extractor.setDataSource(inputFile.getPath());
+			int numTracks = extractor.getTrackCount();
+			// find and select the first audio track present in the file.
+			for (i = 0; i < numTracks; i++) {
+				format = extractor.getTrackFormat(i);
+				try {
+					if (format.getString(MediaFormat.KEY_MIME).startsWith("audio/")) {
+						extractor.selectTrack(i);
+						break;
+					}
+				} catch (Exception e) {
+					Timber.e(e);
+				}
+			}
+
+			if (i == numTracks || format == null) {
+				throw new IOException("No audio track found in " + inputFile.toString());
+			}
+
+			String mimeType;
+			try {
+				mimeType= format.getString(MediaFormat.KEY_MIME);
+			} catch (Exception e) {
+				Timber.e(e);
+				mimeType = "";
+			}
+			return mimeType;
+		} catch (Exception e) {
+			Timber.e(e);
+		}
+		return "audio/*";
 	}
 
 	private static String readFileFormat(File file, String mime) {

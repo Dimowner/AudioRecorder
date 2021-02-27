@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,16 +24,16 @@ import android.os.Parcelable;
  * @author Dimowner
  */
 public class RecordItem implements Parcelable {
-	private int id;
-	private String name;
-	private String format;
-	private long duration;
-	private long size;
-	private String path;
-	private long created;
-	private int sampleRate;
-	private int channelCount;
-	private int bitrate;
+	private final int id;
+	private final String name;
+	private final String format;
+	private final long duration;
+	private final long size;
+	private final String path;
+	private final long created;
+	private final int sampleRate;
+	private final int channelCount;
+	private final int bitrate;
 
 	public RecordItem(int id, String name, long size, String format, long duration, String path, long created,
 							int sampleRate, int channelCount, int bitrate) {

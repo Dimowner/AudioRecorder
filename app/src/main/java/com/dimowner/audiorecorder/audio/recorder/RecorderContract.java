@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import java.io.File;
 public interface RecorderContract {
 
 	interface RecorderCallback {
-		void onPrepareRecord();
 		void onStartRecord(File output);
 		void onPauseRecord();
+		void onResumeRecord();
 		void onRecordProgress(long mills, int amp);
 		void onStopRecord(File output);
 		void onError(AppException throwable);
@@ -33,8 +33,8 @@ public interface RecorderContract {
 
 	interface Recorder {
 		void setRecorderCallback(RecorderCallback callback);
-		void prepare(String outputFile, int channelCount, int sampleRate, int bitrate);
-		void startRecording();
+		void startRecording(String outputFile, int channelCount, int sampleRate, int bitrate);
+		void resumeRecording();
 		void pauseRecording();
 		void stopRecording();
 		boolean isRecording();

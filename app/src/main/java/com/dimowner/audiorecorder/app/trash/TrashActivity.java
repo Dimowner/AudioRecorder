@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.dimowner.audiorecorder.app.trash;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -64,32 +63,20 @@ public class TrashActivity extends Activity implements TrashContract.View {
 		setContentView(R.layout.activity_trash);
 
 		ImageButton btnBack = findViewById(R.id.btn_back);
-		btnBack.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ARApplication.getInjector().releaseTrashPresenter();
-				finish();
-			}
+		btnBack.setOnClickListener(v -> {
+			ARApplication.getInjector().releaseTrashPresenter();
+			finish();
 		});
 
 		btnDeleteAll = findViewById(R.id.btn_delete_all);
-		btnDeleteAll.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				AndroidUtils.showSimpleDialog(
-						TrashActivity.this,
-						R.drawable.ic_delete_forever,
-						R.string.warning,
-						R.string.delete_all_records,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								presenter.deleteAllRecordsFromTrash();
-							}
-						}
-				);
-			}
-		});
+		btnDeleteAll.setOnClickListener(view ->
+			AndroidUtils.showDialogYesNo(
+				TrashActivity.this,
+				R.drawable.ic_delete_forever_dark,
+				getString(R.string.warning),
+				getString(R.string.delete_all_records),
+				v -> presenter.deleteAllRecordsFromTrash()
+		));
 
 		txtEmpty = findViewById(R.id.txtEmpty);
 		RecyclerView recyclerView = findViewById(R.id.recycler_view);
@@ -103,33 +90,23 @@ public class TrashActivity extends Activity implements TrashContract.View {
 
 			@Override
 			public void onDeleteItemClick(final RecordItem record) {
-				AndroidUtils.showSimpleDialog(
+				AndroidUtils.showDialogYesNo(
 						TrashActivity.this,
-						R.drawable.ic_delete_forever,
-						R.string.warning,
-						getApplicationContext().getString(R.string.delete_record_forever, record.getName()),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								presenter.deleteRecordFromTrash(record.getId(), record.getPath());
-							}
-						}
+						R.drawable.ic_delete_forever_dark,
+						getString(R.string.warning),
+						getString(R.string.delete_record_forever, record.getName()),
+						v -> presenter.deleteRecordFromTrash(record.getId(), record.getPath())
 				);
 			}
 
 			@Override
 			public void onRestoreItemClick(final RecordItem record) {
-				AndroidUtils.showSimpleDialog(
+				AndroidUtils.showDialogYesNo(
 						TrashActivity.this,
 						R.drawable.ic_restore_from_trash,
-						R.string.warning,
-						getApplicationContext().getString(R.string.restore_record, record.getName()),
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								presenter.restoreRecordFromTrash(record.getId());
-							}
-						}
+						getString(R.string.warning),
+						getString(R.string.restore_record, record.getName()),
+						v -> presenter.restoreRecordFromTrash(record.getId())
 				);
 			}
 		});

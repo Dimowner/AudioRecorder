@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -32,9 +31,10 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.net.Uri;
-import android.os.Build;
 import androidx.core.content.FileProvider;
+import android.text.Editable;
 import android.text.SpannableStringBuilder;
+import android.text.TextWatcher;
 import android.text.style.ImageSpan;
 import android.view.Display;
 import android.view.KeyCharacterMap;
@@ -44,12 +44,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.Mapper;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.lostrecords.LostRecordsActivity;
@@ -350,6 +355,28 @@ public class AndroidUtils {
 		}
 	}
 
+	public static void shareAudioFiles(Context context, List<String> list) {
+		Intent intent = new Intent();
+		intent.setAction(Intent.ACTION_SEND_MULTIPLE);
+		intent.setType("audio/*");
+		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+		ArrayList<Uri> files = new ArrayList<>();
+		for(String path : list) {
+			Uri uri = FileProvider.getUriForFile(
+					context,
+					context.getApplicationContext().getPackageName() + ".app_file_provider",
+					new File(path)
+			);
+			files.add(uri);
+		}
+		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files);
+		String text = context.getResources().getQuantityString(R.plurals.share_records_count, list.size(), list.size());
+		Intent chooser = Intent.createChooser(intent, text);
+		chooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(chooser);
+	}
+
 	public static void openAudioFile(Context context, String sharePath, String name) {
 		if (sharePath != null) {
 			Uri fileUri = FileProvider.getUriForFile(
@@ -370,127 +397,175 @@ public class AndroidUtils {
 		}
 	}
 
-	public static void showSimpleDialog(Activity activity, int icon, int resTitle, int resContent,
-													final DialogInterface.OnClickListener positiveListener) {
-		showSimpleDialog(activity, icon, resTitle, resContent, positiveListener, null);
-	}
-
-	public static void showSimpleDialog(Activity activity, int icon, int resTitle, int resContent,
-													final DialogInterface.OnClickListener positiveListener,
-													final DialogInterface.OnClickListener negativeListener) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-		builder.setTitle(resTitle)
-				.setIcon(icon)
-				.setMessage(resContent)
-				.setCancelable(false)
-				.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						if (positiveListener != null) {
-							positiveListener.onClick(dialog, id);
-						}
-						dialog.dismiss();
-					}
-				})
-				.setNegativeButton(R.string.btn_no,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								if (negativeListener != null) {
-									negativeListener.onClick(dialog, id);
-								}
-								dialog.dismiss();
-							}
-						});
-		AlertDialog alert = builder.create();
-		alert.show();
-	}
-
-	public static void showSimpleDialog(Activity activity, int icon, int resTitle, String resContent,
-													final DialogInterface.OnClickListener positiveListener) {
-		showSimpleDialog(activity, icon, resTitle, resContent, positiveListener, null);
-	}
-
-	public static void showSimpleDialog(Activity activity, int icon, int resTitle, String resContent,
-													final DialogInterface.OnClickListener positiveListener,
-													final DialogInterface.OnClickListener negativeListener) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-		builder.setTitle(resTitle)
-				.setIcon(icon)
-				.setMessage(resContent)
-				.setCancelable(false)
-				.setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						if (positiveListener != null) {
-							positiveListener.onClick(dialog, id);
-						}
-						dialog.dismiss();
-					}
-				})
-				.setNegativeButton(R.string.btn_no,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								if (negativeListener != null) {
-									negativeListener.onClick(dialog, id);
-								}
-								dialog.dismiss();
-							}
-						});
-		AlertDialog alert = builder.create();
-		alert.show();
-	}
-
 	public static void showDialog(Activity activity, int resTitle, int resContent,
-											View.OnClickListener positiveBtnListener, View.OnClickListener negativeBtnListener){
-		showDialog(activity, -1, -1, resTitle, resContent, false, positiveBtnListener, negativeBtnListener);
+											View.OnClickListener positiveBtnListener, View.OnClickListener negativeBtnListener) {
+		showDialog(activity, -1, R.string.btn_ok, -1, resTitle, resContent, false, positiveBtnListener, negativeBtnListener);
 	}
 
-	public static void showDialog(Activity activity, int positiveBtnTextRes, int negativeBtnTextRes, int resTitle, int resContent, boolean cancelable,
-											final View.OnClickListener positiveBtnListener, final View.OnClickListener negativeBtnListener){
-		final Dialog dialog = new Dialog(activity);
-		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		dialog.setCancelable(cancelable);
+	public static void showDialog(Activity activity,
+											int drawableRes,
+											int positiveBtnTextRes,
+											int negativeBtnTextRes,
+											int resTitle,
+											int resContent,
+											boolean cancelable,
+											final View.OnClickListener positiveBtnListener,
+											final View.OnClickListener negativeBtnListener){
+		showDialog(activity,
+				drawableRes,
+				positiveBtnTextRes > 0 ? activity.getString(positiveBtnTextRes) : null,
+				negativeBtnTextRes > 0 ? activity.getString(negativeBtnTextRes) : null,
+				resTitle > 0 ? activity.getString(resTitle) : null,
+				resContent > 0 ? activity.getString(resContent) : null,
+				-1,
+				cancelable,
+				positiveBtnListener,
+				negativeBtnListener);
+	}
+
+	public static void showDialogYesNo(Activity activity,
+											int drawableRes,
+											String titleStr,
+											String contentStr,
+											final View.OnClickListener positiveBtnListener){
+		showDialog(activity,
+				drawableRes,
+				activity.getString(R.string.btn_yes),
+				activity.getString(R.string.btn_no),
+				titleStr,
+				contentStr,
+				-1,
+				true,
+				positiveBtnListener,
+				v -> {});
+	}
+
+	private static void showDialog(Activity activity,
+											int drawableRes,
+											String positiveBtnText,
+											String negativeBtnText,
+											String titleStr,
+											String contentStr,
+											int contentResId,
+											boolean cancelable,
+											final View.OnClickListener positiveBtnListener,
+											final View.OnClickListener negativeBtnListener){
+		final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+		dialogBuilder.setCancelable(cancelable);
 		View view = activity.getLayoutInflater().inflate(R.layout.dialog_layout, null, false);
-		((TextView)view.findViewById(R.id.dialog_title)).setText(resTitle);
-		((TextView)view.findViewById(R.id.dialog_content)).setText(resContent);
+		TextView title = view.findViewById(R.id.dialog_title);
+		title.setText(titleStr);
+		if (drawableRes > 0) {
+			title.setCompoundDrawablesRelativeWithIntrinsicBounds(drawableRes, 0, 0, 0);
+		}
+		if (contentResId > 0) {
+			((TextView) view.findViewById(R.id.dialog_content)).setText(contentResId);
+		} else {
+			((TextView) view.findViewById(R.id.dialog_content)).setText(contentStr);
+		}
+		dialogBuilder.setView(view);
+		AlertDialog alertDialog = dialogBuilder.create();
 		if (negativeBtnListener != null) {
 			Button negativeBtn = view.findViewById(R.id.dialog_negative_btn);
-			if (negativeBtnTextRes >=0) {
-				negativeBtn.setText(negativeBtnTextRes);
+			if (negativeBtnText != null) {
+				negativeBtn.setText(negativeBtnText);
 			}
-			negativeBtn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					negativeBtnListener.onClick(v);
-					dialog.dismiss();
-				}
+			negativeBtn.setOnClickListener(v -> {
+				negativeBtnListener.onClick(v);
+				alertDialog.dismiss();
 			});
 		} else {
 			view.findViewById(R.id.dialog_negative_btn).setVisibility(View.GONE);
 		}
 		if (positiveBtnListener != null) {
 			Button positiveBtn = view.findViewById(R.id.dialog_positive_btn);
-			if (positiveBtnTextRes >=0) {
-				positiveBtn.setText(positiveBtnTextRes);
+			if (positiveBtnText !=null) {
+				positiveBtn.setText(positiveBtnText);
 			}
-			positiveBtn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					positiveBtnListener.onClick(v);
-					dialog.dismiss();
-				}
+			positiveBtn.setOnClickListener(v -> {
+				positiveBtnListener.onClick(v);
+				alertDialog.dismiss();
 			});
 		} else {
 			view.findViewById(R.id.dialog_positive_btn).setVisibility(View.GONE);
 		}
-		dialog.setContentView(view);
-		dialog.show();
+		alertDialog.show();
+	}
+
+	public static void showRenameDialog(Activity activity,
+													final String name,
+													final boolean showCheckbox,
+													final OnSetNameClickListener positiveBtnListener,
+													final View.OnClickListener negativeBtnListener,
+													final CompoundButton.OnCheckedChangeListener checkListener){
+		final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity);
+		dialogBuilder.setCancelable(true);
+		View view = activity.getLayoutInflater().inflate(R.layout.dialog_rename, null, false);
+		CheckBox checkBox = view.findViewById(R.id.check_box);
+		checkBox.setVisibility(showCheckbox ? View.VISIBLE : View.GONE);
+		if (checkListener != null) {
+			checkBox.setOnCheckedChangeListener(checkListener);
+		}
+		EditText editText = view.findViewById(R.id.input_name);
+		editText.setText(name);
+		editText.requestFocus();
+		editText.setSelection(editText.getText().length());
+		showKeyboard(activity.getApplicationContext());
+		editText.addTextChangedListener(new TextWatcher() {
+			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+			@Override public void afterTextChanged(Editable s) {
+				if (s.length() > AppConstants.MAX_RECORD_NAME_LENGTH) {
+					s.delete(s.length() - 1, s.length());
+				}
+			}
+			@Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+		});
+
+		dialogBuilder.setView(view);
+		dialogBuilder.setOnDismissListener(dialog -> hideKeyboard(activity.getApplicationContext()));
+		AlertDialog alertDialog = dialogBuilder.create();
+		if (negativeBtnListener != null) {
+			Button negativeBtn = view.findViewById(R.id.dialog_negative_btn);
+			negativeBtn.setOnClickListener(v -> {
+				negativeBtnListener.onClick(v);
+				alertDialog.dismiss();
+			});
+		} else {
+			view.findViewById(R.id.dialog_negative_btn).setVisibility(View.GONE);
+		}
+		if (positiveBtnListener != null) {
+			Button positiveBtn = view.findViewById(R.id.dialog_positive_btn);
+			positiveBtn.setOnClickListener(v -> {
+				positiveBtnListener.onClick(editText.getText().toString());
+				alertDialog.dismiss();
+			});
+		} else {
+			view.findViewById(R.id.dialog_positive_btn).setVisibility(View.GONE);
+		}
+		alertDialog.show();
 	}
 
 	public static void showInfoDialog(Activity activity, int resContent){
-		showDialog(activity, -1, -1, R.string.info, resContent, true,
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {}
-				}, null);
+		showDialog(
+				activity, -1, activity.getString(R.string.btn_ok), null,
+				activity.getString(R.string.info), "", resContent, true, v -> {}, null
+		);
+	}
+
+	/** Show soft keyboard for a dialog. */
+	public static void showKeyboard(Context context){
+		InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+		if (inputMethodManager != null) {
+			inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+		}
+	}
+
+	/** Hide soft keyboard after a dialog. */
+	public static void hideKeyboard(Context context){
+		InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+		if (inputMethodManager != null) {
+			inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+		}
 	}
 
 	public static void showLostRecordsDialog(final Activity activity, final List<Record> lostRecords){
@@ -499,22 +574,14 @@ public class AndroidUtils {
 		dialog.setCancelable(false);
 		View view = activity.getLayoutInflater().inflate(R.layout.dialog_lost_records_layout, null, false);
 			Button negativeBtn = view.findViewById(R.id.dialog_ok_btn);
-			negativeBtn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					dialog.dismiss();
-				}
-			});
+			negativeBtn.setOnClickListener(v -> dialog.dismiss());
 			Button positiveBtn = view.findViewById(R.id.dialog_details_btn);
-			positiveBtn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					activity.startActivity(LostRecordsActivity.getStartIntent(
-							activity.getApplicationContext(),
-							(ArrayList<RecordItem>) Mapper.toRecordItemList(lostRecords))
-					);
-					dialog.dismiss();
-				}
+			positiveBtn.setOnClickListener(v -> {
+				activity.startActivity(LostRecordsActivity.getStartIntent(
+						activity.getApplicationContext(),
+						(ArrayList<RecordItem>) Mapper.toRecordItemList(lostRecords))
+				);
+				dialog.dismiss();
 			});
 		dialog.setContentView(view);
 		dialog.show();
@@ -529,5 +596,9 @@ public class AndroidUtils {
 			versionName = "N/A";
 		}
 		return versionName;
+	}
+
+	public interface OnSetNameClickListener {
+		void onClick(String name);
 	}
 }

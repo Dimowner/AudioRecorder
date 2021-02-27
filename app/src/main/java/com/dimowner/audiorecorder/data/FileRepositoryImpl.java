@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import com.dimowner.audiorecorder.util.FileUtil;
 public class FileRepositoryImpl implements FileRepository {
 
 	private File recordDirectory;
-	private Prefs prefs;
+	private final Prefs prefs;
 
 	private volatile static FileRepositoryImpl instance;
 
@@ -63,6 +63,9 @@ public class FileRepositoryImpl implements FileRepository {
 				break;
 			case AppConstants.NAME_FORMAT_DATE:
 				recordName = FileUtil.generateRecordNameDateVariant();
+				break;
+			case AppConstants.NAME_FORMAT_DATE_US:
+				recordName = FileUtil.generateRecordNameDateUS();
 				break;
 			case AppConstants.NAME_FORMAT_TIMESTAMP:
 				recordName = FileUtil.generateRecordNameMills();
@@ -225,6 +228,7 @@ public class FileRepositoryImpl implements FileRepository {
 	public boolean hasAvailableSpace(Context context) throws IllegalArgumentException {
 		long space;
 		if (prefs.isStoreDirPublic()) {
+//			TODO: deprecated fix this
 			space = FileUtil.getAvailableExternalMemorySize();
 		} else {
 			space = FileUtil.getAvailableInternalMemorySize(context);

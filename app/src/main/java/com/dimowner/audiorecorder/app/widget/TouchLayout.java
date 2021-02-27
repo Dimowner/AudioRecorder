@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more contributor
  * license agreements. See the NOTICE file distributed with this work for
@@ -72,60 +72,57 @@ public class TouchLayout extends FrameLayout {
 	}
 
 	private void init() {
-		setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent motionEvent) {
-				switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
-					case MotionEvent.ACTION_DOWN:
-						Timber.v("DOWN");
-						action = ACTION_DRAG;
-						startY = motionEvent.getY();
-						cumulatedDy = 0;
-						realDy = 0;
+		setOnTouchListener((v, motionEvent) -> {
+			switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
+				case MotionEvent.ACTION_DOWN:
+					Timber.v("DOWN");
+					action = ACTION_DRAG;
+					startY = motionEvent.getY();
+					cumulatedDy = 0;
+					realDy = 0;
 
+					if (onThresholdListener != null) {
+						onThresholdListener.onTouchDown();
+					}
+					break;
+				case MotionEvent.ACTION_MOVE:
+					if (action == ACTION_DRAG) {
+						realDy = motionEvent.getY() - startY;
+						cumulatedDy += realDy;
+						cumulatedDy = (float) (k * Math.atan(cumulatedDy /k));
+						setTranslationY(cumulatedDy + returnPositionY);
+					}
+
+					break;
+				case MotionEvent.ACTION_POINTER_DOWN:
+					Timber.v("ZOOM");
+					action = ACTION_ZOOM;
+					break;
+				case MotionEvent.ACTION_POINTER_UP:
+					Timber.v("DRAG");
+					action = ACTION_NONE;
+					break;
+				case MotionEvent.ACTION_UP:
+					Timber.v("UP");
+					performClick();
+
+					animate().translationY(returnPositionY).start();
+
+					if (cumulatedDy < -TOP_THRESHOLD) {
 						if (onThresholdListener != null) {
-							onThresholdListener.onTouchDown();
+							onThresholdListener.onTopThreshold();
 						}
-						break;
-					case MotionEvent.ACTION_MOVE:
-						if (action == ACTION_DRAG) {
-							realDy = motionEvent.getY() - startY;
-							cumulatedDy += realDy;
-							cumulatedDy = (float) (k * Math.atan(cumulatedDy /k));
-							setTranslationY(cumulatedDy + returnPositionY);
-						}
-
-						break;
-					case MotionEvent.ACTION_POINTER_DOWN:
-						Timber.v("ZOOM");
-						action = ACTION_ZOOM;
-						break;
-					case MotionEvent.ACTION_POINTER_UP:
-						Timber.v("DRAG");
-						action = ACTION_NONE;
-						break;
-					case MotionEvent.ACTION_UP:
-						Timber.v("UP");
-						performClick();
-
-						animate().translationY(returnPositionY).start();
-
-						if (cumulatedDy < -TOP_THRESHOLD) {
-							if (onThresholdListener != null) {
-								onThresholdListener.onTopThreshold();
-							}
-						} else if (cumulatedDy > BOTTOM_THRESHOLD) {
-							if (onThresholdListener != null) {
-								onThresholdListener.onBottomThreshold();
-							}
-						}
+					} else if (cumulatedDy > BOTTOM_THRESHOLD) {
 						if (onThresholdListener != null) {
-							onThresholdListener.onTouchUp();
+							onThresholdListener.onBottomThreshold();
 						}
-						break;
-				}
-				return true;
+					}
+					if (onThresholdListener != null) {
+						onThresholdListener.onTouchUp();
+					}
+					break;
 			}
+			return true;
 		});
 	}
 

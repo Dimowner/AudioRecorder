@@ -29,16 +29,18 @@
 
 	<dimen name="bottom_pnl_btn_size">84dp</dimen>
 	<dimen name="bottom_pnl_small_btn_size">54dp</dimen>
+	<dimen name="bottom_pnl_small_btn_size2">48dp</dimen>
 	<dimen name="notification_btn">64dp</dimen>
 
 	<dimen name="gradient_radius">320dp</dimen>
 	<dimen name="waveform_height">200dp</dimen>
-	<dimen name="item_waveform_height">80dp</dimen>
+	<dimen name="item_waveform_height">56dp</dimen>
 
 	<dimen name="toolbar_height">56dp</dimen>
 	<dimen name="toolbar_elevation">4dp</dimen>
 
-	<dimen name="panel_height">316dp</dimen>
+	<dimen name="panel_height">242dp</dimen>
+	<dimen name="panel_corner_radius">8dp</dimen>
 
 	<dimen name="menu_item_icon_size">24dp</dimen>
 </resources>

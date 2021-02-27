@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 
 import com.dimowner.audiorecorder.AppConstants;
 
@@ -32,6 +33,7 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_IS_MIGRATED = "is_migrated";
 	private static final String PREF_KEY_IS_MIGRATED_DB3 = "is_migrated_db3";
 	private static final String PREF_KEY_IS_STORE_DIR_PUBLIC = "is_store_dir_public";
+	private static final String PREF_KEY_IS_SHOW_DIRECTORY_SETTING = "is_show_directory_setting";
 	private static final String PREF_KEY_IS_ASK_TO_RENAME_AFTER_STOP_RECORDING = "is_ask_rename_after_stop_recording";
 	private static final String PREF_KEY_ACTIVE_RECORD = "active_record";
 	private static final String PREF_KEY_RECORD_COUNTER = "record_counter";
@@ -53,7 +55,7 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_SETTING_NAMING_FORMAT = "setting_naming_format";
 	private static final String PREF_KEY_SETTING_CHANNEL_COUNT = "setting_channel_count";
 
-	private SharedPreferences sharedPreferences;
+	private final SharedPreferences sharedPreferences;
 
 	private volatile static PrefsImpl instance;
 
@@ -83,6 +85,9 @@ public class PrefsImpl implements Prefs {
 		editor.putBoolean(PREF_KEY_IS_FIRST_RUN, false);
 		editor.putBoolean(PREF_KEY_IS_STORE_DIR_PUBLIC, false);
 		editor.putBoolean(PREF_KEY_IS_MIGRATED, true);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			editor.putBoolean(PREF_KEY_IS_SHOW_DIRECTORY_SETTING, false);
+		}
 		editor.apply();
 //		setStoreDirPublic(true);
 	}
@@ -97,6 +102,11 @@ public class PrefsImpl implements Prefs {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putBoolean(PREF_KEY_IS_STORE_DIR_PUBLIC, b);
 		editor.apply();
+	}
+
+	@Override
+	public boolean isShowDirectorySetting() {
+		return sharedPreferences.getBoolean(PREF_KEY_IS_SHOW_DIRECTORY_SETTING, true);
 	}
 
 	@Override

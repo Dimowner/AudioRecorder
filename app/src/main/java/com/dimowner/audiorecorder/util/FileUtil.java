@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,12 +81,16 @@ public class FileUtil {
 		return AppConstants.BASE_RECORD_NAME + counter;
 	}
 
-	public static String generateRecordNameDate() {
-		return AppConstants.BASE_RECORD_NAME_SHORT + TimeUtils.formatDateForName(System.currentTimeMillis());
-	}
+//	public static String generateRecordNameDate() {
+//		return AppConstants.BASE_RECORD_NAME_SHORT + TimeUtils.formatDateForName(System.currentTimeMillis());
+//	}
 
 	public static String generateRecordNameDateVariant() {
 		return TimeUtils.formatDateForNameVariant(System.currentTimeMillis());
+	}
+
+	public static String generateRecordNameDateUS() {
+		return TimeUtils.formatDateForNameUS(System.currentTimeMillis());
 	}
 
 	public static String generateRecordNameMills() {
@@ -138,36 +142,16 @@ public class FileUtil {
 	 * */
 	public static long copyLarge(final InputStream input, final OutputStream output)
 			throws IOException {
-		return copyLarge(input, output, new byte[DEFAULT_BUFFER_SIZE], null);
+		return copyLarge(input, output, new byte[DEFAULT_BUFFER_SIZE]);
 	}
 
-	public static long copyLarge(final InputStream input, final OutputStream output, final byte[] buffer, final OnCopyListener listener)
+	public static long copyLarge(final InputStream input, final OutputStream output, final byte[] buffer)
 			throws IOException {
 		long count = 0;
 		int n;
-		long size = input.available();
-		int percent = 0;
-		long stepPercent = 0;
-		boolean isCancel = false;
-		while (EOF != (n = input.read(buffer)) && !isCancel) {
+		while (EOF != (n = input.read(buffer))) {
 			output.write(buffer, 0, n);
 			count += n;
-			percent = (int)(100*(float)count/(float)size);
-			if (listener != null) {
-				isCancel = listener.isCancel();
-				if (percent > stepPercent + 1 || count == size) {
-					listener.onCopyProgress(percent, count, size);
-					stepPercent = percent;
-				}
-			}
-		}
-		if (listener != null) {
-			if (isCancel) {
-				listener.onCanceled();
-				return -1;
-			} else {
-				listener.onCopyFinish();
-			}
 		}
 		return count;
 	}
@@ -203,57 +187,57 @@ public class FileUtil {
 		}
 	}
 
-	/**
-	 * Copy file.
-	 * @param fileToCopy File to copy.
-	 * @param newFile File in which will contain copied data.
-	 * @return true if copy succeed, otherwise - false.
-	 */
-	public static boolean copyFile(File fileToCopy, File newFile) throws IOException {
-		Timber.v("copyFile toCOpy = " + fileToCopy.getAbsolutePath() + " newFile = " + newFile.getAbsolutePath());
-		FileInputStream in = null;
-		FileOutputStream out = null;
-		try {
-			in = new FileInputStream(fileToCopy);
-			out = new FileOutputStream(newFile);
-
-			if (copyLarge(in, out) > 0) {
-				return true;
-			}  else {
-				Timber.e("Nothing was copied!");
-				return false;
-			}
-		} catch (Exception e) {
-			return false;
-		} finally {
-			if (in != null) {
-				in.close();
-			}
-			if (out != null) {
-				out.close();
-			}
-		}
-	}
-
-	/**
-	 * Copy file.
-	 * @param fileToCopy File to copy.
-	 * @param newFile File in which will contain copied data.
-	 * @return true if copy succeed, otherwise - false.
-	 */
-	public static boolean copyFile(File fileToCopy, File newFile, OnCopyListener listener) {
-		try (FileInputStream in = new FileInputStream(fileToCopy); FileOutputStream out = new FileOutputStream(newFile)) {
-			if (copyLarge(in, out, new byte[DEFAULT_BUFFER_SIZE], listener) > 0) {
-				return true;
-			} else {
-				Timber.e("Nothing was copied!");
-				deleteFile(newFile);
-				return false;
-			}
-		} catch (Exception e) {
-			return false;
-		}
-	}
+//	/**
+//	 * Copy file.
+//	 * @param fileToCopy File to copy.
+//	 * @param newFile File in which will contain copied data.
+//	 * @return true if copy succeed, otherwise - false.
+//	 */
+//	public static boolean copyFile(File fileToCopy, File newFile) throws IOException {
+//		Timber.v("copyFile toCOpy = " + fileToCopy.getAbsolutePath() + " newFile = " + newFile.getAbsolutePath());
+//		FileInputStream in = null;
+//		FileOutputStream out = null;
+//		try {
+//			in = new FileInputStream(fileToCopy);
+//			out = new FileOutputStream(newFile);
+//
+//			if (copyLarge(in, out) > 0) {
+//				return true;
+//			}  else {
+//				Timber.e("Nothing was copied!");
+//				return false;
+//			}
+//		} catch (Exception e) {
+//			return false;
+//		} finally {
+//			if (in != null) {
+//				in.close();
+//			}
+//			if (out != null) {
+//				out.close();
+//			}
+//		}
+//	}
+//
+//	/**
+//	 * Copy file.
+//	 * @param fileToCopy File to copy.
+//	 * @param newFile File in which will contain copied data.
+//	 * @return true if copy succeed, otherwise - false.
+//	 */
+//	public static boolean copyFile(File fileToCopy, File newFile) {
+//		try (FileInputStream in = new FileInputStream(fileToCopy); FileOutputStream out = new FileOutputStream(newFile)) {
+//			if (copyLarge(in, out, new byte[DEFAULT_BUFFER_SIZE]) > 0) {
+//				return true;
+//			} else {
+//				Timber.e("Nothing was copied!");
+//				deleteFile(newFile);
+//				return false;
+//			}
+//		} catch (Exception e) {
+//			return false;
+//		}
+//	}
 
 	/**
 	 * Get free space for specified file
@@ -290,6 +274,7 @@ public class FileUtil {
 
 	public static long getAvailableExternalMemorySize() throws IllegalArgumentException {
 		if (externalMemoryAvailable()) {
+//			TODO: deprecated fix this
 			File path = Environment.getExternalStorageDirectory();
 			StatFs fsi = new StatFs(path.getPath());
 			if (Build.VERSION.SDK_INT >= 18) {
@@ -404,6 +389,7 @@ public class FileUtil {
 	 * @param dirName Directory name.
 	 */
 	public static File getStorageDir(String dirName) {
+//		TODO: deprecated fix this
 		if (dirName != null && !dirName.isEmpty()) {
 			File file = new File(Environment.getExternalStorageDirectory(), dirName);
 			if (isExternalStorageReadable() && isExternalStorageWritable()) {

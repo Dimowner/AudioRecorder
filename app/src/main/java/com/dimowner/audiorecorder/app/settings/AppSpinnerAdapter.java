@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Dmitriy Ponomarenko
+ * Copyright 2020 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,9 @@ import java.util.List;
 
 public class AppSpinnerAdapter extends ArrayAdapter<AppSpinnerAdapter.ThemeItem> {
 
-	private LayoutInflater inflater;
-	private List<ThemeItem> data;
-	private int iconRes;
+	private final LayoutInflater inflater;
+	private final List<ThemeItem> data;
+	private final int iconRes;
 
 	public AppSpinnerAdapter(Activity context, int res, int txtRes, List<ThemeItem> items, int iconRes){
 

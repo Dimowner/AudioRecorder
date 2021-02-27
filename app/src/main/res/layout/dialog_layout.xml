@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~  Copyright 2019 Dmitriy Ponomarenko
+  ~  Copyright 2019 Dmytro Ponomarenko
   ~
   ~  Licensed to the Apache Software Foundation (ASF) under one or more contributor
   ~  license agreements. See the NOTICE file distributed with this work for
@@ -36,6 +36,7 @@
 			android:layout_height="wrap_content"
 			android:layout_marginBottom="@dimen/spacing_normal"
 			android:textColor="@color/md_black_1000"
+			android:drawablePadding="16dp"
 			tools:text="Dialog Title"
 			android:textAppearance="@style/TextAppearance.DialogTitle" />
 
@@ -63,6 +64,7 @@
 				style="@style/Widget.BorderlessButton"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:layout_margin="@dimen/spacing_small"
 				android:paddingStart="@dimen/spacing_normal"
 				android:paddingEnd="@dimen/spacing_normal"
 				android:paddingLeft="@dimen/spacing_normal"
@@ -74,12 +76,12 @@
 				style="@style/Widget.RaisedButton"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:layout_margin="@dimen/spacing_small"
 				android:textSize="@dimen/text_normal"
 				android:paddingStart="@dimen/spacing_normal"
 				android:paddingEnd="@dimen/spacing_normal"
 				android:paddingLeft="@dimen/spacing_normal"
 				android:paddingRight="@dimen/spacing_normal"
-				android:layout_marginStart="@dimen/spacing_small"
 				android:text="@string/btn_ok" />
 
 	</LinearLayout>

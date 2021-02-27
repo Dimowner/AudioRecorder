@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~  Copyright 2018 Dmitriy Ponomarenko
+  ~  Copyright 2018 Dmytro Ponomarenko
   ~
   ~  Licensed under the Apache License, Version 2.0 (the "License");
   ~  you may not use this file except in compliance with the License.
@@ -29,26 +29,23 @@
 			android:id="@+id/list_item_waveform"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/item_waveform_height"
-			android:layout_marginStart="@dimen/spacing_double"
-			android:layout_marginEnd="@dimen/spacing_double"
+			android:layout_marginStart="@dimen/spacing_small"
+			android:layout_marginEnd="@dimen/spacing_small"
 			android:layout_marginBottom="@dimen/spacing_tiny"
 			android:layout_marginTop="@dimen/spacing_tiny"
 			android:layout_gravity="start|center_vertical"/>
 
-	<ImageView
-			android:layout_width="64dp"
-			android:layout_height="64dp"
-			android:layout_gravity="center_vertical"
-			android:contentDescription="@string/btn_play"
-			android:layout_margin="@dimen/spacing_small"
-			android:src="@drawable/ic_play_circle"
-			android:scaleType="centerCrop"/>
+	<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/divider"
+			android:layout_gravity="bottom"
+			android:background="@color/divider_light"/>
 
 	<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
-			android:layout_marginStart="80dp"
+			android:layout_marginStart="@dimen/spacing_normal"
 			android:layout_marginEnd="36dp"
 			android:layout_gravity="center_vertical">
 
@@ -64,8 +61,8 @@
 					android:textColor="@color/text_primary_light"
 					android:paddingStart="@dimen/spacing_tiny"
 					android:paddingEnd="@dimen/spacing_normal"
-					android:paddingTop="@dimen/spacing_normal"
-					android:textStyle="bold"
+					android:paddingTop="@dimen/spacing_medium"
+					android:fontFamily="sans-serif-medium"
 					android:ellipsize="end"
 					android:maxLines="2"
 					tools:text="asfasfasfasf asfa sfasf asfa sfa fas fasf"
@@ -120,7 +117,7 @@
 					android:paddingStart="@dimen/spacing_tiny"
 					android:paddingEnd="@dimen/spacing_medium"
 					android:paddingTop="2dp"
-					android:paddingBottom="@dimen/spacing_normal"
+					android:paddingBottom="@dimen/spacing_medium"
 					android:ellipsize="end"
 					android:maxLines="1"
 					android:fontFamily="sans-serif-light"

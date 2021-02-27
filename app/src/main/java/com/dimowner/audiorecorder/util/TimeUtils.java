@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Dmitriy Ponomarenko
+ * Copyright 2018 Dmytro Ponomarenko
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.util;
 
 import android.content.Context;
+import android.text.format.DateFormat;
 
 import com.dimowner.audiorecorder.R;
 
@@ -28,32 +29,38 @@ import java.util.concurrent.TimeUnit;
 
 public class TimeUtils {
 
-	/** Date format: May 16, 03:30 PM */
-	private static SimpleDateFormat dateTimeFormat12H = new SimpleDateFormat("MMM dd, hh:mm aa", Locale.US);
-
-	/** Date format: May 16, 15:30 */
-	private static SimpleDateFormat dateTimeFormat24H = new SimpleDateFormat("MMM dd, HH:mm", Locale.US);
-
-	/** Date format: May 16 */
-	private static SimpleDateFormat dateFormat24H = new SimpleDateFormat("MMM dd", Locale.getDefault());
-
-	/** Date format: 22.11.2018, 11:30 */
-	private static SimpleDateFormat dateTimeFormatEU = new SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.getDefault());
-
-	/** Date format: 11/22/2018, 11:30 */
-	private static SimpleDateFormat dateTimeFormatUS = new SimpleDateFormat("MM/dd/yyyy, HH:mm", Locale.US);
-
-	/** Date format: 2019.09.22 11:30 */
-	private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss", Locale.getDefault());
+//	/** Date format: May 16, 03:30 PM */
+//	private static SimpleDateFormat dateTimeFormat12H = new SimpleDateFormat("MMM dd, hh:mm aa", Locale.US);
+//
+//	/** Date format: May 16, 15:30 */
+//	private static SimpleDateFormat dateTimeFormat24H = new SimpleDateFormat("MMM dd, HH:mm", Locale.US);
+//
+//	/** Date format: May 16 */
+//	private static final SimpleDateFormat dateFormat24H = new SimpleDateFormat("MMM dd", Locale.getDefault());
+//
+//	/** Date format: 22.11.2018, 11:30 */
+//	private static final SimpleDateFormat dateTimeFormatEU = new SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.getDefault());
+//
+//	/** Date format: 11/22/2018, 11:30 */
+//	private static final SimpleDateFormat dateTimeFormatUS = new SimpleDateFormat("MM/dd/yyyy, HH:mm", Locale.US);
+//
+//	/** Date format: 2019.09.22 11:30 */
+//	private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss", Locale.getDefault());
 
 	/** Date format: 22.11.2018 11:30 */
 	private static SimpleDateFormat dateTimeFormat2 = new SimpleDateFormat("dd.MM.yyyy HH.mm.ss", Locale.getDefault());
 
-	/** Time format: 11:30 */
-	private static SimpleDateFormat timeFormatEU = new SimpleDateFormat("HH:mm", Locale.FRANCE);
+	/** Date format: 11.22.2018 11:30 */
+	private static SimpleDateFormat dateTimeFormatUS = new SimpleDateFormat("MM-dd-yyyy hh.mm.ssaa", Locale.getDefault());
 
-	/** Time format: 22.11.2018 */
-	private static SimpleDateFormat dateFormatEU = new SimpleDateFormat("dd.MM.yyyy", Locale.FRANCE);
+//	/** Time format: 11:30 */
+//	private static final SimpleDateFormat timeFormatEU = new SimpleDateFormat("HH:mm", Locale.FRANCE);
+//
+//	/** Time format: 22.11.2018 */
+//	private static final SimpleDateFormat dateFormatEU = new SimpleDateFormat("dd.MM.yyyy", Locale.FRANCE);
+//
+//	/** Time format: 22.11.2018 */
+//	private static final SimpleDateFormat dateFormatUS = new SimpleDateFormat("MM/dd/yyyy", Locale.FRANCE);
 
 	private TimeUtils() {
 	}
@@ -70,6 +77,17 @@ public class TimeUtils {
 			long numSeconds = timeUnit.toSeconds(length);
 			return String.format(Locale.getDefault(), "%02d:%02d", numMinutes, numSeconds % 60);
 //		}
+	}
+
+	public static String formatTimeIntervalHourMin(long length) {
+		if (length >= 60 * 60 * 1000) { //60*60*1000 = 1hour in mills
+			TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+			String numHour = String.valueOf(timeUnit.toHours(length));
+			long numMinutes = timeUnit.toMinutes(length);
+			return String.format(Locale.getDefault(), "%sh:%02d", numHour, numMinutes % 60);
+		} else {
+			return TimeUtils.formatTimeIntervalMinSec(length);
+		}
 	}
 
 	public static String formatTimeIntervalHourMinSec2(long length) {
@@ -106,7 +124,32 @@ public class TimeUtils {
 		}
 	}
 
-	public static String formatDateSmart(long time, Context ctx) {
+//	public static String formatDateSmart(long time, Context ctx) {
+//		if (time <= 0) {
+//			return "Wrong date!";
+//		}
+//		Calendar today = Calendar.getInstance();
+//		Calendar date = Calendar.getInstance();
+//		date.setTimeInMillis(time);
+//		if (isSameYear(today, date)) {
+//			if (isSameDay(today, date)) {
+//				return ctx.getResources().getString(R.string.today);
+//			} else {
+//				today.add(Calendar.DAY_OF_YEAR, -1); //Make yesterday
+//				//Check is yesterday
+//				if (isSameDay(today, date)) {
+//					return ctx.getResources().getString(R.string.yesterday);
+//				} else {
+//					return dateFormat24H.format(new Date(time));
+////					return dateFormatEU.format(new Date(time));
+//				}
+//			}
+//		} else {
+//			return dateFormatEU.format(new Date(time));
+//		}
+//	}
+
+	public static String formatDateSmartLocale(long time, Context ctx) {
 		if (time <= 0) {
 			return "Wrong date!";
 		}
@@ -122,20 +165,12 @@ public class TimeUtils {
 				if (isSameDay(today, date)) {
 					return ctx.getResources().getString(R.string.yesterday);
 				} else {
-					return dateFormat24H.format(new Date(time));
-//					return dateFormatEU.format(new Date(time));
+					return formatDayMonthLocale(time);
 				}
 			}
 		} else {
-			return dateFormatEU.format(new Date(time));
+			return formatDateLocale(time);
 		}
-	}
-
-	public static String formatTime(long timeMills) {
-		if (timeMills <= 0) {
-			return "";
-		}
-		return timeFormatEU.format(new Date(timeMills));
 	}
 
 	/**
@@ -169,15 +204,38 @@ public class TimeUtils {
 				cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR));
 	}
 
-	public static String formatDateForName(long time) {
-			return dateTimeFormat.format(new Date(time));
-	}
-
 	public static String formatDateForNameVariant(long time) {
 		return dateTimeFormat2.format(new Date(time));
 	}
 
-	public static String formatDateTime(long time) {
-		return dateTimeFormatEU.format(new Date(time));
+	public static String formatDateForNameUS(long time) {
+		return dateTimeFormatUS.format(new Date(time));
+	}
+
+//	public static String formatDateTime(long time) {
+//		return dateTimeFormatEU.format(new Date(time));
+//	}
+
+	public static String formatDateTimeLocale(long time) {
+		java.text.DateFormat format = java.text.DateFormat.getDateTimeInstance(
+				java.text.DateFormat.SHORT,
+				java.text.DateFormat.SHORT,
+				Locale.getDefault()
+		);
+		return format.format(new Date(time));
+	}
+
+	public static String formatDateLocale(long time) {
+		java.text.DateFormat format = java.text.DateFormat.getDateInstance(
+				java.text.DateFormat.SHORT,
+				Locale.getDefault()
+		);
+		return format.format(new Date(time));
+	}
+
+	public static String formatDayMonthLocale(long time) {
+		String pattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), "MMMyyyy");
+		SimpleDateFormat dayMonth = new SimpleDateFormat(pattern, Locale.getDefault());
+		return dayMonth.format(new Date(time));
 	}
 }
