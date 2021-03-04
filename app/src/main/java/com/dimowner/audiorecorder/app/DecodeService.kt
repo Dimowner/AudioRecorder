@@ -90,20 +90,22 @@ class DecodeService : Service() {
 		waveformVisualization = ARApplication.getInjector().provideAudioWaveformVisualization()
 	}
 
-	override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-		val action = intent.action
-		if (action != null && action.isNotEmpty()) {
-			when (action) {
-				ACTION_START_DECODING_SERVICE -> if (intent.hasExtra(EXTRAS_KEY_DECODE_INFO)) {
-					val id = intent.getIntExtra(EXTRAS_KEY_DECODE_INFO, -1)
-					if (id >= 0) {
-						startDecode(id)
+	override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+		if (intent != null) {
+			val action = intent.action
+			if (action != null && action.isNotEmpty()) {
+				when (action) {
+					ACTION_START_DECODING_SERVICE -> if (intent.hasExtra(EXTRAS_KEY_DECODE_INFO)) {
+						val id = intent.getIntExtra(EXTRAS_KEY_DECODE_INFO, -1)
+						if (id >= 0) {
+							startDecode(id)
+						}
 					}
-				}
-				ACTION_STOP_DECODING_SERVICE -> stopService()
-				ACTION_CANCEL_DECODE -> {
-					isCancel = true
-					stopService()
+					ACTION_STOP_DECODING_SERVICE -> stopService()
+					ACTION_CANCEL_DECODE -> {
+						isCancel = true
+						stopService()
+					}
 				}
 			}
 		}
@@ -142,23 +144,25 @@ class DecodeService : Service() {
 					override fun onFinishProcessing(data: IntArray, duration: Long) {
 						recordingsTasks.postRunnable {
 							val rec1 = localRepository.getRecord(id)
-							val decodedRecord = Record(
-									rec1.id,
-									rec1.name,
-									rec1.duration,
-									rec1.created,
-									rec1.added,
-									rec1.removed,
-									rec1.path,
-									rec1.format,
-									rec1.size,
-									rec1.sampleRate,
-									rec1.channelCount,
-									rec1.bitrate,
-									rec1.isBookmarked,
-									true,
-									data)
-							localRepository.updateRecord(decodedRecord)
+							if (rec1 != null) {
+								val decodedRecord = Record(
+										rec1.id,
+										rec1.name,
+										rec1.duration,
+										rec1.created,
+										rec1.added,
+										rec1.removed,
+										rec1.path,
+										rec1.format,
+										rec1.size,
+										rec1.sampleRate,
+										rec1.channelCount,
+										rec1.bitrate,
+										rec1.isBookmarked,
+										true,
+										data)
+								localRepository.updateRecord(decodedRecord)
+							}
 							decodeListener?.onFinishProcessing()
 							stopService()
 						}
