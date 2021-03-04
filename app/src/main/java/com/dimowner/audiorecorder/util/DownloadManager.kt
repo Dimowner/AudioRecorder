@@ -16,9 +16,11 @@
 
 package com.dimowner.audiorecorder.util
 
+import android.annotation.TargetApi
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import com.dimowner.audiorecorder.R
@@ -44,11 +46,11 @@ fun downloadFiles(context: Context, list: List<File>, listener: OnCopyListener?)
 
 	for (f in list) {
 		val size = f.length()/100f
-		downloadFile(context, f, object : OnCopyListener {
+		val listener = object : OnCopyListener {
 			override fun isCancel(): Boolean = listener?.isCancel ?: false
 
 			override fun onCopyProgress(percent: Int) {
-				val globalProgress = copiedPercent + (percent*size)/totalSize
+				val globalProgress = copiedPercent + (percent * size) / totalSize
 				listener?.onCopyProgress(globalProgress.toInt())
 			}
 
@@ -58,7 +60,7 @@ fun downloadFiles(context: Context, list: List<File>, listener: OnCopyListener?)
 
 			override fun onCopyFinish(message: String) {
 				copied++
-				copiedPercent += ((size*100)/totalSize).toInt()
+				copiedPercent += ((size * 100) / totalSize).toInt()
 				if (copied + failed == list.size) {
 					if (list.size == 1) {
 						listener?.onCopyFinish(message)
@@ -86,7 +88,12 @@ fun downloadFiles(context: Context, list: List<File>, listener: OnCopyListener?)
 					}
 				}
 			}
-		})
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			downloadFile(context, f, listener)
+		} else {
+			downloadFile28(context, f, listener)
+		}
 	}
 }
 
@@ -94,6 +101,7 @@ fun downloadFiles(context: Context, list: List<File>, listener: OnCopyListener?)
  * Copies file into Download directory.
  * @author Dimowner
  */
+@TargetApi(29)
 fun downloadFile(context: Context, sourceFile: File, listener: OnCopyListener?) {
 	val sourceName = sourceFile.name
 	var isCancel = false
@@ -153,6 +161,37 @@ fun downloadFile(context: Context, sourceFile: File, listener: OnCopyListener?) 
 		} else {
 			listener?.onError(context.resources.getString(R.string.downloading_failed_file_already_exists, sourceName))
 		}
+	} else {
+		listener?.onError(context.resources.getString(R.string.downloading_failed, sourceName))
+	}
+}
+
+private fun downloadFile28(context: Context, sourceFile: File, listener: OnCopyListener?) {
+	val sourceName = sourceFile.name
+	val created = FileUtil.createFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), sourceName)
+	if (created != null) {
+		FileUtil.copyFile(sourceFile, created,
+				object : OnCopyListener {
+					override fun isCancel(): Boolean {
+						return listener?.isCancel ?: false
+					}
+
+					override fun onCopyProgress(percent: Int) {
+						listener?.onCopyProgress(percent)
+					}
+
+					override fun onCanceled() {
+						listener?.onCanceled()
+					}
+
+					override fun onCopyFinish(message: String?) {
+						listener?.onCopyFinish(context.resources.getString(R.string.downloading_success, sourceName))
+					}
+
+					override fun onError(message: String?) {
+						listener?.onError(context.resources.getString(R.string.downloading_failed, sourceName))
+					}
+				})
 	} else {
 		listener?.onError(context.resources.getString(R.string.downloading_failed, sourceName))
 	}

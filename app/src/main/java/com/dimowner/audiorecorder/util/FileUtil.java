@@ -156,6 +156,57 @@ public class FileUtil {
 		return count;
 	}
 
+	public static long copyLarge(final InputStream input, final OutputStream output, final byte[] buffer, final OnCopyListener listener)
+			throws IOException {
+		long count = 0;
+		int n;
+		long size = input.available();
+		int percent = 0;
+		long stepPercent = 0;
+		boolean isCancel = false;
+		while (EOF != (n = input.read(buffer)) && !isCancel) {
+			output.write(buffer, 0, n);
+			count += n;
+			percent = (int)(100*(float)count/(float)size);
+			if (listener != null) {
+				isCancel = listener.isCancel();
+				if (percent > stepPercent + 1 || count == size) {
+					listener.onCopyProgress(percent);
+					stepPercent = percent;
+				}
+			}
+		}
+		if (listener != null) {
+			if (isCancel) {
+				listener.onCanceled();
+				return -1;
+			} else {
+				listener.onCopyFinish(null);
+			}
+		}
+		return count;
+	}
+
+	/**
+	 * Copy file.
+	 * @param fileToCopy File to copy.
+	 * @param newFile File in which will contain copied data.
+	 * @return true if copy succeed, otherwise - false.
+	 */
+	public static boolean copyFile(File fileToCopy, File newFile, OnCopyListener listener) {
+		try (FileInputStream in = new FileInputStream(fileToCopy); FileOutputStream out = new FileOutputStream(newFile)) {
+			if (copyLarge(in, out, new byte[DEFAULT_BUFFER_SIZE], listener) > 0) {
+				return true;
+			} else {
+				Timber.e("Nothing was copied!");
+				deleteFile(newFile);
+				return false;
+			}
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 	/**
 	 * Copy file.
 	 * @param fileToCopy File to copy.
