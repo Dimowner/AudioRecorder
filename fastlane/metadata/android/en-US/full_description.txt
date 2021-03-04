@@ -1,0 +1,23 @@
+<i>Audio recorder</i> (Voice recorder, Sound recorder) is an application makes an easy audio recording experience. The app is optimized for the fastest start as possible and helps not to miss important sound for the user.
+
+Two recording formats are available:
+
+* M4A – Advanced Audio Coding (AAC)
+* Waveform Audio File Format (WAVE, or WAV)
+
+In settings, select sample rate, bitrate (for AAC only) and stereo or mono. Selected preferences directly affect on record file size. Colorful themes allow customizing the app look, making the experience better.
+
+<b>Features:</b>
+
+* Recording audio
+* Playing back recordings
+* Make recordings in M4A and WAV
+* Setting sample rate and bitrate
+* Recording and playing back in background
+* Displaying waveform of the recording
+* Rename recordings
+* Share recordings
+* Import audio files
+* List recordings
+* Add recordings to bookmarks
+* Color themes

@@ -1,0 +1,23 @@
+<i>Audiorecorder</i> ermöglicht einfache Audioaufnahmen. Die App ist für den schnellstmöglichen Start optimiert und hilft dabei, wichtige Sounds für den Benutzer nicht zu verpassen.
+
+Es stehen zwei Aufnahmeformate zur Verfügung:
+
+* M4A-Format ist mit einem AAC-Audio-Codec codiert, der eine gute Qualität und eine geringe Größe aufweist.
+* Wellenform-Audiodateiformat (WAVE oder WAV) ist ein Standard für das Audiodateiformat für Audio-Bitstreams auf PCs, das die Audiodaten unkomprimiert speichert.
+
+Wählen Sie in den Einstellungen Samplerate, Bitrate (nur für M4A) und Stereo oder Mono. Ausgewählte Einstellungen wirken sich direkt auf die Dateigröße aus. Passen Sie mit farbenfrohen Themen das Aussehen der App an und verbessern Sie das Erlebnis für Sie.
+
+<b>Funktionen:</b>
+
+* Audio aufnehmen
+* Wiedergabe von Aufzeichnungen
+* Unterstützte Aufnahmeformate: M4A/AAC und WAV
+* Stellen Sie die Abtastrate und die Bitrate ein
+* Aufnahme und Wiedergabe im Hintergrund
+* Aufzeichnungswellenform anzeigen
+* Datei umbenennen
+* Datei teilen
+* Importieren von Audiodateien
+* Dateiliste
+* ausgewählte Datei den Lesezeichen hinzufügen
+* Farbige Themen
