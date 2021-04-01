@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import timber.log.Timber;
 
@@ -52,8 +53,8 @@ public class WavRecorder implements RecorderContract.Recorder {
 
 	private Thread recordingThread;
 
-	private boolean isRecording = false;
-	private boolean isPaused = false;
+	private final AtomicBoolean isRecording = new AtomicBoolean(false);
+	private final AtomicBoolean isPaused = new AtomicBoolean(false);
 	private final Handler handler = new Handler();
 
 	private int channelCount = 1;
@@ -117,7 +118,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 			if (recorder != null && recorder.getState() == AudioRecord.STATE_INITIALIZED) {
 				recorder.startRecording();
 				updateTime = System.currentTimeMillis();
-				isRecording = true;
+				isRecording.set(true);
 				recordingThread = new Thread(this::writeAudioDataToFile, "AudioRecorder Thread");
 
 				recordingThread.start();
@@ -125,7 +126,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 				if (recorderCallback != null) {
 					recorderCallback.onStartRecord(recordFile);
 				}
-				isPaused = false;
+				isPaused.set(false);
 			} else {
 				Timber.e("prepare() failed");
 				if (recorderCallback != null) {
@@ -142,26 +143,26 @@ public class WavRecorder implements RecorderContract.Recorder {
 	@Override
 	public void resumeRecording() {
 		if (recorder != null && recorder.getState() == AudioRecord.STATE_INITIALIZED) {
-			if (isPaused) {
+			if (isPaused.get()) {
 				updateTime = System.currentTimeMillis();
 				scheduleRecordingTimeUpdate();
 				recorder.startRecording();
 				if (recorderCallback != null) {
 					recorderCallback.onResumeRecord();
 				}
-				isPaused = false;
+				isPaused.set(false);
 			}
 		}
 	}
 
 	@Override
 	public void pauseRecording() {
-		if (isRecording) {
+		if (isRecording.get()) {
 			recorder.stop();
 			durationMills += System.currentTimeMillis() - updateTime;
 			pauseRecordingTimer();
 
-			isPaused = true;
+			isPaused.set(true);
 			if (recorderCallback != null) {
 				recorderCallback.onPauseRecord();
 			}
@@ -171,8 +172,8 @@ public class WavRecorder implements RecorderContract.Recorder {
 	@Override
 	public void stopRecording() {
 		if (recorder != null) {
-			isRecording = false;
-			isPaused = false;
+			isRecording.set(false);
+			isPaused.set(false);
 			stopRecordingTimer();
 			if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
 				try {
@@ -192,12 +193,12 @@ public class WavRecorder implements RecorderContract.Recorder {
 
 	@Override
 	public boolean isRecording() {
-		return isRecording;
+		return isRecording.get();
 	}
 
 	@Override
 	public boolean isPaused() {
-		return isPaused;
+		return isPaused.get();
 	}
 
 	private void writeAudioDataToFile() {
@@ -214,8 +215,8 @@ public class WavRecorder implements RecorderContract.Recorder {
 			ByteBuffer shortBuffer = ByteBuffer.allocate(2);
 			shortBuffer.order(ByteOrder.LITTLE_ENDIAN);
 			//TODO: Disable loop while pause.
-			while (isRecording) {
-				if (!isPaused) {
+			while (isRecording.get()) {
+				if (!isPaused.get()) {
 					chunksCount += recorder.read(data, 0, bufferSize);
 					if (AudioRecord.ERROR_INVALID_OPERATION != chunksCount) {
 						long sum = 0;

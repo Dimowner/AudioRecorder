@@ -25,6 +25,7 @@ import com.dimowner.audiorecorder.exception.RecorderInitException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import timber.log.Timber;
 
@@ -37,8 +38,8 @@ public class AudioRecorder implements RecorderContract.Recorder {
 	private long updateTime = 0;
 	private long durationMills = 0;
 
-	private boolean isRecording = false;
-	private boolean isPaused = false;
+	private final AtomicBoolean isRecording = new AtomicBoolean(false);
+	private final AtomicBoolean isPaused = new AtomicBoolean(false);
 	private final Handler handler = new Handler();
 
 	private RecorderContract.RecorderCallback recorderCallback;
@@ -79,12 +80,12 @@ public class AudioRecorder implements RecorderContract.Recorder {
 				recorder.prepare();
 				recorder.start();
 				updateTime = System.currentTimeMillis();
-				isRecording = true;
+				isRecording.set(true);
 				scheduleRecordingTimeUpdate();
 				if (recorderCallback != null) {
 					recorderCallback.onStartRecord(recordFile);
 				}
-				isPaused = false;
+				isPaused.set(false);
 			} catch (IOException | IllegalStateException e) {
 				Timber.e(e, "prepare() failed");
 				if (recorderCallback != null) {
@@ -100,7 +101,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 
 	@Override
 	public void resumeRecording() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isPaused) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isPaused.get()) {
 			try {
 				recorder.resume();
 				updateTime = System.currentTimeMillis();
@@ -108,7 +109,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 				if (recorderCallback != null) {
 					recorderCallback.onResumeRecord();
 				}
-				isPaused = false;
+				isPaused.set(false);
 			} catch (IllegalStateException e) {
 				Timber.e(e, "unpauseRecording() failed");
 				if (recorderCallback != null) {
@@ -120,9 +121,9 @@ public class AudioRecorder implements RecorderContract.Recorder {
 
 	@Override
 	public void pauseRecording() {
-		if (isRecording) {
+		if (isRecording.get()) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-				if (!isPaused) {
+				if (!isPaused.get()) {
 					try {
 						recorder.pause();
 						durationMills += System.currentTimeMillis() - updateTime;
@@ -130,7 +131,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 						if (recorderCallback != null) {
 							recorderCallback.onPauseRecord();
 						}
-						isPaused = true;
+						isPaused.set(true);
 					} catch (IllegalStateException e) {
 						Timber.e(e, "pauseRecording() failed");
 						if (recorderCallback != null) {
@@ -147,7 +148,7 @@ public class AudioRecorder implements RecorderContract.Recorder {
 
 	@Override
 	public void stopRecording() {
-		if (isRecording) {
+		if (isRecording.get()) {
 			stopRecordingTimer();
 			try {
 				recorder.stop();
@@ -160,8 +161,8 @@ public class AudioRecorder implements RecorderContract.Recorder {
 			}
 			durationMills = 0;
 			recordFile = null;
-			isRecording = false;
-			isPaused = false;
+			isRecording.set(false);
+			isPaused.set(false);
 			recorder = null;
 		} else {
 			Timber.e("Recording has already stopped or hasn't started");
@@ -196,11 +197,11 @@ public class AudioRecorder implements RecorderContract.Recorder {
 
 	@Override
 	public boolean isRecording() {
-		return isRecording;
+		return isRecording.get();
 	}
 
 	@Override
 	public boolean isPaused() {
-		return isPaused;
+		return isPaused.get();
 	}
 }
