@@ -32,6 +32,8 @@
 		<item quantity="one">Copy %d selected record to the Download folder?</item>
 		<item quantity="other">Copy %d selected records to the Download folder?</item>
 	</plurals>
+	<string name="start_recording">Start recording</string>
+	<string name="recording_feature_disabled">Recording feature disabled</string>
 	<string name="restore_record">Restore record %s?</string>
 	<string name="delete_all_records">Delete all records?</string>
 	<string name="all_records_deleted">All records deleted successfully</string>
