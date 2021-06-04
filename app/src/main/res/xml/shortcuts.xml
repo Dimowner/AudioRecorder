@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+	<shortcut
+			android:enabled="true"
+			android:icon="@drawable/ic_record_red"
+			android:shortcutDisabledMessage="@string/recording_feature_disabled"
+			android:shortcutId="recording"
+			android:shortcutLongLabel="@string/start_recording"
+			android:shortcutShortLabel="@string/start_recording">
+		<intent
+				android:action="android.intent.action.ACTION_RUN"
+				android:targetClass="com.dimowner.audiorecorder.app.main.MainActivity"
+				android:targetPackage="com.dimowner.audiorecorder" />
+	</shortcut>
+</shortcuts>

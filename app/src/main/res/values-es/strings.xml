@@ -24,6 +24,8 @@
  	<string name="delete_this_record">¿Eliminar esta grabación?</string>
  	<string name="delete_record">¿Mover %s a la basura?</string>
  	<string name="delete_record_forever">¿Eliminar la grabación %s permanentemente?</string>
+	<string name="start_recording">Start recording</string>
+	<string name="recording_feature_disabled">Recording feature disabled</string>
  	<string name="restore_record">¿Restaurar la grabación %s?</string>
  	<string name="delete_all_records">¿Eliminar todas las grabaciones?</string>
  	<string name="all_records_deleted">Todas las grabaciones han sido exitosamente eliminadas</string>

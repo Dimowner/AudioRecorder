@@ -255,6 +255,16 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			recreate();
 		};
 		colorMap.addOnThemeColorChangeListener(onThemeColorChangeListener);
+
+		//Check start recording shortcut
+		if ("android.intent.action.ACTION_RUN".equals(getIntent().getAction())) {
+			if (checkRecordPermission2()) {
+				if (checkStoragePermission2()) {
+					//Start or stop recording
+					presenter.startRecording(getApplicationContext());
+				}
+			}
+		}
 	}
 
 	@Override

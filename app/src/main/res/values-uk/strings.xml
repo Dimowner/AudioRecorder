@@ -36,6 +36,8 @@
 		<item quantity="few">Скопіювати %d вибрані записи в папку Download?</item>
 		<item quantity="many">Скопіювати %d вибраних записів в папку Download?</item>
 	</plurals>
+	<string name="start_recording">Почати запис</string>
+	<string name="recording_feature_disabled">Функцію запису вимкнено</string>
 	<string name="restore_record">Відновити запис %s?</string>
 	<string name="delete_all_records">Видалити всі записи?</string>
 	<string name="all_records_deleted">Всі записи видалено успішно</string>
