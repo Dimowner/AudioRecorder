@@ -24,6 +24,7 @@
 		android:orientation="vertical"
 		android:background="@color/white"
 		android:padding="20dp"
+		tools:viewBindingIgnore="true"
 		xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<TextView

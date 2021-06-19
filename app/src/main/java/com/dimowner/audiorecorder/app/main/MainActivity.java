@@ -51,6 +51,7 @@ import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.RecordingService;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
+import com.dimowner.audiorecorder.app.moverecords.MoveRecordsActivity;
 import com.dimowner.audiorecorder.app.records.RecordsActivity;
 import com.dimowner.audiorecorder.app.settings.SettingsActivity;
 import com.dimowner.audiorecorder.app.welcome.WelcomeActivity;
@@ -659,6 +660,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void showRecordInfo(RecordInfo info) {
 		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), info));
+//		startActivity(MoveRecordsActivity.Companion.getStartIntent(getApplicationContext()));
 	}
 
 	@Override

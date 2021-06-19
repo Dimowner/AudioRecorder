@@ -2,6 +2,8 @@
 
 <TextView
 		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:tools="http://schemas.android.com/tools"
+		tools:viewBindingIgnore="true"
 		style="@style/Text.NormalLabel"
 		android:id="@+id/txtItem"
 		android:layout_width="match_parent"

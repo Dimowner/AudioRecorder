@@ -112,8 +112,11 @@ fun downloadFile(context: Context, sourceFile: File, listener: OnCopyListener?) 
 			val contentValues = ContentValues()
 			contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, sourceName)
 			contentValues.put(MediaStore.MediaColumns.MIME_TYPE, mime)
-			contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-			val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+//			contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+			contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_MUSIC)
+//			val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+			val uri = resolver.insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, contentValues)
+			Timber.v("downloadFile = " + uri.toString() + " sourceFile = " + sourceFile.absolutePath)
 			if (uri != null) {
 				try {
 					val outputStream = resolver.openOutputStream(uri)
@@ -199,7 +202,8 @@ private fun downloadFile28(context: Context, sourceFile: File, listener: OnCopyL
 
 private fun isUriFileAlreadyExists(context: Context, name: String): Boolean {
 	val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
-	val cursor = context.contentResolver.query(MediaStore.Downloads.EXTERNAL_CONTENT_URI, projection, null, null, null, null)
+//	val cursor = context.contentResolver.query(MediaStore.Downloads.EXTERNAL_CONTENT_URI, projection, null, null, null, null)
+	val cursor = context.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, null, null, null, null)
 	cursor.use {
 		if (it != null && it.moveToFirst()) {
 			do {

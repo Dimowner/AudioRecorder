@@ -57,6 +57,8 @@
 		<activity android:name="com.dimowner.audiorecorder.app.setup.SetupActivity"
 				android:screenOrientation="portrait">
 		</activity>
+		<activity android:name="com.dimowner.audiorecorder.app.moverecords.MoveRecordsActivity"
+				android:screenOrientation="portrait"/>
 
 		<service android:name="com.dimowner.audiorecorder.app.RecordingService" />
 		<service android:name="com.dimowner.audiorecorder.app.PlaybackService" />
