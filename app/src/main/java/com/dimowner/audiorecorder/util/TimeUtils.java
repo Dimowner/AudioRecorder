@@ -43,12 +43,12 @@ public class TimeUtils {
 //
 //	/** Date format: 11/22/2018, 11:30 */
 //	private static final SimpleDateFormat dateTimeFormatUS = new SimpleDateFormat("MM/dd/yyyy, HH:mm", Locale.US);
-//
-//	/** Date format: 2019.09.22 11:30 */
-//	private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss", Locale.getDefault());
 
-	/** Date format: 22.11.2018 11:30 */
-	private static SimpleDateFormat dateTimeFormat2 = new SimpleDateFormat("dd.MM.yyyy HH.mm.ss", Locale.getDefault());
+	/** Date format: 2019.09.22 11:30 */
+	private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss", Locale.getDefault());
+
+//	/** Date format: 22.11.2018 11:30 */
+//	private static SimpleDateFormat dateTimeFormat2 = new SimpleDateFormat("dd.MM.yyyy HH.mm.ss", Locale.getDefault());
 
 	/** Date format: 11.22.2018 11:30 */
 	private static SimpleDateFormat dateTimeFormatUS = new SimpleDateFormat("MM-dd-yyyy hh.mm.ssaa", Locale.getDefault());
@@ -205,7 +205,7 @@ public class TimeUtils {
 	}
 
 	public static String formatDateForNameVariant(long time) {
-		return dateTimeFormat2.format(new Date(time));
+		return dateTimeFormat.format(new Date(time));
 	}
 
 	public static String formatDateForNameUS(long time) {
