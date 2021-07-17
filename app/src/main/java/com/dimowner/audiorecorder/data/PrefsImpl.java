@@ -44,6 +44,8 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_SAMPLE_RATE = "pref_sample_rate";
 	private static final String PREF_KEY_RECORDS_ORDER = "pref_records_order";
 	private static final String PREF_KEY_NAMING_FORMAT = "pref_naming_format";
+	private static final String PREF_KEY_LAST_PUBLIC_STORAGE_MIGRATION_ASKED = "pref_last_public_storage_migration_asked";
+	private static final String PREF_KEY_IS_PUBLIC_STORAGE_MIGRATED = "pref_is_public_storage_migrated";
 
 	//Recording prefs.
 	private static final String PREF_KEY_RECORD_CHANNEL_COUNT = "record_channel_count";
@@ -85,6 +87,7 @@ public class PrefsImpl implements Prefs {
 		editor.putBoolean(PREF_KEY_IS_FIRST_RUN, false);
 		editor.putBoolean(PREF_KEY_IS_STORE_DIR_PUBLIC, false);
 		editor.putBoolean(PREF_KEY_IS_MIGRATED, true);
+		editor.putBoolean(PREF_KEY_IS_PUBLIC_STORAGE_MIGRATED, true);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 			editor.putBoolean(PREF_KEY_IS_SHOW_DIRECTORY_SETTING, false);
 		}
@@ -123,6 +126,30 @@ public class PrefsImpl implements Prefs {
 	public void setAskToRenameAfterStopRecording(boolean b) {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putBoolean(PREF_KEY_IS_ASK_TO_RENAME_AFTER_STOP_RECORDING, b);
+		editor.apply();
+	}
+
+	@Override
+	public void setPublicStorageMigrated(boolean b) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putBoolean(PREF_KEY_IS_PUBLIC_STORAGE_MIGRATED, b);
+		editor.apply();
+	}
+
+	@Override
+	public boolean isPublicStorageMigrated() {
+		return sharedPreferences.contains(PREF_KEY_IS_PUBLIC_STORAGE_MIGRATED);
+	}
+
+	@Override
+	public long getLastPublicStorageMigrationAsked() {
+		return sharedPreferences.getLong(PREF_KEY_LAST_PUBLIC_STORAGE_MIGRATION_ASKED, 0);
+	}
+
+	@Override
+	public void setLastPublicStorageMigrationAsked(long time) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putLong(PREF_KEY_LAST_PUBLIC_STORAGE_MIGRATION_ASKED, time);
 		editor.apply();
 	}
 

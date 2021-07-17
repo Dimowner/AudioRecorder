@@ -222,6 +222,8 @@ public class Injector {
 					provideLoadingTasksQueue(),
 					provideRecordingTasksQueue(),
 					provideLocalRepository(),
+					provideFileRepository(),
+					provideSettingsMapper(),
 					providePrefs()
 			);
 		}

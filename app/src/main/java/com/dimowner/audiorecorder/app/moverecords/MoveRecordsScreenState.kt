@@ -5,5 +5,8 @@ package com.dimowner.audiorecorder.app.moverecords
  * @author Dimowner
  */
 data class MoveRecordsScreenState(
-	val showProgress: Boolean = false
+	val list: List<MoveRecordsItem> = emptyList(),
+	val showFooterItem: Boolean = false,
+	val showProgress: Boolean = false,
+	val count: Int = 0
 )

@@ -20,12 +20,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.WindowManager
-import android.widget.LinearLayout
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.dimowner.audiorecorder.ARApplication
-import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.databinding.ActivityMoveRecordsBinding
-import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.util.isVisible
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
@@ -34,6 +31,8 @@ import kotlinx.coroutines.flow.collect
 class MoveRecordsActivity : Activity() {
 
 	private lateinit var viewModel: MoveRecordsViewModel
+
+	private val adapter = MoveRecordsAdapter()
 
 	val scope = CoroutineScope(Dispatchers.Main)
 
@@ -47,13 +46,10 @@ class MoveRecordsActivity : Activity() {
 		val view = binding.root
 		setContentView(view)
 
-		window.setFlags(
-				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-		val toolbar = findViewById<LinearLayout>(R.id.toolbar)
-		toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(applicationContext), 0, 0)
-
 		viewModel = ARApplication.getInjector().provideMoveRecordsViewModel()
+
+		binding.recyclerView.layoutManager = LinearLayoutManager(applicationContext)
+		binding.recyclerView.adapter = adapter
 
 		scope.launch {
 			viewModel.uiState.collect { onScreenUpdate(it) }
@@ -69,6 +65,9 @@ class MoveRecordsActivity : Activity() {
 
 	private fun onScreenUpdate(state: MoveRecordsScreenState) {
 		binding.progress.isVisible = state.showProgress
+		binding.txtCount.text = "Count = " + state.count
+		adapter.showFooter(state.showFooterItem)
+		adapter.submitList(state.list)
 	}
 
 	override fun onDestroy() {

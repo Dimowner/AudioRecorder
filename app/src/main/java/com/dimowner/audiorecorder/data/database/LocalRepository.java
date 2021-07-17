@@ -31,6 +31,8 @@ public interface LocalRepository {
 
 	Record findRecordByPath(String path);
 
+	List<Record> findRecordsByPath(String path);
+
 	Record getTrashRecord(int id);
 
 	List<Record> getAllRecords();

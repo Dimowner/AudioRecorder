@@ -83,6 +83,8 @@ public interface MainContract {
 		void openFile(Record record);
 
 		void downloadRecord(Record record);
+
+		void showMigratePublicStorageWarning();
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
@@ -106,6 +108,8 @@ public interface MainContract {
 		void decodeRecord(long id);
 
 		void loadActiveRecord();
+
+		void checkPublicStorageRecords();
 
 		void setAskToRename(boolean value);
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~  Copyright 2019 Dmytro Ponomarenko
+  ~  Copyright 2021 Dmytro Ponomarenko
   ~
   ~  Licensed under the Apache License, Version 2.0 (the "License");
   ~  you may not use this file except in compliance with the License.
@@ -26,18 +26,19 @@
 			android:layout_height="wrap_content"
 			android:orientation="horizontal">
 
-		<!--			<ImageButton-->
-		<!--					android:id="@+id/btn_back"-->
-		<!--					android:layout_width="wrap_content"-->
-		<!--					android:layout_height="wrap_content"-->
-		<!--					android:contentDescription="@null"-->
-		<!--					android:layout_gravity="start"-->
-		<!--					android:background="?android:selectableItemBackgroundBorderless"-->
-		<!--					android:padding="@dimen/spacing_normal"-->
-		<!--					android:src="@drawable/ic_arrow_back"/>-->
+		<ImageButton
+				android:id="@+id/btnBack"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@null"
+				android:layout_gravity="start"
+				android:visibility="invisible"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:padding="@dimen/spacing_normal"
+				android:src="@drawable/ic_arrow_back"/>
 
 		<TextView
-				android:id="@+id/txt_title"
+				android:id="@+id/txtTitle"
 				style="@style/Text.SectionLabel"
 				android:layout_width="0dp"
 				android:layout_height="@dimen/toolbar_height"
@@ -50,41 +51,19 @@
 				android:text="@string/move_records"
 				android:textColor="@color/text_primary_light" />
 
+		<ImageButton
+				android:id="@+id/btnInfo"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@null"
+				android:layout_gravity="start"
+				android:background="?android:selectableItemBackgroundBorderless"
+				android:padding="@dimen/spacing_normal"
+				android:src="@drawable/ic_info"/>
 	</LinearLayout>
 
 	<TextView
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="@dimen/spacing_normal"
-			android:layout_marginTop="@dimen/spacing_medium"
-			android:layout_marginEnd="@dimen/spacing_normal"
-			android:fontFamily="sans-serif-light"
-			android:text="@string/rec_name"
-			android:textSize="@dimen/text_medium" />
-
-	<TextView
-			android:id="@+id/txt_name"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="@dimen/spacing_normal"
-			android:layout_marginEnd="@dimen/spacing_normal"
-			android:gravity="start"
-			android:textColor="@color/text_primary_light"
-			android:textSize="@dimen/text_large"
-			tools:text="Record-12" />
-
-	<TextView
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="@dimen/spacing_normal"
-			android:layout_marginTop="@dimen/spacing_medium"
-			android:layout_marginEnd="@dimen/spacing_normal"
-			android:fontFamily="sans-serif-light"
-			android:text="@string/rec_format"
-			android:textSize="@dimen/text_medium" />
-
-	<TextView
-			android:id="@+id/txt_format"
+			android:id="@+id/txtCount"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="@dimen/spacing_normal"
@@ -93,15 +72,6 @@
 			android:textColor="@color/text_primary_light"
 			android:textSize="@dimen/text_large"
 			tools:text="Wav" />
-
-
-	<ProgressBar
-			android:id="@+id/progress"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center"
-			android:visibility="invisible"
-			tools:visibility="visible" />
 
 	<Button
 			android:id="@+id/btnStart"
@@ -118,4 +88,35 @@
 			android:layout_margin="@dimen/spacing_small"
 			android:text="End"
 			/>
+
+	<FrameLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
+
+		<androidx.recyclerview.widget.RecyclerView
+				android:id="@+id/recyclerView"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" />
+
+		<TextView
+				android:id="@+id/txtEmpty"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:drawableTop="@drawable/ic_audiotrack_64"
+				android:drawablePadding="@dimen/spacing_small"
+				android:gravity="center"
+				android:text="@string/empty"
+				android:textColor="@color/text_primary_light"
+				android:textSize="@dimen/text_large"
+				android:visibility="gone"
+				tools:visibility="visible" />
+
+		<ProgressBar
+				android:id="@+id/progress"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center" />
+
+	</FrameLayout>
 </LinearLayout>

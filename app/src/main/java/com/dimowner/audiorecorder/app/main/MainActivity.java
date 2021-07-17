@@ -280,6 +280,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		presenter.setAudioRecorder(ARApplication.getInjector().provideAudioRecorder());
 		presenter.updateRecordingDir(getApplicationContext());
 		presenter.loadActiveRecord();
+		presenter.checkPublicStorageRecords();
 
 		Intent intent = new Intent(this, DecodeService.class);
 		bindService(intent, connection, Context.BIND_AUTO_CREATE);
@@ -660,7 +661,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void showRecordInfo(RecordInfo info) {
 		startActivity(ActivityInformation.getStartIntent(getApplicationContext(), info));
-//		startActivity(MoveRecordsActivity.Companion.getStartIntent(getApplicationContext()));
 	}
 
 	@Override
@@ -690,6 +690,23 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		if (checkStoragePermissionDownload()) {
 			DownloadService.startNotification(getApplicationContext(), record.getPath());
 		}
+	}
+
+	@Override
+	public void showMigratePublicStorageWarning() {
+		AndroidUtils.showDialog(
+				this,
+				R.drawable.ic_warning_yellow,
+				R.string.move,
+				R.string.later,
+				R.string.move_public_storage_records,
+				R.string.move_public_storage_records_message,
+				false,
+				v -> {
+					startActivity(MoveRecordsActivity.Companion.getStartIntent(getApplicationContext()));
+				},
+				v -> {}
+		);
 	}
 
 	@Override

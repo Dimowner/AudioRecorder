@@ -572,6 +572,17 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
+	public void checkPublicStorageRecords() {
+		long lastTimeCheck = prefs.getLastPublicStorageMigrationAsked();
+		long curTime = System.currentTimeMillis();
+		if (curTime - lastTimeCheck > AppConstants.MIGRATE_PUBLIC_STORAGE_WARNING_COOLDOWN_MILLS &&
+				localRepository.findRecordsByPath(fileRepository.getPublicDir().getAbsolutePath()).size() > 0) {
+			prefs.setLastPublicStorageMigrationAsked(curTime);
+			view.showMigratePublicStorageWarning();
+		}
+	}
+
+	@Override
 	public void setAskToRename(boolean value) {
 		prefs.setAskToRenameAfterStopRecording(value);
 	}
