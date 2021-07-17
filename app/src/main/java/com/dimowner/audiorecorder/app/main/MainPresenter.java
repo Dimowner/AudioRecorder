@@ -576,7 +576,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		long lastTimeCheck = prefs.getLastPublicStorageMigrationAsked();
 		long curTime = System.currentTimeMillis();
 		if (curTime - lastTimeCheck > AppConstants.MIGRATE_PUBLIC_STORAGE_WARNING_COOLDOWN_MILLS &&
-				localRepository.findRecordsByPath(fileRepository.getPublicDir().getAbsolutePath()).size() > 0) {
+				localRepository.hasRecordsWithPath(fileRepository.getPublicDir().getAbsolutePath())) {
 			prefs.setLastPublicStorageMigrationAsked(curTime);
 			view.showMigratePublicStorageWarning();
 		}
