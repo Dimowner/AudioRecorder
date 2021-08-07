@@ -5,15 +5,27 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.databinding.ListItemFooterBinding
+import com.dimowner.audiorecorder.databinding.ListItemFooterPanelBinding
 import com.dimowner.audiorecorder.databinding.MoveRecordsItemBinding
 
 private const val TYPE_ITEM = 1
-private const val TYPE_FOOTER = 2
+private const val TYPE_FOOTER_PROGRESS = 2
+private const val TYPE_FOOTER_PANEL = 3
 
 class MoveRecordsAdapter : ListAdapter<MoveRecordsItem, RecyclerView.ViewHolder>(MoveRecordsDiffUtil) {
 
-	private var isFooterShown: Boolean = false
+	private var isFooterProgressShown: Boolean = false
+	private var isFooterPanelShown: Boolean = false
+
+	var activeItem = -1
+		set(value) {
+			val prev = field
+			field = value
+			notifyItemChanged(value)
+			notifyItemChanged(prev)
+		}
 
 	var itemClickListener: ((MoveRecordsItem) -> Unit)? = null
 
@@ -26,9 +38,14 @@ class MoveRecordsAdapter : ListAdapter<MoveRecordsItem, RecyclerView.ViewHolder>
 					itemClickListener?.invoke(getItem(position))
 				}
 			}
-			TYPE_FOOTER -> {
+			TYPE_FOOTER_PROGRESS -> {
 				FooterViewHolder(
 					ListItemFooterBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+				)
+			}
+			TYPE_FOOTER_PANEL -> {
+				FooterPanelViewHolder(
+					ListItemFooterPanelBinding.inflate(LayoutInflater.from(parent.context), parent, false)
 				)
 			}
 			else -> {
@@ -40,18 +57,34 @@ class MoveRecordsAdapter : ListAdapter<MoveRecordsItem, RecyclerView.ViewHolder>
 	override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 		if (holder is MoveRecordsItemViewHolder) {
 			holder.bind(getItem(position))
+			if (holder.absoluteAdapterPosition == activeItem) {
+				holder.binding.container.setBackgroundResource(R.color.selected_item_color)
+			} else {
+				holder.binding.container.setBackgroundResource(android.R.color.transparent)
+			}
 		}
 	}
 
 	override fun getItemCount(): Int {
 		val itemCount = super.getItemCount()
-		return if (isFooterShown) itemCount + 1 else itemCount
+		val showFooter = if (isFooterProgressShown) 1 else 0
+		val showFooterPanel = if (isFooterPanelShown) 1 else 0
+		return itemCount + showFooter + showFooterPanel
 	}
 
 	override fun getItemViewType(position: Int): Int {
 		return when {
-			isFooterShown && position >= itemCount - 1 -> {
-				TYPE_FOOTER
+			isFooterProgressShown && isFooterPanelShown && position == itemCount-2 -> {
+				TYPE_FOOTER_PROGRESS
+			}
+			isFooterProgressShown && isFooterPanelShown && position >= itemCount-1 -> {
+				TYPE_FOOTER_PANEL
+			}
+			isFooterPanelShown && position >= itemCount-1 -> {
+				TYPE_FOOTER_PANEL
+			}
+			isFooterProgressShown && position >= itemCount-1 -> {
+				TYPE_FOOTER_PROGRESS
 			}
 			else -> {
 				TYPE_ITEM
@@ -59,15 +92,29 @@ class MoveRecordsAdapter : ListAdapter<MoveRecordsItem, RecyclerView.ViewHolder>
 		}
 	}
 
-	fun showFooter(show: Boolean) {
+	fun showFooterProgress(show: Boolean) {
 		if (show) {
-			if (!isFooterShown) {
-				isFooterShown = true
+			if (!isFooterProgressShown) {
+				isFooterProgressShown = true
 				notifyItemInserted(itemCount)
 			}
 		} else {
-			if (isFooterShown) {
-				isFooterShown = false
+			if (isFooterProgressShown) {
+				isFooterProgressShown = false
+				notifyItemRemoved(itemCount)
+			}
+		}
+	}
+
+	fun showFooterPanel(show: Boolean) {
+		if (show) {
+			if (!isFooterPanelShown) {
+				isFooterPanelShown = true
+				notifyItemInserted(itemCount)
+			}
+		} else {
+			if (isFooterPanelShown) {
+				isFooterPanelShown = false
 				notifyItemRemoved(itemCount)
 			}
 		}
@@ -84,14 +131,15 @@ class MoveRecordsAdapter : ListAdapter<MoveRecordsItem, RecyclerView.ViewHolder>
 	}
 
 	internal class FooterViewHolder(binding: ListItemFooterBinding) : RecyclerView.ViewHolder(binding.root)
+	internal class FooterPanelViewHolder(binding: ListItemFooterPanelBinding) : RecyclerView.ViewHolder(binding.root)
 
 	internal class MoveRecordsItemViewHolder(
-		private val binding: MoveRecordsItemBinding,
+		val binding: MoveRecordsItemBinding,
 		itemClickListener: ((Int) -> Unit)? = null
 	): RecyclerView.ViewHolder(binding.root) {
 
 		init {
-			binding.listItemDelete.setOnClickListener { itemClickListener?.invoke(bindingAdapterPosition) }
+			binding.container.setOnClickListener { itemClickListener?.invoke(bindingAdapterPosition) }
 		}
 
 		fun bind(item: MoveRecordsItem) {

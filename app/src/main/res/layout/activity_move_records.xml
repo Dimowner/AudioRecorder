@@ -13,110 +13,283 @@
   ~  See the License for the specific language governing permissions and
   ~  limitations under the License.
   -->
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 		xmlns:tools="http://schemas.android.com/tools"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:orientation="vertical">
 
 	<LinearLayout
-			android:id="@+id/toolbar"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:orientation="horizontal">
+			android:layout_height="match_parent"
+			android:orientation="vertical">
 
-		<ImageButton
-				android:id="@+id/btnBack"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:contentDescription="@null"
-				android:layout_gravity="start"
-				android:visibility="invisible"
-				android:background="?android:selectableItemBackgroundBorderless"
-				android:padding="@dimen/spacing_normal"
-				android:src="@drawable/ic_arrow_back"/>
-
-		<TextView
-				android:id="@+id/txtTitle"
-				style="@style/Text.SectionLabel"
-				android:layout_width="0dp"
-				android:layout_height="@dimen/toolbar_height"
-				android:layout_weight="1"
-				android:gravity="center"
-				android:paddingStart="@dimen/spacing_normal"
-				android:paddingLeft="@dimen/spacing_normal"
-				android:paddingEnd="@dimen/spacing_normal"
-				android:paddingRight="@dimen/spacing_normal"
-				android:text="@string/move_records"
-				android:textColor="@color/text_primary_light" />
-
-		<ImageButton
-				android:id="@+id/btnInfo"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:contentDescription="@null"
-				android:layout_gravity="start"
-				android:background="?android:selectableItemBackgroundBorderless"
-				android:padding="@dimen/spacing_normal"
-				android:src="@drawable/ic_info"/>
-	</LinearLayout>
-
-	<TextView
-			android:id="@+id/txtCount"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginStart="@dimen/spacing_normal"
-			android:layout_marginEnd="@dimen/spacing_normal"
-			android:gravity="start"
-			android:textColor="@color/text_primary_light"
-			android:textSize="@dimen/text_large"
-			tools:text="Wav" />
-
-	<Button
-			android:id="@+id/btnStart"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_margin="@dimen/spacing_small"
-			android:text="Start"
-			/>
-
-	<Button
-			android:id="@+id/btnEnd"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_margin="@dimen/spacing_small"
-			android:text="End"
-			/>
-
-	<FrameLayout
-			android:layout_width="match_parent"
-			android:layout_height="match_parent">
-
-		<androidx.recyclerview.widget.RecyclerView
-				android:id="@+id/recyclerView"
+		<LinearLayout
+				android:id="@+id/toolbar"
 				android:layout_width="match_parent"
-				android:layout_height="match_parent" />
+				android:layout_height="wrap_content"
+				android:orientation="horizontal">
+
+			<ImageButton
+					android:id="@+id/btnBack"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:contentDescription="@null"
+					android:layout_gravity="start"
+					android:visibility="invisible"
+					android:background="?android:selectableItemBackgroundBorderless"
+					android:padding="@dimen/spacing_normal"
+					android:src="@drawable/ic_arrow_back"/>
+
+			<TextView
+					android:id="@+id/txtTitle"
+					style="@style/Text.SectionLabel"
+					android:layout_width="0dp"
+					android:layout_height="@dimen/toolbar_height"
+					android:layout_weight="1"
+					android:gravity="center"
+					android:paddingStart="@dimen/spacing_normal"
+					android:paddingLeft="@dimen/spacing_normal"
+					android:paddingEnd="@dimen/spacing_normal"
+					android:paddingRight="@dimen/spacing_normal"
+					android:text="@string/move_records"
+					android:textColor="@color/text_primary_light" />
+
+			<ImageButton
+					android:id="@+id/btnInfo"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:contentDescription="@null"
+					android:layout_gravity="start"
+					android:background="?android:selectableItemBackgroundBorderless"
+					android:padding="@dimen/spacing_normal"
+					android:src="@drawable/ic_info"/>
+		</LinearLayout>
 
 		<TextView
-				android:id="@+id/txtEmpty"
-				android:layout_width="wrap_content"
+				android:id="@+id/txtCount"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_gravity="center"
-				android:drawableTop="@drawable/ic_audiotrack_64"
-				android:drawablePadding="@dimen/spacing_small"
-				android:gravity="center"
-				android:text="@string/empty"
+				android:layout_marginStart="@dimen/spacing_normal"
+				android:layout_marginEnd="@dimen/spacing_normal"
+				android:gravity="start"
 				android:textColor="@color/text_primary_light"
 				android:textSize="@dimen/text_large"
-				android:visibility="gone"
-				tools:visibility="visible" />
+				tools:text="Wav" />
 
-		<ProgressBar
-				android:id="@+id/progress"
-				android:layout_width="wrap_content"
+	<!--	<Button-->
+	<!--			android:id="@+id/btnStart"-->
+	<!--			android:layout_width="wrap_content"-->
+	<!--			android:layout_height="wrap_content"-->
+	<!--			android:layout_margin="@dimen/spacing_small"-->
+	<!--			android:text="Start"-->
+	<!--			/>-->
+
+	<!--	<Button-->
+	<!--			android:id="@+id/btnEnd"-->
+	<!--			android:layout_width="wrap_content"-->
+	<!--			android:layout_height="wrap_content"-->
+	<!--			android:layout_margin="@dimen/spacing_small"-->
+	<!--			android:text="End"-->
+	<!--			/>-->
+
+		<FrameLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent">
+
+			<androidx.recyclerview.widget.RecyclerView
+					android:id="@+id/recyclerView"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent" />
+
+			<TextView
+					android:id="@+id/txtEmpty"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"
+					android:drawableTop="@drawable/ic_audiotrack_64"
+					android:drawablePadding="@dimen/spacing_small"
+					android:gravity="center"
+					android:text="@string/empty"
+					android:textColor="@color/text_primary_light"
+					android:textSize="@dimen/text_large"
+					android:visibility="gone"
+					tools:visibility="visible" />
+
+			<ProgressBar
+					android:id="@+id/progress"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center" />
+
+		</FrameLayout>
+	</LinearLayout>
+
+	<com.dimowner.audiorecorder.app.widget.TouchLayout
+			android:id="@+id/touchLayout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:clipToPadding="false"
+			android:layout_gravity="bottom"
+			android:layout_marginBottom="2dp"
+			android:layout_marginStart="2dp"
+			android:layout_marginEnd="2dp"
+			android:elevation="@dimen/toolbar_elevation"
+			android:visibility="gone"
+			android:background="@drawable/panel_amber"
+			tools:visibility="visible">
+
+		<LinearLayout
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_gravity="center" />
+				android:orientation="vertical">
 
-	</FrameLayout>
-</LinearLayout>
+			<FrameLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content">
+
+				<TextView
+						android:id="@+id/txtProgress"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center"
+						android:padding="@dimen/spacing_tiny"
+						android:textColor="@color/text_primary_light"
+						android:textSize="@dimen/text_large"
+						android:fontFamily="sans-serif-medium"
+						tools:text="00:00:00"/>
+
+				<ImageButton
+						android:id="@+id/btnDecoding"
+						android:layout_width="48dp"
+						android:layout_height="wrap_content"
+						android:layout_gravity="center_vertical|start"
+						android:layout_marginStart="@dimen/spacing_small"
+						android:adjustViewBounds="true"
+						android:background="?android:selectableItemBackgroundBorderless"
+						android:contentDescription="@null"
+						android:scaleType="center"
+						android:visibility="gone"
+						android:src="@drawable/ic_loop" />
+
+				<ImageButton
+						android:id="@+id/btnCheckBookmark"
+						android:layout_width="48dp"
+						android:layout_height="40dp"
+						android:adjustViewBounds="true"
+						android:background="?android:selectableItemBackgroundBorderless"
+						android:contentDescription="@null"
+						android:layout_gravity="center_vertical|end"
+						android:scaleType="center"
+						android:layout_marginEnd="@dimen/spacing_small"
+						android:visibility="invisible"
+						android:src="@drawable/ic_bookmark_bordered"/>
+			</FrameLayout>
+
+			<FrameLayout
+					android:layout_width="match_parent"
+					android:layout_height="60dp"
+					>
+
+				<com.dimowner.audiorecorder.app.widget.WaveformViewNew
+						android:id="@+id/waveformView"
+						android:layout_width="wrap_content"
+						android:layout_height="60dp"
+						android:layout_gravity="center"
+						/>
+
+				<ProgressBar
+						android:id="@+id/waveProgress"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:visibility="gone"
+						android:layout_gravity="center"/>
+
+			</FrameLayout>
+
+			<FrameLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginBottom="@dimen/spacing_tiny">
+
+				<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="start|bottom"
+						android:textColor="@color/text_primary_light"
+						android:layout_marginStart="@dimen/spacing_small"
+						android:textSize="@dimen/text_normal"
+						android:text="@string/zero_time"/>
+
+				<TextView
+						android:id="@+id/txtName"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="bottom|center_horizontal"
+						android:padding="@dimen/spacing_tiny"
+						android:textColor="@color/text_primary_light"
+						android:textSize="@dimen/text_xmedium"
+						android:maxLines="2"
+						android:ellipsize="end"
+						android:layout_marginStart="@dimen/spacing_xdouble"
+						android:layout_marginEnd="@dimen/spacing_xdouble"
+						tools:text="Record 2321"/>
+
+				<TextView
+						android:id="@+id/txtDuration"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_gravity="end|bottom"
+						android:textColor="@color/text_primary_light"
+						android:layout_marginEnd="@dimen/spacing_small"
+						android:textSize="@dimen/text_normal"
+						tools:text="34:56"/>
+
+			</FrameLayout>
+
+			<SeekBar
+					android:id="@+id/playProgress"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:max="1000"
+					android:progress="20"
+					/>
+			<LinearLayout
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="bottom|center_horizontal"
+					android:layout_marginBottom="@dimen/spacing_tiny"
+					android:layout_marginTop="@dimen/spacing_tiny"
+					android:orientation="horizontal">
+
+				<ImageButton
+						android:id="@+id/btnPlay"
+						android:layout_width="@dimen/bottom_pnl_small_btn_size2"
+						android:layout_height="@dimen/bottom_pnl_small_btn_size2"
+						android:adjustViewBounds="true"
+						android:background="?android:selectableItemBackgroundBorderless"
+						android:contentDescription="@null"
+						android:layout_gravity="center"
+						android:scaleType="center"
+						android:layout_marginStart="@dimen/spacing_medium"
+						android:layout_marginEnd="@dimen/spacing_medium"
+						android:tint="@color/white"
+						android:src="@drawable/ic_play"/>
+
+				<ImageButton
+						android:id="@+id/btnStop"
+						android:layout_width="@dimen/bottom_pnl_small_btn_size2"
+						android:layout_height="@dimen/bottom_pnl_small_btn_size2"
+						android:adjustViewBounds="true"
+						android:background="?android:selectableItemBackgroundBorderless"
+						android:contentDescription="@null"
+						android:layout_gravity="center"
+						android:scaleType="center"
+						android:layout_marginStart="@dimen/spacing_medium"
+						android:layout_marginEnd="@dimen/spacing_medium"
+						android:src="@drawable/ic_stop"/>
+
+			</LinearLayout>
+		</LinearLayout>
+	</com.dimowner.audiorecorder.app.widget.TouchLayout>
+</FrameLayout>

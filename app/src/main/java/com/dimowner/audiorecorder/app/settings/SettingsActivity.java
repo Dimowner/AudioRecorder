@@ -69,6 +69,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private TextView txtStorageInfo;
 	private TextView txtFileBrowser;
 	private TextView txtMigratePublicStorage;
+	private View migratePublicStoragePanel;
 	private View panelPublicDir;
 
 	private Switch swPublicDir;
@@ -137,6 +138,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		txtInformation = findViewById(R.id.txt_information);
 		txtLocation = findViewById(R.id.txt_records_location);
 		txtStorageInfo = findViewById(R.id.txt_storage_info);
+		migratePublicStoragePanel = findViewById(R.id.migrate_public_storage_panel);
 		txtMigratePublicStorage = findViewById(R.id.txt_migrate_public_storage);
 		txtMigratePublicStorage.setOnClickListener(this);
 		txtLocation.setOnClickListener(this);
@@ -425,7 +427,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	@Override
 	public void showMigratePublicStorage(boolean b) {
-		txtMigratePublicStorage.setVisibility(b ? View.VISIBLE : View.GONE);
+		migratePublicStoragePanel.setVisibility(b ? View.VISIBLE : View.GONE);
 	}
 
 	@Override

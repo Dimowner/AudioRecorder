@@ -220,10 +220,11 @@ public class Injector {
 		if (moveRecordsViewModel == null) {
 			moveRecordsViewModel = new MoveRecordsViewModel(
 					provideLoadingTasksQueue(),
-					provideRecordingTasksQueue(),
 					provideLocalRepository(),
 					provideFileRepository(),
 					provideSettingsMapper(),
+					provideAudioPlayer(),
+					provideAppRecorder(),
 					providePrefs()
 			);
 		}
