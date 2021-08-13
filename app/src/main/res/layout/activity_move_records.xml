@@ -67,31 +67,17 @@
 		</LinearLayout>
 
 		<TextView
-				android:id="@+id/txtCount"
+				android:id="@+id/txtCountAndLocation"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginStart="@dimen/spacing_normal"
-				android:layout_marginEnd="@dimen/spacing_normal"
+				android:paddingHorizontal="@dimen/spacing_normal"
+				android:paddingVertical="@dimen/spacing_small"
+				android:background="?android:selectableItemBackground"
 				android:gravity="start"
-				android:textColor="@color/text_primary_light"
-				android:textSize="@dimen/text_large"
-				tools:text="Wav" />
-
-	<!--	<Button-->
-	<!--			android:id="@+id/btnStart"-->
-	<!--			android:layout_width="wrap_content"-->
-	<!--			android:layout_height="wrap_content"-->
-	<!--			android:layout_margin="@dimen/spacing_small"-->
-	<!--			android:text="Start"-->
-	<!--			/>-->
-
-	<!--	<Button-->
-	<!--			android:id="@+id/btnEnd"-->
-	<!--			android:layout_width="wrap_content"-->
-	<!--			android:layout_height="wrap_content"-->
-	<!--			android:layout_margin="@dimen/spacing_small"-->
-	<!--			android:text="End"-->
-	<!--			/>-->
+				android:fontFamily="sans-serif-light"
+				android:textColor="@color/text_secondary_light"
+				android:textSize="@dimen/text_medium"
+				tools:text="Count: 10" />
 
 		<FrameLayout
 				android:layout_width="match_parent"

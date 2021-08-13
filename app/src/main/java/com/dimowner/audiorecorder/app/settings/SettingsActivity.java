@@ -149,6 +149,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		findViewById(R.id.btnTrash).setOnClickListener(this);
 		findViewById(R.id.btnRate).setOnClickListener(this);
 		findViewById(R.id.btnRequest).setOnClickListener(this);
+		findViewById(R.id.btnMigratePublicStorageInfo).setOnClickListener(this);
 		panelPublicDir = findViewById(R.id.panelPublicDir);
 		txtFileBrowser = findViewById(R.id.btn_file_browser);
 		txtFileBrowser.setOnClickListener(this);
@@ -337,7 +338,11 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			ARApplication.getInjector().releaseSettingsPresenter();
 			finish();
 		} else if (id == R.id.btnMigratePublicStorageInfo) {
-			//TODO: Show info dialog here
+			AndroidUtils.showDialog(this, -1, R.string.view_records, -1,
+					R.string.move_records_needed, R.string.move_records_info, true,
+					view -> {
+						startActivity(MoveRecordsActivity.Companion.getStartIntent(getApplicationContext()));
+					}, null);
 		} else if (id == R.id.txt_migrate_public_storage) {
 			startActivity(MoveRecordsActivity.Companion.getStartIntent(getApplicationContext()));
 		} else if (id == R.id.btnTrash) {

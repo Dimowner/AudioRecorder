@@ -142,6 +142,10 @@
 	<string name="btn_apply">Apply</string>
 	<string name="btn_reset">Reset</string>
 	<string name="btn_next">Next</string>
+	<string name="records_count_and_location">Records path: %s\n%d records to move</string>
+	<string name="view_records">View records</string>
+	<string name="move_records_needed">Move records needed</string>
+	<string name="move_records_info">Some of your records still stored in the public storage. Soon the public storage will become not available for the app. We need to move that records to the app\'s private directory.</string>
 	<string name="info_format"><b>M4a</b> format is encoded with AAC audio codec has good quality and small size. <b>(recommended)</b>
 		\n<b>Wav</b> is uncompressed audio data format. It takes much more space than other formats. It\'s needed for specific cases.
 		\n<b>3gp</b> is a multimedia container format developed for mobile telecommunication services. Use it if you need to save space.

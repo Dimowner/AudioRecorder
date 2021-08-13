@@ -9,7 +9,8 @@ data class MoveRecordsScreenState(
 	val list: List<MoveRecordsItem> = emptyList(),
 	val showFooterProgressItem: Boolean = false,
 	val showProgress: Boolean = false,
-	val count: Int = 0,
+	val recordsCount: Int = 0,
+	val recordsLocation: String = "",
 	val isShowPlayPanel: Boolean = false,
 	val activeRecordId: Int = -1,
 	val activeRecordPos: Int = -1

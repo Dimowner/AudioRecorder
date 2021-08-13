@@ -49,6 +49,10 @@ class MoveRecordsViewModel(
 	init {
 		loadingTasks.postRunnable{
 			val records = getPublicRecords()
+			setState(uiState.value.copy(
+				recordsCount = records.size,
+				recordsLocation = fileRepository.publicDir.absolutePath
+			))
 			val activeRecordId = prefs.activeRecord.toInt()
 			if (activeRecordId > -1 && (audioPlayer.isPlaying() || audioPlayer.isPaused())) {
 				var activeItemPos = -1
@@ -230,21 +234,25 @@ class MoveRecordsViewModel(
 			PlayState.PLAYING,
 			PlayState.PAUSED -> {
 				audioPlayer.stop()
-				setState(uiState.value.copy(
-					isShowPlayPanel = false,
-					activeRecordPos = -1,
-					activeRecordId = -1
-				))
 				setPlayState(MoveRecordsPlayPanelState())
 			}
 			else -> {
 				//Do nothing
 			}
 		}
+		setState(uiState.value.copy(
+			isShowPlayPanel = false,
+			activeRecordPos = -1,
+			activeRecordId = -1
+		))
 	}
 
 	fun seekPlayback(mills: Long) {
 		audioPlayer.seek(mills)
+	}
+
+	fun openRecordsLocation() {
+		emitEvent(MoveRecordsEvent.OpenRecordsLocation(fileRepository.publicDir))
 	}
 
 	private fun getPublicRecords(): List<Record> {
@@ -273,4 +281,5 @@ class MoveRecordsViewModel(
 sealed class MoveRecordsEvent {
 	data class ShowError(@StringRes val resId: Int) : MoveRecordsEvent()
 	data class StartPlaybackService(val name: String) : MoveRecordsEvent()
+	data class OpenRecordsLocation(val file: File) : MoveRecordsEvent()
 }

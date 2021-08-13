@@ -19,12 +19,15 @@ package com.dimowner.audiorecorder.app.moverecords
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.provider.DocumentsContract
 import android.view.ViewPropertyAnimator
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dimowner.audiorecorder.ARApplication
 import com.dimowner.audiorecorder.R
@@ -37,6 +40,8 @@ import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.util.isVisible
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
+import timber.log.Timber
+import java.io.File
 
 @ExperimentalCoroutinesApi
 class MoveRecordsActivity : Activity() {
@@ -78,6 +83,14 @@ class MoveRecordsActivity : Activity() {
 		binding.btnStop.setOnClickListener {
 			viewModel.stopPlayback()
 		}
+		binding.btnInfo.setOnClickListener {
+			AndroidUtils.showDialog(this, -1, R.string.btn_ok, -1,
+				R.string.move_records_needed, R.string.move_records_info, true, {}, null)
+		}
+		binding.txtCountAndLocation.setOnClickListener {
+			viewModel.openRecordsLocation()
+		}
+
 		adapter.itemClickListener = {
 			//TODO: Need public storage permission
 			viewModel.startPlaybackById(it.id)
@@ -144,7 +157,11 @@ class MoveRecordsActivity : Activity() {
 
 	private fun onScreenUpdate(state: MoveRecordsScreenState) {
 		binding.progress.isVisible = state.showProgress
-		binding.txtCount.text = "Count = " + state.count
+		binding.txtCountAndLocation.text = getString(
+			R.string.records_count_and_location,
+			state.recordsLocation,
+			state.recordsCount
+		)
 		adapter.showFooterProgress(state.showFooterProgressItem)
 		adapter.submitList(state.list)
 		adapter.activeItem = state.activeRecordPos
@@ -174,6 +191,9 @@ class MoveRecordsActivity : Activity() {
 		when (event) {
 			is MoveRecordsEvent.StartPlaybackService -> {
 				PlaybackService.startServiceForeground(applicationContext, event.name)
+			}
+			is MoveRecordsEvent.OpenRecordsLocation -> {
+				openRecordsLocation(event.file)
 			}
 			is MoveRecordsEvent.ShowError -> {}
 		}
@@ -218,6 +238,23 @@ class MoveRecordsActivity : Activity() {
 					}
 				})
 				.start()
+		}
+	}
+
+	private fun openRecordsLocation(file: File) {
+		val intent = Intent(Intent.ACTION_VIEW)
+		val fileUri = FileProvider.getUriForFile(
+			applicationContext,
+			applicationContext.packageName + ".app_file_provider",
+			file
+		)
+		intent.setDataAndType(fileUri, DocumentsContract.Document.MIME_TYPE_DIR)
+		intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+		try {
+			startActivity(intent)
+		} catch (e: ActivityNotFoundException) {
+			Timber.e(e)
 		}
 	}
 
