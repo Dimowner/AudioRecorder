@@ -2,6 +2,7 @@ package com.dimowner.audiorecorder.app.moverecords
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -9,6 +10,7 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.databinding.ListItemFooterBinding
 import com.dimowner.audiorecorder.databinding.ListItemFooterPanelBinding
 import com.dimowner.audiorecorder.databinding.MoveRecordsItemBinding
+import com.dimowner.audiorecorder.util.RippleUtils
 
 private const val TYPE_ITEM = 1
 private const val TYPE_FOOTER_PROGRESS = 2
@@ -28,15 +30,18 @@ class MoveRecordsAdapter : ListAdapter<MoveRecordsItem, RecyclerView.ViewHolder>
 		}
 
 	var itemClickListener: ((MoveRecordsItem) -> Unit)? = null
+	var moveRecordClickListener: ((MoveRecordsItem) -> Unit)? = null
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
 		return when (viewType) {
 			TYPE_ITEM -> {
 				return MoveRecordsItemViewHolder(
-					MoveRecordsItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-				) { position ->
-					itemClickListener?.invoke(getItem(position))
-				}
+					MoveRecordsItemBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+					{ position ->
+						itemClickListener?.invoke(getItem(position))
+					}, { position ->
+						moveRecordClickListener?.invoke(getItem(position))
+					})
 			}
 			TYPE_FOOTER_PROGRESS -> {
 				FooterViewHolder(
@@ -135,11 +140,19 @@ class MoveRecordsAdapter : ListAdapter<MoveRecordsItem, RecyclerView.ViewHolder>
 
 	internal class MoveRecordsItemViewHolder(
 		val binding: MoveRecordsItemBinding,
-		itemClickListener: ((Int) -> Unit)? = null
+		itemClickListener: ((Int) -> Unit)? = null,
+		moveRecordsClickListener: ((Int) -> Unit)? = null
 	): RecyclerView.ViewHolder(binding.root) {
 
 		init {
 			binding.container.setOnClickListener { itemClickListener?.invoke(bindingAdapterPosition) }
+			binding.listItemDelete.setOnClickListener { moveRecordsClickListener?.invoke(bindingAdapterPosition)  }
+			binding.btnMove.setOnClickListener { }
+			binding.btnMove.background = RippleUtils.createRippleShape(
+				ContextCompat.getColor(binding.btnMove.context, R.color.white_transparent_80),
+				ContextCompat.getColor(binding.btnMove.context, R.color.white_transparent_80),
+				binding.btnMove.context.resources.getDimension(R.dimen.spacing_normal)
+			)
 		}
 
 		fun bind(item: MoveRecordsItem) {

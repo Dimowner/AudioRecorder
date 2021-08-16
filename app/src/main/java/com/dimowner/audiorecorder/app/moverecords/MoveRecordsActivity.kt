@@ -27,6 +27,7 @@ import android.provider.DocumentsContract
 import android.view.ViewPropertyAnimator
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dimowner.audiorecorder.ARApplication
@@ -36,6 +37,7 @@ import com.dimowner.audiorecorder.app.widget.TouchLayout.ThresholdListener
 import com.dimowner.audiorecorder.app.widget.WaveformViewNew
 import com.dimowner.audiorecorder.databinding.ActivityMoveRecordsBinding
 import com.dimowner.audiorecorder.util.AndroidUtils
+import com.dimowner.audiorecorder.util.RippleUtils
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.util.isVisible
 import kotlinx.coroutines.*
@@ -62,6 +64,8 @@ class MoveRecordsActivity : Activity() {
 		val view = binding.root
 		setContentView(view)
 
+		showInfoDialog()
+
 		viewModel = ARApplication.getInjector().provideMoveRecordsViewModel()
 
 		binding.recyclerView.layoutManager = LinearLayoutManager(applicationContext)
@@ -77,6 +81,13 @@ class MoveRecordsActivity : Activity() {
 			viewModel.event.collect { handleViewEvent(it) }
 		}
 
+		binding.btnMoveAll.background = RippleUtils.createRippleShape(
+			ContextCompat.getColor(applicationContext, R.color.white_transparent_80),
+			ContextCompat.getColor(applicationContext, R.color.white_transparent_80),
+			applicationContext.resources.getDimension(R.dimen.spacing_normal)
+		)
+		binding.btnMoveAll.setOnClickListener {
+		}
 		binding.btnPlay.setOnClickListener {
 			viewModel.startPlayback()
 		}
@@ -84,8 +95,7 @@ class MoveRecordsActivity : Activity() {
 			viewModel.stopPlayback()
 		}
 		binding.btnInfo.setOnClickListener {
-			AndroidUtils.showDialog(this, -1, R.string.btn_ok, -1,
-				R.string.move_records_needed, R.string.move_records_info, true, {}, null)
+			showInfoDialog()
 		}
 		binding.txtCountAndLocation.setOnClickListener {
 			viewModel.openRecordsLocation()
@@ -94,6 +104,10 @@ class MoveRecordsActivity : Activity() {
 		adapter.itemClickListener = {
 			//TODO: Need public storage permission
 			viewModel.startPlaybackById(it.id)
+		}
+		adapter.moveRecordClickListener = {
+			//TODO: Need public storage permission
+			MoveRecordsService.startNotification(applicationContext, it.id)
 		}
 		binding.waveformView.showTimeline(false)
 
@@ -155,13 +169,24 @@ class MoveRecordsActivity : Activity() {
 		})
 	}
 
+	private fun showInfoDialog() {
+		AndroidUtils.showDialog(
+			this,
+			-1,
+			R.string.btn_ok,
+			-1,
+			R.string.move_records_needed,
+			R.string.move_records_info,
+			true,
+			{},
+			null
+		)
+	}
+
 	private fun onScreenUpdate(state: MoveRecordsScreenState) {
 		binding.progress.isVisible = state.showProgress
-		binding.txtCountAndLocation.text = getString(
-			R.string.records_count_and_location,
-			state.recordsLocation,
-			state.recordsCount
-		)
+		binding.txtCountAndLocation.text = getString(R.string.records_location, state.recordsLocation)
+		binding.txtTitle.text = getString(R.string.move_records, state.recordsCount)
 		adapter.showFooterProgress(state.showFooterProgressItem)
 		adapter.submitList(state.list)
 		adapter.activeItem = state.activeRecordPos

@@ -37,17 +37,6 @@
 			android:layout_marginTop="@dimen/spacing_small"
 			android:layout_gravity="center_vertical">
 
-<!--		<TextView-->
-<!--				android:id="@+id/listItemName"-->
-<!--				android:layout_width="wrap_content"-->
-<!--				android:layout_height="wrap_content"-->
-<!--				android:textSize="@dimen/text_large"-->
-<!--				android:textColor="@color/text_primary_light"-->
-<!--				android:fontFamily="sans-serif-medium"-->
-<!--				android:ellipsize="end"-->
-<!--				android:maxLines="2"-->
-<!--				tools:text="Record-30.m4a" />-->
-
 		<TextView
 				android:id="@+id/listItemName"
 				android:layout_width="wrap_content"
@@ -63,17 +52,6 @@
 				tools:text="Record-30.m4a"
 				/>
 
-<!--		<TextView-->
-<!--				android:id="@+id/list_item_duration"-->
-<!--				android:layout_width="wrap_content"-->
-<!--				android:layout_height="wrap_content"-->
-<!--				android:textSize="@dimen/text_medium"-->
-<!--				android:textColor="@color/text_secondary_light"-->
-<!--				tools:text="22:33"-->
-<!--				android:layout_gravity="start"-->
-<!--				android:paddingStart="@dimen/spacing_tiny"-->
-<!--				android:paddingEnd="@dimen/spacing_small"-->
-<!--				android:maxLines="1"/>-->
 		<TextView
 				android:id="@+id/listItemInfo"
 				android:layout_width="wrap_content"
@@ -90,18 +68,20 @@
 				android:textSize="@dimen/text_normal"
 				tools:text="M4a, 44.1kHz, 128kbps, Stereo" />
 
-<!--		<TextView-->
-<!--				android:id="@+id/list_item_location"-->
-<!--				android:layout_width="wrap_content"-->
-<!--				android:layout_height="wrap_content"-->
-<!--				android:textSize="@dimen/text_normal"-->
-<!--				android:textColor="@color/text_primary_light2"-->
-<!--				tools:text="/storage/emulated/0/AudioRecorder/Record-30.m4a"-->
-<!--				android:layout_gravity="start"-->
-<!--				android:paddingStart="@dimen/spacing_tiny"-->
-<!--				android:paddingEnd="@dimen/spacing_small" />-->
-
 	</LinearLayout>
+
+	<TextView
+			android:id="@+id/btnMove"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_vertical"
+			android:paddingVertical="@dimen/spacing_small"
+			android:paddingHorizontal="@dimen/spacing_normal"
+			android:layout_marginEnd="@dimen/spacing_small"
+			android:textStyle="bold"
+			android:textColor="@color/white"
+			android:textSize="@dimen/text_normal"
+			android:text="@string/move" />
 
 	<ImageButton
 			android:id="@+id/listItemDelete"
@@ -111,6 +91,7 @@
 			android:contentDescription="@null"
 			android:paddingEnd="@dimen/spacing_normal"
 			android:paddingStart="@dimen/spacing_normal"
+			android:visibility="gone"
 			android:layout_gravity="center_vertical|end"
 			android:src="@drawable/ic_more_vert"/>
 

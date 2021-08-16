@@ -142,7 +142,6 @@
 	<string name="btn_apply">Apply</string>
 	<string name="btn_reset">Reset</string>
 	<string name="btn_next">Next</string>
-	<string name="records_count_and_location">Records path: %s\n%d records to move</string>
 	<string name="view_records">View records</string>
 	<string name="move_records_needed">Move records needed</string>
 	<string name="move_records_info">Some of your records still stored in the public storage. Soon the public storage will become not available for the app. We need to move that records to the app\'s private directory.</string>
@@ -195,7 +194,7 @@
 	<string name="records_location">Records location:\n%s</string>
 	<string name="feature_not_available_in_android_10">This feature is no longer available in Android 10 or higher.</string>
 	<string name="size">%s Mb</string>
-	<string name="move_records">Move records</string>
+	<string name="move_records">Move %d records</string>
 
 	<string name="error_unknown">Unexpected error</string>
 	<string name="error_cant_create_file">Can\'t create file</string>
@@ -219,6 +218,7 @@
 	<string name="move_public_storage_records_message">Move public storage records is needed</string>
 	<string name="later">Later</string>
 	<string name="move">Move</string>
+	<string name="move_all">Move all</string>
 
 	<!-- Shown in the 'About' window of the app. -->
 	<string name="about_body"><![CDATA[

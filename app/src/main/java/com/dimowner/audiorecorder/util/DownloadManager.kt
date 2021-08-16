@@ -200,6 +200,32 @@ private fun downloadFile28(context: Context, sourceFile: File, listener: OnCopyL
 	}
 }
 
+fun copyFileToDir(context: Context, sourceFile: File, destinationFile: File, listener: OnCopyListener?) {
+	val sourceName = sourceFile.name
+	FileUtil.copyFile(sourceFile, destinationFile,
+		object : OnCopyListener {
+			override fun isCancel(): Boolean {
+				return listener?.isCancel ?: false
+			}
+
+			override fun onCopyProgress(percent: Int) {
+				listener?.onCopyProgress(percent)
+			}
+
+			override fun onCanceled() {
+				listener?.onCanceled()
+			}
+
+			override fun onCopyFinish(message: String?) {
+				listener?.onCopyFinish(context.resources.getString(R.string.downloading_success, sourceName))
+			}
+
+			override fun onError(message: String?) {
+				listener?.onError(context.resources.getString(R.string.downloading_failed, sourceName))
+			}
+		})
+}
+
 private fun isUriFileAlreadyExists(context: Context, name: String): Boolean {
 	val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
 //	val cursor = context.contentResolver.query(MediaStore.Downloads.EXTERNAL_CONTENT_URI, projection, null, null, null, null)

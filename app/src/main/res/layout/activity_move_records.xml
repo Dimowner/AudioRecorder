@@ -31,15 +31,14 @@
 				android:orientation="horizontal">
 
 			<ImageButton
-					android:id="@+id/btnBack"
+					android:id="@+id/btnInfo"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:contentDescription="@null"
-					android:layout_gravity="start"
-					android:visibility="invisible"
+					android:layout_gravity="center_vertical"
 					android:background="?android:selectableItemBackgroundBorderless"
 					android:padding="@dimen/spacing_normal"
-					android:src="@drawable/ic_arrow_back"/>
+					android:src="@drawable/ic_info"/>
 
 			<TextView
 					android:id="@+id/txtTitle"
@@ -47,23 +46,25 @@
 					android:layout_width="0dp"
 					android:layout_height="@dimen/toolbar_height"
 					android:layout_weight="1"
-					android:gravity="center"
-					android:paddingStart="@dimen/spacing_normal"
-					android:paddingLeft="@dimen/spacing_normal"
+					android:gravity="start|center_vertical"
+					android:paddingStart="@dimen/spacing_tiny"
 					android:paddingEnd="@dimen/spacing_normal"
-					android:paddingRight="@dimen/spacing_normal"
 					android:text="@string/move_records"
 					android:textColor="@color/text_primary_light" />
 
-			<ImageButton
-					android:id="@+id/btnInfo"
+			<TextView
+					android:id="@+id/btnMoveAll"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:contentDescription="@null"
-					android:layout_gravity="start"
-					android:background="?android:selectableItemBackgroundBorderless"
-					android:padding="@dimen/spacing_normal"
-					android:src="@drawable/ic_info"/>
+					android:layout_gravity="center_vertical"
+					android:paddingVertical="@dimen/spacing_medium"
+					android:paddingHorizontal="@dimen/spacing_xnormal"
+					android:layout_margin="@dimen/spacing_small"
+					android:textStyle="bold"
+					android:textColor="@color/white"
+					android:textSize="@dimen/text_normal"
+					android:text="@string/move_all" />
+
 		</LinearLayout>
 
 		<TextView
@@ -130,47 +131,16 @@
 				android:layout_height="wrap_content"
 				android:orientation="vertical">
 
-			<FrameLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content">
-
-				<TextView
-						android:id="@+id/txtProgress"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:layout_gravity="center"
-						android:padding="@dimen/spacing_tiny"
-						android:textColor="@color/text_primary_light"
-						android:textSize="@dimen/text_large"
-						android:fontFamily="sans-serif-medium"
-						tools:text="00:00:00"/>
-
-				<ImageButton
-						android:id="@+id/btnDecoding"
-						android:layout_width="48dp"
-						android:layout_height="wrap_content"
-						android:layout_gravity="center_vertical|start"
-						android:layout_marginStart="@dimen/spacing_small"
-						android:adjustViewBounds="true"
-						android:background="?android:selectableItemBackgroundBorderless"
-						android:contentDescription="@null"
-						android:scaleType="center"
-						android:visibility="gone"
-						android:src="@drawable/ic_loop" />
-
-				<ImageButton
-						android:id="@+id/btnCheckBookmark"
-						android:layout_width="48dp"
-						android:layout_height="40dp"
-						android:adjustViewBounds="true"
-						android:background="?android:selectableItemBackgroundBorderless"
-						android:contentDescription="@null"
-						android:layout_gravity="center_vertical|end"
-						android:scaleType="center"
-						android:layout_marginEnd="@dimen/spacing_small"
-						android:visibility="invisible"
-						android:src="@drawable/ic_bookmark_bordered"/>
-			</FrameLayout>
+			<TextView
+					android:id="@+id/txtProgress"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center"
+					android:padding="@dimen/spacing_tiny"
+					android:textColor="@color/text_primary_light"
+					android:textSize="@dimen/text_large"
+					android:fontFamily="sans-serif-medium"
+					tools:text="00:00:00"/>
 
 			<FrameLayout
 					android:layout_width="match_parent"
