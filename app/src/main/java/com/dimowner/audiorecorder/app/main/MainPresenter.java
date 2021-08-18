@@ -573,12 +573,20 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void checkPublicStorageRecords() {
-		long lastTimeCheck = prefs.getLastPublicStorageMigrationAsked();
-		long curTime = System.currentTimeMillis();
-		if (curTime - lastTimeCheck > AppConstants.MIGRATE_PUBLIC_STORAGE_WARNING_COOLDOWN_MILLS &&
-				localRepository.hasRecordsWithPath(fileRepository.getPublicDir().getAbsolutePath())) {
-			prefs.setLastPublicStorageMigrationAsked(curTime);
-			view.showMigratePublicStorageWarning();
+		if (!prefs.isPublicStorageMigrated()) {
+			loadingTasks.postRunnable(() -> {
+				long lastTimeCheck = prefs.getLastPublicStorageMigrationAsked();
+				long curTime = System.currentTimeMillis();
+				if (curTime - lastTimeCheck > AppConstants.MIGRATE_PUBLIC_STORAGE_WARNING_COOLDOWN_MILLS &&
+						localRepository.hasRecordsWithPath(fileRepository.getPublicDir().getAbsolutePath())) {
+					prefs.setLastPublicStorageMigrationAsked(curTime);
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) {
+							view.showMigratePublicStorageWarning();
+						}
+					});
+				}
+			});
 		}
 	}
 

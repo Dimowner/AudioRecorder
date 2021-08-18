@@ -697,13 +697,13 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		AndroidUtils.showDialog(
 				this,
 				R.drawable.ic_warning_yellow,
-				R.string.move,
+				R.string.view_records,
 				R.string.later,
-				R.string.move_public_storage_records,
-				R.string.move_public_storage_records_message,
+				R.string.move_records_needed,
+				R.string.move_records_info,
 				false,
 				v -> {
-					startActivity(MoveRecordsActivity.Companion.getStartIntent(getApplicationContext()));
+					startActivity(MoveRecordsActivity.Companion.getStartIntent(getApplicationContext(), false));
 				},
 				v -> {}
 		);

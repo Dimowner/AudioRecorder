@@ -366,13 +366,14 @@
 						android:background="?android:selectableItemBackgroundBorderless"
 						android:contentDescription="@null"
 						android:layout_gravity="center"
+						android:visibility="gone"
 						android:scaleType="center"
 						android:src="@drawable/ic_delete_forever_36"/>
 
 				<ImageButton
 						android:id="@+id/btn_play"
-						android:layout_width="64dp"
-						android:layout_height="50dp"
+						android:layout_width="@dimen/bottom_pnl_small_btn_size2"
+						android:layout_height="@dimen/bottom_pnl_small_btn_size2"
 						android:adjustViewBounds="true"
 						android:background="?android:selectableItemBackgroundBorderless"
 						android:contentDescription="@null"
@@ -380,7 +381,8 @@
 						android:scaleType="center"
 						android:layout_marginStart="@dimen/spacing_medium"
 						android:layout_marginEnd="@dimen/spacing_medium"
-						android:src="@drawable/ic_play_64"/>
+						android:tint="@color/white"
+						android:src="@drawable/ic_play"/>
 
 				<ImageButton
 						android:id="@+id/btn_stop"

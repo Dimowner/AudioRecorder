@@ -44,16 +44,15 @@ class MoveRecordsService : Service() {
 		private const val NOTIF_ID = 106
 
 		fun startNotification(context: Context, moveRecordId: Int) {
-			Timber.v("MOVE RECORD startNotification id = %s", moveRecordId)
 			val list = ArrayList<Int>()
 			list.add(moveRecordId)
 			startNotification(context, list)
 		}
 
-		fun startNotification(context: Context, moveRecordList: ArrayList<Int>) {
+		fun startNotification(context: Context, moveRecordList: List<Int>) {
 			val intent = Intent(context, MoveRecordsService::class.java)
 			intent.action = ACTION_START_MOVE_RECORDS_SERVICE
-			intent.putIntegerArrayListExtra(EXTRAS_KEY_MOVE_RECORDS_INFO, moveRecordList)
+			intent.putIntegerArrayListExtra(EXTRAS_KEY_MOVE_RECORDS_INFO, ArrayList(moveRecordList))
 			context.startService(intent)
 		}
 	}
@@ -61,7 +60,7 @@ class MoveRecordsService : Service() {
 	private lateinit var builder: NotificationCompat.Builder
 	private lateinit var notificationManager: NotificationManagerCompat
 	private lateinit var remoteViewsSmall: RemoteViews
-	private val downloadingRecordName = ""
+	private var downloadingRecordName = ""
 	private lateinit var copyTasks: BackgroundQueue
 	private lateinit var loadingTasks: BackgroundQueue
 	private lateinit var colorMap: ColorMap
@@ -117,6 +116,7 @@ class MoveRecordsService : Service() {
 					val record = localRepository.getRecord(recId)
 					if (record != null) {
 						val destinationFile: File = fileRepository.provideRecordFile(record.nameWithExtension)
+						updateNotificationText(record.name)
 						val sourceFilePath = record.path
 						record.path = destinationFile.absolutePath
 						copyFile(File(sourceFilePath), destinationFile,
@@ -126,8 +126,8 @@ class MoveRecordsService : Service() {
 									return isCancelMove
 								}
 
-								override fun onCopyProgress(percent: Int) {
-									var percent = percent
+								override fun onCopyProgress(p: Int) {
+									var percent = p
 									val curTime = System.currentTimeMillis()
 									if (percent >= 95) {
 										percent = 100
@@ -142,7 +142,7 @@ class MoveRecordsService : Service() {
 								override fun onCanceled() {
 									Toast.makeText(
 										applicationContext,
-										R.string.downloading_cancel,
+										R.string.moving_record_cancel,
 										Toast.LENGTH_LONG
 									).show()
 									stopService()
@@ -193,7 +193,7 @@ class MoveRecordsService : Service() {
 		)
 		remoteViewsSmall.setTextViewText(
 			R.id.txt_name,
-			resources.getString(R.string.downloading, downloadingRecordName)
+			resources.getString(R.string.moving_record, downloadingRecordName)
 		)
 		remoteViewsSmall.setInt(
 			R.id.container, "setBackgroundColor", this.resources.getColor(
@@ -210,7 +210,7 @@ class MoveRecordsService : Service() {
 		builder = NotificationCompat.Builder(this, CHANNEL_ID)
 		builder.setWhen(System.currentTimeMillis())
 		builder.setContentTitle(resources.getString(R.string.app_name))
-		builder.setSmallIcon(R.drawable.ic_save_alt)
+		builder.setSmallIcon(R.drawable.ic_drive_file_move)
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 			builder.priority = NotificationManagerCompat.IMPORTANCE_DEFAULT
 		} else {
@@ -256,6 +256,15 @@ class MoveRecordsService : Service() {
 
 	private fun updateNotification(percent: Int) {
 		remoteViewsSmall.setProgressBar(R.id.progress, 100, percent, false)
+		notificationManager.notify(NOTIF_ID, builder.build())
+	}
+
+	private fun updateNotificationText(text: String) {
+		downloadingRecordName = text
+		remoteViewsSmall.setTextViewText(
+			R.id.txt_name,
+			resources.getString(R.string.moving_record, text)
+		)
 		notificationManager.notify(NOTIF_ID, builder.build())
 	}
 

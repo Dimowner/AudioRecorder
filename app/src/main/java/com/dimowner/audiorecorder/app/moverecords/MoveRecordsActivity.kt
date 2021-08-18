@@ -16,12 +16,15 @@
 
 package com.dimowner.audiorecorder.app.moverecords
 
+import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.DocumentsContract
 import android.view.ViewPropertyAnimator
@@ -45,6 +48,8 @@ import kotlinx.coroutines.flow.collect
 import timber.log.Timber
 import java.io.File
 
+const val REQ_CODE_READ_EXTERNAL_STORAGE = 505
+
 @ExperimentalCoroutinesApi
 class MoveRecordsActivity : Activity() {
 
@@ -64,8 +69,6 @@ class MoveRecordsActivity : Activity() {
 		val view = binding.root
 		setContentView(view)
 
-		showInfoDialog()
-
 		viewModel = ARApplication.getInjector().provideMoveRecordsViewModel()
 
 		binding.recyclerView.layoutManager = LinearLayoutManager(applicationContext)
@@ -83,10 +86,11 @@ class MoveRecordsActivity : Activity() {
 
 		binding.btnMoveAll.background = RippleUtils.createRippleShape(
 			ContextCompat.getColor(applicationContext, R.color.white_transparent_80),
-			ContextCompat.getColor(applicationContext, R.color.white_transparent_80),
+			ContextCompat.getColor(applicationContext, R.color.white_transparent_50),
 			applicationContext.resources.getDimension(R.dimen.spacing_normal)
 		)
 		binding.btnMoveAll.setOnClickListener {
+			viewModel.moveAllRecords()
 		}
 		binding.btnPlay.setOnClickListener {
 			viewModel.startPlayback()
@@ -102,11 +106,9 @@ class MoveRecordsActivity : Activity() {
 		}
 
 		adapter.itemClickListener = {
-			//TODO: Need public storage permission
 			viewModel.startPlaybackById(it.id)
 		}
 		adapter.moveRecordClickListener = {
-			//TODO: Need public storage permission
 			MoveRecordsService.startNotification(applicationContext, it.id)
 		}
 		binding.waveformView.showTimeline(false)
@@ -121,21 +123,21 @@ class MoveRecordsActivity : Activity() {
 			}
 
 			override fun onStartTrackingTouch(seekBar: SeekBar) {
-//				presenter.disablePlaybackProgressListener()
+				viewModel.disablePlaybackProgressListener()
 			}
 
 			override fun onStopTrackingTouch(seekBar: SeekBar) {
-//				presenter.enablePlaybackProgressListener()
+				viewModel.enablePlaybackProgressListener()
 			}
 		})
 
 		binding.waveformView.setOnSeekListener(object : WaveformViewNew.OnSeekListener {
 			override fun onStartSeek() {
-//				presenter.disablePlaybackProgressListener()
+				viewModel.disablePlaybackProgressListener()
 			}
 
 			override fun onSeek(px: Int, mills: Long) {
-//				presenter.enablePlaybackProgressListener()
+				viewModel.enablePlaybackProgressListener()
 //				//TODO: Find a better way to convert px to mills here
 				viewModel.seekPlayback(binding.waveformView.pxToMill(px))
 				val length: Int = binding.waveformView.getWaveformLength()
@@ -167,25 +169,38 @@ class MoveRecordsActivity : Activity() {
 			override fun onTouchDown() {}
 			override fun onTouchUp() {}
 		})
+		if (checkStoragePermission()) {
+			viewModel.init()
+			showInfoDialog()
+		}
 	}
 
 	private fun showInfoDialog() {
-		AndroidUtils.showDialog(
-			this,
-			-1,
-			R.string.btn_ok,
-			-1,
-			R.string.move_records_needed,
-			R.string.move_records_info,
-			true,
-			{},
-			null
-		)
+		if (intent.hasExtra(PREF_KEY_SHOW_INFO) && intent.getBooleanExtra(PREF_KEY_SHOW_INFO, false)) {
+			AndroidUtils.showDialog(
+				this,
+				-1,
+				R.string.btn_ok,
+				-1,
+				R.string.move_records_needed,
+				R.string.move_records_info,
+				true,
+				{},
+				null
+			)
+		}
 	}
 
 	private fun onScreenUpdate(state: MoveRecordsScreenState) {
 		binding.progress.isVisible = state.showProgress
-		binding.txtCountAndLocation.text = getString(R.string.records_location, state.recordsLocation)
+		if (state.recordsLocation.isNotEmpty()) {
+			binding.txtCountAndLocation.text =
+				getString(R.string.records_location, state.recordsLocation)
+		} else {
+			binding.txtCountAndLocation.text = ""
+		}
+		binding.btnMoveAll.isVisible = state.isMoveAllVisible
+		binding.txtEmpty.isVisible = state.isEmptyVisible
 		binding.txtTitle.text = getString(R.string.move_records, state.recordsCount)
 		adapter.showFooterProgress(state.showFooterProgressItem)
 		adapter.submitList(state.list)
@@ -221,6 +236,9 @@ class MoveRecordsActivity : Activity() {
 				openRecordsLocation(event.file)
 			}
 			is MoveRecordsEvent.ShowError -> {}
+			is MoveRecordsEvent.MoveAllRecords -> {
+				MoveRecordsService.startNotification(applicationContext, event.list)
+			}
 		}
 	}
 
@@ -283,6 +301,24 @@ class MoveRecordsActivity : Activity() {
 		}
 	}
 
+	private fun checkStoragePermission(): Boolean {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+				&& checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+			) {
+				requestPermissions(
+					arrayOf(
+						Manifest.permission.WRITE_EXTERNAL_STORAGE,
+						Manifest.permission.READ_EXTERNAL_STORAGE
+					),
+					REQ_CODE_READ_EXTERNAL_STORAGE
+				)
+				return false
+			}
+		}
+		return true
+	}
+
 	override fun onDestroy() {
 		super.onDestroy()
 		clear()
@@ -293,14 +329,34 @@ class MoveRecordsActivity : Activity() {
 		clear()
 	}
 
+	override fun onRequestPermissionsResult(
+		requestCode: Int,
+		permissions: Array<out String>,
+		grantResults: IntArray
+	) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+		if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE
+			&& grantResults.isNotEmpty()
+			&& grantResults[0] == PackageManager.PERMISSION_GRANTED
+			&& grantResults[1] == PackageManager.PERMISSION_GRANTED
+		) {
+			viewModel.init()
+			showInfoDialog()
+		}
+	}
+
 	private fun clear() {
 		ARApplication.getInjector().releaseMoveRecordsViewModel()
 		scope.cancel()
 	}
 
 	companion object {
-		fun getStartIntent(context: Context): Intent {
-			return Intent(context, MoveRecordsActivity::class.java)
+		const val PREF_KEY_SHOW_INFO = "PREF_KEY_SHOW_INFO"
+
+		fun getStartIntent(context: Context, showInfo: Boolean): Intent {
+			return Intent(context, MoveRecordsActivity::class.java).apply {
+				putExtra(PREF_KEY_SHOW_INFO, showInfo)
+			}
 		}
 	}
 }

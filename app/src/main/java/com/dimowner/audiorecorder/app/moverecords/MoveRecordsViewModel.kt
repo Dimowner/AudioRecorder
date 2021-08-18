@@ -46,11 +46,16 @@ class MoveRecordsViewModel(
 	private val _event = MutableSharedFlow<MoveRecordsEvent>()
 	val event: SharedFlow<MoveRecordsEvent> = _event
 
-	init {
-		loadingTasks.postRunnable{
+	private var listenPlaybackProgress: Boolean = true
+
+	fun init() {
+		showProgress(true)
+		loadingTasks.postRunnable {
 			val records = getPublicRecords()
 			setState(uiState.value.copy(
 				recordsCount = records.size,
+				isMoveAllVisible = records.isNotEmpty(),
+				isEmptyVisible = records.isEmpty(),
 				recordsLocation = fileRepository.publicDir.absolutePath
 			))
 			val activeRecordId = prefs.activeRecord.toInt()
@@ -94,6 +99,7 @@ class MoveRecordsViewModel(
 				}
 			}
 			setList(records)
+			showProgress(false)
 		}
 
 		val playerCallback = object : PlayerContractNew.PlayerCallback {
@@ -152,7 +158,7 @@ class MoveRecordsViewModel(
 	}
 
 	private fun showPlayProgress(mills: Long) {
-		if (uiPlayState.value.playRecordDuration > 0) {
+		if (uiPlayState.value.playRecordDuration > 0 && listenPlaybackProgress) {
 			setPlayState(
 				uiPlayState.value.copy(
 					playProgress = (1000 * mills / uiPlayState.value.playRecordDuration).toInt(),
@@ -209,6 +215,13 @@ class MoveRecordsViewModel(
 		}
 	}
 
+	fun moveAllRecords() {
+		loadingTasks.postRunnable {
+			val ids = getPublicRecords().map { it.id }
+			emitEvent(MoveRecordsEvent.MoveAllRecords(ids))
+		}
+	}
+
 	fun startPlayback() {
 		when (uiState.value.playState) {
 			PlayState.RECORDING -> return
@@ -255,6 +268,14 @@ class MoveRecordsViewModel(
 		emitEvent(MoveRecordsEvent.OpenRecordsLocation(fileRepository.publicDir))
 	}
 
+	fun disablePlaybackProgressListener() {
+		listenPlaybackProgress = false
+	}
+
+	fun enablePlaybackProgressListener() {
+		listenPlaybackProgress = true
+	}
+
 	private fun getPublicRecords(): List<Record> {
 		return localRepository.findRecordsByPath(fileRepository.publicDir.absolutePath)
 	}
@@ -282,4 +303,5 @@ sealed class MoveRecordsEvent {
 	data class ShowError(@StringRes val resId: Int) : MoveRecordsEvent()
 	data class StartPlaybackService(val name: String) : MoveRecordsEvent()
 	data class OpenRecordsLocation(val file: File) : MoveRecordsEvent()
+	data class MoveAllRecords(val list: List<Int>) : MoveRecordsEvent()
 }

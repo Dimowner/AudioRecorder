@@ -146,11 +146,10 @@ class MoveRecordsAdapter : ListAdapter<MoveRecordsItem, RecyclerView.ViewHolder>
 
 		init {
 			binding.container.setOnClickListener { itemClickListener?.invoke(bindingAdapterPosition) }
-			binding.listItemDelete.setOnClickListener { moveRecordsClickListener?.invoke(bindingAdapterPosition)  }
-			binding.btnMove.setOnClickListener { }
+			binding.btnMove.setOnClickListener { moveRecordsClickListener?.invoke(bindingAdapterPosition) }
 			binding.btnMove.background = RippleUtils.createRippleShape(
 				ContextCompat.getColor(binding.btnMove.context, R.color.white_transparent_80),
-				ContextCompat.getColor(binding.btnMove.context, R.color.white_transparent_80),
+				ContextCompat.getColor(binding.btnMove.context, R.color.white_transparent_50),
 				binding.btnMove.context.resources.getDimension(R.dimen.spacing_normal)
 			)
 		}

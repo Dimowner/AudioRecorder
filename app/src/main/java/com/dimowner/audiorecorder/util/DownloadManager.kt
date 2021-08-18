@@ -34,7 +34,7 @@ private const val BUFFER_SIZE = 10240
  * Copies list of files into Download directory.
  * @author Dimowner
  */
-fun downloadFiles(context: Context, list: List<File>, listener: OnCopyListener?) {
+fun downloadFiles(context: Context, list: List<File>, listener: OnCopyListListener?) {
 	var copied = 0
 	var copiedPercent = 0
 	var failed = 0
@@ -46,7 +46,9 @@ fun downloadFiles(context: Context, list: List<File>, listener: OnCopyListener?)
 
 	for (f in list) {
 		val size = f.length()/100f
-		val listener = object : OnCopyListener {
+		Timber.v("MyFileName = %s", f.name)
+		listener?.onStartCopy(f.name)
+		val copyListener = object : OnCopyListener {
 			override fun isCancel(): Boolean = listener?.isCancel ?: false
 
 			override fun onCopyProgress(percent: Int) {
@@ -90,9 +92,9 @@ fun downloadFiles(context: Context, list: List<File>, listener: OnCopyListener?)
 			}
 		}
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			downloadFile(context, f, listener)
+			downloadFile(context, f, copyListener)
 		} else {
-			downloadFile28(context, f, listener)
+			downloadFile28(context, f, copyListener)
 		}
 	}
 }
@@ -116,7 +118,6 @@ fun downloadFile(context: Context, sourceFile: File, listener: OnCopyListener?) 
 			contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_MUSIC)
 //			val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
 			val uri = resolver.insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, contentValues)
-			Timber.v("downloadFile = " + uri.toString() + " sourceFile = " + sourceFile.absolutePath)
 			if (uri != null) {
 				try {
 					val outputStream = resolver.openOutputStream(uri)
@@ -221,6 +222,7 @@ fun copyFileToDir(context: Context, sourceFile: File, destinationFile: File, lis
 			}
 
 			override fun onError(message: String?) {
+				//TODO: Fix text message
 				listener?.onError(context.resources.getString(R.string.downloading_failed, sourceName))
 			}
 		})

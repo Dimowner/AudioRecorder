@@ -82,6 +82,15 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 					view.hideProgress();
 				}
 			});
+
+			if (!prefs.isPublicStorageMigrated()
+					&& localRepository.hasRecordsWithPath(fileRepository.getPublicDir().getAbsolutePath())) {
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.showMigratePublicStorage(!prefs.isPublicStorageMigrated());
+					}
+				});
+			}
 		});
 		if (view != null) {
 			view.updateRecordingInfo(prefs.getSettingRecordingFormat());
@@ -103,7 +112,7 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 			view.showRecordingSampleRate(prefs.getSettingSampleRate());
 			//This is needed for scoped storage support
 			view.showDirectorySetting(prefs.isShowDirectorySetting());
-			view.showMigratePublicStorage(!prefs.isPublicStorageMigrated());
+//			view.showMigratePublicStorage(!prefs.isPublicStorageMigrated());
 		}
 	}
 

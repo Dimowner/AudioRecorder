@@ -12,6 +12,8 @@ data class MoveRecordsScreenState(
 	val recordsCount: Int = 0,
 	val recordsLocation: String = "",
 	val isShowPlayPanel: Boolean = false,
+	val isMoveAllVisible: Boolean = false,
+	val isEmptyVisible: Boolean = false,
 	val activeRecordId: Int = -1,
 	val activeRecordPos: Int = -1
 )

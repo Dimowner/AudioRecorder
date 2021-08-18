@@ -628,18 +628,18 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	public void showPlayStart() {
-		btnPlay.setImageResource(R.drawable.ic_pause_64);
+		btnPlay.setImageResource(R.drawable.ic_pause);
 	}
 
 	@Override
 	public void showPlayPause() {
-		btnPlay.setImageResource(R.drawable.ic_play_64);
+		btnPlay.setImageResource(R.drawable.ic_play);
 	}
 
 	@Override
 	public void showPlayStop() {
 		waveformView.moveToStart();
-		btnPlay.setImageResource(R.drawable.ic_play_64);
+		btnPlay.setImageResource(R.drawable.ic_play);
 		playProgress.setProgress(0);
 		adapter.setActiveItem(-1);
 	}

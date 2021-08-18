@@ -100,7 +100,6 @@
 					android:text="@string/empty"
 					android:textColor="@color/text_primary_light"
 					android:textSize="@dimen/text_large"
-					android:visibility="gone"
 					tools:visibility="visible" />
 
 			<ProgressBar

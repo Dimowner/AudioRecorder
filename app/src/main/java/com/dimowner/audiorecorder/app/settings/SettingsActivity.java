@@ -68,7 +68,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private TextView txtLocation;
 	private TextView txtStorageInfo;
 	private TextView txtFileBrowser;
-	private TextView txtMigratePublicStorage;
+	private TextView btnView;
 	private View migratePublicStoragePanel;
 	private View panelPublicDir;
 
@@ -132,6 +132,14 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		params.height = AndroidUtils.getNavigationBarHeight(getApplicationContext());
 		space.setLayoutParams(params);
 
+		btnView = findViewById(R.id.btnView);
+
+		btnView.setBackground(RippleUtils.createRippleShape(
+				ContextCompat.getColor(getApplicationContext(), R.color.white_transparent_80),
+				ContextCompat.getColor(getApplicationContext(), R.color.white_transparent_50),
+				getApplicationContext().getResources().getDimension(R.dimen.spacing_normal)
+		));
+		btnView.setOnClickListener(this);
 		btnReset = findViewById(R.id.btnReset);
 		btnReset.setOnClickListener(this);
 		txtSizePerMin = findViewById(R.id.txt_size_per_min);
@@ -139,17 +147,14 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		txtLocation = findViewById(R.id.txt_records_location);
 		txtStorageInfo = findViewById(R.id.txt_storage_info);
 		migratePublicStoragePanel = findViewById(R.id.migrate_public_storage_panel);
-		txtMigratePublicStorage = findViewById(R.id.txt_migrate_public_storage);
-		txtMigratePublicStorage.setOnClickListener(this);
+		migratePublicStoragePanel.setOnClickListener(this);
 		txtLocation.setOnClickListener(this);
 		findViewById(R.id.btnBack).setOnClickListener(this);
 		TextView txtAbout = findViewById(R.id.txtAbout);
 		txtAbout.setText(getAboutContent());
-		findViewById(R.id.btnMigratePublicStorageInfo).setOnClickListener(this);
 		findViewById(R.id.btnTrash).setOnClickListener(this);
 		findViewById(R.id.btnRate).setOnClickListener(this);
 		findViewById(R.id.btnRequest).setOnClickListener(this);
-		findViewById(R.id.btnMigratePublicStorageInfo).setOnClickListener(this);
 		panelPublicDir = findViewById(R.id.panelPublicDir);
 		txtFileBrowser = findViewById(R.id.btn_file_browser);
 		txtFileBrowser.setOnClickListener(this);
@@ -337,14 +342,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		if (id == R.id.btnBack) {
 			ARApplication.getInjector().releaseSettingsPresenter();
 			finish();
-		} else if (id == R.id.btnMigratePublicStorageInfo) {
-			AndroidUtils.showDialog(this, -1, R.string.view_records, -1,
-					R.string.move_records_needed, R.string.move_records_info, true,
-					view -> {
-						startActivity(MoveRecordsActivity.Companion.getStartIntent(getApplicationContext()));
-					}, null);
-		} else if (id == R.id.txt_migrate_public_storage) {
-			startActivity(MoveRecordsActivity.Companion.getStartIntent(getApplicationContext()));
+		} else if (id == R.id.migrate_public_storage_panel || id == R.id.btnView) {
+			startActivity(MoveRecordsActivity.Companion.getStartIntent(getApplicationContext(), true));
 		} else if (id == R.id.btnTrash) {
 			startActivity(TrashActivity.getStartIntent(getApplicationContext()));
 		} else if (id == R.id.txt_records_location) {

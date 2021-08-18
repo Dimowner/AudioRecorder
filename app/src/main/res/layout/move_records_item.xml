@@ -83,16 +83,4 @@
 			android:textSize="@dimen/text_normal"
 			android:text="@string/move" />
 
-	<ImageButton
-			android:id="@+id/listItemDelete"
-			android:layout_width="wrap_content"
-			android:layout_height="match_parent"
-			android:background="?android:selectableItemBackgroundBorderless"
-			android:contentDescription="@null"
-			android:paddingEnd="@dimen/spacing_normal"
-			android:paddingStart="@dimen/spacing_normal"
-			android:visibility="gone"
-			android:layout_gravity="center_vertical|end"
-			android:src="@drawable/ic_more_vert"/>
-
 </LinearLayout>

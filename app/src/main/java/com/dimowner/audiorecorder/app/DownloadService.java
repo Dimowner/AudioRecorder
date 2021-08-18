@@ -37,7 +37,8 @@ import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.main.MainActivity;
 import com.dimowner.audiorecorder.util.DownloadManagerKt;
-import com.dimowner.audiorecorder.util.OnCopyListener;
+import com.dimowner.audiorecorder.util.OnCopyListListener;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -131,8 +132,8 @@ public class DownloadService extends Service {
 			for (int i = 0; i < list.size(); i++) {
 				files.add(new File(list.get(i)));
 			}
-			copyFiles(files);
 			startNotification();
+			copyFiles(files);
 		}
 	}
 
@@ -143,7 +144,12 @@ public class DownloadService extends Service {
 			@Override
 			public void run() {
 				DownloadManagerKt.downloadFiles(getApplicationContext(), list,
-						new OnCopyListener() {
+						new OnCopyListListener() {
+							@Override
+							public void onStartCopy(@NotNull String name) {
+								updateNotificationText(name);
+							}
+
 							@Override
 							public boolean isCancel() {
 								return isCancel;
@@ -251,6 +257,15 @@ public class DownloadService extends Service {
 
 	private void updateNotification(int percent) {
 		remoteViewsSmall.setProgressBar(R.id.progress, 100, percent, false);
+		notificationManager.notify(NOTIF_ID, builder.build());
+	}
+
+	private void updateNotificationText(String text) {
+		downloadingRecordName = text;
+		remoteViewsSmall.setTextViewText(
+				R.id.txt_name,
+				getResources().getString(R.string.downloading, downloadingRecordName)
+		);
 		notificationManager.notify(NOTIF_ID, builder.build());
 	}
 
