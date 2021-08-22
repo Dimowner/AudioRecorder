@@ -27,8 +27,6 @@ import android.provider.DocumentsContract;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -120,17 +118,6 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
-
-		getWindow().setFlags(
-				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-		LinearLayout toolbar = findViewById(R.id.toolbar);
-		toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
-
-		View space = findViewById(R.id.space);
-		ViewGroup.LayoutParams params = space.getLayoutParams();
-		params.height = AndroidUtils.getNavigationBarHeight(getApplicationContext());
-		space.setLayoutParams(params);
 
 		btnView = findViewById(R.id.btnView);
 

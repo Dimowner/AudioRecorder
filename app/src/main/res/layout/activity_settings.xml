@@ -420,11 +420,5 @@
 				android:drawablePadding="@dimen/spacing_double"
 				/>
 
-		<View
-				android:id="@+id/space"
-				android:layout_width="match_parent"
-				android:layout_height="@dimen/spacing_normal"
-				android:elevation="@dimen/toolbar_elevation"
-				/>
 	</LinearLayout>
 </ScrollView>

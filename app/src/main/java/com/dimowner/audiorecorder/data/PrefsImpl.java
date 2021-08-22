@@ -138,7 +138,8 @@ public class PrefsImpl implements Prefs {
 
 	@Override
 	public boolean isPublicStorageMigrated() {
-		return sharedPreferences.contains(PREF_KEY_IS_PUBLIC_STORAGE_MIGRATED);
+		return sharedPreferences.contains(PREF_KEY_IS_PUBLIC_STORAGE_MIGRATED)
+				&& sharedPreferences.getBoolean(PREF_KEY_IS_PUBLIC_STORAGE_MIGRATED, false);
 	}
 
 	@Override
