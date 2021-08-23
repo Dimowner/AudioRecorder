@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.widget.RemoteViews
@@ -21,6 +22,7 @@ import com.dimowner.audiorecorder.ColorMap
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.main.MainActivity
 import com.dimowner.audiorecorder.data.FileRepository
+import com.dimowner.audiorecorder.data.Prefs
 import com.dimowner.audiorecorder.data.database.LocalRepository
 import com.dimowner.audiorecorder.util.OnCopyListener
 import com.dimowner.audiorecorder.util.copyFileToDir
@@ -38,7 +40,6 @@ class MoveRecordsService : Service() {
 		private const val CHANNEL_NAME = "MoveRecords"
 		private const val CHANNEL_ID = "com.dimowner.audiorecorder.MoveRecords.Notification"
 		const val ACTION_START_MOVE_RECORDS_SERVICE = "ACTION_START_MOVE_RECORDS_SERVICE"
-		const val ACTION_STOP_MOVE_RECORDS_SERVICE = "ACTION_STOP_MOVE_RECORDS_SERVICE"
 		const val ACTION_CANCEL_MOVE_RECORDS = "ACTION_CANCEL_MOVE_RECORDS"
 		const val EXTRAS_KEY_MOVE_RECORDS_INFO = "key_move_records_info"
 		private const val NOTIF_ID = 106
@@ -64,17 +65,26 @@ class MoveRecordsService : Service() {
 	private lateinit var copyTasks: BackgroundQueue
 	private lateinit var loadingTasks: BackgroundQueue
 	private lateinit var colorMap: ColorMap
+	private lateinit var prefs: Prefs
 	private lateinit var fileRepository: FileRepository
 	private lateinit var localRepository: LocalRepository
 	private var isCancelMove = false
 
+	private var moveListener: MoveRecordsServiceListener? = null
+	private val binder = LocalBinder()
+
+	fun setMoveRecordsListener(listener: MoveRecordsServiceListener?) {
+		moveListener = listener
+	}
+
 	override fun onBind(intent: Intent): IBinder? {
-		return null
+		return binder
 	}
 
 	override fun onCreate() {
 		super.onCreate()
 		colorMap = ARApplication.getInjector().provideColorMap()
+		prefs = ARApplication.getInjector().providePrefs()
 		copyTasks = ARApplication.getInjector().provideCopyTasksQueue()
 		loadingTasks = ARApplication.getInjector().provideLoadingTasksQueue()
 		fileRepository = ARApplication.getInjector().provideFileRepository()
@@ -84,12 +94,11 @@ class MoveRecordsService : Service() {
 	override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 		if (intent != null) {
 			val action = intent.action
-			if (action != null && !action.isEmpty()) {
+			if (action != null && action.isNotEmpty()) {
 				when (action) {
 					ACTION_START_MOVE_RECORDS_SERVICE -> if (intent.hasExtra(EXTRAS_KEY_MOVE_RECORDS_INFO)) {
 						startMoveRecords(intent.getIntegerArrayListExtra(EXTRAS_KEY_MOVE_RECORDS_INFO) ?: ArrayList<Int>())
 					}
-					ACTION_STOP_MOVE_RECORDS_SERVICE -> stopService()
 					ACTION_CANCEL_MOVE_RECORDS -> {
 						isCancelMove = true
 						stopService()
@@ -127,13 +136,9 @@ class MoveRecordsService : Service() {
 								}
 
 								override fun onCopyProgress(p: Int) {
-									var percent = p
 									val curTime = System.currentTimeMillis()
-									if (percent >= 95) {
-										percent = 100
-									}
-									if (percent == 100 || curTime > prevTime + 60) {
-										val curRecProgress = (oneRecordProgress/100)*percent
+									if (curTime > prevTime + 60) {
+										val curRecProgress = (oneRecordProgress/100)*p
 										updateNotification(copiedPercent + curRecProgress.toInt())
 										prevTime = curTime
 									}
@@ -145,16 +150,20 @@ class MoveRecordsService : Service() {
 										R.string.moving_record_cancel,
 										Toast.LENGTH_LONG
 									).show()
+									moveListener?.onFinishMove()
 									stopService()
 								}
 
 								override fun onCopyFinish(message: String) {
+									moveListener?.onRecordMoved()
 									copied++
 									copiedPercent += oneRecordProgress.toInt()
 									localRepository.updateRecord(record)
 									fileRepository.deleteRecordFile(sourceFilePath)
 									if (copied + failed == list.size) {
 										Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+										moveListener?.onFinishMove()
+										prefs.isPublicStorageMigrated = true
 										stopService()
 									}
 								}
@@ -164,6 +173,7 @@ class MoveRecordsService : Service() {
 									copiedPercent += oneRecordProgress.toInt()
 									if (copied + failed == list.size) {
 										Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+										moveListener?.onFinishMove()
 										stopService()
 									}
 								}
@@ -187,9 +197,7 @@ class MoveRecordsService : Service() {
 		}
 		remoteViewsSmall = RemoteViews(packageName, R.layout.layout_progress_notification)
 		remoteViewsSmall.setOnClickPendingIntent(
-			R.id.btn_close, getPendingSelfIntent(
-				applicationContext, ACTION_CANCEL_MOVE_RECORDS
-			)
+			R.id.btn_close, getCancelMovePendingIntent(applicationContext)
 		)
 		remoteViewsSmall.setTextViewText(
 			R.id.txt_name,
@@ -231,24 +239,24 @@ class MoveRecordsService : Service() {
 		stopSelf()
 	}
 
-	private fun getPendingSelfIntent(context: Context?, action: String?): PendingIntent {
+	private fun getCancelMovePendingIntent(context: Context): PendingIntent {
 		val intent = Intent(context, StopMoveRecordsReceiver::class.java)
-		intent.action = action
-		return PendingIntent.getBroadcast(context, 10, intent, 0)
+		intent.action = ACTION_CANCEL_MOVE_RECORDS
+		return PendingIntent.getBroadcast(context, 318, intent, 0)
 	}
 
 	@RequiresApi(Build.VERSION_CODES.O)
 	private fun createNotificationChannel(channelId: String, channelName: String) {
 		val channel = notificationManager.getNotificationChannel(channelId)
 		if (channel == null) {
-			val chan =
+			val channelNew =
 				NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
-			chan.lightColor = Color.BLUE
-			chan.lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
-			chan.setSound(null, null)
-			chan.enableLights(false)
-			chan.enableVibration(false)
-			notificationManager.createNotificationChannel(chan)
+			channelNew.lightColor = Color.BLUE
+			channelNew.lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
+			channelNew.setSound(null, null)
+			channelNew.enableLights(false)
+			channelNew.enableVibration(false)
+			notificationManager.createNotificationChannel(channelNew)
 		} else {
 			Timber.v("Channel already exists: %s", CHANNEL_ID)
 		}
@@ -275,4 +283,13 @@ class MoveRecordsService : Service() {
 			context.startService(stopIntent)
 		}
 	}
+
+	inner class LocalBinder : Binder() {
+		fun getService(): MoveRecordsService = this@MoveRecordsService
+	}
+}
+
+interface MoveRecordsServiceListener {
+	fun onRecordMoved()
+	fun onFinishMove()
 }

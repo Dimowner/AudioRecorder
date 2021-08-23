@@ -20,12 +20,11 @@ import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.app.Activity
-import android.content.ActivityNotFoundException
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.provider.DocumentsContract
 import android.view.ViewPropertyAnimator
 import android.widget.SeekBar
@@ -60,6 +59,31 @@ class MoveRecordsActivity : Activity() {
 	var scope = CoroutineScope(Dispatchers.Main)
 
 	private lateinit var binding: ActivityMoveRecordsBinding
+
+	private val connection: ServiceConnection = object : ServiceConnection {
+		override fun onServiceConnected(className: ComponentName, service: IBinder) {
+			val binder = service as MoveRecordsService.LocalBinder
+			val decodeService = binder.getService()
+			decodeService.setMoveRecordsListener(object : MoveRecordsServiceListener {
+
+				override fun onRecordMoved() {
+					viewModel.loadRecords()
+				}
+
+				override fun onFinishMove() {
+					viewModel.loadRecords()
+				}
+			})
+		}
+
+		override fun onServiceDisconnected(arg0: ComponentName) {
+			viewModel.loadRecords()
+		}
+
+		override fun onBindingDied(name: ComponentName) {
+			viewModel.loadRecords()
+		}
+	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		val colorMap = ARApplication.getInjector().provideColorMap()
@@ -170,9 +194,20 @@ class MoveRecordsActivity : Activity() {
 			override fun onTouchUp() {}
 		})
 		if (checkStoragePermission()) {
-			viewModel.init()
+			viewModel.loadRecords()
 			showInfoDialog()
 		}
+	}
+
+	override fun onStart() {
+		super.onStart()
+		val serviceIntent = Intent(this, MoveRecordsService::class.java)
+		bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE)
+	}
+
+	override fun onStop() {
+		unbindService(connection)
+		super.onStop()
 	}
 
 	private fun showInfoDialog() {
@@ -340,7 +375,7 @@ class MoveRecordsActivity : Activity() {
 			&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 			&& grantResults[1] == PackageManager.PERMISSION_GRANTED
 		) {
-			viewModel.init()
+			viewModel.loadRecords()
 			showInfoDialog()
 		}
 	}

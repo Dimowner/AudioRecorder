@@ -97,7 +97,7 @@ public class PrefsImpl implements Prefs {
 
 	@Override
 	public boolean isStoreDirPublic() {
-		return sharedPreferences.contains(PREF_KEY_IS_STORE_DIR_PUBLIC) && sharedPreferences.getBoolean(PREF_KEY_IS_STORE_DIR_PUBLIC, true);
+		return sharedPreferences.contains(PREF_KEY_IS_STORE_DIR_PUBLIC) && sharedPreferences.getBoolean(PREF_KEY_IS_STORE_DIR_PUBLIC, false);
 	}
 
 	@Override

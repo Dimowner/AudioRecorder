@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,10 +32,12 @@ import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.lostrecords.RecordItem;
 import com.dimowner.audiorecorder.util.AndroidUtils;
+import com.dimowner.audiorecorder.util.RippleUtils;
 
 import java.util.List;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -50,7 +51,7 @@ public class TrashActivity extends Activity implements TrashContract.View {
 
 	private TrashAdapter adapter;
 	private TextView txtEmpty;
-	private Button btnDeleteAll;
+	private TextView btnDeleteAll;
 
 	public static Intent getStartIntent(Context context) {
 		return new Intent(context, TrashActivity.class);
@@ -69,6 +70,11 @@ public class TrashActivity extends Activity implements TrashContract.View {
 		});
 
 		btnDeleteAll = findViewById(R.id.btn_delete_all);
+		btnDeleteAll.setBackground(RippleUtils.createRippleShape(
+				ContextCompat.getColor(getApplicationContext(), R.color.white_transparent_80),
+				ContextCompat.getColor(getApplicationContext(), R.color.white_transparent_50),
+				getApplicationContext().getResources().getDimension(R.dimen.spacing_normal)
+		));
 		btnDeleteAll.setOnClickListener(view ->
 			AndroidUtils.showDialogYesNo(
 				TrashActivity.this,

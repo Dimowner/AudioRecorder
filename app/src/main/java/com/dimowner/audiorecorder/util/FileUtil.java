@@ -156,7 +156,7 @@ public class FileUtil {
 		return count;
 	}
 
-	public static long copyLarge(final InputStream input, final OutputStream output, final byte[] buffer, final OnCopyListener listener)
+	public static long copyLarge(final InputStream input, final OutputStream output, final byte[] buffer, final FileOnCopyListener listener)
 			throws IOException {
 		long count = 0;
 		int n;
@@ -193,16 +193,47 @@ public class FileUtil {
 	 * @param newFile File in which will contain copied data.
 	 * @return true if copy succeed, otherwise - false.
 	 */
-	public static boolean copyFile(File fileToCopy, File newFile, OnCopyListener listener) {
-		try (FileInputStream in = new FileInputStream(fileToCopy); FileOutputStream out = new FileOutputStream(newFile)) {
-			if (copyLarge(in, out, new byte[DEFAULT_BUFFER_SIZE], listener) > 0) {
-				return true;
-			} else {
-				Timber.e("Nothing was copied!");
-				deleteFile(newFile);
+	public static boolean copyFile(File fileToCopy, File newFile, FileOnCopyListener listener) {
+		if (fileToCopy.exists() && newFile.exists()) {
+			FileInputStream in = null;
+			FileOutputStream out = null;
+			try {
+				in = new FileInputStream(fileToCopy);
+				out = new FileOutputStream(newFile);
+				if (copyLarge(in, out, new byte[DEFAULT_BUFFER_SIZE], listener) > 0) {
+					return true;
+				} else {
+					Timber.e("Nothing was copied!");
+					out.close();
+					out = null;
+					deleteFile(newFile);
+					return false;
+				}
+			} catch (Exception e) {
+				if (listener != null) {
+					listener.onError(null);
+				}
 				return false;
+			} finally {
+				if (in != null) {
+					try {
+						in.close();
+					} catch (IOException e) {
+						Timber.e(e);
+					}
+				}
+				if (out != null) {
+					try {
+						out.close();
+					} catch (IOException e) {
+						Timber.e(e);
+					}
+				}
 			}
-		} catch (Exception e) {
+		} else {
+			if (listener != null) {
+				listener.onError(null);
+			}
 			return false;
 		}
 	}
@@ -680,5 +711,13 @@ public class FileUtil {
 			}
 		}
 		return false;
+	}
+
+	public interface FileOnCopyListener {
+		boolean isCancel();
+		void onCopyProgress(int percent);
+		void onCanceled();
+		void onCopyFinish(String message);
+		void onError(String message);
 	}
 }

@@ -83,20 +83,20 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 				}
 			});
 
-			if (!prefs.isPublicStorageMigrated()
-					&& localRepository.hasRecordsWithPath(fileRepository.getPublicDir().getAbsolutePath())) {
-				AndroidUtils.runOnUIThread(() -> {
-					if (view != null) {
-						view.showMigratePublicStorage(!prefs.isPublicStorageMigrated());
-					}
-				});
-			}
+			boolean isPublicStorageMigrated = !prefs.isPublicStorageMigrated()
+					&& localRepository.hasRecordsWithPath(fileRepository.getPublicDir().getAbsolutePath());
+			AndroidUtils.runOnUIThread(() -> {
+				if (view != null) {
+					view.showMigratePublicStorage(isPublicStorageMigrated);
+				}
+			});
 		});
 		if (view != null) {
 			view.updateRecordingInfo(prefs.getSettingRecordingFormat());
 
-			view.showStoreInPublicDir(prefs.isStoreDirPublic());
-			if (prefs.isStoreDirPublic()) {
+			boolean isPublicDir = prefs.isStoreDirPublic();
+			view.showStoreInPublicDir(isPublicDir);
+			if (isPublicDir) {
 				view.showRecordsLocation(fileRepository.getRecordingDir().getAbsolutePath());
 			} else {
 				view.hideRecordsLocation();

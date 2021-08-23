@@ -46,7 +46,6 @@ fun downloadFiles(context: Context, list: List<File>, listener: OnCopyListListen
 
 	for (f in list) {
 		val size = f.length()/100f
-		Timber.v("MyFileName = %s", f.name)
 		listener?.onStartCopy(f.name)
 		val copyListener = object : OnCopyListener {
 			override fun isCancel(): Boolean = listener?.isCancel ?: false
@@ -175,7 +174,7 @@ private fun downloadFile28(context: Context, sourceFile: File, listener: OnCopyL
 	val created = FileUtil.createFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), sourceName)
 	if (created != null) {
 		FileUtil.copyFile(sourceFile, created,
-				object : OnCopyListener {
+				object : FileUtil.FileOnCopyListener {
 					override fun isCancel(): Boolean {
 						return listener?.isCancel ?: false
 					}
@@ -204,7 +203,7 @@ private fun downloadFile28(context: Context, sourceFile: File, listener: OnCopyL
 fun copyFileToDir(context: Context, sourceFile: File, destinationFile: File, listener: OnCopyListener?) {
 	val sourceName = sourceFile.name
 	FileUtil.copyFile(sourceFile, destinationFile,
-		object : OnCopyListener {
+		object : FileUtil.FileOnCopyListener {
 			override fun isCancel(): Boolean {
 				return listener?.isCancel ?: false
 			}

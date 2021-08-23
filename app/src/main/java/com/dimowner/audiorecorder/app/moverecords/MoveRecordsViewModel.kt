@@ -48,7 +48,7 @@ class MoveRecordsViewModel(
 
 	private var listenPlaybackProgress: Boolean = true
 
-	fun init() {
+	fun loadRecords() {
 		showProgress(true)
 		loadingTasks.postRunnable {
 			val records = getPublicRecords()
@@ -67,17 +67,23 @@ class MoveRecordsViewModel(
 					}
 				}
 				val rec = localRepository.getRecord(activeRecordId)
-				setState(uiState.value.copy(
-					activeRecordId = activeRecordId,
-					activeRecordPos = activeItemPos,
-					playState = PlayState.IDLE,
-				))
-				setPlayState(uiPlayState.value.copy(
-					playRecordDuration = rec.duration/1000,
-					recordPath = rec.path,
-					playRecordName = rec.name,
-					activeRecordData = rec.amps
-				))
+				if (rec != null) {
+					setState(
+						uiState.value.copy(
+							activeRecordId = activeRecordId,
+							activeRecordPos = activeItemPos,
+							playState = PlayState.IDLE,
+						)
+					)
+					setPlayState(
+						uiPlayState.value.copy(
+							playRecordDuration = rec.duration / 1000,
+							recordPath = rec.path,
+							playRecordName = rec.name,
+							activeRecordData = rec.amps
+						)
+					)
+				}
 			}
 			when {
 				appRecorder.isRecording -> {
@@ -180,10 +186,10 @@ class MoveRecordsViewModel(
 		if (id == uiState.value.activeRecordId) {
 			startPlayback()
 		} else {
-			audioPlayer.stop()
 			when (uiState.value.playState) {
 				PlayState.RECORDING -> return
 				else -> {
+					audioPlayer.stop()
 					prefs.activeRecord = id.toLong()
 					loadingTasks.postRunnable {
 						val record = localRepository.getRecord(id)

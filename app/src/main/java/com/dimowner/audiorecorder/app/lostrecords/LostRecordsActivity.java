@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -73,7 +72,7 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 		findViewById(R.id.btn_file_browser).setOnClickListener(v -> startActivity(FileBrowserActivity.getStartIntent(getApplicationContext())));
 
 		txtEmpty = findViewById(R.id.txtEmpty);
-		Button btnDeleteAll = findViewById(R.id.btn_delete_all);
+		TextView btnDeleteAll = findViewById(R.id.btn_delete_all);
 		btnDeleteAll.setOnClickListener(v -> AndroidUtils.showDialogYesNo(
 				LostRecordsActivity.this,
 				R.drawable.ic_delete_forever_dark,
