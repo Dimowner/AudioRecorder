@@ -161,7 +161,8 @@ class MoveRecordsService : Service() {
 									localRepository.updateRecord(record)
 									fileRepository.deleteRecordFile(sourceFilePath)
 									if (copied + failed == list.size) {
-										Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+										val text = getResultMessage(message, copied, failed, list.size)
+										Toast.makeText(applicationContext, text, Toast.LENGTH_LONG).show()
 										moveListener?.onFinishMove()
 										prefs.isPublicStorageMigrated = true
 										stopService()
@@ -172,7 +173,8 @@ class MoveRecordsService : Service() {
 									failed++
 									copiedPercent += oneRecordProgress.toInt()
 									if (copied + failed == list.size) {
-										Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+										val text = getResultMessage(message, copied, failed, list.size)
+										Toast.makeText(applicationContext, text, Toast.LENGTH_LONG).show()
 										moveListener?.onFinishMove()
 										stopService()
 									}
@@ -181,6 +183,20 @@ class MoveRecordsService : Service() {
 					}
 				}
 			}
+		}
+	}
+
+	private fun getResultMessage(name: String, copied: Int, failed: Int, size: Int): String {
+		return if (size == 1) {
+			applicationContext.resources.getString(R.string.move_record_success, name)
+		} else if (copied == size) {
+			applicationContext.resources.getQuantityString(R.plurals.move_records_success_count, copied, copied)
+		} else if (failed == size) {
+			applicationContext.resources.getQuantityString(R.plurals.move_records_failed_count, failed, failed)
+		} else if (copied > 0 && failed > 0) {
+			applicationContext.getString(R.string.moving_records_success_and_fail_count, copied, failed)
+		} else {
+			applicationContext.resources.getString(R.string.move_record_failed, name)
 		}
 	}
 

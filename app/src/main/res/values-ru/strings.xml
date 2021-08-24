@@ -85,14 +85,29 @@
 		<item quantity="few">%d записи загружено успешно</item>
 		<item quantity="many">%d записей загружено успешно</item>
 	</plurals>
+	<plurals name="move_records_success_count">
+		<item quantity="one">%d запись перемещена успешно</item>
+		<item quantity="other">%d записей перемещены успешно</item>
+		<item quantity="few">%d записи перемещены успешно</item>
+		<item quantity="many">%d записей перемещены успешно</item>
+	</plurals>
 	<string name="downloading_success_and_fail_count">%d записей загружено успешно, и %d не удалось загрузить</string>
+	<string name="moving_records_success_and_fail_count">%d записей перемещено успешно, и %d не удалось переместить</string>
 	<string name="downloading_success">%s скачано в папку Download</string>
+	<string name="move_record_success">%s перемещено в приватную папку приложения</string>
 	<plurals name="downloading_failed_count">
 		<item quantity="one">Не удалось скачать %d запись</item>
 		<item quantity="other">Не удалось скачать %d записей</item>
 		<item quantity="few">Не удалось скачать %d записи</item>
 		<item quantity="many">Не удалось скачать %d записей</item>
 	</plurals>
+	<plurals name="move_records_failed_count">
+		<item quantity="one">Не удалось переместить %d запись</item>
+		<item quantity="other">Не удалось переместить %d записей</item>
+		<item quantity="few">Не удалось переместить %d записи</item>
+		<item quantity="many">Не удалось переместить %d записей</item>
+	</plurals>
+	<string name="move_record_failed">Ошибка при перемещении: %s</string>
 	<string name="downloading_failed">Ошибка при скачивания: %s</string>
 	<string name="downloading_failed_file_already_exists">Не удалось скачать. Файл с именем %s уже существует</string>
 	<string name="downloading_cancel">Скачивание отменено</string>
@@ -152,6 +167,12 @@
 	<string name="btn_apply">Применить</string>
 	<string name="btn_reset">Сбросить</string>
 	<string name="btn_next">Далее</string>
+	<string name="view">Просмотреть</string>
+	<string name="view_records">Просмотреть записи</string>
+	<string name="move_records_needed">Нужно переместить записи</string>
+	<string name="moving_record">Перемещение записей: %s</string>
+	<string name="moving_record_cancel">Перемещение отменено</string>
+	<string name="move_records_info">Некоторые из ваших записей все еще хранятся в публичной папке. Скоро публичное папки перестанут быть доступны для приложения. Нам нужно переместить эти записи в приватную папку приложения.</string>
 	<string name="info_format"><b>M4a</b> формат кодируется аудио кодеком AAC, имеет хорошее качество и небольшой размер. <b>(рекомендовано)</b>
 		\n<b>Wav</b> формат несжатых аудиоданных. Занимает гораздо больше места, чем другие форматы. Используется в конкретных целей.
 		\n<b>3gp</b> - мультимедийный контейнер, разработанный для услуг мобильной связи. Используйте его, если вам нужно сэкономить место.
@@ -201,6 +222,7 @@
 	<string name="records_location">Расположение записей:\n%s</string>
 	<string name="feature_not_available_in_android_10">Эта функция больше недоступна в Android 10 и выше.</string>
 	<string name="size">%s Мб</string>
+	<string name="move_records">Переместить %d записей</string>
 
 	<string name="error_unknown">Неожиданная ошибка</string>
 	<string name="error_cant_create_file">Не удалось создать файл</string>
@@ -219,6 +241,11 @@
 	<string name="error_on_recording">Ошибка при записи</string>
 	<string name="error_failed_to_restore">Не удалось восстановить запись!</string>
 	<string name="error_failed_to_delete">Не удалось удалить запись!</string>
+
+	<string name="move_public_storage_records_message">Нужно переместить записи из публичной папки</string>
+	<string name="later">Позже</string>
+	<string name="move">Перенести</string>
+	<string name="move_all">Перенести все</string>
 
 	<!-- Shown in the 'About' window of the app. -->
 	<string name="about_body"><![CDATA[

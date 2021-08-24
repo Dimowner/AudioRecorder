@@ -217,12 +217,11 @@ fun copyFileToDir(context: Context, sourceFile: File, destinationFile: File, lis
 			}
 
 			override fun onCopyFinish(message: String?) {
-				listener?.onCopyFinish(context.resources.getString(R.string.downloading_success, sourceName))
+				listener?.onCopyFinish(sourceName)
 			}
 
 			override fun onError(message: String?) {
-				//TODO: Fix text message
-				listener?.onError(context.resources.getString(R.string.downloading_failed, sourceName))
+				listener?.onError(sourceName)
 			}
 		})
 }
