@@ -333,9 +333,13 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		} else if (id == R.id.btn_share) {
 			showMenu(view);
 		} else if (id == R.id.btn_import) {
-//			if (checkStoragePermissionImport()) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 				startFileSelector();
-//			}
+			} else {
+				if (checkStoragePermissionImport()) {
+					startFileSelector();
+				}
+			}
 		} else if (id == R.id.txt_name) {
 			presenter.onRenameRecordClick();
 		}
