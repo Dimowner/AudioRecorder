@@ -333,9 +333,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		} else if (id == R.id.btn_share) {
 			showMenu(view);
 		} else if (id == R.id.btn_import) {
-			if (checkStoragePermissionImport()) {
+//			if (checkStoragePermissionImport()) {
 				startFileSelector();
-			}
+//			}
 		} else if (id == R.id.txt_name) {
 			presenter.onRenameRecordClick();
 		}
@@ -687,9 +687,17 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void downloadRecord(Record record) {
-		if (checkStoragePermissionDownload()) {
+		if (isPublicDir(record.getPath())) {
+			if (checkStoragePermissionDownload()) {
+				DownloadService.startNotification(getApplicationContext(), record.getPath());
+			}
+		} else {
 			DownloadService.startNotification(getApplicationContext(), record.getPath());
 		}
+	}
+
+	private boolean isPublicDir(String path) {
+		return path.contains(FileUtil.getAppDir().getAbsolutePath());
 	}
 
 	@Override

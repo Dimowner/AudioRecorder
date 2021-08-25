@@ -224,10 +224,10 @@ fun copyFileToDir(context: Context, sourceFile: File, destinationFile: File, lis
 		})
 }
 
+@TargetApi(29)
 private fun isUriFileAlreadyExists(context: Context, name: String): Boolean {
 	val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
-//	val cursor = context.contentResolver.query(MediaStore.Downloads.EXTERNAL_CONTENT_URI, projection, null, null, null, null)
-	val cursor = context.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, null, null, null, null)
+	val cursor = context.contentResolver.query(MediaStore.Downloads.EXTERNAL_CONTENT_URI, projection, null, null, null, null)
 	cursor.use {
 		if (it != null && it.moveToFirst()) {
 			do {

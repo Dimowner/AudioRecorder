@@ -267,14 +267,22 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			} else if (menuId == R.id.menu_open_with) {
 				AndroidUtils.openAudioFile(getApplicationContext(), item.getPath(), item.getName());
 			} else if (menuId == R.id.menu_download) {
-				if (checkStoragePermissionDownload()) {
+				if (isPublicDir(item.getPath())) {
+					if (checkStoragePermissionDownload()) {
+						//Download record file with Service
+						DownloadService.startNotification(
+								getApplicationContext(),
+								item.getPath()
+						);
+					} else {
+						downloadRecords.add(item.getPath());
+					}
+				} else {
 					//Download record file with Service
 					DownloadService.startNotification(
 							getApplicationContext(),
 							item.getPath()
 					);
-				} else {
-					downloadRecords.add(item.getPath());
 				}
 			} else if (menuId == R.id.menu_delete) {
 				AndroidUtils.showDialogYesNo(
@@ -526,7 +534,24 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			ListItem item = adapter.getItem(selected.get(i));
 			downloadRecords.add(item.getPath());
 		}
-		if (checkStoragePermissionDownload()) {
+		boolean hasPublicDir = false;
+		for (int i = 0; i < downloadRecords.size(); i++) {
+			if (isPublicDir(downloadRecords.get(i))) {
+				hasPublicDir = true;
+				break;
+			}
+		}
+		if (hasPublicDir) {
+			if (checkStoragePermissionDownload()) {
+				//Download record file with Service
+				DownloadService.startNotification(
+						getApplicationContext(),
+						new ArrayList<>(downloadRecords)
+				);
+				downloadRecords.clear();
+				cancelMultiSelect();
+			}
+		} else {
 			//Download record file with Service
 			DownloadService.startNotification(
 					getApplicationContext(),
@@ -624,6 +649,10 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	public boolean isListOnBottom() {
 		return (layoutManager.findLastCompletelyVisibleItemPosition() == adapter.getItemCount()-1);
+	}
+
+	private boolean isPublicDir(String path) {
+		return path.contains(FileUtil.getAppDir().getAbsolutePath());
 	}
 
 	@Override
