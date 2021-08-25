@@ -31,6 +31,11 @@ public interface Prefs {
 	boolean hasAskToRenameAfterStopRecordingSetting();
 	void setAskToRenameAfterStopRecording(boolean b);
 
+	void setPublicStorageMigrated(boolean b);
+	boolean isPublicStorageMigrated();
+	long getLastPublicStorageMigrationAsked();
+	void setLastPublicStorageMigrationAsked(long time);
+
 	long getActiveRecord();
 	void setActiveRecord(long id);
 

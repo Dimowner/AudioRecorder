@@ -234,7 +234,7 @@ public class TimeUtils {
 	}
 
 	public static String formatDayMonthLocale(long time) {
-		String pattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), "MMMyyyy");
+		String pattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), "ddMMMyyyy");
 		SimpleDateFormat dayMonth = new SimpleDateFormat(pattern, Locale.getDefault());
 		return dayMonth.format(new Date(time));
 	}

@@ -57,16 +57,20 @@
 		<activity android:name="com.dimowner.audiorecorder.app.setup.SetupActivity"
 				android:screenOrientation="portrait">
 		</activity>
+		<activity android:name="com.dimowner.audiorecorder.app.moverecords.MoveRecordsActivity"
+				android:screenOrientation="portrait"/>
 
 		<service android:name="com.dimowner.audiorecorder.app.RecordingService" />
 		<service android:name="com.dimowner.audiorecorder.app.PlaybackService" />
 		<service android:name="com.dimowner.audiorecorder.app.DownloadService" />
 		<service android:name="com.dimowner.audiorecorder.app.DecodeService" />
+		<service android:name="com.dimowner.audiorecorder.app.moverecords.MoveRecordsService" />
 
 		<receiver android:name=".app.RecordingService$StopRecordingReceiver" />
 		<receiver android:name=".app.PlaybackService$StopPlaybackReceiver" />
 		<receiver android:name=".app.DownloadService$StopDownloadReceiver" />
 		<receiver android:name=".app.DecodeService$StopDecodeReceiver" />
+		<receiver android:name=".app.moverecords.MoveRecordsService$StopMoveRecordsReceiver" />
 
 		<provider
 				android:name=".AppFileProvider"

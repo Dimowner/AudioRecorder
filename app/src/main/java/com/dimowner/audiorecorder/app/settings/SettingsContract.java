@@ -30,6 +30,8 @@ public class SettingsContract {
 
 		void showDirectorySetting(boolean b);
 
+		void showMigratePublicStorage(boolean b);
+
 		void showKeepScreenOn(boolean b);
 
 		void showAskToRenameAfterRecordingStop(boolean b);

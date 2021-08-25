@@ -128,6 +128,29 @@ public class LocalRepositoryImpl implements LocalRepository {
 	}
 
 	@Override
+	public List<Record> findRecordsByPath(String path) {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		if (path.contains("'")) {
+			path = path.replace("'", "''");
+		}
+		return dataSource.getItems(COLUMN_PATH + " LIKE '%" + path + "%'");
+	}
+
+	@Override
+	public boolean hasRecordsWithPath(String path) {
+		if (!dataSource.isOpen()) {
+			dataSource.open();
+		}
+		if (path.contains("'")) {
+			path = path.replace("'", "''");
+		}
+		List<Record> records = dataSource.getItems(COLUMN_PATH + " LIKE '%" + path + "%' LIMIT 1");
+		return records.size() > 0;
+	}
+
+	@Override
 	public Record getTrashRecord(int id) {
 		if (!trashDataSource.isOpen()) {
 			trashDataSource.open();

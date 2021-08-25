@@ -139,5 +139,6 @@ public class AppConstants {
 	public final static int PLAYBACK_VISUALIZATION_INTERVAL = (int)(2.1* RECORDING_VISUALIZATION_INTERVAL); //mills
 
 	public final static int RECORD_BYTES_PER_SECOND = RECORD_ENCODING_BITRATE_48000 /8; //bits per sec converted to bytes per sec.
+	public final static int MIGRATE_PUBLIC_STORAGE_WARNING_COOLDOWN_MILLS = 12*60*60*1000; //12 hours
 
 }

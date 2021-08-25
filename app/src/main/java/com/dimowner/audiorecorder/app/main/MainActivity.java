@@ -51,6 +51,7 @@ import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.RecordingService;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
+import com.dimowner.audiorecorder.app.moverecords.MoveRecordsActivity;
 import com.dimowner.audiorecorder.app.records.RecordsActivity;
 import com.dimowner.audiorecorder.app.settings.SettingsActivity;
 import com.dimowner.audiorecorder.app.welcome.WelcomeActivity;
@@ -279,6 +280,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		presenter.setAudioRecorder(ARApplication.getInjector().provideAudioRecorder());
 		presenter.updateRecordingDir(getApplicationContext());
 		presenter.loadActiveRecord();
+		presenter.checkPublicStorageRecords();
 
 		Intent intent = new Intent(this, DecodeService.class);
 		bindService(intent, connection, Context.BIND_AUTO_CREATE);
@@ -688,6 +690,23 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		if (checkStoragePermissionDownload()) {
 			DownloadService.startNotification(getApplicationContext(), record.getPath());
 		}
+	}
+
+	@Override
+	public void showMigratePublicStorageWarning() {
+		AndroidUtils.showDialog(
+				this,
+				R.drawable.ic_warning_yellow,
+				R.string.view_records,
+				R.string.later,
+				R.string.move_records_needed,
+				R.string.move_records_info,
+				false,
+				v -> {
+					startActivity(MoveRecordsActivity.Companion.getStartIntent(getApplicationContext(), false));
+				},
+				v -> {}
+		);
 	}
 
 	@Override

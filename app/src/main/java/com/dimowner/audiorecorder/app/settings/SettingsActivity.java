@@ -27,8 +27,6 @@ import android.provider.DocumentsContract;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -43,6 +41,7 @@ import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.browser.FileBrowserActivity;
+import com.dimowner.audiorecorder.app.moverecords.MoveRecordsActivity;
 import com.dimowner.audiorecorder.app.trash.TrashActivity;
 import com.dimowner.audiorecorder.app.widget.SettingView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
@@ -67,6 +66,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private TextView txtLocation;
 	private TextView txtStorageInfo;
 	private TextView txtFileBrowser;
+	private TextView btnView;
+	private View migratePublicStoragePanel;
 	private View panelPublicDir;
 
 	private Switch swPublicDir;
@@ -118,23 +119,22 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
 
-		getWindow().setFlags(
-				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-		LinearLayout toolbar = findViewById(R.id.toolbar);
-		toolbar.setPadding(0, AndroidUtils.getStatusBarHeight(getApplicationContext()), 0, 0);
+		btnView = findViewById(R.id.btnView);
 
-		View space = findViewById(R.id.space);
-		ViewGroup.LayoutParams params = space.getLayoutParams();
-		params.height = AndroidUtils.getNavigationBarHeight(getApplicationContext());
-		space.setLayoutParams(params);
-
+		btnView.setBackground(RippleUtils.createRippleShape(
+				ContextCompat.getColor(getApplicationContext(), R.color.white_transparent_80),
+				ContextCompat.getColor(getApplicationContext(), R.color.white_transparent_50),
+				getApplicationContext().getResources().getDimension(R.dimen.spacing_normal)
+		));
+		btnView.setOnClickListener(this);
 		btnReset = findViewById(R.id.btnReset);
 		btnReset.setOnClickListener(this);
 		txtSizePerMin = findViewById(R.id.txt_size_per_min);
 		txtInformation = findViewById(R.id.txt_information);
 		txtLocation = findViewById(R.id.txt_records_location);
 		txtStorageInfo = findViewById(R.id.txt_storage_info);
+		migratePublicStoragePanel = findViewById(R.id.migrate_public_storage_panel);
+		migratePublicStoragePanel.setOnClickListener(this);
 		txtLocation.setOnClickListener(this);
 		findViewById(R.id.btnBack).setOnClickListener(this);
 		TextView txtAbout = findViewById(R.id.txtAbout);
@@ -329,6 +329,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		if (id == R.id.btnBack) {
 			ARApplication.getInjector().releaseSettingsPresenter();
 			finish();
+		} else if (id == R.id.migrate_public_storage_panel || id == R.id.btnView) {
+			startActivity(MoveRecordsActivity.Companion.getStartIntent(getApplicationContext(), true));
 		} else if (id == R.id.btnTrash) {
 			startActivity(TrashActivity.getStartIntent(getApplicationContext()));
 		} else if (id == R.id.txt_records_location) {
@@ -412,6 +414,11 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 			txtStorageInfo.setVisibility(b ? View.VISIBLE : View.GONE);
 		}
+	}
+
+	@Override
+	public void showMigratePublicStorage(boolean b) {
+		migratePublicStoragePanel.setVisibility(b ? View.VISIBLE : View.GONE);
 	}
 
 	@Override

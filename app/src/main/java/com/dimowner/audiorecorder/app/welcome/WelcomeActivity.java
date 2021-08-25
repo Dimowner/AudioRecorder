@@ -22,14 +22,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.R;
-import com.dimowner.audiorecorder.app.InkPageIndicator;
 import com.dimowner.audiorecorder.app.setup.SetupActivity;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 
@@ -63,10 +60,6 @@ public class WelcomeActivity extends Activity implements WelcomeContract.View {
 		setTheme(ARApplication.getInjector().provideColorMap().getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_welcome);
-
-		getWindow().setFlags(
-				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
 		actionButton = findViewById(R.id.btn_action);
 		actionButton.setOnClickListener(v -> {

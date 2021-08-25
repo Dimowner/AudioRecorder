@@ -215,11 +215,9 @@ public class FileRepositoryImpl implements FileRepository {
 			} catch (FileNotFoundException e) {
 				Timber.e(e);
 				//Try to init public dir
-				recordDirectory = FileUtil.getAppDir();
-				if (recordDirectory == null) {
-					//If nothing helped then hardcode recording dir
-					recordDirectory = new File("/data/data/" + ARApplication.appPackage() + "/files");
-				}
+				//App dir now is not available.
+				//If nothing helped then hardcode recording dir
+				recordDirectory = new File("/data/data/" + ARApplication.appPackage() + "/files");
 			}
 		}
 	}

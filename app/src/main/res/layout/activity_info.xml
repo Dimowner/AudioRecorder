@@ -16,6 +16,7 @@
   -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 		xmlns:tools="http://schemas.android.com/tools"
+		tools:viewBindingIgnore="true"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
@@ -207,6 +208,7 @@
 				android:layout_height="wrap_content"
 				android:text="@string/rec_location"
 				android:fontFamily="sans-serif-light"
+				android:visibility="gone"
 				android:textSize="@dimen/text_medium"
 				android:layout_marginTop="@dimen/spacing_medium"
 				android:layout_marginStart="@dimen/spacing_normal"
@@ -216,6 +218,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:gravity="start"
+				android:visibility="gone"
 				android:textColor="@color/text_primary_light"
 				android:layout_marginStart="@dimen/spacing_normal"
 				android:layout_marginEnd="@dimen/spacing_normal"

@@ -17,15 +17,16 @@
 package com.dimowner.audiorecorder.app.trash;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.lostrecords.RecordItem;
+import com.dimowner.audiorecorder.util.RippleUtils;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.util.ArrayList;
@@ -121,8 +122,8 @@ public class TrashAdapter extends RecyclerView.Adapter<TrashAdapter.ItemViewHold
 	static class ItemViewHolder extends RecyclerView.ViewHolder {
 		TextView name;
 		TextView duration;
-		Button btnDelete;
-		Button btnRestore;
+		TextView btnDelete;
+		TextView btnRestore;
 		View view;
 
 		ItemViewHolder(View itemView) {
@@ -131,7 +132,21 @@ public class TrashAdapter extends RecyclerView.Adapter<TrashAdapter.ItemViewHold
 			name = itemView.findViewById(R.id.list_item_name);
 			duration = itemView.findViewById(R.id.list_item_location);
 			btnDelete = itemView.findViewById(R.id.list_item_delete);
+			btnDelete.setBackground(
+					RippleUtils.createRippleShape(
+							ContextCompat.getColor(btnDelete.getContext(), R.color.md_red_700),
+							ContextCompat.getColor(btnDelete.getContext(), R.color.white_transparent_50),
+							btnDelete.getContext().getResources().getDimension(R.dimen.spacing_normal)
+					)
+			);
 			btnRestore = itemView.findViewById(R.id.list_item_restore);
+			btnRestore.setBackground(
+					RippleUtils.createRippleShape(
+							ContextCompat.getColor(btnDelete.getContext(), R.color.md_green_600),
+							ContextCompat.getColor(btnDelete.getContext(), R.color.white_transparent_50),
+							btnDelete.getContext().getResources().getDimension(R.dimen.spacing_normal)
+					)
+			);
 		}
 	}
 

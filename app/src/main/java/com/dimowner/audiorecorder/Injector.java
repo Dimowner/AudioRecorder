@@ -24,6 +24,7 @@ import com.dimowner.audiorecorder.app.browser.FileBrowserContract;
 import com.dimowner.audiorecorder.app.browser.FileBrowserPresenter;
 import com.dimowner.audiorecorder.app.lostrecords.LostRecordsContract;
 import com.dimowner.audiorecorder.app.lostrecords.LostRecordsPresenter;
+import com.dimowner.audiorecorder.app.moverecords.MoveRecordsViewModel;
 import com.dimowner.audiorecorder.app.settings.SettingsMapper;
 import com.dimowner.audiorecorder.app.setup.SetupContract;
 import com.dimowner.audiorecorder.app.setup.SetupPresenter;
@@ -68,6 +69,8 @@ public class Injector {
 	private FileBrowserContract.UserActionsListener fileBrowserPresenter;
 	private TrashContract.UserActionsListener trashPresenter;
 	private SetupContract.UserActionsListener setupPresenter;
+
+	private MoveRecordsViewModel moveRecordsViewModel;
 
 	private AudioPlayerNew audioPlayer = null;
 
@@ -213,6 +216,21 @@ public class Injector {
 		return setupPresenter;
 	}
 
+	public MoveRecordsViewModel provideMoveRecordsViewModel() {
+		if (moveRecordsViewModel == null) {
+			moveRecordsViewModel = new MoveRecordsViewModel(
+					provideLoadingTasksQueue(),
+					provideLocalRepository(),
+					provideFileRepository(),
+					provideSettingsMapper(),
+					provideAudioPlayer(),
+					provideAppRecorder(),
+					providePrefs()
+			);
+		}
+		return moveRecordsViewModel;
+	}
+
 	public LostRecordsContract.UserActionsListener provideLostRecordsPresenter() {
 		if (lostRecordsPresenter == null) {
 			lostRecordsPresenter = new LostRecordsPresenter(provideLoadingTasksQueue(), provideRecordingTasksQueue(),
@@ -276,6 +294,13 @@ public class Injector {
 		if (setupPresenter != null) {
 			setupPresenter.clear();
 			setupPresenter = null;
+		}
+	}
+
+	public void releaseMoveRecordsViewModel() {
+		if (moveRecordsViewModel != null) {
+			moveRecordsViewModel.clear();
+			moveRecordsViewModel = null;
 		}
 	}
 

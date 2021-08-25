@@ -34,7 +34,7 @@ private const val BUFFER_SIZE = 10240
  * Copies list of files into Download directory.
  * @author Dimowner
  */
-fun downloadFiles(context: Context, list: List<File>, listener: OnCopyListener?) {
+fun downloadFiles(context: Context, list: List<File>, listener: OnCopyListListener?) {
 	var copied = 0
 	var copiedPercent = 0
 	var failed = 0
@@ -46,7 +46,8 @@ fun downloadFiles(context: Context, list: List<File>, listener: OnCopyListener?)
 
 	for (f in list) {
 		val size = f.length()/100f
-		val listener = object : OnCopyListener {
+		listener?.onStartCopy(f.name)
+		val copyListener = object : OnCopyListener {
 			override fun isCancel(): Boolean = listener?.isCancel ?: false
 
 			override fun onCopyProgress(percent: Int) {
@@ -90,9 +91,9 @@ fun downloadFiles(context: Context, list: List<File>, listener: OnCopyListener?)
 			}
 		}
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			downloadFile(context, f, listener)
+			downloadFile(context, f, copyListener)
 		} else {
-			downloadFile28(context, f, listener)
+			downloadFile28(context, f, copyListener)
 		}
 	}
 }
@@ -171,7 +172,7 @@ private fun downloadFile28(context: Context, sourceFile: File, listener: OnCopyL
 	val created = FileUtil.createFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), sourceName)
 	if (created != null) {
 		FileUtil.copyFile(sourceFile, created,
-				object : OnCopyListener {
+				object : FileUtil.FileOnCopyListener {
 					override fun isCancel(): Boolean {
 						return listener?.isCancel ?: false
 					}
@@ -197,9 +198,36 @@ private fun downloadFile28(context: Context, sourceFile: File, listener: OnCopyL
 	}
 }
 
+fun copyFileToDir(context: Context, sourceFile: File, destinationFile: File, listener: OnCopyListener?) {
+	val sourceName = sourceFile.name
+	FileUtil.copyFile(sourceFile, destinationFile,
+		object : FileUtil.FileOnCopyListener {
+			override fun isCancel(): Boolean {
+				return listener?.isCancel ?: false
+			}
+
+			override fun onCopyProgress(percent: Int) {
+				listener?.onCopyProgress(percent)
+			}
+
+			override fun onCanceled() {
+				listener?.onCanceled()
+			}
+
+			override fun onCopyFinish(message: String?) {
+				listener?.onCopyFinish(sourceName)
+			}
+
+			override fun onError(message: String?) {
+				listener?.onError(sourceName)
+			}
+		})
+}
+
 private fun isUriFileAlreadyExists(context: Context, name: String): Boolean {
 	val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
-	val cursor = context.contentResolver.query(MediaStore.Downloads.EXTERNAL_CONTENT_URI, projection, null, null, null, null)
+//	val cursor = context.contentResolver.query(MediaStore.Downloads.EXTERNAL_CONTENT_URI, projection, null, null, null, null)
+	val cursor = context.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, null, null, null, null)
 	cursor.use {
 		if (it != null && it.moveToFirst()) {
 			do {

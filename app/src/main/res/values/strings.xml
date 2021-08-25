@@ -4,7 +4,7 @@
 	<string name="records">Records</string>
 	<string name="settings">Settings</string>
 	<string name="setup">Setup</string>
-	<string name="welcome_1">Welcome to the simple and fast application</string>
+	<string name="welcome_1">Welcome to a simple and fast application</string>
 	<string name="welcome_2">Beautiful design and good functionality</string>
 	<string name="welcome_3">Select best settings and start recording</string>
 	<string name="title_1">Audio Recorder</string>
@@ -77,12 +77,23 @@
 		<item quantity="one">%d record downloaded successfully</item>
 		<item quantity="other">%d records downloaded successfully</item>
 	</plurals>
+	<plurals name="move_records_success_count">
+		<item quantity="one">%d record moved successfully</item>
+		<item quantity="other">%d records moved successfully</item>
+	</plurals>
 	<string name="downloading_success_and_fail_count">%d records downloaded successfully and %d failed to download</string>
+	<string name="moving_records_success_and_fail_count">%d records moved successfully and %d failed to move</string>
 	<string name="downloading_success">%s downloaded to the Download directory</string>
+	<string name="move_record_success">%s moved to the app\'s private directory</string>
 	<plurals name="downloading_failed_count">
 		<item quantity="one">Failed to download %d record</item>
 		<item quantity="other">Failed to download %d records</item>
 	</plurals>
+	<plurals name="move_records_failed_count">
+		<item quantity="one">Failed to move %d record</item>
+		<item quantity="other">Failed to move %d records</item>
+	</plurals>
+	<string name="move_record_failed">Failed to move: %s</string>
 	<string name="downloading_failed">Failed to download: %s</string>
 	<string name="downloading_failed_file_already_exists">Failed to download. File with name %s already exists</string>
 	<string name="downloading_cancel">Downloading canceled</string>
@@ -142,6 +153,12 @@
 	<string name="btn_apply">Apply</string>
 	<string name="btn_reset">Reset</string>
 	<string name="btn_next">Next</string>
+	<string name="view">View</string>
+	<string name="view_records">View records</string>
+	<string name="move_records_needed">Move records needed</string>
+	<string name="moving_record">Moving record: %s</string>
+	<string name="moving_record_cancel">Moving canceled</string>
+	<string name="move_records_info">Some of your records still stored in the public storage. Soon the public storage will become not available for the app. We need to move that records to the app\'s private directory.</string>
 	<string name="info_format"><b>M4a</b> format is encoded with AAC audio codec has good quality and small size. <b>(recommended)</b>
 		\n<b>Wav</b> is uncompressed audio data format. It takes much more space than other formats. It\'s needed for specific cases.
 		\n<b>3gp</b> is a multimedia container format developed for mobile telecommunication services. Use it if you need to save space.
@@ -191,6 +208,7 @@
 	<string name="records_location">Records location:\n%s</string>
 	<string name="feature_not_available_in_android_10">This feature is no longer available in Android 10 or higher.</string>
 	<string name="size">%s Mb</string>
+	<string name="move_records">Move %d records</string>
 
 	<string name="error_unknown">Unexpected error</string>
 	<string name="error_cant_create_file">Can\'t create file</string>
@@ -209,6 +227,11 @@
 	<string name="error_on_recording">Recording error!</string>
 	<string name="error_failed_to_restore">Failed to restore the record!</string>
 	<string name="error_failed_to_delete">Failed to delete the record!</string>
+
+	<string name="move_public_storage_records_message">Move public storage records is needed</string>
+	<string name="later">Later</string>
+	<string name="move">Move</string>
+	<string name="move_all">Move all</string>
 
 	<!-- Shown in the 'About' window of the app. -->
 	<string name="about_body"><![CDATA[
