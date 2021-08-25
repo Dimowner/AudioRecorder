@@ -275,12 +275,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 			//This is needed for scoped storage support
 			presenter.storeInPrivateDir(getApplicationContext());
+			presenter.checkPublicStorageRecords();
 		}
 		presenter.checkFirstRun();
 		presenter.setAudioRecorder(ARApplication.getInjector().provideAudioRecorder());
 		presenter.updateRecordingDir(getApplicationContext());
 		presenter.loadActiveRecord();
-		presenter.checkPublicStorageRecords();
 
 		Intent intent = new Intent(this, DecodeService.class);
 		bindService(intent, connection, Context.BIND_AUTO_CREATE);

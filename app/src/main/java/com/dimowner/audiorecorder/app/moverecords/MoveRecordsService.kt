@@ -164,7 +164,9 @@ class MoveRecordsService : Service() {
 										val text = getResultMessage(message, copied, failed, list.size)
 										Toast.makeText(applicationContext, text, Toast.LENGTH_LONG).show()
 										moveListener?.onFinishMove()
-										prefs.isPublicStorageMigrated = true
+										if (!localRepository.hasRecordsWithPath(fileRepository.publicDir.absolutePath)) {
+											prefs.isPublicStorageMigrated = true
+										}
 										stopService()
 									}
 								}

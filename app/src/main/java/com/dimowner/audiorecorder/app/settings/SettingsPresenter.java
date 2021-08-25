@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.app.settings;
 
 import android.content.Context;
+import android.os.Build;
 
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
@@ -33,13 +34,15 @@ import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
+import java.util.Locale;
 
 public class SettingsPresenter implements SettingsContract.UserActionsListener {
 
 	private SettingsContract.View view;
 
-	private DecimalFormat decimalFormat = new DecimalFormat("#.#");
+	private final DecimalFormat decimalFormat;
 
 	private final BackgroundQueue recordingsTasks;
 	private final FileRepository fileRepository;
@@ -60,6 +63,10 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		this.prefs = prefs;
 		this.settingsMapper = settingsMapper;
 		this.appRecorder = appRecorder;
+
+		DecimalFormatSymbols formatSymbols = new DecimalFormatSymbols(Locale.getDefault());
+		formatSymbols.setDecimalSeparator('.');
+		decimalFormat = new DecimalFormat("#.#", formatSymbols);
 	}
 
 	@Override
@@ -83,13 +90,15 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 				}
 			});
 
-			boolean isPublicStorageMigrated = !prefs.isPublicStorageMigrated()
-					&& localRepository.hasRecordsWithPath(fileRepository.getPublicDir().getAbsolutePath());
-			AndroidUtils.runOnUIThread(() -> {
-				if (view != null) {
-					view.showMigratePublicStorage(isPublicStorageMigrated);
-				}
-			});
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+				boolean isPublicStorageMigrated = !prefs.isPublicStorageMigrated()
+						&& localRepository.hasRecordsWithPath(fileRepository.getPublicDir().getAbsolutePath());
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.showMigratePublicStorage(isPublicStorageMigrated);
+					}
+				});
+			}
 		});
 		if (view != null) {
 			view.updateRecordingInfo(prefs.getSettingRecordingFormat());
@@ -307,7 +316,7 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 			case AppConstants.FORMAT_3GP:
 				return 1000 * (spaceBytes/(bitrate/8));
 			case AppConstants.FORMAT_WAV:
-				return 1000 * (spaceBytes/(sampleRate * channels * 2));
+				return 1000 * (spaceBytes/((long) sampleRate * channels * 2));
 			default:
 				return 0;
 		}
@@ -317,9 +326,9 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		switch (recordingFormat) {
 			case AppConstants.FORMAT_M4A:
 			case AppConstants.FORMAT_3GP:
-				return 60 * (bitrate/8);
+				return 60L * (bitrate/8);
 			case AppConstants.FORMAT_WAV:
-				return 60 * (sampleRate * channels * 2);
+				return 60 * ((long) sampleRate * channels * 2);
 			default:
 				return 0;
 		}

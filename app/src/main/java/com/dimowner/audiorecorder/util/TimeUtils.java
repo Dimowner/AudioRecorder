@@ -229,15 +229,13 @@ public class TimeUtils {
 	}
 
 	public static String formatDateLocale(long time) {
-		java.text.DateFormat format = java.text.DateFormat.getDateInstance(
-				java.text.DateFormat.SHORT,
-				Locale.getDefault()
-		);
-		return format.format(new Date(time));
+		String pattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), "ddMMMyyyy");
+		SimpleDateFormat dayMonth = new SimpleDateFormat(pattern, Locale.getDefault());
+		return dayMonth.format(new Date(time));
 	}
 
 	public static String formatDayMonthLocale(long time) {
-		String pattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), "ddMMMyyyy");
+		String pattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), "ddMMM");
 		SimpleDateFormat dayMonth = new SimpleDateFormat(pattern, Locale.getDefault());
 		return dayMonth.format(new Date(time));
 	}
