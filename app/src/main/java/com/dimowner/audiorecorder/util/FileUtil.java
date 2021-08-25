@@ -72,18 +72,9 @@ public class FileUtil {
 		return dir;
 	}
 
-//	public static String generateRecordNameDate(String extension) {
-//		long time = System.currentTimeMillis();
-//		return AppConstants.BASE_RECORD_NAME + time/100 + AppConstants.EXTENSION_SEPARATOR + extension;
-//	}
-
 	public static String generateRecordNameCounted(long counter) {
 		return AppConstants.BASE_RECORD_NAME + counter;
 	}
-
-//	public static String generateRecordNameDate() {
-//		return AppConstants.BASE_RECORD_NAME_SHORT + TimeUtils.formatDateForName(System.currentTimeMillis());
-//	}
 
 	public static String generateRecordNameDateVariant() {
 		return TimeUtils.formatDateForNameVariant(System.currentTimeMillis());
@@ -91,6 +82,10 @@ public class FileUtil {
 
 	public static String generateRecordNameDateUS() {
 		return TimeUtils.formatDateForNameUS(System.currentTimeMillis());
+	}
+
+	public static String generateRecordNameDateISO8601() {
+		return TimeUtils.formatDateForNameISO8601(System.currentTimeMillis());
 	}
 
 	public static String generateRecordNameMills() {

@@ -30,7 +30,6 @@ public class AppConstants {
 	public static final String SEPARATOR = ", ";
 	public static final String EXTENSION_SEPARATOR = ".";
 	public static final String BASE_RECORD_NAME = "Record-";
-	public static final String BASE_RECORD_NAME_SHORT = "Rec-";
 	public static final String TRASH_MARK_EXTENSION = "del";
 
 	public static final String THEME_BLACK = "black";
@@ -60,6 +59,7 @@ public class AppConstants {
 	public static final String NAME_FORMAT_TIMESTAMP = "timestamp";
 	public static final String NAME_FORMAT_DATE = "date";
 	public static final String NAME_FORMAT_DATE_US = "date_us";
+	public static final String NAME_FORMAT_DATE_ISO8601 = "date_iso8601";
 
 	public static final int MAX_RECORD_NAME_LENGTH = 50;
 

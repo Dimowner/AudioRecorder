@@ -48,10 +48,13 @@ public class TimeUtils {
 //	private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy.MM.dd HH.mm.ss", Locale.getDefault());
 
 	/** Date format: 22.11.2018 11:30 */
-	private static SimpleDateFormat dateTimeFormat2 = new SimpleDateFormat("dd.MM.yyyy HH.mm.ss", Locale.getDefault());
+	private static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd.MM.yyyy HH.mm.ss", Locale.getDefault());
 
-	/** Date format: 11.22.2018 11:30 */
+	/** Date format: 11-22-2018 11:30AM */
 	private static SimpleDateFormat dateTimeFormatUS = new SimpleDateFormat("MM-dd-yyyy hh.mm.ssaa", Locale.getDefault());
+
+	/** Date format: 2021-08-25 11:50 */
+	private static SimpleDateFormat dateTimeFormatISO8601 = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss", Locale.getDefault());
 
 //	/** Time format: 11:30 */
 //	private static final SimpleDateFormat timeFormatEU = new SimpleDateFormat("HH:mm", Locale.FRANCE);
@@ -205,16 +208,16 @@ public class TimeUtils {
 	}
 
 	public static String formatDateForNameVariant(long time) {
-		return dateTimeFormat2.format(new Date(time));
+		return dateTimeFormat.format(new Date(time));
 	}
 
 	public static String formatDateForNameUS(long time) {
 		return dateTimeFormatUS.format(new Date(time));
 	}
 
-//	public static String formatDateTime(long time) {
-//		return dateTimeFormatEU.format(new Date(time));
-//	}
+	public static String formatDateForNameISO8601(long time) {
+		return dateTimeFormatISO8601.format(new Date(time));
+	}
 
 	public static String formatDateTimeLocale(long time) {
 		java.text.DateFormat format = java.text.DateFormat.getDateTimeInstance(

@@ -164,6 +164,8 @@ public class SettingsMapper {
 	public static int namingFormatToPosition(String namingFormat) {
 		switch (namingFormat) {
 			case AppConstants.NAME_FORMAT_TIMESTAMP:
+				return 4;
+			case AppConstants.NAME_FORMAT_DATE_ISO8601:
 				return 3;
 			case AppConstants.NAME_FORMAT_DATE_US:
 				return 2;
@@ -184,6 +186,8 @@ public class SettingsMapper {
 			case 2:
 				return AppConstants.NAME_FORMAT_DATE_US;
 			case 3:
+				return AppConstants.NAME_FORMAT_DATE_ISO8601;
+			case 4:
 				return AppConstants.NAME_FORMAT_TIMESTAMP;
 			default:
 				return AppConstants.DEFAULT_NAME_FORMAT;

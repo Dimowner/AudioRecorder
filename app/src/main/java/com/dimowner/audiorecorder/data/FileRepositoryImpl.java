@@ -67,6 +67,9 @@ public class FileRepositoryImpl implements FileRepository {
 			case AppConstants.NAME_FORMAT_DATE_US:
 				recordName = FileUtil.generateRecordNameDateUS();
 				break;
+			case AppConstants.NAME_FORMAT_DATE_ISO8601:
+				recordName = FileUtil.generateRecordNameDateISO8601();
+				break;
 			case AppConstants.NAME_FORMAT_TIMESTAMP:
 				recordName = FileUtil.generateRecordNameMills();
 				break;
@@ -84,16 +87,6 @@ public class FileRepositoryImpl implements FileRepository {
 				break;
 		}
 
-//		if (prefs.getNamingFormat() == AppConstants.NAMING_COUNTED) {
-//			recordName = FileUtil.generateRecordNameCounted(prefs.getRecordCounter());
-//		} else {
-//			recordName = FileUtil.generateRecordNameDate();
-//		}
-//		if (prefs.getSettingRecordingFormat() == AppConstants.RECORDING_FORMAT_WAV) {
-//			recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.WAV_EXTENSION));
-//		} else {
-//			recordFile = FileUtil.createFile(recordDirectory, FileUtil.addExtension(recordName, AppConstants.M4A_EXTENSION));
-//		}
 		if (recordFile != null) {
 			return recordFile;
 		}
