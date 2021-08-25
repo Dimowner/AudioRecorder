@@ -114,6 +114,7 @@ class DecodeService : Service() {
 
 	private fun startDecode(id: Int) {
 		isCancel = false
+		startNotification()
 		processingTasks.postRunnable {
 			var prevTime: Long = 0
 			val rec = localRepository.getRecord(id)
@@ -178,7 +179,6 @@ class DecodeService : Service() {
 				stopService()
 			}
 		}
-		startNotification()
 	}
 
 	private fun startNotification() {

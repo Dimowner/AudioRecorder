@@ -125,7 +125,7 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<FileBrowserAdapter.
 
 	@Override
 	public void onBindViewHolder(@NonNull ItemViewHolder holder, final int position) {
-		final int pos = holder.getAdapterPosition();
+		final int pos = holder.getAbsoluteAdapterPosition();
 		if (pos != RecyclerView.NO_POSITION) {
 			RecordInfo rec = data.get(pos);
 			holder.name.setText(rec.getName());

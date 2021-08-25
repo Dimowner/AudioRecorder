@@ -87,9 +87,9 @@ public class TrashAdapter extends RecyclerView.Adapter<TrashAdapter.ItemViewHold
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull ItemViewHolder holder, final int position) {
-		final int pos = holder.getAdapterPosition();
-		if (pos != RecyclerView.NO_POSITION) {
+	public void onBindViewHolder(@NonNull ItemViewHolder holder, final int pos) {
+		final int position = holder.getAbsoluteAdapterPosition();
+		if (position != RecyclerView.NO_POSITION) {
 			holder.name.setText(data.get(position).getName());
 			holder.duration.setText(TimeUtils.formatTimeIntervalHourMinSec2(data.get(position).getDuration()/1000));
 			holder.view.setOnClickListener(v -> {
