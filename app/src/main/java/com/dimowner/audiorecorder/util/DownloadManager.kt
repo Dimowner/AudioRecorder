@@ -113,10 +113,8 @@ fun downloadFile(context: Context, sourceFile: File, listener: OnCopyListener?) 
 			val contentValues = ContentValues()
 			contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, sourceName)
 			contentValues.put(MediaStore.MediaColumns.MIME_TYPE, mime)
-//			contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-			contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_MUSIC)
-//			val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-			val uri = resolver.insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, contentValues)
+			contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+			val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
 			if (uri != null) {
 				try {
 					val outputStream = resolver.openOutputStream(uri)
