@@ -139,7 +139,7 @@
 	<string name="public_dir_warning">Записи будуть зберігатись в звичайній директорії пристрою, видимій іншим додаткам.</string>
 	<string name="lost_records">Втрачені записи</string>
 	<string name="trash">Кошик</string>
-	<string name="trash_info">Запис переміщений в кошик автоматично буде видалений назавжди через 60 днів.</string>
+	<string name="trash_info">Записи переміщені в кошик автоматично будуть видалені назавжди через 60 днів.</string>
 	<string name="file_browser">Файловий менеджер</string>
 	<string name="private_dir">Приватний каталог</string>
 	<string name="public_dir">Публічний каталог</string>
@@ -169,10 +169,10 @@
 	<string name="btn_next">Далі</string>
 	<string name="view">Переглянути</string>
 	<string name="view_records">Переглянути записи</string>
-	<string name="move_records_needed">Нужно перемістити записи</string>
+	<string name="move_records_needed">Потрібно перемістити записи</string>
 	<string name="moving_record">Переміщення записів: %s</string>
 	<string name="moving_record_cancel">Перемещення відмінено</string>
-	<string name="move_records_info">Деякі з ваших записів все ще зберігаються в публічній папці. Скоро публічні папки перестануть бути доступні для додатка. Нам потрібно перемістити ці записи в приватну папку додатка.</string>
+	<string name="move_records_info">Деякі з ваших записів все ще зберігаються в публічній папці. Скоро публічні папки перестануть бути доступні для додатка. Потрібно перемістити ці записи в приватну папку додатка.</string>
 	<string name="info_format"><b>M4a</b> - формат кодується аудіо кодеком AAC, має хорошу якість і невеликий розмір. <b>(рекомендовано)</b>
 		\n<b>Wav</b> - формат нестиснених аудіо даних. Займає набагато більше місця, ніж інші формати. Використовується для конкретних цілей.
 		\n<b>3gp</b> - мультимедійний контейнер, розроблений для послуг мобільного зв\'язку. Використовуйте його, якщо вам потрібно заощадити місце.
@@ -242,7 +242,7 @@
 	<string name="error_failed_to_restore">Не вдалося відновити запис!</string>
 	<string name="error_failed_to_delete">Не вдалося видалити запис!</string>
 
-	<string name="move_public_storage_records_message">Потрібно перемістити записи із публічної папки</string>
+	<string name="move_public_storage_records_message">Потрібно перемістити записи з публічної папки</string>
 	<string name="later">Пізніше</string>
 	<string name="move">Перенести</string>
 	<string name="move_all">Перенести всі</string>

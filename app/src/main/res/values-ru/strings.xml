@@ -87,9 +87,9 @@
 	</plurals>
 	<plurals name="move_records_success_count">
 		<item quantity="one">%d запись перемещена успешно</item>
-		<item quantity="other">%d записей перемещены успешно</item>
+		<item quantity="other">%d записей перемещено успешно</item>
 		<item quantity="few">%d записи перемещены успешно</item>
-		<item quantity="many">%d записей перемещены успешно</item>
+		<item quantity="many">%d записей перемещено успешно</item>
 	</plurals>
 	<string name="downloading_success_and_fail_count">%d записей загружено успешно, и %d не удалось загрузить</string>
 	<string name="moving_records_success_and_fail_count">%d записей перемещено успешно, и %d не удалось переместить</string>
@@ -139,7 +139,7 @@
 	<string name="public_dir_warning">Записи будут сохранятся в обычной директории устройства, видимой другим приложениям.</string>
 	<string name="lost_records">Потеряные записи</string>
 	<string name="trash">Корзина</string>
-	<string name="trash_info">Запись помещенная в корзину автоматически будет удалена навсегда через 60 дней.</string>
+	<string name="trash_info">Записи помещенные в корзину автоматически будет удалены навсегда через 60 дней.</string>
 	<string name="file_browser">Файловый менеджер</string>
 	<string name="private_dir">Приватный каталог</string>
 	<string name="public_dir">Публичный каталог</string>
@@ -172,7 +172,7 @@
 	<string name="move_records_needed">Нужно переместить записи</string>
 	<string name="moving_record">Перемещение записей: %s</string>
 	<string name="moving_record_cancel">Перемещение отменено</string>
-	<string name="move_records_info">Некоторые из ваших записей все еще хранятся в публичной папке. Скоро публичное папки перестанут быть доступны для приложения. Нам нужно переместить эти записи в приватную папку приложения.</string>
+	<string name="move_records_info">Некоторые из ваших записей все еще хранятся в публичной папке. Скоро публичные папки перестанут быть доступными для приложения. Нужно переместить эти записи в приватную папку приложения.</string>
 	<string name="info_format"><b>M4a</b> формат кодируется аудио кодеком AAC, имеет хорошее качество и небольшой размер. <b>(рекомендовано)</b>
 		\n<b>Wav</b> формат несжатых аудиоданных. Занимает гораздо больше места, чем другие форматы. Используется в конкретных целей.
 		\n<b>3gp</b> - мультимедийный контейнер, разработанный для услуг мобильной связи. Используйте его, если вам нужно сэкономить место.
