@@ -893,7 +893,6 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		AndroidUtils.showRenameDialog(this, name, false, newName -> {
 			if (!name.equalsIgnoreCase(newName)) {
 				presenter.renameRecord(recordId, newName, extension);
-				presenter.loadRecords();
 			}
 		}, v -> {}, null);
 	}

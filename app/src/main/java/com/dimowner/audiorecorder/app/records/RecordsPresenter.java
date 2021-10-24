@@ -319,7 +319,7 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 					});
 				} else {
 					if (fileRepository.renameFile(rec2.getPath(), name, extension)) {
-						activeRecord = new Record(
+						Record renamedRecord = new Record(
 								rec2.getId(),
 								name,
 								rec2.getDuration(),
@@ -335,11 +335,11 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 								rec2.isBookmarked(),
 								rec2.isWaveformProcessed(),
 								rec2.getAmps());
-						if (localRepository.updateRecord(activeRecord)) {
+						if (localRepository.updateRecord(renamedRecord)) {
 							AndroidUtils.runOnUIThread(() -> {
 								if (view != null) {
 									view.hideProgress();
-									view.showRecordName(name);
+									loadRecords();
 								}
 							});
 						} else {
