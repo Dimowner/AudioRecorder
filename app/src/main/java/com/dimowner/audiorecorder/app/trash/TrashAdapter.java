@@ -93,17 +93,17 @@ public class TrashAdapter extends RecyclerView.Adapter<TrashAdapter.ItemViewHold
 			holder.name.setText(data.get(position).getName());
 			holder.duration.setText(TimeUtils.formatTimeIntervalHourMinSec2(data.get(position).getDuration()/1000));
 			holder.view.setOnClickListener(v -> {
-				if (onItemClickListener != null) {
+				if (onItemClickListener != null && data.size() > position) {
 					onItemClickListener.onItemClick(data.get(position));
 				}
 			});
 			holder.btnDelete.setOnClickListener(v -> {
-				if (onItemClickListener != null) {
+				if (onItemClickListener != null && data.size() > position) {
 					onItemClickListener.onDeleteItemClick(data.get(position));
 				}
 			});
 			holder.btnRestore.setOnClickListener(v -> {
-				if (onItemClickListener != null) {
+				if (onItemClickListener != null && data.size() > position) {
 					onItemClickListener.onRestoreItemClick(data.get(position));
 				}
 			});
