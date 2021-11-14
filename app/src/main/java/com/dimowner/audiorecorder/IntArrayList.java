@@ -53,7 +53,7 @@ public class IntArrayList {
 
 	private void grow() {
 		int[] backup = data;
-		data = new int[size*2];
+		data = new int[data.length * 2];
 		for (int i = 0; i < backup.length; i++) {
 			data[i] = backup[i];
 		}

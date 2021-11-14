@@ -36,13 +36,13 @@ import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
-import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.main.MainActivity;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
+import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
@@ -89,7 +89,8 @@ public class RecordingService extends Service {
 		fileRepository = ARApplication.getInjector().provideFileRepository();
 
 		appRecorderCallback = new AppRecorderCallback() {
-//			int prevSec = 0;
+			boolean checkHasSpace = true;
+
 			@Override public void onRecordingStarted(File file) {
 				updateNotificationResume();
 			}
@@ -108,15 +109,23 @@ public class RecordingService extends Service {
 			@Override
 			public void onRecordingProgress(long mills, int amp) {
 				try {
-					if (mills % (5 * AppConstants.PLAYBACK_VISUALIZATION_INTERVAL * AppConstants.SHORT_RECORD_DP_PER_SECOND) == 0
-								&& !fileRepository.hasAvailableSpace(getApplicationContext())) {
-						stopRecording();
-						Toast.makeText(getApplicationContext(), R.string.error_no_available_space, Toast.LENGTH_LONG).show();
-						showNoSpaceNotification();
+					if (mills % 10000 < 1000) {
+						if (checkHasSpace && !fileRepository.hasAvailableSpace(getApplicationContext())) {
+							stopRecording();
+							AndroidUtils.runOnUIThread(() -> {
+								Toast.makeText(getApplicationContext(), R.string.error_no_available_space, Toast.LENGTH_LONG).show();
+							});
+							showNoSpaceNotification();
+						}
+						checkHasSpace = false;
+					} else {
+						checkHasSpace = true;
 					}
 				} catch (IllegalArgumentException e) {
 					stopRecording();
-					Toast.makeText(getApplicationContext(), R.string.error_failed_access_to_storage, Toast.LENGTH_LONG).show();
+					AndroidUtils.runOnUIThread(() -> {
+						Toast.makeText(getApplicationContext(), R.string.error_failed_access_to_storage, Toast.LENGTH_LONG).show();
+					});
 					showNoSpaceNotification();
 				}
 			}

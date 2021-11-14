@@ -357,7 +357,6 @@ public class AppRecorderImpl implements AppRecorder {
 	}
 
 	private void stopRecordingTimer() {
-		readProgress();
 		timerProgress.cancel();
 		timerProgress.purge();
 		updateTime = 0;
