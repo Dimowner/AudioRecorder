@@ -377,10 +377,14 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					appRecorder.pauseRecording();
 				}
 			} else {
-				view.showError(R.string.error_no_available_space);
+				if (view != null) {
+					view.showError(R.string.error_no_available_space);
+				}
 			}
 		} catch (IllegalArgumentException e) {
-			view.showError(R.string.error_failed_access_to_storage);
+			if (view != null) {
+				view.showError(R.string.error_failed_access_to_storage);
+			}
 		}
 	}
 
@@ -480,7 +484,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 								}
 							});
 						} else {
-							AndroidUtils.runOnUIThread(() -> view.showError(R.string.error_failed_to_rename));
+							AndroidUtils.runOnUIThread(() -> {
+								if (view != null) {
+									view.showError(R.string.error_failed_to_rename);
+								}
+							});
 							//Restore file name after fail update path in local database.
 							if (renamed.exists()) {
 								//Try to rename 3 times;
