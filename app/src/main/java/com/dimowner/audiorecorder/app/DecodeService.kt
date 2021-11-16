@@ -16,10 +16,7 @@
 
 package com.dimowner.audiorecorder.app
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.app.Service
+import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -67,9 +64,9 @@ class DecodeService : Service() {
 	private var decodeListener: DecodeServiceListener? = null
 	private val binder = LocalBinder()
 
-	lateinit var builder: NotificationCompat.Builder
 	lateinit var notificationManager: NotificationManagerCompat
 	lateinit var remoteViewsSmall: RemoteViews
+	lateinit var contentPendingIntent: PendingIntent
 	lateinit var processingTasks: BackgroundQueue
 	lateinit var recordingsTasks: BackgroundQueue
 	lateinit var localRepository: LocalRepository
@@ -187,17 +184,30 @@ class DecodeService : Service() {
 			createNotificationChannel(CHANNEL_ID, CHANNEL_NAME)
 		}
 		remoteViewsSmall = RemoteViews(packageName, R.layout.layout_progress_notification)
-		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_close, getCancelDecodePendingIntent(applicationContext))
-		remoteViewsSmall.setTextViewText(R.id.txt_name, resources.getString(R.string.record_calculation))
-		remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", ContextCompat.getColor(applicationContext, colorMap.primaryColorRes))
+		remoteViewsSmall.setOnClickPendingIntent(
+			R.id.btn_close,
+			getCancelDecodePendingIntent(applicationContext)
+		)
+		remoteViewsSmall.setTextViewText(
+			R.id.txt_name,
+			resources.getString(R.string.record_calculation)
+		)
+		remoteViewsSmall.setInt(
+			R.id.container,
+			"setBackgroundColor",
+			ContextCompat.getColor(applicationContext, colorMap.primaryColorRes)
+		)
 
 		// Create notification default intent.
 		val intent = Intent(applicationContext, MainActivity::class.java)
 		intent.flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
-		val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
+		contentPendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
+		startForeground(NOTIF_ID, buildNotification())
+	}
 
+	private fun buildNotification(): Notification {
 		// Create notification builder.
-		builder = NotificationCompat.Builder(this, CHANNEL_ID)
+		val builder = NotificationCompat.Builder(this, CHANNEL_ID)
 		builder.setWhen(System.currentTimeMillis())
 		builder.setContentTitle(resources.getString(R.string.app_name))
 		builder.setSmallIcon(R.drawable.ic_loop)
@@ -207,13 +217,13 @@ class DecodeService : Service() {
 			builder.priority = NotificationCompat.PRIORITY_DEFAULT
 		}
 		// Make head-up notification.
-		builder.setContentIntent(pendingIntent)
+		builder.setContentIntent(contentPendingIntent)
 		builder.setCustomContentView(remoteViewsSmall)
 		builder.setOngoing(true)
 		builder.setOnlyAlertOnce(true)
 		builder.setDefaults(0)
 		builder.setSound(null)
-		startForeground(NOTIF_ID, builder.build())
+		return builder.build()
 	}
 
 	fun stopService() {
@@ -245,7 +255,7 @@ class DecodeService : Service() {
 
 	private fun updateNotification(percent: Int) {
 		remoteViewsSmall.setProgressBar(R.id.progress, 100, percent, false)
-		notificationManager.notify(NOTIF_ID, builder.build())
+		notificationManager.notify(NOTIF_ID, buildNotification())
 	}
 
 	fun setDecodeListener(listener: DecodeServiceListener?) {

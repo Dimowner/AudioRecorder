@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.app;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -63,9 +64,9 @@ public class DownloadService extends Service {
 	public static final String EXTRAS_KEY_DOWNLOAD_INFO = "key_download_info";
 
 	private static final int NOTIF_ID = 103;
-	private NotificationCompat.Builder builder;
 	private NotificationManagerCompat notificationManager;
 	private RemoteViews remoteViewsSmall;
+	private PendingIntent contentPendingIntent;
 	private String downloadingRecordName = "";
 	private BackgroundQueue copyTasks;
 	private ColorMap colorMap;
@@ -204,10 +205,13 @@ public class DownloadService extends Service {
 		// Create notification default intent.
 		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
-		PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+		contentPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+		startForeground(NOTIF_ID, buildNotification());
+	}
 
+	private Notification buildNotification() {
 		// Create notification builder.
-		builder = new NotificationCompat.Builder(this, CHANNEL_ID);
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
 
 		builder.setWhen(System.currentTimeMillis());
 		builder.setContentTitle(getResources().getString(R.string.app_name));
@@ -218,13 +222,13 @@ public class DownloadService extends Service {
 			builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
 		}
 		// Make head-up notification.
-		builder.setContentIntent(pendingIntent);
+		builder.setContentIntent(contentPendingIntent);
 		builder.setCustomContentView(remoteViewsSmall);
 		builder.setOngoing(true);
 		builder.setOnlyAlertOnce(true);
 		builder.setDefaults(0);
 		builder.setSound(null);
-		startForeground(NOTIF_ID, builder.build());
+		return builder.build();
 	}
 
 	public void stopService() {
@@ -257,7 +261,7 @@ public class DownloadService extends Service {
 
 	private void updateNotification(int percent) {
 		remoteViewsSmall.setProgressBar(R.id.progress, 100, percent, false);
-		notificationManager.notify(NOTIF_ID, builder.build());
+		notificationManager.notify(NOTIF_ID, buildNotification());
 	}
 
 	private void updateNotificationText(String text) {
@@ -266,7 +270,7 @@ public class DownloadService extends Service {
 				R.id.txt_name,
 				getResources().getString(R.string.downloading, downloadingRecordName)
 		);
-		notificationManager.notify(NOTIF_ID, builder.build());
+		notificationManager.notify(NOTIF_ID, buildNotification());
 	}
 
 	public static class StopDownloadReceiver extends BroadcastReceiver {

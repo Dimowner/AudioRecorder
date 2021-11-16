@@ -58,11 +58,10 @@ public class PlaybackService extends Service {
 	public static final String EXTRAS_KEY_RECORD_NAME = "record_name";
 
 	private static final int NOTIF_ID = 101;
-	private NotificationCompat.Builder builder;
 	private NotificationManagerCompat notificationManager;
+	private PendingIntent contentPendingIntent;
 	private RemoteViews remoteViewsSmall;
 //	private RemoteViews remoteViewsBig;
-	private Notification notification;
 	private String recordName = "";
 	private boolean started = false;
 
@@ -165,10 +164,14 @@ public class PlaybackService extends Service {
 		// Create notification default intent.
 		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
-		PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+		contentPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+		startForeground(NOTIF_ID, buildNotification());
+		started = true;
+	}
 
+	private Notification buildNotification() {
 		// Create notification builder.
-		builder = new NotificationCompat.Builder(this, CHANNEL_ID);
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
 
 		builder.setWhen(System.currentTimeMillis());
 		builder.setContentTitle(getResources().getString(R.string.app_name));
@@ -179,16 +182,14 @@ public class PlaybackService extends Service {
 			builder.setPriority(Notification.PRIORITY_LOW);
 		}
 		// Make head-up notification.
-		builder.setContentIntent(pendingIntent);
+		builder.setContentIntent(contentPendingIntent);
 		builder.setCustomContentView(remoteViewsSmall);
 //		builder.setCustomBigContentView(remoteViewsBig);
 		builder.setOngoing(true);
 		builder.setOnlyAlertOnce(true);
 		builder.setDefaults(0);
 		builder.setSound(null);
-		notification = builder.build();
-		startForeground(NOTIF_ID, notification);
-		started = true;
+		return builder.build();
 	}
 
 	public void stopForegroundService() {
@@ -229,7 +230,7 @@ public class PlaybackService extends Service {
 //		remoteViewsBig.setTextViewText(R.id.txt_playback_progress,
 //				getResources().getString(R.string.playback, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
 
-			notificationManager.notify(NOTIF_ID, builder.build());
+			notificationManager.notify(NOTIF_ID, buildNotification());
 		}
 	}
 
@@ -237,7 +238,7 @@ public class PlaybackService extends Service {
 		if (started && remoteViewsSmall != null) {
 //			remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_play);
 			remoteViewsSmall.setImageViewResource(R.id.btn_pause, R.drawable.ic_play);
-			notificationManager.notify(NOTIF_ID, notification);
+			notificationManager.notify(NOTIF_ID, buildNotification());
 		}
 	}
 
@@ -245,7 +246,7 @@ public class PlaybackService extends Service {
 		if (started && remoteViewsSmall != null) {
 //			remoteViewsBig.setImageViewResource(R.id.btn_pause, R.drawable.ic_pause);
 			remoteViewsSmall.setImageViewResource(R.id.btn_pause, R.drawable.ic_pause);
-			notificationManager.notify(NOTIF_ID, notification);
+			notificationManager.notify(NOTIF_ID, buildNotification());
 		}
 	}
 

@@ -65,7 +65,7 @@ public class RecordingService extends Service {
 	private static final int NOTIF_ID = 101;
 	private NotificationManager notificationManager;
 	private RemoteViews remoteViewsSmall;
-	private Notification notification;
+	private PendingIntent contentPendingIntent;
 
 	private AppRecorder appRecorder;
 	private AppRecorderCallback appRecorderCallback;
@@ -208,6 +208,12 @@ public class RecordingService extends Service {
 //		remoteViewsBig.setTextViewText(R.id.txt_recording_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
 //		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
+		contentPendingIntent = createContentIntent();
+		startForeground(NOTIF_ID, buildNotification());
+		started = true;
+	}
+
+	private Notification buildNotification() {
 		// Create notification builder.
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
 
@@ -219,15 +225,13 @@ public class RecordingService extends Service {
 			builder.setPriority(Notification.PRIORITY_MAX);
 		}
 		// Make head-up notification.
-		builder.setContentIntent(createContentIntent());
+		builder.setContentIntent(contentPendingIntent);
 		builder.setCustomContentView(remoteViewsSmall);
 //		builder.setCustomBigContentView(remoteViewsBig);
 		builder.setOnlyAlertOnce(true);
 		builder.setDefaults(0);
 		builder.setSound(null);
-		notification = builder.build();
-		startForeground(NOTIF_ID, notification);
-		started = true;
+		return builder.build();
 	}
 
 	private PendingIntent createContentIntent() {
@@ -270,7 +274,7 @@ public class RecordingService extends Service {
 			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress, getResources().getString(R.string.recording_paused));
 			remoteViewsSmall.setImageViewResource(R.id.btn_recording_pause, R.drawable.ic_recording_yellow);
 
-			notificationManager.notify(NOTIF_ID, notification);
+			notificationManager.notify(NOTIF_ID, buildNotification());
 		}
 	}
 
@@ -279,7 +283,7 @@ public class RecordingService extends Service {
 			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress, getResources().getString(R.string.recording_is_on));
 			remoteViewsSmall.setImageViewResource(R.id.btn_recording_pause, R.drawable.ic_pause);
 
-			notificationManager.notify(NOTIF_ID, notification);
+			notificationManager.notify(NOTIF_ID, buildNotification());
 		}
 	}
 
@@ -291,7 +295,7 @@ public class RecordingService extends Service {
 //			remoteViewsBig.setTextViewText(R.id.txt_recording_progress,
 //					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
 
-			notificationManager.notify(NOTIF_ID, notification);
+			notificationManager.notify(NOTIF_ID, buildNotification());
 		}
 	}
 
