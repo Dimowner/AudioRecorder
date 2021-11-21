@@ -72,12 +72,8 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
-// TODO: Fix WaveForm blinking when seek
 // TODO: Fix waveform when long record (there is no waveform)
-// TODO: Ability to search by record name in list
 // TODO: Ability to scroll up from the bottom of the list
-// TODO: Stop infinite loop when pause WAV recording
-// TODO: Report some sensitive error to Crashlytics manually.
 //	TODO: Bluetooth micro support
 //	TODO: Mp3 support
 //	TODO: Add Noise gate
@@ -275,7 +271,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 			//This is needed for scoped storage support
 			presenter.storeInPrivateDir(getApplicationContext());
-			presenter.checkPublicStorageRecords();
+//			presenter.checkPublicStorageRecords();
 		}
 		presenter.checkFirstRun();
 		presenter.setAudioRecorder(ARApplication.getInjector().provideAudioRecorder());
@@ -305,9 +301,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void onClick(View view) {
 		int id = view.getId();
 		if (id == R.id.btn_play) {
+			String path = presenter.getActiveRecordPath();
 			//This method Starts or Pause playback.
-			if (FileUtil.isFileInExternalStorage(getApplicationContext(), presenter.getActiveRecordPath())) {
-				if (checkStoragePermissionPlayback()) {
+			if (FileUtil.isFileInExternalStorage(getApplicationContext(), path)) {
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+					AndroidUtils.showRecordFileNotAvailable(this, path);
+				} else if (checkStoragePermissionPlayback()) {
 					presenter.startPlayback();
 				}
 			} else {

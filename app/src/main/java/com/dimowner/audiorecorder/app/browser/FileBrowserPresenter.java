@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.app.browser;
 
 import android.content.Context;
+import android.os.Build;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
@@ -60,7 +61,8 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 	private final FileRepository fileRepository;
 	private int selectedTab;
 
-	public FileBrowserPresenter(Prefs prefs, AppRecorder appRecorder, BackgroundQueue importTasks, BackgroundQueue loadingTasks, BackgroundQueue recordingsTasks,
+	public FileBrowserPresenter(Prefs prefs, AppRecorder appRecorder, BackgroundQueue importTasks,
+										 BackgroundQueue loadingTasks, BackgroundQueue recordingsTasks,
 										 LocalRepository localRepository, FileRepository fileRepository) {
 		this.appRecorder = appRecorder;
 		this.importTasks = importTasks;
@@ -113,6 +115,7 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 			};
 		}
 		appRecorder.addRecordingCallback(appRecorderCallback);
+		view.showTabs(Build.VERSION.SDK_INT < Build.VERSION_CODES.Q);
 	}
 
 	@Override

@@ -410,7 +410,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	@Override
 	public void showDirectorySetting(boolean b) {
 		panelPublicDir.setVisibility(b ? View.VISIBLE : View.GONE);
-		txtFileBrowser.setVisibility(b ? View.VISIBLE : View.GONE);
+//		txtFileBrowser.setVisibility(b ? View.VISIBLE : View.GONE);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 			txtStorageInfo.setVisibility(b ? View.VISIBLE : View.GONE);
 		}

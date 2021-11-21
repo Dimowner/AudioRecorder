@@ -20,6 +20,8 @@
 	<string name="delete_all">Видалити всі записи</string>
 	<string name="delete_all2">Видалити все</string>
 	<string name="records_was_removed">Деякі записи не були знайдені в папці з записами. Можливо вони були видалені або переміщені.</string>
+	<string name="title_file_is_not_available">Немає доступу до файлу запису!</string>
+	<string name="details_file_is_not_available">На жаль, додаток більше не має доступу до загальнодоступного сховища Android.\nВи можете знайти файл запису на вашому смартфоні за такою адресою:\n%s</string>
 	<string name="warning">Увага!</string>
 	<string name="delete_this_record">Видалити цей запис?</string>
 	<string name="delete_record">Перемістити в кошик %s?</string>

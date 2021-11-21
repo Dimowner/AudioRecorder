@@ -75,41 +75,45 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_vertical"
+			android:gravity="end"
 			android:orientation="horizontal">
 
-		<Button
+		<TextView
 				android:id="@+id/list_item_btn_import"
-				android:layout_width="0dp"
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:background="?android:selectableItemBackground"
 				android:gravity="center"
-				android:paddingStart="@dimen/spacing_small"
-				android:paddingEnd="@dimen/spacing_small"
+				android:paddingVertical="@dimen/spacing_small"
+				android:paddingHorizontal="@dimen/spacing_normal"
+				android:layout_margin="@dimen/spacing_small"
+				android:textStyle="bold"
+				android:textSize="@dimen/text_normal"
 				android:text="@string/btn_import"
 				android:textColor="@color/text_primary_light" />
 
-		<Button
+		<TextView
 				android:id="@+id/list_item_btn_download"
-				android:layout_width="0dp"
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:background="?android:selectableItemBackground"
 				android:gravity="center"
-				android:paddingStart="@dimen/spacing_small"
-				android:paddingEnd="@dimen/spacing_small"
+				android:paddingVertical="@dimen/spacing_small"
+				android:paddingHorizontal="@dimen/spacing_normal"
+				android:layout_margin="@dimen/spacing_small"
+				android:textStyle="bold"
+				android:textSize="@dimen/text_normal"
 				android:text="@string/download"
 				android:textColor="@color/text_primary_light" />
 
-		<Button
+		<TextView
 				android:id="@+id/list_item_btn_delete"
-				android:layout_width="0dp"
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:background="?android:selectableItemBackground"
 				android:gravity="center"
-				android:paddingStart="@dimen/spacing_small"
-				android:paddingEnd="@dimen/spacing_small"
+				android:paddingVertical="@dimen/spacing_small"
+				android:paddingHorizontal="@dimen/spacing_normal"
+				android:layout_margin="@dimen/spacing_small"
+				android:textStyle="bold"
+				android:textSize="@dimen/text_normal"
 				android:text="@string/delete"
 				android:textColor="@color/text_primary_light" />
 

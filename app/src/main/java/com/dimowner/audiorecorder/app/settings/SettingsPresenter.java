@@ -17,7 +17,6 @@
 package com.dimowner.audiorecorder.app.settings;
 
 import android.content.Context;
-import android.os.Build;
 
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
@@ -90,15 +89,16 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 				}
 			});
 
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-				boolean isPublicStorageMigrated = !prefs.isPublicStorageMigrated()
-						&& localRepository.hasRecordsWithPath(fileRepository.getPublicDir().getAbsolutePath());
-				AndroidUtils.runOnUIThread(() -> {
-					if (view != null) {
-						view.showMigratePublicStorage(isPublicStorageMigrated);
-					}
-				});
-			}
+//			Public storage no longer available we can not migrate with target API 30.
+//			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//				boolean isPublicStorageMigrated = !prefs.isPublicStorageMigrated()
+//						&& localRepository.hasRecordsWithPath(fileRepository.getPublicDir().getAbsolutePath());
+//				AndroidUtils.runOnUIThread(() -> {
+//					if (view != null) {
+//						view.showMigratePublicStorage(isPublicStorageMigrated);
+//					}
+//				});
+//			}
 		});
 		if (view != null) {
 			view.updateRecordingInfo(prefs.getSettingRecordingFormat());

@@ -34,6 +34,7 @@ public interface FileBrowserContract {
 		void onImportedRecord(String path);
 		void updatePath(String path);
 		void decodeRecord(int id);
+		void showTabs(boolean value);
 
 		void showEmpty();
 		void hideEmpty();

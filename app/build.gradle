@@ -7,23 +7,23 @@ apply plugin: 'kotlin-kapt'
 
 def versionMajor = 0
 def versionMinor = 9
-def versionPatch = 23
+def versionPatch = 25
 
 android {
-	compileSdkVersion 29
-	buildToolsVersion "29.0.3"
+	compileSdkVersion 30
+	buildToolsVersion "30.0.3"
 	defaultConfig {
 		applicationId "com.dimowner.audiorecorder"
 		minSdkVersion 21
-		targetSdkVersion 29
+		targetSdkVersion 30
 //		versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
 //		versionName "${versionMajor}.${versionMinor}.${versionPatch}"
-		versionCode 923
-		versionName "0.9.23"
+		versionCode 925
+		versionName "0.9.25"
 	}
 
 	buildFeatures {
-		viewBinding = true
+		viewBinding true
 	}
 
 //	def keystorePropertiesFile = rootProject.file("keystore.properties")

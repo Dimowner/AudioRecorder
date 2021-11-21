@@ -141,9 +141,11 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<FileBrowserAdapter.
 			}
 			updateInformation(holder.info, rec.getFormat(), rec.getSampleRate(), rec.getSize(), rec.getDuration()/1000);
 			if (rec.isInDatabase() || rec.isInTrash()) {
-				holder.actionPanel.setVisibility(View.GONE);
+				holder.btnDelete.setVisibility(View.GONE);
+				holder.btnImport.setVisibility(View.GONE);
 			} else {
-				holder.actionPanel.setVisibility(View.VISIBLE);
+				holder.btnImport.setVisibility(View.VISIBLE);
+				holder.btnDelete.setVisibility(View.VISIBLE);
 			}
 			holder.view.setOnClickListener(v -> {
 				if (onItemClickListener != null) {
@@ -208,9 +210,9 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<FileBrowserAdapter.
 		TextView name;
 		TextView info;
 		TextView status;
-		Button btnImport;
-		Button btnDownload;
-		Button btnDelete;
+		TextView btnImport;
+		TextView btnDownload;
+		TextView btnDelete;
 		LinearLayout actionPanel;
 		View view;
 
@@ -224,6 +226,22 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<FileBrowserAdapter.
 			btnImport = itemView.findViewById(R.id.list_item_btn_import);
 			btnDownload = itemView.findViewById(R.id.list_item_btn_download);
 			btnDelete = itemView.findViewById(R.id.list_item_btn_delete);
+
+			btnImport.setBackground(RippleUtils.createRippleShape(
+					ContextCompat.getColor(btnDelete.getContext(), R.color.white_transparent_80),
+					ContextCompat.getColor(btnDelete.getContext(), R.color.white_transparent_50),
+					btnImport.getContext().getResources().getDimension(R.dimen.spacing_normal)
+			));
+			btnDownload.setBackground(RippleUtils.createRippleShape(
+					ContextCompat.getColor(btnDelete.getContext(), R.color.white_transparent_80),
+					ContextCompat.getColor(btnDelete.getContext(), R.color.white_transparent_50),
+					btnDownload.getContext().getResources().getDimension(R.dimen.spacing_normal)
+			));
+			btnDelete.setBackground(RippleUtils.createRippleShape(
+					ContextCompat.getColor(btnDelete.getContext(), R.color.white_transparent_80),
+					ContextCompat.getColor(btnDelete.getContext(), R.color.white_transparent_50),
+					btnDelete.getContext().getResources().getDimension(R.dimen.spacing_normal)
+			));
 		}
 	}
 

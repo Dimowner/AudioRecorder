@@ -26,6 +26,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaExtractor;
@@ -33,9 +34,12 @@ import android.media.MediaFormat;
 import android.net.Uri;
 import androidx.core.content.FileProvider;
 import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
 import android.text.style.ImageSpan;
+import android.text.style.StyleSpan;
 import android.view.Display;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
@@ -397,6 +401,37 @@ public class AndroidUtils {
 		}
 	}
 
+	public static void showRecordFileNotAvailable(Activity activity, String path) {
+		String details = activity.getString(R.string.details_file_is_not_available, path);
+		SpannableString spannable = new SpannableString(details);
+		spannable.setSpan(
+				new StyleSpan(Typeface.BOLD),
+				details.length() - path.length(), spannable.length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+		);
+
+		showDialog(activity,
+				activity.getString(R.string.title_file_is_not_available),
+				spannable,
+				v -> {},
+				null
+		);
+	}
+
+	public static void showDialog(Activity activity, String strTitle, CharSequence strContent,
+											View.OnClickListener positiveBtnListener, View.OnClickListener negativeBtnListener) {
+		showDialog(activity,
+				-1,
+				activity.getString(R.string.btn_ok),
+				null,
+				strTitle,
+				strContent,
+				-1,
+				true,
+				positiveBtnListener,
+				negativeBtnListener);
+	}
+
 	public static void showDialog(Activity activity, int resTitle, int resContent,
 											View.OnClickListener positiveBtnListener, View.OnClickListener negativeBtnListener) {
 		showDialog(activity, -1, R.string.btn_ok, -1, resTitle, resContent, false, positiveBtnListener, negativeBtnListener);
@@ -444,8 +479,8 @@ public class AndroidUtils {
 											int drawableRes,
 											String positiveBtnText,
 											String negativeBtnText,
-											String titleStr,
-											String contentStr,
+											CharSequence titleStr,
+											CharSequence contentStr,
 											int contentResId,
 											boolean cancelable,
 											final View.OnClickListener positiveBtnListener,

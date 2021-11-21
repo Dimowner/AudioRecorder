@@ -579,6 +579,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		}
 	}
 
+	@Deprecated //Remove soon
 	@Override
 	public void checkPublicStorageRecords() {
 		if (!prefs.isPublicStorageMigrated()) {

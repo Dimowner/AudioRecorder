@@ -20,6 +20,8 @@
 	<string name="delete_all">Delete all records</string>
 	<string name="delete_all2">Delete all</string>
 	<string name="records_was_removed">Some records files was not found in the records directory. Possibly they was removed or moved.</string>
+	<string name="title_file_is_not_available">No access to the record file!</string>
+	<string name="details_file_is_not_available">Unfortunately, the app no longer has access to the Android public storage.\nYou can find the record file on your smartphone at this location:\n%s</string>
 	<string name="warning">Warning!</string>
 	<string name="delete_this_record">Delete this record?</string>
 	<string name="delete_record">Move to trash %s?</string>

@@ -62,6 +62,7 @@ public class FileBrowserActivity extends Activity implements FileBrowserContract
 	private Button btnPrivateDir;
 	private Button btnPublicDir;
 	private LinearLayout pnlImportProgress;
+	private LinearLayout tabsPanel;
 	private TextView txtImportMessage;
 
 	private FileBrowserAdapter adapter;
@@ -85,6 +86,7 @@ public class FileBrowserActivity extends Activity implements FileBrowserContract
 		txtEmpty = findViewById(R.id.txtEmpty);
 		txtPath = findViewById(R.id.files_path);
 		progressBar = findViewById(R.id.progress);
+		tabsPanel = findViewById(R.id.tabs_panel);
 		pnlImportProgress = findViewById(R.id.pnl_import_progress);
 		txtImportMessage = findViewById(R.id.txt_import_message);
 
@@ -118,7 +120,7 @@ public class FileBrowserActivity extends Activity implements FileBrowserContract
 						FileBrowserActivity.this,
 						R.drawable.ic_delete_forever_dark,
 						getString(R.string.warning),
-						getString(R.string.delete_record, record.getName()),
+						getString(R.string.delete_record_forever, record.getName()),
 						v -> presenter.deleteRecord(record)
 				);
 			}
@@ -202,6 +204,11 @@ public class FileBrowserActivity extends Activity implements FileBrowserContract
 	@Override
 	public void decodeRecord(int id) {
 		DecodeService.Companion.startNotification(getApplicationContext(), id);
+	}
+
+	@Override
+	public void showTabs(boolean value) {
+		tabsPanel.setVisibility(value ? View.VISIBLE : View.GONE);
 	}
 
 	@Override
