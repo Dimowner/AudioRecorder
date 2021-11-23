@@ -59,8 +59,7 @@
  	<string name="info">Información</string>
  	<string name="rename">Renombrar</string>
  	<string name="dont_ask_again">No preguntar nuevamente</string>
- 	<string name="open_with">Abrir con&#823;</string>
- 	<string name="download">Descargar</string>
+ 	<string name="open_with">Abrir con&#8230;</string>
  	<string name="downloading">Descargando: %s</string>
  	<string name="downloading_success_and_fail_count">%d grabaciones descargadas exitosamente y %d fallaron al descargar</string>
  	<string name="downloading_success">%s descargado al directorio de Descargas</string>

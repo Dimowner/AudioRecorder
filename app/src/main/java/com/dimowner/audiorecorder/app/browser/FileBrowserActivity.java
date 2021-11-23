@@ -110,8 +110,14 @@ public class FileBrowserActivity extends Activity implements FileBrowserContract
 			}
 
 			@Override
-			public void onDownloadItemClick(RecordInfo record) {
-				DownloadService.startNotification(getApplicationContext(), record.getLocation());
+			public void onSaveAsItemClick(RecordInfo record) {
+				AndroidUtils.showDialogYesNo(
+						FileBrowserActivity.this,
+						R.drawable.ic_save_alt_dark,
+						getString(R.string.save_as),
+						getString(R.string.record_will_be_copied_into_downloads),
+						view -> DownloadService.startNotification(getApplicationContext(), record.getLocation())
+				);
 			}
 
 			@Override

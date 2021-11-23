@@ -26,7 +26,6 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -159,7 +158,7 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<FileBrowserAdapter.
 			});
 			holder.btnDownload.setOnClickListener(v -> {
 				if (onItemClickListener != null) {
-					onItemClickListener.onDownloadItemClick(data.get(pos));
+					onItemClickListener.onSaveAsItemClick(data.get(pos));
 				}
 			});
 			holder.btnDelete.setOnClickListener(v -> {
@@ -248,7 +247,7 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<FileBrowserAdapter.
 	interface OnItemClickListener {
 		void onItemClick(RecordInfo record);
 		void onImportItemClick(RecordInfo record);
-		void onDownloadItemClick(RecordInfo record);
+		void onSaveAsItemClick(RecordInfo record);
 		void onRemoveItemClick(RecordInfo record);
 	}
 }

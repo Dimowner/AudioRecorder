@@ -125,7 +125,7 @@ public interface MainContract {
 
 		void onOpenFileClick();
 
-		void onDownloadClick();
+		void onSaveAsClick();
 
 		void onDeleteClick();
 

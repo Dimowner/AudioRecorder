@@ -266,7 +266,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 				setRecordName(item.getId(), item.getName(), item.getFormat());
 			} else if (menuId == R.id.menu_open_with) {
 				AndroidUtils.openAudioFile(getApplicationContext(), item.getPath(), item.getName());
-			} else if (menuId == R.id.menu_download) {
+			} else if (menuId == R.id.menu_save_as) {
 				if (isPublicDir(item.getPath())) {
 					if (checkStoragePermissionDownload()) {
 						//Download record file with Service
@@ -514,7 +514,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			AndroidUtils.showDialogYesNo(
 					RecordsActivity.this,
 					R.drawable.ic_save_alt_dark,
-					getString(R.string.download),
+					getString(R.string.save_as),
 					this.getResources().getQuantityString(R.plurals.download_selected_records, count, count),
 					v -> downloadSelectedRecords()
 			);

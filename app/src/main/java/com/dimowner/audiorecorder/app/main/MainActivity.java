@@ -771,8 +771,14 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				presenter.onRenameRecordClick();
 			} else if (id == R.id.menu_open_with) {
 				presenter.onOpenFileClick();
-			} else if (id == R.id.menu_download) {
-				presenter.onDownloadClick();
+			} else if (id == R.id.menu_save_as) {
+				AndroidUtils.showDialogYesNo(
+						MainActivity.this,
+						R.drawable.ic_save_alt_dark,
+						getString(R.string.save_as),
+						getString(R.string.record_will_be_copied_into_downloads),
+						view -> presenter.onSaveAsClick()
+				);
 			} else if (id == R.id.menu_delete) {
 				presenter.onDeleteClick();
 			}
@@ -900,7 +906,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE_DOWNLOAD && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-			presenter.onDownloadClick();
+			presenter.onSaveAsClick();
 		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {

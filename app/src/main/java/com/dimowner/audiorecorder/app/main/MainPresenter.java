@@ -637,7 +637,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void onDownloadClick() {
+	public void onSaveAsClick() {
 		if (view != null && record != null) {
 			view.downloadRecord(record);
 		}

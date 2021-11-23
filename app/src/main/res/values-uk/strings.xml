@@ -33,10 +33,10 @@
 		<item quantity="many">Перемістити в кошик %d вибраних записів?</item>
 	</plurals>
 	<plurals name="download_selected_records">
-		<item quantity="one">Скопіювати %d вибраний запис в папку Download?</item>
-		<item quantity="other">Скопіювати %d вибраних записів в папку Download?</item>
-		<item quantity="few">Скопіювати %d вибрані записи в папку Download?</item>
-		<item quantity="many">Скопіювати %d вибраних записів в папку Download?</item>
+		<item quantity="one">Скопіювати %d вибраний запис в папку \'Downloads\'?</item>
+		<item quantity="other">Скопіювати %d вибраних записів в папку \'Downloads\'?</item>
+		<item quantity="few">Скопіювати %d вибрані записи в папку \'Downloads\'?</item>
+		<item quantity="many">Скопіювати %d вибраних записів в папку \'Downloads\'?</item>
 	</plurals>
 	<string name="start_recording">Почати запис</string>
 	<string name="recording_feature_disabled">Функцію запису вимкнено</string>
@@ -78,14 +78,14 @@
 	<string name="info">Інформація</string>
 	<string name="rename">Перейменувати</string>
 	<string name="dont_ask_again">Більше не показувати</string>
-	<string name="open_with">Відкрити з допомогою&#823;</string>
-	<string name="download">Скачати</string>
-	<string name="downloading">Скачування: %s</string>
+	<string name="open_with">Відкрити з допомогою&#8230;</string>
+	<string name="save_as">Зберегти як&#8230;</string>
+	<string name="downloading">Копіювання: %s</string>
 	<plurals name="downloading_success_count">
-		<item quantity="one">%d запис успішно завантажено</item>
-		<item quantity="other">%d записів успішно завантажено</item>
-		<item quantity="few">%d записи успішно завантажено</item>
-		<item quantity="many">%d записів успішно завантажено</item>
+		<item quantity="one">%d запис успішно скопійований</item>
+		<item quantity="other">%d записів успішно скопійовано</item>
+		<item quantity="few">%d записи успішно скопійовані</item>
+		<item quantity="many">%d записів успішно скопійовано</item>
 	</plurals>
 	<plurals name="move_records_success_count">
 		<item quantity="one">%d запис успішно переміщено</item>
@@ -93,15 +93,15 @@
 		<item quantity="few">%d записи успішно переміщено</item>
 		<item quantity="many">%d записів успішно переміщено</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d записів успішно завантажено, та %d не вдалося завантажити</string>
+	<string name="downloading_success_and_fail_count">%d записів успішно скопійовано, та %d не вдалося скопіювати</string>
 	<string name="moving_records_success_and_fail_count">%d записів успішно переміщено, та %d не вдалося перемістити</string>
-	<string name="downloading_success">%s скачано в папку Download</string>
+	<string name="downloading_success">%s скопійовано в папку \'Downloads\'</string>
 	<string name="move_record_success">%s переміщено в приватну папку додатка</string>
 	<plurals name="downloading_failed_count">
-		<item quantity="one">Не вдалося завантажити %d запис</item>
-		<item quantity="other">Не вдалося завантажити %d записів</item>
-		<item quantity="few">Не вдалося завантажити %d записи</item>
-		<item quantity="many">Не вдалося завантажити %d записів</item>
+		<item quantity="one">Не вдалося скопіювати %d запис</item>
+		<item quantity="other">Не вдалося скопіювати %d записів</item>
+		<item quantity="few">Не вдалося скопіювати %d записи</item>
+		<item quantity="many">Не вдалося скопіювати %d записів</item>
 	</plurals>
 	<plurals name="move_records_failed_count">
 		<item quantity="one">Не вдалося перемістити %d запис</item>
@@ -109,10 +109,11 @@
 		<item quantity="few">Не вдалося перемістити %d записи</item>
 		<item quantity="many">Не вдалося перемістити %d записів</item>
 	</plurals>
+	<string name="record_will_be_copied_into_downloads">Запис буде скопійовано в папку \'Downloads\'</string>
 	<string name="move_record_failed">Помилка при переміщені: %s</string>
-	<string name="downloading_failed">Помилка при скачувані: %s</string>
-	<string name="downloading_failed_file_already_exists">Не вдалося завантажити. Файл з ім\'ям %s уже існує</string>
-	<string name="downloading_cancel">Скачування відмінено</string>
+	<string name="downloading_failed">Помилка при копіюванні: %s</string>
+	<string name="downloading_failed_file_already_exists">Не вдалося скопіювати. Файл з ім\'ям %s уже існує</string>
+	<string name="downloading_cancel">Копіювання відмінено</string>
 	<string name="share">Поділитися</string>
 	<string name="ask_to_rename">Показувати діалог перейменування після завершення звукозапису</string>
 	<string name="record_moved_into_trash">Запис переміщено в кошик</string>

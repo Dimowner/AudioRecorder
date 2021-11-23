@@ -31,8 +31,8 @@
 		<item quantity="other">Move to trash %d selected records?</item>
 	</plurals>
 	<plurals name="download_selected_records">
-		<item quantity="one">Copy %d selected record to the Download folder?</item>
-		<item quantity="other">Copy %d selected records to the Download folder?</item>
+		<item quantity="one">Copy %d selected record to the \'Downloads\' directory?</item>
+		<item quantity="other">Copy %d selected records to the \'Downloads\' directory?</item>
 	</plurals>
 	<string name="start_recording">Start recording</string>
 	<string name="recording_feature_disabled">Recording feature disabled</string>
@@ -72,33 +72,34 @@
 	<string name="info">Information</string>
 	<string name="rename">Rename</string>
 	<string name="dont_ask_again">Don\'t ask again</string>
-	<string name="open_with">Open with&#823;</string>
-	<string name="download">Download</string>
+	<string name="open_with">Open with&#8230;</string>
+	<string name="save_as">Save as&#8230;</string>
 	<string name="downloading">Downloading: %s</string>
 	<plurals name="downloading_success_count">
-		<item quantity="one">%d record downloaded successfully</item>
-		<item quantity="other">%d records downloaded successfully</item>
+		<item quantity="one">%d record copied successfully</item>
+		<item quantity="other">%d records copied successfully</item>
 	</plurals>
 	<plurals name="move_records_success_count">
 		<item quantity="one">%d record moved successfully</item>
 		<item quantity="other">%d records moved successfully</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d records downloaded successfully and %d failed to download</string>
+	<string name="downloading_success_and_fail_count">%d records copied successfully and %d failed to copy</string>
 	<string name="moving_records_success_and_fail_count">%d records moved successfully and %d failed to move</string>
-	<string name="downloading_success">%s downloaded to the Download directory</string>
+	<string name="downloading_success">%s copied to the \'Downloads\' directory</string>
 	<string name="move_record_success">%s moved to the app\'s private directory</string>
 	<plurals name="downloading_failed_count">
-		<item quantity="one">Failed to download %d record</item>
-		<item quantity="other">Failed to download %d records</item>
+		<item quantity="one">Failed to copy %d record</item>
+		<item quantity="other">Failed to copy %d records</item>
 	</plurals>
 	<plurals name="move_records_failed_count">
 		<item quantity="one">Failed to move %d record</item>
 		<item quantity="other">Failed to move %d records</item>
 	</plurals>
+	<string name="record_will_be_copied_into_downloads">The record will be copied to the \'Downloads\' directory</string>
 	<string name="move_record_failed">Failed to move: %s</string>
-	<string name="downloading_failed">Failed to download: %s</string>
-	<string name="downloading_failed_file_already_exists">Failed to download. File with name %s already exists</string>
-	<string name="downloading_cancel">Downloading canceled</string>
+	<string name="downloading_failed">Failed to copy: %s</string>
+	<string name="downloading_failed_file_already_exists">Failed to copy. File with name %s already exists</string>
+	<string name="downloading_cancel">Copy canceled</string>
 	<string name="share">Share</string>
 	<string name="ask_to_rename">Show rename dialog after recording is completed</string>
 	<string name="record_moved_into_trash">The record moved to trash</string>
