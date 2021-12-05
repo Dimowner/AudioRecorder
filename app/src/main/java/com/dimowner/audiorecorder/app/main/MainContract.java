@@ -95,7 +95,7 @@ public interface MainContract {
 
 		void setAudioRecorder(RecorderContract.Recorder recorder);
 
-		void startRecording(Context context);
+		void pauseUnpauseRecording(Context context);
 		void stopRecording(boolean deleteRecord);
 		void cancelRecording();
 

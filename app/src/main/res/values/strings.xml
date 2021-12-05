@@ -283,4 +283,6 @@
 		<item>Stereo</item>
 		<item>Mono</item>
 	</string-array>
+
+	<string name="app_widget_description">Start recording widget</string>
 </resources>

@@ -54,6 +54,7 @@ public class AppRecorderImpl implements AppRecorder {
 	private long durationMills = 0;
 	private long updateTime = 0;
 	private Timer timerProgress;
+	private String recordFilePath = null;
 
 	private volatile static AppRecorderImpl instance;
 
@@ -223,6 +224,7 @@ public class AppRecorderImpl implements AppRecorder {
 	@Override
 	public void startRecording(String filePath, int channelCount, int sampleRate, int bitrate) {
 		if (!audioRecorder.isRecording()) {
+			recordFilePath = filePath;
 			audioRecorder.startRecording(filePath, channelCount, sampleRate, bitrate);
 		}
 	}
@@ -267,6 +269,14 @@ public class AppRecorderImpl implements AppRecorder {
 	@Override
 	public boolean isPaused() {
 		return audioRecorder.isPaused();
+	}
+
+	@Override
+	public File getRecordFile() {
+		if (recordFilePath != null) {
+			return new File(recordFilePath);
+		}
+		return null;
 	}
 
 	@Override

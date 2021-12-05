@@ -36,16 +36,26 @@ import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.main.MainActivity;
+import com.dimowner.audiorecorder.audio.player.PlayerContractNew;
+import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.FileRepository;
+import com.dimowner.audiorecorder.data.Prefs;
+import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
+import com.dimowner.audiorecorder.exception.CantCreateFileException;
+import com.dimowner.audiorecorder.exception.ErrorParser;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
+import java.io.IOException;
+
+import timber.log.Timber;
 
 public class RecordingService extends Service {
 
@@ -68,6 +78,11 @@ public class RecordingService extends Service {
 	private PendingIntent contentPendingIntent;
 
 	private AppRecorder appRecorder;
+	private PlayerContractNew.Player audioPlayer;
+	private BackgroundQueue recordingsTasks;
+	private LocalRepository localRepository;
+	private Prefs prefs;
+	private RecorderContract.Recorder recorder;
 	private AppRecorderCallback appRecorderCallback;
 	private ColorMap colorMap;
 	private boolean started = false;
@@ -85,6 +100,12 @@ public class RecordingService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		appRecorder = ARApplication.getInjector().provideAppRecorder();
+		audioPlayer = ARApplication.getInjector().provideAudioPlayer();
+		recordingsTasks = ARApplication.getInjector().provideRecordingTasksQueue();
+		localRepository = ARApplication.getInjector().provideLocalRepository();
+		prefs = ARApplication.getInjector().providePrefs();
+		recorder = ARApplication.getInjector().provideAudioRecorder();
+
 		colorMap = ARApplication.getInjector().provideColorMap();
 		fileRepository = ARApplication.getInjector().provideFileRepository();
 
@@ -130,7 +151,9 @@ public class RecordingService extends Service {
 				}
 			}
 
-			@Override public void onError(AppException throwable) { }
+			@Override public void onError(AppException throwable) {
+				showError(ErrorParser.parseException(throwable));
+			}
 		};
 		appRecorder.addRecordingCallback(appRecorderCallback);
 	}
@@ -164,6 +187,7 @@ public class RecordingService extends Service {
 					case ACTION_START_RECORDING_SERVICE:
 						if (!started) {
 							startForegroundService();
+							startRecording();
 						}
 						break;
 					case ACTION_STOP_RECORDING_SERVICE:
@@ -297,6 +321,52 @@ public class RecordingService extends Service {
 
 			notificationManager.notify(NOTIF_ID, buildNotification());
 		}
+	}
+
+	private void startRecording() {
+		appRecorder.setRecorder(recorder);
+		try {
+			if (fileRepository.hasAvailableSpace(getApplicationContext())) {
+//				if (appRecorder.isPaused()) {
+//					appRecorder.resumeRecording();
+//				} else
+				if (!appRecorder.isRecording()) {
+					if (audioPlayer.isPlaying() || audioPlayer.isPaused()) {
+						audioPlayer.stop();
+					}
+					try {
+						final String path = fileRepository.provideRecordFile().getAbsolutePath();
+						recordingsTasks.postRunnable(() -> {
+							try {
+								Record record = localRepository.insertEmptyFile(path);
+								prefs.setActiveRecord(record.getId());
+								AndroidUtils.runOnUIThread(() -> appRecorder.startRecording(
+										path,
+										prefs.getSettingChannelCount(),
+										prefs.getSettingSampleRate(),
+										prefs.getSettingBitrate()
+								));
+							} catch (IOException | OutOfMemoryError | IllegalStateException e) {
+								Timber.e(e);
+							}
+						});
+					} catch (CantCreateFileException e) {
+						showError(ErrorParser.parseException(e));
+					}
+				}
+//				else {
+//					appRecorder.pauseRecording();
+//				}
+			} else {
+				showError(R.string.error_no_available_space);
+			}
+		} catch (IllegalArgumentException e) {
+			showError(R.string.error_failed_access_to_storage);
+		}
+	}
+
+	public void showError(int resId) {
+		Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_LONG).show();
 	}
 
 	public static class StopRecordingReceiver extends BroadcastReceiver {

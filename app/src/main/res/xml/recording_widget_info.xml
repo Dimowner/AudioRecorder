@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/app_widget_description"
+    android:initialKeyguardLayout="@layout/recording_widget"
+    android:initialLayout="@layout/recording_widget"
+    android:minWidth="40dp"
+    android:minHeight="40dp"
+    android:previewImage="@mipmap/audio_recorder_logo"
+    android:updatePeriodMillis="86400000"
+    android:widgetCategory="home_screen" />

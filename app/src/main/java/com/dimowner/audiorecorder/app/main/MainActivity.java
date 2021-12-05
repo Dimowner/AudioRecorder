@@ -258,7 +258,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			if (checkRecordPermission2()) {
 				if (checkStoragePermission2()) {
 					//Start or stop recording
-					presenter.startRecording(getApplicationContext());
+					startRecordingService();
 				}
 			}
 		}
@@ -316,7 +316,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			if (checkRecordPermission2()) {
 				if (checkStoragePermission2()) {
 					//Start or stop recording
-					presenter.startRecording(getApplicationContext());
+					startRecordingService();
+					presenter.pauseUnpauseRecording(getApplicationContext());
 				}
 			}
 		} else if (id == R.id.btn_record_stop) {
@@ -887,17 +888,17 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 					&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 					&& grantResults[1] == PackageManager.PERMISSION_GRANTED
 					&& grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-			presenter.startRecording(getApplicationContext());
+			startRecordingService();
 		} else if (requestCode == REQ_CODE_RECORD_AUDIO && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 			if (checkStoragePermission2()) {
-				presenter.startRecording(getApplicationContext());
+				startRecordingService();
 			}
 		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
 				&& grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 			if (checkRecordPermission2()) {
-				presenter.startRecording(getApplicationContext());
+				startRecordingService();
 			}
 		} else if (requestCode == REQ_CODE_READ_EXTERNAL_STORAGE_IMPORT && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED
@@ -915,7 +916,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				&& (grantResults[0] == PackageManager.PERMISSION_DENIED
 				|| grantResults[1] == PackageManager.PERMISSION_DENIED)) {
 			presenter.setStoragePrivate(getApplicationContext());
-			presenter.startRecording(getApplicationContext());
+			startRecordingService();
 		}
 	}
 }

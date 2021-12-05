@@ -1,86 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-			 package="com.dimowner.audiorecorder">
+    package="com.dimowner.audiorecorder">
 
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
-	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
-	<uses-permission android:name="android.permission.RECORD_AUDIO" />
-	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-	<uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
-	<uses-feature android:name="android.hardware.screen.portrait" android:required="false" />
-	<uses-feature android:name="android.hardware.telephony" android:required="false" />
-	<uses-feature android:name="android.hardware.location" android:required="false" />
-	<uses-feature android:name="android.hardware.location.gps" android:required="false" />
-	<uses-feature android:name="android.hardware.camera2" android:required="false" />
-	<uses-feature android:name="android.hardware.microphone" android:required="true" />
+    <uses-feature android:name="android.hardware.screen.portrait" android:required="false" />
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+    <uses-feature android:name="android.hardware.camera2" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="true" />
 
-	<application
-			android:allowBackup="false"
-			android:hardwareAccelerated="@bool/useHardwareAcceleration"
-			android:name="com.dimowner.audiorecorder.ARApplication"
-			android:icon="@mipmap/audio_recorder_logo"
-			android:roundIcon="@mipmap/audio_recorder_logo"
-			android:label="@string/app_name"
-			android:theme="@style/AppTheme">
+    <application
+        android:name=".ARApplication"
+        android:allowBackup="false"
+        android:hardwareAccelerated="@bool/useHardwareAcceleration"
+        android:icon="@mipmap/audio_recorder_logo"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/audio_recorder_logo"
+        android:theme="@style/AppTheme">
+        <receiver
+            android:name=".RecordingWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
 
-		<activity android:name="com.dimowner.audiorecorder.app.main.MainActivity"
-					 android:launchMode= "singleTask"
-					 android:screenOrientation="portrait">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN"/>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/recording_widget_info" />
+        </receiver>
 
-				<category android:name="android.intent.category.LAUNCHER"/>
-			</intent-filter>
+        <activity
+            android:name=".app.main.MainActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-			<meta-data android:name="android.app.shortcuts"
-					android:resource="@xml/shortcuts" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 
-		</activity>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity>
+        <activity
+            android:name=".app.records.RecordsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".app.settings.SettingsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".app.info.ActivityInformation"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".app.lostrecords.LostRecordsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".app.browser.FileBrowserActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".app.trash.TrashActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".app.welcome.WelcomeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".app.setup.SetupActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".app.moverecords.MoveRecordsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".app.TransparentRecordingActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Transparent" />
 
-		<activity android:name="com.dimowner.audiorecorder.app.records.RecordsActivity"
-					 android:screenOrientation="portrait"/>
-		<activity android:name="com.dimowner.audiorecorder.app.settings.SettingsActivity"
-					 android:screenOrientation="portrait"/>
-		<activity android:name="com.dimowner.audiorecorder.app.info.ActivityInformation"
-					 android:screenOrientation="portrait"/>
-		<activity android:name="com.dimowner.audiorecorder.app.lostrecords.LostRecordsActivity"
-				android:screenOrientation="portrait"/>
-		<activity android:name="com.dimowner.audiorecorder.app.browser.FileBrowserActivity"
-				android:screenOrientation="portrait"/>
-		<activity android:name="com.dimowner.audiorecorder.app.trash.TrashActivity"
-				android:screenOrientation="portrait"/>
-		<activity android:name="com.dimowner.audiorecorder.app.welcome.WelcomeActivity"
-				android:screenOrientation="portrait"/>
-		<activity android:name="com.dimowner.audiorecorder.app.setup.SetupActivity"
-				android:screenOrientation="portrait">
-		</activity>
-		<activity android:name="com.dimowner.audiorecorder.app.moverecords.MoveRecordsActivity"
-				android:screenOrientation="portrait"/>
+        <service android:name=".app.RecordingService" />
+        <service android:name=".app.PlaybackService" />
+        <service android:name=".app.DownloadService" />
+        <service android:name=".app.DecodeService" />
+        <service android:name=".app.moverecords.MoveRecordsService" />
 
-		<service android:name="com.dimowner.audiorecorder.app.RecordingService" />
-		<service android:name="com.dimowner.audiorecorder.app.PlaybackService" />
-		<service android:name="com.dimowner.audiorecorder.app.DownloadService" />
-		<service android:name="com.dimowner.audiorecorder.app.DecodeService" />
-		<service android:name="com.dimowner.audiorecorder.app.moverecords.MoveRecordsService" />
+        <receiver android:name=".WidgetReceiver" />
+        <receiver android:name=".app.RecordingService$StopRecordingReceiver" />
+        <receiver android:name=".app.PlaybackService$StopPlaybackReceiver" />
+        <receiver android:name=".app.DownloadService$StopDownloadReceiver" />
+        <receiver android:name=".app.DecodeService$StopDecodeReceiver" />
+        <receiver android:name=".app.moverecords.MoveRecordsService$StopMoveRecordsReceiver" />
 
-		<receiver android:name=".app.RecordingService$StopRecordingReceiver" />
-		<receiver android:name=".app.PlaybackService$StopPlaybackReceiver" />
-		<receiver android:name=".app.DownloadService$StopDownloadReceiver" />
-		<receiver android:name=".app.DecodeService$StopDecodeReceiver" />
-		<receiver android:name=".app.moverecords.MoveRecordsService$StopMoveRecordsReceiver" />
-
-		<provider
-				android:name=".AppFileProvider"
-				android:authorities="${applicationId}.app_file_provider"
-				android:exported="false"
-				android:grantUriPermissions="true">
-			<meta-data
-					android:name="android.support.FILE_PROVIDER_PATHS"
-					android:resource="@xml/provider_paths"/>
-		</provider>
-
+        <provider
+            android:name=".AppFileProvider"
+            android:authorities="${applicationId}.app_file_provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
     </application>
 
 </manifest>

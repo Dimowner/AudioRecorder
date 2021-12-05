@@ -297,4 +297,6 @@
 		<item>Стерео</item>
 		<item>Моно</item>
 	</string-array>
+
+	<string name="app_widget_description">Начать запись виджет</string>
 </resources>

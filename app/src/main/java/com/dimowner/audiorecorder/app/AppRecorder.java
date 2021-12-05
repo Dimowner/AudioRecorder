@@ -19,6 +19,8 @@ package com.dimowner.audiorecorder.app;
 import com.dimowner.audiorecorder.IntArrayList;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 
+import java.io.File;
+
 public interface AppRecorder {
 
 	void addRecordingCallback(AppRecorderCallback recorderCallback);
@@ -32,5 +34,6 @@ public interface AppRecorder {
 	long getRecordingDuration();
 	boolean isRecording();
 	boolean isPaused();
+	File getRecordFile();
 	void release();
 }

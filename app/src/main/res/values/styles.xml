@@ -142,4 +142,21 @@
 		<item name="android:fontFamily">sans-serif-light</item>
 		<item name="android:textSize">@dimen/text_xlarge</item>
 	</style>
+
+	<style name="Widget.AudioRecorder.AppWidget.Container" parent="android:Widget">
+		<item name="android:background">@drawable/app_widget_background</item>
+	</style>
+
+	<style name="Widget.AudioRecorder.AppWidget.InnerView" parent="android:Widget">
+		<item name="android:background">@drawable/app_widget_inner_view_background</item>
+	</style>
+
+	<style name="Theme.Transparent" parent="android:Theme">
+		<item name="android:windowIsTranslucent">true</item>
+		<item name="android:windowBackground">@android:color/transparent</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowIsFloating">true</item>
+		<item name="android:backgroundDimEnabled">false</item>
+	</style>
 </resources>

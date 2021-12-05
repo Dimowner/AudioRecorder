@@ -118,15 +118,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		if (appRecorderCallback == null) {
 			appRecorderCallback = new AppRecorderCallback() {
 
-				private File recFile = null;
-
+				long prevTime = 0;
 				@Override
 				public void onRecordingStarted(final File file) {
-					recFile = file;
 					if (view != null) {
 						view.showRecordingStart();
 						view.keepScreenOn(prefs.isKeepScreenOn());
-						view.startRecordingService();
 					}
 					updateInformation(
 							prefs.getSettingRecordingFormat(),
@@ -159,7 +156,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 				@Override
 				public void onRecordingStopped(final File file, final Record rec) {
-					recFile = null;
 					if (deleteRecord) {
 						deleteActiveRecord(true);
 						deleteRecord = false;
@@ -191,12 +187,15 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				public void onRecordingProgress(final long mills, final int amp) {
 					if (view != null) {
 						view.onRecordingProgress(mills, amp);
-						if (recFile != null && mills % 1000 == 0) { //Update record info every second when recording.
+						File recFile = appRecorder.getRecordFile();
+						long curTime = System.currentTimeMillis();
+						if (recFile != null && curTime - prevTime > 3000) { //Update record info every second when recording.
 							updateInformation(
 									prefs.getSettingRecordingFormat(),
 									prefs.getSettingSampleRate(),
 									recFile.length()
 							);
+							prevTime = curTime;
 						}
 					}
 				}
@@ -205,7 +204,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				public void onError(AppException throwable) {
 					Timber.e(throwable);
 					if (view != null) {
-						view.showError(ErrorParser.parseException(throwable));
 						view.showRecordingStop();
 					}
 				}
@@ -343,37 +341,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void startRecording(Context context) {
+	public void pauseUnpauseRecording(Context context) {
 		try {
 			if (fileRepository.hasAvailableSpace(context)) {
 				if (appRecorder.isPaused()) {
 					appRecorder.resumeRecording();
-				} else if (!appRecorder.isRecording()) {
-					if (audioPlayer.isPlaying() || audioPlayer.isPaused()) {
-						audioPlayer.stop();
-					}
-					try {
-						final String path = fileRepository.provideRecordFile().getAbsolutePath();
-						recordingsTasks.postRunnable(() -> {
-							try {
-								record = localRepository.insertEmptyFile(path);
-								prefs.setActiveRecord(record.getId());
-								AndroidUtils.runOnUIThread(() -> appRecorder.startRecording(
-										path,
-										prefs.getSettingChannelCount(),
-										prefs.getSettingSampleRate(),
-										prefs.getSettingBitrate()
-								));
-							} catch (IOException | OutOfMemoryError | IllegalStateException e) {
-								Timber.e(e);
-							}
-						});
-					} catch (CantCreateFileException e) {
-						if (view != null) {
-							view.showError(ErrorParser.parseException(e));
-						}
-					}
-				} else {
+				} else if (appRecorder.isRecording()) {
 					appRecorder.pauseRecording();
 				}
 			} else {
