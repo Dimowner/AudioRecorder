@@ -36,6 +36,7 @@ import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
@@ -122,9 +123,10 @@ public class RecordingService extends Service {
 				updateNotificationResume();
 			}
 			@Override public void onRecordingStopped(File file, Record rec) {
-				if (!rec.isWaveformProcessed()) {
+				if (rec != null && rec.getDuration()/1000 < AppConstants.DECODE_DURATION && !rec.isWaveformProcessed()) {
 					DecodeService.Companion.startNotification(getApplicationContext(), rec.getId());
 				}
+				stopForegroundService();
 			}
 
 			@Override
@@ -153,6 +155,7 @@ public class RecordingService extends Service {
 
 			@Override public void onError(AppException throwable) {
 				showError(ErrorParser.parseException(throwable));
+				stopForegroundService();
 			}
 		};
 		appRecorder.addRecordingCallback(appRecorderCallback);
@@ -211,7 +214,6 @@ public class RecordingService extends Service {
 
 	private void stopRecording() {
 		appRecorder.stopRecording();
-		stopForegroundService();
 	}
 
 	private void startForegroundService() {

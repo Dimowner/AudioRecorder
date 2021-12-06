@@ -27,6 +27,7 @@ import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
+import com.dimowner.audiorecorder.exception.RecordingException;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 
 import java.io.File;
@@ -153,7 +154,7 @@ public class AppRecorderImpl implements AppRecorder {
 							}
 						}
 					} else {
-						//TODO: Error on record update.
+						AndroidUtils.runOnUIThread(() -> onRecordingError(new RecordingException()));
 					}
 				});
 			}

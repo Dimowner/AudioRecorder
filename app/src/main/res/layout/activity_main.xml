@@ -305,11 +305,11 @@
 
 			<ImageButton
 					android:id="@+id/btn_record_delete"
-					android:layout_width="@dimen/bottom_pnl_small_btn_size"
-					android:layout_height="@dimen/bottom_pnl_small_btn_size"
+					android:layout_width="42dp"
+					android:layout_height="42dp"
 					android:background="?android:selectableItemBackgroundBorderless"
 					android:contentDescription="@string/delete"
-					android:padding="@dimen/spacing_normal"
+					android:layout_margin="@dimen/spacing_xtiny"
 					android:layout_gravity="center"
 					android:scaleType="center"
 					android:visibility="invisible"

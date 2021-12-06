@@ -532,13 +532,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
-	public void stopRecordingService() {
-		Intent intent = new Intent(getApplicationContext(), RecordingService.class);
-		intent.setAction(RecordingService.ACTION_STOP_RECORDING_SERVICE);
-		startService(intent);
-	}
-
-	@Override
 	public void startPlaybackService(final String name) {
 		PlaybackService.startServiceForeground(getApplicationContext(), name);
 	}

@@ -42,7 +42,6 @@ public interface MainContract {
 		void askRecordingNewName(long id, File file,  boolean showCheckbox);
 
 		void startRecordingService();
-		void stopRecordingService();
 
 		void startPlaybackService(String name);
 

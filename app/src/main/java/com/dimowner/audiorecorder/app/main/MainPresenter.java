@@ -177,7 +177,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					}
 					if (view != null) {
 						view.keepScreenOn(false);
-						view.stopRecordingService();
 						view.hideProgress();
 						view.showRecordingStop();
 					}
@@ -204,6 +203,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				public void onError(AppException throwable) {
 					Timber.e(throwable);
 					if (view != null) {
+						view.keepScreenOn(false);
+						view.hideProgress();
 						view.showRecordingStop();
 					}
 				}
@@ -342,6 +343,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void pauseUnpauseRecording(Context context) {
+		deleteRecord = false;
 		try {
 			if (fileRepository.hasAvailableSpace(context)) {
 				if (appRecorder.isPaused()) {
@@ -376,8 +378,15 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void cancelRecording() {
-		deleteRecord = true;
-		appRecorder.pauseRecording();
+		if (appRecorder.isPaused()) {
+			if (view != null) {
+				view.askDeleteRecordForever();
+				deleteRecord = false;
+			}
+		} else {
+			deleteRecord = true;
+			appRecorder.pauseRecording();
+		}
 	}
 
 	@Override
