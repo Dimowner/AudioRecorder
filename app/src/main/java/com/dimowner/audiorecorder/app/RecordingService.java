@@ -48,8 +48,8 @@ import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
-import com.dimowner.audiorecorder.exception.CantCreateFileException;
 import com.dimowner.audiorecorder.exception.ErrorParser;
+import com.dimowner.audiorecorder.exception.RecorderInitException;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
@@ -66,6 +66,7 @@ public class RecordingService extends Service {
 	private final static String CHANNEL_NAME_ERRORS = "Errors";
 	private final static String CHANNEL_ID_ERRORS = "com.dimowner.audiorecorder.Errors";
 
+	public static final String EXTRAS_KEY_RECORD_PATH = "EXTRAS_KEY_RECORD_PATH";
 	public static final String ACTION_START_RECORDING_SERVICE = "ACTION_START_RECORDING_SERVICE";
 
 	public static final String ACTION_STOP_RECORDING_SERVICE = "ACTION_STOP_RECORDING_SERVICE";
@@ -190,7 +191,12 @@ public class RecordingService extends Service {
 					case ACTION_START_RECORDING_SERVICE:
 						if (!started) {
 							startForegroundService();
-							startRecording();
+							if (intent.hasExtra(EXTRAS_KEY_RECORD_PATH)) {
+								startRecording(intent.getStringExtra(EXTRAS_KEY_RECORD_PATH));
+							} else {
+								showError(ErrorParser.parseException(new RecorderInitException()));
+								stopForegroundService();
+							}
 						}
 						break;
 					case ACTION_STOP_RECORDING_SERVICE:
@@ -325,7 +331,7 @@ public class RecordingService extends Service {
 		}
 	}
 
-	private void startRecording() {
+	private void startRecording(String path) {
 		appRecorder.setRecorder(recorder);
 		try {
 			if (fileRepository.hasAvailableSpace(getApplicationContext())) {
@@ -336,34 +342,31 @@ public class RecordingService extends Service {
 					if (audioPlayer.isPlaying() || audioPlayer.isPaused()) {
 						audioPlayer.stop();
 					}
-					try {
-						final String path = fileRepository.provideRecordFile().getAbsolutePath();
-						recordingsTasks.postRunnable(() -> {
-							try {
-								Record record = localRepository.insertEmptyFile(path);
-								prefs.setActiveRecord(record.getId());
-								AndroidUtils.runOnUIThread(() -> appRecorder.startRecording(
-										path,
-										prefs.getSettingChannelCount(),
-										prefs.getSettingSampleRate(),
-										prefs.getSettingBitrate()
-								));
-							} catch (IOException | OutOfMemoryError | IllegalStateException e) {
-								Timber.e(e);
-							}
-						});
-					} catch (CantCreateFileException e) {
-						showError(ErrorParser.parseException(e));
-					}
+					recordingsTasks.postRunnable(() -> {
+						try {
+							Record record = localRepository.insertEmptyFile(path);
+							prefs.setActiveRecord(record.getId());
+							AndroidUtils.runOnUIThread(() -> appRecorder.startRecording(
+									path,
+									prefs.getSettingChannelCount(),
+									prefs.getSettingSampleRate(),
+									prefs.getSettingBitrate()
+							));
+						} catch (IOException | OutOfMemoryError | IllegalStateException e) {
+							Timber.e(e);
+						}
+					});
 				}
 //				else {
 //					appRecorder.pauseRecording();
 //				}
 			} else {
 				showError(R.string.error_no_available_space);
+				stopForegroundService();
 			}
 		} catch (IllegalArgumentException e) {
 			showError(R.string.error_failed_access_to_storage);
+			stopForegroundService();
 		}
 	}
 

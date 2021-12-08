@@ -22,10 +22,13 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import com.dimowner.audiorecorder.ARApplication
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.data.FileRepository
 import com.dimowner.audiorecorder.data.Prefs
+import com.dimowner.audiorecorder.exception.CantCreateFileException
+import com.dimowner.audiorecorder.exception.ErrorParser
 import com.dimowner.audiorecorder.util.AndroidUtils
 
 const val REQ_CODE_RECORD_AUDIO = 303
@@ -50,9 +53,15 @@ class TransparentRecordingActivity : Activity() {
     }
 
     private fun startRecordingService() {
-        val stopIntent = Intent(applicationContext, RecordingService::class.java)
-        stopIntent.action = RecordingService.ACTION_START_RECORDING_SERVICE
-        startService(stopIntent)
+        try {
+            val startIntent = Intent(applicationContext, RecordingService::class.java)
+            val path = fileRepository.provideRecordFile().absolutePath
+            startIntent.action = RecordingService.ACTION_START_RECORDING_SERVICE
+            startIntent.putExtra(RecordingService.EXTRAS_KEY_RECORD_PATH, path)
+            startService(startIntent)
+        } catch (e: CantCreateFileException) {
+            Toast.makeText(applicationContext, ErrorParser.parseException(e), Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onRequestPermissionsResult(

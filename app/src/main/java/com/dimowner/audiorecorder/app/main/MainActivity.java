@@ -58,7 +58,10 @@ import com.dimowner.audiorecorder.app.welcome.WelcomeActivity;
 import com.dimowner.audiorecorder.app.widget.RecordingWaveformView;
 import com.dimowner.audiorecorder.app.widget.WaveformViewNew;
 import com.dimowner.audiorecorder.audio.AudioDecoder;
+import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.database.Record;
+import com.dimowner.audiorecorder.exception.CantCreateFileException;
+import com.dimowner.audiorecorder.exception.ErrorParser;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
 import com.dimowner.audiorecorder.util.FileUtil;
@@ -108,6 +111,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	private MainContract.UserActionsListener presenter;
 	private ColorMap colorMap;
+	private FileRepository fileRepository;
 	private ColorMap.OnThemeColorChangeListener onThemeColorChangeListener;
 
 	private final ServiceConnection connection = new ServiceConnection() {
@@ -219,6 +223,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		});
 
 		presenter = ARApplication.getInjector().provideMainPresenter();
+		fileRepository = ARApplication.getInjector().provideFileRepository();
 
 		waveformView.setOnSeekListener(new WaveformViewNew.OnSeekListener() {
 			@Override
@@ -526,9 +531,15 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void startRecordingService() {
-		Intent intent = new Intent(getApplicationContext(), RecordingService.class);
-		intent.setAction(RecordingService.ACTION_START_RECORDING_SERVICE);
-		startService(intent);
+		try {
+			String path = fileRepository.provideRecordFile().getAbsolutePath();
+			Intent intent = new Intent(getApplicationContext(), RecordingService.class);
+			intent.setAction(RecordingService.ACTION_START_RECORDING_SERVICE);
+			intent.putExtra(RecordingService.EXTRAS_KEY_RECORD_PATH, path);
+			startService(intent);
+		} catch (CantCreateFileException e) {
+			showError(ErrorParser.parseException(e));
+		}
 	}
 
 	@Override
