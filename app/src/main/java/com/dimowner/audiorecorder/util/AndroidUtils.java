@@ -48,7 +48,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -545,7 +544,6 @@ public class AndroidUtils {
 		editText.setText(name);
 		editText.requestFocus();
 		editText.setSelection(editText.getText().length());
-		showKeyboard(activity.getApplicationContext());
 		editText.addTextChangedListener(new TextWatcher() {
 			@Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 			@Override public void afterTextChanged(Editable s) {
@@ -557,7 +555,6 @@ public class AndroidUtils {
 		});
 
 		dialogBuilder.setView(view);
-		dialogBuilder.setOnDismissListener(dialog -> hideKeyboard(activity.getApplicationContext()));
 		AlertDialog alertDialog = dialogBuilder.create();
 		if (negativeBtnListener != null) {
 			Button negativeBtn = view.findViewById(R.id.dialog_negative_btn);
@@ -577,6 +574,10 @@ public class AndroidUtils {
 		} else {
 			view.findViewById(R.id.dialog_positive_btn).setVisibility(View.GONE);
 		}
+		Window window = alertDialog.getWindow();
+		if (window != null) {
+			window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+		}
 		alertDialog.show();
 	}
 
@@ -585,22 +586,6 @@ public class AndroidUtils {
 				activity, -1, activity.getString(R.string.btn_ok), null,
 				activity.getString(R.string.info), "", resContent, true, v -> {}, null
 		);
-	}
-
-	/** Show soft keyboard for a dialog. */
-	public static void showKeyboard(Context context){
-		InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-		if (inputMethodManager != null) {
-			inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-		}
-	}
-
-	/** Hide soft keyboard after a dialog. */
-	public static void hideKeyboard(Context context){
-		InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-		if (inputMethodManager != null) {
-			inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-		}
 	}
 
 	public static void showLostRecordsDialog(final Activity activity, final List<Record> lostRecords){

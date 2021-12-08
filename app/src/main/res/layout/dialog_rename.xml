@@ -42,6 +42,8 @@
 			android:layout_height="wrap_content"
 			android:textSize="@dimen/text_xmedium"
 			android:textColor="@color/md_black_1000"
+			android:imeOptions="actionDone"
+			android:inputType="text"
 			tools:text="Please allow!"
 			android:textAppearance="@style/TextAppearance.DialogContent" />
 
