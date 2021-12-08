@@ -291,7 +291,7 @@ public class AppRecorderImpl implements AppRecorder {
 
 	private void onRecordingStarted(File output) {
 		if (!appCallbacks.isEmpty()) {
-			for (int i = 0; i < appCallbacks.size(); i++) {
+			for (int i = appCallbacks.size() - 1; i >= 0; i--) {
 				appCallbacks.get(i).onRecordingStarted(output);
 			}
 		}
@@ -299,7 +299,7 @@ public class AppRecorderImpl implements AppRecorder {
 
 	private void onRecordingPaused() {
 		if (!appCallbacks.isEmpty()) {
-			for (int i = 0; i < appCallbacks.size(); i++) {
+			for (int i = appCallbacks.size() - 1; i >= 0; i--) {
 				appCallbacks.get(i).onRecordingPaused();
 			}
 		}
@@ -307,7 +307,7 @@ public class AppRecorderImpl implements AppRecorder {
 
 	private void onRecordingResumed() {
 		if (!appCallbacks.isEmpty()) {
-			for (int i = 0; i < appCallbacks.size(); i++) {
+			for (int i = appCallbacks.size() - 1; i >= 0; i--) {
 				appCallbacks.get(i).onRecordingResumed();
 			}
 		}
@@ -315,7 +315,7 @@ public class AppRecorderImpl implements AppRecorder {
 
 	private void onRecordingStopped(File file, Record record) {
 		if (!appCallbacks.isEmpty()) {
-			for (int i = 0; i < appCallbacks.size(); i++) {
+			for (int i = appCallbacks.size() - 1; i >= 0; i--) {
 				appCallbacks.get(i).onRecordingStopped(file, record);
 			}
 		}
@@ -323,7 +323,7 @@ public class AppRecorderImpl implements AppRecorder {
 
 	private void onRecordingProgress(long mills, int amp) {
 		if (!appCallbacks.isEmpty()) {
-			for (int i = 0; i < appCallbacks.size(); i++) {
+			for (int i = appCallbacks.size() - 1; i >= 0; i--) {
 				appCallbacks.get(i).onRecordingProgress(mills, amp);
 			}
 		}
@@ -331,7 +331,7 @@ public class AppRecorderImpl implements AppRecorder {
 
 	private void onRecordingError(AppException e) {
 		if (!appCallbacks.isEmpty()) {
-			for (int i = 0; i < appCallbacks.size(); i++) {
+			for (int i = appCallbacks.size() - 1; i >= 0; i--) {
 				appCallbacks.get(i).onError(e);
 			}
 		}
