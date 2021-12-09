@@ -5,6 +5,6 @@
     android:initialLayout="@layout/recording_widget"
     android:minWidth="40dp"
     android:minHeight="40dp"
-    android:previewImage="@mipmap/audio_recorder_logo"
+    android:previewImage="@mipmap/audio_recorder_widget_button"
     android:updatePeriodMillis="86400000"
     android:widgetCategory="home_screen" />

@@ -3,6 +3,7 @@
 		style="@style/Widget.AudioRecorder.AppWidget.Container"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
+		android:orientation="vertical"
 		android:gravity="center" >
 
 	<ImageButton
@@ -11,6 +12,5 @@
 			android:layout_height="wrap_content"
 			android:contentDescription="@string/start_recording"
 			android:background="@color/transparent"
-			android:padding="@dimen/spacing_normal"
-			android:src="@drawable/ic_record_red"/>
+			android:src="@mipmap/audio_recorder_widget_button"/>
 </LinearLayout>
