@@ -157,6 +157,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				@Override
 				public void onRecordingStopped(final File file, final Record rec) {
 					if (deleteRecord) {
+						record = rec;
 						deleteActiveRecord(true);
 						deleteRecord = false;
 					} else {
