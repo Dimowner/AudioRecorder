@@ -317,7 +317,8 @@ public class LocalRepositoryImpl implements LocalRepository {
 					recordToDelete.setPath(renamed);
 					trashDataSource.insertItem(recordToDelete);
 				} else {
-					fileRepository.deleteRecordFile(recordToDelete.getPath());
+					trashDataSource.insertItem(recordToDelete);
+//					fileRepository.deleteRecordFile(recordToDelete.getPath());
 				}
 			}
 		}
@@ -430,6 +431,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 			if (trashDataSource.deleteItem(id) > 0) {
 				restoreRecord(recordToRestore);
 			} else {
+				trashDataSource.insertItem(recordToRestore);
 				throw new FailedToRestoreRecord();
 			}
 		} else {
@@ -437,7 +439,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 		}
 	}
 
-	private void restoreRecord(Record record) throws FailedToRestoreRecord {
+	private void restoreRecord(Record record) {
 		String renamed = fileRepository.unmarkTrashRecord(record.getPath());
 		if (renamed != null) {
 			record.setPath(renamed);
@@ -448,7 +450,8 @@ public class LocalRepositoryImpl implements LocalRepository {
 				record.setPath(renamed);
 				insertRecord(record);
 			} else {
-				throw new FailedToRestoreRecord();
+				insertRecord(record);
+//				throw new FailedToRestoreRecord();
 			}
 		}
 	}

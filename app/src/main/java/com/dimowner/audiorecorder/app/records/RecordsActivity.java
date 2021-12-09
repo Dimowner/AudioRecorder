@@ -533,6 +533,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	private void downloadSelectedRecords() {
+		downloadRecords.clear();
 		List<Integer> selected = adapter.getSelected();
 		for (int i = 0; i < selected.size(); i++) {
 			ListItem item = adapter.getItem(selected.get(i));
@@ -552,8 +553,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 						getApplicationContext(),
 						new ArrayList<>(downloadRecords)
 				);
-				downloadRecords.clear();
-				cancelMultiSelect();
+			} else {
+				showError(getResources().getQuantityString(
+						R.plurals.downloading_failed_count,
+						downloadRecords.size(),
+						downloadRecords.size())
+				);
 			}
 		} else {
 			//Download record file with Service
@@ -561,9 +566,9 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 					getApplicationContext(),
 					new ArrayList<>(downloadRecords)
 			);
-			downloadRecords.clear();
-			cancelMultiSelect();
 		}
+		cancelMultiSelect();
+		downloadRecords.clear();
 	}
 
 	private void deleteSelectedRecords() {
