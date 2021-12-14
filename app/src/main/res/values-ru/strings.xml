@@ -1,5 +1,5 @@
 <resources>
-	<string name="app_name">Аудио Рекордер</string>
+	<string name="app_name">Диктофон</string>
 
 	<string name="records">Записи</string>
 	<string name="settings">Настройки</string>
