@@ -589,10 +589,11 @@ public class AndroidUtils {
 	}
 
 	public static void showLostRecordsDialog(final Activity activity, final List<Record> lostRecords){
-		final Dialog dialog = new Dialog(activity);
-		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		dialog.setCancelable(false);
-		View view = activity.getLayoutInflater().inflate(R.layout.dialog_lost_records_layout, null, false);
+		if (!activity.isFinishing()) {
+			final Dialog dialog = new Dialog(activity);
+			dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+			dialog.setCancelable(false);
+			View view = activity.getLayoutInflater().inflate(R.layout.dialog_lost_records_layout, null, false);
 			Button negativeBtn = view.findViewById(R.id.dialog_ok_btn);
 			negativeBtn.setOnClickListener(v -> dialog.dismiss());
 			Button positiveBtn = view.findViewById(R.id.dialog_details_btn);
@@ -603,8 +604,9 @@ public class AndroidUtils {
 				);
 				dialog.dismiss();
 			});
-		dialog.setContentView(view);
-		dialog.show();
+			dialog.setContentView(view);
+			dialog.show();
+		}
 	}
 
 	public static String getAppVersion(Context context) {

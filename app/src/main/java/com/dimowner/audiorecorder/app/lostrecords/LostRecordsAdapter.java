@@ -74,7 +74,7 @@ public class LostRecordsAdapter extends RecyclerView.Adapter<LostRecordsAdapter.
 	}
 
 	public List<RecordItem> getData() {
-		return data;
+		return new ArrayList<>(data);
 	}
 
 	@NonNull

@@ -7,7 +7,7 @@ apply plugin: 'kotlin-kapt'
 
 def versionMajor = 0
 def versionMinor = 9
-def versionPatch = 27
+def versionPatch = 28
 
 android {
 	compileSdkVersion 30
@@ -18,8 +18,8 @@ android {
 		targetSdkVersion 30
 //		versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
 //		versionName "${versionMajor}.${versionMinor}.${versionPatch}"
-		versionCode 927
-		versionName "0.9.27"
+		versionCode 928
+		versionName "0.9.28"
 	}
 
 	buildFeatures {

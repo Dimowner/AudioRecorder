@@ -559,7 +559,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	}
 
 	public List<Integer> getSelected() {
-		return selected;
+		return new ArrayList<>(selected);
 	}
 
 	public void cancelMultiSelect() {
