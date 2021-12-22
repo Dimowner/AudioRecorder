@@ -401,13 +401,15 @@ public class AndroidUtils {
 	}
 
 	public static void showRecordFileNotAvailable(Activity activity, String path) {
-		String details = activity.getString(R.string.details_file_is_not_available, path);
+		String details = activity.getString(R.string.details_file_is_not_available, path != null ? path : "");
 		SpannableString spannable = new SpannableString(details);
-		spannable.setSpan(
-				new StyleSpan(Typeface.BOLD),
-				details.length() - path.length(), spannable.length(),
-				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-		);
+		if (path != null) {
+			spannable.setSpan(
+					new StyleSpan(Typeface.BOLD),
+					details.length() - path.length(), spannable.length(),
+					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+			);
+		}
 
 		showDialog(activity,
 				activity.getString(R.string.title_file_is_not_available),

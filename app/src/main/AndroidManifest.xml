@@ -79,7 +79,6 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".app.TransparentRecordingActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.Transparent" />
 
         <service android:name=".app.RecordingService" />
