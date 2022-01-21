@@ -26,9 +26,9 @@ android {
 		viewBinding true
 	}
 
-//	def keystorePropertiesFile = rootProject.file("keystore.properties")
-//	def keystoreProperties = new Properties()
-//	keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+	def keystorePropertiesFile = rootProject.file("keystore.properties")
+	def keystoreProperties = new Properties()
+	keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 	signingConfigs {
 		dev {
@@ -37,12 +37,12 @@ android {
 			keyAlias 'androiddebugkey'
 			keyPassword 'android'
 		}
-//		release {
-//			storeFile file(keystoreProperties['prodStoreFile'])
-//			storePassword keystoreProperties['prodStorePassword']
-//			keyAlias keystoreProperties['prodKeyAlias']
-//			keyPassword keystoreProperties['prodKeyPassword']
-//		}
+		release {
+			storeFile file(keystoreProperties['prodStoreFile'])
+			storePassword keystoreProperties['prodStorePassword']
+			keyAlias keystoreProperties['prodKeyAlias']
+			keyPassword keystoreProperties['prodKeyPassword']
+		}
 	}
 
 	buildTypes {
