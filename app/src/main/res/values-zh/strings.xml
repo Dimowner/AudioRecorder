@@ -1,0 +1,288 @@
+<resources>
+    <string name="app_name">Audio Recorder</string>
+
+    <string name="records">录音</string>
+    <string name="settings">设置</string>
+    <string name="setup">设置</string>
+    <string name="welcome_1">简单快速的录音应用</string>
+    <string name="welcome_2">漂亮的设计很好的功能设计</string>
+    <string name="welcome_3">选择最佳设置并开始录制</string>
+    <string name="title_1">Audio Recorder</string>
+    <string name="title_2">Audio Recorder</string>
+    <string name="title_3">Recordio Audier</string>
+    <string name="rate_app">评价应用</string>
+    <string name="store_records_public">保存录音到Public目录</string>
+    <string name="record_in_stereo">以双声道录制</string>
+    <string name="keep_screen_on">录制时保持屏幕开启</string>
+    <string name="total_duration">总记录音时长: %s</string>
+    <string name="total_record_count">总计录音数量: %d</string>
+    <string name="available_space">可用空间: %s</string>
+    <string name="delete_all">删除所有录音</string>
+    <string name="delete_all2">删除所有</string>
+    <string name="records_was_removed">在录音目录中找不到某些录音文件。可能是被移走了。</string>
+    <string name="title_file_is_not_available">无法访问录音文件!</string>
+    <string name="details_file_is_not_available">不幸的是，应用程序不再能够访问Android公共存储。\n您可以在此位置上找到录音文件:\n%s</string>
+    <string name="warning">警告!</string>
+    <string name="delete_this_record">删除这个录音?</string>
+    <string name="delete_record">移动到回收站 %s?</string>
+    <string name="delete_record_forever">永久删除录音 %s?</string>
+    <plurals name="delete_selected_records">
+        <item quantity="one">移动 %d 个选择的录音到回收站?</item>
+        <item quantity="other">移动 %d 个选择的录音到回收站?</item>
+    </plurals>
+    <plurals name="download_selected_records">
+        <item quantity="one">保存 %d 项已选择的的录音到 “下载” 目录?</item>
+        <item quantity="other">保存 %d 项已选择的的录音到 “下载” 目录?</item>
+    </plurals>
+    <string name="start_recording">开始录制</string>
+    <string name="recording_feature_disabled">录制功能已禁用</string>
+    <string name="restore_record">恢复录音 %s?</string>
+    <string name="delete_all_records">删除所有录音?</string>
+    <string name="all_records_deleted">所有录音删除成功</string>
+    <string name="failed_to_delete_all_records">未能删除所有录音</string>
+    <string name="please_select_record_to_share">请选择一项要分享的录音</string>
+    <string name="record_name">新名字</string>
+    <string name="recording">Recording: %s</string>
+    <string name="recording_is_on">Recording is ON</string>
+    <string name="recording_progress">录制中&#8230;</string>
+    <string name="recording_paused">暂停</string>
+    <string name="playback">Playback: %s</string>
+    <string name="zero_time">00:00</string>
+    <string name="empty">空</string>
+    <string name="selected">已选择%d项</string>
+    <string name="no_records">没有录音</string>
+    <string name="no_bookmarks">没有书签</string>
+    <string name="bookmarks">书签</string>
+    <string name="share_record">分享录音: %s</string>
+    <plurals name="share_records_count">
+        <item quantity="one">分享 %d 项录音</item>
+        <item quantity="other">分享 %d 项录音</item>
+    </plurals>
+    <string name="import_progress">音频文件导入&#8230;</string>
+    <string name="btn_import">导入</string>
+    <string name="processing_canceled">处理被取消</string>
+    <string name="record_calculation">Waveform calculations&#8230;</string>
+    <string name="record_processing">Waveform drawing calculations&#8230;</string>
+    <string name="request">请求或反馈</string>
+    <string name="email_clients_not_found">无法找到邮件客户端</string>
+    <string name="send_email">通过电子邮件发送&#8230;</string>
+    <string name="open_record_with">选择%s的打开方式</string>
+    <string name="delete">删除</string>
+    <string name="restore">恢复</string>
+    <string name="info">信息</string>
+    <string name="rename">重命名</string>
+    <string name="dont_ask_again">不再询问</string>
+    <string name="open_with">打开方式&#8230;</string>
+    <string name="save_as">另存为&#8230;</string>
+    <string name="downloading">Downloading: %s</string>
+    <plurals name="downloading_success_count">
+        <item quantity="one">%d 录音复制成功</item>
+        <item quantity="other">%d 录音复制成功</item>
+    </plurals>
+    <plurals name="move_records_success_count">
+        <item quantity="one">%d record moved successfully</item>
+        <item quantity="other">%d records moved successfully</item>
+    </plurals>
+    <string name="downloading_success_and_fail_count">%d records copied successfully and %d failed to copy</string>
+    <string name="moving_records_success_and_fail_count">%d records moved successfully and %d failed to move</string>
+    <string name="downloading_success">%s 已保存到“下载”目录</string>
+    <string name="move_record_success">%s 已移动到应用的专用目录</string>
+    <plurals name="downloading_failed_count">
+        <item quantity="one">Failed to copy %d record</item>
+        <item quantity="other">Failed to copy %d records</item>
+    </plurals>
+    <plurals name="move_records_failed_count">
+        <item quantity="one">Failed to move %d record</item>
+        <item quantity="other">Failed to move %d records</item>
+    </plurals>
+    <string name="record_will_be_copied_into_downloads">录音将被保存到“下载”目录</string>
+    <string name="move_record_failed">无法移动: %s</string>
+    <string name="downloading_failed">无法复制: %s</string>
+    <string name="downloading_failed_file_already_exists">保存失败。名为%s的文件已存在</string>
+    <string name="downloading_cancel">取消复制</string>
+    <string name="share">分享</string>
+    <string name="ask_to_rename">录制完成后显示重命名对话框</string>
+    <string name="record_moved_into_trash">录音已被移动回收站</string>
+    <string name="selected_records_moved_into_trash">所选录音已移动到垃圾箱</string>
+    <string name="all_records_deleted_successfully">所有录音已成功删除</string>
+    <string name="record_deleted_successfully">录音已成功删除</string>
+    <string name="record_restored_successfully">录音恢复成功</string>
+    <string name="record_imported_successfully">录音导入成功</string>
+    <string name="cant_import_files">无法导入文件</string>
+    <string name="by_date">按日期 (最新)</string>
+    <string name="by_date_desc">按日期 (最早)</string>
+    <string name="by_name">按名字 (A-Z)</string>
+    <string name="by_name_desc">按名字 (Z-A)</string>
+    <string name="by_duration">按时长 (最长)</string>
+    <string name="by_duration_desc">按时长 (最短)</string>
+    <string name="need_write_permission">该应用程序需要访问公共存储的权限。如果不允许，记录将存储在应用程序的私有目录中</string>
+    <string name="rec_name">名字:</string>
+    <string name="rec_format">格式:</string>
+    <string name="rec_duration">时长:</string>
+    <string name="rec_frequency">Frequency:</string>
+    <string name="rec_size">大小:</string>
+    <string name="rec_created">创建时间:</string>
+    <string name="rec_location">文件位置:</string>
+    <string name="naming">命名风格:</string>
+    <string name="private_dir_warning">Records will be stored in the app\'s private directory which is not visible for other apps</string>
+    <string name="public_dir_warning">Records will be stored in a common directory on your device which is visible for other apps</string>
+    <string name="lost_records">丢失的录音</string>
+    <string name="trash">回收站</string>
+    <string name="trash_info">移至回收站的记录将在 60 天内自动永久删除。</string>
+    <string name="file_browser">文件浏览器</string>
+    <string name="private_dir">私有目录</string>
+    <string name="public_dir">公共目录</string>
+    <string name="found_in_the_app">在app中</string>
+    <string name="not_found_in_the_app">在app中找不到</string>
+    <string name="in_trash">在回收站</string>
+
+    <string name="app_settings">应用设置:</string>
+    <string name="recording_settings">录制设置:</string>
+    <string name="other_settings">其他:</string>
+
+    <string name="today">今天</string>
+    <string name="yesterday">昨天</string>
+
+    <string name="btn_save">保存</string>
+    <string name="btn_cancel">取消</string>
+    <string name="btn_yes">确定</string>
+    <string name="btn_ok">好</string>
+    <string name="btn_no">取消</string>
+    <string name="btn_play">播放</string>
+    <string name="btn_deny">Deny</string>
+    <string name="btn_allow">接受</string>
+    <string name="btn_details">详情</string>
+    <string name="btn_get_started">开始</string>
+    <string name="btn_apply">应用</string>
+    <string name="btn_reset">重置</string>
+    <string name="btn_next">下一步</string>
+    <string name="view">View</string>
+    <string name="view_records">View records</string>
+    <string name="move_records_needed">Move records needed</string>
+    <string name="moving_record">移动录音: %s</string>
+    <string name="moving_record_cancel">Moving canceled</string>
+    <string name="move_records_info">Some of your records still stored in the public storage. Soon the public storage will become not available for the app. We need to move that records to the app\'s private directory.</string>
+    <string name="info_format"><b>M4a</b> 格式采用AAC音频编解码器编码，质量好，体积小。 <b>(推荐)</b>
+		\n<b>Wav</b> 是未压缩的音频数据格式。它比其他格式占用更多的空间。特定情况下需要这种格式。
+		\n<b>3gp</b> 是为移动通信服务开发的多媒体格式，如果需要节省空间，请使用它。
+		</string>
+    <string name="info_frequency"><b>采样率</b> 是每秒采集的音频样本数。
+		\n<b>48kHz</b> 是用于DVD的采样率.
+		\n<b>44,1kHz</b> 是音频CD的采样率. <b>(推荐)</b>
+		\n<b>22kHz</b> 低比特率（如64 kbps）的常用采样率。
+		\n<b>8kHz</b> 采样率比现代电话系统的带宽还要小。不适合任何严肃的录音任务。
+		</string>
+    <string name="info_bitrate"><b>Bitrate</b> is size of data per second of sound. Directly affects recording quality and size.
+		\n<b>256 kbps</b> good quality bitrate.
+		\n<b>192 kbps</b> medium quality bitrate.
+		\n<b>128 kbps</b> mid-range bitrate quality. Common bitrate for podcasts. <b>(recommended)</b>
+		\n<b>96 kbps</b> generally used for speech or low-quality streaming.
+		\n<b>48 kbps</b> generally acceptable only for speech.
+		</string>
+    <string name="info_channels">
+		<b>双声道</b> 记录两个独立的通道。这意味着每个立体声扬声器具有不同的声音信号。<b>(推荐)</b>
+		\n<b>单声道</b> 记录一个信号通道。它可以通过几个扬声器复制，但所有扬声器仍在复制相同的信号副本。
+		</string>
+    <string name="info_3gp"><b>3gp</b> 是为移动通信服务开发的多媒体格式，如果需要节省空间，请使用它。</string>
+    <string name="info_m4a"><b>M4a</b> 格式采用AAC音频编解码器编码，质量好，体积小。 <b>(推荐)</b></string>
+    <string name="info_wav"><b>Wav</b> 是未压缩的音频数据格式。它比其他格式占用更多的空间。特定情况下需要这种格式。</string>
+    <string name="info_stereo"><b>双声道</b> 记录两个独立的通道。这意味着每个立体声扬声器具有不同的声音信号。<b>(推荐)</b></string>
+    <string name="info_mono"><b>单声道</b> 记录一个信号通道。它可以通过几个扬声器复制，但所有扬声器仍在复制相同的信号副本。</string>
+    <string name="info_bitrate_48"><b>48 kbps</b> generally acceptable only for speech.</string>
+    <string name="info_bitrate_96"><b>96 kbps</b> generally used for speech or low-quality streaming.</string>
+    <string name="info_bitrate_128"><b>128 kbps</b> mid-range bitrate quality. Common bitrate for podcasts. <b>(recommended)</b></string>
+    <string name="info_bitrate_192"><b>192 kbps</b> medium quality bitrate.</string>
+    <string name="info_bitrate_256"><b>256 kbps</b> good quality bitrate.</string>
+    <string name="info_sample_rate_8k"><b>8kHz</b> 采样率比现代电话系统的带宽还要小。不适合任何严肃的录音任务。</string>
+    <string name="info_sample_rate_16k"><b>16kHz</b> 优于 8kHz。</string>
+    <string name="info_sample_rate_22k"><b>22kHz</b> 低比特率（如64 kbps）的常用采样率。</string>
+    <string name="info_sample_rate_32k"><b>32kHz</b> 比22kHz稍微好一点。</string>
+    <string name="info_sample_rate_44k"><b>44,1kHz</b> 是音频CD的采样率。<b>(推荐)</b></string>
+    <string name="info_sample_rate_48k"><b>48kHz</b> 适用于DVD的采样率.</string>
+    <string name="recording_format">录制格式:</string>
+    <string name="bitrate">比特率:</string>
+    <string name="channels">声道数量:</string>
+    <string name="sample_rate">采样率:</string>
+    <string name="size_per_min">预计大小 %s Mb/分钟</string>
+    <string name="value_hz">%d Hz</string>
+    <string name="value_kbps">%d kbps</string>
+    <string name="stereo">双声道</string>
+    <string name="mono">单声道</string>
+    <string name="records_location">录音位置:\n%s</string>
+    <string name="feature_not_available_in_android_10">Android 10或更高版本不再提供此功能.</string>
+    <string name="size">%s Mb</string>
+    <string name="move_records">Move %d records</string>
+
+    <string name="error_unknown">意外错误</string>
+    <string name="error_cant_create_file">无法创建文件</string>
+    <string name="error_invalid_output_file">无效的输出文件</string>
+    <string name="error_file_exists">具有此名称的文件已存在!</string>
+    <string name="error_failed_to_rename">无法重命名录音!</string>
+    <string name="error_failed_to_init_recorder">无法初始化录制器</string>
+    <string name="error_failed_to_init_player">无法初始化播放器</string>
+    <string name="error_player_data_source">播放器无法读取该文件</string>
+    <string name="error_unable_to_read_sound_file">无法读取声音文件</string>
+    <string name="error_permission_denied">没有权限</string>
+    <string name="error_process_waveform">无法绘制波形</string>
+    <string name="error_lost_records">您的某些录音已被删除或移动</string>
+    <string name="error_no_available_space">没有可用空间!</string>
+    <string name="error_failed_access_to_storage">无法访问文件存储</string>
+    <string name="error_on_recording">录制错误!</string>
+    <string name="error_failed_to_restore">无法恢复录音!</string>
+    <string name="error_failed_to_delete">无法删除录音!</string>
+
+    <string name="move_public_storage_records_message">Move public storage records is needed</string>
+    <string name="later">Later</string>
+    <string name="move">移动</string>
+    <string name="move_all">移动全部</string>
+
+    <!-- Shown in the 'About' window of the app. -->
+    <string name="about_body"><![CDATA[
+    	<b>Audio Recorder 2021</b><br>
+		Version %s
+	]]></string>
+    <!--<a href="http://#/">Application site</a>-->
+
+    <string-array name="theme_colors2">
+        <item>蓝灰色 主题</item>
+        <item>黑色 主题</item>
+        <item>蓝绿色 主题</item>
+        <item>蓝色 主题</item>
+        <item>紫色 主题</item>
+        <item>粉色 主题</item>
+        <item>橙色 主题</item>
+        <item>红色 主题</item>
+        <item>棕色 主题</item>
+    </string-array>
+
+    <string-array name="formats2">
+        <item>M4a</item>
+        <item>Wav</item>
+        <item>3gp</item>
+    </string-array>
+
+    <string-array name="bit_rates2">
+        <!--		<item>24 kbps</item>-->
+        <item>48 kbps</item>
+        <item>96 kbps</item>
+        <item>128 kbps</item>
+        <item>192 kbps</item>
+        <item>256 kbps</item>
+    </string-array>
+
+    <string-array name="sample_rates2">
+        <item>8kHz</item>
+        <item>16kHz</item>
+        <item>22kHz</item>
+        <item>32kHz</item>
+        <item>44.1kHz</item>
+        <item>48kHz</item>
+    </string-array>
+
+    <string-array name="channels">
+        <item>双声道</item>
+        <item>单声道</item>
+    </string-array>
+
+    <string name="app_widget_description">Start recording widget</string>
+</resources>
