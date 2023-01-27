@@ -1,0 +1,285 @@
+<resources>
+	<string name="app-name">Magnétophone</string>
+
+	<string name="records">Enregistrements</string>
+	<string name="settings">Paramètres</string>
+	<string name="setup">Configuration</string>
+	<string name="welcome_1">Bienvenue dans une application simple et rapide</string>
+	<string name="welcome_2">Beau design et bonnes fonctionnalitées</string>
+	<string name="welcome_3">Selectionnez les meilleurs paramètres et commencez à enregistrer</string>
+	<string name="title_1">Magnétophone</string>
+	<string name="title_2">Magnétophone</string>
+	<string name="title_3">Magnétophone</string>
+	<string name="rate_app">Noter l\'application</string>
+	<string name="store_records_public">Stocker les enregistrements dans un dossier public</string>
+	<string name="record_in_stereo">Enregister en stéréo</string>
+	<string name="keep_screen_on">Laisser l\'écran allumé pendant l\'enregistrement</string>
+	<string name="total_duration">Temps d'enregistrement total: %s</string>
+	<string name="total_record_count">Nombre d\'enregistrements total: %d</string>
+	<string name="available_space">Place disponible: %s</string>
+	<string name="delete_all">Supprimer tout les enregistrements</string>
+	<string name="delete_all2">Tout supprimer</string>
+	<string name="records_was_removed">Un ou plusieurs enregistrements n\'ont pas été trouvé dans le dossier des enregistrements. Ils ont potentiellement été déplacé ou supprimé.</string>
+	<string name="title_file_is_not_available">Le fichier d\'enregistrement n\'est pas accessible !</string>
+	<string name="details_file_is_not_available">Malheureusement, l\'application n\'a plus accès au stockage public d\'Android.\nVous pouvez retrouver le fichier d\'enregistrement dans votre ordiphone à cet endroit: \n%s</string>
+	<string name="warning">Attention!</string>
+	<string name="delete_this_record">Supprimer cet enregistrement ?</string>
+	<string name="delete_record">Déplacer %s dans la corbeille ?</string>
+	<string name="delete_record_forever">Supprimer l\'enregistrement %s pour toujours ?</string>
+	<plurals name="delete_selected_records">
+		<item quantity="one">Déplacer l\'enregistrement sélectionné à la corbeille ?</item>
+		<item quantity="other">Déplacer les %d enregistrements sélectionnés à la corbeille ?</items>
+	</plurals>
+	<plurals name="download_selected_records">
+		<item quantity="one">Copier l\'enregistrement sélectionné dans le dossier \'Downloads\' ?</item>
+		<item quantity="other">Copier les %d enregistrements sélectionnés dans le dossier \'Downloads\' ?</item>
+	</plurals>
+	<string name="start_recording">Débuter l\'enregistrement</string>
+	<string name="recording_feature_disabled">Fonctionnalité d\'enregistrement désactivé</string>
+	<string name="restore_record">Récupérer l\'enregistrement %s ?</string>
+	<string name="delete_all_records">Supprimer tout les enregistrements ?</string>
+	<string name="failed_to_delete_all_records">Échec de la suppression de tout les enregistrements</string>
+	<string name="please_select_record_to_share">Veuillez sélectionner un enregistrement à partager</string>
+	<string name="record_name">Nouveau nom</string>
+	<string name="recording">Enregistrement: %s</string>
+	<string name="recording_is_on">L\'enregistrement a débuté</string>
+	<string name="recording_progress">Enregistrement&#8230;</string>
+	<string name="recording_paused">En pause</string>
+	<string name="playback">Lecture: %s</string>
+	<string name="zero_time">00:00</string>
+	<string name="empty">Vide</string>
+	<string name="selected">%d sélectionné</string>
+	<string name="no_records">Pas d\'enregistrements</string>
+	<string name="no_bookmarks">Pas de marque pages</string>
+	<string name="bookmarks">Marque pages</string>
+	<string name="share_record">Partager l\'enregistrement: %s</string>
+	<plurals name="share_records_count">
+		<item quantity="one">Partager l\'enregistrement</item>
+		<item quantity="other">Partager les %d enregistrements</item>
+	</plurals>
+	<string name="import_progress">Importation du fichier audio&#8230;</string>
+	<string name="btn_import">Importer</string>
+	<string name="procesing_canceled">Le processus a été annulé</string>
+	<string name="record_calculation">Calcul de la forme d\'onde</string>
+	<string name="record_processing">Calcul du dessin de la forme d\'onde</string>
+	<string name="request">Requête ou commentaire</string>
+	<string name="email_clients_not_found">Aucun client de courriel trouvé</string>
+	<string name="send_email">Envoyer par courriel</string>
+	<string name="open_record_with">Ouvrir %s avec</string>
+	<string name="delete">Supprimer</string>
+	<string name="restore">Récupérer</string>
+	<string name="info">Information</string>
+	<string name="rename">Renommer</string>
+	<string name="dont_ask_again">Ne pas me redemander</string>
+	<string name="open_with">Ouvrir avec&#8230;</string>
+	<string name="save_as">Enregistrer sous&#8230;</string>
+	<string name="downloading">Téléchargement: %s</string>
+	<plurals name="downloading_success_count">
+		<item quantity="one">L\'enregistrement a bien été copié</item>
+		<item quantity="other">Les %d enregistrements ont bien été copié</item>
+	</plurals>
+	<plurals name="move_records_success_count">
+		<item quantity="one">L\'enregistrement a bien été déplacé</item>
+		<item quantity="other">Les %d enregistrements ont bien été déplacé</items>
+	</plurals>
+	<string name="downloading_success_and_fail_count">%d enregistrements ont bien été copié et %d ont échoué</string>
+	<string name="moving_records_success_and_fail_count">%d enregistrements ont bien été déplacé et %d ont échoué</string>
+	<string name="downloading_success">%s copiés dans le dossier \'Downloads\'</string>
+	<string name="move_record_success">%s déplacés dans le dossier \'Downloads\'</string>
+	<plurals name="downloading_failed_count">
+		<item quantity="one">Échec de la copie de l\'enregistrement</item>
+		<item quantity="other">Échec de la copie des %d enregistrements</item>
+	</plurals>
+	<plurals name="move_records_failed_count">
+		<item quantity="one">Échec du déplacement de l\'enregistrement</item>
+		<item quantity="other">Échec du déplacement des %d enregistrements</item>
+	</plurals>
+	<string name="record_will_be_copied_into_downloads">L\'enregistrement sera copié dans le dossier \'Downloads\'</string>
+	<string name="move_record_failed">Échec du déplacement: %s</string>
+	<string name="downloading_failed">Échec de la copie: %s</string>
+	<string name="downloading_failed_file_already_exists">Échec de la copie. Un fichier nommé %s existe déjà</string>
+	<string name="downloading_cancel">Annuler la copie</string>
+	<string name="share">Partager</string>
+	<string name="ask_to_rename">Afficher un dialogue pour renommer l\'enregistrement après qu\'il soit terminé</string>
+	<string name="record_moved_into_trash">L\'enregistrement a été déplacé dans la corbeille</string>
+	<string name="selected_records_moved_into_trash">Les enregistrements sélectionnés ont été déplacé dans la corbeille</string>
+	<string name="all_records_deleted_successfully">Tout les enregistrements ont bien été supprimé</string>
+	<string name="record_deleted_successfully">L\'enregistrement a bien été supprimé</string>
+	<string name="record_restored_successfully">L\'enregistrement a bien été récupéré</string>
+	<string name="record_imported_successfully">L\'enregistrement a bien été importé</string>
+	<string name="cant_import_files">Impossible d\'importer le fichier</string>
+	<string name="by_date">Par date (le plus récent)</string>
+	<string name="by_date_desc">Par date (le plus vieux)</string>
+	<string name="by_name">Par nom (A-Z)</string>
+	<string name="by_name_desc">Par nom (Z-A)</string>
+	<string name="by_duration">Par durée (le pus long)</string>
+	<string name="by_duration_desc">Par durée (le plus court)</string>
+	<string name="need_write_permission">L\'application nécessite la permission d\'accéder au stockage public. Si non autorisé, les enregistrements seront stocké dans le dossier privé de l\'application</string>
+	<string name="rec_name">Nom:</string>
+	<string name="rec_format">Format:</string>
+	<string name="rec_duration">Durée:</string>
+	<string name="rec_frequency">Fréquence:</string>
+	<string name="rec_size">Taille:</string>
+	<string name="rec_created">Crée le:</string>
+	<string name="rec_location">Chemin du fichier:</string>
+	<string name="naming">Nommage:</string>
+	<string name="private_dir_warning">Les enregistrements seront stockés dans le dossier privé de l\'application qui n\'est pas accessible par d\'autres applications</string>
+	<string name="public_dir_warning">Les enregistrements seront stockés dans un dossier accessible aux autres applications</string>
+	<string name="lost_records">Enregistrements perdus</string>
+	<string name="trash">Corbeille</string>
+	<string name="trash_info">Les enregistrements déplacés dans la corbeille seront supprimé automatiquement dans 60 jours.</string>
+	<string name="file_browser">Explorateur de fichier</string>
+	<string name="private_dir">Dossier privé</string>
+	<string name="public_dir">Dossier public</string>
+	<string name="found_in_the_app">Trouvé dans l\'application</string>
+	<string name="not_found_in_the_app">Pas trouvé dans l\'application</string>
+	<string name="in_trash">Dans la corbeille</string>
+
+	<string name="app_settings">Paramètres de l\'application:</string>
+	<string name="recording_settings">Paramètres des enregistrements:</string>
+	<string name="other_settings">Autres:</string>
+
+	<string name="today">Aujourd\'hui</string>
+	<string name="yesterday">Hier</string>
+
+	<string name="btn_save">Sauvegarder</string>
+	<string name="btn_cancel">Annuler</string>
+	<string name="btn_yes">Oui</string>
+	<string name="btn_ok">Ok</string>
+	<string name="btn_no">Non</string>
+	<string name="btn_play">Lancer</string>
+	<string name="btn_deny">Refuser</string>
+	<string name="btn_allow">Autoriser</string>
+	<string name="btn_details">Détails</string>
+	<string name="btn_get_started">Démarrer</string>
+	<string name="btn_apply">Appliquer</string>
+	<string name="btn_reset">Réinitialiser</string>
+	<string name="btn_next">Suivant</string>
+	<string name="view">Voir</string>
+	<string name="view_records">Voir les enregistrements</string>
+	<string name="move_records_needed">Déplacement des enregistrements nécessaire</string>
+	<string name="moving_record">Déplacement des enregistrements: %s</string>
+	<string name="moving_record_cancel">Déplacement annulé</string>
+	<string name="move_records_info">Plusieurs de vos enregistrements sont toujours stockés dans le stockage pulic. bientôt, le stockage public ne sera plus disponible pour l\'application. Il est nécessaire de déplacer ces enregistrements vers le dossier privé de l\'application.</string>
+	<string name="info_format"><b>M4a</b>: encodé avec le codec audio AAC, possède une bonne qualité pour une petite taille. <b>(recommandé)</b>
+		\n<b>Wav</b>: format audio non compressé. Prend plus de place que les autres formats. Il est nécessaire pour des cas spécifiques.
+		\n<b>3gp</b>: format multimédia développé pour les communications téléphoniques. Utilisez ceci si vous avez besoin de sauver de l\'espace.
+	</string>
+	<string name="info_frequency">Le <b>taux d\'échantillonage</b> est le nombre d\'échantillons audio enregistré par seconde.
+		\n<b>48 kHz</b>: utilisé par les DVD.
+		\n<b>44,1 kHz</b>: utilisé par les CD audio. <b>(recommandé)</b>
+		\n<b>22 kHz</b>: taux d\'échantillonage populaire pour les débits binaires faibles comme le 64 kbps.
+		\n<b>8 kHz</b>: taux d\'échantillonage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Non approprié pour n\'import quelle usage sérieux.
+	</string>
+	<string name="info_bitrate">Le <b>débit binaire</b> est la taille des données par seconde de son. Cela affecte directement la qualité sonore et la taille de l\'enregistrement.
+		\n<b>256 kbps</b>: bonne qualité.
+		\n<b>192 kbps</b>: qualité moyenne.
+		\n<b>128 kbps</b>: qualité de milieu de gamme. Débit commun pour les podcasts. <b>(Recommandé)</b>
+		\n<b>96 kbps</b>: généralement utilisé pour des discours ou de la diffusion en temps réel de basse qualité.
+		\n<b>48 kbps</b>: généralement uniquement utilisable pour les discours.
+	</string>
+	<string name="info_channels"><b>Stéréo</b>: Deux canaux séparés sont enregistrés. Cela signifie que chaque haut-parleur stéréo produit un signal différent. <b>(recommandé)</b>
+		\n<b>Mono</b>: Un seul canal est enregistré. Il peut être écouté sur différents haut-parleurs, mais chaque haut-parleur produira le même signal.
+	</string>
+	<string name="info_3gp"><b>3gp</b>: format multimédia développé pour les communications téléphoniques. Utilisez ceci si vous avez besoin de sauver de l\'espace.</string>
+	<string name="info_m4a"><b>M4a</b>: encodé avec le codec audio AAC, possède une bonne qualité pour une petite taille. <b>(recommandé)</b></string>
+	<string name="info_wav"><b>Wav</b>: format audio non compressé. Prend plus de place que les autres formats. Il est nécessaire pour des cas spécifiques.</string>
+	<string name="info_stereo"><b>Stéréo</b>: Deux canaux séparés sont enregistrés. Cela signifie que chaque haut-parleur stéréo produit un signal différent. <b>(recommandé)</b></string>
+	<string name="info_mono"><b>Mono</b>: Un seul canal est enregistré. Il peut être écouté sur différents haut-parleurs, mais chaque haut-parleur produira le même signal.</string>
+	<string name="info_bitrate_48"><b>48 kbps</b>: généralement uniquement utilisable pour les discours.</string>
+	<string name="info_bitrate_96"><b>96 kbps</b>: généralement utilisé pour des discours ou de la diffusion en temps réel de basse qualité.</string>
+	<string name="info_bitrate_128"><b>128 kbps</b>: qualité de milieu de gamme. Débit commun pour les podcasts. <b>(Recommandé)</b></string>
+	<string name="info_bitrate_192"><b>192 kbps</b>: qualité moyenne.</string>
+	<string name="info_bitrate_256"><b>256 kbps</b>: bonne qualité.</string>
+	<string name="info_sample_rate_8k"><b>8 kHz</b>: taux d\'échantillonage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Non approprié pour n\'import quelle usage sérieux.</string>
+	<string name="info_sample_rate_16k"><b>16 kHz</b>: meilleur que 8 kHz.</string>
+	<string name="info_sample_rate_22k"><b>22 kHz</b>: taux d\'échantillonage populaire pour les débits binaires faibles comme le 64 kbps.</string>
+	<string name="info_sample_rate_32k"><b>32 kHz</b>: un peu meilleur que 22 kHz.</string>
+	<string name="info_sample_rate_44k"><b>44,1 kHz</b>: utilisé par les CD audio. <b>(recommandé)</b></string>
+	<string name="info_sample_rate_48k"><b>48 kHz</b>: utilisé par les DVD.</string>
+	<string name="recording_format">Format d\'enregistrement:</string>
+	<string name="bitrate">Débit binaire:</string>
+	<string name="channels">Nombre de canaux:</string>
+	<string name="sample_rate">Taux d\'échantillonage</string>
+	<string name="size_per_min">taille attendu: %s Mb/min</string>
+	<string name="value_hz">%d Hz</string>
+	<string name="value_kbps">%d kbps</string>
+	<string name="stereo">Stéréo</string>
+	<string name="mono">Mono</string>
+	<string name="records_location">Emplacement des enregistrements:\n%s</string>
+	<string name="feature_not_available_in_android_10">Cette fonctionnalité n\'est plus disponible sur Android 10 ou pus.</string>
+	<string name="size">%s Mb</string>
+	<string name="move_records">Déplacer %d enregistrements</string>
+
+	<string name="error_unknown">Erreur inattendue</string>
+	<string name="error_cant_create_file">Impossible de créer le fichier</string>
+	<string name="error_invalid_output_file">Fichier de sortie invalide</string>
+	<string name="error_file_exists">Un fichier avec le même nom existe déjà !</string>
+	<string name="error_failed_to_rename">Échec du renommage du fichier !</string>
+	<string name="error_failed_to_init_recorder">Échec de l\'initialisation de l\'enregistreur</string>
+	<string name="error_failed_to_init_player">Échec de l\'initialisation du lecteur</string>
+	<string name="error_player_data_source">Le lecteur ne peut pas lire ce fichier</string>
+	<string name="error_unable_to_read_sound_file">Impossible de lire le fichier sonore</string>
+	<string name="error_permission_denied">Permission refusé</string>
+	<string name="error_process_waveform">Impossible de dessiner les formes d\'ondes</string>
+	<string name="error_lost_records">Certains de vos enregistrements ont été supprimé ou déplacé</string>
+	<string name="error_no_available_space">Pas d\'espace disponible !</string>
+	<string name="error_failed_access_to_storage">Échec de l\'accès au stocakge de fichier</string>
+	<string name="error_on_recording">Erreur pendant l\'enregistrement !</string>
+	<string name="error_failed_to_restore">Échec de la récupération de l\'enregistrement !</string>
+	<string name="error_failed_to_delete">Échec de la suppression de l\'enregistrement !</string>
+
+	<string name="move_public_storage_records_message">Déplacement du stockage public des enregistrements nécessaire</string>
+	<string name="later">Plus tard</string>
+	<string name="move">Déplacer</string>
+	<string name="move_all">Tout déplacer</string>
+
+	<!-- Shown in the 'About' window of the app. -->
+	<string name="avout_body"><![CDATA[
+		<b>Magnétophone 2023</b><br>
+		Version %s
+	]]></string>
+	<!--<a href="http://#/">Application site</a>-->
+
+	<string-array name="theme-colors2">
+		<item>Thème Bleu Gris</item>
+		<item>Thème Noir</item>
+		<item>Thème Turquoise</item>
+		<item>Thème Bleu</item>
+		<item>Thème Violet</item>
+		<item>Thème Rose</item>
+		<item>Thème Orange</item>
+		<item>Thème Rouge</item>
+		<item>Thème Marron</item>
+	</string-array>
+
+	<string-array name="formats2">
+		<item>M4a</item>
+		<item>Wav</item>
+		<item>3gp</item>
+	</string-array>
+
+	<string-array name="bit_rates2">
+		<item>48 kbps</item>
+		<item>96 kbps</item>
+		<item>128 kbps</item>
+		<item>192 kbps</item>
+		<item>256 kbps</item>
+	</string-array>
+
+	<string-array name="sample_rates2">
+		<item>8 kHz</item>
+		<item>16 kHz</item>
+		<item>22 kHz</item>
+		<item>32 kHz</item>
+		<item>44.1 kHz</item>
+		<item>48 kHz</item>
+	</string-array>
+
+	<string-array name="channels">
+		<item>Stéréo</item>
+		<item>Mono</item>
+	</string-array>
+
+	<string name="app_widget_description">Widget début d\'enregistrement</string>
+</resources>
