@@ -186,9 +186,12 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		sampleRateSetting.setOnInfoClickListener(v -> AndroidUtils.showInfoDialog(SettingsActivity.this, R.string.info_frequency));
 
 		bitrateSetting = findViewById(R.id.setting_bitrate);
+
+
 		rates = getResources().getStringArray(R.array.bit_rates2);
 		rateKeys = new String[] {
-//				SettingsMapper.BITRATE_24000,
+				SettingsMapper.BITRATE_8000,
+				SettingsMapper.BITRATE_16000,
 				SettingsMapper.BITRATE_48000,
 				SettingsMapper.BITRATE_96000,
 				SettingsMapper.BITRATE_128000,
@@ -196,6 +199,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 				SettingsMapper.BITRATE_256000,
 		};
 		bitrateSetting.setData(rates, rateKeys);
+
 		bitrateSetting.setOnChipCheckListener((key, name, checked) -> presenter.setSettingRecordingBitrate(SettingsMapper.keyToBitrate(key)));
 		bitrateSetting.setTitle(R.string.bitrate);
 		bitrateSetting.setOnInfoClickListener(v -> AndroidUtils.showInfoDialog(SettingsActivity.this, R.string.info_bitrate));
@@ -528,8 +532,14 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		if (format.equals(AppConstants.FORMAT_3GP)) {
 			channelsSetting.removeChip(new String[] {SettingsMapper.CHANNEL_COUNT_STEREO});
 			channelsSetting.setSelected(SettingsMapper.CHANNEL_COUNT_MONO);
+			final String[] rates = getResources().getStringArray(R.array.bit_rates);
+			bitrateSetting.setData(rates, rateKeys);
+			bitrateSetting.setSelected(SettingsMapper.BITRATE_16000);
 		} else {
 			channelsSetting.addChip(new String[] {SettingsMapper.CHANNEL_COUNT_STEREO}, new String[] {getString(R.string.stereo)});
+			final String[] rates = getResources().getStringArray(R.array.bit_rates2);
+			bitrateSetting.setData(rates, rateKeys);
+			bitrateSetting.setSelected(SettingsMapper.BITRATE_48000);
 		}
 	}
 

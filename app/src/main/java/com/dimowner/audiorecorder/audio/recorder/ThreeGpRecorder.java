@@ -70,11 +70,8 @@ public class ThreeGpRecorder implements RecorderContract.Recorder {
 			recorder = new MediaRecorder();
 			recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 			recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-			if (sampleRate > 8000) {
-				recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB); //AMR_WR records with 16000 Hz frequency, ~23 kbps bitrate
-			} else {
-				recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);  //AMR_NB records with 8000 Hz frequency, ~12 kbps bitrate
-			}
+			recorder.setAudioEncoder(sampleRate == 8000 ? MediaRecorder.AudioEncoder.AMR_NB : MediaRecorder.AudioEncoder.AMR_WB);
+			recorder.setAudioEncodingBitRate(bitrate);
 			recorder.setMaxDuration(-1); //Duration unlimited or use RECORD_MAX_DURATION
 			recorder.setOutputFile(recordFile.getAbsolutePath());
 			try {
