@@ -254,8 +254,10 @@ public class SettingsMapper {
 
 	public static String bitrateToKey(int bitrate) {
 		switch (bitrate) {
-//			case AppConstants.RECORD_ENCODING_BITRATE_24000:
-//				return BITRATE_24000;
+			case AppConstants.RECORD_ENCODING_BITRATE_8000:
+				return BITRATE_8000;
+			case AppConstants.RECORD_ENCODING_BITRATE_16000:
+				return BITRATE_16000;
 			case AppConstants.RECORD_ENCODING_BITRATE_48000:
 				return BITRATE_48000;
 			case AppConstants.RECORD_ENCODING_BITRATE_96000:
