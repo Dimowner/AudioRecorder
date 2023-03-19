@@ -27,11 +27,9 @@
     <string name="delete_record">移动到回收站 %s?</string>
     <string name="delete_record_forever">永久删除录音 %s?</string>
     <plurals name="delete_selected_records">
-        <item quantity="one">移动 %d 个选择的录音到回收站?</item>
         <item quantity="other">移动 %d 个选择的录音到回收站?</item>
     </plurals>
     <plurals name="download_selected_records">
-        <item quantity="one">保存 %d 项已选择的的录音到 “下载” 目录?</item>
         <item quantity="other">保存 %d 项已选择的的录音到 “下载” 目录?</item>
     </plurals>
     <string name="start_recording">开始录制</string>
@@ -55,7 +53,6 @@
     <string name="bookmarks">书签</string>
     <string name="share_record">分享录音: %s</string>
     <plurals name="share_records_count">
-        <item quantity="one">分享 %d 项录音</item>
         <item quantity="other">分享 %d 项录音</item>
     </plurals>
     <string name="import_progress">音频文件导入&#8230;</string>
@@ -76,7 +73,6 @@
     <string name="save_as">另存为&#8230;</string>
     <string name="downloading">Downloading: %s</string>
     <plurals name="downloading_success_count">
-        <item quantity="one">%d 录音复制成功</item>
         <item quantity="other">%d 录音复制成功</item>
     </plurals>
     <plurals name="move_records_success_count">
@@ -238,7 +234,7 @@
 
     <!-- Shown in the 'About' window of the app. -->
     <string name="about_body"><![CDATA[
-    	<b>Audio Recorder 2021</b><br>
+    	<b>Audio Recorder 2023</b><br>
 		Version %s
 	]]></string>
     <!--<a href="http://#/">Application site</a>-->

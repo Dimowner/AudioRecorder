@@ -1,5 +1,5 @@
 <resources>
-	<string name="app-name">Magnétophone</string>
+	<string name="app_name">Magnétophone</string>
 
 	<string name="records">Enregistrements</string>
 	<string name="settings">Paramètres</string>
@@ -14,7 +14,7 @@
 	<string name="store_records_public">Stocker les enregistrements dans un dossier public</string>
 	<string name="record_in_stereo">Enregister en stéréo</string>
 	<string name="keep_screen_on">Laisser l\'écran allumé pendant l\'enregistrement</string>
-	<string name="total_duration">Temps d'enregistrement total: %s</string>
+	<string name="total_duration">Temps d\'enregistrement total: %s</string>
 	<string name="total_record_count">Nombre d\'enregistrements total: %d</string>
 	<string name="available_space">Place disponible: %s</string>
 	<string name="delete_all">Supprimer tout les enregistrements</string>
@@ -27,12 +27,12 @@
 	<string name="delete_record">Déplacer %s dans la corbeille ?</string>
 	<string name="delete_record_forever">Supprimer l\'enregistrement %s pour toujours ?</string>
 	<plurals name="delete_selected_records">
-		<item quantity="one">Déplacer l\'enregistrement sélectionné à la corbeille ?</item>
-		<item quantity="other">Déplacer les %d enregistrements sélectionnés à la corbeille ?</items>
+		<item quantity="one">Déplacer les %d l\'enregistrement sélectionné à la corbeille ?</item>
+		<item quantity="many">Déplacer les %d enregistrements sélectionnés à la corbeille ?</item>
 	</plurals>
 	<plurals name="download_selected_records">
-		<item quantity="one">Copier l\'enregistrement sélectionné dans le dossier \'Downloads\' ?</item>
-		<item quantity="other">Copier les %d enregistrements sélectionnés dans le dossier \'Downloads\' ?</item>
+		<item quantity="one">Copier les %d l\'enregistrement sélectionné dans le dossier \'Downloads\' ?</item>
+		<item quantity="many">Copier les %d enregistrements sélectionnés dans le dossier \'Downloads\' ?</item>
 	</plurals>
 	<string name="start_recording">Débuter l\'enregistrement</string>
 	<string name="recording_feature_disabled">Fonctionnalité d\'enregistrement désactivé</string>
@@ -54,12 +54,12 @@
 	<string name="bookmarks">Marque pages</string>
 	<string name="share_record">Partager l\'enregistrement: %s</string>
 	<plurals name="share_records_count">
-		<item quantity="one">Partager l\'enregistrement</item>
-		<item quantity="other">Partager les %d enregistrements</item>
+		<item quantity="one">Partager les %d l\'enregistrement</item>
+		<item quantity="many">Partager les %d enregistrements</item>
 	</plurals>
 	<string name="import_progress">Importation du fichier audio&#8230;</string>
 	<string name="btn_import">Importer</string>
-	<string name="procesing_canceled">Le processus a été annulé</string>
+	<string name="processing_canceled">Le processus a été annulé</string>
 	<string name="record_calculation">Calcul de la forme d\'onde</string>
 	<string name="record_processing">Calcul du dessin de la forme d\'onde</string>
 	<string name="request">Requête ou commentaire</string>
@@ -75,24 +75,24 @@
 	<string name="save_as">Enregistrer sous&#8230;</string>
 	<string name="downloading">Téléchargement: %s</string>
 	<plurals name="downloading_success_count">
-		<item quantity="one">L\'enregistrement a bien été copié</item>
-		<item quantity="other">Les %d enregistrements ont bien été copié</item>
+		<item quantity="one">Les %d l\'enregistrement a bien été copié</item>
+		<item quantity="many">Les %d enregistrements ont bien été copié</item>
 	</plurals>
 	<plurals name="move_records_success_count">
-		<item quantity="one">L\'enregistrement a bien été déplacé</item>
-		<item quantity="other">Les %d enregistrements ont bien été déplacé</items>
+		<item quantity="one">Les %d l\'enregistrement a bien été déplacé</item>
+		<item quantity="many">Les %d enregistrements ont bien été déplacé</item>
 	</plurals>
 	<string name="downloading_success_and_fail_count">%d enregistrements ont bien été copié et %d ont échoué</string>
 	<string name="moving_records_success_and_fail_count">%d enregistrements ont bien été déplacé et %d ont échoué</string>
 	<string name="downloading_success">%s copiés dans le dossier \'Downloads\'</string>
 	<string name="move_record_success">%s déplacés dans le dossier \'Downloads\'</string>
 	<plurals name="downloading_failed_count">
-		<item quantity="one">Échec de la copie de l\'enregistrement</item>
-		<item quantity="other">Échec de la copie des %d enregistrements</item>
+		<item quantity="one">Échec de la copie des %d l\'enregistrement</item>
+		<item quantity="many">Échec de la copie des %d enregistrements</item>
 	</plurals>
 	<plurals name="move_records_failed_count">
-		<item quantity="one">Échec du déplacement de l\'enregistrement</item>
-		<item quantity="other">Échec du déplacement des %d enregistrements</item>
+		<item quantity="one">Échec du déplacement des %d l\'enregistrement</item>
+		<item quantity="many">Échec du déplacement des %d enregistrements</item>
 	</plurals>
 	<string name="record_will_be_copied_into_downloads">L\'enregistrement sera copié dans le dossier \'Downloads\'</string>
 	<string name="move_record_failed">Échec du déplacement: %s</string>
@@ -201,7 +201,7 @@
 	<string name="bitrate">Débit binaire:</string>
 	<string name="channels">Nombre de canaux:</string>
 	<string name="sample_rate">Taux d\'échantillonage</string>
-	<string name="size_per_min">taille attendu: %s Mb/min</string>
+	<string name="size_per_min">Taille attendu: %s Mb/min</string>
 	<string name="value_hz">%d Hz</string>
 	<string name="value_kbps">%d kbps</string>
 	<string name="stereo">Stéréo</string>
@@ -235,13 +235,13 @@
 	<string name="move_all">Tout déplacer</string>
 
 	<!-- Shown in the 'About' window of the app. -->
-	<string name="avout_body"><![CDATA[
+	<string name="about_body"><![CDATA[
 		<b>Magnétophone 2023</b><br>
 		Version %s
 	]]></string>
 	<!--<a href="http://#/">Application site</a>-->
 
-	<string-array name="theme-colors2">
+	<string-array name="theme_colors2">
 		<item>Thème Bleu Gris</item>
 		<item>Thème Noir</item>
 		<item>Thème Turquoise</item>
