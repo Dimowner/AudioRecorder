@@ -1,0 +1,288 @@
+<resources>
+	<string name="app_name">Ses Kaydedici</string>
+
+	<string name="records">Kayıtlar</string>
+	<string name="settings">Ayarlar</string>
+	<string name="setup">Kurulum</string>
+	<string name="welcome_1">Hoş geldiniz, basit ve hızlı uygulama</string>
+	<string name="welcome_2">Güzel dizayn ve iyi fonksiyonlar</string>
+	<string name="welcome_3">En iyi seçenekleri seçin ve kayıda başlayın</string>
+	<string name="title_1">Ses Kaydedici</string>
+	<string name="title_2">Ses Kaydedici</string>
+	<string name="title_3">Ses Kaydedici</string>
+	<string name="rate_app">Uygulamayı puanla</string>
+	<string name="store_records_public">Kayıtları genel dizine kaydet</string>
+	<string name="record_in_stereo">Stereo olarak kayıt al</string>
+	<string name="keep_screen_on">Kayıttayken ekranı uyanık tut</string>
+	<string name="total_duration">Toplam kayıt süresi: %s</string>
+	<string name="total_record_count">Toplam kayıt: %d</string>
+	<string name="available_space">Mevcut alan: %s</string>
+	<string name="delete_all">Bütün kayıtları sil</string>
+	<string name="delete_all2">Hepsini sil</string>
+	<string name="records_was_removed">Bazı kayıtlar dizinde bulunamadı, silinmiş veya taşınmış olabilir.</string>
+	<string name="title_file_is_not_available">Kayıtlar dizinine erişim izni yok!</string>
+	<string name="details_file_is_not_available">Maalesef, uygulama artık genel dizine erişemiyor.\nKayıt dosyasını telefonunuzun dosya yöneticisinde şu konumda bulabilirsiniz:\n%s</string>
+	<string name="warning">Uyarı!</string>
+	<string name="delete_this_record">Bu kaydı sil?</string>
+	<string name="delete_record">%s kaydını çöp kutusuna taşı?</string>
+	<string name="delete_record_forever">%s kaydını sil?</string>
+	<plurals name="delete_selected_records">
+		<item quantity="one">%d kaydı çöp kutusuna taşı?</item>
+		<item quantity="other">%d kaydı çöp kutusuna taşı?</item>
+	</plurals>
+	<plurals name="download_selected_records">
+		<item quantity="one">%d seçili kaydı \'Downloads\' dizinine kopyala?</item>
+		<item quantity="other">%d seçili kaydı \'Downloads\' dizinine kopyala?</item>
+	</plurals>
+	<string name="start_recording">Kayda başla</string>
+	<string name="recording_feature_disabled">Kayıt özelliği devre dışı</string>
+	<string name="restore_record">%s kaydını geri yükle?</string>
+	<string name="delete_all_records">Bütün kayıtları sil?</string>
+	<string name="all_records_deleted">Bütün kayıtlar silindi</string>
+	<string name="failed_to_delete_all_records">Bütün kayıtlar silinirken bir sorun oluştu</string>
+	<string name="please_select_record_to_share">Paylaşmak için bir kayıt seçin</string>
+	<string name="record_name">Yeni isim</string>
+	<string name="recording">Kayıt alınıyor: %s</string>
+	<string name="recording_is_on">Kayıt başladı</string>
+	<string name="recording_progress">Kayıt alınıyor&#8230;</string>
+	<string name="recording_paused">Durduruldu</string>
+	<string name="playback">Oynat: %s</string>
+	<string name="zero_time">00:00</string>
+	<string name="empty">Boş</string>
+	<string name="selected"> %d selected</string>
+	<string name="no_records">Kayıtlar boş</string>
+	<string name="no_bookmarks">Yer imleri boş</string>
+	<string name="bookmarks">Yer imleri</string>
+	<string name="share_record">Kayıt paylaş: %s</string>
+	<plurals name="share_records_count">
+		<item quantity="one">%d kaydı paylaş</item>
+		<item quantity="other">%d kaydı paylaş</item>
+	</plurals>
+	<string name="import_progress">Ses dosyası içe aktarılıyor&#8230;</string>
+	<string name="btn_import">İçe aktar</string>
+	<string name="processing_canceled">İşlem iptal edildi</string>
+	<string name="record_calculation">Dalga biçimi hesaplamaları&#8230;</string>
+	<string name="record_processing">Dalga biçimi çizim hesaplamaları&#8230;</string>
+	<string name="request">İstek ve geri bildirim</string>
+	<string name="email_clients_not_found">Herhangi bir email uygulaması bulunamadı</string>
+	<string name="send_email">Email ile gönder&#8230;</string>
+	<string name="open_record_with">%s kaydını şu uygulamada aç</string>
+	<string name="delete">Delete</string>
+	<string name="restore">Geri Yükle</string>
+	<string name="info">Bilgi</string>
+	<string name="rename">Yeniden adlandır</string>
+	<string name="dont_ask_again">Bir daha sorma</string>
+	<string name="open_with">Birliket aç&#8230;</string>
+	<string name="save_as">Farklı kaydet&#8230;</string>
+	<string name="downloading">İndiriliyor: %s</string>
+	<plurals name="downloading_success_count">
+		<item quantity="one">%d kayıt kopyalandı</item>
+		<item quantity="other">%d kayıt kopyalandı</item>
+	</plurals>
+	<plurals name="move_records_success_count">
+		<item quantity="one">%d kayıt taşındı</item>
+		<item quantity="other">%d kayıt taşındı</item>
+	</plurals>
+	<string name="downloading_success_and_fail_count">%d kayıt kopyalandı ve %d kayıt kopyalanamadı</string>
+	<string name="moving_records_success_and_fail_count">%d kayıt taşındı ve %d kayıt taşınamadı</string>
+	<string name="downloading_success">%s \'Downloads\' dizinine kaydedildi</string>
+	<string name="move_record_success">%s uygulama dizinine taşındı</string>
+	<plurals name="downloading_failed_count">
+		<item quantity="one">%d kayıt kopyalanırken bir sorun oluştu</item>
+		<item quantity="other">%d kayıt kopyalanırken bir sorun oluştu</item>
+	</plurals>
+	<plurals name="move_records_failed_count">
+		<item quantity="one">%d kayıt taşınırken bir sorun oluştu</item>
+		<item quantity="other">%d kayıt taşınırken bir sorun oluştu</item>
+	</plurals>
+	<string name="record_will_be_copied_into_downloads">Kayıt \'Downloads\' dizinine kopyalanacak</string>
+	<string name="move_record_failed">Taşıma başarısız: %s</string>
+	<string name="downloading_failed">Kopyalama başarısız: %s</string>
+	<string name="downloading_failed_file_already_exists">Kayıt kopyalanamadı. %s adında bir dosya zaten var</string>
+	<string name="downloading_cancel">Kopyalama işlemi iptal edildi</string>
+	<string name="share">Paylaş</string>
+	<string name="ask_to_rename">Kayıt tamamlandığında yeniden adlandır</string>
+	<string name="record_moved_into_trash">Kayıt çöp kutusuna taşındı</string>
+	<string name="selected_records_moved_into_trash">Seçilen kayıtlar çöp kutusuna taşındı</string>
+	<string name="all_records_deleted_successfully">All records deleted successfully</string>
+	<string name="record_deleted_successfully">Kayıt silindi</string>
+	<string name="record_restored_successfully">Kayıt geri yüklendi</string>
+	<string name="record_imported_successfully">Kayıt içe aktarıldı</string>
+	<string name="cant_import_files">Dosyalar içe aktarılamadı</string>
+	<string name="by_date">Tarihe göre (en yeni)</string>
+	<string name="by_date_desc">Tarihe göre (en eski)</string>
+	<string name="by_name">İsime göre (A-Z)</string>
+	<string name="by_name_desc">İsime göre (Z-A)</string>
+	<string name="by_duration">Süreye göre (en uzun)</string>
+	<string name="by_duration_desc">Süreye göre (en kısa)</string>
+	<string name="need_write_permission">Uygulama genel dosya dizinine erişim izni gerektiriyor. Eğer izin onaylanmazsa, kayıtlar uygulamanın kendi dizinine kaydedilecek.</string>
+	<string name="rec_name">İsim:</string>
+	<string name="rec_format">Format:</string>
+	<string name="rec_duration">Süre:</string>
+	<string name="rec_frequency">Frekans:</string>
+	<string name="rec_size">Boyut:</string>
+	<string name="rec_created">Kayıt tarihi:</string>
+	<string name="rec_location">Dosya konumu:</string>
+	<string name="naming">İsimlendirme:</string>
+	<string name="private_dir_warning">Records will be stored in the app\'s private directory which is not visible for other apps</string>
+	<string name="public_dir_warning">Records will be stored in a common directory on your device which is visible for other apps</string>
+	<string name="lost_records">Kayıp kayıtlar</string>
+	<string name="trash">Çöp Kutusu</string>
+	<string name="trash_info">Çöp kutusuna taşınan kayıtlar 60 gün sonra kendiliğinden silinir.</string>
+	<string name="file_browser">Dosya yöneticisi</string>
+	<string name="private_dir">Uygulama dizini</string>
+	<string name="public_dir">Genel dizin</string>
+	<string name="found_in_the_app">Uygulama içinde bulundu</string>
+	<string name="not_found_in_the_app">Uygulama içinde bulunamadı</string>
+	<string name="in_trash">Çöp kutusunda</string>
+
+	<string name="app_settings">Uygulama ayarları:</string>
+	<string name="recording_settings">Kayıt ayarları:</string>
+	<string name="other_settings">Diğer:</string>
+
+	<string name="today">Bugün</string>
+	<string name="yesterday">Dün</string>
+
+	<string name="btn_save">Kaydet</string>
+	<string name="btn_cancel">Cancel</string>
+	<string name="btn_yes">Evet</string>
+	<string name="btn_ok">Tamam</string>
+	<string name="btn_no">Hayır</string>
+	<string name="btn_play">Oynat</string>
+	<string name="btn_deny">Reddet</string>
+	<string name="btn_allow">Onayla</string>
+	<string name="btn_details">Detaylar</string>
+	<string name="btn_get_started">Başlayalım</string>
+	<string name="btn_apply">Uygula</string>
+	<string name="btn_reset">Temizle</string>
+	<string name="btn_next">Sıradaki</string>
+	<string name="view">Görüntüle</string>
+	<string name="view_records">Kayıtları görüntüle</string>
+	<string name="move_records_needed">Kayıtların taşınması gerekiyor</string>
+	<string name="moving_record">Kayıt taşınıyor: %s</string>
+	<string name="moving_record_cancel">Taşıma iptal edildi</string>
+	<string name="move_records_info">Bazı kayıtlarınız hala genel dizinde bulunuyor. Yakında uygulamada genel dizin kullanımı devre dışı bırakılacak. Bu kayıtları uygulama dizinine taşımamız gerekiyor.</string>
+	<string name="info_format"><b>M4a</b> formatı AAC ses çözücüsüyle kodlanmıştır, iyi kalitede ve düşük boyutludur. <b>(önerilen)</b>
+		\n<b>Wav</b> sıkıştırılmamış ses formatıdır. Diğer formatlardan daha fazla alan kaplar. Özel durumlarda kullanılabilir.
+		\n<b>3gp</b> mobil telekomünikasyon servisleri için geliştirilmiş bir multimedya formatıdır. Alandan tasarruf etmeniz gerekiyorsa kullanabilirsiniz.
+		</string>
+	<string name="info_frequency"><b>Örnekleme oranı</b> saniyede taşınan ses örneklerinin oranıdır.
+		\n<b>48kHz</b> DVD\'ler için kullanılan örnekleme oranıdır.
+		\n<b>44,1kHz</b> Ses CD\'leri için kullanılan örnekleme oranıdır. <b>(önerilen)</b>
+		\n<b>22kHz</b> 64 kbps gibi düşük bit oranı için popüler bir örnekleme oranıdır.
+		\n <b>8kHz</b> modern telefon sistemlerine göre daha düşük bant genişliğine sahip örnekleme oranıdır. Önemli kayıtlar için uygun değildir.
+		</string>
+	<string name="info_bitrate"><b>Bit hızı</b> sesin saniye başına sahip olduğu veri boyutudur. Kayıt kalitesini ve boyutunu doğrudan etkiler.
+		\n<b>256 kbps</b> yüksek kalite bit hızı.
+		\n<b>192 kbps</b> orta kalite bit hızı.
+		\n<b>128 kbps</b> orta sınıf bit hızı kalitesi. Podcastler için yaygındır. <b>(önerilen)</b>
+		\n<b>96 kbps</b> genelde konuşma ve düşük kaliteli yayınlarda kullanılır.
+		\n<b>48 kbps</b> genelde sadece konuşmalar için kullanılır.
+		</string>
+	<string name="info_channels">
+		<b>Stereo</b> iki ayrı kanalda kaydedilir. Her hoparlör farklı ses sinyaline sahip olur. <b>(önerilen)</b>
+		\n<b>Mono</b> tek kanalda kaydedilir. Ses birkaç hoparlör ile çoğaltılbilir, ancak bütün hoparlörler aynı ses sinyalinin kopyasını üretir.
+		</string>
+	<string name="info_3gp"><b>3gp</b> mobil telekomünikasyon servisleri için geliştirilmiş bir multimedya formatıdır. Alandan tasarruf etmeniz gerekiyorsa kullanabilirsiniz.</string>
+	<string name="info_m4a"><b>M4a</b> formatı AAC ses çözücüsüyle kodlanmıştır, iyi kalitede ve düşük boyutludur. <b>(önerilen)</b></string>
+	<string name="info_wav"><b>Wav</b> sıkıştırılmamış ses formatıdır. Diğer formatlardan daha fazla alan kaplar. Özel durumlarda kullanılabilir.</string>
+	<string name="info_stereo"><b>Stereo</b> iki ayrı kanalda kaydedilir. Her hoparlör farklı ses sinyaline sahip olur. <b>(önerilen)</b></string>
+	<string name="info_mono"><b>Mono</b> tek kanalda kaydedilir. Ses birkaç hoparlör ile çoğaltılbilir, ancak bütün hoparlörler aynı ses sinyalinin kopyasını üretir.</string>
+	<string name="info_bitrate_48"><b>48 kbps</b> genelde sadece konuşmalar için kullanılır.</string>
+	<string name="info_bitrate_96"><b>96 kbps</b> genelde konuşma ve düşük kaliteli yayınlarda kullanılır.</string>
+	<string name="info_bitrate_128"><b>128 kbps</b> orta sınıf bit hızı kalitesi. Podcastler için yaygındır. <b>(önerilen)</b></string>
+	<string name="info_bitrate_192"><b>192 kbps</b> orta kalite bit hızı.</string>
+	<string name="info_bitrate_256"><b>256 kbps</b> yüksek kalite bit hızı.</string>
+	<string name="info_sample_rate_8k"><b>8kHz</b> modern telefon sistemlerine göre daha düşük bant genişliğine sahip örnekleme oranıdır. Önemli kayıtlar için uygun değildir.</string>
+	<string name="info_sample_rate_16k"><b>16kHz</b> 8kHz\'den daha iyi.</string>
+	<string name="info_sample_rate_22k"><b>22kHz</b> 64 kbps gibi düşük bit oranı için popüler bir örnekleme oranıdır.</string>
+	<string name="info_sample_rate_32k"><b>32kHz</b> 22kHz\'den biraz daha iyi.</string>
+	<string name="info_sample_rate_44k"><b>44,1kHz</b> Ses CD\'leri için kullanılan örnekleme oranıdır. <b>(önerilen)</b></string>
+	<string name="info_sample_rate_48k"><b>48kHz</b> DVD\'ler için kullanılan örnekleme oranıdır.</string>
+	<string name="recording_format">Kayıt formatı:</string>
+	<string name="bitrate">Bit hızı:</string>
+	<string name="channels">Kanal sayısı:</string>
+	<string name="sample_rate">Örnekleme oranı:</string>
+	<string name="size_per_min">Beklenen minimum boyut: %s Mb</string>
+	<string name="value_hz">%d Hz</string>
+	<string name="value_kbps">%d kbps</string>
+	<string name="stereo">Stereo</string>
+	<string name="mono">Mono</string>
+	<string name="records_location">Kayıt konumu:\n%s</string>
+	<string name="feature_not_available_in_android_10">Bu özellik Android 10 ve üstünde aktif değil.</string>
+	<string name="size">%s Mb</string>
+	<string name="move_records">%d Kaydı taşı</string>
+
+	<string name="error_unknown">Beklenmeyen hata</string>
+	<string name="error_cant_create_file">Dosya oluşturulamadı</string>
+	<string name="error_invalid_output_file">Invalid output file</string>
+	<string name="error_file_exists">Bu isimde bir dosya zaten bulunuyor!</string>
+	<string name="error_failed_to_rename">Kayıt yeniden isimlendirilemedi!</string>
+	<string name="error_failed_to_init_recorder">Kayıt alıcı başlatılamadı</string>
+	<string name="error_failed_to_init_player">Oynatıcı başlatılamadı</string>
+	<string name="error_player_data_source">Oynatıcı dosyayı okuyamıyor</string>
+	<string name="error_unable_to_read_sound_file">Ses dosyası okunamıyor</string>
+	<string name="error_permission_denied">İzin reddedildi</string>
+	<string name="error_process_waveform">Dalga biçimi çizilemedi</string>
+	<string name="error_lost_records">Bazı kayıtlarınız silinmiş veya taşınmış</string>
+	<string name="error_no_available_space">Yeterli alan yok!</string>
+	<string name="error_failed_access_to_storage">Dosya konumuna erişilemiyor</string>
+	<string name="error_on_recording">Kayıt hatası!</string>
+	<string name="error_failed_to_restore">Kayıt geri yüklenemedi!</string>
+	<string name="error_failed_to_delete">Kayıt silinemedi!</string>
+
+	<string name="move_public_storage_records_message">Genel dizindeki kayıtların taşınması gerekiyor</string>
+	<string name="later">Sonra</string>
+	<string name="move">Taşı</string>
+	<string name="move_all">Hepsini taşı</string>
+
+	<!-- Shown in the 'About' window of the app. -->
+	<string name="about_body"><![CDATA[
+    	<b>Audio Recorder 2021</b><br>
+		Version %s
+	]]></string>
+	<!--<a href="http://#/">Application site</a>-->
+
+	<string-array name="theme_colors2">
+		<item>Mavi Gri Tema</item>
+		<item>Siyah Tema</item>
+		<item>Turkuaz Tema</item>
+		<item>Mavi Tema</item>
+		<item>Mor Tema</item>
+		<item>Pembe Tema</item>
+		<item>Turuncu Tema</item>
+		<item>Kırmızı Tema</item>
+		<item>Kahverengi Tema</item>
+	</string-array>
+
+	<string-array name="formats2">
+		<item>M4a</item>
+		<item>Wav</item>
+		<item>3gp</item>
+	</string-array>
+
+	<string-array name="bit_rates2">
+<!--		<item>24 kbps</item>-->
+		<item>48 kbps</item>
+		<item>96 kbps</item>
+		<item>128 kbps</item>
+		<item>192 kbps</item>
+		<item>256 kbps</item>
+	</string-array>
+
+	<string-array name="sample_rates2">
+		<item>8kHz</item>
+		<item>16kHz</item>
+		<item>22kHz</item>
+		<item>32kHz</item>
+		<item>44.1kHz</item>
+		<item>48kHz</item>
+	</string-array>
+
+	<string-array name="channels">
+		<item>Stereo</item>
+		<item>Mono</item>
+	</string-array>
+
+	<string name="app_widget_description">Kayıt widgetini başlat</string>
+</resources>
