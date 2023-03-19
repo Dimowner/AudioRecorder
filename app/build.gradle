@@ -5,19 +5,13 @@ apply plugin: 'kotlin-kapt'
 //apply plugin: 'com.google.firebase.crashlytics'
 //apply plugin: 'com.google.gms.google-services'
 
-def versionMajor = 0
-def versionMinor = 9
-def versionPatch = 33
-
 android {
-	compileSdkVersion 30
-	buildToolsVersion "30.0.3"
+	namespace 'com.dimowner.audiorecorder'
+	compileSdkVersion 33
 	defaultConfig {
 		applicationId "com.dimowner.audiorecorder"
 		minSdkVersion 21
-		targetSdkVersion 30
-//		versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
-//		versionName "${versionMajor}.${versionMinor}.${versionPatch}"
+		targetSdkVersion 33
 		versionCode 933
 		versionName "0.9.33"
 	}
@@ -97,9 +91,9 @@ android.variantFilter { variant ->
 }
 
 dependencies {
-	def androidX = "1.2.1"
-	def coroutines = "1.4.1"
-	def timber = "4.7.1"
+	def androidX = "1.3.0"
+	def coroutines = "1.6.1"
+	def timber = "5.0.1"
 
 	//Kotlin
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
