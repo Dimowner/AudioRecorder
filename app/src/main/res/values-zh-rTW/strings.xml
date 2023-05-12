@@ -1,17 +1,17 @@
 <resources>
-	<string name="app_name">錄音器</string>
+	<string name="app_name">錄音機</string>
 
 	<string name="records">錄音</string>
 	<string name="settings">設定</string>
 	<string name="setup">設定指引</string>
-	<string name="welcome_1">歡迎使用輕便的錄音程式</string>
+	<string name="welcome_1">歡迎使用輕快的錄音程式</string>
 	<string name="welcome_2">兼具實用功能與亮麗外觀</string>
 	<string name="welcome_3">選擇最佳設定以開始錄製</string>
-	<string name="title_1">錄音器</string>
+	<string name="title_1">錄音機</string>
 	<string name="title_2">錄音器</string>
-	<string name="title_3">錄音器</string>
+	<string name="title_3">Recordio Audier</string>
 	<string name="rate_app">評價應用程式</string>
-	<string name="store_records_public">錄音存放至共用資料夾</string>
+	<string name="store_records_public">存放錄音至共用資料夾</string>
 	<string name="record_in_stereo">錄製立體聲</string>
 	<string name="keep_screen_on">錄製期間保持螢幕開啟</string>
 	<string name="total_duration">時間總計：%s</string>
