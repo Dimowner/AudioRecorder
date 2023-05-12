@@ -265,5 +265,5 @@
 		<item>單聲道</item>
 	</string-array>
 
-	<string name="app_widget_description">錄製啟動小工具</string>
+	<string name="app_widget_description">啟動錄音小工具</string>
 </resources>
