@@ -1,0 +1,269 @@
+<resources>
+	<string name="app_name">錄音器</string>
+
+	<string name="records">錄音</string>
+	<string name="settings">設定</string>
+	<string name="setup">設定指引</string>
+	<string name="welcome_1">歡迎使用輕便的錄音程式</string>
+	<string name="welcome_2">兼具實用功能與亮麗外觀</string>
+	<string name="welcome_3">選擇最佳設定以開始錄製</string>
+	<string name="title_1">錄音器</string>
+	<string name="title_2">錄音器</string>
+	<string name="title_3">錄音器</string>
+	<string name="rate_app">評價應用程式</string>
+	<string name="store_records_public">錄音存放至共用資料夾</string>
+	<string name="record_in_stereo">錄製立體聲</string>
+	<string name="keep_screen_on">錄製期間保持螢幕開啟</string>
+	<string name="total_duration">時間總計：%s</string>
+	<string name="total_record_count">數量總計：%d</string>
+	<string name="available_space">可用空間：%s</string>
+	<string name="delete_all">刪除所有錄音</string>
+	<string name="delete_all2">全部刪除</string>
+	<string name="records_was_removed">找不到資料夾內的部分錄音，可能已被移動或刪除。</string>
+	<string name="title_file_is_not_available">無法存取錄音檔案</string>
+	<string name="details_file_is_not_available">很抱歉，應用程式無法繼續存取共用儲存空間。
+		\n您可在裝置中的下列位置找到錄音檔案：
+		\n%s</string>
+	<string name="warning">警告</string>
+	<string name="delete_this_record">刪除這則錄音？</string>
+	<string name="delete_record">將「%s」移至垃圾桶？</string>
+	<string name="delete_record_forever">永久刪除錄音？\n「%s」</string>
+	<plurals name="delete_selected_records">
+		<item quantity="one">將選取的 %d 則錄音移至垃圾桶？</item>
+		<item quantity="other">將選取的 %d 則錄音移至垃圾桶？</item>
+	</plurals>
+	<plurals name="download_selected_records">
+		<item quantity="one">將選取的 %d 則錄音複製到 Download 資料夾？</item>
+		<item quantity="other">將選取的 %d 則錄音複製到 Download 資料夾？</item>
+	</plurals>
+	<string name="start_recording">開始錄製</string>
+	<string name="recording_feature_disabled">錄製功能已停用</string>
+	<string name="restore_record">復原錄音？\n「%s」</string>
+	<string name="delete_all_records">刪除所有錄音？</string>
+	<string name="all_records_deleted">已刪除所有錄音</string>
+	<string name="failed_to_delete_all_records">刪除所有錄音失敗</string>
+	<string name="please_select_record_to_share">請選擇要分享的錄音</string>
+	<string name="record_name">新的名稱</string>
+	<string name="recording">錄音：%s</string>
+	<string name="recording_is_on">已啟動錄音</string>
+	<string name="recording_progress">正在錄製&#8230;</string>
+	<string name="recording_paused">已暫停</string>
+	<string name="playback">播放：%s</string>
+	<string name="zero_time">00:00</string>
+	<string name="empty">空</string>
+	<string name="selected">已選取 %d</string>
+	<string name="no_records">沒有錄音</string>
+	<string name="no_bookmarks">沒有書籤</string>
+	<string name="bookmarks">書籤</string>
+	<string name="share_record">分享錄音：%s</string>
+	<plurals name="share_records_count">
+		<item quantity="one">分享 %d 則錄音</item>
+		<item quantity="other">分享 %d 則錄音</item>
+	</plurals>
+	<string name="import_progress">正在匯入音訊&#8230;</string>
+	<string name="btn_import">匯入</string>
+	<string name="processing_canceled">已終止作業</string>
+	<string name="record_calculation">波形演算&#8230;</string>
+	<string name="record_processing">正在建構波形&#8230;</string>
+	<string name="request">建議或回報問題</string>
+	<string name="email_clients_not_found">找不到電子郵件應用程式</string>
+	<string name="send_email">以電子郵件傳送&#8230;</string>
+	<string name="open_record_with">%s 開啟方式</string>
+	<string name="delete">刪除</string>
+	<string name="restore">還原</string>
+	<string name="info">資訊</string>
+	<string name="rename">重新命名</string>
+	<string name="dont_ask_again">不再詢問</string>
+	<string name="open_with">開啟&#8230;</string>
+	<string name="save_as">另存&#8230;</string>
+	<string name="downloading">正在下載：%s</string>
+	<plurals name="downloading_success_count">
+		<item quantity="one">已複製 %d 則錄音</item>
+		<item quantity="other">已複製 %d 則錄音</item>
+	</plurals>
+	<plurals name="move_records_success_count">
+		<item quantity="one">已刪除 %d 則錄音</item>
+		<item quantity="other">已刪除 %d 則錄音</item>
+	</plurals>
+	<string name="downloading_success_and_fail_count">已複製 %d 則錄音，%d 個失敗</string>
+	<string name="moving_records_success_and_fail_count">已複製 %d 則錄音，%d 個失敗</string>
+	<string name="downloading_success">「%s」已複製到 Download 資料夾</string>
+	<string name="move_record_success">「%s」已移動到應用程式專用資料夾</string>
+	<plurals name="downloading_failed_count">
+		<item quantity="one">複製 %d 則錄音失敗</item>
+		<item quantity="other">複製 %d 則錄音失敗</item>
+	</plurals>
+	<plurals name="move_records_failed_count">
+		<item quantity="one">移動 %d 則錄音失敗</item>
+		<item quantity="other">移動 %d 則錄音失敗</item>
+	</plurals>
+	<string name="record_will_be_copied_into_downloads">錄音將會複製到 Download 資料夾。</string>
+	<string name="move_record_failed">移動失敗：%s</string>
+	<string name="downloading_failed">複製失敗：%s</string>
+	<string name="downloading_failed_file_already_exists">複製失敗，已存在檔案名稱「%s」</string>
+	<string name="downloading_cancel">複製作業終止</string>
+	<string name="share">分享</string>
+	<string name="ask_to_rename">錄製完成後顯示命名視窗</string>
+	<string name="record_moved_into_trash">已將錄音移至垃圾桶</string>
+	<string name="selected_records_moved_into_trash">已將選取的錄音移至垃圾桶</string>
+	<string name="all_records_deleted_successfully">已刪除所有錄音</string>
+	<string name="record_deleted_successfully">已刪除錄音</string>
+	<string name="record_restored_successfully">已還原錄音</string>
+	<string name="record_imported_successfully">已匯入錄音</string>
+	<string name="cant_import_files">無法匯入檔案</string>
+	<string name="by_date">日期 (最新)</string>
+	<string name="by_date_desc">日期 (最舊)</string>
+	<string name="by_name">名稱 (A-Z)</string>
+	<string name="by_name_desc">名稱 (Z-A)</string>
+	<string name="by_duration">時間 (最長)</string>
+	<string name="by_duration_desc">時間 (最短)</string>
+	<string name="need_write_permission">需要共用儲存空間存取權限。
+		\n如果沒有這項權限，錄音將會儲存至應用程式專用資料夾。</string>
+	<string name="rec_name">名稱：</string>
+	<string name="rec_format">格式：</string>
+	<string name="rec_duration">長度：</string>
+	<string name="rec_frequency">頻率：</string>
+	<string name="rec_size">大小：</string>
+	<string name="rec_created">建立：</string>
+	<string name="rec_location">位置：</string>
+	<string name="naming">名稱 </string>
+	<string name="private_dir_warning">錄音將會儲存至專用資料夾，且無法在其他應用程式中顯示。</string>
+	<string name="public_dir_warning">錄音將會儲存至共用資料夾，且可在其他應用程式中顯示。</string>
+	<string name="lost_records">錄音遺失</string>
+	<string name="trash">垃圾桶</string>
+	<string name="trash_info">移至垃圾桶的錄音將在 60 天後自動刪除。</string>
+	<string name="file_browser">檔案瀏覽</string>
+	<string name="private_dir">專用資料夾</string>
+	<string name="public_dir">共用資料夾</string>
+	<string name="found_in_the_app">已在錄音器內</string>
+	<string name="not_found_in_the_app">不在錄音器內</string>
+	<string name="in_trash">位於垃圾桶</string>
+
+	<string name="app_settings">應用程式設定：</string>
+	<string name="recording_settings">錄製設定：</string>
+	<string name="other_settings">其他：</string>
+
+	<string name="today">今天</string>
+	<string name="yesterday">昨天</string>
+
+	<string name="btn_save">儲存</string>
+	<string name="btn_cancel">取消</string>
+	<string name="btn_yes">是</string>
+	<string name="btn_ok">確定</string>
+	<string name="btn_no">否</string>
+	<string name="btn_play">播放</string>
+	<string name="btn_deny">拒絕</string>
+	<string name="btn_allow">允許</string>
+	<string name="btn_details">資訊</string>
+	<string name="btn_get_started">開始</string>
+	<string name="btn_apply">套用</string>
+	<string name="btn_reset">重設</string>
+	<string name="btn_next">下一步</string>
+	<string name="view">檢視</string>
+	<string name="view_records">檢視錄音</string>
+	<string name="move_records_needed">需要移動錄音</string>
+	<string name="moving_record">移動錄音：%s</string>
+	<string name="moving_record_cancel">移動作業終止</string>
+	<string name="move_records_info">您的部分錄音仍存放於共用儲存空間，未來應用程式將無法繼續存取這個位置，請將檔案移至專用資料夾。</string>
+	<string name="info_format"><b>M4a</b> 採用 AAC 音訊編碼，兼具較小體積與較佳品質。<b>(建議)</b>
+		\n\n<b>Wav</b> 未壓縮的音訊，需要比其他格式更多的空間，特殊情況使用。
+		\n\n<b>3gp</b> 為行動電信服務而設的多媒體封裝格式，需要節省空間時使用。</string>
+	<string name="info_frequency"><b>取樣率</b> 每秒能夠傳遞的音訊取樣個數。
+		\n\n<b>48 kHz</b> DVD 取樣率。
+		\n\n<b>44,1 kHz</b> CD 音訊取樣率。<b>(建議)</b>
+		\n\n<b>22 kHz</b> 熱門的低位元取樣率，例如 64 kbps。
+		\n\n<b>8 kHz</b> 用於較小頻寬的現代電話系統，不適合正式的錄音作業。</string>
+	<string name="info_bitrate"><b>位元速率</b> 每秒處理的音訊資料量，直接影響品質與大小。
+		\n\n<b>256 kbps</b> 最佳品質速率。
+		\n\n<b>192 kbps</b> 中階品質速率。
+		\n\n<b>128 kbps</b> 標準品質與大小，廣播服務常用速率。<b>(建議)</b>
+		\n\n<b>96 kbps</b> 通常用於語音或較低品質的媒體串流。
+		\n\n<b>48 kbps</b> 通常僅用於語音。</string>
+	<string name="info_channels"><b>立體聲</b> 錄製兩個音效通道，使每個揚聲器帶有相異訊號。<b>(建議)</b>
+		\n\n<b>單聲道</b> 僅錄製單一音效通道，仍可由複數揚聲器轉播，但僅能呈現相同訊號。</string>
+	<string name="info_3gp"><b>3gp</b> 為行動電信服務而設的多媒體封裝格式，需要節省空間時使用。</string>
+	<string name="info_m4a"><b>M4a</b> 採用 AAC 音訊編碼，兼具較小體積與較佳品質。<b>(建議)</b></string>
+	<string name="info_wav"><b>Wav</b> 未壓縮的音訊，需要比其他格式更多的空間，特殊情況使用。</string>
+	<string name="info_stereo"><b>立體聲</b> 錄製兩個音效通道，使每個揚聲器帶有相異訊號。<b>(建議)</b></string>
+	<string name="info_mono"><b>單聲道</b> 僅錄製單一音效通道，仍可由複數揚聲器轉播，但僅能呈現相同訊號。</string>
+	<string name="info_bitrate_48"><b>48 kbps</b> 通常僅用於語音。</string>
+	<string name="info_bitrate_96"><b>96 kbps</b> 通常用於語音或較低品質的媒體串流。</string>
+	<string name="info_bitrate_128"><b>128 kbps</b> 標準品質與大小，廣播服務常用速率。<b>(建議)</b></string>
+	<string name="info_bitrate_192"><b>192 kbps</b> 中階品質速率。</string>
+	<string name="info_bitrate_256"><b>256 kbps</b> 最佳品質速率。</string>
+	<string name="info_sample_rate_8k"><b>8 kHz</b> 用於較小頻寬的現代電話系統，不適合正式的錄音作業。</string>
+	<string name="info_sample_rate_16k"><b>16 kHz</b> 優於 8 kHz。</string>
+	<string name="info_sample_rate_22k"><b>22 kHz</b> 熱門的低位元取樣率，例如 64 kbps。</string>
+	<string name="info_sample_rate_32k"><b>32 kHz</b> 優於 22 kHz。</string>
+	<string name="info_sample_rate_44k"><b>44,1 kHz</b> CD 音訊取樣率。<b>(建議)</b></string>
+	<string name="info_sample_rate_48k"><b>48 kHz</b> DVD 取樣率。</string>
+	<string name="recording_format">錄製格式：</string>
+	<string name="bitrate">位元速率：</string>
+	<string name="channels">聲道：</string>
+	<string name="sample_rate">取樣率：</string>
+	<string name="size_per_min">預計大小：%s MB / 分</string>
+	<string name="stereo">立體聲</string>
+	<string name="mono">單聲道</string>
+	<string name="records_location">錄音位置：\n%s</string>
+	<string name="feature_not_available_in_android_10">這項功能已無法在 Android 10 以上版本使用。</string>
+	<string name="size">%s MB</string>
+	<string name="move_records">移動 %d 則錄音</string>
+
+	<string name="error_unknown">未知的錯誤</string>
+	<string name="error_cant_create_file">無法建立檔案</string>
+	<string name="error_invalid_output_file">無法輸出檔案</string>
+	<string name="error_file_exists">已存在相同名稱的檔案</string>
+	<string name="error_failed_to_rename">重新命名錄音失敗</string>
+	<string name="error_failed_to_init_recorder">無法初始化錄音</string>
+	<string name="error_failed_to_init_player">無法初始化播放器</string>
+	<string name="error_player_data_source">播放器無法讀取檔案</string>
+	<string name="error_unable_to_read_sound_file">無法讀取音訊檔案</string>
+	<string name="error_permission_denied">存取遭拒</string>
+	<string name="error_process_waveform">無法建構波形</string>
+	<string name="error_lost_records">部分錄音已被移動或刪除。</string>
+	<string name="error_no_available_space">沒有可用空間</string>
+	<string name="error_failed_access_to_storage">存取檔案系統失敗</string>
+	<string name="error_on_recording">錄製發生錯誤</string>
+	<string name="error_failed_to_restore">還原錄音失敗</string>
+	<string name="error_failed_to_delete">刪除錄音失敗</string>
+
+	<string name="move_public_storage_records_message">需要移動共用儲存空間中的錄音</string>
+	<string name="later">下次</string>
+	<string name="move">移動</string>
+	<string name="move_all">全部移動</string>
+
+	<!-- Shown in the 'About' window of the app. -->
+	<string name="about_body"><![CDATA[
+    	<b>錄音器 2023</b><br>
+		版本 %s
+	]]></string>
+	<!--<a href="http://#/">Application site</a>-->
+
+	<string-array name="theme_colors2">
+		<item>藍灰色</item>
+		<item>黑色</item>
+		<item>藍綠色</item>
+		<item>藍色</item>
+		<item>紫色</item>
+		<item>粉色</item>
+		<item>橙色</item>
+		<item>紅色</item>
+		<item>棕色</item>
+	</string-array>
+
+	<string-array name="sample_rates2">
+		<item>8 kHz</item>
+		<item>16 kHz</item>
+		<item>22 kHz</item>
+		<item>32 kHz</item>
+		<item>44.1 kHz</item>
+		<item>48 kHz</item>
+	</string-array>
+
+	<string-array name="channels">
+		<item>立體聲</item>
+		<item>單聲道</item>
+	</string-array>
+
+	<string name="app_widget_description">錄製啟動小工具</string>
+</resources>
