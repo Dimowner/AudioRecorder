@@ -135,8 +135,8 @@
 	<string name="file_browser">檔案瀏覽</string>
 	<string name="private_dir">專用資料夾</string>
 	<string name="public_dir">共用資料夾</string>
-	<string name="found_in_the_app">已在錄音器內</string>
-	<string name="not_found_in_the_app">不在錄音器內</string>
+	<string name="found_in_the_app">已在錄音機內</string>
+	<string name="not_found_in_the_app">不在錄音機內</string>
 	<string name="in_trash">位於垃圾桶</string>
 
 	<string name="app_settings">應用程式設定：</string>
