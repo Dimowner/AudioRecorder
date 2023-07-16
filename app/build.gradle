@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 //apply plugin: 'com.google.firebase.crashlytics'
 //apply plugin: 'com.google.gms.google-services'
@@ -13,7 +13,7 @@ android {
 		minSdkVersion 21
 		targetSdkVersion 33
 		versionCode 933
-		versionName "0.9.33"
+		versionName "0.9.33-230715"
 	}
 
 	buildFeatures {
