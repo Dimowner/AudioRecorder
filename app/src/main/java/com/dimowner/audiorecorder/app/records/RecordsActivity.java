@@ -111,7 +111,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		colorMap = ARApplication.getInjector().provideColorMap();
+		colorMap = ARApplication.getInjector().provideColorMap(getApplicationContext());
 		SimpleWaveformView.setWaveformColorRes(colorMap.getPrimaryColorRes());
 		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
@@ -237,7 +237,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			}
 		});
 
-		adapter = new RecordsAdapter(ARApplication.getInjector().provideSettingsMapper());
+		adapter = new RecordsAdapter(ARApplication.getInjector().provideSettingsMapper(getApplicationContext()));
 		adapter.setItemClickListener((view, id, path, position) -> presenter.setActiveRecord(id, new RecordsContract.Callback() {
 			@Override public void onSuccess() {
 				presenter.stopPlayback();
@@ -313,7 +313,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		});
 		recyclerView.setAdapter(adapter);
 
-		presenter = ARApplication.getInjector().provideRecordsPresenter();
+		presenter = ARApplication.getInjector().provideRecordsPresenter(getApplicationContext());
 
 		waveformView.setOnSeekListener(new WaveformViewNew.OnSeekListener() {
 			@Override

@@ -85,12 +85,12 @@ class MoveRecordsService : Service() {
 
 	override fun onCreate() {
 		super.onCreate()
-		colorMap = ARApplication.injector.provideColorMap()
-		prefs = ARApplication.injector.providePrefs()
-		copyTasks = ARApplication.injector.provideCopyTasksQueue()
-		loadingTasks = ARApplication.injector.provideLoadingTasksQueue()
-		fileRepository = ARApplication.injector.provideFileRepository()
-		localRepository = ARApplication.injector.provideLocalRepository()
+		colorMap = ARApplication.injector!!.provideColorMap(applicationContext)
+		prefs = ARApplication.injector!!.providePrefs(applicationContext)
+		copyTasks = ARApplication.injector!!.provideCopyTasksQueue()
+		loadingTasks = ARApplication.injector!!.provideLoadingTasksQueue()
+		fileRepository = ARApplication.injector!!.provideFileRepository(applicationContext)
+		localRepository = ARApplication.injector!!.provideLocalRepository(applicationContext)
 	}
 
 	override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -260,10 +260,11 @@ class MoveRecordsService : Service() {
 		stopSelf()
 	}
 
+	@SuppressLint("WrongConstant")
 	private fun getCancelMovePendingIntent(context: Context): PendingIntent {
 		val intent = Intent(context, StopMoveRecordsReceiver::class.java)
 		intent.action = ACTION_CANCEL_MOVE_RECORDS
-		return PendingIntent.getBroadcast(context, 318, intent, 0)
+		return PendingIntent.getBroadcast(context, 318, intent, AppConstants.PENDING_INTENT_FLAGS)
 	}
 
 	@RequiresApi(Build.VERSION_CODES.O)

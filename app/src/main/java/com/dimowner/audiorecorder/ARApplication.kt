@@ -43,8 +43,8 @@ class ARApplication : Application() {
                 applicationContext
             )
         )
-        injector = Injector(applicationContext)
-        val prefs = injector!!.providePrefs()
+        injector = Injector()
+        val prefs = injector!!.providePrefs(applicationContext)
         if (!prefs.isMigratedSettings) {
             prefs.migrateSettings()
         }

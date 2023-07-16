@@ -99,7 +99,7 @@ public class DownloadService extends Service {
 	public void onCreate() {
 		super.onCreate();
 
-		colorMap = ARApplication.getInjector().provideColorMap();
+		colorMap = ARApplication.getInjector().provideColorMap(getApplicationContext());
 		copyTasks = ARApplication.getInjector().provideCopyTasksQueue();
 	}
 

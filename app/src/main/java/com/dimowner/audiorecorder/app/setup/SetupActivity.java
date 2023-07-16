@@ -64,7 +64,7 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		colorMap = ARApplication.getInjector().provideColorMap();
+		colorMap = ARApplication.getInjector().provideColorMap(getApplicationContext());
 		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_setup);
@@ -142,7 +142,7 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 		channelsSetting.setTitle(R.string.channels);
 		channelsSetting.setOnInfoClickListener(v -> AndroidUtils.showInfoDialog(SetupActivity.this, R.string.info_channels));
 
-		presenter = ARApplication.getInjector().provideSetupPresenter();
+		presenter = ARApplication.getInjector().provideSetupPresenter(getApplicationContext());
 
 		initThemeColorSelector();
 		initNameFormatSelector();

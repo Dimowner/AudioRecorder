@@ -82,11 +82,11 @@ class DecodeService : Service() {
 
 	override fun onCreate() {
 		super.onCreate()
-		colorMap = ARApplication.injector.provideColorMap()
-		processingTasks = ARApplication.injector.provideProcessingTasksQueue()
-		recordingsTasks = ARApplication.injector.provideRecordingTasksQueue()
-		localRepository = ARApplication.injector.provideLocalRepository()
-		waveformVisualization = ARApplication.injector.provideAudioWaveformVisualization()
+		colorMap = ARApplication.injector!!.provideColorMap(applicationContext)
+		processingTasks = ARApplication.injector!!.provideProcessingTasksQueue()
+		recordingsTasks = ARApplication.injector!!.provideRecordingTasksQueue()
+		localRepository = ARApplication.injector!!.provideLocalRepository(applicationContext)
+		waveformVisualization = ARApplication.injector!!.provideAudioWaveformVisualization()
 	}
 
 	override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -234,10 +234,11 @@ class DecodeService : Service() {
 		stopSelf()
 	}
 
+	@SuppressLint("WrongConstant")
 	private fun getCancelDecodePendingIntent(context: Context): PendingIntent {
 		val intent = Intent(context, StopDecodeReceiver::class.java)
 		intent.action = ACTION_CANCEL_DECODE
-		return PendingIntent.getBroadcast(context, 15, intent, 0)
+		return PendingIntent.getBroadcast(context, 15, intent, AppConstants.PENDING_INTENT_FLAGS)
 	}
 
 	@RequiresApi(Build.VERSION_CODES.O)

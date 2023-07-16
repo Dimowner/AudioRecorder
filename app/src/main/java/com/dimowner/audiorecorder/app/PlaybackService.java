@@ -91,7 +91,7 @@ public class PlaybackService extends Service {
 		super.onCreate();
 
 		audioPlayer = ARApplication.getInjector().provideAudioPlayer();
-		colorMap = ARApplication.getInjector().provideColorMap();
+		colorMap = ARApplication.getInjector().provideColorMap(getApplicationContext());
 
 		if (playerCallback == null) {
 			playerCallback = new PlayerContractNew.PlayerCallback() {

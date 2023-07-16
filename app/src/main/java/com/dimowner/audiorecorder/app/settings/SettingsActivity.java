@@ -114,7 +114,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		colorMap = ARApplication.getInjector().provideColorMap();
+		colorMap = ARApplication.getInjector().provideColorMap(getApplicationContext());
 		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
@@ -211,7 +211,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		channelsSetting.setTitle(R.string.channels);
 		channelsSetting.setOnInfoClickListener(v -> AndroidUtils.showInfoDialog(SettingsActivity.this, R.string.info_channels));
 
-		presenter = ARApplication.getInjector().provideSettingsPresenter();
+		presenter = ARApplication.getInjector().provideSettingsPresenter(getApplicationContext());
 
 		LinearLayout pnlInfo = findViewById(R.id.info_panel);
 		pnlInfo.setBackground(

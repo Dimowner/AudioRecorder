@@ -59,7 +59,7 @@ public class TrashActivity extends Activity implements TrashContract.View {
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
-		setTheme(ARApplication.getInjector().provideColorMap().getAppThemeResource());
+		setTheme(ARApplication.getInjector().provideColorMap(getApplicationContext()).getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_trash);
 
@@ -117,7 +117,7 @@ public class TrashActivity extends Activity implements TrashContract.View {
 			}
 		});
 		recyclerView.setAdapter(adapter);
-		presenter = ARApplication.getInjector().provideTrashPresenter();
+		presenter = ARApplication.getInjector().provideTrashPresenter(getApplicationContext());
 	}
 
 	@Override

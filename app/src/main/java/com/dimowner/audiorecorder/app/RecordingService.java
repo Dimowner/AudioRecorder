@@ -102,15 +102,16 @@ public class RecordingService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		appRecorder = ARApplication.getInjector().provideAppRecorder();
+		getApplicationContext();
+		appRecorder = ARApplication.getInjector().provideAppRecorder(getApplicationContext());
 		audioPlayer = ARApplication.getInjector().provideAudioPlayer();
 		recordingsTasks = ARApplication.getInjector().provideRecordingTasksQueue();
-		localRepository = ARApplication.getInjector().provideLocalRepository();
-		prefs = ARApplication.getInjector().providePrefs();
-		recorder = ARApplication.getInjector().provideAudioRecorder();
+		localRepository = ARApplication.getInjector().provideLocalRepository(getApplicationContext());
+		prefs = ARApplication.getInjector().providePrefs(getApplicationContext());
+		recorder = ARApplication.getInjector().provideAudioRecorder(getApplicationContext());
 
-		colorMap = ARApplication.getInjector().provideColorMap();
-		fileRepository = ARApplication.getInjector().provideFileRepository();
+		colorMap = ARApplication.getInjector().provideColorMap(getApplicationContext());
+		fileRepository = ARApplication.getInjector().provideFileRepository(getApplicationContext());
 
 		appRecorderCallback = new AppRecorderCallback() {
 			boolean checkHasSpace = true;
