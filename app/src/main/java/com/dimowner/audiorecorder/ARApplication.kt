@@ -13,19 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
+
 package com.dimowner.audiorecorder
 
+import android.Manifest
 import android.app.Application
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Handler
 import android.telephony.PhoneStateListener
+import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import com.dimowner.audiorecorder.util.AndroidUtils
 import timber.log.Timber
 import timber.log.Timber.DebugTree
+
 
 //import com.google.firebase.FirebaseApp;
 class ARApplication : Application() {
@@ -52,9 +61,15 @@ class ARApplication : Application() {
         intentFilter.addAction(AUDIO_BECOMING_NOISY)
         audioOutputChangeReceiver = AudioOutputChangeReceiver()
         registerReceiver(audioOutputChangeReceiver, intentFilter)
+
+        // feature: pause when phone functions ringing or off-hook
         try {
-            val mTelephonyMgr = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
-            mTelephonyMgr.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE)
+            val telephonyMgr = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
+            if (Build.VERSION.SDK_INT<Build.VERSION_CODES.S) {
+                telephonyPreAndroid12(telephonyMgr)
+            } else {
+                telephonyAndroid12Plus(telephonyMgr)
+            }
         } catch (e: Exception) {
             Timber.e(e)
         }
@@ -69,6 +84,36 @@ class ARApplication : Application() {
         unregisterReceiver(audioOutputChangeReceiver)
     }
 
+    fun pausePlayback() {
+        //Pause playback when incoming call or on hold
+        val player = injector!!.provideAudioPlayer()
+        player.pause()
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.S)
+    fun telephonyAndroid12Plus(telephonyMgr: TelephonyManager) {
+        if (ContextCompat.checkSelfPermission(applicationContext,
+            Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            telephonyMgr.registerTelephonyCallback(mainExecutor, callStateListener!!)
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.S)
+    private abstract class CallStateListener : TelephonyCallback(),
+        TelephonyCallback.CallStateListener {
+        abstract override fun onCallStateChanged(state: Int)
+    }
+
+    private val callStateListener: CallStateListener? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) object : CallStateListener() {
+            override fun onCallStateChanged(state: Int) {
+                if (state == TelephonyManager.CALL_STATE_OFFHOOK ||
+                        state == TelephonyManager.CALL_STATE_RINGING) {
+                    pausePlayback()
+                }
+            }
+        } else null
+
     private class AudioOutputChangeReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val actionOfIntent = intent.action
@@ -79,12 +124,16 @@ class ARApplication : Application() {
         }
     }
 
-    private val mPhoneStateListener: PhoneStateListener = object : PhoneStateListener() {
+    @Suppress("DEPRECATION")
+    fun telephonyPreAndroid12(telephonyMgr: TelephonyManager) {
+        telephonyMgr.listen(mPhoneStateListenerPreAndroid12, PhoneStateListener.LISTEN_CALL_STATE)
+    }
+
+    private val mPhoneStateListenerPreAndroid12: PhoneStateListener = object : PhoneStateListener() {
+        @Deprecated("Deprecated in Java")
         override fun onCallStateChanged(state: Int, incomingNumber: String) {
             if (state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK) {
-                //Pause playback when incoming call or on hold
-                val player = injector!!.provideAudioPlayer()
-                player.pause()
+                pausePlayback()
             }
             super.onCallStateChanged(state, incomingNumber)
         }

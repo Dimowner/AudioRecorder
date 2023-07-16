@@ -283,10 +283,11 @@ public class RecordingService extends Service {
 		started = false;
 	}
 
+	@SuppressLint("WrongConstant")
 	protected PendingIntent getPendingSelfIntent(Context context, String action) {
 		Intent intent = new Intent(context, StopRecordingReceiver.class);
 		intent.setAction(action);
-		return PendingIntent.getBroadcast(context, 10, intent, 0);
+		return PendingIntent.getBroadcast(context, 10, intent, AppConstants.PENDING_INTENT_FLAGS);
 	}
 
 	@RequiresApi(Build.VERSION_CODES.O)
