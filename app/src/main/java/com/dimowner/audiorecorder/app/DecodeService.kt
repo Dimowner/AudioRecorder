@@ -82,11 +82,11 @@ class DecodeService : Service() {
 
 	override fun onCreate() {
 		super.onCreate()
-		colorMap = ARApplication.getInjector().provideColorMap()
-		processingTasks = ARApplication.getInjector().provideProcessingTasksQueue()
-		recordingsTasks = ARApplication.getInjector().provideRecordingTasksQueue()
-		localRepository = ARApplication.getInjector().provideLocalRepository()
-		waveformVisualization = ARApplication.getInjector().provideAudioWaveformVisualization()
+		colorMap = ARApplication.injector.provideColorMap()
+		processingTasks = ARApplication.injector.provideProcessingTasksQueue()
+		recordingsTasks = ARApplication.injector.provideRecordingTasksQueue()
+		localRepository = ARApplication.injector.provideLocalRepository()
+		waveformVisualization = ARApplication.injector.provideAudioWaveformVisualization()
 	}
 
 	override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

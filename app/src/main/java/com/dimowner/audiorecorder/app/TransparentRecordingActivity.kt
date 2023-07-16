@@ -41,8 +41,8 @@ class TransparentRecordingActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        prefs = ARApplication.getInjector().providePrefs()
-        fileRepository = ARApplication.getInjector().provideFileRepository()
+        prefs = ARApplication.injector.providePrefs()
+        fileRepository = ARApplication.injector.provideFileRepository()
 
         if (checkRecordPermission2()) {
             if (checkStoragePermission2()) {
