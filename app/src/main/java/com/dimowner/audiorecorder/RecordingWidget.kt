@@ -1,5 +1,6 @@
 package com.dimowner.audiorecorder
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -43,9 +44,10 @@ internal fun updateAppWidget(
 	appWidgetManager.updateAppWidget(appWidgetId, views)
 }
 
+@SuppressLint("WrongConstant")
 private fun getRecordingPendingIntent(context: Context): PendingIntent {
 	val intent = Intent(context, WidgetReceiver::class.java)
-	return PendingIntent.getBroadcast(context, 11, intent, 0)
+	return PendingIntent.getBroadcast(context, 11, intent, AppConstants.PENDING_INTENT_FLAGS)
 }
 
 class WidgetReceiver : BroadcastReceiver() {

@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.dimowner.audiorecorder.ARApplication
 import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.BackgroundQueue
@@ -85,12 +86,12 @@ class MoveRecordsService : Service() {
 
 	override fun onCreate() {
 		super.onCreate()
-		colorMap = ARApplication.injector!!.provideColorMap(applicationContext)
-		prefs = ARApplication.injector!!.providePrefs(applicationContext)
-		copyTasks = ARApplication.injector!!.provideCopyTasksQueue()
-		loadingTasks = ARApplication.injector!!.provideLoadingTasksQueue()
-		fileRepository = ARApplication.injector!!.provideFileRepository(applicationContext)
-		localRepository = ARApplication.injector!!.provideLocalRepository(applicationContext)
+		colorMap = ARApplication.injector.provideColorMap(applicationContext)
+		prefs = ARApplication.injector.providePrefs(applicationContext)
+		copyTasks = ARApplication.injector.provideCopyTasksQueue()
+		loadingTasks = ARApplication.injector.provideLoadingTasksQueue()
+		fileRepository = ARApplication.injector.provideFileRepository(applicationContext)
+		localRepository = ARApplication.injector.provideLocalRepository(applicationContext)
 	}
 
 	override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -225,10 +226,8 @@ class MoveRecordsService : Service() {
 			resources.getString(R.string.moving_record, downloadingRecordName)
 		)
 		remoteViewsSmall.setInt(
-			R.id.container, "setBackgroundColor", this.resources.getColor(
-				colorMap.primaryColorRes
-			)
-		)
+			R.id.container, "setBackgroundColor",
+			ContextCompat.getColor(applicationContext, colorMap.primaryColorRes))
 
 		// Create notification default intent.
 		val intent = Intent(applicationContext, MainActivity::class.java)
@@ -256,7 +255,12 @@ class MoveRecordsService : Service() {
 	}
 
 	fun stopService() {
-		stopForeground(true)
+		if (Build.VERSION.SDK_INT>Build.VERSION_CODES.S_V2) {
+			stopForeground(STOP_FOREGROUND_REMOVE)
+		}else {
+			@Suppress("DEPRECATION")
+			stopForeground(true)
+		}
 		stopSelf()
 	}
 

@@ -92,7 +92,7 @@ android.variantFilter { variant ->
 
 dependencies {
 	def androidX = "1.3.0"
-	def coroutines = "1.6.1"
+	def coroutines = "1.6.4"
 	def timber = "5.0.1"
 
 	//Kotlin

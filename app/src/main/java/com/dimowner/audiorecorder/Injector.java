@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import com.dimowner.audiorecorder.app.AppRecorder;
@@ -210,6 +211,7 @@ public class Injector {
 		return setupPresenter;
 	}
 
+	@SuppressLint("UnsafeOptInUsageWarning")
 	public MoveRecordsViewModel provideMoveRecordsViewModel(Context context) {
 		if (moveRecordsViewModel == null) {
 			moveRecordsViewModel = new MoveRecordsViewModel(
@@ -291,6 +293,7 @@ public class Injector {
 		}
 	}
 
+	@SuppressLint("UnsafeOptInUsageWarning")
 	public void releaseMoveRecordsViewModel() {
 		if (moveRecordsViewModel != null) {
 			moveRecordsViewModel.clear();

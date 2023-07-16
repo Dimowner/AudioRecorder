@@ -41,8 +41,8 @@ class TransparentRecordingActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        prefs = ARApplication.injector!!.providePrefs(applicationContext)
-        fileRepository = ARApplication.injector!!.provideFileRepository(applicationContext)
+        prefs = ARApplication.injector.providePrefs(applicationContext)
+        fileRepository = ARApplication.injector.provideFileRepository(applicationContext)
 
         if (checkRecordPermission2()) {
             if (checkStoragePermission2()) {
@@ -116,7 +116,7 @@ class TransparentRecordingActivity : Activity() {
                 if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     AndroidUtils.showDialog(
                         this, R.string.warning, R.string.need_write_permission,
-                        { v ->
+                        { _ ->
                             requestPermissions(
                                 arrayOf(
                                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
