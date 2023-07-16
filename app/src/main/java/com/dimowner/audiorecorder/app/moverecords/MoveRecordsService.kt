@@ -1,5 +1,6 @@
 package com.dimowner.audiorecorder.app.moverecords
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -17,6 +18,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.dimowner.audiorecorder.ARApplication
+import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.BackgroundQueue
 import com.dimowner.audiorecorder.ColorMap
 import com.dimowner.audiorecorder.R
@@ -208,6 +210,7 @@ class MoveRecordsService : Service() {
 		}
 	}
 
+	@SuppressLint("WrongConstant")
 	private fun startNotification() {
 		notificationManager = NotificationManagerCompat.from(this)
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -230,7 +233,7 @@ class MoveRecordsService : Service() {
 		// Create notification default intent.
 		val intent = Intent(applicationContext, MainActivity::class.java)
 		intent.flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
-		val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
+		val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, AppConstants.PENDING_INTENT_FLAGS)
 
 		// Create notification builder.
 		builder = NotificationCompat.Builder(this, CHANNEL_ID)

@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.app;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -32,6 +33,7 @@ import androidx.core.app.NotificationCompat;
 import android.widget.RemoteViews;
 
 import com.dimowner.audiorecorder.ARApplication;
+import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.main.MainActivity;
@@ -142,6 +144,7 @@ public class PlaybackService extends Service {
 		return super.onStartCommand(intent, flags, startId);
 	}
 
+	@SuppressLint("WrongConstant")
 	private void startForegroundService() {
 		notificationManager = NotificationManagerCompat.from(this);
 
@@ -164,7 +167,7 @@ public class PlaybackService extends Service {
 		// Create notification default intent.
 		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
-		contentPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+		contentPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, AppConstants.PENDING_INTENT_FLAGS);
 		startForeground(NOTIF_ID, buildNotification());
 		started = true;
 	}

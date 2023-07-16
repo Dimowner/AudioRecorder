@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.app;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -266,11 +267,12 @@ public class RecordingService extends Service {
 		return builder.build();
 	}
 
+	@SuppressLint("WrongConstant")
 	private PendingIntent createContentIntent() {
 		// Create notification default intent.
 		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
-		return PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+		return PendingIntent.getActivity(getApplicationContext(), 0, intent, AppConstants.PENDING_INTENT_FLAGS);
 	}
 
 	private void stopForegroundService() {
