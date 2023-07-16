@@ -12,7 +12,7 @@ android {
 		applicationId "com.dimowner.audiorecorder"
 		minSdkVersion 21
 		targetSdkVersion 33
-		versionCode 933
+		versionCode 934
 		versionName "0.9.33-230715"
 	}
 
