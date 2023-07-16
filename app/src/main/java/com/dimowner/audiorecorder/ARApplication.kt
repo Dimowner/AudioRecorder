@@ -52,8 +52,7 @@ class ARApplication : Application() {
                 applicationContext
             )
         )
-        injector = Injector()
-        val prefs = injector!!.providePrefs(applicationContext)
+        val prefs = injector.providePrefs(applicationContext)
         if (!prefs.isMigratedSettings) {
             prefs.migrateSettings()
         }
@@ -79,14 +78,14 @@ class ARApplication : Application() {
     override fun onTerminate() {
         super.onTerminate()
         //This method is never called on real Android devices
-        injector!!.releaseMainPresenter()
-        injector!!.closeTasks()
+        injector.releaseMainPresenter()
+        injector.closeTasks()
         unregisterReceiver(audioOutputChangeReceiver)
     }
 
     fun pausePlayback() {
         //Pause playback when incoming call or on hold
-        val player = injector!!.provideAudioPlayer()
+        val player = injector.provideAudioPlayer()
         player.pause()
     }
 
@@ -118,7 +117,7 @@ class ARApplication : Application() {
         override fun onReceive(context: Context, intent: Intent) {
             val actionOfIntent = intent.action
             if (actionOfIntent != null && actionOfIntent == AUDIO_BECOMING_NOISY) {
-                val player = injector!!.provideAudioPlayer()
+                val player = injector.provideAudioPlayer()
                 player.pause()
             }
         }
@@ -150,7 +149,7 @@ class ARApplication : Application() {
         /** Screen width in dp  */
         private var screenWidthDp = 0f
         @JvmStatic
-		var injector: Injector? = null
+		var injector = Injector()
         @JvmStatic
 		fun appPackage(): String? {
             return PACKAGE_NAME

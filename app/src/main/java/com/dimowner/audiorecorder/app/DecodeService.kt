@@ -82,11 +82,11 @@ class DecodeService : Service() {
 
 	override fun onCreate() {
 		super.onCreate()
-		colorMap = ARApplication.injector!!.provideColorMap(applicationContext)
-		processingTasks = ARApplication.injector!!.provideProcessingTasksQueue()
-		recordingsTasks = ARApplication.injector!!.provideRecordingTasksQueue()
-		localRepository = ARApplication.injector!!.provideLocalRepository(applicationContext)
-		waveformVisualization = ARApplication.injector!!.provideAudioWaveformVisualization()
+		colorMap = ARApplication.injector.provideColorMap(applicationContext)
+		processingTasks = ARApplication.injector.provideProcessingTasksQueue()
+		recordingsTasks = ARApplication.injector.provideRecordingTasksQueue()
+		localRepository = ARApplication.injector.provideLocalRepository(applicationContext)
+		waveformVisualization = ARApplication.injector.provideAudioWaveformVisualization()
 	}
 
 	override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -230,7 +230,12 @@ class DecodeService : Service() {
 	}
 
 	fun stopService() {
-		stopForeground(true)
+		if (Build.VERSION.SDK_INT>Build.VERSION_CODES.S_V2) {
+			stopForeground(STOP_FOREGROUND_REMOVE)
+		}else {
+			@Suppress("DEPRECATION")
+			stopForeground(true)
+		}
 		stopSelf()
 	}
 
