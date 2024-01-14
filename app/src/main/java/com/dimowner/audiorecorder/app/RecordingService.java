@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.app;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -101,15 +102,16 @@ public class RecordingService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		appRecorder = ARApplication.getInjector().provideAppRecorder();
+		getApplicationContext();
+		appRecorder = ARApplication.getInjector().provideAppRecorder(getApplicationContext());
 		audioPlayer = ARApplication.getInjector().provideAudioPlayer();
 		recordingsTasks = ARApplication.getInjector().provideRecordingTasksQueue();
-		localRepository = ARApplication.getInjector().provideLocalRepository();
-		prefs = ARApplication.getInjector().providePrefs();
-		recorder = ARApplication.getInjector().provideAudioRecorder();
+		localRepository = ARApplication.getInjector().provideLocalRepository(getApplicationContext());
+		prefs = ARApplication.getInjector().providePrefs(getApplicationContext());
+		recorder = ARApplication.getInjector().provideAudioRecorder(getApplicationContext());
 
-		colorMap = ARApplication.getInjector().provideColorMap();
-		fileRepository = ARApplication.getInjector().provideFileRepository();
+		colorMap = ARApplication.getInjector().provideColorMap(getApplicationContext());
+		fileRepository = ARApplication.getInjector().provideFileRepository(getApplicationContext());
 
 		appRecorderCallback = new AppRecorderCallback() {
 			boolean checkHasSpace = true;
@@ -266,11 +268,12 @@ public class RecordingService extends Service {
 		return builder.build();
 	}
 
+	@SuppressLint("WrongConstant")
 	private PendingIntent createContentIntent() {
 		// Create notification default intent.
 		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
-		return PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+		return PendingIntent.getActivity(getApplicationContext(), 0, intent, AppConstants.PENDING_INTENT_FLAGS);
 	}
 
 	private void stopForegroundService() {
@@ -280,10 +283,11 @@ public class RecordingService extends Service {
 		started = false;
 	}
 
+	@SuppressLint("WrongConstant")
 	protected PendingIntent getPendingSelfIntent(Context context, String action) {
 		Intent intent = new Intent(context, StopRecordingReceiver.class);
 		intent.setAction(action);
-		return PendingIntent.getBroadcast(context, 10, intent, 0);
+		return PendingIntent.getBroadcast(context, 10, intent, AppConstants.PENDING_INTENT_FLAGS);
 	}
 
 	@RequiresApi(Build.VERSION_CODES.O)

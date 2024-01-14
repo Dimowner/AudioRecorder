@@ -1,5 +1,6 @@
 package com.dimowner.audiorecorder.app.moverecords
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -16,7 +17,9 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.dimowner.audiorecorder.ARApplication
+import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.BackgroundQueue
 import com.dimowner.audiorecorder.ColorMap
 import com.dimowner.audiorecorder.R
@@ -83,12 +86,12 @@ class MoveRecordsService : Service() {
 
 	override fun onCreate() {
 		super.onCreate()
-		colorMap = ARApplication.getInjector().provideColorMap()
-		prefs = ARApplication.getInjector().providePrefs()
-		copyTasks = ARApplication.getInjector().provideCopyTasksQueue()
-		loadingTasks = ARApplication.getInjector().provideLoadingTasksQueue()
-		fileRepository = ARApplication.getInjector().provideFileRepository()
-		localRepository = ARApplication.getInjector().provideLocalRepository()
+		colorMap = ARApplication.injector.provideColorMap(applicationContext)
+		prefs = ARApplication.injector.providePrefs(applicationContext)
+		copyTasks = ARApplication.injector.provideCopyTasksQueue()
+		loadingTasks = ARApplication.injector.provideLoadingTasksQueue()
+		fileRepository = ARApplication.injector.provideFileRepository(applicationContext)
+		localRepository = ARApplication.injector.provideLocalRepository(applicationContext)
 	}
 
 	override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -208,6 +211,7 @@ class MoveRecordsService : Service() {
 		}
 	}
 
+	@SuppressLint("WrongConstant")
 	private fun startNotification() {
 		notificationManager = NotificationManagerCompat.from(this)
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -222,15 +226,13 @@ class MoveRecordsService : Service() {
 			resources.getString(R.string.moving_record, downloadingRecordName)
 		)
 		remoteViewsSmall.setInt(
-			R.id.container, "setBackgroundColor", this.resources.getColor(
-				colorMap.primaryColorRes
-			)
-		)
+			R.id.container, "setBackgroundColor",
+			ContextCompat.getColor(applicationContext, colorMap.primaryColorRes))
 
 		// Create notification default intent.
 		val intent = Intent(applicationContext, MainActivity::class.java)
 		intent.flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
-		val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
+		val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, AppConstants.PENDING_INTENT_FLAGS)
 
 		// Create notification builder.
 		builder = NotificationCompat.Builder(this, CHANNEL_ID)
@@ -253,14 +255,20 @@ class MoveRecordsService : Service() {
 	}
 
 	fun stopService() {
-		stopForeground(true)
+		if (Build.VERSION.SDK_INT>Build.VERSION_CODES.S_V2) {
+			stopForeground(STOP_FOREGROUND_REMOVE)
+		}else {
+			@Suppress("DEPRECATION")
+			stopForeground(true)
+		}
 		stopSelf()
 	}
 
+	@SuppressLint("WrongConstant")
 	private fun getCancelMovePendingIntent(context: Context): PendingIntent {
 		val intent = Intent(context, StopMoveRecordsReceiver::class.java)
 		intent.action = ACTION_CANCEL_MOVE_RECORDS
-		return PendingIntent.getBroadcast(context, 318, intent, 0)
+		return PendingIntent.getBroadcast(context, 318, intent, AppConstants.PENDING_INTENT_FLAGS)
 	}
 
 	@RequiresApi(Build.VERSION_CODES.O)

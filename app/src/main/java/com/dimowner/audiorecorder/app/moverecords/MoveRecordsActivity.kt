@@ -43,7 +43,6 @@ import com.dimowner.audiorecorder.util.RippleUtils
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.util.isVisible
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
 import timber.log.Timber
 import java.io.File
 
@@ -86,14 +85,14 @@ class MoveRecordsActivity : Activity() {
 	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
-		val colorMap = ARApplication.getInjector().provideColorMap()
+		val colorMap = ARApplication.injector.provideColorMap(applicationContext)
 		setTheme(colorMap.appThemeResource)
 		super.onCreate(savedInstanceState)
 		binding = ActivityMoveRecordsBinding.inflate(layoutInflater)
 		val view = binding.root
 		setContentView(view)
 
-		viewModel = ARApplication.getInjector().provideMoveRecordsViewModel()
+		viewModel = ARApplication.injector.provideMoveRecordsViewModel(applicationContext)
 
 		binding.recyclerView.layoutManager = LinearLayoutManager(applicationContext)
 		binding.recyclerView.adapter = adapter
@@ -359,6 +358,12 @@ class MoveRecordsActivity : Activity() {
 		clear()
 	}
 
+	// 230716 should be uopgraded for Android 13…
+	// in AndroidManifest.xml, Application tag, add property android:enableOnBackInvokedCallback="true"
+	// make Activity AppCompatActivity
+	// in onCreate: onBackPressedDispatcher.addCallback(this,onBackPressedCallback)
+	// write the callback
+	// does not seem to work right yet, unless Activity 1.6+ is used
 	override fun onBackPressed() {
 		super.onBackPressed()
 		clear()
@@ -381,7 +386,7 @@ class MoveRecordsActivity : Activity() {
 	}
 
 	private fun clear() {
-		ARApplication.getInjector().releaseMoveRecordsViewModel()
+		ARApplication.injector.releaseMoveRecordsViewModel()
 		scope.cancel()
 	}
 

@@ -57,7 +57,7 @@ public class WelcomeActivity extends Activity implements WelcomeContract.View {
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
-		setTheme(ARApplication.getInjector().provideColorMap().getAppThemeResource());
+		setTheme(ARApplication.getInjector().provideColorMap(getApplicationContext()).getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_welcome);
 

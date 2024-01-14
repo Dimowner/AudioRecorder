@@ -155,7 +155,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		colorMap = ARApplication.getInjector().provideColorMap();
+		colorMap = ARApplication.getInjector().provideColorMap(getApplicationContext());
 		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
@@ -222,8 +222,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			}
 		});
 
-		presenter = ARApplication.getInjector().provideMainPresenter();
-		fileRepository = ARApplication.getInjector().provideFileRepository();
+		presenter = ARApplication.getInjector().provideMainPresenter(getApplicationContext());
+		fileRepository = ARApplication.getInjector().provideFileRepository(getApplicationContext());
 
 		waveformView.setOnSeekListener(new WaveformViewNew.OnSeekListener() {
 			@Override
@@ -279,7 +279,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 //			presenter.checkPublicStorageRecords();
 		}
 		presenter.checkFirstRun();
-		presenter.setAudioRecorder(ARApplication.getInjector().provideAudioRecorder());
+		presenter.setAudioRecorder(ARApplication.getInjector().provideAudioRecorder(getApplicationContext()));
 		presenter.updateRecordingDir(getApplicationContext());
 		presenter.loadActiveRecord();
 

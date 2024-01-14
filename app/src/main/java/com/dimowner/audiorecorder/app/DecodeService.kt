@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.app
 
+import android.annotation.SuppressLint
 import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -31,6 +32,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.dimowner.audiorecorder.*
+import com.dimowner.audiorecorder.AppConstants.*
 import com.dimowner.audiorecorder.app.main.MainActivity
 import com.dimowner.audiorecorder.audio.AudioDecodingListener
 import com.dimowner.audiorecorder.audio.AudioWaveformVisualization
@@ -80,11 +82,11 @@ class DecodeService : Service() {
 
 	override fun onCreate() {
 		super.onCreate()
-		colorMap = ARApplication.getInjector().provideColorMap()
-		processingTasks = ARApplication.getInjector().provideProcessingTasksQueue()
-		recordingsTasks = ARApplication.getInjector().provideRecordingTasksQueue()
-		localRepository = ARApplication.getInjector().provideLocalRepository()
-		waveformVisualization = ARApplication.getInjector().provideAudioWaveformVisualization()
+		colorMap = ARApplication.injector.provideColorMap(applicationContext)
+		processingTasks = ARApplication.injector.provideProcessingTasksQueue()
+		recordingsTasks = ARApplication.injector.provideRecordingTasksQueue()
+		localRepository = ARApplication.injector.provideLocalRepository(applicationContext)
+		waveformVisualization = ARApplication.injector.provideAudioWaveformVisualization()
 	}
 
 	override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -115,7 +117,7 @@ class DecodeService : Service() {
 		processingTasks.postRunnable {
 			var prevTime: Long = 0
 			val rec = localRepository.getRecord(id)
-			if (rec != null && rec.duration / 1000 < AppConstants.DECODE_DURATION) {
+			if (rec != null && rec.duration / 1000 < DECODE_DURATION) {
 				waveformVisualization.decodeRecordWaveform(rec.path, object : AudioDecodingListener {
 					override fun isCanceled(): Boolean {
 						return isCancel
@@ -178,6 +180,7 @@ class DecodeService : Service() {
 		}
 	}
 
+	@SuppressLint("WrongConstant")
 	private fun startNotification() {
 		notificationManager = NotificationManagerCompat.from(this)
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -201,7 +204,7 @@ class DecodeService : Service() {
 		// Create notification default intent.
 		val intent = Intent(applicationContext, MainActivity::class.java)
 		intent.flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
-		contentPendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
+		contentPendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, PENDING_INTENT_FLAGS)
 		startForeground(NOTIF_ID, buildNotification())
 	}
 
@@ -227,14 +230,20 @@ class DecodeService : Service() {
 	}
 
 	fun stopService() {
-		stopForeground(true)
+		if (Build.VERSION.SDK_INT>Build.VERSION_CODES.S_V2) {
+			stopForeground(STOP_FOREGROUND_REMOVE)
+		}else {
+			@Suppress("DEPRECATION")
+			stopForeground(true)
+		}
 		stopSelf()
 	}
 
+	@SuppressLint("WrongConstant")
 	private fun getCancelDecodePendingIntent(context: Context): PendingIntent {
 		val intent = Intent(context, StopDecodeReceiver::class.java)
 		intent.action = ACTION_CANCEL_DECODE
-		return PendingIntent.getBroadcast(context, 15, intent, 0)
+		return PendingIntent.getBroadcast(context, 15, intent, AppConstants.PENDING_INTENT_FLAGS)
 	}
 
 	@RequiresApi(Build.VERSION_CODES.O)

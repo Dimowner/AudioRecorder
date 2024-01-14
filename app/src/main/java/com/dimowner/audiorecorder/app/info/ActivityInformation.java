@@ -41,7 +41,7 @@ public class ActivityInformation extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		ColorMap colorMap = ARApplication.getInjector().provideColorMap();
+		ColorMap colorMap = ARApplication.getInjector().provideColorMap(getApplicationContext());
 		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_info);
@@ -65,7 +65,7 @@ public class ActivityInformation extends Activity {
 					txtName.setText(info.getName());
 					txtFormat.setText(info.getFormat());
 					txtDuration.setText(TimeUtils.formatTimeIntervalHourMinSec2(info.getDuration()/1000));
-					txtSize.setText(ARApplication.getInjector().provideSettingsMapper().formatSize(info.getSize()));
+					txtSize.setText(ARApplication.getInjector().provideSettingsMapper(getApplicationContext()).formatSize(info.getSize()));
 					txtLocation.setText(info.getLocation());
 					txtCreated.setText(TimeUtils.formatDateTimeLocale(info.getCreated()));
 					txtSampleRate.setText(getString(R.string.value_hz, info.getSampleRate()));

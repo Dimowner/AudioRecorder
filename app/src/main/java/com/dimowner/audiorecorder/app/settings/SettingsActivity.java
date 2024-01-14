@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.app.settings;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -114,7 +115,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		colorMap = ARApplication.getInjector().provideColorMap();
+		colorMap = ARApplication.getInjector().provideColorMap(getApplicationContext());
 		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
@@ -211,7 +212,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		channelsSetting.setTitle(R.string.channels);
 		channelsSetting.setOnInfoClickListener(v -> AndroidUtils.showInfoDialog(SettingsActivity.this, R.string.info_channels));
 
-		presenter = ARApplication.getInjector().provideSettingsPresenter();
+		presenter = ARApplication.getInjector().provideSettingsPresenter(getApplicationContext());
 
 		LinearLayout pnlInfo = findViewById(R.id.info_panel);
 		pnlInfo.setBackground(
@@ -281,8 +282,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		values[2] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameDateUS() + ".m4a";
 		values[3] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameDateISO8601() + ".m4a";
 		values[4] = getResources().getString(R.string.naming) + " " + FileUtil.generateRecordNameMills() + ".m4a";
-		for (int i = 0; i < values.length; i++) {
-			items.add(new AppSpinnerAdapter.ThemeItem(values[i],
+		for (String value : values) {
+			items.add(new AppSpinnerAdapter.ThemeItem(value,
 					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
 		}
 		AppSpinnerAdapter adapter = new AppSpinnerAdapter(SettingsActivity.this,
@@ -323,6 +324,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		colorMap.removeOnThemeColorChangeListener(onThemeColorChangeListener);
 	}
 
+	@SuppressLint("UnsafeOptInUsageWarning")
 	@Override
 	public void onClick(View v) {
 		int id = v.getId();
@@ -384,11 +386,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private Intent rateIntentForUrl(String url) {
 		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format("%s?id=%s", url, getApplicationContext().getPackageName())));
 		int flags = Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
-		if (Build.VERSION.SDK_INT >= 21) {
 			flags |= Intent.FLAG_ACTIVITY_NEW_DOCUMENT;
-		} else {
-			flags |= Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET;
-		}
 		intent.addFlags(flags);
 		return intent;
 	}

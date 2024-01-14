@@ -16,12 +16,24 @@
 
 package com.dimowner.audiorecorder;
 
+import android.app.PendingIntent;
+import android.os.Build;
+
 /**
  * AppConstants that may be used in multiple classes.
  */
 public class AppConstants {
 
 	private AppConstants() {}
+	static {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			PENDING_INTENT_FLAGS = PendingIntent.FLAG_IMMUTABLE;
+		} else {
+			PENDING_INTENT_FLAGS = 0;
+		}
+	}
+
+	public static final int PENDING_INTENT_FLAGS;
 
 	public static final String REQUESTS_RECEIVER = "dmitriy.ponomarenko.ua@gmail.com";
 
