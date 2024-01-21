@@ -6,14 +6,18 @@ apply plugin: 'kotlin-kapt'
 //apply plugin: 'com.google.gms.google-services'
 
 android {
+
+	lint {
+		abortOnError false
+	}
 	namespace 'com.dimowner.audiorecorder'
-	compileSdkVersion 33
+	compileSdkVersion 34
 	defaultConfig {
 		applicationId "com.dimowner.audiorecorder"
 		minSdkVersion 21
-		targetSdkVersion 33
+		targetSdkVersion 34
 		versionCode 934
-		versionName "0.9.33-230715"
+		versionName "0.9.34"
 	}
 
 	buildFeatures {
@@ -69,8 +73,8 @@ android {
 	}
 
 	compileOptions {
-		sourceCompatibility = JavaVersion.VERSION_1_8
-		targetCompatibility = JavaVersion.VERSION_1_8
+		sourceCompatibility = JavaVersion.VERSION_17
+		targetCompatibility = JavaVersion.VERSION_17
 	}
 
 	lintOptions {
@@ -91,7 +95,7 @@ android.variantFilter { variant ->
 }
 
 dependencies {
-	def androidX = "1.3.0"
+	def androidX = "1.3.2"
 	def coroutines = "1.6.4"
 	def timber = "5.0.1"
 
