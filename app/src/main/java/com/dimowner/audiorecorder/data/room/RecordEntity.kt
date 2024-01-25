@@ -22,6 +22,7 @@ data class RecordEntity(
     @ColumnInfo(name = "bitrate") val bitrate: Int,
     @ColumnInfo(name = "isBookmarked") val isBookmarked: Boolean,
     @ColumnInfo(name = "isWaveformProcessed") val isWaveformProcessed: Boolean,
+    @ColumnInfo(name = "isMovedToRecycle") val isMovedToRecycle: Boolean,
     @ColumnInfo(name = "amps") val amps: IntArray,
 ) {
 
@@ -45,6 +46,7 @@ data class RecordEntity(
         if (bitrate != other.bitrate) return false
         if (isBookmarked != other.isBookmarked) return false
         if (isWaveformProcessed != other.isWaveformProcessed) return false
+        if (isMovedToRecycle != other.isMovedToRecycle) return false
         return amps.contentEquals(other.amps)
     }
 
@@ -63,6 +65,7 @@ data class RecordEntity(
         result = 31 * result + bitrate
         result = 31 * result + isBookmarked.hashCode()
         result = 31 * result + isWaveformProcessed.hashCode()
+        result = 31 * result + isMovedToRecycle.hashCode()
         result = 31 * result + amps.contentHashCode()
         return result
     }

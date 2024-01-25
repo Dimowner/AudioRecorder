@@ -50,6 +50,7 @@ class RecordDaoTest {
             128,
             false,
             false,
+            false,
             IntArray(10),
         )
         recordDao.insertRecord(record)
@@ -74,6 +75,7 @@ class RecordDaoTest {
             44100,
             2,
             128,
+            false,
             false,
             false,
             IntArray(10),
@@ -105,6 +107,7 @@ class RecordDaoTest {
             128,
             false,
             false,
+            false,
             IntArray(10),
         )
         recordDao.insertRecord(record)
@@ -130,6 +133,7 @@ class RecordDaoTest {
             44100,
             2,
             128,
+            false,
             false,
             false,
             IntArray(10),
@@ -158,6 +162,7 @@ class RecordDaoTest {
             128,
             false,
             false,
+            false,
             IntArray(10),
         )
         val record2 = RecordEntity(
@@ -173,6 +178,7 @@ class RecordDaoTest {
             44100,
             2,
             256,
+            false,
             false,
             false,
             IntArray(10),
@@ -202,6 +208,7 @@ class RecordDaoTest {
             128,
             false,
             false,
+            false,
             IntArray(10),
         )
         val record2 = RecordEntity(
@@ -217,6 +224,7 @@ class RecordDaoTest {
             44100,
             2,
             256,
+            false,
             false,
             false,
             IntArray(10),
@@ -246,6 +254,7 @@ class RecordDaoTest {
                 44100,
                 2,
                 128,
+                false,
                 false,
                 false,
                 IntArray(10),
