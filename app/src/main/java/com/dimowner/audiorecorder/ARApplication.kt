@@ -32,11 +32,13 @@ import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.dimowner.audiorecorder.util.AndroidUtils
+import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 
-
 //import com.google.firebase.FirebaseApp;
+
+@HiltAndroidApp
 class ARApplication : Application() {
     private var audioOutputChangeReceiver: AudioOutputChangeReceiver? = null
     override fun onCreate() {
