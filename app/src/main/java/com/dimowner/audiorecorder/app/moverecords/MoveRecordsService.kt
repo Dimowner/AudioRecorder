@@ -8,6 +8,7 @@ import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.graphics.Color
 import android.os.Binder
 import android.os.Build
@@ -31,7 +32,6 @@ import com.dimowner.audiorecorder.util.OnCopyListener
 import com.dimowner.audiorecorder.util.copyFileToDir
 import timber.log.Timber
 import java.io.File
-import java.util.ArrayList
 
 /**
  * Created on 14.08.2021.
@@ -251,7 +251,15 @@ class MoveRecordsService : Service() {
 		builder.setOnlyAlertOnce(true)
 		builder.setDefaults(0)
 		builder.setSound(null)
-		startForeground(NOTIF_ID, builder.build())
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+			startForeground(NOTIF_ID, builder.build())
+		} else {
+			startForeground(
+				NOTIF_ID,
+				builder.build(),
+				ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+			)
+		}
 	}
 
 	fun stopService() {

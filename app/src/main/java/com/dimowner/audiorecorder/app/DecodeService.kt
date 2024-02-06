@@ -21,6 +21,7 @@ import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
 import android.graphics.Color
 import android.os.Binder
 import android.os.Build
@@ -205,7 +206,11 @@ class DecodeService : Service() {
 		val intent = Intent(applicationContext, MainActivity::class.java)
 		intent.flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
 		contentPendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, PENDING_INTENT_FLAGS)
-		startForeground(NOTIF_ID, buildNotification())
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+			startForeground(NOTIF_ID, buildNotification())
+		} else {
+			startForeground(NOTIF_ID, buildNotification(), FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+		}
 	}
 
 	private fun buildNotification(): Notification {

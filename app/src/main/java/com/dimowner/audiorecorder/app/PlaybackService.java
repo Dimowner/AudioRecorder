@@ -25,6 +25,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.IBinder;
@@ -168,7 +169,11 @@ public class PlaybackService extends Service {
 		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
 		contentPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, AppConstants.PENDING_INTENT_FLAGS);
-		startForeground(NOTIF_ID, buildNotification());
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+			startForeground(NOTIF_ID, buildNotification());
+		} else {
+			startForeground(NOTIF_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+		}
 		started = true;
 	}
 
