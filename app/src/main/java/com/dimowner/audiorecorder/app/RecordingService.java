@@ -25,6 +25,7 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.os.Build;
@@ -243,7 +244,11 @@ public class RecordingService extends Service {
 //		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
 
 		contentPendingIntent = createContentIntent();
-		startForeground(NOTIF_ID, buildNotification());
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+			startForeground(NOTIF_ID, buildNotification());
+		} else {
+			startForeground(NOTIF_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE);
+		}
 		started = true;
 	}
 
