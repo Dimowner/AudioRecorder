@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.app;
 
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -209,7 +210,11 @@ public class DownloadService extends Service {
 		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
 		contentPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, AppConstants.PENDING_INTENT_FLAGS);
-		startForeground(NOTIF_ID, buildNotification());
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+			startForeground(NOTIF_ID, buildNotification());
+		} else {
+			startForeground(NOTIF_ID, buildNotification(), FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+		}
 	}
 
 	private Notification buildNotification() {

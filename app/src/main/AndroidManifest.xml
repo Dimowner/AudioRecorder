@@ -7,6 +7,16 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"
+        android:minSdkVersion="33" />
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"
+        android:minSdkVersion="33" />
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+        android:minSdkVersion="33" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <uses-feature android:name="android.hardware.screen.portrait" android:required="false" />
@@ -83,11 +93,26 @@
             android:name=".app.TransparentRecordingActivity"
             android:theme="@style/Theme.Transparent" />
 
-        <service android:name=".app.RecordingService" />
-        <service android:name=".app.PlaybackService" />
-        <service android:name=".app.DownloadService" />
-        <service android:name=".app.DecodeService" />
-        <service android:name=".app.moverecords.MoveRecordsService" />
+        <service
+            android:name=".app.RecordingService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
+        <service
+            android:name=".app.PlaybackService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+        <service
+            android:name=".app.DownloadService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+        <service
+            android:name=".app.DecodeService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+        <service
+            android:name=".app.moverecords.MoveRecordsService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <receiver android:name=".WidgetReceiver" />
         <receiver android:name=".app.RecordingService$StopRecordingReceiver" />
