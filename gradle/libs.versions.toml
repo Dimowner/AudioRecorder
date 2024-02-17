@@ -29,6 +29,7 @@ junitKtx = "1.1.5"
 exoPlayer = "2.19.1"
 appcompat = "1.6.1"
 fragment = "1.6.1"
+gson = "2.10.1"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -63,6 +64,7 @@ androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref =
 exoplayer-core = { module = "com.google.android.exoplayer:exoplayer-core", version.ref = "exoPlayer" }
 exoplayer-dash = { module = "com.google.android.exoplayer:exoplayer-dash", version.ref = "exoPlayer" }
 exoplayer-ui = { module = "com.google.android.exoplayer:exoplayer-ui", version.ref = "exoPlayer" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 #gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
@@ -74,8 +76,8 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
-androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-androidx-fragment = { group = "androidx.fragment:fragment-ktx:", version.ref = "fragment" }
+#androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+#androidx-fragment = { group = "androidx.fragment:fragment-ktx:", version.ref = "fragment" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

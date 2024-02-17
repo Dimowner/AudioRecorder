@@ -16,6 +16,8 @@
 
 <resources>
 
+	<style name="Theme.Compose" parent="android:Theme.Material.Light.NoActionBar" />
+
 	<style name="AppTheme" parent="@android:style/Theme.Material">
 		<item name="android:colorPrimary">@color/md_blue_gray_700</item>
 		<item name="android:colorPrimaryDark">@color/md_blue_gray_700</item>

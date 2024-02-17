@@ -94,6 +94,7 @@ dependencies {
     implementation(libs.exoplayer.core)
     implementation(libs.exoplayer.ui)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.gson)
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))
