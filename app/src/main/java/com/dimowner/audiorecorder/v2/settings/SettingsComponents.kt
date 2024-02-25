@@ -16,7 +16,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -256,6 +258,7 @@ fun SettingSelector(
     name: String,
     chips: List<ChipItem>,
     onSelect: (ChipItem) -> Unit,
+    onClickInfo: () -> Unit
 ) {
 //    val screenWidth = LocalConfiguration.current.screenWidthDp.dp.value
 //    var grid = calculateChipsPositions(values, screenWidth)
@@ -264,16 +267,38 @@ fun SettingSelector(
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
-        Text(
-            modifier = Modifier
-                .wrapContentSize()
-                .padding(4.dp),
-            textAlign = TextAlign.Start,
-            text = name,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Light
-        )
+        Row(
+            modifier = Modifier.wrapContentHeight().fillMaxWidth()
+        ) {
+            Text(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(4.dp),
+                textAlign = TextAlign.Start,
+                text = name,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Light
+            )
+            FilledIconButton(
+                onClick = onClickInfo,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically),
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
+            ) {
+                Icon(
+                    modifier = Modifier.size(20.dp),
+                    painter = painterResource(id = R.drawable.ic_info),
+                    contentDescription = name,
+                )
+            }
+        }
+
         ChipsPanel(
             modifier = Modifier.wrapContentSize(),
             chips = chips,
@@ -388,7 +413,7 @@ fun measureTextWidth(text: String, style: TextStyle): Dp {
 @Preview(showBackground = true)
 @Composable
 fun SettingSelectorPreview() {
-    SettingSelector("SettingsSelector", emptyList(), {})
+    SettingSelector("SettingsSelector", emptyList(), {}, {})
 }
 
 @Composable

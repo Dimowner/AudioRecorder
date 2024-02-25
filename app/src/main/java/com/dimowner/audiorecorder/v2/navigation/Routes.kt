@@ -15,6 +15,8 @@ object Routes {
      *
      * */
 
+    const val HOME_SCREEN = "HOME_SCREEN"
+    const val RECORDS_SCREEN = "RECORDS_SCREEN"
     const val SETTINGS_SCREEN = "SETTINGS_SCREEN"
     const val RECORD_INFO_SCREEN = "RECORD_INFO_SCREEN"
     const val COMPOSE_PLAYGROUND_SCREEN = "COMPOSE_PLAYGROUND_SCREEN"

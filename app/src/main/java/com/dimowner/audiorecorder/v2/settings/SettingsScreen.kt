@@ -53,6 +53,7 @@ fun SettingsScreen(
                 SettingsItem(stringResource(R.string.rec_format), R.drawable.ic_title, {
 
                 })
+                Spacer(modifier = Modifier.size(8.dp))
                 ResetRecordingSettingsPanel("1 Mb/min expected size\nM4a, 44.1kHz, 256kbps, Stereo", {
 
                 })
@@ -64,7 +65,8 @@ fun SettingsScreen(
                     },
                     onSelect = {
                         Timber.v("MY_TEST: onSelect = " + it.name)
-                    }
+                    },
+                    onClickInfo = { Timber.v("MY_TEST: onClickInfo") }
                 )
                 val sampleRates = stringArrayResource(id = R.array.sample_rates2).toList()
                 SettingSelector(
@@ -74,7 +76,8 @@ fun SettingsScreen(
                     },
                     onSelect = {
                         Timber.v("MY_TEST: onSelect = " + it.name)
-                    }
+                    },
+                    onClickInfo = { Timber.v("MY_TEST: onClickInfo") }
                 )
                 val bitRates = stringArrayResource(id = R.array.bit_rates2).toList()
                 SettingSelector(
@@ -84,7 +87,8 @@ fun SettingsScreen(
                     },
                     onSelect = {
                         Timber.v("MY_TEST: onSelect = " + it.name)
-                    }
+                    },
+                    onClickInfo = { Timber.v("MY_TEST: onClickInfo") }
                 )
                 val channels = stringArrayResource(id = R.array.channels).toList()
                 SettingSelector(
@@ -94,7 +98,8 @@ fun SettingsScreen(
                     },
                     onSelect = {
                         Timber.v("MY_TEST: onSelect = " + it.name)
-                    }
+                    },
+                    onClickInfo = { Timber.v("MY_TEST: onClickInfo") }
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 SettingsItem(stringResource(R.string.rate_app), R.drawable.ic_thumbs, {

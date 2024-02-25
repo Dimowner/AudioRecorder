@@ -50,7 +50,8 @@ fun ComposePlaygroundScreen(
     userInputViewModel: UserInputViewModel,
     showWelcomeScreen: (Pair<String, String>) -> Unit,
     showRecordInfoScreen: (String) -> Unit,
-    showSettingsScreen: () -> Unit
+    showSettingsScreen: () -> Unit,
+    showHomeScreen: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -144,7 +145,8 @@ fun ComposePlaygroundScreen(
                     ),
                     onSelect = {
                         Timber.v("MY_TEST: onSelect = " + it.name)
-                    }
+                    },
+                    onClickInfo = { Timber.v("MY_TEST: onClickInfo") }
                 )
                 // Buttons with different states
                 Button(
@@ -152,6 +154,12 @@ fun ComposePlaygroundScreen(
                     colors = ButtonDefaults.buttonColors()
                 ) {
                     Text(text = "Audio Recorder",)
+                }
+                Button(
+                    onClick = { showHomeScreen() },
+                    colors = ButtonDefaults.buttonColors()
+                ) {
+                    Text(text = "Home sceen",)
                 }
                 Button(
                     onClick = {},
@@ -215,5 +223,5 @@ fun ComposePlaygroundScreen(
 @Preview
 @Composable
 fun UserInputScreenPreview() {
-    ComposePlaygroundScreen(rememberNavController(), viewModel(), {}, {}, {})
+    ComposePlaygroundScreen(rememberNavController(), viewModel(), {}, {}, {}, {})
 }

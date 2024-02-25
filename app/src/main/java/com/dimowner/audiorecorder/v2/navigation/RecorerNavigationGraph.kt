@@ -6,10 +6,7 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.EaseOut
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
@@ -21,9 +18,11 @@ import androidx.navigation.navArgument
 import com.dimowner.audiorecorder.v2.ComposePlaygroundScreen
 import com.dimowner.audiorecorder.v2.UserInputViewModel
 import com.dimowner.audiorecorder.v2.WelcomeScreen
+import com.dimowner.audiorecorder.v2.home.HomeScreen
 import com.dimowner.audiorecorder.v2.info.AssetParamType
 import com.dimowner.audiorecorder.v2.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.info.RecordInfoScreen
+import com.dimowner.audiorecorder.v2.records.RecordsScreen
 import com.dimowner.audiorecorder.v2.settings.SettingsScreen
 
 private const val ANIMATION_DURATION = 120
@@ -49,7 +48,20 @@ fun RecorderNavigationGraph(userInputViewModel: UserInputViewModel = viewModel()
                 },
                 showSettingsScreen = {
                     navController.navigate(Routes.SETTINGS_SCREEN)
+                },
+                showHomeScreen = {
+                    navController.navigate(Routes.HOME_SCREEN)
                 }
+            )
+        }
+        composable(Routes.HOME_SCREEN) {
+            HomeScreen(navController,
+                showRecordsScreen = { navController.navigate(Routes.RECORDS_SCREEN) },
+                showSettingsScreen = { navController.navigate(Routes.SETTINGS_SCREEN) }
+            )
+        }
+        composable(Routes.RECORDS_SCREEN) {
+            RecordsScreen(navController,
             )
         }
         composable(Routes.SETTINGS_SCREEN) {
