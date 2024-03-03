@@ -15,14 +15,18 @@
  */
 package com.dimowner.audiorecorder.v2.data.model
 
-enum class RecordingFormat(val value: String) {
-    M4a("m4a"), Wav("wav"), ThreeGp("3gp")
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+enum class RecordingFormat(val value: String, val index: Int) : Parcelable {
+    M4a("m4a", 0), Wav("wav", 1), ThreeGp("3gp", 2)
 }
 
 fun String.convertToRecordingFormat(): RecordingFormat? {
-    if (this == RecordingFormat.M4a.value) return RecordingFormat.M4a
-    if (this == RecordingFormat.Wav.value) return RecordingFormat.Wav
-    if (this == RecordingFormat.ThreeGp.value) return RecordingFormat.ThreeGp
+    if (this.equals(RecordingFormat.M4a.value, true)) return RecordingFormat.M4a
+    if (this.equals(RecordingFormat.Wav.value, true)) return RecordingFormat.Wav
+    if (this.equals(RecordingFormat.ThreeGp.value, true)) return RecordingFormat.ThreeGp
 
     return null
 }

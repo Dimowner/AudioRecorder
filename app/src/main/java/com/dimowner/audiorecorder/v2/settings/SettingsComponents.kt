@@ -1,7 +1,10 @@
 package com.dimowner.audiorecorder.v2.settings
 
+import android.os.Parcelable
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,19 +17,29 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,6 +55,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
+import com.dimowner.audiorecorder.v2.InfoAlertDialog
+import com.dimowner.audiorecorder.v2.data.model.SampleRate
 
 @Composable
 fun SettingsItem(
@@ -64,22 +79,26 @@ fun SettingsItem(
             painter = painterResource(id = iconRes),
             contentDescription = label,
         )
-        Text(
-            modifier = Modifier
-                .padding(0.dp, 12.dp, 0.dp, 12.dp)
-                .wrapContentWidth()
-                .wrapContentHeight(),
-            text = label,
-            fontSize = 20.sp,
-            fontFamily = FontFamily(
-                Font(
-                    DeviceFontFamilyName("sans-serif"),
-                    weight = FontWeight.Light
-                )
-            ),
-        )
-
+        SettingsItemText(text = label)
     }
+}
+
+@Composable
+fun SettingsItemText(text: String) {
+    Text(
+        modifier = Modifier
+            .padding(0.dp, 12.dp, 0.dp, 12.dp)
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        text = text,
+        fontSize = 20.sp,
+        fontFamily = FontFamily(
+            Font(
+                DeviceFontFamilyName("sans-serif"),
+                weight = FontWeight.Light
+            )
+        ),
+    )
 }
 
 @Preview(showBackground = true)
@@ -90,10 +109,13 @@ fun SettingsItemPreview() {
 
 @Composable
 fun SettingsItemCheckBox(
+    checked: Boolean,
     label: String,
     iconRes: Int,
     onCheckedChange: ((Boolean) -> Unit),
+    enabled: Boolean = true,
 ) {
+    val checkState = remember { mutableStateOf(checked) }
     Row(
         modifier = Modifier
             .wrapContentHeight()
@@ -123,9 +145,12 @@ fun SettingsItemCheckBox(
             ),
         )
         Switch(
-            checked = true,
-            onCheckedChange = { onCheckedChange(it) },
-            enabled = true,
+            checked = checkState.value,
+            onCheckedChange = {
+                checkState.value = it
+                onCheckedChange(it)
+            },
+            enabled = enabled,
             modifier = Modifier.padding(8.dp)
         )
     }
@@ -134,7 +159,7 @@ fun SettingsItemCheckBox(
 @Preview(showBackground = true)
 @Composable
 fun SettingsItemCheckBoxPreview() {
-    SettingsItemCheckBox("Label", R.drawable.ic_color_lens, {})
+    SettingsItemCheckBox(true,"Label", R.drawable.ic_color_lens, {})
 }
 
 @Composable
@@ -205,7 +230,8 @@ fun InfoTextViewPreview() {
 
 @Composable
 fun ResetRecordingSettingsPanel(
-    text: String,
+    sizePerMin: String,
+    recordingSettingsText: String,
     onClick: () -> Unit,
 ) {
     Card(
@@ -218,17 +244,27 @@ fun ResetRecordingSettingsPanel(
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
+            Column(
                 modifier = Modifier
                     .weight(1f)
                     .wrapContentHeight()
                     .padding(8.dp),
-                textAlign = TextAlign.Start,
-                text = text,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Light
-            )
+            ) {
+                Text(
+                    textAlign = TextAlign.Start,
+                    text = sizePerMin,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Light
+                )
+                Text(
+                    textAlign = TextAlign.Start,
+                    text = recordingSettingsText,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Light
+                )
+            }
             Button(
                 modifier = Modifier
                     .padding(8.dp)
@@ -250,25 +286,26 @@ fun ResetRecordingSettingsPanel(
 @Preview(showBackground = true)
 @Composable
 fun ResetRecordingSettingsPanelPreview() {
-    ResetRecordingSettingsPanel("ResetRecordingSettingsPanel", {})
+    ResetRecordingSettingsPanel("ResetRecordingSettingsPanel", "m4a, mono", {})
 }
 
 @Composable
-fun SettingSelector(
+fun <T: Parcelable> SettingSelector(
     name: String,
-    chips: List<ChipItem>,
-    onSelect: (ChipItem) -> Unit,
+    chips: List<ChipItem<T>>,
+    onSelect: (ChipItem<T>) -> Unit,
     onClickInfo: () -> Unit
 ) {
-//    val screenWidth = LocalConfiguration.current.screenWidthDp.dp.value
-//    var grid = calculateChipsPositions(values, screenWidth)
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
         Row(
-            modifier = Modifier.wrapContentHeight().fillMaxWidth()
+            modifier = Modifier
+                .wrapContentHeight()
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.Bottom
         ) {
             Text(
                 modifier = Modifier
@@ -304,34 +341,14 @@ fun SettingSelector(
             chips = chips,
             onSelect = onSelect
         )
-//        var k = 0
-//        grid.forEach { item ->
-//            Timber.v("MY_TEST createRows")
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .wrapContentHeight(),
-//                verticalAlignment = Alignment.CenterVertically,
-//            ) {
-//                for (j in 0..< item.value) {
-//                    Timber.v("MY_TEST create Chips j = " + j)
-//                    ChipComponent(
-//                        modifier = Modifier,
-//                        values[k],
-//                        onSelect
-//                    )
-//                    k++
-//                }
-//            }
-//        }
     }
 }
 
 @Composable
-fun ChipComponent(
+fun <T: Parcelable> ChipComponent(
     modifier: Modifier = Modifier,
-    item: ChipItem,
-    onSelect: (ChipItem) -> Unit,
+    item: ChipItem<T>,
+    onSelect: (ChipItem<T>) -> Unit,
 ) {
     Card(
         modifier = modifier
@@ -413,14 +430,14 @@ fun measureTextWidth(text: String, style: TextStyle): Dp {
 @Preview(showBackground = true)
 @Composable
 fun SettingSelectorPreview() {
-    SettingSelector("SettingsSelector", emptyList(), {}, {})
+    SettingSelector("SettingsSelector", emptyList<ChipItem<SampleRate>>(), {}, {})
 }
 
 @Composable
-fun ChipsPanel(
+fun <T: Parcelable> ChipsPanel(
     modifier: Modifier = Modifier,
-    chips: List<ChipItem>,
-    onSelect: (ChipItem) -> Unit,
+    chips: List<ChipItem<T>>,
+    onSelect: (ChipItem<T>) -> Unit,
 ) {
     Layout(
         modifier = modifier,
@@ -450,26 +467,146 @@ fun calculatePositionsDefault(
     viewWidth: Int,
     onPlace: ((Placeable, x: Int, y: Int) -> Unit)? = null
 ): Int {
-    val rowHeight = temp.first().measuredHeight
-    var rowCount = 0
     var posY = 0
-    var posX = 0
-    rowCount++
     if (temp.isNotEmpty()) {
-        var availableWidth = viewWidth
-        for (i in temp.indices) {
-            if (availableWidth < temp[i].measuredWidth) {
-                rowCount++
-                posY += rowHeight
-                availableWidth = viewWidth
-                posX = 0
+        var posX = 0
+        val rowHeight = temp.first().measuredHeight
+        var rowCount = 0
+        rowCount++
+        if (temp.isNotEmpty()) {
+            var availableWidth = viewWidth
+            for (i in temp.indices) {
+                if (availableWidth < temp[i].measuredWidth) {
+                    rowCount++
+                    posY += rowHeight
+                    availableWidth = viewWidth
+                    posX = 0
+                }
+                onPlace?.invoke(temp[i], posX, posY)
+                val width: Int = (temp[i].measuredWidth)
+                posX += width
+                availableWidth -= width
             }
-            onPlace?.invoke(temp[i], posX, posY)
-            val width: Int = (temp[i].measuredWidth)
-            posX += width
-            availableWidth -= width
+            posY += rowHeight
         }
-        posY += rowHeight
     }
     return posY
+}
+
+@Composable
+fun DropDownSetting(
+    items: List<NameFormatItem>,
+    selectedItem: NameFormatItem?,
+    onSelect: (NameFormatItem) -> Unit,
+) {
+    val expanded = remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentSize(Alignment.TopStart)
+    ) {
+        // The DropdownMenu composable
+        DropdownMenu(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            expanded = expanded.value,
+            onDismissRequest = { expanded.value = false }
+        ) {
+            items.forEach { item ->
+                DropdownMenuItem(
+                    onClick = {
+                        onSelect(item)
+                        expanded.value = false
+                    }, text = {
+                        SettingsItemText(text = item.nameText)
+                    }
+                )
+            }
+        }
+        val text = selectedItem?.nameText ?: stringResource(id = R.string.empty)
+        Row(
+            modifier = Modifier
+                .wrapContentHeight()
+                .fillMaxWidth()
+                .clickable { expanded.value = !expanded.value },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                modifier = Modifier
+                    .padding(24.dp, 16.dp, 16.dp, 16.dp)
+                    .wrapContentSize(),
+                painter = painterResource(id = R.drawable.ic_title),
+                contentDescription = text,
+            )
+            Column(
+                modifier = Modifier
+                    .padding(0.dp, 12.dp)
+                    .weight(1f)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.record_name_format),
+                    fontFamily = FontFamily(
+                        Font(
+                            DeviceFontFamilyName("sans-serif"),
+                            weight = FontWeight.Bold
+                        )
+                    ),
+                )
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    text = text,
+                    fontSize = 20.sp,
+                    fontFamily = FontFamily(
+                        Font(
+                            DeviceFontFamilyName("sans-serif"),
+                            weight = FontWeight.Light
+                        )
+                    ),
+                )
+            }
+            Icon(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(0.dp, 0.dp, 12.dp, 0.dp),
+                painter = painterResource(id = R.drawable.ic_arrow_down),
+                contentDescription = text,
+            )
+        }
+    }
+}
+
+@Composable
+fun SettingsInfoDialog(openDialog: MutableState<Boolean>, message: String) {
+    if (openDialog.value) {
+        InfoAlertDialog(
+            onDismissRequest = { openDialog.value = false },
+            onConfirmation = {
+                openDialog.value = false
+            },
+            dialogTitle = stringResource(id = R.string.info),
+            dialogText = message,
+            icon = Icons.Default.Info,
+            dismissButton = stringResource(id = R.string.btn_ok)
+        )
+    }
+}
+
+@Composable
+fun SettingsWarningDialog(openDialog: MutableState<Boolean>, message: String) {
+    if (openDialog.value) {
+        InfoAlertDialog(
+            onDismissRequest = { openDialog.value = false },
+            onConfirmation = {
+                openDialog.value = false
+            },
+            dialogTitle = stringResource(id = R.string.warning),
+            dialogText = message,
+            icon = Icons.Default.Warning,
+            dismissButton = stringResource(id = R.string.btn_ok)
+        )
+    }
 }

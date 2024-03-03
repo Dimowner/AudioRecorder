@@ -15,13 +15,17 @@
  */
 package com.dimowner.audiorecorder.v2.data.model
 
-enum class SampleRate(val value: Int) {
-    SR8000(8000),
-    SR16000(16000),
-    SR22500(22500),
-    SR32000(32000),
-    SR44100(44100),
-    SR48000(48000),
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+enum class SampleRate(val value: Int, val index: Int): Parcelable {
+    SR8000(value = 8000, index = 0),
+    SR16000(value = 16000, index = 1),
+    SR22500(value = 22500, index = 2),
+    SR32000(value = 32000, index = 3),
+    SR44100(value = 44100, index = 4),
+    SR48000(value = 48000, index = 5),
 }
 
 fun Int.convertToSampleRate(): SampleRate? {

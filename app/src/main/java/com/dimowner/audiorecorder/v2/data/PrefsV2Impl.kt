@@ -31,12 +31,15 @@ import com.dimowner.audiorecorder.v2.data.model.convertToNameFormat
 import com.dimowner.audiorecorder.v2.data.model.convertToRecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.convertToSampleRate
 import com.dimowner.audiorecorder.v2.data.model.convertToSortOrder
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * App V2 preferences implementation
  */
-class PrefsV2Impl @Inject internal constructor(context: Context) : PrefsV2 {
+@Singleton
+class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Context) : PrefsV2 {
 
     private val sharedPreferences: SharedPreferences
 

@@ -13,6 +13,11 @@
 	<string name="rate_app">Rate app</string>
 	<string name="store_records_public">Store records in a public dir</string>
 	<string name="record_in_stereo">Record in Stereo</string>
+
+	<string name="dynamic_theme_colors">Dynamic theme colors</string>
+	<string name="dark_theme">Dark theme</string>
+	<string name="record_name_format">Record name format</string>
+
 	<string name="keep_screen_on">Keep screen ON while recording</string>
 	<string name="total_duration">Total recorded duration: %s</string>
 	<string name="total_record_count">Total records count: %d</string>

@@ -38,6 +38,7 @@ import com.dimowner.audiorecorder.ARApplication
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.main.MainActivity
 import com.dimowner.audiorecorder.util.TimeUtils
+import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import com.dimowner.audiorecorder.v2.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.settings.ChipItem
 import com.dimowner.audiorecorder.v2.settings.SettingSelector
@@ -135,13 +136,12 @@ fun ComposePlaygroundScreen(
                 SettingSelector(
                     name = "Test Name",
                     chips = listOf(
-                        ChipItem(id = 0, value = 1000, "1000", false),
-                        ChipItem(id = 1, value = 2000, "2000", true),
-                        ChipItem(id = 2, value = 3000, "3000", false),
-                        ChipItem(id = 4, value = 4, "4", false),
-                        ChipItem(id = 5, value = 5, "5", false),
-                        ChipItem(id = 6, value = 600, "600", false),
-                        ChipItem(id = 7, value = 70000, "70000", false),
+                        ChipItem(id = 0, value = SampleRate.SR8000, name = "8000", false),
+                        ChipItem(id = 1, value = SampleRate.SR16000, name = "16000", false),
+                        ChipItem(id = 2, value = SampleRate.SR22500, name = "22500", true),
+                        ChipItem(id = 3, value = SampleRate.SR32000, name = "32000", false),
+                        ChipItem(id = 4, value = SampleRate.SR44100, name = "44100", false),
+                        ChipItem(id = 5, value = SampleRate.SR48000, name = "48000", false),
                     ),
                     onSelect = {
                         Timber.v("MY_TEST: onSelect = " + it.name)
@@ -174,9 +174,9 @@ fun ComposePlaygroundScreen(
                         text = "Elevated Surface",
                     )
                 }
-                CircularProgressIndicator(
-                    modifier = Modifier.padding(16.dp)
-                )
+//                CircularProgressIndicator(
+//                    modifier = Modifier.padding(16.dp)
+//                )
                 LinearProgressIndicator(
                     progress = { 0.5f },
                     modifier = Modifier.padding(16.dp),

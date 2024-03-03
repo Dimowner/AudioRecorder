@@ -15,9 +15,13 @@
  */
 package com.dimowner.audiorecorder.v2.data.model
 
-enum class ChannelCount(val value: Int) {
-    Mono(1),
-    Stereo(2),
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+enum class ChannelCount(val value: Int, val index: Int): Parcelable {
+    Stereo(value = 2, index = 0),
+    Mono(value = 1, index = 1),
 }
 
 fun Int.convertToChannelCount(): ChannelCount? {

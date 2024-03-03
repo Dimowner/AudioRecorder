@@ -30,6 +30,12 @@ class ModelTest {
         assertEquals(NameFormat.DateUs, NameFormat.DateUs.toString().convertToNameFormat())
         assertEquals(NameFormat.DateIso8601, NameFormat.DateIso8601.toString().convertToNameFormat())
 
+        assertEquals(NameFormat.Record, "RECORD".convertToNameFormat())
+        assertEquals(NameFormat.Timestamp, "TIMESTAMP".convertToNameFormat())
+        assertEquals(NameFormat.Date, "DATE".convertToNameFormat())
+        assertEquals(NameFormat.DateUs, "DATEUS".convertToNameFormat())
+        assertEquals(NameFormat.DateIso8601, "DATEISO8601".convertToNameFormat())
+
         //Fail cases
         assertNull("".convertToNameFormat())
         assertNull("Any text string".convertToNameFormat())
@@ -41,6 +47,10 @@ class ModelTest {
         assertEquals(RecordingFormat.M4a, RecordingFormat.M4a.value.convertToRecordingFormat())
         assertEquals(RecordingFormat.Wav, RecordingFormat.Wav.value.convertToRecordingFormat())
         assertEquals(RecordingFormat.ThreeGp, RecordingFormat.ThreeGp.value.convertToRecordingFormat())
+
+        assertEquals(RecordingFormat.M4a, "M4a".convertToRecordingFormat())
+        assertEquals(RecordingFormat.Wav, "Wav".convertToRecordingFormat())
+        assertEquals(RecordingFormat.ThreeGp, "3Gp".convertToRecordingFormat())
 
         //Fail cases
         assertNull("".convertToRecordingFormat())
@@ -69,8 +79,6 @@ class ModelTest {
     @Test
     fun test_bitRate_convertToBitRate_success() {
         //Success cases
-        assertEquals(BitRate.BR12, BitRate.BR12.value.convertToBitRate())
-        assertEquals(BitRate.BR24, BitRate.BR24.value.convertToBitRate())
         assertEquals(BitRate.BR48, BitRate.BR48.value.convertToBitRate())
         assertEquals(BitRate.BR96, BitRate.BR96.value.convertToBitRate())
         assertEquals(BitRate.BR128, BitRate.BR128.value.convertToBitRate())

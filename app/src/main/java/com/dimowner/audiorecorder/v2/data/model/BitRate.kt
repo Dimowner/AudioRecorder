@@ -15,19 +15,19 @@
  */
 package com.dimowner.audiorecorder.v2.data.model
 
-enum class BitRate(val value: Int) {
-    BR12(12000),
-    BR24(24000),
-    BR48(48000),
-    BR96(96000),
-    BR128(128000),
-    BR192(192000),
-    BR256(256000),
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+enum class BitRate(val value: Int, val index: Int): Parcelable {
+    BR48(48000, 0),
+    BR96(96000, 1),
+    BR128(128000, 2),
+    BR192(192000, 3),
+    BR256(256000, 4),
 }
 
 fun Int.convertToBitRate(): BitRate? {
-    if (this == BitRate.BR12.value) return BitRate.BR12
-    if (this == BitRate.BR24.value) return BitRate.BR24
     if (this == BitRate.BR48.value) return BitRate.BR48
     if (this == BitRate.BR96.value) return BitRate.BR96
     if (this == BitRate.BR128.value) return BitRate.BR128

@@ -20,11 +20,11 @@ enum class NameFormat {
 }
 
 fun String.convertToNameFormat(): NameFormat? {
-    if (this == NameFormat.Record.toString()) return NameFormat.Record
-    if (this == NameFormat.Timestamp.toString()) return NameFormat.Timestamp
-    if (this == NameFormat.Date.toString()) return NameFormat.Date
-    if (this == NameFormat.DateUs.toString()) return NameFormat.DateUs
-    if (this == NameFormat.DateIso8601.toString()) return NameFormat.DateIso8601
+    if (this.equals(NameFormat.Record.toString(), true)) return NameFormat.Record
+    if (this.equals(NameFormat.Timestamp.toString(), true)) return NameFormat.Timestamp
+    if (this.equals(NameFormat.Date.toString(), true)) return NameFormat.Date
+    if (this.equals(NameFormat.DateUs.toString(), true)) return NameFormat.DateUs
+    if (this.equals(NameFormat.DateIso8601.toString(), true)) return NameFormat.DateIso8601
 
     return null
 }
