@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.DefaultValues
 import com.dimowner.audiorecorder.v2.data.PrefsV2
@@ -13,10 +14,14 @@ import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
+import com.dimowner.audiorecorder.v2.data.room.RecordDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
@@ -26,6 +31,7 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val prefs: PrefsV2,
+    private val recordDao: RecordDao, //TODO: Use repository instead of DAO
     @ApplicationContext context: Context,
 ) : ViewModel() {
 
@@ -104,15 +110,27 @@ class SettingsViewModel @Inject constructor(
             ),
             rateAppLink = "link",
             feedbackEmail = "email",
-            totalRecordCount = 2,
-            totalRecordDuration = 10000,
-            availableSpace = 1024 * 1024 * 100,
+            totalRecordCount = 0,
+            totalRecordDuration = 0,
+            availableSpace = 0,
             appName = "App Name",
             appVersion = "App version 100.0.0",
         )
     )
 
     val state: LiveData<SettingsState> = _state.asLiveData()
+
+    fun initSettings() {
+        viewModelScope.launch(Dispatchers.IO) {//TODO: Use Injected Dispatcher
+            val recordsCount = recordDao.getRecordsCount()
+            val recordsDuration = recordDao.getRecordTotalDuration()
+            withContext(Dispatchers.Main) {//TODO: Use Injected Dispatcher
+                _state.update {
+                    it.copy(totalRecordCount = recordsCount, totalRecordDuration = recordsDuration)
+                }
+            }
+        }
+    }
 
     fun setDarkTheme(value: Boolean) {
         prefs.isDarkTheme = value

@@ -47,6 +47,9 @@ interface RecordDao {
     @Query("SELECT COUNT(*) FROM records")
     fun getRecordsCount(): Int
 
+    @Query("SELECT SUM(duration) AS total_duration FROM records;")
+    fun getRecordTotalDuration(): Long
+
     @Query("SELECT * FROM records ORDER BY id LIMIT :pageSize OFFSET :offset")
     fun getRecordsByPage(pageSize: Int, offset: Int): List<RecordEntity>
 }

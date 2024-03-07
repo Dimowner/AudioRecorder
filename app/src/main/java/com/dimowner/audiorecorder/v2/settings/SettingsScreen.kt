@@ -29,6 +29,7 @@ fun SettingsScreen(
     navController: NavHostController,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
+    viewModel.initSettings()
     val context = LocalContext.current
     val state = viewModel.state.observeAsState()
 
@@ -154,9 +155,24 @@ fun SettingsScreen(
                     }
                 }
                 Spacer(modifier = Modifier.size(8.dp))
-                InfoTextView("InfoTextView " + (state.value?.totalRecordCount ?: ""))
-                InfoTextView("InfoTextView " + (state.value?.totalRecordDuration ?: ""))
-                InfoTextView("InfoTextView " + (state.value?.availableSpace ?: ""))
+                InfoTextView(
+                    stringResource(
+                        id = R.string.total_record_count,
+                        (state.value?.totalRecordCount ?: "")
+                    )
+                )
+                InfoTextView(
+                    stringResource(
+                        id = R.string.total_duration,
+                        (state.value?.totalRecordDuration ?: "")
+                    )
+                )
+                InfoTextView(
+                    stringResource(
+                        id = R.string.available_space,
+                        (state.value?.availableSpace ?: "")
+                    )
+                )
                 AppInfoView(state.value?.appName ?: "", state.value?.appVersion ?: "")
                 Spacer(modifier = Modifier.size(8.dp))
             }

@@ -21,7 +21,7 @@ data class SettingsState(
     val recordingSettingsText: String,
     val rateAppLink: String,
     val feedbackEmail: String,
-    val totalRecordCount: Long,
+    val totalRecordCount: Int,
     val totalRecordDuration: Long,
     val availableSpace: Long,
     val appName: String,

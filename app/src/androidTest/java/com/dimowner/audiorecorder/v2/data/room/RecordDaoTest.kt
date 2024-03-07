@@ -19,9 +19,6 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.dimowner.audiorecorder.v2.data.room.AppDatabase
-import com.dimowner.audiorecorder.v2.data.room.RecordDao
-import com.dimowner.audiorecorder.v2.data.room.RecordEntity
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNull
 import kotlinx.coroutines.runBlocking
@@ -207,6 +204,54 @@ class RecordDaoTest {
 
         val count = recordDao.getRecordsCount()
         assertEquals(2, count)
+    }
+
+    @Test
+    fun testGetRecordTotalDuration() {
+        val durationRecord1 = 5000L
+        val durationRecord2 = 10000L
+        val record1 = RecordEntity(
+            1,
+            "Record 1",
+            durationRecord1,
+            123456789L,
+            123456789L,
+            0L,
+            "path/to/record1",
+            "mp3",
+            1024,
+            44100,
+            2,
+            128,
+            false,
+            false,
+            false,
+            IntArray(10),
+        )
+        val record2 = RecordEntity(
+            2,
+            "Record 2",
+            durationRecord2,
+            123456790L,
+            123456790L,
+            0L,
+            "path/to/record2",
+            "mp3",
+            2048,
+            44100,
+            2,
+            256,
+            false,
+            false,
+            false,
+            IntArray(10),
+        )
+
+        recordDao.insertRecord(record1)
+        recordDao.insertRecord(record2)
+
+        val duration = recordDao.getRecordTotalDuration()
+        assertEquals(durationRecord1 + durationRecord2, duration)
     }
 
     @Test
