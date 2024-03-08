@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.dimowner.audiorecorder.R
+import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.v2.DefaultValues
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.model.BitRate
@@ -62,42 +63,33 @@ class SettingsViewModel @Inject constructor(
             isShowRenameDialog = prefs.askToRenameAfterRecordingStopped,
             selectedNameFormat = prefs.settingNamingFormat.toNameFormatItem(),
             nameFormats = makeNameFormats(),
-            recordingSetting = RecordingSetting(
-                recordingFormats = RecordingFormat.entries.toList().mapIndexed { index, format ->
-                    ChipItem(
+            recordingSettings = RecordingFormat.entries.toList().mapIndexed { index, format ->
+                RecordingSetting(
+                    recordingFormat = ChipItem(
                         id = index,
                         value = format,
                         name = formatsStrings[index],
                         isSelected = format == selectedFormat
-                    )
-                },
-                sampleRates = SampleRate.entries.toList().mapIndexed { index, format ->
-                    ChipItem(
-                        id = index,
-                        value = format,
-                        name = sampleRateStrings[index],
-                        isSelected = format == selectedSampleRate
-                    )
-                },
-                bitRates = BitRate.entries.toList().mapIndexed { index, format ->
-                    ChipItem(
-                        id = index,
-                        value = format,
-                        name = bitRateStrings[index],
-                        isSelected = format == selectedBitRate
-                    )
-                },
-                channelCounts = ChannelCount.entries.toList().mapIndexed { index, format ->
-                    ChipItem(
-                        id = index,
-                        value = format,
-                        name = channelCountsStrings[index],
-                        isSelected = format == selectedChannelCount
-                    )
-                },
-            ),
+                    ),
+                    sampleRates = getSampleRates(
+                        selectedFormat,
+                        selectedSampleRate,
+                        sampleRateStrings
+                    ),
+                    bitRates = getBitRates(
+                        selectedFormat,
+                        selectedBitRate,
+                        bitRateStrings
+                    ),
+                    channelCounts = getChannelCounts(
+                        selectedFormat,
+                        selectedChannelCount,
+                        channelCountsStrings
+                    ),
+                )
+            },
             sizePerMin = decimalFormat.format(
-                sizePerMin(
+                sizeMbPerMin(
                     selectedFormat,
                     selectedSampleRate,
                     selectedBitRate,
@@ -108,13 +100,13 @@ class SettingsViewModel @Inject constructor(
                 formatsStrings, sampleRateStrings, bitRateStrings, channelCountsStrings,
                 selectedFormat, selectedSampleRate, selectedBitRate, selectedChannelCount
             ),
-            rateAppLink = "link",
-            feedbackEmail = "email",
+            rateAppLink = "link",//TODO: Fix hardcoded value
+            feedbackEmail = "email",//TODO: Fix hardcoded value
             totalRecordCount = 0,
             totalRecordDuration = 0,
             availableSpace = 0,
-            appName = "App Name",
-            appVersion = "App version 100.0.0",
+            appName = context.getString(R.string.app_name),
+            appVersion = context.getString(R.string.version, AndroidUtils.getAppVersion(context)),
         )
     )
 
@@ -167,76 +159,174 @@ class SettingsViewModel @Inject constructor(
         prefs.settingBitrate = DefaultValues.DefaultBitRate
         prefs.settingChannelCount = DefaultValues.DefaultChannelCount
         _state.update {
-            it.copy(recordingSetting = it.recordingSetting.copy(
-                recordingFormats = it.recordingSetting.recordingFormats.map { item ->
-                    item.updateSelected(DefaultValues.DefaultRecordingFormat)
+            it.copy(recordingSettings = it.recordingSettings.map { formatSetting ->
+                    RecordingSetting(
+                        recordingFormat = formatSetting.recordingFormat.updateSelected(DefaultValues.DefaultRecordingFormat),
+                        sampleRates = getSampleRates(
+                            DefaultValues.DefaultRecordingFormat,
+                            DefaultValues.DefaultSampleRate,
+                            sampleRateStrings
+                        ),
+                        bitRates = getBitRates(
+                            DefaultValues.DefaultRecordingFormat,
+                            DefaultValues.DefaultBitRate,
+                            bitRateStrings
+                        ),
+                        channelCounts = getChannelCounts(
+                            DefaultValues.DefaultRecordingFormat,
+                            DefaultValues.DefaultChannelCount,
+                            channelCountsStrings
+                        ),
+                    )
                 },
-                sampleRates = it.recordingSetting.sampleRates.map { item ->
-                    item.updateSelected(DefaultValues.DefaultSampleRate)
-                },
-                bitRates = it.recordingSetting.bitRates.map { item ->
-                    item.updateSelected(DefaultValues.DefaultBitRate)
-                },
-                channelCounts = it.recordingSetting.channelCounts.map { item ->
-                    item.updateSelected(DefaultValues.DefaultChannelCount)
-                }
-            )).recordingSettingsUpdated()
+            ).recordingSettingsUpdated()
         }
     }
 
     fun selectRecordingFormat(value: RecordingFormat) {
         prefs.settingRecordingFormat = value
-        _state.update {
-            it.copy(recordingSetting = it.recordingSetting.copy(
-                recordingFormats = it.recordingSetting.recordingFormats.map { item ->
-                    item.updateSelected(value)
-                }
-            )).recordingSettingsUpdated()
+        _state.update { settingsState ->
+            settingsState.copy(recordingSettings = settingsState.recordingSettings.map { item ->
+                item.copy(
+                    recordingFormat = item.recordingFormat.updateSelected(value),
+                    sampleRates = getSampleRates(
+                        value,
+                        prefs.settingSampleRate,
+                        sampleRateStrings
+                    ),
+                    bitRates = getBitRates(
+                        value,
+                        prefs.settingBitrate,
+                        bitRateStrings
+                    ),
+                    channelCounts = getChannelCounts(
+                        value,
+                        prefs.settingChannelCount,
+                        channelCountsStrings
+                    ),
+                )
+            })
+                .validate3GpSelectedAndAdjust(value)
+                .recordingSettingsUpdated()
+        }
+    }
+
+    private fun SettingsState.validate3GpSelectedAndAdjust(format: RecordingFormat): SettingsState {
+        return if (format == RecordingFormat.ThreeGp) {
+            val formatSetting = this.recordingSettings.firstOrNull {
+                it.recordingFormat.value == format
+            }
+            val hasSelectedSampleRate = formatSetting?.sampleRates?.any { it.isSelected } ?: false
+            val hasSelectedChannelCount = formatSetting?.channelCounts?.any { it.isSelected } ?: false
+            if (!hasSelectedSampleRate || !hasSelectedChannelCount) {
+                this.copy(
+                    recordingSettings = recordingSettings.map { recordingSetting ->
+                        if (recordingSetting.recordingFormat.value == format) {
+                            recordingSetting.copy(
+                                sampleRates = if (hasSelectedSampleRate) {
+                                    recordingSetting.sampleRates
+                                } else {
+                                    prefs.settingSampleRate = DefaultValues.Default3GpSampleRate
+                                    recordingSetting.sampleRates.map {
+                                        if (it.value == DefaultValues.Default3GpSampleRate) {
+                                            it.copy(isSelected = true)
+                                        } else {
+                                            it
+                                        }
+                                    }
+                                },
+                                channelCounts = if (hasSelectedChannelCount) {
+                                    recordingSetting.channelCounts
+                                } else {
+                                    prefs.settingChannelCount = DefaultValues.Default3GpChannelCount
+                                    recordingSetting.channelCounts.map {
+                                        if (it.value == DefaultValues.Default3GpChannelCount) {
+                                            it.copy(isSelected = true)
+                                        } else {
+                                            it
+                                        }
+                                    }
+                                }
+                            )
+                        } else {
+                            recordingSetting
+                        }
+                    }
+                )
+            } else {
+                this
+            }
+        } else {
+            return this
         }
     }
 
     fun selectSampleRate(value: SampleRate) {
         prefs.settingSampleRate = value
-        _state.update {
-            it.copy(recordingSetting = it.recordingSetting.copy(
-                sampleRates = it.recordingSetting.sampleRates.map { item ->
-                    item.updateSelected(value)
+        _state.update { settingsState ->
+            settingsState.copy(
+                recordingSettings = settingsState.recordingSettings.map { formatSetting ->
+                    if (formatSetting.recordingFormat.isSelected) {
+                        formatSetting.copy(
+                            sampleRates = formatSetting.sampleRates.map { item ->
+                                item.updateSelected(value)
+                            }
+                        )
+                    } else {
+                        formatSetting
+                    }
                 }
-            )).recordingSettingsUpdated()
+            ).recordingSettingsUpdated()
         }
     }
 
     fun selectBitrate(value: BitRate) {
         prefs.settingBitrate = value
-        _state.update {
-            it.copy(recordingSetting = it.recordingSetting.copy(
-                bitRates = it.recordingSetting.bitRates.map { item ->
-                    item.updateSelected(value)
+        _state.update { settingsState ->
+            settingsState.copy(
+                recordingSettings = settingsState.recordingSettings.map { formatSetting ->
+                    if (formatSetting.recordingFormat.isSelected) {
+                        formatSetting.copy(
+                            bitRates = formatSetting.bitRates.map { item ->
+                                item.updateSelected(value)
+                            }
+                        )
+                    } else {
+                        formatSetting
+                    }
                 }
-            )).recordingSettingsUpdated()
+            ).recordingSettingsUpdated()
         }
     }
 
     fun selectChannelCount(value: ChannelCount) {
         prefs.settingChannelCount = value
-        _state.update {
-            it.copy(recordingSetting = it.recordingSetting.copy(
-                channelCounts = it.recordingSetting.channelCounts.map { item ->
-                    item.updateSelected(value)
+        _state.update { settingsState ->
+            settingsState.copy(
+                recordingSettings = settingsState.recordingSettings.map { formatSetting ->
+                    if (formatSetting.recordingFormat.isSelected) {
+                        formatSetting.copy(
+                            channelCounts = formatSetting.channelCounts.map { item ->
+                                item.updateSelected(value)
+                            }
+                        )
+                    } else {
+                        formatSetting
+                    }
                 }
-            )).recordingSettingsUpdated()
+            ).recordingSettingsUpdated()
         }
     }
 
     private fun SettingsState.recordingSettingsUpdated(): SettingsState {
-        val settings = this.recordingSetting
+        val settings = this.recordingSettings.firstOrNull { it.recordingFormat.isSelected }
         return this.copy(
             sizePerMin = decimalFormat.format(
-                sizePerMin(
-                    settings.recordingFormats.first { it.isSelected }.value,
-                    settings.sampleRates.first { it.isSelected }.value,
-                    settings.bitRates.first { it.isSelected }.value,
-                    settings.channelCounts.first { it.isSelected }.value,
+                sizeMbPerMin(
+                    settings?.recordingFormat?.value,
+                    settings?.sampleRates?.firstOrNull { it.isSelected }?.value,
+                    settings?.bitRates?.firstOrNull { it.isSelected }?.value,
+                    settings?.channelCounts?.firstOrNull { it.isSelected }?.value,
                 )
             ),
             recordingSettingsText = recordingSettingsCombinedText(
@@ -244,10 +334,10 @@ class SettingsViewModel @Inject constructor(
                 sampleRateStrings,
                 bitRateStrings,
                 channelCountsStrings,
-                settings.recordingFormats.first { it.isSelected }.value,
-                settings.sampleRates.first { it.isSelected }.value,
-                settings.bitRates.first { it.isSelected }.value,
-                settings.channelCounts.first { it.isSelected }.value,
+                settings?.recordingFormat?.value,
+                settings?.sampleRates?.firstOrNull { it.isSelected }?.value,
+                settings?.bitRates?.firstOrNull { it.isSelected }?.value,
+                settings?.channelCounts?.firstOrNull { it.isSelected }?.value,
             ),
         )
     }

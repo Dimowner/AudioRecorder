@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomAppBar
@@ -17,7 +18,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Slider
@@ -52,7 +52,8 @@ fun ComposePlaygroundScreen(
     showWelcomeScreen: (Pair<String, String>) -> Unit,
     showRecordInfoScreen: (String) -> Unit,
     showSettingsScreen: () -> Unit,
-    showHomeScreen: () -> Unit
+    showHomeScreen: () -> Unit,
+    showRecordsScreen: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -98,23 +99,37 @@ fun ComposePlaygroundScreen(
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 if (userInputViewModel.isValidState()) {
-                    ButtonComponent(onClicked = {
+                    Button(onClick = {
                         showWelcomeScreen(
                             Pair(
                                 userInputViewModel.uiState.value.nameEntered,
                                 userInputViewModel.uiState.value.animalSelected
                             )
                         )
-                    }, text = "Go to details screen")
+                    }) {
+                        Text(text = "Go to details screen",)
+                    }
                 }
                 Row {
-                    ButtonComponent(onClicked = {
+                    Button(onClick = {
                         val json = Uri.encode(Gson().toJson(recordInfo))
-                        showRecordInfoScreen.invoke(json)
-                    }, text = "Record Info")
-                    ButtonComponent(onClicked = {
-                        showSettingsScreen.invoke()
-                    }, text = "Settings")
+                        showRecordInfoScreen(json)
+                    }) {
+                        Text(text = "Record Info",)
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Button(onClick = { showSettingsScreen() }) {
+                        Text(text = "Settings Screen",)
+                    }
+                }
+                Row {
+                    Button(onClick = { showHomeScreen() }) {
+                        Text(text = "Home Screen",)
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Button(onClick = { showRecordsScreen() }) {
+                        Text(text = "Records Screen",)
+                    }
                 }
 
                 // Text variations
@@ -154,12 +169,6 @@ fun ComposePlaygroundScreen(
                     colors = ButtonDefaults.buttonColors()
                 ) {
                     Text(text = "Audio Recorder",)
-                }
-                Button(
-                    onClick = { showHomeScreen() },
-                    colors = ButtonDefaults.buttonColors()
-                ) {
-                    Text(text = "Home sceen",)
                 }
                 Button(
                     onClick = {},
@@ -223,5 +232,5 @@ fun ComposePlaygroundScreen(
 @Preview
 @Composable
 fun UserInputScreenPreview() {
-    ComposePlaygroundScreen(rememberNavController(), viewModel(), {}, {}, {}, {})
+    ComposePlaygroundScreen(rememberNavController(), viewModel(), {}, {}, {}, {}, {})
 }

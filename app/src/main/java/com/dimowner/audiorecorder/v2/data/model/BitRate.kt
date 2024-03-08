@@ -18,6 +18,9 @@ package com.dimowner.audiorecorder.v2.data.model
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Bitrate in Kbps (thousands bits per second)
+ */
 @Parcelize
 enum class BitRate(val value: Int, val index: Int): Parcelable {
     BR48(48000, 0),

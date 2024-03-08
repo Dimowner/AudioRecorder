@@ -51,6 +51,9 @@ fun RecorderNavigationGraph(userInputViewModel: UserInputViewModel = viewModel()
                 },
                 showHomeScreen = {
                     navController.navigate(Routes.HOME_SCREEN)
+                },
+                showRecordsScreen = {
+                    navController.navigate(Routes.RECORDS_SCREEN)
                 }
             )
         }

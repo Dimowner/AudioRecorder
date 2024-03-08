@@ -17,6 +17,7 @@
 	<string name="dynamic_theme_colors">Dynamic theme colors</string>
 	<string name="dark_theme">Dark theme</string>
 	<string name="record_name_format">Record name format</string>
+	<string name="version">Version %s</string>
 
 	<string name="keep_screen_on">Keep screen ON while recording</string>
 	<string name="total_duration">Total recorded duration: %s</string>

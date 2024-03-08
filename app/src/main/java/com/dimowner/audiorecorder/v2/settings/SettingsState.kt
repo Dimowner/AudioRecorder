@@ -16,7 +16,7 @@ data class SettingsState(
     val isShowRenameDialog: Boolean,
     val nameFormats: List<NameFormatItem>,
     val selectedNameFormat: NameFormatItem,
-    val recordingSetting: RecordingSetting,
+    val recordingSettings: List<RecordingSetting>,
     val sizePerMin: String,
     val recordingSettingsText: String,
     val rateAppLink: String,
@@ -30,7 +30,7 @@ data class SettingsState(
 
 @Parcelize
 data class RecordingSetting(
-    val recordingFormats: List<ChipItem<RecordingFormat>>,
+    val recordingFormat: ChipItem<RecordingFormat>,
     val sampleRates: List<ChipItem<SampleRate>>,
     val bitRates: List<ChipItem<BitRate>>,
     val channelCounts: List<ChipItem<ChannelCount>>,

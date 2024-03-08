@@ -22,7 +22,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledIconButton
@@ -148,25 +147,6 @@ fun AnimalCard(image: Int, selected: Boolean, onImageClicked: (animalName: Strin
 @Composable
 fun AnimalCardPreview() {
     AnimalCard(image = R.drawable.ic_color_lens, false) {}
-}
-
-
-@Composable
-fun ButtonComponent(onClicked: () -> Unit, text: String) {
-    Button(
-        modifier = Modifier
-            .padding(8.dp)
-            .wrapContentWidth(),
-        onClick = { onClicked.invoke() }
-    ) {
-        TextComponent(textValue = text, textSize = 18.sp,)
-    }
-}
-
-@Preview()
-@Composable
-fun ButtonComponentPreview() {
-    ButtonComponent(text = "Text", onClicked = {})
 }
 
 @Composable

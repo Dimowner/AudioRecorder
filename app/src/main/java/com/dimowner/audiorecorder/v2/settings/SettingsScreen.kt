@@ -1,6 +1,7 @@
 package com.dimowner.audiorecorder.v2.settings
 
 import android.os.Build
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +23,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.TitleBar
-import timber.log.Timber
 
 @Composable
 fun SettingsScreen(
@@ -37,6 +37,8 @@ fun SettingsScreen(
     val openWarningDialog = remember { mutableStateOf(false) }
     val infoText = remember { mutableStateOf("") }
     val warningText = remember { mutableStateOf("") }
+
+    val isExpandedBitRatePanel = remember { mutableStateOf(true) }
 
     Surface(
         modifier = Modifier.fillMaxSize()
@@ -102,7 +104,7 @@ fun SettingsScreen(
                 }
                 SettingSelector(
                     name = stringResource(id = R.string.recording_format),
-                    chips = state.value?.recordingSetting?.recordingFormats ?: emptyList(),
+                    chips = state.value?.recordingSettings?.map { it.recordingFormat } ?: emptyList(),
                     onSelect = {
                         viewModel.selectRecordingFormat(it.value)
                     },
@@ -111,9 +113,10 @@ fun SettingsScreen(
                         openInfoDialog.value = true
                     }
                 )
+                val selectedFormat = state.value?.recordingSettings?.firstOrNull { it.recordingFormat.isSelected }
                 SettingSelector(
                     name = stringResource(id = R.string.sample_rate),
-                    chips = state.value?.recordingSetting?.sampleRates ?: emptyList(),
+                    chips = selectedFormat?.sampleRates ?: emptyList(),
                     onSelect = {
                         viewModel.selectSampleRate(it.value)
                     },
@@ -122,20 +125,25 @@ fun SettingsScreen(
                         openInfoDialog.value = true
                     }
                 )
-                SettingSelector(
-                    name = stringResource(id = R.string.bitrate),
-                    chips = state.value?.recordingSetting?.bitRates ?: emptyList(),
-                    onSelect = {
-                        viewModel.selectBitrate(it.value)
-                    },
-                    onClickInfo = {
-                        infoText.value = context.getString(R.string.info_bitrate)
-                        openInfoDialog.value = true
-                    }
-                )
+                if (isExpandedBitRatePanel.value != !selectedFormat?.bitRates.isNullOrEmpty()) {
+                    isExpandedBitRatePanel.value = !selectedFormat?.bitRates.isNullOrEmpty()
+                }
+                AnimatedVisibility(visible = isExpandedBitRatePanel.value) {
+                    SettingSelector(
+                        name = stringResource(id = R.string.bitrate),
+                        chips = selectedFormat?.bitRates ?: emptyList(),
+                        onSelect = {
+                            viewModel.selectBitrate(it.value)
+                        },
+                        onClickInfo = {
+                            infoText.value = context.getString(R.string.info_bitrate)
+                            openInfoDialog.value = true
+                        }
+                    )
+                }
                 SettingSelector(
                     name = stringResource(id = R.string.channels),
-                    chips = state.value?.recordingSetting?.channelCounts ?: emptyList(),
+                    chips = selectedFormat?.channelCounts ?: emptyList(),
                     onSelect = {
                         viewModel.selectChannelCount(it.value)
                     },

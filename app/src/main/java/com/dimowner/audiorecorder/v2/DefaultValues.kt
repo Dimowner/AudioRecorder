@@ -35,4 +35,8 @@ object DefaultValues {
     val DefaultNameFormat: NameFormat = NameFormat.Record
     val DefaultRecordingFormat: RecordingFormat = RecordingFormat.M4a
     val DefaultSortOrder: SortOrder = SortOrder.DateAsc
+
+    val Default3GpBitRate: Int = 12000 //TODO: Find a better solution for 3Gp bitrate
+    val Default3GpSampleRate: SampleRate = SampleRate.SR16000
+    val Default3GpChannelCount: ChannelCount = ChannelCount.Mono
 }
