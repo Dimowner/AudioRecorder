@@ -1,52 +1,29 @@
-/*
-* Copyright 2024 Dmytro Ponomarenko
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+package com.dimowner.audiorecorder.v2.data.model
 
-package com.dimowner.audiorecorder.v2.data.room
-
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-
-@Entity(tableName = "records")
-@TypeConverters(Converters::class)
-data class RecordEntity(
-    @PrimaryKey val id: Int,
-    @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "duration") val duration: Long,
-    @ColumnInfo(name = "created") val created: Long,
-    @ColumnInfo(name = "added") val added: Long,
-    @ColumnInfo(name = "removed") val removed: Long,
-    @ColumnInfo(name = "path") val path: String,
-    @ColumnInfo(name = "format") val format: String,
-    @ColumnInfo(name = "size") val size: Long,
-    @ColumnInfo(name = "sampleRate") val sampleRate: Int,
-    @ColumnInfo(name = "channelCount") val channelCount: Int,
-    @ColumnInfo(name = "bitrate") val bitrate: Int,
-    @ColumnInfo(name = "isBookmarked") val isBookmarked: Boolean,
-    @ColumnInfo(name = "isWaveformProcessed") val isWaveformProcessed: Boolean,
-    @ColumnInfo(name = "isMovedToRecycle") val isMovedToRecycle: Boolean,
-    @ColumnInfo(name = "amps") val amps: IntArray,
+data class Record(
+    val id: Int,
+    val name: String,
+    val duration: Long,
+    val created: Long,
+    val added: Long,
+    val removed: Long,
+    var path: String,
+    val format: String,
+    val size: Long,
+    val sampleRate: Int,
+    val channelCount: Int,
+    val bitrate: Int,
+    val isBookmarked: Boolean,
+    val isWaveformProcessed: Boolean,
+    val isMovedToRecycle: Boolean,
+    val amps: IntArray,
 ) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as RecordEntity
+        other as Record
 
         if (id != other.id) return false
         if (name != other.name) return false

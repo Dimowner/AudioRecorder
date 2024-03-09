@@ -15,32 +15,17 @@
  */
 package com.dimowner.audiorecorder.v2.records
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.dimowner.audiorecorder.R
-import com.dimowner.audiorecorder.v2.InfoItem
-import com.dimowner.audiorecorder.v2.TitleBar
 
 @Composable
 fun RecordsScreen(
@@ -48,50 +33,45 @@ fun RecordsScreen(
 ) {
 
     val records = listOf(
-        RecordDataItem("Name1", "Description1"),
-        RecordDataItem("Name2", "Description2"),
-        RecordDataItem("Name3", "Description3")
+        RecordDataItem("Name1", "Description1", "1:01"),
+        RecordDataItem("Name2", "Description2", "2:02"),
+        RecordDataItem("Name3", "Description3", "2:03"),
+        RecordDataItem("Name4", "Description4", "2:04"),
+        RecordDataItem("Name5", "Description5", "2:05"),
+        RecordDataItem("Name6", "Description6", "2:06"),
+        RecordDataItem("Name7", "Description7", "2:07"),
+        RecordDataItem("Name8", "Description8", "2:08"),
+        RecordDataItem("Name9", "Description9", "2:09"),
+        RecordDataItem("Name10", "Description10", "2:10"),
+        RecordDataItem("Name11", "Description11", "2:11"),
+        RecordDataItem("Name12", "Description12", "2:12"),
+        RecordDataItem("Name13", "Description13", "2:13"),
+        RecordDataItem("Name14", "Description14", "2:14"),
     )
 
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            TitleBar(
+            RecordsTopBar(
                 stringResource(id = R.string.records),
-                onBackPressed = { navController.popBackStack() }
+                "Sort by",
+                onBackPressed = { navController.popBackStack() },
+                onSortItemClick = {},
+                onBookmarksClick = {}
             )
-            Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .weight(weight = 1f, fill = false)
-            ) {
-                Spacer(modifier = Modifier.size(8.dp))
-                InfoItem(stringResource(R.string.rec_name), "Record-15")
-                InfoItem(stringResource(R.string.rec_format), "Format m4a")
-                Spacer(modifier = Modifier.size(8.dp))
-            }
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(16.dp)
             ) {
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                            .padding(vertical = 25.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            "\uD83C\uDF3F  Plants in Cosmetics",
-                            style = MaterialTheme.typography.headlineMedium
-                        )
-                    }
-                }
-                items(records) { plant ->
-                    InfoItem(label = plant.name, value = plant.description)
+                items(records) { record ->
+                    RecordListItem(
+                        name = record.name,
+                        details = record.description,
+                        duration = record.duration,
+                        onClickItem = {},
+                        onClickBookmark = {},
+                        onClickMenu = {},
+                    )
                 }
             }
         }
@@ -101,4 +81,5 @@ fun RecordsScreen(
 data class RecordDataItem(
     val name: String,
     val description: String,
+    val duration: String,
 )
