@@ -36,7 +36,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class AccountInfoActivityTest {
+class PrefsImplTest {
 
     private lateinit var prefs: PrefsV2Impl
 
@@ -53,7 +53,7 @@ class AccountInfoActivityTest {
 
     @Test
     fun test_fullPreferenceReset() {
-        val id = 101L
+        val id = 101
 
         prefs.confirmFirstRunExecuted()
         prefs.activeRecordId = id
@@ -89,16 +89,16 @@ class AccountInfoActivityTest {
     fun test_activeRecordId() {
         assertEquals(-1, prefs.activeRecordId)
 
-        prefs.activeRecordId = 303L
+        prefs.activeRecordId = 303
         assertEquals(303L, prefs.activeRecordId)
     }
 
     @Test
     fun test_recordCounter() {
-        assertEquals(0, prefs.recordCounter)
+        assertEquals(1, prefs.recordCounter)
 
         prefs.incrementRecordCounter()
-        assertEquals(1, prefs.recordCounter)
+        assertEquals(2, prefs.recordCounter)
     }
 
     @Test

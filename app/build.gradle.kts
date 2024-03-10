@@ -79,6 +79,11 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
+    packaging {
+        resources.excludes.addAll(
+            listOf("META-INF/LICENSE.md", "META-INF/LICENSE-notice.md")
+        )
+    }
 }
 
 dependencies {
@@ -116,6 +121,8 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.androidx.junit.ktx)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    androidTestImplementation(libs.mockk)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }

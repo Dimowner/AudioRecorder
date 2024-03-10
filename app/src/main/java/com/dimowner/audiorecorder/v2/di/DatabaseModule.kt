@@ -16,11 +16,8 @@
 package com.dimowner.audiorecorder.v2.di
 
 import android.content.Context
-import com.dimowner.audiorecorder.v2.data.PrefsV2
-import com.dimowner.audiorecorder.v2.data.PrefsV2Impl
 import com.dimowner.audiorecorder.v2.data.room.AppDatabase
 import com.dimowner.audiorecorder.v2.data.room.RecordDao
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -42,13 +39,4 @@ class DatabaseModule {
     fun providePlantDao(appDatabase: AppDatabase): RecordDao {
         return appDatabase.recordDao()
     }
-}
-
-@InstallIn(SingletonComponent::class)
-@Module
-abstract class PrefsModule {
-
-    @Singleton
-    @Binds
-    abstract fun bindPrefs(impl: PrefsV2Impl): PrefsV2
 }

@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
@@ -34,7 +35,8 @@ import androidx.navigation.compose.rememberNavController
 fun HomeScreen(
     navController: NavHostController,
     showRecordsScreen: () -> Unit,
-    showSettingsScreen: () -> Unit
+    showSettingsScreen: () -> Unit,
+    viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
 

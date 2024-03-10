@@ -39,4 +39,6 @@ object DefaultValues {
     val Default3GpBitRate: Int = 12000 //TODO: Find a better solution for 3Gp bitrate
     val Default3GpSampleRate: SampleRate = SampleRate.SR16000
     val Default3GpChannelCount: ChannelCount = ChannelCount.Mono
+
+    const val DELETED_RECORD_MARK = ".deleted"
 }

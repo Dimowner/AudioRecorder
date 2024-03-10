@@ -1,9 +1,24 @@
+/*
+* Copyright 2024 Dmytro Ponomarenko
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 package com.dimowner.audiorecorder.v2.settings
 
 import android.content.Context
 import android.os.Parcelable
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -11,11 +26,11 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.v2.DefaultValues
 import com.dimowner.audiorecorder.v2.data.PrefsV2
+import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
-import com.dimowner.audiorecorder.v2.data.room.RecordDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -30,9 +45,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+//    savedStateHandle: SavedStateHandle,
     private val prefs: PrefsV2,
-    private val recordDao: RecordDao, //TODO: Use repository instead of DAO
+    private val recordsDataSource: RecordsDataSource,
     @ApplicationContext context: Context,
 ) : ViewModel() {
 
@@ -114,8 +129,8 @@ class SettingsViewModel @Inject constructor(
 
     fun initSettings() {
         viewModelScope.launch(Dispatchers.IO) {//TODO: Use Injected Dispatcher
-            val recordsCount = recordDao.getRecordsCount()
-            val recordsDuration = recordDao.getRecordTotalDuration()
+            val recordsCount = recordsDataSource.getRecordsCount()
+            val recordsDuration = recordsDataSource.getRecordTotalDuration()
             withContext(Dispatchers.Main) {//TODO: Use Injected Dispatcher
                 _state.update {
                     it.copy(totalRecordCount = recordsCount, totalRecordDuration = recordsDuration)

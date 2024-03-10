@@ -26,6 +26,7 @@ room = "2.6.1"
 viewpager2 = "1.0.0"
 timber = "5.0.1"
 junitKtx = "1.1.5"
+mockkVersion = "1.13.10"
 exoPlayer = "2.19.1"
 appcompat = "1.6.1"
 fragment = "1.6.1"
@@ -76,6 +77,7 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
+mockk = { module = "io.mockk:mockk-android", version.ref = "mockkVersion" }
 #androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 #androidx-fragment = { group = "androidx.fragment:fragment-ktx:", version.ref = "fragment" }
 

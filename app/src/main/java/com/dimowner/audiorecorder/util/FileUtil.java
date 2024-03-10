@@ -594,8 +594,11 @@ public class FileUtil {
 					ok &= deleteRecursivelyDirs(new File(file, children[i]));
 				}
 			}
-			if (ok && file.delete()) {
-				Log.d(LOG_TAG, "File deleted: " + file.getAbsolutePath());
+			if (ok) {
+				ok = file.delete();
+				if (ok) {
+					Log.d(LOG_TAG, "File deleted: " + file.getAbsolutePath());
+				}
 			}
 		}
 		return ok;
