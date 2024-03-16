@@ -1,4 +1,4 @@
-package com.dimowner.audiorecorder.v2.info
+package com.dimowner.audiorecorder.v2.app.info
 
 import android.os.Build
 import android.os.Bundle

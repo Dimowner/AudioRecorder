@@ -95,6 +95,7 @@ dependencies {
     implementation(libs.androidx.viewpager2)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.documentfile)
     implementation(libs.hilt.android)
     implementation(libs.exoplayer.core)
     implementation(libs.exoplayer.ui)

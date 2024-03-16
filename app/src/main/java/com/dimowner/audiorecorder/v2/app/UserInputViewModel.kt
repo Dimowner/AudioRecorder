@@ -1,4 +1,4 @@
-package com.dimowner.audiorecorder.v2
+package com.dimowner.audiorecorder.v2.app
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel

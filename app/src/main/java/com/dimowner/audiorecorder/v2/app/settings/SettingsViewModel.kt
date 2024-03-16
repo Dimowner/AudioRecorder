@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.dimowner.audiorecorder.v2.settings
+package com.dimowner.audiorecorder.v2.app.settings
 
 import android.content.Context
 import android.os.Parcelable

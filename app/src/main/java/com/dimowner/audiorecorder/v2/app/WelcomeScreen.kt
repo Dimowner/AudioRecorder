@@ -1,4 +1,4 @@
-package com.dimowner.audiorecorder.v2
+package com.dimowner.audiorecorder.v2.app
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

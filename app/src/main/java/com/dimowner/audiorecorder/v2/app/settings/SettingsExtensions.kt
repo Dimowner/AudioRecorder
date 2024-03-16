@@ -1,4 +1,4 @@
-package com.dimowner.audiorecorder.v2.settings
+package com.dimowner.audiorecorder.v2.app.settings
 
 import android.content.ActivityNotFoundException
 import android.content.Context

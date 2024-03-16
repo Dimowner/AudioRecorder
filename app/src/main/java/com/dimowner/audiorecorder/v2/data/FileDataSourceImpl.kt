@@ -29,8 +29,11 @@ import com.dimowner.audiorecorder.v2.data.extensions.requestAllocateSpace
 import com.dimowner.audiorecorder.v2.data.extensions.unmarkFileAsDeleted
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class FileDataSourceImpl(
+@Singleton
+class FileDataSourceImpl @Inject internal constructor(
     @ApplicationContext context: Context
 ): FileDataSource {
 

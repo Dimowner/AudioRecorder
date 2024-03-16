@@ -1,4 +1,4 @@
-package com.dimowner.audiorecorder.v2.settings
+package com.dimowner.audiorecorder.v2.app.settings
 
 import android.os.Parcelable
 import androidx.compose.animation.animateContentSize
@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
-import com.dimowner.audiorecorder.v2.InfoAlertDialog
+import com.dimowner.audiorecorder.v2.app.InfoAlertDialog
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 
 @Composable

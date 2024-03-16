@@ -22,7 +22,7 @@ interface RecordsDataSource {
 
     suspend fun getActiveRecord(): Record?
 
-    suspend fun insertRecord(record: Record)
+    suspend fun insertRecord(record: Record): Long
 
     suspend fun getRecordsCount(): Int
 

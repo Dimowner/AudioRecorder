@@ -1,9 +1,9 @@
-package com.dimowner.audiorecorder.v2.records
+package com.dimowner.audiorecorder.v2.app.records
 
 import com.dimowner.audiorecorder.R
-import com.dimowner.audiorecorder.v2.records.models.DropDownMenuItem
-import com.dimowner.audiorecorder.v2.records.models.RecordDropDownMenuItemId
-import com.dimowner.audiorecorder.v2.records.models.SortDropDownMenuItemId
+import com.dimowner.audiorecorder.v2.app.DropDownMenuItem
+import com.dimowner.audiorecorder.v2.app.records.models.RecordDropDownMenuItemId
+import com.dimowner.audiorecorder.v2.app.records.models.SortDropDownMenuItemId
 
 fun getRecordsDroDownMenuItems(): List<DropDownMenuItem<RecordDropDownMenuItemId>> {
     return RecordDropDownMenuItemId.entries.map {

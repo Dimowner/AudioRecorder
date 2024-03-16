@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dimowner.audiorecorder.v2.home
+package com.dimowner.audiorecorder.v2.app.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,6 +34,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -46,9 +49,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
+import com.dimowner.audiorecorder.v2.app.RecordsDropDownMenu
+import timber.log.Timber
 
 @Composable
-fun TopAppBar(onImportClick: () -> Unit, onMoreClick: () -> Unit) {
+fun TopAppBar(
+    onImportClick: () -> Unit,
+    onHomeMenuItemClick: (HomeDropDownMenuItemId) -> Unit,
+) {
+    val expanded = remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .height(60.dp)
@@ -89,21 +99,30 @@ fun TopAppBar(onImportClick: () -> Unit, onMoreClick: () -> Unit) {
                 )
             ),
         )
-        FilledIconButton(
-            onClick = onMoreClick,
-            modifier = Modifier
-                .padding(8.dp)
-                .align(Alignment.CenterVertically),
-            colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
+
+        Box {
+            RecordsDropDownMenu(
+                items = remember { getHomeDroDownMenuItems() },
+                onItemClick = { itemId ->
+                    onHomeMenuItemClick(itemId)
+                    Timber.v("On Drop Down Menu item click id = $itemId")
+                },
+                expanded = expanded
             )
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_more_vert),
-                contentDescription = stringResource(id = androidx.compose.ui.R.string.dropdown_menu),
-                modifier = Modifier.size(24.dp)
-            )
+            FilledIconButton(
+                onClick = { expanded.value = true },
+                modifier = Modifier.padding(8.dp),
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_more_vert),
+                    contentDescription = stringResource(id = androidx.compose.ui.R.string.dropdown_menu),
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
     }
 }

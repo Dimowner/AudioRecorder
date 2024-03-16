@@ -1,4 +1,4 @@
-package com.dimowner.audiorecorder.v2
+package com.dimowner.audiorecorder.v2.app
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -24,6 +25,8 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -32,6 +35,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.Font
@@ -346,4 +351,80 @@ fun InfoAlertDialog(
     )
 }
 
+@Composable
+fun DropDownMenuItem(
+    text: String,
+    iconRes: Int,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .clickable { onClick() },
+    ) {
+        Icon(
+            modifier = Modifier
+                .padding(16.dp)
+                .wrapContentWidth()
+                .wrapContentHeight(),
+            painter = painterResource(id = iconRes),
+            contentDescription = text,
+        )
+        Text(
+            modifier = Modifier
+                .padding(0.dp, 16.dp, 16.dp, 16.dp)
+                .wrapContentSize(),
+            text = text,
+            fontSize = 18.sp,
+            fontFamily = FontFamily(
+                Font(
+                    DeviceFontFamilyName("sans-serif"),
+                    weight = FontWeight.Light
+                )
+            ),
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DropDownMenuItemPreview() {
+    DropDownMenuItem("Label", R.drawable.ic_palette_outline, {})
+}
+
+@Composable
+fun <T> RecordsDropDownMenu(
+    items: List<DropDownMenuItem<T>>,
+    onItemClick: (T) -> Unit,
+    expanded: MutableState<Boolean>
+) {
+    DropdownMenu(
+        modifier = Modifier.wrapContentSize(),
+        expanded = expanded.value,
+        onDismissRequest = { expanded.value = false }
+    ) {
+        items.forEach { item ->
+            DropdownMenuItem(
+                onClick = {},
+                text = {
+                    DropDownMenuItem(
+                        text = stringResource(id = item.textResId),
+                        iconRes = item.imageResId,
+                        onClick = {
+                            onItemClick(item.id)
+                            expanded.value = false
+                        }
+                    )
+                }
+            )
+        }
+    }
+}
+
+data class DropDownMenuItem<T>(
+    val id: T,
+    val textResId: Int,
+    val imageResId: Int
+)
 

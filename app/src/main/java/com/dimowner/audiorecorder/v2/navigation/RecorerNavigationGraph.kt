@@ -15,15 +15,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.dimowner.audiorecorder.v2.ComposePlaygroundScreen
-import com.dimowner.audiorecorder.v2.UserInputViewModel
-import com.dimowner.audiorecorder.v2.WelcomeScreen
-import com.dimowner.audiorecorder.v2.home.HomeScreen
-import com.dimowner.audiorecorder.v2.info.AssetParamType
-import com.dimowner.audiorecorder.v2.info.RecordInfoState
-import com.dimowner.audiorecorder.v2.info.RecordInfoScreen
-import com.dimowner.audiorecorder.v2.records.RecordsScreen
-import com.dimowner.audiorecorder.v2.settings.SettingsScreen
+import com.dimowner.audiorecorder.v2.app.ComposePlaygroundScreen
+import com.dimowner.audiorecorder.v2.app.UserInputViewModel
+import com.dimowner.audiorecorder.v2.app.WelcomeScreen
+import com.dimowner.audiorecorder.v2.app.home.HomeScreen
+import com.dimowner.audiorecorder.v2.app.info.AssetParamType
+import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
+import com.dimowner.audiorecorder.v2.app.info.RecordInfoScreen
+import com.dimowner.audiorecorder.v2.app.records.RecordsScreen
+import com.dimowner.audiorecorder.v2.app.settings.SettingsScreen
 
 private const val ANIMATION_DURATION = 120
 
@@ -58,9 +58,12 @@ fun RecorderNavigationGraph(userInputViewModel: UserInputViewModel = viewModel()
             )
         }
         composable(Routes.HOME_SCREEN) {
-            HomeScreen(navController,
+            HomeScreen(
                 showRecordsScreen = { navController.navigate(Routes.RECORDS_SCREEN) },
-                showSettingsScreen = { navController.navigate(Routes.SETTINGS_SCREEN) }
+                showSettingsScreen = { navController.navigate(Routes.SETTINGS_SCREEN) },
+                showRecordInfoScreen = { json ->
+                    navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
+                },
             )
         }
         composable(Routes.RECORDS_SCREEN) {

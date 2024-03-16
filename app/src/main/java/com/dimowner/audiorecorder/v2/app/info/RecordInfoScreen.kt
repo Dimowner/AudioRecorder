@@ -1,4 +1,4 @@
-package com.dimowner.audiorecorder.v2.info
+package com.dimowner.audiorecorder.v2.app.info
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,8 +15,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dimowner.audiorecorder.R
-import com.dimowner.audiorecorder.v2.InfoItem
-import com.dimowner.audiorecorder.v2.TitleBar
+import com.dimowner.audiorecorder.v2.app.InfoItem
+import com.dimowner.audiorecorder.v2.app.TitleBar
 
 @Composable
 fun RecordInfoScreen(
@@ -38,6 +38,20 @@ fun RecordInfoScreen(
                     .weight(weight = 1f, fill = false)
             ) {
                 Spacer(modifier = Modifier.size(8.dp))
+
+                //TODO: Fix Record info display
+//                val recordInfo = RecordInfoState(
+//                    name = "name666",
+//                    format = "format777",
+//                    duration = TimeUtils.formatTimeIntervalHourMinSec2(150000000/1000),
+//                    size = ARApplication.injector.provideSettingsMapper(context).formatSize(1500000),
+//                    location = "location888",
+//                    created = TimeUtils.formatDateTimeLocale(System.currentTimeMillis()),
+//                    sampleRate = stringResource(R.string.value_hz, 44000),
+//                    channelCount = stringResource(R.string.mono),
+//                    bitrate = stringResource(R.string.value_kbps, 240000/1000),
+//                )
+
                 InfoItem(stringResource(R.string.rec_name), recordInfo?.name ?: "")
                 InfoItem(stringResource(R.string.rec_format), recordInfo?.format ?: "")
                 InfoItem(stringResource(R.string.bitrate), recordInfo?.bitrate.toString())

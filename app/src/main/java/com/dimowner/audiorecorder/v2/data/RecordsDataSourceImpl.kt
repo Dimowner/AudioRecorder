@@ -35,8 +35,8 @@ class RecordsDataSourceImpl @Inject internal constructor(
         }
     }
 
-    override suspend fun insertRecord(record: Record) {
-        recordDao.insertRecord(record.toRecordEntity())
+    override suspend fun insertRecord(record: Record): Long {
+        return recordDao.insertRecord(record.toRecordEntity())
     }
 
     override suspend fun getRecordsCount(): Int {

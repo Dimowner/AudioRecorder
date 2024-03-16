@@ -31,6 +31,7 @@ exoPlayer = "2.19.1"
 appcompat = "1.6.1"
 fragment = "1.6.1"
 gson = "2.10.1"
+documentfile = "1.0.1"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -78,6 +79,7 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
 mockk = { module = "io.mockk:mockk-android", version.ref = "mockkVersion" }
+androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
 #androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 #androidx-fragment = { group = "androidx.fragment:fragment-ktx:", version.ref = "fragment" }
 

@@ -1,4 +1,4 @@
-package com.dimowner.audiorecorder.v2.settings
+package com.dimowner.audiorecorder.v2.app.settings
 
 import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
@@ -22,7 +22,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dimowner.audiorecorder.R
-import com.dimowner.audiorecorder.v2.TitleBar
+import com.dimowner.audiorecorder.util.TimeUtils
+import com.dimowner.audiorecorder.v2.app.TitleBar
 
 @Composable
 fun SettingsScreen(
@@ -172,7 +173,8 @@ fun SettingsScreen(
                 InfoTextView(
                     stringResource(
                         id = R.string.total_duration,
-                        (state.value?.totalRecordDuration ?: "")
+                        TimeUtils.formatTimeIntervalHourMinSec((state.value?.totalRecordDuration ?: 1) / 1000)
+//                        (state.value?.totalRecordDuration ?: "")
                     )
                 )
                 InfoTextView(

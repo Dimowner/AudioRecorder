@@ -1,4 +1,4 @@
-package com.dimowner.audiorecorder.v2.settings
+package com.dimowner.audiorecorder.v2.app.settings
 
 import android.os.Parcelable
 import com.dimowner.audiorecorder.v2.data.model.BitRate

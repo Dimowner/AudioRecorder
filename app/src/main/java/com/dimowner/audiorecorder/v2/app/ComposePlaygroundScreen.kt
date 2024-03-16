@@ -1,4 +1,4 @@
-package com.dimowner.audiorecorder.v2
+package com.dimowner.audiorecorder.v2.app
 
 import android.content.Intent
 import android.net.Uri
@@ -27,21 +27,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.dimowner.audiorecorder.ARApplication
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.main.MainActivity
-import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
-import com.dimowner.audiorecorder.v2.info.RecordInfoState
-import com.dimowner.audiorecorder.v2.settings.ChipItem
-import com.dimowner.audiorecorder.v2.settings.SettingSelector
+import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
+import com.dimowner.audiorecorder.v2.app.settings.ChipItem
+import com.dimowner.audiorecorder.v2.app.settings.SettingSelector
 import com.google.gson.Gson
 import timber.log.Timber
 
@@ -60,13 +57,13 @@ fun ComposePlaygroundScreen(
     val recordInfo = RecordInfoState(
         name = "name666",
         format = "format777",
-        duration = TimeUtils.formatTimeIntervalHourMinSec2(150000000/1000),
-        size = ARApplication.injector.provideSettingsMapper(context).formatSize(1500000),
+        duration = 150000000,
+        size = 1500000,
         location = "location888",
-        created = TimeUtils.formatDateTimeLocale(System.currentTimeMillis()),
-        sampleRate = stringResource(R.string.value_hz, 44000),
-        channelCount = stringResource(R.string.mono),
-        bitrate = stringResource(R.string.value_kbps, 240000/1000),
+        created = System.currentTimeMillis(),
+        sampleRate = 44000,
+        channelCount = 1,
+        bitrate = 240000,
     )
 
     Surface(

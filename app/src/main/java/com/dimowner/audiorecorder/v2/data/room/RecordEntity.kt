@@ -24,7 +24,7 @@ import androidx.room.TypeConverters
 @Entity(tableName = "records")
 @TypeConverters(Converters::class)
 data class RecordEntity(
-    @PrimaryKey val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "duration") val duration: Long,
     @ColumnInfo(name = "created") val created: Long,
