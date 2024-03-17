@@ -21,6 +21,7 @@ import kotlinx.parcelize.Parcelize
 /**
  * Bitrate in Kbps (thousands bits per second)
  */
+@SuppressWarnings("MagicNumber")
 @Parcelize
 enum class BitRate(val value: Int, val index: Int): Parcelable {
     BR48(48000, 0),
@@ -31,11 +32,10 @@ enum class BitRate(val value: Int, val index: Int): Parcelable {
 }
 
 fun Int.convertToBitRate(): BitRate? {
-    if (this == BitRate.BR48.value) return BitRate.BR48
-    if (this == BitRate.BR96.value) return BitRate.BR96
-    if (this == BitRate.BR128.value) return BitRate.BR128
-    if (this == BitRate.BR192.value) return BitRate.BR192
-    if (this == BitRate.BR256.value) return BitRate.BR256
-
-    return null
+    return if (this == BitRate.BR48.value) BitRate.BR48
+    else if (this == BitRate.BR96.value) BitRate.BR96
+    else if (this == BitRate.BR128.value) BitRate.BR128
+    else if (this == BitRate.BR192.value) BitRate.BR192
+    else if (this == BitRate.BR256.value) BitRate.BR256
+    else null
 }

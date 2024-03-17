@@ -1,9 +1,25 @@
+/*
+ * Copyright 2024 Dmytro Ponomarenko
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dimowner.audiorecorder.v2.data.model
 
 data class Record(
     val id: Int,
     val name: String,
-    val duration: Long,
+    val durationMills: Long,
     val created: Long,
     val added: Long,
     val removed: Long,
@@ -19,6 +35,7 @@ data class Record(
     val amps: IntArray,
 ) {
 
+    @SuppressWarnings("CyclomaticComplexMethod")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -27,7 +44,7 @@ data class Record(
 
         if (id != other.id) return false
         if (name != other.name) return false
-        if (duration != other.duration) return false
+        if (durationMills != other.durationMills) return false
         if (created != other.created) return false
         if (added != other.added) return false
         if (removed != other.removed) return false
@@ -46,7 +63,7 @@ data class Record(
     override fun hashCode(): Int {
         var result = id
         result = 31 * result + name.hashCode()
-        result = 31 * result + duration.hashCode()
+        result = 31 * result + durationMills.hashCode()
         result = 31 * result + created.hashCode()
         result = 31 * result + added.hashCode()
         result = 31 * result + removed.hashCode()

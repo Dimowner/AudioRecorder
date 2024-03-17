@@ -24,9 +24,8 @@ enum class RecordingFormat(val value: String, val index: Int) : Parcelable {
 }
 
 fun String.convertToRecordingFormat(): RecordingFormat? {
-    if (this.equals(RecordingFormat.M4a.value, true)) return RecordingFormat.M4a
-    if (this.equals(RecordingFormat.Wav.value, true)) return RecordingFormat.Wav
-    if (this.equals(RecordingFormat.ThreeGp.value, true)) return RecordingFormat.ThreeGp
-
-    return null
+    return if (this.equals(RecordingFormat.M4a.value, true)) RecordingFormat.M4a
+    else if (this.equals(RecordingFormat.Wav.value, true)) RecordingFormat.Wav
+    else if (this.equals(RecordingFormat.ThreeGp.value, true)) RecordingFormat.ThreeGp
+    else null
 }

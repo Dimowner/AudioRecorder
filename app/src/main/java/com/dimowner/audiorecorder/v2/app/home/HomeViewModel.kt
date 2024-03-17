@@ -20,26 +20,32 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.ParcelFileDescriptor
+import android.text.format.Formatter
+import androidx.compose.runtime.mutableStateOf
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dimowner.audiorecorder.ARApplication
+import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.audio.AudioDecoder
 import com.dimowner.audiorecorder.exception.CantCreateFileException
 import com.dimowner.audiorecorder.util.FileUtil
+import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
-import com.dimowner.audiorecorder.v2.data.model.Record
+import com.dimowner.audiorecorder.v2.app.recordInfoCombinedShortText
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.data.model.Record
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
@@ -55,8 +61,34 @@ class HomeViewModel @Inject constructor(
     @ApplicationContext context: Context,
 ) : ViewModel() {
 
+    val uiState = mutableStateOf(HomeScreenState())
+
     private val _event = MutableSharedFlow<HomeScreenEvent?>()
     val event: SharedFlow<HomeScreenEvent?> = _event
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            val activeRecord = recordsDataSource.getActiveRecord()
+            if (activeRecord != null) {
+                withContext(Dispatchers.Main) {
+                    uiState.value = HomeScreenState(
+                        startTime = context.getString(R.string.zero_time),
+                        endTime = TimeUtils.formatTimeIntervalHourMinSec2(activeRecord.durationMills),
+                        time = context.getString(R.string.zero_time),
+                        recordName = activeRecord.name,
+                        recordInfo = recordInfoCombinedShortText(
+                            recordingFormat = activeRecord.format,
+                            recordSizeText = Formatter.formatShortFileSize(context, activeRecord.size),
+                            sampleRateText = context.getString(
+                                R.string.value_hz,
+                                activeRecord.sampleRate
+                            ),
+                        ),
+                    )
+                }
+            }
+        }
+    }
 
     @SuppressLint("Recycle")
     fun importAudioFile(context: Context, uri: Uri) {
@@ -71,11 +103,12 @@ class HomeViewModel @Inject constructor(
                     if (FileUtil.copyFile(fileDescriptor, newFile)) { //TODO: Fix
                         val info = AudioDecoder.readRecordInfo(newFile)
 
-                        //Do 2 step import: 1) Import record with empty waveform. 2) Process and update waveform in background.
+                        //Do 2 step import: 1) Import record with empty waveform.
+                        //2) Process and update waveform in background.
                         val record = Record(
                             0,
                             FileUtil.removeFileExtension(newFile.name), //TODO: Fix
-                            if (info.duration >= 0) info.duration else 0,
+                            if (info.duration >= 0) info.duration/1000 else 0,
                             newFile.lastModified(),
                             Date().time, Long.MAX_VALUE,
                             newFile.absolutePath,
@@ -84,9 +117,9 @@ class HomeViewModel @Inject constructor(
                             info.sampleRate,
                             info.channelCount,
                             info.bitrate,
-                            false,
-                            false,
-                            false,
+                            isBookmarked = false,
+                            isWaveformProcessed = false,
+                            isMovedToRecycle = false,
                             IntArray(ARApplication.longWaveformSampleCount),
                         )
                         val id = recordsDataSource.insertRecord(record)
@@ -144,6 +177,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 }
+
+data class HomeScreenState(
+    val startTime: String = "",
+    val endTime: String = "",
+    val time: String = "",
+    val recordName: String = "",
+    val recordInfo: String = "",
+)
 
 sealed class HomeScreenEvent {
     data object ShowImportErrorError : HomeScreenEvent()

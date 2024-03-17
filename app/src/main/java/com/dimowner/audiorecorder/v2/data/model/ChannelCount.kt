@@ -25,8 +25,7 @@ enum class ChannelCount(val value: Int, val index: Int): Parcelable {
 }
 
 fun Int.convertToChannelCount(): ChannelCount? {
-    if (this == ChannelCount.Mono.value) return ChannelCount.Mono
-    if (this == ChannelCount.Stereo.value) return ChannelCount.Stereo
-
-    return null
+    return if (this == ChannelCount.Mono.value) ChannelCount.Mono
+    else if (this == ChannelCount.Stereo.value) ChannelCount.Stereo
+    else null
 }

@@ -50,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.RecordsDropDownMenu
-import timber.log.Timber
 
 @Composable
 fun TopAppBar(
@@ -105,7 +104,6 @@ fun TopAppBar(
                 items = remember { getHomeDroDownMenuItems() },
                 onItemClick = { itemId ->
                     onHomeMenuItemClick(itemId)
-                    Timber.v("On Drop Down Menu item click id = $itemId")
                 },
                 expanded = expanded
             )

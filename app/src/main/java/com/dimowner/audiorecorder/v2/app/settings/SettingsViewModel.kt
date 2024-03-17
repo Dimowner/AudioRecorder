@@ -25,6 +25,11 @@ import androidx.lifecycle.viewModelScope
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.v2.DefaultValues
+import com.dimowner.audiorecorder.v2.app.formatBitRate
+import com.dimowner.audiorecorder.v2.app.formatChannelCount
+import com.dimowner.audiorecorder.v2.app.formatRecordingFormat
+import com.dimowner.audiorecorder.v2.app.formatSampleRate
+import com.dimowner.audiorecorder.v2.app.recordingSettingsCombinedText
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
@@ -112,8 +117,11 @@ class SettingsViewModel @Inject constructor(
                 )
             ),
             recordingSettingsText = recordingSettingsCombinedText(
-                formatsStrings, sampleRateStrings, bitRateStrings, channelCountsStrings,
-                selectedFormat, selectedSampleRate, selectedBitRate, selectedChannelCount
+                selectedFormat,
+                formatRecordingFormat(formatsStrings, selectedFormat),
+                formatSampleRate(sampleRateStrings, selectedSampleRate),
+                formatBitRate(bitRateStrings, selectedBitRate),
+                formatChannelCount(channelCountsStrings, selectedChannelCount),
             ),
             rateAppLink = "link",//TODO: Fix hardcoded value
             feedbackEmail = "email",//TODO: Fix hardcoded value
@@ -176,7 +184,9 @@ class SettingsViewModel @Inject constructor(
         _state.update {
             it.copy(recordingSettings = it.recordingSettings.map { formatSetting ->
                     RecordingSetting(
-                        recordingFormat = formatSetting.recordingFormat.updateSelected(DefaultValues.DefaultRecordingFormat),
+                        recordingFormat = formatSetting.recordingFormat.updateSelected(
+                            DefaultValues.DefaultRecordingFormat
+                        ),
                         sampleRates = getSampleRates(
                             DefaultValues.DefaultRecordingFormat,
                             DefaultValues.DefaultSampleRate,
@@ -345,15 +355,12 @@ class SettingsViewModel @Inject constructor(
                 )
             ),
             recordingSettingsText = recordingSettingsCombinedText(
-                formatsStrings,
-                sampleRateStrings,
-                bitRateStrings,
-                channelCountsStrings,
                 settings?.recordingFormat?.value,
-                settings?.sampleRates?.firstOrNull { it.isSelected }?.value,
-                settings?.bitRates?.firstOrNull { it.isSelected }?.value,
-                settings?.channelCounts?.firstOrNull { it.isSelected }?.value,
-            ),
+                formatRecordingFormat(formatsStrings, settings?.recordingFormat?.value),
+                formatSampleRate(sampleRateStrings, settings?.sampleRates?.firstOrNull { it.isSelected }?.value),
+                formatBitRate(bitRateStrings, settings?.bitRates?.firstOrNull { it.isSelected }?.value),
+                formatChannelCount(channelCountsStrings, settings?.channelCounts?.firstOrNull { it.isSelected }?.value),
+            )
         )
     }
 

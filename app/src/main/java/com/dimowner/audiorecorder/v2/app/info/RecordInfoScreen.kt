@@ -1,5 +1,22 @@
+/*
+ * Copyright 2024 Dmytro Ponomarenko
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dimowner.audiorecorder.v2.app.info
 
+import android.text.format.Formatter
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,14 +24,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dimowner.audiorecorder.R
+import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.InfoItem
 import com.dimowner.audiorecorder.v2.app.TitleBar
 
@@ -23,6 +45,7 @@ fun RecordInfoScreen(
     navController: NavHostController,
     recordInfo: RecordInfoState?
 ) {
+    val context = LocalContext.current
 
     Surface(
         modifier = Modifier.fillMaxSize()
@@ -38,35 +61,56 @@ fun RecordInfoScreen(
                     .weight(weight = 1f, fill = false)
             ) {
                 Spacer(modifier = Modifier.size(8.dp))
-
-                //TODO: Fix Record info display
-//                val recordInfo = RecordInfoState(
-//                    name = "name666",
-//                    format = "format777",
-//                    duration = TimeUtils.formatTimeIntervalHourMinSec2(150000000/1000),
-//                    size = ARApplication.injector.provideSettingsMapper(context).formatSize(1500000),
-//                    location = "location888",
-//                    created = TimeUtils.formatDateTimeLocale(System.currentTimeMillis()),
-//                    sampleRate = stringResource(R.string.value_hz, 44000),
-//                    channelCount = stringResource(R.string.mono),
-//                    bitrate = stringResource(R.string.value_kbps, 240000/1000),
-//                )
-
-                InfoItem(stringResource(R.string.rec_name), recordInfo?.name ?: "")
-                InfoItem(stringResource(R.string.rec_format), recordInfo?.format ?: "")
-                InfoItem(stringResource(R.string.bitrate), recordInfo?.bitrate.toString())
-                InfoItem(stringResource(R.string.channels), recordInfo?.channelCount.toString())
-                InfoItem(stringResource(R.string.sample_rate), recordInfo?.sampleRate.toString())
-                InfoItem(stringResource(R.string.rec_duration), recordInfo?.duration.toString())
-                InfoItem(stringResource(R.string.rec_size), recordInfo?.size.toString())
-                InfoItem(stringResource(R.string.rec_location), recordInfo?.location ?: "")
-                InfoItem(stringResource(R.string.rec_created), recordInfo?.created.toString())
+                if (recordInfo != null) {
+                    InfoItem(stringResource(R.string.rec_name), recordInfo.name)
+                    InfoItem(stringResource(R.string.rec_format), recordInfo.format)
+                    if (recordInfo.bitrate > 0) {
+                        InfoItem(
+                            stringResource(R.string.bitrate),
+                            stringResource(id = R.string.value_kbps, recordInfo.bitrate / 1000)
+                        )
+                    }
+                    InfoItem(
+                        stringResource(R.string.channels),
+                        stringResource(
+                            when (recordInfo.channelCount) {
+                                1 -> R.string.mono
+                                2 -> R.string.stereo
+                                else -> R.string.empty
+                            }
+                        )
+                    )
+                    InfoItem(
+                        stringResource(R.string.sample_rate),
+                        stringResource(id = R.string.value_hz, recordInfo.sampleRate)
+                    )
+                    if (recordInfo.duration > 0) {
+                        InfoItem(
+                            stringResource(R.string.rec_duration),
+                            TimeUtils.formatTimeIntervalHourMinSec2(recordInfo.duration)
+                        )
+                    }
+                    InfoItem(
+                        stringResource(R.string.rec_size),
+                        Formatter.formatShortFileSize(context, recordInfo.size)
+                    )
+                    InfoItem(stringResource(R.string.rec_location), recordInfo.location)
+                    InfoItem(
+                        stringResource(R.string.rec_created),
+                        TimeUtils.formatDateTimeLocale(recordInfo.created)
+                    )
+                } else {
+                    Text(
+                        modifier = Modifier.fillMaxSize().align(Alignment.CenterHorizontally),
+                        text = stringResource(id = R.string.error_unknown),
+                        textAlign = TextAlign.Center
+                    )
+                }
                 Spacer(modifier = Modifier.size(8.dp))
             }
         }
     }
 }
-
 
 @Preview
 @Composable

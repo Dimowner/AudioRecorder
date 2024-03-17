@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Dmytro Ponomarenko
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.dimowner.audiorecorder.v2.app.settings
 
 import android.content.ActivityNotFoundException
@@ -75,6 +91,7 @@ fun rateApp(context: Context) {
         val rateIntent = rateIntentForUrl("market://details", context)
         context.startActivity(rateIntent)
     } catch (e: ActivityNotFoundException) {
+        Timber.e(e)
         val rateIntent = rateIntentForUrl("https://play.google.com/store/apps/details", context)
         context.startActivity(rateIntent)
     }
@@ -115,7 +132,9 @@ fun Spanned.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
             is StyleSpan -> when (span.style) {
                 Typeface.BOLD -> addStyle(SpanStyle(fontWeight = FontWeight.Bold), start, end)
                 Typeface.ITALIC -> addStyle(SpanStyle(fontStyle = FontStyle.Italic), start, end)
-                Typeface.BOLD_ITALIC -> addStyle(SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic), start, end)
+                Typeface.BOLD_ITALIC -> {
+                    addStyle(SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic), start, end)
+                }
             }
             is UnderlineSpan -> addStyle(SpanStyle(textDecoration = TextDecoration.Underline), start, end)
             is ForegroundColorSpan -> addStyle(SpanStyle(color = Color(span.foregroundColor)), start, end)
@@ -139,37 +158,7 @@ fun SampleRate.convertToText(channelCountStrings: Array<String>): String {
     return channelCountStrings[this.index]
 }
 
-fun recordingSettingsCombinedText(
-    formatStrings: Array<String>,
-    sampleRateStrings: Array<String>,
-    bitrateStrings: Array<String>,
-    channelCountStrings: Array<String>,
-    recordingFormat: RecordingFormat?,
-    sampleRate: SampleRate?,
-    bitRate: BitRate?,
-    channelCount: ChannelCount?
-): String {
-    return when (recordingFormat) {
-        RecordingFormat.M4a -> {
-            recordingFormat.convertToText(formatStrings) + ", " +
-            sampleRate?.convertToText(sampleRateStrings) + ", " +
-            bitRate?.convertToText(bitrateStrings) + ", " +
-            channelCount?.convertToText(channelCountStrings)
-        }
-        RecordingFormat.ThreeGp -> {
-            recordingFormat.convertToText(formatStrings) + ", " +
-            sampleRate?.convertToText(sampleRateStrings) + ", " +
-            channelCount?.convertToText(channelCountStrings)
-        }
-        RecordingFormat.Wav -> {
-            recordingFormat.convertToText(formatStrings) + ", " +
-            sampleRate?.convertToText(sampleRateStrings) + ", " +
-            channelCount?.convertToText(channelCountStrings)
-        }
-        else -> ""
-    }
-}
-
+@SuppressWarnings("MagicNumber")
 fun sizeMbPerMin(
     recordingFormat: RecordingFormat?,
     sampleRate: SampleRate?,

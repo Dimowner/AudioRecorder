@@ -43,6 +43,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val uiState = viewModel.uiState.value
+
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         // Handle the selected document URI here
         if (uri != null) {
@@ -83,16 +85,15 @@ fun HomeScreen(
                         HomeDropDownMenuItemId.DELETE -> viewModel.deleteActiveRecord()
                     }
                 })
-
             Spacer(modifier = Modifier
                 .weight(1f)
                 .wrapContentHeight())
             TimePanel(
-                "Record-14",
-                "1.2Mb, M4a, 44.1kHz",
-                "02:23",
-                "00:00",
-                "05:53",
+                uiState.recordName,
+                uiState.recordInfo,
+                uiState.time,
+                uiState.startTime,
+                uiState.endTime,
                 onRenameClick = {}
             )
             BottomBar(

@@ -20,12 +20,11 @@ enum class SortOrder {
 }
 
 fun String.convertToSortOrder(): SortOrder? {
-    if (this == SortOrder.DateAsc.toString()) return SortOrder.DateAsc
-    if (this == SortOrder.DateDesc.toString()) return SortOrder.DateDesc
-    if (this == SortOrder.NameAsc.toString()) return SortOrder.NameAsc
-    if (this == SortOrder.NameDesc.toString()) return SortOrder.NameDesc
-    if (this == SortOrder.DurationShortest.toString()) return SortOrder.DurationShortest
-    if (this == SortOrder.DurationLongest.toString()) return SortOrder.DurationLongest
-
-    return null
+    return if (this == SortOrder.DateAsc.toString()) SortOrder.DateAsc
+    else if (this == SortOrder.DateDesc.toString()) SortOrder.DateDesc
+    else if (this == SortOrder.NameAsc.toString()) SortOrder.NameAsc
+    else if (this == SortOrder.NameDesc.toString()) SortOrder.NameDesc
+    else if (this == SortOrder.DurationShortest.toString()) SortOrder.DurationShortest
+    else if (this == SortOrder.DurationLongest.toString()) SortOrder.DurationLongest
+    else null
 }

@@ -29,12 +29,11 @@ enum class SampleRate(val value: Int, val index: Int): Parcelable {
 }
 
 fun Int.convertToSampleRate(): SampleRate? {
-    if (this == SampleRate.SR8000.value) return SampleRate.SR8000
-    if (this == SampleRate.SR16000.value) return SampleRate.SR16000
-    if (this == SampleRate.SR22500.value) return SampleRate.SR22500
-    if (this == SampleRate.SR32000.value) return SampleRate.SR32000
-    if (this == SampleRate.SR44100.value) return SampleRate.SR44100
-    if (this == SampleRate.SR48000.value) return SampleRate.SR48000
-
-    return null
+    return if (this == SampleRate.SR8000.value) SampleRate.SR8000
+    else if (this == SampleRate.SR16000.value) SampleRate.SR16000
+    else if (this == SampleRate.SR22500.value) SampleRate.SR22500
+    else if (this == SampleRate.SR32000.value) SampleRate.SR32000
+    else if (this == SampleRate.SR44100.value) SampleRate.SR44100
+    else if (this == SampleRate.SR48000.value) SampleRate.SR48000
+    else null
 }
