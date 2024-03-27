@@ -22,9 +22,13 @@ interface RecordsDataSource {
 
     suspend fun getActiveRecord(): Record?
 
+    suspend fun getActiveRecords(): List<Record>
+
     suspend fun insertRecord(record: Record): Long
 
     suspend fun getRecordsCount(): Int
 
     suspend fun getRecordTotalDuration(): Long
+
+    suspend fun deleteRecord(id: Int)
 }

@@ -27,11 +27,16 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dimowner.audiorecorder.v2.app.DeleteDialog
+import com.dimowner.audiorecorder.v2.app.RenameAlertDialog
+import com.dimowner.audiorecorder.v2.app.SaveAsDialog
 import com.google.gson.Gson
 import timber.log.Timber
 
@@ -45,6 +50,10 @@ fun HomeScreen(
     val context = LocalContext.current
     val uiState = viewModel.uiState.value
 
+    val showRenameDialog = remember { mutableStateOf(false) }
+    val showDeleteDialog = remember { mutableStateOf(false) }
+    val showSaveAsDialog = remember { mutableStateOf(false) }
+
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         // Handle the selected document URI here
         if (uri != null) {
@@ -56,7 +65,7 @@ fun HomeScreen(
         HomeScreenEvent.ShowImportErrorError -> {
             Timber.v("ON EVENT: ShowImportErrorError")
         }
-        is HomeScreenEvent.ShareRecord -> {
+        is HomeScreenEvent.RecordInformationEvent -> {
             val json = Uri.encode(Gson().toJson(event.recordInfo))
             Timber.v("ON EVENT: ShareRecord json = $json")
             showRecordInfoScreen(json)
@@ -77,12 +86,20 @@ fun HomeScreen(
                 },
                 onHomeMenuItemClick = {
                     when (it) {
-                        HomeDropDownMenuItemId.SHARE -> viewModel.shareActiveRecord()
+                        HomeDropDownMenuItemId.SHARE -> viewModel.shareActiveRecord(context)
                         HomeDropDownMenuItemId.INFORMATION -> viewModel.showActiveRecordInfo()
-                        HomeDropDownMenuItemId.RENAME -> viewModel.renameActiveRecord()
-                        HomeDropDownMenuItemId.OPEN_WITH -> viewModel.openActiveRecordWithAnotherApp()
-                        HomeDropDownMenuItemId.SAVE_AS -> viewModel.saveActiveRecordAs()
-                        HomeDropDownMenuItemId.DELETE -> viewModel.deleteActiveRecord()
+                        HomeDropDownMenuItemId.RENAME -> {
+                            showRenameDialog.value = true
+                        }
+                        HomeDropDownMenuItemId.OPEN_WITH -> {
+                            viewModel.openActiveRecordWithAnotherApp(context)
+                        }
+                        HomeDropDownMenuItemId.SAVE_AS -> {
+                            showSaveAsDialog.value = true
+                        }
+                        HomeDropDownMenuItemId.DELETE -> {
+                            showDeleteDialog.value = true
+                        }
                     }
                 })
             Spacer(modifier = Modifier
@@ -106,6 +123,21 @@ fun HomeScreen(
             Spacer(modifier = Modifier
                 .fillMaxWidth()
                 .height(12.dp))
+            if (showDeleteDialog.value) {
+                DeleteDialog(showDeleteDialog, uiState.recordName) {
+                    viewModel.deleteActiveRecord()
+                }
+            }
+            if (showSaveAsDialog.value) {
+                SaveAsDialog(showSaveAsDialog, uiState.recordName) {
+                    viewModel.saveActiveRecordAs(context)
+                }
+            }
+            if (showRenameDialog.value) {
+                RenameAlertDialog(showRenameDialog, uiState.recordName) {
+                    viewModel.renameActiveRecord(it)
+                }
+            }
         }
     }
 }

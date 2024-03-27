@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.ParcelFileDescriptor
-import android.text.format.Formatter
 import androidx.compose.runtime.mutableStateOf
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.SavedStateHandle
@@ -28,13 +27,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dimowner.audiorecorder.ARApplication
 import com.dimowner.audiorecorder.R
+import com.dimowner.audiorecorder.app.DownloadService
 import com.dimowner.audiorecorder.audio.AudioDecoder
 import com.dimowner.audiorecorder.exception.CantCreateFileException
+import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.util.FileUtil
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
-import com.dimowner.audiorecorder.v2.app.recordInfoCombinedShortText
+import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
@@ -54,7 +55,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+//    savedStateHandle: SavedStateHandle,
     private val recordsDataSource: RecordsDataSource,
     private val fileDataSource: FileDataSource,
     private val prefs: PrefsV2,
@@ -67,7 +68,7 @@ class HomeViewModel @Inject constructor(
     val event: SharedFlow<HomeScreenEvent?> = _event
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
             val activeRecord = recordsDataSource.getActiveRecord()
             if (activeRecord != null) {
                 withContext(Dispatchers.Main) {
@@ -76,14 +77,7 @@ class HomeViewModel @Inject constructor(
                         endTime = TimeUtils.formatTimeIntervalHourMinSec2(activeRecord.durationMills),
                         time = context.getString(R.string.zero_time),
                         recordName = activeRecord.name,
-                        recordInfo = recordInfoCombinedShortText(
-                            recordingFormat = activeRecord.format,
-                            recordSizeText = Formatter.formatShortFileSize(context, activeRecord.size),
-                            sampleRateText = context.getString(
-                                R.string.value_hz,
-                                activeRecord.sampleRate
-                            ),
-                        ),
+                        recordInfo = activeRecord.toInfoCombinedText(context),
                     )
                 }
             }
@@ -92,7 +86,7 @@ class HomeViewModel @Inject constructor(
 
     @SuppressLint("Recycle")
     fun importAudioFile(context: Context, uri: Uri) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
             try {
                 val parcelFileDescriptor: ParcelFileDescriptor? =
                     context.contentResolver.openFileDescriptor(uri, "r")
@@ -142,33 +136,70 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun shareActiveRecord() {
+    fun shareActiveRecord(context: Context) {
         Timber.v("shareActiveRecord")
-    }
-
-    fun showActiveRecordInfo() {
-        Timber.v("showActiveRecord")
-        viewModelScope.launch(Dispatchers.IO) {
-            recordsDataSource.getActiveRecord()?.toRecordInfoState()?.let {
-                emitEvent(HomeScreenEvent.ShareRecord(it))
+        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
+            val activeRecord = recordsDataSource.getActiveRecord()
+            if (activeRecord != null) {
+                withContext(Dispatchers.Main) {
+                    AndroidUtils.shareAudioFile(
+                        context,
+                        activeRecord.path,
+                        activeRecord.name,
+                        activeRecord.format
+                    )
+                }
             }
         }
     }
 
-    fun renameActiveRecord() {
-        Timber.v("shareActiveRecord")
+    fun showActiveRecordInfo() {
+        Timber.v("showActiveRecord")
+        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
+            recordsDataSource.getActiveRecord()?.toRecordInfoState()?.let {
+                emitEvent(HomeScreenEvent.RecordInformationEvent(it))
+            }
+        }
     }
 
-    fun openActiveRecordWithAnotherApp() {
-        Timber.v("shareActiveRecord")
+    fun renameActiveRecord(newName: String) {
+        Timber.v("renameActiveRecord newName = $newName")
     }
 
-    fun saveActiveRecordAs() {
+    fun openActiveRecordWithAnotherApp(context: Context) {
         Timber.v("shareActiveRecord")
+        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
+            val activeRecord = recordsDataSource.getActiveRecord()
+            if (activeRecord != null) {
+                withContext(Dispatchers.Main) {
+                    AndroidUtils.openAudioFile(
+                        context,
+                        activeRecord.path,
+                        activeRecord.name
+                    )
+                }
+            }
+        }
+    }
+
+    fun saveActiveRecordAs(context: Context) {
+        Timber.v("shareActiveRecord")
+        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
+            val activeRecord = recordsDataSource.getActiveRecord()
+            if (activeRecord != null) {
+                DownloadService.startNotification(context, activeRecord.path)
+            }
+        }
     }
 
     fun deleteActiveRecord() {
-        Timber.v("shareActiveRecord")
+        Timber.v("deleteActiveRecord")
+        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
+            val activeRecord = recordsDataSource.getActiveRecord()
+            if (activeRecord != null) {
+                recordsDataSource.deleteRecord(activeRecord.id)
+            }
+        }
     }
 
     private fun emitEvent(event: HomeScreenEvent) {
@@ -188,6 +219,5 @@ data class HomeScreenState(
 
 sealed class HomeScreenEvent {
     data object ShowImportErrorError : HomeScreenEvent()
-    data class ShareRecord(val recordInfo: RecordInfoState) : HomeScreenEvent()
-
+    data class RecordInformationEvent(val recordInfo: RecordInfoState) : HomeScreenEvent()
 }

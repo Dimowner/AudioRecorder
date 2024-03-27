@@ -102,6 +102,7 @@
 		<item quantity="other">Failed to move %d records</item>
 	</plurals>
 	<string name="record_will_be_copied_into_downloads">The record will be copied to the \'Downloads\' directory</string>
+	<string name="record_name_will_be_copied_into_downloads">The record \'%s\' will be copied to the \'Downloads\' directory</string>
 	<string name="move_record_failed">Failed to move: %s</string>
 	<string name="downloading_failed">Failed to copy: %s</string>
 	<string name="downloading_failed_file_already_exists">Failed to copy. File with name %s already exists</string>
@@ -210,6 +211,7 @@
 	<string name="channels">Channel count:</string>
 	<string name="sample_rate">Sample rate:</string>
 	<string name="size_per_min">%s Mb/min expected size</string>
+	<string name="value_khz">%d kHz</string>
 	<string name="value_hz">%d Hz</string>
 	<string name="value_kbps">%d kbps</string>
 	<string name="stereo">Stereo</string>

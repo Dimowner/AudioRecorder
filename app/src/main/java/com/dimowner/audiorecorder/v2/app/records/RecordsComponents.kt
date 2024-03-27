@@ -163,6 +163,7 @@ fun RecordListItem(
     name: String,
     details: String,
     duration: String,
+    isBookmarked: Boolean,
     onClickItem: () -> Unit,
     onClickBookmark: () -> Unit,
     onClickMenu: (RecordDropDownMenuItemId) -> Unit,
@@ -227,7 +228,11 @@ fun RecordListItem(
                 )
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_bookmark_bordered_small),
+                    painter = if (isBookmarked) {
+                        painterResource(id = R.drawable.ic_bookmark_small)
+                    } else {
+                        painterResource(id = R.drawable.ic_bookmark_bordered_small)
+                    },
                     contentDescription = stringResource(id = R.string.bookmarks),
                     modifier = Modifier
                         .padding(6.dp)
@@ -291,5 +296,5 @@ fun RecordListItem(
 @Preview(showBackground = true)
 @Composable
 fun RecordListItemPreview() {
-    RecordListItem("Label", "Value", "Duration", {}, {}, {})
+    RecordListItem("Label", "Value", "Duration", true, {}, {}, {})
 }

@@ -82,7 +82,7 @@ fun RecordInfoScreen(
                     )
                     InfoItem(
                         stringResource(R.string.sample_rate),
-                        stringResource(id = R.string.value_hz, recordInfo.sampleRate)
+                        stringResource(id = R.string.value_khz, recordInfo.sampleRate / 1000)
                     )
                     if (recordInfo.duration > 0) {
                         InfoItem(

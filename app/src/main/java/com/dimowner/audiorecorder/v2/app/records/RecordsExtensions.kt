@@ -1,9 +1,14 @@
 package com.dimowner.audiorecorder.v2.app.records
 
+import android.content.Context
 import com.dimowner.audiorecorder.R
+import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.DropDownMenuItem
 import com.dimowner.audiorecorder.v2.app.records.models.RecordDropDownMenuItemId
 import com.dimowner.audiorecorder.v2.app.records.models.SortDropDownMenuItemId
+import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
+import com.dimowner.audiorecorder.v2.data.model.Record
+import com.dimowner.audiorecorder.v2.data.model.SortOrder
 
 fun getRecordsDroDownMenuItems(): List<DropDownMenuItem<RecordDropDownMenuItemId>> {
     return RecordDropDownMenuItemId.entries.map {
@@ -52,5 +57,26 @@ fun getSortDroDownMenuItems(): List<DropDownMenuItem<SortDropDownMenuItemId>> {
                 id = it, textResId = R.string.by_duration_desc, imageResId = R.drawable.ic_access_time
             )
         }
+    }
+}
+
+fun Record.toRecordListItem(context: Context): RecordListItem {
+    return RecordListItem(
+        recordId = this.id,
+        name = this.name,
+        details = this.toInfoCombinedText(context),
+        duration =  TimeUtils.formatTimeIntervalHourMinSec2(this.durationMills),
+        isBookmarked = this.isBookmarked
+    )
+}
+
+fun SortOrder.toText(context: Context): String {
+    return when (this) {
+        SortOrder.DateAsc -> context.getString(R.string.by_date)
+        SortOrder.DateDesc -> context.getString(R.string.by_date_desc)
+        SortOrder.NameAsc -> context.getString(R.string.by_name)
+        SortOrder.NameDesc -> context.getString(R.string.by_name_desc)
+        SortOrder.DurationLongest -> context.getString(R.string.by_duration_desc)
+        SortOrder.DurationShortest -> context.getString(R.string.by_duration)
     }
 }

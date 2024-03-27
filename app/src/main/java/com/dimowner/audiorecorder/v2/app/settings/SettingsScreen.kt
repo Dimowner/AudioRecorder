@@ -19,18 +19,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.TimeUtils
+import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.TitleBar
+import timber.log.Timber
 
 @Composable
 fun SettingsScreen(
     navController: NavHostController,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
-    viewModel.initSettings()
     val context = LocalContext.current
     val state = viewModel.state.observeAsState()
 
@@ -40,6 +42,35 @@ fun SettingsScreen(
     val warningText = remember { mutableStateOf("") }
 
     val isExpandedBitRatePanel = remember { mutableStateOf(true) }
+
+    ComposableLifecycle { _, event ->
+        when (event) {
+            Lifecycle.Event.ON_CREATE -> {
+                Timber.d("SettingsScreen: onCreate")
+                viewModel.initSettings()
+            }
+            Lifecycle.Event.ON_START -> {
+                Timber.d("SettingsScreen: On Start")
+            }
+
+            Lifecycle.Event.ON_RESUME -> {
+                Timber.d("SettingsScreen: On Resume")
+            }
+
+            Lifecycle.Event.ON_PAUSE -> {
+                Timber.d("SettingsScreen: On Pause")
+            }
+
+            Lifecycle.Event.ON_STOP -> {
+                Timber.d("SettingsScreen: On Stop")
+            }
+
+            Lifecycle.Event.ON_DESTROY -> {
+                Timber.d("SettingsScreen: On Destroy")
+            }
+            else -> {}
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize()
@@ -173,8 +204,7 @@ fun SettingsScreen(
                 InfoTextView(
                     stringResource(
                         id = R.string.total_duration,
-                        TimeUtils.formatTimeIntervalHourMinSec((state.value?.totalRecordDuration ?: 1) / 1000)
-//                        (state.value?.totalRecordDuration ?: "")
+                        TimeUtils.formatTimeIntervalHourMinSec((state.value?.totalRecordDuration ?: 1) )
                     )
                 )
                 InfoTextView(

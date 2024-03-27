@@ -35,6 +35,10 @@ class RecordsDataSourceImpl @Inject internal constructor(
         }
     }
 
+    override suspend fun getActiveRecords(): List<Record> {
+        return recordDao.getAllRecords().map { it.toRecord() }
+    }
+
     override suspend fun insertRecord(record: Record): Long {
         return recordDao.insertRecord(record.toRecordEntity())
     }
@@ -45,5 +49,9 @@ class RecordsDataSourceImpl @Inject internal constructor(
 
     override suspend fun getRecordTotalDuration(): Long {
         return recordDao.getRecordTotalDuration()
+    }
+
+    override suspend fun deleteRecord(id: Int) {
+        return recordDao.deleteRecordById(id)
     }
 }

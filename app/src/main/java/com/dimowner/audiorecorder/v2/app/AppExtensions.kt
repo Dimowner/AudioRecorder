@@ -15,11 +15,22 @@
  */
 package com.dimowner.audiorecorder.v2.app
 
+import android.content.Context
+import android.text.format.Formatter
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.settings.convertToText
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
+import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
+import java.util.Locale
 
 fun formatRecordingFormat(
     formatStrings: Array<String>,
@@ -71,7 +82,43 @@ fun recordingSettingsCombinedText(
 fun recordInfoCombinedShortText(
     recordingFormat: String,
     recordSizeText: String,
+    bitrateText: String,
     sampleRateText: String,
 ): String {
-    return "$recordSizeText, $recordingFormat, $sampleRateText"
+    return if (bitrateText.isNotEmpty()) {
+        "$recordSizeText, $recordingFormat, $bitrateText, $sampleRateText"
+    } else {
+        "$recordSizeText, $recordingFormat, $sampleRateText"
+    }
+}
+
+fun Record.toInfoCombinedText(context: Context): String {
+    return recordInfoCombinedShortText(
+        recordingFormat = this.format,
+        recordSizeText = Formatter.formatShortFileSize(context, this.size),
+        bitrateText = if (this.bitrate > 0) {
+            context.getString(R.string.value_kbps, this.bitrate/1000)
+        } else "",
+        sampleRateText = context.getString(
+            R.string.value_khz,
+            this.sampleRate/1000
+        ),
+    )
+}
+
+@Composable
+fun ComposableLifecycle(
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    onEvent: (LifecycleOwner, Lifecycle.Event) -> Unit
+) {
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { source, event ->
+            onEvent(source, event)
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 }

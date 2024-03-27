@@ -43,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -272,19 +273,25 @@ fun ConfirmationAlertDialog(
     onConfirmation: () -> Unit,
     dialogTitle: String,
     dialogText: String,
-    icon: ImageVector,
+    painter: Painter,
     positiveButton: String,
     negativeButton: String,
 ) {
     AlertDialog(
-        icon = {
-            Icon(icon, contentDescription = dialogTitle)
-        },
         title = {
-            Text(text = dialogTitle)
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier.padding(0.dp, 0.dp, 16.dp, 0.dp),
+                    painter = painter,
+                    contentDescription = dialogTitle
+                )
+                Text(text = dialogTitle)
+            }
         },
         text = {
-            Text(text = dialogText)
+            Text(text = dialogText, fontSize = 18.sp,)
         },
         onDismissRequest = {
             onDismissRequest()
@@ -321,11 +328,17 @@ fun InfoAlertDialog(
     dismissButton: String,
 ) {
     AlertDialog(
-        icon = {
-            Icon(icon, contentDescription = dialogTitle)
-        },
         title = {
-            Text(text = dialogTitle)
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier.padding(0.dp, 0.dp, 16.dp, 0.dp),
+                    imageVector = icon,
+                    contentDescription = dialogTitle
+                )
+                Text(text = dialogTitle)
+            }
         },
         text = {
             Text(text = dialogText,
@@ -349,6 +362,59 @@ fun InfoAlertDialog(
             }
         },
     )
+}
+
+@Composable
+fun RenameAlertDialog(
+    openDialog: MutableState<Boolean>,
+    recordName: String,
+    onAcceptClick: (String) -> Unit
+) {
+    AlertDialog(
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier.padding(0.dp, 0.dp, 16.dp, 0.dp),
+                    painter = painterResource(id = R.drawable.ic_pencil),
+                    contentDescription = stringResource(id = R.string.record_name)
+                )
+                Text(text = stringResource(id = R.string.record_name))
+            }
+        },
+        text = {
+            Text(text = recordName, fontSize = 18.sp,)
+        },
+        onDismissRequest = {
+            openDialog.value = false
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onAcceptClick("NewRecordName")
+                }
+            ) {
+                Text(stringResource(id = R.string.btn_save))
+            }
+
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    openDialog.value = false
+                }
+            ) {
+                Text(stringResource(id = R.string.btn_cancel))
+            }
+        }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RenameAlertDialogPreview() {
+    RenameAlertDialog(remember { mutableStateOf(true) }, "Record-14", {})
 }
 
 @Composable
@@ -420,6 +486,62 @@ fun <T> RecordsDropDownMenu(
             )
         }
     }
+}
+
+@Composable
+fun DeleteDialog(
+    openDialog: MutableState<Boolean>,
+    recordName: String,
+    onAcceptClick: () -> Unit
+) {
+    if (openDialog.value) {
+        ConfirmationAlertDialog(
+            onDismissRequest = { openDialog.value = false },
+            onConfirmation = {
+                openDialog.value = false
+                onAcceptClick()
+            },
+            dialogTitle = stringResource(id = R.string.warning),
+            dialogText = stringResource(id = R.string.delete_record, recordName),
+            painter = painterResource(id = R.drawable.ic_delete_forever),
+            positiveButton = stringResource(id = R.string.btn_yes),
+            negativeButton = stringResource(id = R.string.btn_no)
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DeleteDialogPreview() {
+    DeleteDialog(remember { mutableStateOf(true) }, "Record-14", {})
+}
+
+@Composable
+fun SaveAsDialog(
+    openDialog: MutableState<Boolean>,
+    recordName: String,
+    onAcceptClick: () -> Unit
+) {
+    if (openDialog.value) {
+        ConfirmationAlertDialog(
+            onDismissRequest = { openDialog.value = false },
+            onConfirmation = {
+                openDialog.value = false
+                onAcceptClick()
+            },
+            dialogTitle = stringResource(id = R.string.save_as),
+            dialogText = stringResource(id = R.string.record_name_will_be_copied_into_downloads, recordName),
+            painter = painterResource(id = R.drawable.ic_save_alt),
+            positiveButton = stringResource(id = R.string.btn_yes),
+            negativeButton = stringResource(id = R.string.btn_no)
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SaveAsDialogPreview() {
+    SaveAsDialog(remember { mutableStateOf(true) }, "Record-14", {})
 }
 
 data class DropDownMenuItem<T>(

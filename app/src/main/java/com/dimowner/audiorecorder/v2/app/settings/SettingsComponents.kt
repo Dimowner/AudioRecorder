@@ -606,6 +606,12 @@ fun SettingsInfoDialog(openDialog: MutableState<Boolean>, message: String) {
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun SettingsInfoDialogPreview() {
+    SettingsInfoDialog(remember {mutableStateOf(true) }, "Information massage")
+}
+
 @Composable
 fun SettingsWarningDialog(openDialog: MutableState<Boolean>, message: String) {
     if (openDialog.value) {
@@ -620,6 +626,12 @@ fun SettingsWarningDialog(openDialog: MutableState<Boolean>, message: String) {
             dismissButton = stringResource(id = R.string.btn_ok)
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SettingsWarningDialogPreview() {
+    SettingsWarningDialog(remember {mutableStateOf(true) }, "Warning message")
 }
 
 private fun getTestChips(): List<ChipItem<SampleRate>> {

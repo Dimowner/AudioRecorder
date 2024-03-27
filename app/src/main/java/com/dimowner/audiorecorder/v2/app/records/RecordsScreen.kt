@@ -23,31 +23,20 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.dimowner.audiorecorder.R
 
 @Composable
 fun RecordsScreen(
     navController: NavHostController,
+    viewModel: RecordsViewModel = hiltViewModel(),
 ) {
 
-    val records = listOf(
-        RecordDataItem("Name1", "Description1", "1:01"),
-        RecordDataItem("Name2", "Description2", "2:02"),
-        RecordDataItem("Name3", "Description3", "2:03"),
-        RecordDataItem("Name4", "Description4", "2:04"),
-        RecordDataItem("Name5", "Description5", "2:05"),
-        RecordDataItem("Name6", "Description6", "2:06"),
-        RecordDataItem("Name7", "Description7", "2:07"),
-        RecordDataItem("Name8", "Description8", "2:08"),
-        RecordDataItem("Name9", "Description9", "2:09"),
-        RecordDataItem("Name10", "Description10", "2:10"),
-        RecordDataItem("Name11", "Description11", "2:11"),
-        RecordDataItem("Name12", "Description12", "2:12"),
-        RecordDataItem("Name13", "Description13", "2:13"),
-        RecordDataItem("Name14", "Description14", "2:14"),
-    )
+    val context = LocalContext.current
+    val uiState = viewModel.uiState.value
 
     Surface(
         modifier = Modifier.fillMaxSize()
@@ -55,7 +44,7 @@ fun RecordsScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             RecordsTopBar(
                 stringResource(id = R.string.records),
-                "Sort by",
+                uiState.sortOrder.toText(context),
                 onBackPressed = { navController.popBackStack() },
                 onSortItemClick = {},
                 onBookmarksClick = {}
@@ -63,11 +52,12 @@ fun RecordsScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                items(records) { record ->
+                items(uiState.records) { record ->
                     RecordListItem(
                         name = record.name,
-                        details = record.description,
+                        details = record.details,
                         duration = record.duration,
+                        isBookmarked = record.isBookmarked,
                         onClickItem = {},
                         onClickBookmark = {},
                         onClickMenu = {},
@@ -77,9 +67,3 @@ fun RecordsScreen(
         }
     }
 }
-
-data class RecordDataItem(
-    val name: String,
-    val description: String,
-    val duration: String,
-)

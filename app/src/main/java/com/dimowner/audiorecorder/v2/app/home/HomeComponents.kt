@@ -260,7 +260,8 @@ fun TimePanel(
         )
         Text(
             modifier = Modifier
-                .wrapContentSize().padding(0.dp, 0.dp, 0.dp, 4.dp),
+                .wrapContentSize()
+                .padding(0.dp, 0.dp, 0.dp, 4.dp),
             textAlign = TextAlign.Center,
             text = recordName,
             color = MaterialTheme.colorScheme.onSurface,
