@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledIconButton
@@ -291,7 +292,7 @@ fun ConfirmationAlertDialog(
             }
         },
         text = {
-            Text(text = dialogText, fontSize = 18.sp,)
+            Text(text = dialogText, fontSize = 18.sp)
         },
         onDismissRequest = {
             onDismissRequest()
@@ -341,7 +342,8 @@ fun InfoAlertDialog(
             }
         },
         text = {
-            Text(text = dialogText,
+            Text(
+                text = dialogText,
                 style = TextStyle(
                     fontSize = 18.sp,
                     lineBreak = LineBreak.Heading,
@@ -368,8 +370,12 @@ fun InfoAlertDialog(
 fun RenameAlertDialog(
     openDialog: MutableState<Boolean>,
     recordName: String,
-    onAcceptClick: (String) -> Unit
+    onAcceptClick: (String) -> Unit,
+    onDontAskAgain: (Boolean) -> Unit = {},
+    showDontAskAgain: Boolean = false
 ) {
+    val currentValue = remember { mutableStateOf(recordName) }
+    val checkedState = remember { mutableStateOf(false) }
     AlertDialog(
         title = {
             Row(
@@ -384,7 +390,39 @@ fun RenameAlertDialog(
             }
         },
         text = {
-            Text(text = recordName, fontSize = 18.sp,)
+            val localFocusManager = LocalFocusManager.current
+            Column {
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = currentValue.value,
+                    onValueChange = {
+                        currentValue.value = it
+                    },
+                    placeholder = {
+                        Text(text = stringResource(id = R.string.rename), fontSize = 18.sp)
+                    },
+                    textStyle = TextStyle.Default.copy(fontSize = 20.sp),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions {
+                        localFocusManager.clearFocus()
+                    }
+                )
+                if (showDontAskAgain) {
+                    Row {
+                        Checkbox(
+                            checked = checkedState.value,
+                            onCheckedChange = { checkedState.value = it },
+                        )
+                        Text(
+                            modifier = Modifier.align(Alignment.CenterVertically),
+                            text = stringResource(id = R.string.dont_ask_again),
+                            fontSize = 16.sp,
+                        )
+                    }
+                }
+            }
         },
         onDismissRequest = {
             openDialog.value = false
@@ -392,7 +430,11 @@ fun RenameAlertDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    onAcceptClick("NewRecordName")
+                    onAcceptClick(currentValue.value)
+                    if (showDontAskAgain) {
+                        onDontAskAgain(checkedState.value)
+                    }
+                    openDialog.value = false
                 }
             ) {
                 Text(stringResource(id = R.string.btn_save))
@@ -414,7 +456,7 @@ fun RenameAlertDialog(
 @Preview(showBackground = true)
 @Composable
 fun RenameAlertDialogPreview() {
-    RenameAlertDialog(remember { mutableStateOf(true) }, "Record-14", {})
+    RenameAlertDialog(remember { mutableStateOf(true) }, "Record-14", {}, {}, true)
 }
 
 @Composable
@@ -530,7 +572,10 @@ fun SaveAsDialog(
                 onAcceptClick()
             },
             dialogTitle = stringResource(id = R.string.save_as),
-            dialogText = stringResource(id = R.string.record_name_will_be_copied_into_downloads, recordName),
+            dialogText = stringResource(
+                id = R.string.record_name_will_be_copied_into_downloads,
+                recordName
+            ),
             painter = painterResource(id = R.drawable.ic_save_alt),
             positiveButton = stringResource(id = R.string.btn_yes),
             negativeButton = stringResource(id = R.string.btn_no)

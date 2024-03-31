@@ -26,6 +26,10 @@ interface RecordsDataSource {
 
     suspend fun insertRecord(record: Record): Long
 
+    suspend fun updateRecord(record: Record)
+
+    suspend fun renameRecord(record: Record, newName: String)
+
     suspend fun getRecordsCount(): Int
 
     suspend fun getRecordTotalDuration(): Long

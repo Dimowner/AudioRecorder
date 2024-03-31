@@ -19,6 +19,15 @@
 	<string name="record_name_format">Record name format</string>
 	<string name="version">Version %s</string>
 
+	<plurals name="years">
+		<item quantity="one">year</item>
+		<item quantity="other">years</item>
+	</plurals>
+	<plurals name="days">
+		<item quantity="one">day</item>
+		<item quantity="other">days</item>
+	</plurals>
+
 	<string name="keep_screen_on">Keep screen ON while recording</string>
 	<string name="total_duration">Total recorded duration: %s</string>
 	<string name="total_record_count">Total records count: %d</string>

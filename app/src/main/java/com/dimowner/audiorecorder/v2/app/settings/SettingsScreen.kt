@@ -23,9 +23,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dimowner.audiorecorder.R
-import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.TitleBar
+import com.dimowner.audiorecorder.v2.app.formatDuration
 import timber.log.Timber
 
 @Composable
@@ -204,7 +204,7 @@ fun SettingsScreen(
                 InfoTextView(
                     stringResource(
                         id = R.string.total_duration,
-                        TimeUtils.formatTimeIntervalHourMinSec((state.value?.totalRecordDuration ?: 1) )
+                        formatDuration(context.resources, (state.value?.totalRecordDuration ?: 1))
                     )
                 )
                 InfoTextView(

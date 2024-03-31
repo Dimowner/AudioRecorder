@@ -16,12 +16,14 @@
 package com.dimowner.audiorecorder.v2.app
 
 import android.content.Context
+import android.content.res.Resources
 import android.text.format.Formatter
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.settings.convertToText
@@ -121,4 +123,38 @@ fun ComposableLifecycle(
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
+}
+
+@Composable
+fun <viewModel : LifecycleObserver> viewModel.observeLifecycleEvents(lifecycle: Lifecycle) {
+    DisposableEffect(lifecycle) {
+        lifecycle.addObserver(this@observeLifecycleEvents)
+        onDispose {
+            lifecycle.removeObserver(this@observeLifecycleEvents)
+        }
+    }
+}
+
+@SuppressWarnings("MagicNumber")
+fun formatDuration(
+    resources: Resources,
+    durationMillis: Long,
+): String {
+    val totalSeconds = durationMillis / 1000
+    val years = (totalSeconds / (365 * 24 * 60 * 60)).toInt()
+    val days = ((totalSeconds % (365 * 24 * 60 * 60)) / (24 * 60 * 60)).toInt()
+    val hours = (totalSeconds % (24 * 60 * 60)) / (60 * 60)
+    val minutes = (totalSeconds % (60 * 60)) / 60
+    val seconds = totalSeconds % 60
+
+    val formattedParts = mutableListOf<String>()
+
+    if (years > 0) formattedParts.add("$years${resources.getQuantityString(R.plurals.years, years)}")
+    if (days > 0) formattedParts.add("$days${resources.getQuantityString(R.plurals.days, days)}")
+    if (hours > 0) {
+        formattedParts.add(String.format(Locale.getDefault(),"%02dh:%02dm:%02ds", hours, minutes, seconds))
+    } else {
+        formattedParts.add(String.format(Locale.getDefault(),"%02dm:%02ds", minutes, seconds))
+    }
+    return formattedParts.joinToString(" ")
 }

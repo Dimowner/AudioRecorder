@@ -55,23 +55,22 @@ import com.dimowner.audiorecorder.v2.app.RecordsDropDownMenu
 fun TopAppBar(
     onImportClick: () -> Unit,
     onHomeMenuItemClick: (HomeDropDownMenuItemId) -> Unit,
+    showMenuButton: Boolean = true
 ) {
     val expanded = remember { mutableStateOf(false) }
 
-    Row(
+    Box(
         modifier = Modifier
             .height(60.dp)
             .fillMaxWidth()
             .padding(0.dp, 4.dp, 0.dp, 0.dp)
             .background(color = MaterialTheme.colorScheme.surface),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
     ) {
         FilledIconButton(
             onClick = onImportClick,
             modifier = Modifier
                 .padding(8.dp)
-                .align(Alignment.CenterVertically),
+                .align(Alignment.CenterStart),
             colors = IconButtonDefaults.filledIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.onSurface
@@ -85,8 +84,8 @@ fun TopAppBar(
         }
         Text(
             modifier = Modifier
-                .weight(1f)
-                .wrapContentHeight(),
+                .wrapContentSize()
+                .align(Alignment.Center),
             textAlign = TextAlign.Center,
             text = stringResource(id = R.string.app_name),
             color = MaterialTheme.colorScheme.onSurface,
@@ -99,27 +98,31 @@ fun TopAppBar(
             ),
         )
 
-        Box {
-            RecordsDropDownMenu(
-                items = remember { getHomeDroDownMenuItems() },
-                onItemClick = { itemId ->
-                    onHomeMenuItemClick(itemId)
-                },
-                expanded = expanded
-            )
-            FilledIconButton(
-                onClick = { expanded.value = true },
-                modifier = Modifier.padding(8.dp),
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface
-                )
+        if (showMenuButton) {
+            Box(
+                modifier = Modifier.align(Alignment.CenterEnd)
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_more_vert),
-                    contentDescription = stringResource(id = androidx.compose.ui.R.string.dropdown_menu),
-                    modifier = Modifier.size(24.dp)
+                RecordsDropDownMenu(
+                    items = remember { getHomeDroDownMenuItems() },
+                    onItemClick = { itemId ->
+                        onHomeMenuItemClick(itemId)
+                    },
+                    expanded = expanded
                 )
+                FilledIconButton(
+                    onClick = { expanded.value = true },
+                    modifier = Modifier.padding(8.dp),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_more_vert),
+                        contentDescription = stringResource(id = androidx.compose.ui.R.string.dropdown_menu),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
         }
     }
@@ -138,6 +141,7 @@ fun BottomBar(
     onRecordingClick: () -> Unit,
     onStopRecordingClick: () -> Unit,
     onDeleteRecordingClick: () -> Unit,
+    showStopDeleteButton: Boolean
 ) {
     Row(
         modifier = Modifier
@@ -163,20 +167,22 @@ fun BottomBar(
             )
         }
         Spacer(modifier = Modifier.weight(1f))
-        FilledIconButton(
-            onClick = onDeleteRecordingClick,
-            modifier = Modifier
-                .size(54.dp)
-                .align(Alignment.CenterVertically),
-            colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            )
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_delete_forever_36),
-                contentDescription = stringResource(id = R.string.delete),
-            )
+        if (showStopDeleteButton) {
+            FilledIconButton(
+                onClick = onDeleteRecordingClick,
+                modifier = Modifier
+                    .size(54.dp)
+                    .align(Alignment.CenterVertically),
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_delete_forever_36),
+                    contentDescription = stringResource(id = R.string.delete),
+                )
+            }
         }
         FilledIconButton(
             onClick = onRecordingClick,
@@ -194,20 +200,22 @@ fun BottomBar(
                 contentDescription = "Record", //TODO: Use string resource
             )
         }
-        FilledIconButton(
-            onClick = onStopRecordingClick,
-            modifier = Modifier
-                .size(54.dp)
-                .align(Alignment.CenterVertically),
-            colors = IconButtonDefaults.filledIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            )
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_stop),
-                contentDescription = "Stop recording", //TODO: Use string resource
-            )
+        if (showStopDeleteButton) {
+            FilledIconButton(
+                onClick = onStopRecordingClick,
+                modifier = Modifier
+                    .size(54.dp)
+                    .align(Alignment.CenterVertically),
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_stop),
+                    contentDescription = "Stop recording", //TODO: Use string resource
+                )
+            }
         }
         Spacer(modifier = Modifier.weight(1f))
         FilledIconButton(
@@ -231,7 +239,7 @@ fun BottomBar(
 @Preview(showBackground = true)
 @Composable
 fun BottomBarPreview() {
-    BottomBar({}, {}, {}, {}, {})
+    BottomBar({}, {}, {}, {}, {}, true)
 }
 
 @Composable

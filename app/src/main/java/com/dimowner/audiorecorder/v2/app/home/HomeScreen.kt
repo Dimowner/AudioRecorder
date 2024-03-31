@@ -30,10 +30,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
 import com.dimowner.audiorecorder.v2.app.RenameAlertDialog
 import com.dimowner.audiorecorder.v2.app.SaveAsDialog
@@ -47,8 +48,17 @@ fun HomeScreen(
     showRecordInfoScreen: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
     val uiState = viewModel.uiState.value
+
+    ComposableLifecycle { _, event ->
+        when (event) {
+            Lifecycle.Event.ON_START -> {
+                Timber.d("SettingsScreen: On Start")
+                viewModel.init()
+            }
+            else -> {}
+        }
+    }
 
     val showRenameDialog = remember { mutableStateOf(false) }
     val showDeleteDialog = remember { mutableStateOf(false) }
@@ -57,7 +67,7 @@ fun HomeScreen(
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         // Handle the selected document URI here
         if (uri != null) {
-            viewModel.importAudioFile(context, uri)
+            viewModel.importAudioFile(uri)
         }
     }
 
@@ -86,13 +96,13 @@ fun HomeScreen(
                 },
                 onHomeMenuItemClick = {
                     when (it) {
-                        HomeDropDownMenuItemId.SHARE -> viewModel.shareActiveRecord(context)
+                        HomeDropDownMenuItemId.SHARE -> viewModel.shareActiveRecord()
                         HomeDropDownMenuItemId.INFORMATION -> viewModel.showActiveRecordInfo()
                         HomeDropDownMenuItemId.RENAME -> {
                             showRenameDialog.value = true
                         }
                         HomeDropDownMenuItemId.OPEN_WITH -> {
-                            viewModel.openActiveRecordWithAnotherApp(context)
+                            viewModel.openActiveRecordWithAnotherApp()
                         }
                         HomeDropDownMenuItemId.SAVE_AS -> {
                             showSaveAsDialog.value = true
@@ -101,7 +111,9 @@ fun HomeScreen(
                             showDeleteDialog.value = true
                         }
                     }
-                })
+                },
+                showMenuButton = uiState.isContextMenuAvailable
+            )
             Spacer(modifier = Modifier
                 .weight(1f)
                 .wrapContentHeight())
@@ -119,6 +131,7 @@ fun HomeScreen(
                 onRecordingClick = {},
                 onStopRecordingClick = {},
                 onDeleteRecordingClick = {},
+                uiState.isStopRecordingButtonAvailable
             )
             Spacer(modifier = Modifier
                 .fillMaxWidth()
@@ -130,13 +143,13 @@ fun HomeScreen(
             }
             if (showSaveAsDialog.value) {
                 SaveAsDialog(showSaveAsDialog, uiState.recordName) {
-                    viewModel.saveActiveRecordAs(context)
+                    viewModel.saveActiveRecordAs()
                 }
             }
             if (showRenameDialog.value) {
-                RenameAlertDialog(showRenameDialog, uiState.recordName) {
+                RenameAlertDialog(showRenameDialog, uiState.recordName, {
                     viewModel.renameActiveRecord(it)
-                }
+                })
             }
         }
     }

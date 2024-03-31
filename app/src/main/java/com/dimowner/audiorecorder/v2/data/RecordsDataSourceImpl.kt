@@ -17,7 +17,9 @@
 package com.dimowner.audiorecorder.v2.data
 
 import com.dimowner.audiorecorder.v2.data.model.Record
+import com.dimowner.audiorecorder.v2.data.room.AppDatabase
 import com.dimowner.audiorecorder.v2.data.room.RecordDao
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,6 +27,8 @@ import javax.inject.Singleton
 class RecordsDataSourceImpl @Inject internal constructor(
     private val prefs: PrefsV2,
     private val recordDao: RecordDao,
+    private val appDatabase: AppDatabase,
+    private val fileDataSource: FileDataSource,
 ): RecordsDataSource {
     override suspend fun getActiveRecord(): Record? {
         val id = prefs.activeRecordId
@@ -41,6 +45,26 @@ class RecordsDataSourceImpl @Inject internal constructor(
 
     override suspend fun insertRecord(record: Record): Long {
         return recordDao.insertRecord(record.toRecordEntity())
+    }
+
+    override suspend fun updateRecord(record: Record) {
+        return recordDao.updateRecord(record.toRecordEntity())
+    }
+
+    override suspend fun renameRecord(record: Record, newName: String) {
+        appDatabase.runInTransaction {
+            val renamed = fileDataSource.renameFile(record.path, newName)
+            if (renamed == null) {
+                throw IOException("Failed to rename file")
+            } else {
+                recordDao.updateRecord(
+                    record.copy(
+                        name = newName,
+                        path = renamed.absolutePath
+                    ).toRecordEntity()
+                )
+            }
+        }
     }
 
     override suspend fun getRecordsCount(): Int {
