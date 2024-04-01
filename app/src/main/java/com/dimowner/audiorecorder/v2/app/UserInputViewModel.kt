@@ -8,7 +8,7 @@ class UserInputViewModel: ViewModel() {
     val uiState = mutableStateOf(UserInputScreenState())
 
     fun onEvent(event: UserDataUiEvents) {
-        when(event) {
+        when (event) {
             is UserDataUiEvents.UserNameEntered -> {
                 uiState.value = uiState.value.copy(
                     nameEntered = event.name

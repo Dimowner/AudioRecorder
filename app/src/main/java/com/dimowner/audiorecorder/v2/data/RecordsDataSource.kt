@@ -20,6 +20,8 @@ import com.dimowner.audiorecorder.v2.data.model.Record
 
 interface RecordsDataSource {
 
+    suspend fun getRecord(id: Int): Record?
+
     suspend fun getActiveRecord(): Record?
 
     suspend fun getActiveRecords(): List<Record>

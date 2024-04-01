@@ -68,6 +68,9 @@ fun RecorderNavigationGraph(userInputViewModel: UserInputViewModel = viewModel()
         }
         composable(Routes.RECORDS_SCREEN) {
             RecordsScreen(navController,
+                showRecordInfoScreen = { json ->
+                    navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
+                },
             )
         }
         composable(Routes.SETTINGS_SCREEN) {

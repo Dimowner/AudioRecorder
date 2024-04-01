@@ -16,12 +16,16 @@
 
 package com.dimowner.audiorecorder.v2.app.records
 
+import android.app.Application
 import android.content.Context
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dimowner.audiorecorder.app.DownloadService
+import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
+import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
@@ -29,6 +33,8 @@ import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -41,9 +47,12 @@ class RecordsViewModel @Inject constructor(
     private val fileDataSource: FileDataSource,
     private val prefs: PrefsV2,
     @ApplicationContext context: Context,
-) : ViewModel() {
+) : AndroidViewModel(context as Application) {
 
     val uiState = mutableStateOf(RecordsScreenState())
+
+    private val _event = MutableSharedFlow<RecordsScreenEvent?>()
+    val event: SharedFlow<RecordsScreenEvent?> = _event
 
     init {
         viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
@@ -57,34 +66,136 @@ class RecordsViewModel @Inject constructor(
         }
     }
 
-    fun shareActiveRecord() {
-        Timber.v("shareActiveRecord")
+    fun shareRecord(recordId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
+            val record = recordsDataSource.getRecord(recordId)
+            if (record != null) {
+                withContext(Dispatchers.Main) {
+                    AndroidUtils.shareAudioFile(
+                        getApplication<Application>().applicationContext,
+                        record.path,
+                        record.name,
+                        record.format
+                    )
+                }
+            }
+        }
     }
 
-    fun showActiveRecordInfo() {
-        Timber.v("showActiveRecord")
+    fun showRecordInfo(recordId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
+            recordsDataSource.getRecord(recordId)?.toRecordInfoState()?.let {
+                emitEvent(RecordsScreenEvent.RecordInformationEvent(it))
+            }
+        }
     }
 
-    fun renameActiveRecord() {
-        Timber.v("shareActiveRecord")
+    fun onRenameRecordRequest(record: RecordListItem) {
+        uiState.value = uiState.value.copy(
+            showRenameDialog = true,
+            selectedRecord = record
+        )
     }
 
-    fun openActiveRecordWithAnotherApp() {
-        Timber.v("shareActiveRecord")
+    fun onRenameRecordFinish() {
+        uiState.value = uiState.value.copy(
+            showRenameDialog = false,
+            selectedRecord = null
+        )
     }
 
-    fun saveActiveRecordAs() {
-        Timber.v("shareActiveRecord")
+    fun renameRecord(recordId: Int, newName: String) {
+        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
+            recordsDataSource.getRecord(recordId)?.let {
+                recordsDataSource.renameRecord(it, newName)
+//                updateState()
+                onRenameRecordFinish()
+            }
+        }
     }
 
-    fun deleteActiveRecord() {
-        Timber.v("shareActiveRecord")
+    fun openRecordWithAnotherApp(recordId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
+            val record = recordsDataSource.getRecord(recordId)
+            if (record != null) {
+                withContext(Dispatchers.Main) {
+                    AndroidUtils.openAudioFile(
+                        getApplication<Application>().applicationContext,
+                        record.path,
+                        record.name
+                    )
+                }
+            }
+        }
+    }
+
+    fun onSaveAsRequest(record: RecordListItem) {
+        uiState.value = uiState.value.copy(
+            showSaveAsDialog = true,
+            selectedRecord = record
+        )
+    }
+
+    fun onSaveAsFinish() {
+        uiState.value = uiState.value.copy(
+            showSaveAsDialog = false,
+            selectedRecord = null
+        )
+    }
+
+    fun saveRecordAs(recordId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
+            recordsDataSource.getRecord(recordId)?.let {
+                DownloadService.startNotification(
+                    getApplication<Application>().applicationContext,
+                    it.path
+                )
+            }
+            onSaveAsFinish()
+        }
+    }
+
+    fun onDeleteRecordRequest(record: RecordListItem) {
+        uiState.value = uiState.value.copy(
+            showDeleteDialog = true,
+            selectedRecord = record
+        )
+    }
+
+    fun onDeleteRecordFinish() {
+        uiState.value = uiState.value.copy(
+            showDeleteDialog = false,
+            selectedRecord = null
+        )
+    }
+
+    fun deleteRecord(recordId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
+            if (recordId != -1) {
+                recordsDataSource.deleteRecord(recordId)
+                prefs.activeRecordId = -1
+                //TODO: Notify active record deleted
+//                updateState()
+                onDeleteRecordFinish()
+            }
+        }
+    }
+
+    private fun emitEvent(event: RecordsScreenEvent) {
+        viewModelScope.launch {
+            _event.emit(event)
+        }
     }
 }
 
 data class RecordsScreenState(
     val records: List<RecordListItem> = emptyList(),
     val sortOrder: SortOrder = SortOrder.DateAsc,
+
+    val showRenameDialog: Boolean = false,
+    val showDeleteDialog: Boolean = false,
+    val showSaveAsDialog: Boolean = false,
+    val selectedRecord: RecordListItem? = null,
 )
 
 data class RecordListItem(
@@ -94,3 +205,7 @@ data class RecordListItem(
     val duration: String,
     val isBookmarked: Boolean
 )
+
+sealed class RecordsScreenEvent {
+    data class RecordInformationEvent(val recordInfo: RecordInfoState) : RecordsScreenEvent()
+}

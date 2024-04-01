@@ -30,6 +30,15 @@ class RecordsDataSourceImpl @Inject internal constructor(
     private val appDatabase: AppDatabase,
     private val fileDataSource: FileDataSource,
 ): RecordsDataSource {
+
+    override suspend fun getRecord(id: Int): Record? {
+        return if (id >= 0) {
+            recordDao.getRecordById(id)?.toRecord()
+        } else {
+            null
+        }
+    }
+
     override suspend fun getActiveRecord(): Record? {
         val id = prefs.activeRecordId
         return if (id >= 0) {

@@ -16,7 +16,7 @@ fun getRecordsDroDownMenuItems(): List<DropDownMenuItem<RecordDropDownMenuItemId
             RecordDropDownMenuItemId.SHARE -> DropDownMenuItem(
                 id = it, textResId = R.string.share, imageResId = R.drawable.ic_share
             )
-            RecordDropDownMenuItemId.INFO -> DropDownMenuItem(
+            RecordDropDownMenuItemId.INFORMATION -> DropDownMenuItem(
                 id = it, textResId = R.string.info, imageResId = R.drawable.ic_info
             )
             RecordDropDownMenuItemId.RENAME -> DropDownMenuItem(

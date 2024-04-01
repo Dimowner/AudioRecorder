@@ -71,7 +71,7 @@ fun HomeScreen(
         }
     }
 
-    when(val event = viewModel.event.collectAsState(null).value) {
+    when (val event = viewModel.event.collectAsState(null).value) {
         HomeScreenEvent.ShowImportErrorError -> {
             Timber.v("ON EVENT: ShowImportErrorError")
         }
@@ -137,19 +137,28 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .height(12.dp))
             if (showDeleteDialog.value) {
-                DeleteDialog(showDeleteDialog, uiState.recordName) {
+                DeleteDialog(uiState.recordName, onAcceptClick =  {
+                    showDeleteDialog.value = false
                     viewModel.deleteActiveRecord()
-                }
-            }
-            if (showSaveAsDialog.value) {
-                SaveAsDialog(showSaveAsDialog, uiState.recordName) {
-                    viewModel.saveActiveRecordAs()
-                }
-            }
-            if (showRenameDialog.value) {
-                RenameAlertDialog(showRenameDialog, uiState.recordName, {
-                    viewModel.renameActiveRecord(it)
+                }, onDismissClick = {
+                    showDeleteDialog.value = false
                 })
+            } else if (showSaveAsDialog.value) {
+                SaveAsDialog(uiState.recordName, onAcceptClick = {
+                    showSaveAsDialog.value = false
+                    viewModel.saveActiveRecordAs()
+                }, onDismissClick = {
+                    showSaveAsDialog.value = false
+                })
+            } else if (showRenameDialog.value) {
+                RenameAlertDialog(uiState.recordName,
+                    onAcceptClick = {
+                        showRenameDialog.value = false
+                        viewModel.renameActiveRecord(it)
+                    }, onDismissClick = {
+                        showRenameDialog.value = false
+                    }
+                )
             }
         }
     }

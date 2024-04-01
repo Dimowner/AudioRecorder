@@ -368,9 +368,9 @@ fun InfoAlertDialog(
 
 @Composable
 fun RenameAlertDialog(
-    openDialog: MutableState<Boolean>,
     recordName: String,
     onAcceptClick: (String) -> Unit,
+    onDismissClick: () -> Unit,
     onDontAskAgain: (Boolean) -> Unit = {},
     showDontAskAgain: Boolean = false
 ) {
@@ -425,7 +425,7 @@ fun RenameAlertDialog(
             }
         },
         onDismissRequest = {
-            openDialog.value = false
+            onDismissClick()
         },
         confirmButton = {
             TextButton(
@@ -434,7 +434,6 @@ fun RenameAlertDialog(
                     if (showDontAskAgain) {
                         onDontAskAgain(checkedState.value)
                     }
-                    openDialog.value = false
                 }
             ) {
                 Text(stringResource(id = R.string.btn_save))
@@ -444,7 +443,7 @@ fun RenameAlertDialog(
         dismissButton = {
             TextButton(
                 onClick = {
-                    openDialog.value = false
+                    onDismissClick()
                 }
             ) {
                 Text(stringResource(id = R.string.btn_cancel))
@@ -456,7 +455,7 @@ fun RenameAlertDialog(
 @Preview(showBackground = true)
 @Composable
 fun RenameAlertDialogPreview() {
-    RenameAlertDialog(remember { mutableStateOf(true) }, "Record-14", {}, {}, true)
+    RenameAlertDialog("Record-14", {}, {}, {}, true)
 }
 
 @Composable
@@ -532,61 +531,51 @@ fun <T> RecordsDropDownMenu(
 
 @Composable
 fun DeleteDialog(
-    openDialog: MutableState<Boolean>,
     recordName: String,
-    onAcceptClick: () -> Unit
+    onAcceptClick: () -> Unit,
+    onDismissClick: () -> Unit,
 ) {
-    if (openDialog.value) {
-        ConfirmationAlertDialog(
-            onDismissRequest = { openDialog.value = false },
-            onConfirmation = {
-                openDialog.value = false
-                onAcceptClick()
-            },
-            dialogTitle = stringResource(id = R.string.warning),
-            dialogText = stringResource(id = R.string.delete_record, recordName),
-            painter = painterResource(id = R.drawable.ic_delete_forever),
-            positiveButton = stringResource(id = R.string.btn_yes),
-            negativeButton = stringResource(id = R.string.btn_no)
-        )
-    }
+    ConfirmationAlertDialog(
+        onDismissRequest = { onDismissClick() },
+        onConfirmation = { onAcceptClick() },
+        dialogTitle = stringResource(id = R.string.warning),
+        dialogText = stringResource(id = R.string.delete_record, recordName),
+        painter = painterResource(id = R.drawable.ic_delete_forever),
+        positiveButton = stringResource(id = R.string.btn_yes),
+        negativeButton = stringResource(id = R.string.btn_no)
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DeleteDialogPreview() {
-    DeleteDialog(remember { mutableStateOf(true) }, "Record-14", {})
+    DeleteDialog("Record-14", {}, {})
 }
 
 @Composable
 fun SaveAsDialog(
-    openDialog: MutableState<Boolean>,
     recordName: String,
-    onAcceptClick: () -> Unit
+    onAcceptClick: () -> Unit,
+    onDismissClick: () -> Unit,
 ) {
-    if (openDialog.value) {
-        ConfirmationAlertDialog(
-            onDismissRequest = { openDialog.value = false },
-            onConfirmation = {
-                openDialog.value = false
-                onAcceptClick()
-            },
-            dialogTitle = stringResource(id = R.string.save_as),
-            dialogText = stringResource(
-                id = R.string.record_name_will_be_copied_into_downloads,
-                recordName
-            ),
-            painter = painterResource(id = R.drawable.ic_save_alt),
-            positiveButton = stringResource(id = R.string.btn_yes),
-            negativeButton = stringResource(id = R.string.btn_no)
-        )
-    }
+    ConfirmationAlertDialog(
+        onDismissRequest = { onDismissClick() },
+        onConfirmation = { onAcceptClick() },
+        dialogTitle = stringResource(id = R.string.save_as),
+        dialogText = stringResource(
+            id = R.string.record_name_will_be_copied_into_downloads,
+            recordName
+        ),
+        painter = painterResource(id = R.drawable.ic_save_alt),
+        positiveButton = stringResource(id = R.string.btn_yes),
+        negativeButton = stringResource(id = R.string.btn_no)
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun SaveAsDialogPreview() {
-    SaveAsDialog(remember { mutableStateOf(true) }, "Record-14", {})
+    SaveAsDialog("Record-14", {}, {})
 }
 
 data class DropDownMenuItem<T>(
