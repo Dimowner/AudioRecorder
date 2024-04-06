@@ -30,23 +30,27 @@ import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
+import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
+import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class RecordsViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+//    savedStateHandle: SavedStateHandle,
     private val recordsDataSource: RecordsDataSource,
-    private val fileDataSource: FileDataSource,
+//    private val fileDataSource: FileDataSource,
     private val prefs: PrefsV2,
-    @ApplicationContext context: Context,
+    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @ApplicationContext context: Context
 ) : AndroidViewModel(context as Application) {
 
     val uiState = mutableStateOf(RecordsScreenState())
@@ -55,9 +59,9 @@ class RecordsViewModel @Inject constructor(
     val event: SharedFlow<RecordsScreenEvent?> = _event
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
-            val records = recordsDataSource.getActiveRecords()
-            withContext(Dispatchers.Main) {
+        viewModelScope.launch(ioDispatcher) {
+            val records = recordsDataSource.getAllRecords()
+            withContext(mainDispatcher) {
                 uiState.value = RecordsScreenState(
                     sortOrder = SortOrder.DateAsc,
                     records = records.map { it.toRecordListItem(context) }
@@ -66,11 +70,11 @@ class RecordsViewModel @Inject constructor(
         }
     }
 
-    fun shareRecord(recordId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
+    fun shareRecord(recordId: Long) {
+        viewModelScope.launch(ioDispatcher) {
             val record = recordsDataSource.getRecord(recordId)
             if (record != null) {
-                withContext(Dispatchers.Main) {
+                withContext(mainDispatcher) {
                     AndroidUtils.shareAudioFile(
                         getApplication<Application>().applicationContext,
                         record.path,
@@ -82,8 +86,8 @@ class RecordsViewModel @Inject constructor(
         }
     }
 
-    fun showRecordInfo(recordId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
+    fun showRecordInfo(recordId: Long) {
+        viewModelScope.launch(ioDispatcher) {
             recordsDataSource.getRecord(recordId)?.toRecordInfoState()?.let {
                 emitEvent(RecordsScreenEvent.RecordInformationEvent(it))
             }
@@ -104,8 +108,8 @@ class RecordsViewModel @Inject constructor(
         )
     }
 
-    fun renameRecord(recordId: Int, newName: String) {
-        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
+    fun renameRecord(recordId: Long, newName: String) {
+        viewModelScope.launch(ioDispatcher) {
             recordsDataSource.getRecord(recordId)?.let {
                 recordsDataSource.renameRecord(it, newName)
 //                updateState()
@@ -114,11 +118,11 @@ class RecordsViewModel @Inject constructor(
         }
     }
 
-    fun openRecordWithAnotherApp(recordId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
+    fun openRecordWithAnotherApp(recordId: Long) {
+        viewModelScope.launch(ioDispatcher) {
             val record = recordsDataSource.getRecord(recordId)
             if (record != null) {
-                withContext(Dispatchers.Main) {
+                withContext(mainDispatcher) {
                     AndroidUtils.openAudioFile(
                         getApplication<Application>().applicationContext,
                         record.path,
@@ -143,8 +147,8 @@ class RecordsViewModel @Inject constructor(
         )
     }
 
-    fun saveRecordAs(recordId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
+    fun saveRecordAs(recordId: Long) {
+        viewModelScope.launch(ioDispatcher) {
             recordsDataSource.getRecord(recordId)?.let {
                 DownloadService.startNotification(
                     getApplication<Application>().applicationContext,
@@ -169,9 +173,9 @@ class RecordsViewModel @Inject constructor(
         )
     }
 
-    fun deleteRecord(recordId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {//TODO: Fix hardcoded dispatcher
-            if (recordId != -1) {
+    fun deleteRecord(recordId: Long) {
+        viewModelScope.launch(ioDispatcher) {
+            if (recordId != -1L) {
                 recordsDataSource.deleteRecord(recordId)
                 prefs.activeRecordId = -1
                 //TODO: Notify active record deleted
@@ -199,7 +203,7 @@ data class RecordsScreenState(
 )
 
 data class RecordListItem(
-    val recordId: Int,
+    val recordId: Long,
     val name: String,
     val details: String,
     val duration: String,

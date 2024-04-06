@@ -24,7 +24,7 @@ import androidx.room.TypeConverters
 @Entity(tableName = "records")
 @TypeConverters(Converters::class)
 data class RecordEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "duration") val duration: Long,
     @ColumnInfo(name = "created") val created: Long,
@@ -67,7 +67,7 @@ data class RecordEntity(
     }
 
     override fun hashCode(): Int {
-        var result = id
+        var result = id.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + duration.hashCode()
         result = 31 * result + created.hashCode()

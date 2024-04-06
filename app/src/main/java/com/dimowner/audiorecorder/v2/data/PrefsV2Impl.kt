@@ -65,11 +65,11 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             editor.putBoolean(PREF_KEY_ASK_TO_RENAME_AFTER_RECORDING_STOPPED, value)
             editor.apply()
         }
-    override var activeRecordId: Int
-        get() = sharedPreferences.getInt(PREF_KEY_ACTIVE_RECORD_ID, -1)
+    override var activeRecordId: Long
+        get() = sharedPreferences.getLong(PREF_KEY_ACTIVE_RECORD_ID, -1)
         set(value) {
             val editor = sharedPreferences.edit()
-            editor.putInt(PREF_KEY_ACTIVE_RECORD_ID, value)
+            editor.putLong(PREF_KEY_ACTIVE_RECORD_ID, value)
             editor.apply()
         }
     override val recordCounter: Long

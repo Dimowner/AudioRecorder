@@ -25,7 +25,7 @@ class MappersTest {
 
     @Test
     fun test_toRecord() {
-        val id = 1
+        val id = 1L
         val name = "TestName"
         val duration = 15000L
         val created = 123456788L
@@ -69,7 +69,7 @@ class MappersTest {
 
     @Test
     fun test_toRecordEntity() {
-        val id = 1
+        val id = 1L
         val name = "TestName"
         val duration = 15000L
         val created = 123456788L

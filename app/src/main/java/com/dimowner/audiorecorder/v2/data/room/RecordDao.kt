@@ -17,17 +17,19 @@
 package com.dimowner.audiorecorder.v2.data.room
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RawQuery
 import androidx.room.Update
-import androidx.room.Delete
+import androidx.sqlite.db.SupportSQLiteQuery
 
 @Dao
 interface RecordDao {
 
     @Query("SELECT * FROM records WHERE id = :recordId")
-    fun getRecordById(recordId: Int): RecordEntity?
+    fun getRecordById(recordId: Long): RecordEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertRecord(record: RecordEntity): Long
@@ -39,7 +41,7 @@ interface RecordDao {
     fun deleteRecord(record: RecordEntity)
 
     @Query("DELETE FROM records WHERE id = :recordId")
-    fun deleteRecordById(recordId: Int)
+    fun deleteRecordById(recordId: Long)
 
     @Query("DELETE FROM records")
     fun deleteAllRecords()
@@ -50,9 +52,12 @@ interface RecordDao {
     @Query("SELECT SUM(duration) AS total_duration FROM records;")
     fun getRecordTotalDuration(): Long
 
-    @Query("SELECT * FROM records ORDER BY id LIMIT :pageSize OFFSET :offset")
+    @Query("SELECT * FROM records ORDER BY added DESC LIMIT :pageSize OFFSET :offset")
     fun getRecordsByPage(pageSize: Int, offset: Int): List<RecordEntity>
 
-    @Query("SELECT * FROM records ORDER BY id")
+    @Query("SELECT * FROM records ORDER BY added DESC")
     fun getAllRecords(): List<RecordEntity>
+
+    @RawQuery
+    fun getRecordsRewQuery(query: SupportSQLiteQuery): List<RecordEntity>
 }

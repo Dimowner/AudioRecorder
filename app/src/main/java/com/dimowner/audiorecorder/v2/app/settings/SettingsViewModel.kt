@@ -36,9 +36,11 @@ import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
+import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
+import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -53,6 +55,8 @@ class SettingsViewModel @Inject constructor(
 //    savedStateHandle: SavedStateHandle,
     private val prefs: PrefsV2,
     private val recordsDataSource: RecordsDataSource,
+    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext context: Context,
 ) : ViewModel() {
 
@@ -136,10 +140,10 @@ class SettingsViewModel @Inject constructor(
     val state: LiveData<SettingsState> = _state.asLiveData()
 
     fun initSettings() {
-        viewModelScope.launch(Dispatchers.IO) {//TODO: Use Injected Dispatcher
+        viewModelScope.launch(ioDispatcher) {
             val recordsCount = recordsDataSource.getRecordsCount()
             val recordsDuration = recordsDataSource.getRecordTotalDuration()
-            withContext(Dispatchers.Main) {//TODO: Use Injected Dispatcher
+            withContext(mainDispatcher) {
                 _state.update {
                     it.copy(totalRecordCount = recordsCount, totalRecordDuration = recordsDuration)
                 }

@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.v2.data
 
+import androidx.sqlite.db.SimpleSQLiteQuery
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.room.AppDatabase
 import com.dimowner.audiorecorder.v2.data.room.RecordDao
@@ -31,7 +32,7 @@ class RecordsDataSourceImpl @Inject internal constructor(
     private val fileDataSource: FileDataSource,
 ): RecordsDataSource {
 
-    override suspend fun getRecord(id: Int): Record? {
+    override suspend fun getRecord(id: Long): Record? {
         return if (id >= 0) {
             recordDao.getRecordById(id)?.toRecord()
         } else {
@@ -48,8 +49,26 @@ class RecordsDataSourceImpl @Inject internal constructor(
         }
     }
 
-    override suspend fun getActiveRecords(): List<Record> {
+    override suspend fun getAllRecords(): List<Record> {
         return recordDao.getAllRecords().map { it.toRecord() }
+    }
+
+    override suspend fun getRecords(
+        sortFiled: String,
+        page: Int,
+        pageSize: Int,
+        isAscending: Boolean,
+        isBookmarked: Boolean
+    ): List<Record> {
+        val sb = StringBuilder()
+        sb.append("SELECT * FROM records")
+        if (isBookmarked) {
+            sb.append(" WHERE isBookmarked = 1")
+        }
+        sb.append(" ORDER BY " + if (isAscending) "$sortFiled ASC" else "$sortFiled DESC")
+        sb.append(" LIMIT $pageSize")
+        sb.append(" OFFSET " + ((page - 1) * pageSize))
+        return recordDao.getRecordsRewQuery(SimpleSQLiteQuery(sb.toString())).map { it.toRecord() }
     }
 
     override suspend fun insertRecord(record: Record): Long {
@@ -84,7 +103,7 @@ class RecordsDataSourceImpl @Inject internal constructor(
         return recordDao.getRecordTotalDuration()
     }
 
-    override suspend fun deleteRecord(id: Int) {
+    override suspend fun deleteRecord(id: Long) {
         return recordDao.deleteRecordById(id)
     }
 }

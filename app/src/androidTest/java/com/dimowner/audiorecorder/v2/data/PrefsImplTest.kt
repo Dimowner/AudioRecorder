@@ -53,7 +53,7 @@ class PrefsImplTest {
 
     @Test
     fun test_fullPreferenceReset() {
-        val id = 101
+        val id = 101L
 
         prefs.confirmFirstRunExecuted()
         prefs.activeRecordId = id

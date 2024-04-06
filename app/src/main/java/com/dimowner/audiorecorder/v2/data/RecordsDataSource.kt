@@ -20,11 +20,19 @@ import com.dimowner.audiorecorder.v2.data.model.Record
 
 interface RecordsDataSource {
 
-    suspend fun getRecord(id: Int): Record?
+    suspend fun getRecord(id: Long): Record?
 
     suspend fun getActiveRecord(): Record?
 
-    suspend fun getActiveRecords(): List<Record>
+    suspend fun getAllRecords(): List<Record>
+
+    suspend fun getRecords(
+        sortFiled: String,
+        page: Int,
+        pageSize: Int,
+        isAscending: Boolean,
+        isBookmarked: Boolean,
+    ): List<Record>
 
     suspend fun insertRecord(record: Record): Long
 
@@ -36,5 +44,5 @@ interface RecordsDataSource {
 
     suspend fun getRecordTotalDuration(): Long
 
-    suspend fun deleteRecord(id: Int)
+    suspend fun deleteRecord(id: Long)
 }

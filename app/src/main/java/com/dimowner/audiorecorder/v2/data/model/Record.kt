@@ -17,7 +17,7 @@
 package com.dimowner.audiorecorder.v2.data.model
 
 data class Record(
-    val id: Int,
+    val id: Long,
     val name: String,
     val durationMills: Long,
     val created: Long,
@@ -61,7 +61,7 @@ data class Record(
     }
 
     override fun hashCode(): Int {
-        var result = id
+        var result = id.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + durationMills.hashCode()
         result = 31 * result + created.hashCode()
