@@ -17,7 +17,10 @@
 package com.dimowner.audiorecorder.v2.data
 
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.dimowner.audiorecorder.v2.data.extensions.toRecordsSortColumnName
+import com.dimowner.audiorecorder.v2.data.extensions.toSqlSortOrder
 import com.dimowner.audiorecorder.v2.data.model.Record
+import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.data.room.AppDatabase
 import com.dimowner.audiorecorder.v2.data.room.RecordDao
 import java.io.IOException
@@ -54,10 +57,9 @@ class RecordsDataSourceImpl @Inject internal constructor(
     }
 
     override suspend fun getRecords(
-        sortFiled: String,
         page: Int,
         pageSize: Int,
-        isAscending: Boolean,
+        sortOrder: SortOrder,
         isBookmarked: Boolean
     ): List<Record> {
         val sb = StringBuilder()
@@ -65,7 +67,7 @@ class RecordsDataSourceImpl @Inject internal constructor(
         if (isBookmarked) {
             sb.append(" WHERE isBookmarked = 1")
         }
-        sb.append(" ORDER BY " + if (isAscending) "$sortFiled ASC" else "$sortFiled DESC")
+        sb.append(" ORDER BY ${sortOrder.toRecordsSortColumnName()} ${sortOrder.toSqlSortOrder()}")
         sb.append(" LIMIT $pageSize")
         sb.append(" OFFSET " + ((page - 1) * pageSize))
         return recordDao.getRecordsRewQuery(SimpleSQLiteQuery(sb.toString())).map { it.toRecord() }

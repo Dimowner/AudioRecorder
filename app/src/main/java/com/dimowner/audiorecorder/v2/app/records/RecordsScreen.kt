@@ -66,9 +66,14 @@ fun RecordsScreen(
             RecordsTopBar(
                 stringResource(id = R.string.records),
                 uiState.sortOrder.toText(context),
+                bookmarksSelected = uiState.bookmarksSelected,
                 onBackPressed = { navController.popBackStack() },
-                onSortItemClick = {},
-                onBookmarksClick = {}
+                onSortItemClick = { order ->
+                    viewModel.updateListWithSortOrder(order)
+                },
+                onBookmarksClick = { bookmarksSelected ->
+                    viewModel.updateListWithBookmarks(bookmarksSelected)
+                }
             )
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
@@ -80,7 +85,9 @@ fun RecordsScreen(
                         duration = record.duration,
                         isBookmarked = record.isBookmarked,
                         onClickItem = {},
-                        onClickBookmark = {},
+                        onClickBookmark = { isBookmarked ->
+                            viewModel.bookmarkRecord(record.recordId, isBookmarked)
+                        },
                         onClickMenu = {
                             when (it) {
                                 RecordDropDownMenuItemId.SHARE -> viewModel.shareRecord(record.recordId)

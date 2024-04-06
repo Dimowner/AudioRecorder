@@ -20,13 +20,12 @@ import android.app.Application
 import android.content.Context
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.dimowner.audiorecorder.app.DownloadService
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
-import com.dimowner.audiorecorder.v2.data.FileDataSource
+import com.dimowner.audiorecorder.v2.app.records.models.SortDropDownMenuItemId
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
@@ -35,7 +34,6 @@ import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -65,6 +63,67 @@ class RecordsViewModel @Inject constructor(
                 uiState.value = RecordsScreenState(
                     sortOrder = SortOrder.DateAsc,
                     records = records.map { it.toRecordListItem(context) }
+                )
+            }
+        }
+    }
+
+    fun updateListWithBookmarks(bookmarksSelected: Boolean) {
+        viewModelScope.launch(ioDispatcher) {
+            val records = recordsDataSource.getRecords(
+                sortOrder = uiState.value.sortOrder,
+                page = 1,
+                pageSize = 100,
+                isBookmarked = bookmarksSelected,
+            )
+            withContext(mainDispatcher) {
+                uiState.value = uiState.value.copy(
+                    records = records.map {
+                        it.toRecordListItem(getApplication<Application>().applicationContext)
+                    },
+                    bookmarksSelected = bookmarksSelected
+                )
+            }
+        }
+    }
+
+    fun bookmarkRecord(recordId: Long, addToBookmarks: Boolean) {
+        viewModelScope.launch(ioDispatcher) {
+            recordsDataSource.getRecord(recordId)?.let {
+                recordsDataSource.updateRecord(it.copy(isBookmarked = addToBookmarks))
+            }
+            val updated = recordsDataSource.getRecord(recordId)
+            if (updated != null) {
+                withContext(mainDispatcher) {
+                    uiState.value = uiState.value.copy(
+                        records = uiState.value.records.map {
+                            if (it.recordId == updated.id) {
+                                it.copy(isBookmarked = updated.isBookmarked)
+                            } else {
+                                it
+                            }
+                        },
+                    )
+                }
+            }
+        }
+    }
+
+    fun updateListWithSortOrder(sortOrderId: SortDropDownMenuItemId) {
+        viewModelScope.launch(ioDispatcher) {
+            val sortOrder = sortOrderId.toSortOrder()
+            val records = recordsDataSource.getRecords(
+                sortOrder = sortOrder,
+                page = 1,
+                pageSize = 100,
+                isBookmarked = uiState.value.bookmarksSelected,
+            )
+            withContext(mainDispatcher) {
+                uiState.value = uiState.value.copy(
+                    records = records.map {
+                        it.toRecordListItem(getApplication<Application>().applicationContext)
+                    },
+                    sortOrder = sortOrder
                 )
             }
         }
@@ -195,6 +254,7 @@ class RecordsViewModel @Inject constructor(
 data class RecordsScreenState(
     val records: List<RecordListItem> = emptyList(),
     val sortOrder: SortOrder = SortOrder.DateAsc,
+    val bookmarksSelected: Boolean = false,
 
     val showRenameDialog: Boolean = false,
     val showDeleteDialog: Boolean = false,

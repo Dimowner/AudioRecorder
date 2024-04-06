@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.v2.data
 
 import com.dimowner.audiorecorder.v2.data.model.Record
+import com.dimowner.audiorecorder.v2.data.model.SortOrder
 
 interface RecordsDataSource {
 
@@ -27,11 +28,10 @@ interface RecordsDataSource {
     suspend fun getAllRecords(): List<Record>
 
     suspend fun getRecords(
-        sortFiled: String,
         page: Int,
         pageSize: Int,
-        isAscending: Boolean,
-        isBookmarked: Boolean,
+        sortOrder: SortOrder = SortOrder.DateDesc,
+        isBookmarked: Boolean = false,
     ): List<Record>
 
     suspend fun insertRecord(record: Record): Long

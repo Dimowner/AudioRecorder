@@ -48,9 +48,10 @@ import timber.log.Timber
 fun RecordsTopBar(
     title: String,
     subTitle: String,
+    bookmarksSelected: Boolean,
     onBackPressed: () -> Unit,
     onSortItemClick: (SortDropDownMenuItemId) -> Unit,
-    onBookmarksClick: () -> Unit,
+    onBookmarksClick: (Boolean) -> Unit,
 ) {
     val expanded = remember { mutableStateOf(false) }
 
@@ -135,14 +136,20 @@ fun RecordsTopBar(
             }
         }
         FilledIconButton(
-            onClick = onBookmarksClick,
+            onClick = {
+                onBookmarksClick(!bookmarksSelected)
+            },
             colors = IconButtonDefaults.filledIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.onSurface
             )
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_bookmark_bordered),
+                painter = if (bookmarksSelected) {
+                    painterResource(id = R.drawable.ic_bookmark)
+                } else {
+                    painterResource(id = R.drawable.ic_bookmark_bordered)
+                },
                 contentDescription = stringResource(id = androidx.compose.ui.R.string.dropdown_menu),
                 modifier = Modifier
                     .size(36.dp)
@@ -155,7 +162,7 @@ fun RecordsTopBar(
 @Preview(showBackground = true)
 @Composable
 fun TitleBarPreview() {
-    RecordsTopBar("Title bar", "By date", {}, {}, {})
+    RecordsTopBar("Title bar", "By date", false, {}, {}, {})
 }
 
 @Composable
@@ -165,7 +172,7 @@ fun RecordListItem(
     duration: String,
     isBookmarked: Boolean,
     onClickItem: () -> Unit,
-    onClickBookmark: () -> Unit,
+    onClickBookmark: (Boolean) -> Unit,
     onClickMenu: (RecordDropDownMenuItemId) -> Unit,
 ) {
     val expanded = remember { mutableStateOf(false) }
@@ -218,7 +225,7 @@ fun RecordListItem(
             horizontalAlignment = Alignment.End
         ) {
             FilledIconButton(
-                onClick = onClickBookmark,
+                onClick = { onClickBookmark(!isBookmarked) },
                 modifier = Modifier
                     .width(36.dp)
                     .height(32.dp),

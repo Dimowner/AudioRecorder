@@ -50,10 +50,10 @@ fun getSortDroDownMenuItems(): List<DropDownMenuItem<SortDropDownMenuItemId>> {
             SortDropDownMenuItemId.NAME_DESC -> DropDownMenuItem(
                 id = it, textResId = R.string.by_name_desc, imageResId = R.drawable.ic_sort_by_alpha
             )
-            SortDropDownMenuItemId.DURATION -> DropDownMenuItem(
+            SortDropDownMenuItemId.DURATION_DESC -> DropDownMenuItem(
                 id = it, textResId = R.string.by_duration, imageResId = R.drawable.ic_access_time
             )
-            SortDropDownMenuItemId.DURATION_DESC -> DropDownMenuItem(
+            SortDropDownMenuItemId.DURATION -> DropDownMenuItem(
                 id = it, textResId = R.string.by_duration_desc, imageResId = R.drawable.ic_access_time
             )
         }
@@ -76,7 +76,18 @@ fun SortOrder.toText(context: Context): String {
         SortOrder.DateDesc -> context.getString(R.string.by_date_desc)
         SortOrder.NameAsc -> context.getString(R.string.by_name)
         SortOrder.NameDesc -> context.getString(R.string.by_name_desc)
-        SortOrder.DurationLongest -> context.getString(R.string.by_duration_desc)
-        SortOrder.DurationShortest -> context.getString(R.string.by_duration)
+        SortOrder.DurationShortest -> context.getString(R.string.by_duration_desc)
+        SortOrder.DurationLongest -> context.getString(R.string.by_duration)
+    }
+}
+
+fun SortDropDownMenuItemId.toSortOrder(): SortOrder {
+    return when (this) {
+        SortDropDownMenuItemId.DATE -> SortOrder.DateAsc
+        SortDropDownMenuItemId.DATE_DESC -> SortOrder.DateDesc
+        SortDropDownMenuItemId.NAME -> SortOrder.NameAsc
+        SortDropDownMenuItemId.NAME_DESC -> SortOrder.NameDesc
+        SortDropDownMenuItemId.DURATION -> SortOrder.DurationShortest
+        SortDropDownMenuItemId.DURATION_DESC -> SortOrder.DurationLongest
     }
 }
