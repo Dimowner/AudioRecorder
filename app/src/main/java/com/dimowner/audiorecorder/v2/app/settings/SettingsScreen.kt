@@ -31,6 +31,7 @@ import timber.log.Timber
 @Composable
 fun SettingsScreen(
     navController: NavHostController,
+    showDeletedRecordsScreen: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -88,7 +89,7 @@ fun SettingsScreen(
             ) {
                 Spacer(modifier = Modifier.size(8.dp))
                 SettingsItem(stringResource(R.string.trash), R.drawable.ic_delete) {
-
+                    showDeletedRecordsScreen()
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     SettingsItemCheckBox(
@@ -229,5 +230,5 @@ fun SettingsScreen(
 @Preview
 @Composable
 fun RecordInfoScreenPreview() {
-    SettingsScreen(rememberNavController())
+    SettingsScreen(rememberNavController(), {})
 }

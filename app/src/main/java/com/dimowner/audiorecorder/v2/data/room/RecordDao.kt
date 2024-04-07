@@ -58,6 +58,9 @@ interface RecordDao {
     @Query("SELECT * FROM records ORDER BY added DESC")
     fun getAllRecords(): List<RecordEntity>
 
+    @Query("SELECT * FROM records WHERE isMovedToRecycle = 1 ORDER BY removed DESC")
+    fun getMovedToRecycleRecords(): List<RecordEntity>
+
     @RawQuery
     fun getRecordsRewQuery(query: SupportSQLiteQuery): List<RecordEntity>
 }

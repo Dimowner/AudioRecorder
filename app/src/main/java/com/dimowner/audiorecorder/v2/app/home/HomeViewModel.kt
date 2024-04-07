@@ -224,6 +224,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             val recordId = prefs.activeRecordId
             if (recordId != -1L) {
+                //TODO: Do not delete the record from database. Just mark it as deleted
                 recordsDataSource.deleteRecord(recordId)
                 prefs.activeRecordId = -1
                 //TODO: Notify active record deleted

@@ -44,13 +44,14 @@ import timber.log.Timber
 
 @Composable
 fun ComposePlaygroundScreen(
-    navController: NavHostController,
     userInputViewModel: UserInputViewModel,
-    showWelcomeScreen: (Pair<String, String>) -> Unit,
+    showDetailsScreen: (Pair<String, String>) -> Unit,
     showRecordInfoScreen: (String) -> Unit,
     showSettingsScreen: () -> Unit,
     showHomeScreen: () -> Unit,
     showRecordsScreen: () -> Unit,
+    showWelcomeScreen: () -> Unit,
+    showDeletedRecordsScreen: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -97,7 +98,7 @@ fun ComposePlaygroundScreen(
                 Spacer(modifier = Modifier.weight(1f))
                 if (userInputViewModel.isValidState()) {
                     Button(onClick = {
-                        showWelcomeScreen(
+                        showDetailsScreen(
                             Pair(
                                 userInputViewModel.uiState.value.nameEntered,
                                 userInputViewModel.uiState.value.animalSelected
@@ -126,6 +127,15 @@ fun ComposePlaygroundScreen(
                     Spacer(modifier = Modifier.width(16.dp))
                     Button(onClick = { showRecordsScreen() }) {
                         Text(text = "Records Screen",)
+                    }
+                }
+                Row {
+                    Button(onClick = { showWelcomeScreen() }) {
+                        Text(text = "Welcome Screen",)
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Button(onClick = { showDeletedRecordsScreen() }) {
+                        Text(text = "Deleted Records",)
                     }
                 }
 
@@ -229,5 +239,5 @@ fun ComposePlaygroundScreen(
 @Preview
 @Composable
 fun UserInputScreenPreview() {
-    ComposePlaygroundScreen(rememberNavController(), viewModel(), {}, {}, {}, {}, {})
+    ComposePlaygroundScreen(viewModel(), {}, {}, {}, {}, {}, {}, {})
 }

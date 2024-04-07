@@ -56,6 +56,10 @@ class RecordsDataSourceImpl @Inject internal constructor(
         return recordDao.getAllRecords().map { it.toRecord() }
     }
 
+    override suspend fun getMovedToRecycleRecords(): List<Record> {
+        return recordDao.getMovedToRecycleRecords().map { it.toRecord() }
+    }
+
     override suspend fun getRecords(
         page: Int,
         pageSize: Int,

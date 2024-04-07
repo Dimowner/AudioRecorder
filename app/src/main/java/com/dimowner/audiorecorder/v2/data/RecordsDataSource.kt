@@ -26,6 +26,7 @@ interface RecordsDataSource {
     suspend fun getActiveRecord(): Record?
 
     suspend fun getAllRecords(): List<Record>
+    suspend fun getMovedToRecycleRecords(): List<Record>
 
     suspend fun getRecords(
         page: Int,

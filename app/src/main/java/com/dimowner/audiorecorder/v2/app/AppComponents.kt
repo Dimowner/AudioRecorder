@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -182,7 +183,12 @@ fun InfoCardPreview() {
 }
 
 @Composable
-fun TitleBar(value: String, onBackPressed: () -> Unit) {
+fun TitleBar(
+    title: String,
+    onBackPressed: () -> Unit,
+    actionButtonText: String = "",
+    onActionClick: (() -> Unit)? = null
+) {
 //    val localFocusManager = LocalFocusManager.current
     Row(
         modifier = Modifier
@@ -209,9 +215,8 @@ fun TitleBar(value: String, onBackPressed: () -> Unit) {
                 modifier = Modifier.size(24.dp)
             )
         }
-
         Text(
-            text = value,
+            text = title,
             color = MaterialTheme.colorScheme.onSurface,
             fontSize = 24.sp,
             fontFamily = FontFamily(
@@ -222,13 +227,27 @@ fun TitleBar(value: String, onBackPressed: () -> Unit) {
             ),
         )
         Spacer(modifier = Modifier.weight(1f))
+        if (onActionClick != null) {
+            Button(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .wrapContentSize(),
+                onClick = { onActionClick() }
+            ) {
+                Text(
+                    text = actionButtonText,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Light,
+                )
+            }
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun TitleBarPreview() {
-    TitleBar("Title bar", {})
+    TitleBar("Title bar", {}, "BtnText", {})
 }
 
 @Composable

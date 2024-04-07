@@ -23,11 +23,14 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dimowner.audiorecorder.app.DownloadService
 import com.dimowner.audiorecorder.util.AndroidUtils
+import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
 import com.dimowner.audiorecorder.v2.app.records.models.SortDropDownMenuItemId
+import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
@@ -41,7 +44,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class RecordsViewModel @Inject constructor(
+internal class RecordsViewModel @Inject constructor(
 //    savedStateHandle: SavedStateHandle,
     private val recordsDataSource: RecordsDataSource,
 //    private val fileDataSource: FileDataSource,
@@ -251,7 +254,7 @@ class RecordsViewModel @Inject constructor(
     }
 }
 
-data class RecordsScreenState(
+internal data class RecordsScreenState(
     val records: List<RecordListItem> = emptyList(),
     val sortOrder: SortOrder = SortOrder.DateAsc,
     val bookmarksSelected: Boolean = false,
@@ -262,7 +265,7 @@ data class RecordsScreenState(
     val selectedRecord: RecordListItem? = null,
 )
 
-data class RecordListItem(
+internal data class RecordListItem(
     val recordId: Long,
     val name: String,
     val details: String,
@@ -270,6 +273,16 @@ data class RecordListItem(
     val isBookmarked: Boolean
 )
 
-sealed class RecordsScreenEvent {
+internal sealed class RecordsScreenEvent {
     data class RecordInformationEvent(val recordInfo: RecordInfoState) : RecordsScreenEvent()
+}
+
+internal fun Record.toRecordListItem(context: Context): RecordListItem {
+    return RecordListItem(
+        recordId = this.id,
+        name = this.name,
+        details = this.toInfoCombinedText(context),
+        duration =  TimeUtils.formatTimeIntervalHourMinSec2(this.durationMills),
+        isBookmarked = this.isBookmarked
+    )
 }

@@ -17,13 +17,15 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.dimowner.audiorecorder.v2.app.ComposePlaygroundScreen
 import com.dimowner.audiorecorder.v2.app.UserInputViewModel
-import com.dimowner.audiorecorder.v2.app.WelcomeScreen
+import com.dimowner.audiorecorder.v2.app.DetailsWelcomeScreen
+import com.dimowner.audiorecorder.v2.app.deleted.DeletedRecordsScreen
 import com.dimowner.audiorecorder.v2.app.home.HomeScreen
 import com.dimowner.audiorecorder.v2.app.info.AssetParamType
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoScreen
 import com.dimowner.audiorecorder.v2.app.records.RecordsScreen
 import com.dimowner.audiorecorder.v2.app.settings.SettingsScreen
+import com.dimowner.audiorecorder.v2.app.welcome.WelcomeScreen
 
 private const val ANIMATION_DURATION = 120
 
@@ -39,9 +41,9 @@ fun RecorderNavigationGraph(userInputViewModel: UserInputViewModel = viewModel()
         popExitTransition = { popExitTransition(this) }
     ) {
         composable(Routes.COMPOSE_PLAYGROUND_SCREEN) {
-            ComposePlaygroundScreen(navController, userInputViewModel,
-                showWelcomeScreen = {
-                    navController.navigate(Routes.WELCOME_SCREEN +"/${it.first}/${it.second}")
+            ComposePlaygroundScreen(userInputViewModel,
+                showDetailsScreen = {
+                    navController.navigate(Routes.DETAILS_SCREEN +"/${it.first}/${it.second}")
                 },
                 showRecordInfoScreen = { json ->
                     navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
@@ -54,6 +56,12 @@ fun RecorderNavigationGraph(userInputViewModel: UserInputViewModel = viewModel()
                 },
                 showRecordsScreen = {
                     navController.navigate(Routes.RECORDS_SCREEN)
+                },
+                showWelcomeScreen = {
+                    navController.navigate(Routes.WELCOME_SCREEN)
+                },
+                showDeletedRecordsScreen = {
+                    navController.navigate(Routes.DELETED_RECORDS_SCREEN)
                 }
             )
         }
@@ -73,10 +81,19 @@ fun RecorderNavigationGraph(userInputViewModel: UserInputViewModel = viewModel()
                 },
             )
         }
-        composable(Routes.SETTINGS_SCREEN) {
-            SettingsScreen(navController)
+        composable(Routes.DELETED_RECORDS_SCREEN) {
+            DeletedRecordsScreen(navController,
+                showRecordInfoScreen = { json ->
+                    navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
+                },
+            )
         }
-        composable("${Routes.WELCOME_SCREEN}/{${Routes.USER_NAME}}/{${Routes.ANIMAL_SELECTED}}",
+        composable(Routes.SETTINGS_SCREEN) {
+            SettingsScreen(navController, showDeletedRecordsScreen = {
+                navController.navigate(Routes.DELETED_RECORDS_SCREEN)
+            })
+        }
+        composable("${Routes.DETAILS_SCREEN}/{${Routes.USER_NAME}}/{${Routes.ANIMAL_SELECTED}}",
                 arguments = listOf(
                     navArgument(name = Routes.USER_NAME) { type = NavType.StringType },
                     navArgument(name = Routes.ANIMAL_SELECTED) { type = NavType.StringType }
@@ -84,9 +101,16 @@ fun RecorderNavigationGraph(userInputViewModel: UserInputViewModel = viewModel()
             ) {
             val userName = it.arguments?.getString(Routes.USER_NAME)
             val animalSelected = it.arguments?.getString(Routes.ANIMAL_SELECTED)
-            WelcomeScreen(userName = userName, animalSelected = animalSelected)
+            DetailsWelcomeScreen(userName = userName, animalSelected = animalSelected)
         }
-
+        composable(Routes.WELCOME_SCREEN) {
+            WelcomeScreen(onGetStarted = {
+                //TODO: navigate to app setup settings screen
+                navController.navigate(Routes.HOME_SCREEN) {
+                    popUpTo(0)
+                }
+            })
+        }
         composable(
             "${Routes.RECORD_INFO_SCREEN}/{${Routes.RECORD_INFO}}",
             arguments = listOf(

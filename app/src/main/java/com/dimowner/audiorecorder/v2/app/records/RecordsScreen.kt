@@ -38,7 +38,7 @@ import com.google.gson.Gson
 import timber.log.Timber
 
 @Composable
-fun RecordsScreen(
+internal fun RecordsScreen(
     navController: NavHostController,
     showRecordInfoScreen: (String) -> Unit,
     viewModel: RecordsViewModel = hiltViewModel(),

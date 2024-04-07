@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun WelcomeScreen(userName: String?, animalSelected: String?) {
+fun DetailsWelcomeScreen(userName: String?, animalSelected: String?) {
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -39,5 +39,5 @@ fun WelcomeScreen(userName: String?, animalSelected: String?) {
 @Preview
 @Composable
 fun WelcomeScreenPreview() {
-    WelcomeScreen("name", "animal")
+    DetailsWelcomeScreen("name", "animal")
 }

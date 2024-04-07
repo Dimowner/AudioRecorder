@@ -60,16 +60,6 @@ fun getSortDroDownMenuItems(): List<DropDownMenuItem<SortDropDownMenuItemId>> {
     }
 }
 
-fun Record.toRecordListItem(context: Context): RecordListItem {
-    return RecordListItem(
-        recordId = this.id,
-        name = this.name,
-        details = this.toInfoCombinedText(context),
-        duration =  TimeUtils.formatTimeIntervalHourMinSec2(this.durationMills),
-        isBookmarked = this.isBookmarked
-    )
-}
-
 fun SortOrder.toText(context: Context): String {
     return when (this) {
         SortOrder.DateAsc -> context.getString(R.string.by_date)
