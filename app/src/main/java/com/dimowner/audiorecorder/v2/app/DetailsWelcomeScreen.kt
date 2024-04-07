@@ -38,6 +38,6 @@ fun DetailsWelcomeScreen(userName: String?, animalSelected: String?) {
 
 @Preview
 @Composable
-fun WelcomeScreenPreview() {
+fun DetailsWelcomeScreenPreview() {
     DetailsWelcomeScreen("name", "animal")
 }

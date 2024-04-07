@@ -33,8 +33,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.InfoItem
@@ -42,7 +40,7 @@ import com.dimowner.audiorecorder.v2.app.TitleBar
 
 @Composable
 fun RecordInfoScreen(
-    navController: NavHostController,
+    onPopBackStack: () -> Unit,
     recordInfo: RecordInfoState?
 ) {
     val context = LocalContext.current
@@ -53,7 +51,7 @@ fun RecordInfoScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             TitleBar(
                 stringResource(id = R.string.info),
-                onBackPressed = { navController.popBackStack() }
+                onBackPressed = { onPopBackStack() }
             )
             Column(
                 modifier = Modifier
@@ -115,5 +113,5 @@ fun RecordInfoScreen(
 @Preview
 @Composable
 fun RecordInfoScreenPreview() {
-    RecordInfoScreen(rememberNavController(), null)
+    RecordInfoScreen({}, null)
 }

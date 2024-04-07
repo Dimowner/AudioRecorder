@@ -41,7 +41,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ConfirmationAlertDialog
 import com.dimowner.audiorecorder.v2.app.TitleBar
@@ -51,7 +50,7 @@ import timber.log.Timber
 
 @Composable
 internal fun DeletedRecordsScreen(
-    navController: NavHostController,
+    onPopBackStack: () -> Unit,
     showRecordInfoScreen: (String) -> Unit,
     viewModel: DeletedRecordsViewModel = hiltViewModel(),
 ) {
@@ -78,7 +77,7 @@ internal fun DeletedRecordsScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             TitleBar(
                 title = stringResource(id = R.string.trash),
-                onBackPressed = { navController.popBackStack() },
+                onBackPressed = { onPopBackStack() },
                 actionButtonText = stringResource(id = R.string.delete_all2),
                 onActionClick = { showDeleteAllDialog.value = true }
             )

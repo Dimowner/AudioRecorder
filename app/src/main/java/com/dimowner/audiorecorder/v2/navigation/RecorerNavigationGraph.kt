@@ -8,7 +8,6 @@ import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -16,7 +15,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.dimowner.audiorecorder.v2.app.ComposePlaygroundScreen
-import com.dimowner.audiorecorder.v2.app.UserInputViewModel
 import com.dimowner.audiorecorder.v2.app.DetailsWelcomeScreen
 import com.dimowner.audiorecorder.v2.app.deleted.DeletedRecordsScreen
 import com.dimowner.audiorecorder.v2.app.home.HomeScreen
@@ -25,12 +23,13 @@ import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoScreen
 import com.dimowner.audiorecorder.v2.app.records.RecordsScreen
 import com.dimowner.audiorecorder.v2.app.settings.SettingsScreen
+import com.dimowner.audiorecorder.v2.app.settings.WelcomeSetupSettingsScreen
 import com.dimowner.audiorecorder.v2.app.welcome.WelcomeScreen
 
 private const val ANIMATION_DURATION = 120
 
 @Composable
-fun RecorderNavigationGraph(userInputViewModel: UserInputViewModel = viewModel()) {
+fun RecorderNavigationGraph() {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -41,7 +40,7 @@ fun RecorderNavigationGraph(userInputViewModel: UserInputViewModel = viewModel()
         popExitTransition = { popExitTransition(this) }
     ) {
         composable(Routes.COMPOSE_PLAYGROUND_SCREEN) {
-            ComposePlaygroundScreen(userInputViewModel,
+            ComposePlaygroundScreen(
                 showDetailsScreen = {
                     navController.navigate(Routes.DETAILS_SCREEN +"/${it.first}/${it.second}")
                 },
@@ -75,23 +74,30 @@ fun RecorderNavigationGraph(userInputViewModel: UserInputViewModel = viewModel()
             )
         }
         composable(Routes.RECORDS_SCREEN) {
-            RecordsScreen(navController,
+            RecordsScreen(onPopBackStack = {
+                    navController.popBackStack()
+                },
                 showRecordInfoScreen = { json ->
                     navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
                 },
             )
         }
         composable(Routes.DELETED_RECORDS_SCREEN) {
-            DeletedRecordsScreen(navController,
+            DeletedRecordsScreen(onPopBackStack = {
+                    navController.popBackStack()
+                },
                 showRecordInfoScreen = { json ->
                     navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
                 },
             )
         }
         composable(Routes.SETTINGS_SCREEN) {
-            SettingsScreen(navController, showDeletedRecordsScreen = {
-                navController.navigate(Routes.DELETED_RECORDS_SCREEN)
-            })
+            SettingsScreen(onPopBackStack = {
+                    navController.popBackStack()
+                }, showDeletedRecordsScreen = {
+                    navController.navigate(Routes.DELETED_RECORDS_SCREEN)
+                }
+            )
         }
         composable("${Routes.DETAILS_SCREEN}/{${Routes.USER_NAME}}/{${Routes.ANIMAL_SELECTED}}",
                 arguments = listOf(
@@ -105,11 +111,18 @@ fun RecorderNavigationGraph(userInputViewModel: UserInputViewModel = viewModel()
         }
         composable(Routes.WELCOME_SCREEN) {
             WelcomeScreen(onGetStarted = {
-                //TODO: navigate to app setup settings screen
-                navController.navigate(Routes.HOME_SCREEN) {
-                    popUpTo(0)
-                }
+                navController.navigate(Routes.WELCOME_SETUP_SETTINGS_SCREEN)
             })
+        }
+        composable(Routes.WELCOME_SETUP_SETTINGS_SCREEN) {
+            WelcomeSetupSettingsScreen(onPopBackStack = {
+                    navController.popBackStack()
+                }, onApplySettings = {
+                    navController.navigate(Routes.HOME_SCREEN) {
+                        popUpTo(0)
+                    }
+                }
+            )
         }
         composable(
             "${Routes.RECORD_INFO_SCREEN}/{${Routes.RECORD_INFO}}",
@@ -124,7 +137,9 @@ fun RecorderNavigationGraph(userInputViewModel: UserInputViewModel = viewModel()
             } else {
                 it.arguments?.getParcelable(Routes.RECORD_INFO)
             }
-            RecordInfoScreen(navController, recordInfo)
+            RecordInfoScreen(onPopBackStack = {
+                navController.popBackStack()
+            }, recordInfo)
         }
     }
 }

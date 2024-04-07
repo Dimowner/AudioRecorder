@@ -151,6 +151,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun executeFirstRun() {
+        if (prefs.isFirstRun) {
+            prefs.confirmFirstRunExecuted()
+        }
+    }
+
     fun setDarkTheme(value: Boolean) {
         prefs.isDarkTheme = value
     }
@@ -186,7 +192,8 @@ class SettingsViewModel @Inject constructor(
         prefs.settingBitrate = DefaultValues.DefaultBitRate
         prefs.settingChannelCount = DefaultValues.DefaultChannelCount
         _state.update {
-            it.copy(recordingSettings = it.recordingSettings.map { formatSetting ->
+            it.copy(
+                recordingSettings = it.recordingSettings.map { formatSetting ->
                     RecordingSetting(
                         recordingFormat = formatSetting.recordingFormat.updateSelected(
                             DefaultValues.DefaultRecordingFormat

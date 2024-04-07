@@ -31,8 +31,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.main.MainActivity
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
@@ -44,7 +42,7 @@ import timber.log.Timber
 
 @Composable
 fun ComposePlaygroundScreen(
-    userInputViewModel: UserInputViewModel,
+    userInputViewModel: UserInputViewModel = viewModel(),
     showDetailsScreen: (Pair<String, String>) -> Unit,
     showRecordInfoScreen: (String) -> Unit,
     showSettingsScreen: () -> Unit,
@@ -238,6 +236,6 @@ fun ComposePlaygroundScreen(
 
 @Preview
 @Composable
-fun UserInputScreenPreview() {
+fun ComposePlaygroundScreenPreview() {
     ComposePlaygroundScreen(viewModel(), {}, {}, {}, {}, {}, {}, {})
 }

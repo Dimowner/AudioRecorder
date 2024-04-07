@@ -2,19 +2,6 @@ package com.dimowner.audiorecorder.v2.navigation
 
 object Routes {
 
-    //TODO: Screen list
-    /**
-     * Recording/Playback
-     * Settings
-     * Records list
-     * Trash
-     * Record info
-     *
-     * Welcome
-     * Welcome setup
-     *
-     * */
-
     const val HOME_SCREEN = "HOME_SCREEN"
     const val RECORDS_SCREEN = "RECORDS_SCREEN"
     const val SETTINGS_SCREEN = "SETTINGS_SCREEN"
@@ -23,6 +10,7 @@ object Routes {
     const val COMPOSE_PLAYGROUND_SCREEN = "COMPOSE_PLAYGROUND_SCREEN"
     const val DETAILS_SCREEN = "DETAILS_SCREEN"
     const val WELCOME_SCREEN = "WELCOME_SCREEN"
+    const val WELCOME_SETUP_SETTINGS_SCREEN = "WELCOME_SETUP_SETTINGS_SCREEN"
 
     const val USER_NAME = "NAME"
     const val ANIMAL_SELECTED = "ANIMAL_SELECTED"

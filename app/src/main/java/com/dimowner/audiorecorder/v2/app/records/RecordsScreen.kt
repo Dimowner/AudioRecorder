@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dimowner.audiorecorder.v2.app.records
 
 import android.net.Uri
@@ -28,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
 import com.dimowner.audiorecorder.v2.app.RenameAlertDialog
@@ -39,7 +39,7 @@ import timber.log.Timber
 
 @Composable
 internal fun RecordsScreen(
-    navController: NavHostController,
+    onPopBackStack: () -> Unit,
     showRecordInfoScreen: (String) -> Unit,
     viewModel: RecordsViewModel = hiltViewModel(),
 ) {
@@ -67,7 +67,7 @@ internal fun RecordsScreen(
                 stringResource(id = R.string.records),
                 uiState.sortOrder.toText(context),
                 bookmarksSelected = uiState.bookmarksSelected,
-                onBackPressed = { navController.popBackStack() },
+                onBackPressed = { onPopBackStack() },
                 onSortItemClick = { order ->
                     viewModel.updateListWithSortOrder(order)
                 },
