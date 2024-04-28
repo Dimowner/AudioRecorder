@@ -46,20 +46,23 @@ interface RecordDao {
     @Query("DELETE FROM records")
     fun deleteAllRecords()
 
-    @Query("SELECT COUNT(*) FROM records")
+    @Query("SELECT COUNT(*) FROM records WHERE isMovedToRecycle = 0")
     fun getRecordsCount(): Int
 
-    @Query("SELECT SUM(duration) AS total_duration FROM records;")
+    @Query("SELECT SUM(duration) AS total_duration FROM records WHERE isMovedToRecycle = 0")
     fun getRecordTotalDuration(): Long
 
-    @Query("SELECT * FROM records ORDER BY added DESC LIMIT :pageSize OFFSET :offset")
+    @Query("SELECT * FROM records WHERE isMovedToRecycle = 0 ORDER BY added DESC LIMIT :pageSize OFFSET :offset")
     fun getRecordsByPage(pageSize: Int, offset: Int): List<RecordEntity>
 
-    @Query("SELECT * FROM records ORDER BY added DESC")
+    @Query("SELECT * FROM records WHERE isMovedToRecycle = 0 ORDER BY added DESC")
     fun getAllRecords(): List<RecordEntity>
 
     @Query("SELECT * FROM records WHERE isMovedToRecycle = 1 ORDER BY removed DESC")
     fun getMovedToRecycleRecords(): List<RecordEntity>
+
+    @Query("SELECT COUNT(*) FROM records WHERE isMovedToRecycle = 1")
+    fun getMovedToRecycleRecordsCount(): Int
 
     @RawQuery
     fun getRecordsRewQuery(query: SupportSQLiteQuery): List<RecordEntity>

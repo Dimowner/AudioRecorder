@@ -257,6 +257,60 @@ class RecordDaoTest {
     }
 
     @Test
+    fun test_getMovedToRecycleRecords() {
+        val records = recordDao.getMovedToRecycleRecords()
+        assertEquals(0, records.size)
+
+        val record1 = recordDao.getRecordById(1)
+        val record50 = recordDao.getRecordById(50)
+        val record93 = recordDao.getRecordById(93)
+
+        record1?.copy(isMovedToRecycle = true)?.let {
+            recordDao.updateRecord(it)
+        }
+        record50?.copy(isMovedToRecycle = true)?.let {
+            recordDao.updateRecord(it)
+        }
+        record93?.copy(isMovedToRecycle = true)?.let {
+            recordDao.updateRecord(it)
+        }
+        val records2 = recordDao.getMovedToRecycleRecords()
+        assertEquals(3, records2.size)
+        assertEquals("Record 0", records2[0].name)
+        assertEquals("Record 49", records2[1].name)
+        assertEquals("Record 92", records2[2].name)
+        assertEquals(1, records2[0].id)
+        assertEquals(50, records2[1].id)
+        assertEquals(93, records2[2].id)
+    }
+
+    @Test
+    fun test_getMovedToRecycleRecordsCount() {
+        val count = recordDao.getMovedToRecycleRecordsCount()
+        assertEquals(0, count)
+
+        val record1 = recordDao.getRecordById(1)
+        val record50 = recordDao.getRecordById(50)
+        val record93 = recordDao.getRecordById(93)
+
+        record1?.copy(isMovedToRecycle = true)?.let {
+            recordDao.updateRecord(it)
+        }
+        val count2 = recordDao.getMovedToRecycleRecordsCount()
+        assertEquals(1, count2)
+        record50?.copy(isMovedToRecycle = true)?.let {
+            recordDao.updateRecord(it)
+        }
+        val count3 = recordDao.getMovedToRecycleRecordsCount()
+        assertEquals(2, count3)
+        record93?.copy(isMovedToRecycle = true)?.let {
+            recordDao.updateRecord(it)
+        }
+        val count4 = recordDao.getMovedToRecycleRecordsCount()
+        assertEquals(3, count4)
+    }
+
+    @Test
     fun test_getRecordsRewQuery() {
         val query1 = "SELECT * FROM records"
 

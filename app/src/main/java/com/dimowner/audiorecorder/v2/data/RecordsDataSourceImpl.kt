@@ -23,6 +23,7 @@ import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.data.room.AppDatabase
 import com.dimowner.audiorecorder.v2.data.room.RecordDao
+import com.dimowner.audiorecorder.v2.data.room.RecordEntity
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -60,6 +61,10 @@ class RecordsDataSourceImpl @Inject internal constructor(
         return recordDao.getMovedToRecycleRecords().map { it.toRecord() }
     }
 
+    override suspend fun getMovedToRecycleRecordsCount(): Int {
+        return recordDao.getMovedToRecycleRecordsCount()
+    }
+
     override suspend fun getRecords(
         page: Int,
         pageSize: Int,
@@ -68,8 +73,9 @@ class RecordsDataSourceImpl @Inject internal constructor(
     ): List<Record> {
         val sb = StringBuilder()
         sb.append("SELECT * FROM records")
+        sb.append(" WHERE isMovedToRecycle = 0")
         if (isBookmarked) {
-            sb.append(" WHERE isBookmarked = 1")
+            sb.append(" AND isBookmarked = 1")
         }
         sb.append(" ORDER BY ${sortOrder.toRecordsSortColumnName()} ${sortOrder.toSqlSortOrder()}")
         sb.append(" LIMIT $pageSize")
@@ -109,7 +115,60 @@ class RecordsDataSourceImpl @Inject internal constructor(
         return recordDao.getRecordTotalDuration()
     }
 
-    override suspend fun deleteRecord(id: Long) {
-        return recordDao.deleteRecordById(id)
+    override suspend fun deleteRecordAndFileForever(id: Long): Boolean {
+        recordDao.getRecordById(id)?.let { recordToDelete ->
+            //TODO: Do in transaction
+            deleteRecordAndFileForever(recordToDelete)
+        }
+        //TODO: Return result here
+        return true
     }
+
+    private fun deleteRecordAndFileForever(record: RecordEntity): Boolean {
+        //TODO: Do in transaction
+        return if (fileDataSource.deleteRecordFile(record.path)) {
+            recordDao.deleteRecordById(record.id)
+            true
+        } else {
+            false
+        }
+    }
+
+    override suspend fun moveRecordToRecycle(id: Long): Boolean {
+        recordDao.getRecordById(id)?.let { recordToRecycle ->
+            //TODO: Do in transaction
+            fileDataSource.markAsRecordDeleted(recordToRecycle.path)?.let { path ->
+                recordDao.updateRecord(recordToRecycle.copy(path = path, isMovedToRecycle = true))
+            }
+        }
+        //TODO: Return result here
+        return true
+    }
+
+    override suspend fun restoreRecordFromRecycle(id: Long): Boolean {
+        recordDao.getRecordById(id)?.let { recordToRestore ->
+            //TODO: Do in transaction
+            fileDataSource.unmarkRecordAsDeleted(recordToRestore.path)?.let { path ->
+                recordDao.updateRecord(recordToRestore.copy(path = path, isMovedToRecycle = false))
+            }
+        }
+        //TODO: Return result here
+        return true
+    }
+
+    override suspend fun clearRecycle(): Boolean {
+        val records = recordDao.getMovedToRecycleRecords()
+        return if (records.isNotEmpty()) {
+            var result = true
+            for (recordToDelete in records) {
+                if (!deleteRecordAndFileForever(recordToDelete)) {
+                    result = false
+                }
+            }
+            result
+        } else {
+            false
+        }
+    }
+
 }

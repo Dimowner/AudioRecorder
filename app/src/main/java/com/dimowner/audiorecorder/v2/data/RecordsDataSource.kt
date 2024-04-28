@@ -27,6 +27,7 @@ interface RecordsDataSource {
 
     suspend fun getAllRecords(): List<Record>
     suspend fun getMovedToRecycleRecords(): List<Record>
+    suspend fun getMovedToRecycleRecordsCount(): Int
 
     suspend fun getRecords(
         page: Int,
@@ -45,5 +46,11 @@ interface RecordsDataSource {
 
     suspend fun getRecordTotalDuration(): Long
 
-    suspend fun deleteRecord(id: Long)
+    suspend fun deleteRecordAndFileForever(id: Long): Boolean
+
+    suspend fun moveRecordToRecycle(id: Long): Boolean
+
+    suspend fun restoreRecordFromRecycle(id: Long): Boolean
+
+    suspend fun clearRecycle(): Boolean
 }

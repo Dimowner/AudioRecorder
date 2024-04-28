@@ -59,15 +59,28 @@ internal class RecordsViewModel @Inject constructor(
     private val _event = MutableSharedFlow<RecordsScreenEvent?>()
     val event: SharedFlow<RecordsScreenEvent?> = _event
 
-    init {
+    fun init() {
         viewModelScope.launch(ioDispatcher) {
-            val records = recordsDataSource.getAllRecords()
-            withContext(mainDispatcher) {
-                uiState.value = RecordsScreenState(
-                    sortOrder = SortOrder.DateAsc,
-                    records = records.map { it.toRecordListItem(context) }
-                )
-            }
+            initState()
+        }
+    }
+
+    private suspend fun initState() {
+        val context: Context = getApplication<Application>().applicationContext
+        val records = recordsDataSource.getRecords(
+            sortOrder = uiState.value.sortOrder,
+            page = 1,
+            pageSize = 100,
+            isBookmarked = false,
+        )
+        val deletedRecordsCount = recordsDataSource.getMovedToRecycleRecordsCount()
+        withContext(mainDispatcher) {
+            uiState.value = RecordsScreenState(
+                sortOrder = SortOrder.DateAsc,
+                records = records.map { it.toRecordListItem(context) },
+                showDeletedRecordsButton = deletedRecordsCount > 0,
+                deletedRecordsCount = deletedRecordsCount
+            )
         }
     }
 
@@ -221,28 +234,34 @@ internal class RecordsViewModel @Inject constructor(
         }
     }
 
-    fun onDeleteRecordRequest(record: RecordListItem) {
+    fun onMoveToRecycleRecordRequest(record: RecordListItem) {
         uiState.value = uiState.value.copy(
-            showDeleteDialog = true,
+            showMoveToRecycleDialog = true,
             selectedRecord = record
         )
     }
 
-    fun onDeleteRecordFinish() {
+    fun onMoveToRecycleRecordFinish() {
         uiState.value = uiState.value.copy(
-            showDeleteDialog = false,
+            showMoveToRecycleDialog = false,
+            showDeletedRecordsButton = true,
             selectedRecord = null
         )
     }
 
-    fun deleteRecord(recordId: Long) {
+    fun moveRecordToRecycle(recordId: Long) {
         viewModelScope.launch(ioDispatcher) {
-            if (recordId != -1L) {
-                recordsDataSource.deleteRecord(recordId)
+            if (recordId != -1L && recordsDataSource.moveRecordToRecycle(recordId)) {
                 prefs.activeRecordId = -1
-                //TODO: Notify active record deleted
-//                updateState()
-                onDeleteRecordFinish()
+                //TODO: Notify active record deleted. Show Toast
+                withContext(mainDispatcher) {
+                    onMoveToRecycleRecordFinish()
+                    uiState.value = uiState.value.copy(
+                        records = uiState.value.records.filter { it.recordId != recordId }
+                    )
+                }
+            } else {
+                //TODO: Show error message
             }
         }
     }
@@ -258,11 +277,14 @@ internal data class RecordsScreenState(
     val records: List<RecordListItem> = emptyList(),
     val sortOrder: SortOrder = SortOrder.DateAsc,
     val bookmarksSelected: Boolean = false,
+    val showDeletedRecordsButton: Boolean = false,
+    val deletedRecordsCount: Int = 0,
 
     val showRenameDialog: Boolean = false,
-    val showDeleteDialog: Boolean = false,
+    val showMoveToRecycleDialog: Boolean = false,
     val showSaveAsDialog: Boolean = false,
     val selectedRecord: RecordListItem? = null,
+
 )
 
 internal data class RecordListItem(

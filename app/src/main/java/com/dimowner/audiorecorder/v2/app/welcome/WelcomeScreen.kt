@@ -83,7 +83,7 @@ fun WelcomeScreen(
             ) {
                 Text(
                     text = stringResource(id = R.string.btn_get_started),
-                    fontSize = 20.sp,
+                    fontSize = 18.sp,
                 )
             }
         }

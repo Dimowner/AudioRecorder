@@ -1,5 +1,5 @@
 [versions]
-androidGradlePlugin = "8.2.2"
+androidGradlePlugin = "8.3.2"
 # @keep
 compose-compiler = "1.5.8"
 composeBom = "2023.10.01"

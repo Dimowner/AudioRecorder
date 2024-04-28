@@ -216,7 +216,7 @@ fun WelcomeSetupSettingsScreen(
                     ) {
                         Text(
                             text = stringResource(id = R.string.btn_reset),
-                            fontSize = 20.sp,
+                            fontSize = 18.sp,
                         )
                     }
                     Button(
@@ -231,7 +231,7 @@ fun WelcomeSetupSettingsScreen(
                     ) {
                         Text(
                             text = stringResource(id = R.string.btn_apply),
-                            fontSize = 20.sp,
+                            fontSize = 18.sp,
                         )
                     }
                 }

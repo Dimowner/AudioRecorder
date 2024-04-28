@@ -52,9 +52,14 @@ internal class DeletedRecordsViewModel @Inject constructor(
     val event: SharedFlow<DeletedRecordsScreenEvent?> = _event
 
     init {
+        updateState()
+    }
+
+    private fun updateState() {
         viewModelScope.launch(ioDispatcher) {
             val records = recordsDataSource.getMovedToRecycleRecords()
             withContext(mainDispatcher) {
+                val context: Context = getApplication<Application>().applicationContext
                 uiState.value = DeletedRecordsScreenState(
                     records = records.map { it.toDeletedRecordListItem(context) }
                 )
@@ -63,7 +68,20 @@ internal class DeletedRecordsViewModel @Inject constructor(
     }
 
     fun deleteAllRecordsFromRecycle() {
-        //TODO: implement deletion
+        viewModelScope.launch(ioDispatcher) {
+            if (recordsDataSource.clearRecycle()) {
+                withContext(mainDispatcher) {
+                    uiState.value = DeletedRecordsScreenState(
+                        records = emptyList()
+                    )
+                }
+            } else {
+                //TODO: Show failed to remove records message
+                withContext(mainDispatcher) {
+                    updateState()
+                }
+            }
+        }
     }
 
     fun showRecordInfo(recordId: Long) {
@@ -76,19 +94,30 @@ internal class DeletedRecordsViewModel @Inject constructor(
 
     fun restoreRecord(recordId: Long) {
         viewModelScope.launch(ioDispatcher) {
-            if (recordId != -1L) {
-                //TODO: implement record restoration
+            if (recordId != -1L && recordsDataSource.restoreRecordFromRecycle(recordId)) {
+                //TODO: Show success message
+                withContext(mainDispatcher) {
+                    uiState.value = DeletedRecordsScreenState(
+                        records = uiState.value.records.filter { it.recordId != recordId }
+                    )
+                }
+            } else {
+                //TODO: Show error message
             }
         }
     }
 
     fun deleteForeverRecord(recordId: Long) {
         viewModelScope.launch(ioDispatcher) {
-            if (recordId != -1L) {
-                //TODO: Delete record file first.
-                recordsDataSource.deleteRecord(recordId)
-                //TODO: implement record deletion
-//                updateState()
+            if (recordId != -1L && recordsDataSource.deleteRecordAndFileForever(recordId)) {
+                //TODO: Show success message
+                withContext(mainDispatcher) {
+                    uiState.value = DeletedRecordsScreenState(
+                        records = uiState.value.records.filter { it.recordId != recordId }
+                    )
+                }
+            } else {
+                //TODO: Show error message
             }
         }
     }

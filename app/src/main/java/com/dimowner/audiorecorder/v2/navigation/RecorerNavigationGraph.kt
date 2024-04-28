@@ -79,7 +79,9 @@ fun RecorderNavigationGraph() {
                 },
                 showRecordInfoScreen = { json ->
                     navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
-                },
+                }, showDeletedRecordsScreen = {
+                    navController.navigate(Routes.DELETED_RECORDS_SCREEN)
+                }
             )
         }
         composable(Routes.DELETED_RECORDS_SCREEN) {

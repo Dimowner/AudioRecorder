@@ -79,7 +79,9 @@ internal fun DeletedRecordsScreen(
                 title = stringResource(id = R.string.trash),
                 onBackPressed = { onPopBackStack() },
                 actionButtonText = stringResource(id = R.string.delete_all2),
-                onActionClick = { showDeleteAllDialog.value = true }
+                onActionClick = if (uiState.records.isNotEmpty()) {
+                    { showDeleteAllDialog.value = true }
+                } else null
             )
             Text(
                 modifier = Modifier

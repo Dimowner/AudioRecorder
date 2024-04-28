@@ -253,7 +253,6 @@ fun TitleBar(
                 Text(
                     text = actionButtonText,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Light,
                 )
             }
         }

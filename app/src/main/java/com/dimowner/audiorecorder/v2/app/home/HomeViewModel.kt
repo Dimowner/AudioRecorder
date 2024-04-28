@@ -45,7 +45,6 @@ import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -223,12 +222,12 @@ class HomeViewModel @Inject constructor(
         Timber.v("deleteActiveRecord")
         viewModelScope.launch(ioDispatcher) {
             val recordId = prefs.activeRecordId
-            if (recordId != -1L) {
-                //TODO: Do not delete the record from database. Just mark it as deleted
-                recordsDataSource.deleteRecord(recordId)
+            if (recordId != -1L && recordsDataSource.moveRecordToRecycle(recordId)) {
                 prefs.activeRecordId = -1
                 //TODO: Notify active record deleted
                 updateState()
+            } else {
+                //TODO: Show error message
             }
         }
     }
