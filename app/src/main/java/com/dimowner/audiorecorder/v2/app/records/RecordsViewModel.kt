@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.v2.app.records
 
 import android.app.Application
 import android.content.Context
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -45,16 +46,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class RecordsViewModel @Inject constructor(
-//    savedStateHandle: SavedStateHandle,
     private val recordsDataSource: RecordsDataSource,
-//    private val fileDataSource: FileDataSource,
     private val prefs: PrefsV2,
     @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext context: Context
 ) : AndroidViewModel(context as Application) {
 
-    val uiState = mutableStateOf(RecordsScreenState())
+    private val _state = mutableStateOf(RecordsScreenState())
+    val state: State<RecordsScreenState> = _state
 
     private val _event = MutableSharedFlow<RecordsScreenEvent?>()
     val event: SharedFlow<RecordsScreenEvent?> = _event
@@ -68,14 +68,14 @@ internal class RecordsViewModel @Inject constructor(
     private suspend fun initState() {
         val context: Context = getApplication<Application>().applicationContext
         val records = recordsDataSource.getRecords(
-            sortOrder = uiState.value.sortOrder,
+            sortOrder = state.value.sortOrder,
             page = 1,
             pageSize = 100,
             isBookmarked = false,
         )
         val deletedRecordsCount = recordsDataSource.getMovedToRecycleRecordsCount()
         withContext(mainDispatcher) {
-            uiState.value = RecordsScreenState(
+            _state.value = RecordsScreenState(
                 sortOrder = SortOrder.DateAsc,
                 records = records.map { it.toRecordListItem(context) },
                 showDeletedRecordsButton = deletedRecordsCount > 0,
@@ -87,13 +87,13 @@ internal class RecordsViewModel @Inject constructor(
     fun updateListWithBookmarks(bookmarksSelected: Boolean) {
         viewModelScope.launch(ioDispatcher) {
             val records = recordsDataSource.getRecords(
-                sortOrder = uiState.value.sortOrder,
+                sortOrder = state.value.sortOrder,
                 page = 1,
                 pageSize = 100,
                 isBookmarked = bookmarksSelected,
             )
             withContext(mainDispatcher) {
-                uiState.value = uiState.value.copy(
+                _state.value = _state.value.copy(
                     records = records.map {
                         it.toRecordListItem(getApplication<Application>().applicationContext)
                     },
@@ -111,8 +111,8 @@ internal class RecordsViewModel @Inject constructor(
             val updated = recordsDataSource.getRecord(recordId)
             if (updated != null) {
                 withContext(mainDispatcher) {
-                    uiState.value = uiState.value.copy(
-                        records = uiState.value.records.map {
+                    _state.value = _state.value.copy(
+                        records = _state.value.records.map {
                             if (it.recordId == updated.id) {
                                 it.copy(isBookmarked = updated.isBookmarked)
                             } else {
@@ -132,10 +132,10 @@ internal class RecordsViewModel @Inject constructor(
                 sortOrder = sortOrder,
                 page = 1,
                 pageSize = 100,
-                isBookmarked = uiState.value.bookmarksSelected,
+                isBookmarked = _state.value.bookmarksSelected,
             )
             withContext(mainDispatcher) {
-                uiState.value = uiState.value.copy(
+                _state.value = _state.value.copy(
                     records = records.map {
                         it.toRecordListItem(getApplication<Application>().applicationContext)
                     },
@@ -170,14 +170,14 @@ internal class RecordsViewModel @Inject constructor(
     }
 
     fun onRenameRecordRequest(record: RecordListItem) {
-        uiState.value = uiState.value.copy(
+        _state.value = _state.value.copy(
             showRenameDialog = true,
             selectedRecord = record
         )
     }
 
     fun onRenameRecordDismiss() {
-        uiState.value = uiState.value.copy(
+        _state.value = _state.value.copy(
             showRenameDialog = false,
         )
     }
@@ -186,7 +186,7 @@ internal class RecordsViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             recordsDataSource.getRecord(recordId)?.let {
                 recordsDataSource.renameRecord(it, newName)
-                uiState.value = uiState.value.copy(
+                _state.value = _state.value.copy(
                     showRenameDialog = false,
                     selectedRecord = null
                 )
@@ -210,14 +210,14 @@ internal class RecordsViewModel @Inject constructor(
     }
 
     fun onSaveAsRequest(record: RecordListItem) {
-        uiState.value = uiState.value.copy(
+        _state.value = _state.value.copy(
             showSaveAsDialog = true,
             selectedRecord = record
         )
     }
 
     fun onSaveAsDismiss() {
-        uiState.value = uiState.value.copy(
+        _state.value = _state.value.copy(
             showSaveAsDialog = false,
         )
     }
@@ -230,7 +230,7 @@ internal class RecordsViewModel @Inject constructor(
                     it.path
                 )
             }
-            uiState.value = uiState.value.copy(
+            _state.value = _state.value.copy(
                 showSaveAsDialog = false,
                 selectedRecord = null
             )
@@ -238,14 +238,14 @@ internal class RecordsViewModel @Inject constructor(
     }
 
     fun onMoveToRecycleRecordRequest(record: RecordListItem) {
-        uiState.value = uiState.value.copy(
+        _state.value = _state.value.copy(
             showMoveToRecycleDialog = true,
             selectedRecord = record
         )
     }
 
     fun onMoveToRecycleRecordDismiss() {
-        uiState.value = uiState.value.copy(
+        _state.value = _state.value.copy(
             showMoveToRecycleDialog = false,
         )
     }
@@ -256,8 +256,8 @@ internal class RecordsViewModel @Inject constructor(
                 prefs.activeRecordId = -1
                 //TODO: Notify active record deleted. Show Toast
                 withContext(mainDispatcher) {
-                    uiState.value = uiState.value.copy(
-                        records = uiState.value.records.filter { it.recordId != recordId },
+                    _state.value = _state.value.copy(
+                        records = _state.value.records.filter { it.recordId != recordId },
                         showMoveToRecycleDialog = false,
                         showDeletedRecordsButton = true,
                         selectedRecord = null
@@ -308,7 +308,6 @@ internal data class RecordsScreenState(
     val showMoveToRecycleDialog: Boolean = false,
     val showSaveAsDialog: Boolean = false,
     val selectedRecord: RecordListItem? = null,
-
 )
 
 internal data class RecordListItem(

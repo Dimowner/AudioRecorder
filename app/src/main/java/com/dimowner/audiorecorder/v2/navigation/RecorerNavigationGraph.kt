@@ -26,6 +26,7 @@ import com.dimowner.audiorecorder.v2.app.info.RecordInfoScreen
 import com.dimowner.audiorecorder.v2.app.records.RecordsScreen
 import com.dimowner.audiorecorder.v2.app.records.RecordsViewModel
 import com.dimowner.audiorecorder.v2.app.settings.SettingsScreen
+import com.dimowner.audiorecorder.v2.app.settings.SettingsViewModel
 import com.dimowner.audiorecorder.v2.app.settings.WelcomeSetupSettingsScreen
 import com.dimowner.audiorecorder.v2.app.welcome.WelcomeScreen
 
@@ -85,7 +86,7 @@ fun RecorderNavigationGraph() {
                     navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
                 }, showDeletedRecordsScreen = {
                     navController.navigate(Routes.DELETED_RECORDS_SCREEN)
-                }, uiState = recordsViewModel.uiState.value,
+                }, uiState = recordsViewModel.state.value,
                 event = recordsViewModel.event.collectAsState(null).value,
                 onAction = { recordsViewModel.onAction(it) }
             )
@@ -100,11 +101,13 @@ fun RecorderNavigationGraph() {
             )
         }
         composable(Routes.SETTINGS_SCREEN) {
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
             SettingsScreen(onPopBackStack = {
                     navController.popBackStack()
                 }, showDeletedRecordsScreen = {
                     navController.navigate(Routes.DELETED_RECORDS_SCREEN)
-                }
+                }, uiState = settingsViewModel.state.value,
+                onAction = { settingsViewModel.onAction(it) }
             )
         }
         composable("${Routes.DETAILS_SCREEN}/{${Routes.USER_NAME}}/{${Routes.ANIMAL_SELECTED}}",
@@ -123,13 +126,15 @@ fun RecorderNavigationGraph() {
             })
         }
         composable(Routes.WELCOME_SETUP_SETTINGS_SCREEN) {
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
             WelcomeSetupSettingsScreen(onPopBackStack = {
                     navController.popBackStack()
                 }, onApplySettings = {
                     navController.navigate(Routes.HOME_SCREEN) {
                         popUpTo(0)
                     }
-                }
+                }, uiState = settingsViewModel.state.value,
+                    onAction = { settingsViewModel.onAction(it) }
             )
         }
         composable(

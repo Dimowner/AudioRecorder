@@ -26,7 +26,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -34,22 +33,26 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.TitleBar
 import com.dimowner.audiorecorder.v2.app.formatDuration
+import com.dimowner.audiorecorder.v2.data.model.BitRate
+import com.dimowner.audiorecorder.v2.data.model.ChannelCount
+import com.dimowner.audiorecorder.v2.data.model.NameFormat
+import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
+import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import timber.log.Timber
 
 @Composable
-fun SettingsScreen(
+internal fun SettingsScreen(
     onPopBackStack: () -> Unit,
     showDeletedRecordsScreen: () -> Unit,
-    viewModel: SettingsViewModel = hiltViewModel(),
+    uiState: SettingsState,
+    onAction: (SettingsScreenAction) -> Unit,
 ) {
     val context = LocalContext.current
-    val state = viewModel.state.observeAsState()
 
     val openInfoDialog = remember { mutableStateOf(false) }
     val openWarningDialog = remember { mutableStateOf(false) }
@@ -62,7 +65,7 @@ fun SettingsScreen(
         when (event) {
             Lifecycle.Event.ON_CREATE -> {
                 Timber.d("SettingsScreen: onCreate")
-                viewModel.initSettings()
+                onAction(SettingsScreenAction.InitSettingsScreen)
             }
             Lifecycle.Event.ON_START -> {
                 Timber.d("SettingsScreen: On Start")
@@ -107,65 +110,65 @@ fun SettingsScreen(
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     SettingsItemCheckBox(
-                        state.value?.isDynamicColors ?: false,
+                        uiState.isDynamicColors,
                         stringResource(R.string.dynamic_theme_colors),
                         R.drawable.ic_palette_outline,
                         {
-                            viewModel.setDynamicTheme(it)
+                            onAction(SettingsScreenAction.SetDynamicTheme(it))
                         })
                 }
                 SettingsItemCheckBox(
-                    state.value?.isDarkTheme ?: false,
+                    uiState.isDarkTheme,
                     stringResource(R.string.dark_theme),
                     R.drawable.ic_dark_mode,
                     {
-                        viewModel.setDarkTheme(it)
+                        onAction(SettingsScreenAction.SetDarkTheme(it))
                     })
                 SettingsItemCheckBox(
-                    state.value?.isKeepScreenOn ?: false,
+                    uiState.isKeepScreenOn,
                     stringResource(R.string.keep_screen_on),
                     R.drawable.ic_lightbulb_on,
                     {
-                        viewModel.setKeepScreenOn(it)
+                        onAction(SettingsScreenAction.SetKeepScreenOn(it))
                     })
                 SettingsItemCheckBox(
-                    state.value?.isShowRenameDialog ?: false,
+                    uiState.isShowRenameDialog,
                     stringResource(R.string.ask_to_rename),
                     R.drawable.ic_pencil,
                     {
-                        viewModel.setShowRenamingDialog(it)
+                        onAction(SettingsScreenAction.SetShowRenamingDialog(it))
                     })
                 DropDownSetting(
-                    items = state.value?.nameFormats ?: emptyList(),
-                    selectedItem = state.value?.selectedNameFormat,
+                    items = uiState.nameFormats,
+                    selectedItem = uiState.selectedNameFormat,
                     onSelect = {
-                        viewModel.setNameFormat(it)
+                        onAction(SettingsScreenAction.SetNameFormat(it))
                     }
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 ResetRecordingSettingsPanel(
-                    stringResource(id = R.string.size_per_min, state.value?.sizePerMin ?: ""),
-                    state.value?.recordingSettingsText ?: ""
+                    stringResource(id = R.string.size_per_min, uiState.sizePerMin),
+                    uiState.recordingSettingsText
                 ) {
-                    viewModel.resetRecordingSettings()
+                    onAction(SettingsScreenAction.ResetRecordingSettings)
                 }
                 SettingSelector(
                     name = stringResource(id = R.string.recording_format),
-                    chips = state.value?.recordingSettings?.map { it.recordingFormat } ?: emptyList(),
+                    chips = uiState.recordingSettings.map { it.recordingFormat },
                     onSelect = {
-                        viewModel.selectRecordingFormat(it.value)
+                        onAction(SettingsScreenAction.SelectRecordingFormat(it.value))
                     },
                     onClickInfo = {
                         infoText.value = context.getString(R.string.info_format)
                         openInfoDialog.value = true
                     }
                 )
-                val selectedFormat = state.value?.recordingSettings?.firstOrNull { it.recordingFormat.isSelected }
+                val selectedFormat = uiState.recordingSettings.firstOrNull { it.recordingFormat.isSelected }
                 SettingSelector(
                     name = stringResource(id = R.string.sample_rate),
                     chips = selectedFormat?.sampleRates ?: emptyList(),
                     onSelect = {
-                        viewModel.selectSampleRate(it.value)
+                        onAction(SettingsScreenAction.SelectSampleRate(it.value))
                     },
                     onClickInfo = {
                         infoText.value = context.getString(R.string.info_frequency)
@@ -180,7 +183,7 @@ fun SettingsScreen(
                         name = stringResource(id = R.string.bitrate),
                         chips = selectedFormat?.bitRates ?: emptyList(),
                         onSelect = {
-                            viewModel.selectBitrate(it.value)
+                            onAction(SettingsScreenAction.SelectBitrate(it.value))
                         },
                         onClickInfo = {
                             infoText.value = context.getString(R.string.info_bitrate)
@@ -192,7 +195,7 @@ fun SettingsScreen(
                     name = stringResource(id = R.string.channels),
                     chips = selectedFormat?.channelCounts ?: emptyList(),
                     onSelect = {
-                        viewModel.selectChannelCount(it.value)
+                        onAction(SettingsScreenAction.SelectChannelCount(it.value))
                     },
                     onClickInfo = {
                         infoText.value = context.getString(R.string.info_channels)
@@ -213,22 +216,22 @@ fun SettingsScreen(
                 InfoTextView(
                     stringResource(
                         id = R.string.total_record_count,
-                        (state.value?.totalRecordCount ?: "")
+                        (uiState.totalRecordCount)
                     )
                 )
                 InfoTextView(
                     stringResource(
                         id = R.string.total_duration,
-                        formatDuration(context.resources, (state.value?.totalRecordDuration ?: 1))
+                        formatDuration(context.resources, (uiState.totalRecordDuration))
                     )
                 )
                 InfoTextView(
                     stringResource(
                         id = R.string.available_space,
-                        (state.value?.availableSpace ?: "")
+                        (uiState.availableSpace)
                     )
                 )
-                AppInfoView(state.value?.appName ?: "", state.value?.appVersion ?: "")
+                AppInfoView(uiState.appName, uiState.appVersion)
                 Spacer(modifier = Modifier.size(8.dp))
             }
             if (openInfoDialog.value) {
@@ -244,5 +247,42 @@ fun SettingsScreen(
 @Preview
 @Composable
 fun SettingsScreenPreview() {
-    SettingsScreen({}, {})
+    SettingsScreen({}, {}, uiState = SettingsState(
+        isDynamicColors = true,
+        isDarkTheme = false,
+        isKeepScreenOn = false,
+        isShowRenameDialog = true,
+        nameFormats = listOf(NameFormatItem(NameFormat.Record, "Name text")),
+        selectedNameFormat = NameFormatItem(NameFormat.Record, "Name text"),
+        recordingSettings = listOf(RecordingSetting(
+                recordingFormat = ChipItem(id = 0, value = RecordingFormat.M4a, name = "M4a", isSelected = true),
+                sampleRates = listOf(
+                    ChipItem(id = 0, value = SampleRate.SR16000, name = "16 kHz", isSelected = false),
+                    ChipItem(id = 0, value = SampleRate.SR22500, name = "22.5 kHz", isSelected = false),
+                    ChipItem(id = 0, value = SampleRate.SR32000, name = "32 kHz", isSelected = false),
+                    ChipItem(id = 1, value = SampleRate.SR44100, name = "44.1 kHz", isSelected = true),
+                    ChipItem(id = 1, value = SampleRate.SR48000, name = "48 kHz", isSelected = false),
+                ),
+                bitRates = listOf(
+                    ChipItem(id = 0, value = BitRate.BR48, name = "48 kbps", isSelected = false),
+                    ChipItem(id = 0, value = BitRate.BR96, name = "96 kbps", isSelected = false),
+                    ChipItem(id = 1, value = BitRate.BR128, name = "128 kbps", isSelected = true),
+                    ChipItem(id = 1, value = BitRate.BR192, name = "192 kbps", isSelected = false),
+                ),
+                channelCounts = listOf(
+                    ChipItem(id = 0, value = ChannelCount.Mono, name = "Mono", isSelected = false),
+                    ChipItem(id = 1, value = ChannelCount.Stereo, name = "Stereo", isSelected = true),
+                )
+            ),
+        ),
+        sizePerMin = "10",
+        recordingSettingsText = "recordingSettingsText",
+        rateAppLink = "rateAppLink",
+        feedbackEmail = "feedbackEmail",
+        totalRecordCount = 10,
+        totalRecordDuration = 1000500,
+        availableSpace = 1010101010,
+        appName = "App Name",
+        appVersion = "1.0.0",
+    ), {})
 }
