@@ -8,6 +8,8 @@ import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -22,6 +24,7 @@ import com.dimowner.audiorecorder.v2.app.info.AssetParamType
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoScreen
 import com.dimowner.audiorecorder.v2.app.records.RecordsScreen
+import com.dimowner.audiorecorder.v2.app.records.RecordsViewModel
 import com.dimowner.audiorecorder.v2.app.settings.SettingsScreen
 import com.dimowner.audiorecorder.v2.app.settings.WelcomeSetupSettingsScreen
 import com.dimowner.audiorecorder.v2.app.welcome.WelcomeScreen
@@ -74,6 +77,7 @@ fun RecorderNavigationGraph() {
             )
         }
         composable(Routes.RECORDS_SCREEN) {
+            val recordsViewModel: RecordsViewModel = hiltViewModel()
             RecordsScreen(onPopBackStack = {
                     navController.popBackStack()
                 },
@@ -81,7 +85,9 @@ fun RecorderNavigationGraph() {
                     navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
                 }, showDeletedRecordsScreen = {
                     navController.navigate(Routes.DELETED_RECORDS_SCREEN)
-                }
+                }, uiState = recordsViewModel.uiState.value,
+                event = recordsViewModel.event.collectAsState(null).value,
+                onAction = { recordsViewModel.onAction(it) }
             )
         }
         composable(Routes.DELETED_RECORDS_SCREEN) {

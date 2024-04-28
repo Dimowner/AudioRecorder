@@ -28,14 +28,13 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
@@ -53,11 +52,12 @@ internal fun RecordsScreen(
     onPopBackStack: () -> Unit,
     showRecordInfoScreen: (String) -> Unit,
     showDeletedRecordsScreen: () -> Unit,
-    viewModel: RecordsViewModel = hiltViewModel(),
+    uiState: RecordsScreenState,
+    event: RecordsScreenEvent?,
+    onAction: (RecordsScreenAction) -> Unit
 ) {
 
     val context = LocalContext.current
-    val uiState = viewModel.uiState.value
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -66,7 +66,7 @@ internal fun RecordsScreen(
         when (event) {
             Lifecycle.Event.ON_START -> {
                 Timber.d("SettingsScreen: On Start")
-                viewModel.init()
+                onAction(RecordsScreenAction.InitRecordsScreen)
                 scope.launch {
                     snackbarHostState.showSnackbar("Snackbar")
                 }
@@ -74,16 +74,18 @@ internal fun RecordsScreen(
             else -> {}
         }
     }
+    LaunchedEffect(key1 = event) {
+        when (event) {
+            is RecordsScreenEvent.RecordInformationEvent -> {
+                val json = Uri.encode(Gson().toJson(event.recordInfo))
+                Timber.v("ON EVENT: ShareRecord json = $json")
+                showRecordInfoScreen(json)
+            }
 
-    when (val event = viewModel.event.collectAsState(null).value) {
-        is RecordsScreenEvent.RecordInformationEvent -> {
-            val json = Uri.encode(Gson().toJson(event.recordInfo))
-            Timber.v("ON EVENT: ShareRecord json = $json")
-            showRecordInfoScreen(json)
-        }
-        else -> {
-            Timber.v("ON EVENT: Unknown")
-            //Do nothing
+            else -> {
+                Timber.v("ON EVENT: Unknown")
+                //Do nothing
+            }
         }
     }
 
@@ -91,7 +93,9 @@ internal fun RecordsScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { innerPadding ->
         Surface(
-            modifier = Modifier.fillMaxSize().padding(innerPadding)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 RecordsTopBar(
@@ -100,10 +104,10 @@ internal fun RecordsScreen(
                     bookmarksSelected = uiState.bookmarksSelected,
                     onBackPressed = { onPopBackStack() },
                     onSortItemClick = { order ->
-                        viewModel.updateListWithSortOrder(order)
+                          onAction(RecordsScreenAction.UpdateListWithSortOrder(order))
                     },
                     onBookmarksClick = { bookmarksSelected ->
-                        viewModel.updateListWithBookmarks(bookmarksSelected)
+                        onAction(RecordsScreenAction.UpdateListWithBookmarks(bookmarksSelected))
                     }
                 )
                 if (uiState.showDeletedRecordsButton) {
@@ -115,36 +119,38 @@ internal fun RecordsScreen(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     items(uiState.records) { record ->
-                        RecordListItem(
+                        RecordListItemView(
                             name = record.name,
                             details = record.details,
                             duration = record.duration,
                             isBookmarked = record.isBookmarked,
                             onClickItem = {},
                             onClickBookmark = { isBookmarked ->
-                                viewModel.bookmarkRecord(record.recordId, isBookmarked)
+                                  onAction(RecordsScreenAction.BookmarkRecord(record.recordId, isBookmarked))
                             },
                             onClickMenu = {
                                 when (it) {
-                                    RecordDropDownMenuItemId.SHARE -> viewModel.shareRecord(record.recordId)
-                                    RecordDropDownMenuItemId.INFORMATION -> viewModel.showRecordInfo(
-                                        record.recordId
-                                    )
+                                    RecordDropDownMenuItemId.SHARE -> {
+                                        onAction(RecordsScreenAction.ShareRecord(record.recordId))
+                                    }
+                                    RecordDropDownMenuItemId.INFORMATION -> {
+                                        onAction(RecordsScreenAction.ShowRecordInfo(record.recordId))
+                                    }
 
                                     RecordDropDownMenuItemId.RENAME -> {
-                                        viewModel.onRenameRecordRequest(record)
+                                        onAction(RecordsScreenAction.OnRenameRecordRequest(record))
                                     }
 
                                     RecordDropDownMenuItemId.OPEN_WITH -> {
-                                        viewModel.openRecordWithAnotherApp(record.recordId)
+                                        onAction(RecordsScreenAction.OpenRecordWithAnotherApp(record.recordId))
                                     }
 
                                     RecordDropDownMenuItemId.SAVE_AS -> {
-                                        viewModel.onSaveAsRequest(record)
+                                        onAction(RecordsScreenAction.OnSaveAsRequest(record))
                                     }
 
                                     RecordDropDownMenuItemId.DELETE -> {
-                                        viewModel.onMoveToRecycleRecordRequest(record)
+                                        onAction(RecordsScreenAction.OnMoveToRecycleRecordRequest(record))
                                     }
                                 }
                             },
@@ -154,29 +160,65 @@ internal fun RecordsScreen(
                 if (uiState.showMoveToRecycleDialog) {
                     uiState.selectedRecord?.let { record ->
                         DeleteDialog(record.name, onAcceptClick = {
-                            viewModel.moveRecordToRecycle(record.recordId)
+                            onAction(RecordsScreenAction.MoveRecordToRecycle(record.recordId))
                         }, onDismissClick = {
-                            viewModel.onMoveToRecycleRecordFinish()
+                            onAction(RecordsScreenAction.OnMoveToRecycleRecordDismiss)
                         })
                     }
                 } else if (uiState.showSaveAsDialog) {
                     uiState.selectedRecord?.let { record ->
                         SaveAsDialog(record.name, onAcceptClick = {
-                            viewModel.saveRecordAs(record.recordId)
+                            onAction(RecordsScreenAction.SaveRecordAs(record.recordId))
                         }, onDismissClick = {
-                            viewModel.onSaveAsFinish()
+                            onAction(RecordsScreenAction.OnSaveAsDismiss)
                         })
                     }
                 } else if (uiState.showRenameDialog) {
                     uiState.selectedRecord?.let { record ->
                         RenameAlertDialog(record.name, onAcceptClick = {
-                            viewModel.renameRecord(record.recordId, it)
+                            onAction(RecordsScreenAction.RenameRecord(record.recordId, it))
                         }, onDismissClick = {
-                            viewModel.onRenameRecordFinish()
+                            onAction(RecordsScreenAction.OnRenameRecordDismiss)
                         })
                     }
                 }
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RecordsScreenPreview() {
+    RecordsScreen({}, {}, {},
+        RecordsScreenState(
+            records = listOf(
+                RecordListItem(
+                    recordId = 1,
+                    name = "Test record 1",
+                    details = "1.5 MB, mp4, 192 kbps, 48 kHz",
+                    duration = "3:15",
+                    isBookmarked = true
+                ),
+                RecordListItem(
+                    recordId = 2,
+                    name = "Test record 2",
+                    details = "4.5 MB, mp3, 128 kbps, 32 kHz",
+                    duration = "8:15",
+                    isBookmarked = false
+                )
+            ),
+            showDeletedRecordsButton = true,
+            showRenameDialog = false,
+            showMoveToRecycleDialog = false,
+            showSaveAsDialog = false,
+            selectedRecord = RecordListItem(
+                recordId = 2,
+                name = "Test record 2",
+                details = "4.5 MB, mp3, 128 kbps, 32 kHz",
+                duration = "8:15",
+                isBookmarked = false
+            )
+        ),
+        null, {})
 }

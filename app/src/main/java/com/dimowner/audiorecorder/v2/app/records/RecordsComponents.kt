@@ -182,7 +182,7 @@ fun RecordsTopBarPreview() {
 }
 
 @Composable
-fun RecordListItem(
+fun RecordListItemView(
     name: String,
     details: String,
     duration: String,
@@ -319,5 +319,5 @@ fun RecordListItem(
 @Preview(showBackground = true)
 @Composable
 fun RecordListItemPreview() {
-    RecordListItem("Label", "Value", "Duration", true, {}, {}, {})
+    RecordListItemView("Label", "Value", "Duration", true, {}, {}, {})
 }

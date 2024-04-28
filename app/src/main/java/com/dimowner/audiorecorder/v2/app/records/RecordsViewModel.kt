@@ -176,10 +176,9 @@ internal class RecordsViewModel @Inject constructor(
         )
     }
 
-    fun onRenameRecordFinish() {
+    fun onRenameRecordDismiss() {
         uiState.value = uiState.value.copy(
             showRenameDialog = false,
-            selectedRecord = null
         )
     }
 
@@ -187,8 +186,10 @@ internal class RecordsViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             recordsDataSource.getRecord(recordId)?.let {
                 recordsDataSource.renameRecord(it, newName)
-//                updateState()
-                onRenameRecordFinish()
+                uiState.value = uiState.value.copy(
+                    showRenameDialog = false,
+                    selectedRecord = null
+                )
             }
         }
     }
@@ -215,10 +216,9 @@ internal class RecordsViewModel @Inject constructor(
         )
     }
 
-    fun onSaveAsFinish() {
+    fun onSaveAsDismiss() {
         uiState.value = uiState.value.copy(
             showSaveAsDialog = false,
-            selectedRecord = null
         )
     }
 
@@ -230,7 +230,10 @@ internal class RecordsViewModel @Inject constructor(
                     it.path
                 )
             }
-            onSaveAsFinish()
+            uiState.value = uiState.value.copy(
+                showSaveAsDialog = false,
+                selectedRecord = null
+            )
         }
     }
 
@@ -241,11 +244,9 @@ internal class RecordsViewModel @Inject constructor(
         )
     }
 
-    fun onMoveToRecycleRecordFinish() {
+    fun onMoveToRecycleRecordDismiss() {
         uiState.value = uiState.value.copy(
             showMoveToRecycleDialog = false,
-            showDeletedRecordsButton = true,
-            selectedRecord = null
         )
     }
 
@@ -255,14 +256,37 @@ internal class RecordsViewModel @Inject constructor(
                 prefs.activeRecordId = -1
                 //TODO: Notify active record deleted. Show Toast
                 withContext(mainDispatcher) {
-                    onMoveToRecycleRecordFinish()
                     uiState.value = uiState.value.copy(
-                        records = uiState.value.records.filter { it.recordId != recordId }
+                        records = uiState.value.records.filter { it.recordId != recordId },
+                        showMoveToRecycleDialog = false,
+                        showDeletedRecordsButton = true,
+                        selectedRecord = null
                     )
                 }
             } else {
                 //TODO: Show error message
             }
+        }
+    }
+
+    fun onAction(action: RecordsScreenAction) {
+        when (action) {
+            RecordsScreenAction.InitRecordsScreen -> init()
+            is RecordsScreenAction.UpdateListWithSortOrder -> updateListWithSortOrder(action.sortOrderId)
+            is RecordsScreenAction.UpdateListWithBookmarks -> updateListWithBookmarks(action.bookmarksSelected)
+            is RecordsScreenAction.BookmarkRecord -> bookmarkRecord(action.recordId, action.addToBookmarks)
+            is RecordsScreenAction.ShareRecord -> shareRecord(action.recordId)
+            is RecordsScreenAction.ShowRecordInfo -> showRecordInfo(action.recordId)
+            is RecordsScreenAction.OnRenameRecordRequest -> onRenameRecordRequest(action.record)
+            is RecordsScreenAction.OpenRecordWithAnotherApp -> openRecordWithAnotherApp(action.recordId)
+            is RecordsScreenAction.OnSaveAsRequest -> onSaveAsRequest(action.record)
+            is RecordsScreenAction.OnMoveToRecycleRecordRequest -> onMoveToRecycleRecordRequest(action.record)
+            is RecordsScreenAction.MoveRecordToRecycle -> moveRecordToRecycle(action.recordId)
+            RecordsScreenAction.OnMoveToRecycleRecordDismiss -> onMoveToRecycleRecordDismiss()
+            is RecordsScreenAction.SaveRecordAs -> saveRecordAs(action.recordId)
+            RecordsScreenAction.OnSaveAsDismiss -> onSaveAsDismiss()
+            is RecordsScreenAction.RenameRecord -> renameRecord(action.recordId, action.newName)
+            RecordsScreenAction.OnRenameRecordDismiss -> onRenameRecordDismiss()
         }
     }
 
@@ -297,6 +321,25 @@ internal data class RecordListItem(
 
 internal sealed class RecordsScreenEvent {
     data class RecordInformationEvent(val recordInfo: RecordInfoState) : RecordsScreenEvent()
+}
+
+internal sealed class RecordsScreenAction {
+    data object InitRecordsScreen : RecordsScreenAction()
+    data class UpdateListWithSortOrder(val sortOrderId: SortDropDownMenuItemId) : RecordsScreenAction()
+    data class UpdateListWithBookmarks(val bookmarksSelected: Boolean) : RecordsScreenAction()
+    data class BookmarkRecord(val recordId: Long, val addToBookmarks: Boolean) : RecordsScreenAction()
+    data class ShareRecord(val recordId: Long) : RecordsScreenAction()
+    data class ShowRecordInfo(val recordId: Long) : RecordsScreenAction()
+    data class OnRenameRecordRequest(val record: RecordListItem) : RecordsScreenAction()
+    data class OpenRecordWithAnotherApp(val recordId: Long) : RecordsScreenAction()
+    data class OnSaveAsRequest(val record: RecordListItem) : RecordsScreenAction()
+    data class OnMoveToRecycleRecordRequest(val record: RecordListItem) : RecordsScreenAction()
+    data class MoveRecordToRecycle(val recordId: Long) : RecordsScreenAction()
+    data object OnMoveToRecycleRecordDismiss : RecordsScreenAction()
+    data class SaveRecordAs(val recordId: Long) : RecordsScreenAction()
+    data object OnSaveAsDismiss : RecordsScreenAction()
+    data class RenameRecord(val recordId: Long, val newName: String) : RecordsScreenAction()
+    data object OnRenameRecordDismiss : RecordsScreenAction()
 }
 
 internal fun Record.toRecordListItem(context: Context): RecordListItem {
