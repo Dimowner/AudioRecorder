@@ -113,5 +113,15 @@ fun RecordInfoScreen(
 @Preview
 @Composable
 fun RecordInfoScreenPreview() {
-    RecordInfoScreen({}, null)
+    RecordInfoScreen({}, RecordInfoState(
+        name = "name666",
+        format = "format777",
+        duration = 150000000,
+        size = 1500000,
+        location = "location888",
+        created = System.currentTimeMillis(),
+        sampleRate = 44000,
+        channelCount = 1,
+        bitrate = 240000,
+    ))
 }

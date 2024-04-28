@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.v2.app.deleted
 
 import android.app.Application
 import android.content.Context
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -46,7 +47,8 @@ internal class DeletedRecordsViewModel @Inject constructor(
     @ApplicationContext context: Context
 ) : AndroidViewModel(context as Application) {
 
-    val uiState = mutableStateOf(DeletedRecordsScreenState())
+    private val _state = mutableStateOf(DeletedRecordsScreenState())
+    val state: State<DeletedRecordsScreenState> = _state
 
     private val _event = MutableSharedFlow<DeletedRecordsScreenEvent?>()
     val event: SharedFlow<DeletedRecordsScreenEvent?> = _event
@@ -60,7 +62,7 @@ internal class DeletedRecordsViewModel @Inject constructor(
             val records = recordsDataSource.getMovedToRecycleRecords()
             withContext(mainDispatcher) {
                 val context: Context = getApplication<Application>().applicationContext
-                uiState.value = DeletedRecordsScreenState(
+                _state.value = DeletedRecordsScreenState(
                     records = records.map { it.toDeletedRecordListItem(context) }
                 )
             }
@@ -71,7 +73,7 @@ internal class DeletedRecordsViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             if (recordsDataSource.clearRecycle()) {
                 withContext(mainDispatcher) {
-                    uiState.value = DeletedRecordsScreenState(
+                    _state.value = DeletedRecordsScreenState(
                         records = emptyList()
                     )
                 }
@@ -97,8 +99,8 @@ internal class DeletedRecordsViewModel @Inject constructor(
             if (recordId != -1L && recordsDataSource.restoreRecordFromRecycle(recordId)) {
                 //TODO: Show success message
                 withContext(mainDispatcher) {
-                    uiState.value = DeletedRecordsScreenState(
-                        records = uiState.value.records.filter { it.recordId != recordId }
+                    _state.value = DeletedRecordsScreenState(
+                        records = state.value.records.filter { it.recordId != recordId }
                     )
                 }
             } else {
@@ -112,13 +114,22 @@ internal class DeletedRecordsViewModel @Inject constructor(
             if (recordId != -1L && recordsDataSource.deleteRecordAndFileForever(recordId)) {
                 //TODO: Show success message
                 withContext(mainDispatcher) {
-                    uiState.value = DeletedRecordsScreenState(
-                        records = uiState.value.records.filter { it.recordId != recordId }
+                    _state.value = DeletedRecordsScreenState(
+                        records = state.value.records.filter { it.recordId != recordId }
                     )
                 }
             } else {
                 //TODO: Show error message
             }
+        }
+    }
+
+    fun onAction(action: DeletedRecordsScreenAction) {
+        when (action) {
+            is DeletedRecordsScreenAction.ShowRecordInfo -> showRecordInfo(action.recordId)
+            is DeletedRecordsScreenAction.RestoreRecord -> restoreRecord(action.recordId)
+            is DeletedRecordsScreenAction.DeleteForeverRecord -> deleteForeverRecord(action.recordId)
+            DeletedRecordsScreenAction.DeleteAllRecordsFromRecycle -> deleteAllRecordsFromRecycle()
         }
     }
 
@@ -143,6 +154,13 @@ internal data class DeletedRecordListItem(
 
 internal sealed class DeletedRecordsScreenEvent {
     data class RecordInformationEvent(val recordInfo: RecordInfoState) : DeletedRecordsScreenEvent()
+}
+
+internal sealed class DeletedRecordsScreenAction {
+    data class ShowRecordInfo(val recordId: Long) : DeletedRecordsScreenAction()
+    data class RestoreRecord(val recordId: Long) : DeletedRecordsScreenAction()
+    data class DeleteForeverRecord(val recordId: Long) : DeletedRecordsScreenAction()
+    data object DeleteAllRecordsFromRecycle : DeletedRecordsScreenAction()
 }
 
 internal fun Record.toDeletedRecordListItem(context: Context): DeletedRecordListItem {

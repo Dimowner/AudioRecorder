@@ -19,7 +19,9 @@ import androidx.navigation.navArgument
 import com.dimowner.audiorecorder.v2.app.ComposePlaygroundScreen
 import com.dimowner.audiorecorder.v2.app.DetailsWelcomeScreen
 import com.dimowner.audiorecorder.v2.app.deleted.DeletedRecordsScreen
+import com.dimowner.audiorecorder.v2.app.deleted.DeletedRecordsViewModel
 import com.dimowner.audiorecorder.v2.app.home.HomeScreen
+import com.dimowner.audiorecorder.v2.app.home.HomeViewModel
 import com.dimowner.audiorecorder.v2.app.info.AssetParamType
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoScreen
@@ -69,12 +71,15 @@ fun RecorderNavigationGraph() {
             )
         }
         composable(Routes.HOME_SCREEN) {
+            val homeViewModel: HomeViewModel = hiltViewModel()
             HomeScreen(
                 showRecordsScreen = { navController.navigate(Routes.RECORDS_SCREEN) },
                 showSettingsScreen = { navController.navigate(Routes.SETTINGS_SCREEN) },
                 showRecordInfoScreen = { json ->
                     navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
-                },
+                }, uiState = homeViewModel.state.value,
+                event = homeViewModel.event.collectAsState(null).value,
+                onAction = { homeViewModel.onAction(it) }
             )
         }
         composable(Routes.RECORDS_SCREEN) {
@@ -92,12 +97,15 @@ fun RecorderNavigationGraph() {
             )
         }
         composable(Routes.DELETED_RECORDS_SCREEN) {
+            val deletedViewModel: DeletedRecordsViewModel = hiltViewModel()
             DeletedRecordsScreen(onPopBackStack = {
                     navController.popBackStack()
                 },
                 showRecordInfoScreen = { json ->
                     navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
-                },
+                }, uiState = deletedViewModel.state.value,
+                event = deletedViewModel.event.collectAsState(null).value,
+                onAction = { deletedViewModel.onAction(it) }
             )
         }
         composable(Routes.SETTINGS_SCREEN) {

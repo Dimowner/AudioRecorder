@@ -124,9 +124,11 @@ internal fun RecordsScreen(
                             details = record.details,
                             duration = record.duration,
                             isBookmarked = record.isBookmarked,
-                            onClickItem = {},
+                            onClickItem = {
+                                onAction(RecordsScreenAction.OnItemSelect(record.recordId))
+                            },
                             onClickBookmark = { isBookmarked ->
-                                  onAction(RecordsScreenAction.BookmarkRecord(record.recordId, isBookmarked))
+                                onAction(RecordsScreenAction.BookmarkRecord(record.recordId, isBookmarked))
                             },
                             onClickMenu = {
                                 when (it) {

@@ -31,16 +31,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ConfirmationAlertDialog
 import com.dimowner.audiorecorder.v2.app.TitleBar
@@ -52,22 +52,25 @@ import timber.log.Timber
 internal fun DeletedRecordsScreen(
     onPopBackStack: () -> Unit,
     showRecordInfoScreen: (String) -> Unit,
-    viewModel: DeletedRecordsViewModel = hiltViewModel(),
+    uiState: DeletedRecordsScreenState,
+    event: DeletedRecordsScreenEvent?,
+    onAction: (DeletedRecordsScreenAction) -> Unit,
 ) {
 
     val showDeleteAllDialog = remember { mutableStateOf(false) }
 
-    val uiState = viewModel.uiState.value
+    LaunchedEffect(key1 = event) {
+        when (event) {
+            is DeletedRecordsScreenEvent.RecordInformationEvent -> {
+                val json = Uri.encode(Gson().toJson(event.recordInfo))
+                Timber.v("ON EVENT: ShareRecord json = $json")
+                showRecordInfoScreen(json)
+            }
 
-    when (val event = viewModel.event.collectAsState(null).value) {
-        is DeletedRecordsScreenEvent.RecordInformationEvent -> {
-            val json = Uri.encode(Gson().toJson(event.recordInfo))
-            Timber.v("ON EVENT: ShareRecord json = $json")
-            showRecordInfoScreen(json)
-        }
-        else -> {
-            Timber.v("ON EVENT: Unknown")
-            //Do nothing
+            else -> {
+                Timber.v("ON EVENT: Unknown")
+                //Do nothing
+            }
         }
     }
 
@@ -105,9 +108,15 @@ internal fun DeletedRecordsScreen(
                     DeletedRecordsListItemWidget(
                         name = record.name,
                         details = record.details,
-                        onClickItem = { viewModel.showRecordInfo(record.recordId) },
-                        onClickRestore = { viewModel.restoreRecord(record.recordId) },
-                        onClickDelete = { viewModel.deleteForeverRecord(record.recordId) },
+                        onClickItem = {
+                            onAction(DeletedRecordsScreenAction.ShowRecordInfo(record.recordId))
+                        },
+                        onClickRestore = {
+                            onAction(DeletedRecordsScreenAction.RestoreRecord(record.recordId))
+                        },
+                        onClickDelete = {
+                            onAction(DeletedRecordsScreenAction.DeleteForeverRecord(record.recordId))
+                        },
                     )
                 }
             }
@@ -116,7 +125,7 @@ internal fun DeletedRecordsScreen(
             ConfirmationAlertDialog(
                 onDismissRequest = { showDeleteAllDialog.value = false },
                 onConfirmation = {
-                    viewModel.deleteAllRecordsFromRecycle()
+                    onAction(DeletedRecordsScreenAction.DeleteAllRecordsFromRecycle)
                     showDeleteAllDialog.value = false
                 },
                 dialogTitle = stringResource(id = R.string.warning),
@@ -127,4 +136,28 @@ internal fun DeletedRecordsScreen(
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DeletedRecordsScreenPreview() {
+    DeletedRecordsScreen({}, {},
+        uiState = DeletedRecordsScreenState(
+            records = listOf(
+                DeletedRecordListItem(
+                    recordId = 0,
+                    name = "Record Name 1",
+                    details = "4.5 MB, mp3, 128 kbps, 32 kHz",
+                    duration = "5:21",
+                    isBookmarked = false
+                ),
+                DeletedRecordListItem(
+                    recordId = 1,
+                    name = "Record Name 2",
+                    details = "9.2 MB, M4a, 192 kbps, 48 kHz",
+                    duration = "2:43",
+                    isBookmarked = true
+                )
+            )
+        ), null, {})
 }

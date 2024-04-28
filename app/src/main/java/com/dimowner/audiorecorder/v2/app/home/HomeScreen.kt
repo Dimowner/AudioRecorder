@@ -27,13 +27,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
@@ -43,19 +42,20 @@ import com.google.gson.Gson
 import timber.log.Timber
 
 @Composable
-fun HomeScreen(
+internal fun HomeScreen(
     showRecordsScreen: () -> Unit,
     showSettingsScreen: () -> Unit,
     showRecordInfoScreen: (String) -> Unit,
-    viewModel: HomeViewModel = hiltViewModel(),
+    uiState: HomeScreenState,
+    event: HomeScreenEvent?,
+    onAction: (HomeScreenAction) -> Unit
 ) {
-    val uiState = viewModel.uiState.value
 
     ComposableLifecycle { _, event ->
         when (event) {
             Lifecycle.Event.ON_START -> {
                 Timber.d("SettingsScreen: On Start")
-                viewModel.init()
+                onAction(HomeScreenAction.InitHomeScreen)
             }
             else -> {}
         }
@@ -68,22 +68,26 @@ fun HomeScreen(
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         // Handle the selected document URI here
         if (uri != null) {
-            viewModel.importAudioFile(uri)
+            onAction(HomeScreenAction.ImportAudioFile(uri))
         }
     }
 
-    when (val event = viewModel.event.collectAsState(null).value) {
-        HomeScreenEvent.ShowImportErrorError -> {
-            Timber.v("ON EVENT: ShowImportErrorError")
-        }
-        is HomeScreenEvent.RecordInformationEvent -> {
-            val json = Uri.encode(Gson().toJson(event.recordInfo))
-            Timber.v("ON EVENT: ShareRecord json = $json")
-            showRecordInfoScreen(json)
-        }
-        else -> {
-            Timber.v("ON EVENT: Unknown")
-            //Do nothing
+    LaunchedEffect(key1 = event) {
+        when (event) {
+            HomeScreenEvent.ShowImportErrorError -> {
+                Timber.v("ON EVENT: ShowImportErrorError")
+            }
+
+            is HomeScreenEvent.RecordInformationEvent -> {
+                val json = Uri.encode(Gson().toJson(event.recordInfo))
+                Timber.v("ON EVENT: ShareRecord json = $json")
+                showRecordInfoScreen(json)
+            }
+
+            else -> {
+                Timber.v("ON EVENT: Unknown")
+                //Do nothing
+            }
         }
     }
 
@@ -97,13 +101,17 @@ fun HomeScreen(
                 },
                 onHomeMenuItemClick = {
                     when (it) {
-                        HomeDropDownMenuItemId.SHARE -> viewModel.shareActiveRecord()
-                        HomeDropDownMenuItemId.INFORMATION -> viewModel.showActiveRecordInfo()
+                        HomeDropDownMenuItemId.SHARE -> {
+                            onAction(HomeScreenAction.ShareActiveRecord)
+                        }
+                        HomeDropDownMenuItemId.INFORMATION -> {
+                            onAction(HomeScreenAction.ShowActiveRecordInfo)
+                        }
                         HomeDropDownMenuItemId.RENAME -> {
                             showRenameDialog.value = true
                         }
                         HomeDropDownMenuItemId.OPEN_WITH -> {
-                            viewModel.openActiveRecordWithAnotherApp()
+                            onAction(HomeScreenAction.OpenActiveRecordWithAnotherApp)
                         }
                         HomeDropDownMenuItemId.SAVE_AS -> {
                             showSaveAsDialog.value = true
@@ -140,14 +148,14 @@ fun HomeScreen(
             if (showDeleteDialog.value) {
                 DeleteDialog(uiState.recordName, onAcceptClick =  {
                     showDeleteDialog.value = false
-                    viewModel.deleteActiveRecord()
+                    onAction(HomeScreenAction.DeleteActiveRecord)
                 }, onDismissClick = {
                     showDeleteDialog.value = false
                 })
             } else if (showSaveAsDialog.value) {
                 SaveAsDialog(uiState.recordName, onAcceptClick = {
                     showSaveAsDialog.value = false
-                    viewModel.saveActiveRecordAs()
+                    onAction(HomeScreenAction.SaveActiveRecordAs)
                 }, onDismissClick = {
                     showSaveAsDialog.value = false
                 })
@@ -155,7 +163,7 @@ fun HomeScreen(
                 RenameAlertDialog(uiState.recordName,
                     onAcceptClick = {
                         showRenameDialog.value = false
-                        viewModel.renameActiveRecord(it)
+                        onAction(HomeScreenAction.RenameActiveRecord(it))
                     }, onDismissClick = {
                         showRenameDialog.value = false
                     }
@@ -168,5 +176,13 @@ fun HomeScreen(
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen({}, {}, {})
+    HomeScreen({}, {}, {}, uiState = HomeScreenState(
+        startTime = "00:00",
+        endTime = "3:42",
+        time = "1:51",
+        recordName = "Test Record Name",
+        recordInfo = "1.5 MB, mp4, 192 kbps, 48 kHz",
+        isContextMenuAvailable = true,
+        isStopRecordingButtonAvailable = true,
+    ), null, {})
 }

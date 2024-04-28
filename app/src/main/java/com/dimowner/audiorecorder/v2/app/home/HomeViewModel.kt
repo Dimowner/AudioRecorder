@@ -21,6 +21,7 @@ import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.os.ParcelFileDescriptor
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.AndroidViewModel
@@ -56,8 +57,7 @@ import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
-//    savedStateHandle: SavedStateHandle,
+internal class HomeViewModel @Inject constructor(
     private val recordsDataSource: RecordsDataSource,
     private val fileDataSource: FileDataSource,
     private val prefs: PrefsV2,
@@ -66,7 +66,8 @@ class HomeViewModel @Inject constructor(
     @ApplicationContext context: Context,
 ) : AndroidViewModel(context as Application) {
 
-    val uiState = mutableStateOf(HomeScreenState())
+    private val _state = mutableStateOf(HomeScreenState())
+    val state: State<HomeScreenState> = _state
 
     private val _event = MutableSharedFlow<HomeScreenEvent?>()
     val event: SharedFlow<HomeScreenEvent?> = _event
@@ -82,7 +83,7 @@ class HomeViewModel @Inject constructor(
         val activeRecord = recordsDataSource.getActiveRecord()
         if (activeRecord != null) {
             withContext(mainDispatcher) {
-                uiState.value = HomeScreenState(
+                _state.value = HomeScreenState(
                     startTime = context.getString(R.string.zero_time),
                     endTime = TimeUtils.formatTimeIntervalHourMinSec2(activeRecord.durationMills),
                     time = context.getString(R.string.zero_time),
@@ -93,7 +94,7 @@ class HomeViewModel @Inject constructor(
             }
         } else {
             withContext(mainDispatcher) {
-                uiState.value = HomeScreenState()
+                _state.value = HomeScreenState()
             }
         }
     }
@@ -232,6 +233,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun onAction(action: HomeScreenAction) {
+        when (action) {
+            HomeScreenAction.InitHomeScreen -> init()
+            is HomeScreenAction.ImportAudioFile -> importAudioFile(action.uri)
+            HomeScreenAction.ShareActiveRecord -> shareActiveRecord()
+            HomeScreenAction.ShowActiveRecordInfo -> showActiveRecordInfo()
+            HomeScreenAction.OpenActiveRecordWithAnotherApp -> openActiveRecordWithAnotherApp()
+            HomeScreenAction.DeleteActiveRecord -> deleteActiveRecord()
+            HomeScreenAction.SaveActiveRecordAs -> saveActiveRecordAs()
+            is HomeScreenAction.RenameActiveRecord -> renameActiveRecord(action.newName)
+        }
+    }
+
     private fun emitEvent(event: HomeScreenEvent) {
         viewModelScope.launch {
             _event.emit(event)
@@ -248,6 +262,17 @@ data class HomeScreenState(
     val isContextMenuAvailable: Boolean = false,
     val isStopRecordingButtonAvailable: Boolean = false,
 )
+
+internal sealed class HomeScreenAction {
+    data object InitHomeScreen : HomeScreenAction()
+    data class ImportAudioFile(val uri: Uri) : HomeScreenAction()
+    data object ShareActiveRecord : HomeScreenAction()
+    data object ShowActiveRecordInfo : HomeScreenAction()
+    data object OpenActiveRecordWithAnotherApp : HomeScreenAction()
+    data object DeleteActiveRecord : HomeScreenAction()
+    data object SaveActiveRecordAs : HomeScreenAction()
+    data class RenameActiveRecord(val newName: String) : HomeScreenAction()
+}
 
 sealed class HomeScreenEvent {
     data object ShowImportErrorError : HomeScreenEvent()

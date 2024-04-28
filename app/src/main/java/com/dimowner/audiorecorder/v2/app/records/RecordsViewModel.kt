@@ -125,6 +125,10 @@ internal class RecordsViewModel @Inject constructor(
         }
     }
 
+    fun onItemSelect(recordId: Long) {
+        prefs.activeRecordId = recordId
+    }
+
     fun updateListWithSortOrder(sortOrderId: SortDropDownMenuItemId) {
         viewModelScope.launch(ioDispatcher) {
             val sortOrder = sortOrderId.toSortOrder()
@@ -275,6 +279,7 @@ internal class RecordsViewModel @Inject constructor(
             is RecordsScreenAction.UpdateListWithSortOrder -> updateListWithSortOrder(action.sortOrderId)
             is RecordsScreenAction.UpdateListWithBookmarks -> updateListWithBookmarks(action.bookmarksSelected)
             is RecordsScreenAction.BookmarkRecord -> bookmarkRecord(action.recordId, action.addToBookmarks)
+            is RecordsScreenAction.OnItemSelect -> onItemSelect(action.recordId)
             is RecordsScreenAction.ShareRecord -> shareRecord(action.recordId)
             is RecordsScreenAction.ShowRecordInfo -> showRecordInfo(action.recordId)
             is RecordsScreenAction.OnRenameRecordRequest -> onRenameRecordRequest(action.record)
@@ -326,6 +331,7 @@ internal sealed class RecordsScreenAction {
     data object InitRecordsScreen : RecordsScreenAction()
     data class UpdateListWithSortOrder(val sortOrderId: SortDropDownMenuItemId) : RecordsScreenAction()
     data class UpdateListWithBookmarks(val bookmarksSelected: Boolean) : RecordsScreenAction()
+    data class OnItemSelect(val recordId: Long) : RecordsScreenAction()
     data class BookmarkRecord(val recordId: Long, val addToBookmarks: Boolean) : RecordsScreenAction()
     data class ShareRecord(val recordId: Long) : RecordsScreenAction()
     data class ShowRecordInfo(val recordId: Long) : RecordsScreenAction()
