@@ -1,8 +1,9 @@
-# Develop Plans
+# Development Plans
 <b>Nearest Release v1.0.0:</b>
+ - Update target SDK to 34
  - Fix few main issues and bugs
  - Add support Bluetooth mics
- - Add ability to select recording audio source
+ - Add ability to select recording audio sources
  - Add backup feature to allow download all records files into a public directory 'Downloads'
 
 <br>
@@ -46,7 +47,7 @@
 
 # FAQ
 ### <b>When option to choose recording deirectory will be added?</b>
-<p>There is no planst to add feature where users can choose recording directory. Newer versions of Android added restrictions on ability to interact with device file system. So all recoreds are stored in app's private dir. It is not going to change. Anyway, all record files available for user to dowload from app's privete dir to public dir</p> 
+<p>There is no plans to add feature where users can choose recording directory. Newer versions of Android added restrictions on ability to interact with device file system. So all recoreds are stored in app's private dir. It is not going to change. Anyway, all record files available for user to dowload from app's privete dir to public dir</p> 
 
 ### License
 
