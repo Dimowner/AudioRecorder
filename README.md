@@ -47,7 +47,7 @@
 
 # FAQ
 ### <b>When option to choose recording directory will be added?</b>
-<p>There is no plans to add feature where user can choose recording directory. Newer versions of Android added restrictions on ability to interact with device file system. So all recoreds are stored in app's private dir. It is not going to change. Anyway, all record files available for user to dowload from app's privete dir to public dir</p> 
+<p>There is no plans to add feature where user can change recording directory. Newer versions of Android added restrictions on ability to interact with device file system. There is no simple way how to implement the feature. So all records are stored in app's private dir. Anyway, all record files available for user to download from app's private dir to a public dir.</p> 
 
 ### License
 
