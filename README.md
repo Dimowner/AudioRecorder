@@ -25,7 +25,7 @@
 
 <p><b>Audio Recorder</b> is your go-to app for seamless audio recording. Whether you’re capturing important moments or creating content, Audio Recorder got you covered. Here’s what makes our app stand out:</p>
 
-<p><b>1. Fast Startup</b>: We’ve optimized the app to launch quickly, so you won’t miss a beat when inspiration strikes.</p>
+<p><b>1. Fast Startup</b>: the app optimized to launch quickly, so you won’t miss a beat when inspiration strikes.</p>
 <b>2. Flexible Formats</b>: Choose from three recording formats:
 
  - <b>M4A</b>: High-quality audio in a compact file size.
@@ -46,8 +46,8 @@
  - Personalize the app with colorful themes.
 
 # FAQ
-### <b>When option to choose recording deirectory will be added?</b>
-<p>There is no plans to add feature where users can choose recording directory. Newer versions of Android added restrictions on ability to interact with device file system. So all recoreds are stored in app's private dir. It is not going to change. Anyway, all record files available for user to dowload from app's privete dir to public dir</p> 
+### <b>When option to choose recording directory will be added?</b>
+<p>There is no plans to add feature where user can choose recording directory. Newer versions of Android added restrictions on ability to interact with device file system. So all recoreds are stored in app's private dir. It is not going to change. Anyway, all record files available for user to dowload from app's privete dir to public dir</p> 
 
 ### License
 
