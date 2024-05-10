@@ -16,29 +16,19 @@
 
 package com.dimowner.audiorecorder.v2.data.room
 
-import androidx.room.TypeConverter
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 import com.dimowner.audiorecorder.v2.data.model.RecordEditOperation
 
-class Converters {
-
-    @TypeConverter
-    fun fromIntArray(intArray: IntArray): String {
-        return intArray.joinToString(separator = ",")
-    }
-
-    @TypeConverter
-    fun toIntArray(value: String): IntArray {
-        return if (value.isBlank()) {
-            // If the input string is blank, return an empty IntArray.
-            intArrayOf()
-        } else {
-            value.split(",").map { it.toInt() }.toIntArray()
-        }
-    }
-
-    @TypeConverter
-    fun toRecordEditOperation(value: String) = enumValueOf<RecordEditOperation>(value)
-
-    @TypeConverter
-    fun fromRecordEditOperation(value: RecordEditOperation) = value.name
-}
+@Entity(tableName = "record_edit")
+@TypeConverters(Converters::class)
+data class RecordEditEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @ColumnInfo(name = "recordId") val recordId: Long,
+    @ColumnInfo(name = "editOperation") val editOperation: RecordEditOperation,
+    @ColumnInfo(name = "renameName") val renameName: String?,
+    @ColumnInfo(name = "created") val created: Long,
+    @ColumnInfo(name = "retryCount") val retryCount: Int,
+)

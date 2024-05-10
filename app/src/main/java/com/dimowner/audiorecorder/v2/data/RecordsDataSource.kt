@@ -40,7 +40,7 @@ interface RecordsDataSource {
 
     suspend fun updateRecord(record: Record)
 
-    suspend fun renameRecord(record: Record, newName: String)
+    suspend fun renameRecord(record: Record, newName: String): Boolean
 
     suspend fun getRecordsCount(): Int
 

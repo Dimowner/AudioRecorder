@@ -120,7 +120,8 @@ internal class HomeViewModel @Inject constructor(
                             FileUtil.removeFileExtension(newFile.name), //TODO: Fix
                             if (info.duration >= 0) info.duration/1000 else 0,
                             newFile.lastModified(),
-                            Date().time, Long.MAX_VALUE,
+                            System.currentTimeMillis(),
+                            Long.MAX_VALUE,
                             newFile.absolutePath,
                             info.format,
                             info.size,

@@ -188,12 +188,25 @@ internal class RecordsViewModel @Inject constructor(
 
     fun renameRecord(recordId: Long, newName: String) {
         viewModelScope.launch(ioDispatcher) {
-            recordsDataSource.getRecord(recordId)?.let {
-                recordsDataSource.renameRecord(it, newName)
-                _state.value = _state.value.copy(
-                    showRenameDialog = false,
-                    selectedRecord = null
-                )
+            recordsDataSource.getRecord(recordId)?.let { record ->
+                if (recordsDataSource.renameRecord(record, newName)) {
+                    _state.value = _state.value.copy(
+                        showRenameDialog = false,
+                        selectedRecord = null,
+                        records = _state.value.records.map {
+                            if (it.recordId == record.id) {
+                                it.copy(name = newName)
+                            } else {
+                                it
+                            }
+                        },
+                    )
+                } else {
+                    _state.value = _state.value.copy(
+                        showRenameDialog = false,
+                        selectedRecord = null
+                    )
+                }
             }
         }
     }

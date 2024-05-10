@@ -23,10 +23,12 @@ import androidx.room.RoomDatabase
 
 const val DATABASE_NAME = "app_database"
 
-@Database(entities = [RecordEntity::class], version = 1, exportSchema = false)
+@Database(entities = [RecordEntity::class, RecordEditEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun recordDao(): RecordDao
+
+    abstract fun recordEditDao(): RecordEditDao
 
     companion object {
         @Volatile

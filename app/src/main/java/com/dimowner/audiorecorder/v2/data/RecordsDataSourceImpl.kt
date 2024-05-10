@@ -20,21 +20,24 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import com.dimowner.audiorecorder.v2.data.extensions.toRecordsSortColumnName
 import com.dimowner.audiorecorder.v2.data.extensions.toSqlSortOrder
 import com.dimowner.audiorecorder.v2.data.model.Record
+import com.dimowner.audiorecorder.v2.data.model.RecordEditOperation
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
-import com.dimowner.audiorecorder.v2.data.room.AppDatabase
 import com.dimowner.audiorecorder.v2.data.room.RecordDao
+import com.dimowner.audiorecorder.v2.data.room.RecordEditDao
+import com.dimowner.audiorecorder.v2.data.room.RecordEditEntity
 import com.dimowner.audiorecorder.v2.data.room.RecordEntity
-import java.io.IOException
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@SuppressWarnings("TooGenericExceptionCaught")
 @Singleton
 class RecordsDataSourceImpl @Inject internal constructor(
     private val prefs: PrefsV2,
     private val recordDao: RecordDao,
-    private val appDatabase: AppDatabase,
+    private val recordEditDao: RecordEditDao,
     private val fileDataSource: FileDataSource,
-): RecordsDataSource {
+) : RecordsDataSource {
 
     override suspend fun getRecord(id: Long): Record? {
         return if (id >= 0) {
@@ -91,19 +94,55 @@ class RecordsDataSourceImpl @Inject internal constructor(
         return recordDao.updateRecord(record.toRecordEntity())
     }
 
-    override suspend fun renameRecord(record: Record, newName: String) {
-        appDatabase.runInTransaction {
-            val renamed = fileDataSource.renameFile(record.path, newName)
-            if (renamed == null) {
-                throw IOException("Failed to rename file")
-            } else {
-                recordDao.updateRecord(
-                    record.copy(
-                        name = newName,
-                        path = renamed.absolutePath
-                    ).toRecordEntity()
-                )
+    override suspend fun renameRecord(record: Record, newName: String): Boolean {
+        try {
+            val transactionId = recordEditDao.insertRecordsEditOperation(
+                createRenameEditOperation(record.id, newName)
+            )
+            val renamed = try {
+                fileDataSource.renameFile(record.path, newName)
+            } catch (e: Exception) {
+                Timber.e(e)
+                null
             }
+            val result = if (renamed == null) {
+                //The first step has failed. Finish edit operation and return an error.
+                deleteEditRecordOperation(transactionId)
+                false
+            } else {
+                val isUpdated = try {
+                    //Perform the step 2
+                    recordDao.updateRecord(
+                        record.copy(
+                            name = newName,
+                            path = renamed.absolutePath
+                        ).toRecordEntity()
+                    )
+                    deleteEditRecordOperation(transactionId)
+                    true
+                } catch (e: Exception) {
+                    Timber.e(e)
+                    //The second step has failed. Rollback the first step - rename file back.
+                    val rolledBack = try {
+                        fileDataSource.renameFile(renamed.absolutePath, record.name)
+                    } catch (e: Exception) {
+                        Timber.e(e)
+                        null
+                    }
+                    if (rolledBack != null) {
+                        //File name rolled back successfully. Finish edit operation and return an error.
+                        deleteEditRecordOperation(transactionId)
+                    } else {
+                        //Failed to rollback file. Keep edit operation in the database to repeat it later.
+                    }
+                    false
+                }
+                isUpdated
+            }
+            return result
+        } catch (e: Exception) {
+            Timber.e(e)
+            return false
         }
     }
 
@@ -116,44 +155,183 @@ class RecordsDataSourceImpl @Inject internal constructor(
     }
 
     override suspend fun deleteRecordAndFileForever(id: Long): Boolean {
-        recordDao.getRecordById(id)?.let { recordToDelete ->
-            //TODO: Do in transaction
-            deleteRecordAndFileForever(recordToDelete)
-        }
-        //TODO: Return result here
-        return true
+        return recordDao.getRecordById(id)?.let { recordToDelete ->
+            return@let deleteRecordAndFileForever(recordToDelete)
+        } ?: false
     }
 
     private fun deleteRecordAndFileForever(record: RecordEntity): Boolean {
-        //TODO: Do in transaction
-        return if (fileDataSource.deleteRecordFile(record.path)) {
-            recordDao.deleteRecordById(record.id)
-            true
-        } else {
-            false
+        try {
+            val transactionId = recordEditDao.insertRecordsEditOperation(
+                createDeleteForeverEditOperation(record.id)
+            )
+
+            //The first step - delete record from database
+            val isRecordDeleted = try {
+                recordDao.deleteRecordById(record.id)
+                true
+            } catch (e: Exception) {
+                Timber.e(e)
+                false
+            }
+            val result = if (isRecordDeleted) {
+                //The second step - delete record file
+                val isFileDeleted = try {
+                    fileDataSource.deleteRecordFile(record.path)
+                } catch (e: Exception) {
+                    Timber.e(e)
+                    false
+                }
+                if (isFileDeleted) {
+                    //The second step has succeed. Finish edit operation and return an success.
+                    deleteEditRecordOperation(transactionId)
+                    true
+                } else {
+                    //Failed to delete file. Keep edit operation in the database to repeat it later.
+                    false
+                }
+            } else {
+                //The first step has failed. Finish edit operation and return an error.
+                deleteEditRecordOperation(transactionId)
+                false
+            }
+            return result
+        } catch (e: Exception) {
+            Timber.e(e)
+            return false
         }
     }
 
     override suspend fun moveRecordToRecycle(id: Long): Boolean {
-        recordDao.getRecordById(id)?.let { recordToRecycle ->
-            //TODO: Do in transaction
-            fileDataSource.markAsRecordDeleted(recordToRecycle.path)?.let { path ->
-                recordDao.updateRecord(recordToRecycle.copy(path = path, isMovedToRecycle = true))
+        return recordDao.getRecordById(id)?.let { recordToRecycle ->
+            return@let moveRecordToRecycle(recordToRecycle)
+        } ?: false
+    }
+
+    private fun moveRecordToRecycle(recordToRecycle: RecordEntity): Boolean {
+        try {
+            //Save edit operation. Start transaction
+            val transactionId = recordEditDao.insertRecordsEditOperation(
+                createMoveToRecycleEditOperation(recordToRecycle.id)
+            )
+            //The first step. Mark record file as deleted.
+            val path = try {
+                fileDataSource.markAsRecordDeleted(recordToRecycle.path)
+            } catch (e: Exception) {
+                Timber.e(e)
+                null
             }
+            val result = if (path != null) {
+                //The second step. Update record in the database
+                val isUpdated = try {
+                    recordDao.updateRecord(
+                        recordToRecycle.copy(
+                            path = path,
+                            isMovedToRecycle = true
+                        )
+                    )
+                    true
+                } catch (e: Exception) {
+                    Timber.e(e)
+                    false
+                }
+                if (isUpdated) {
+                    //The second step has succeed. Finish edit operation and return an success.
+                    deleteEditRecordOperation(transactionId)
+                    true
+                } else {
+                    //The second step has failed. Rollback the first step.
+                    val unmarkPath = try {
+                        fileDataSource.unmarkRecordAsDeleted(path)
+                    } catch (e: Exception) {
+                        Timber.e(e)
+                        null
+                    }
+                    if (unmarkPath != null) {
+                        //File rolled back successfully. Finish edit operation and return an error.
+                        deleteEditRecordOperation(transactionId)
+                    } else {
+                        //Failed to rollback file. Keep edit operation in the database to repeat it later.
+                    }
+                    false
+                }
+            } else {
+                //The first step has failed. Finish edit operation and return an error.
+                //Rollback not needed.
+                deleteEditRecordOperation(transactionId)
+                false
+            }
+            return result
+        } catch (e: Exception) {
+            Timber.e(e)
+            return false
         }
-        //TODO: Return result here
-        return true
     }
 
     override suspend fun restoreRecordFromRecycle(id: Long): Boolean {
-        recordDao.getRecordById(id)?.let { recordToRestore ->
-            //TODO: Do in transaction
-            fileDataSource.unmarkRecordAsDeleted(recordToRestore.path)?.let { path ->
-                recordDao.updateRecord(recordToRestore.copy(path = path, isMovedToRecycle = false))
+        return recordDao.getRecordById(id)?.let { recordToRestore ->
+            return@let restoreRecordFromRecycle(recordToRestore)
+        } ?: false
+    }
+
+    private fun restoreRecordFromRecycle(recordToRestore: RecordEntity): Boolean {
+        try {
+            //Save edit operation. Start transaction
+            val transactionId = recordEditDao.insertRecordsEditOperation(
+                createRestoreFromRecycleEditOperation(recordToRestore.id)
+            )
+            //The first step. Unmark record file as deleted.
+            val path = try {
+                fileDataSource.unmarkRecordAsDeleted(recordToRestore.path)
+            } catch (e: Exception) {
+                Timber.e(e)
+                null
             }
+            val result = if (path != null) {
+                //The second step. Update record in the database
+                val isUpdated = try {
+                    recordDao.updateRecord(
+                        recordToRestore.copy(
+                            path = path,
+                            isMovedToRecycle = false
+                        )
+                    )
+                    true
+                } catch (e: Exception) {
+                    Timber.e(e)
+                    false
+                }
+                if (isUpdated) {
+                    //The second step has succeed. Finish edit operation and return an success.
+                    deleteEditRecordOperation(transactionId)
+                    true
+                } else {
+                    //The second step has failed. Rollback the first step.
+                    val unmarkPath = try {
+                        fileDataSource.markAsRecordDeleted(path)
+                    } catch (e: Exception) {
+                        Timber.e(e)
+                        null
+                    }
+                    if (unmarkPath != null) {
+                        //File rolled back successfully. Finish edit operation and return an error.
+                        deleteEditRecordOperation(transactionId)
+                    } else {
+                        //Failed to rollback file. Keep edit operation in the database to repeat it later.
+                    }
+                    false
+                }
+            } else {
+                //The first step has failed. Finish edit operation and return an error.
+                //Rollback not needed.
+                deleteEditRecordOperation(transactionId)
+                false
+            }
+            return result
+        } catch (e: Exception) {
+            Timber.e(e)
+            return false
         }
-        //TODO: Return result here
-        return true
     }
 
     override suspend fun clearRecycle(): Boolean {
@@ -171,4 +349,51 @@ class RecordsDataSourceImpl @Inject internal constructor(
         }
     }
 
+    private fun createRenameEditOperation(recordId: Long, renameName: String): RecordEditEntity {
+        return RecordEditEntity(
+            recordId = recordId,
+            editOperation = RecordEditOperation.Rename,
+            renameName = renameName,
+            created = System.currentTimeMillis(),
+            retryCount = 0,
+        )
+    }
+
+    private fun createMoveToRecycleEditOperation(recordId: Long): RecordEditEntity {
+        return RecordEditEntity(
+            recordId = recordId,
+            editOperation = RecordEditOperation.MoveToRecycle,
+            renameName = null,
+            created = System.currentTimeMillis(),
+            retryCount = 0,
+        )
+    }
+
+    private fun createRestoreFromRecycleEditOperation(recordId: Long): RecordEditEntity {
+        return RecordEditEntity(
+            recordId = recordId,
+            editOperation = RecordEditOperation.RestoreFromRecycle,
+            renameName = null,
+            created = System.currentTimeMillis(),
+            retryCount = 0,
+        )
+    }
+
+    private fun createDeleteForeverEditOperation(recordId: Long): RecordEditEntity {
+        return RecordEditEntity(
+            recordId = recordId,
+            editOperation = RecordEditOperation.DeleteForever,
+            renameName = null,
+            created = System.currentTimeMillis(),
+            retryCount = 0,
+        )
+    }
+
+    private fun deleteEditRecordOperation(id: Long) {
+        try {
+            recordEditDao.deleteRecordEditOperationById(id)
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
+    }
 }
