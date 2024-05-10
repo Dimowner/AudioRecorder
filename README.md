@@ -1,7 +1,9 @@
 # Development Plans
-<b>Nearest Release v1.0.0:</b>
+<b>Release v0.9.99:</b>
  - Update target SDK to 34
  - Fix few main issues and bugs
+   
+<b>Release v1.0.0:</b>
  - Add support Bluetooth mics
  - Add ability to select recording audio sources
  - Add backup feature to allow download all records files into a public directory 'Downloads'
