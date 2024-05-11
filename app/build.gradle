@@ -7,13 +7,13 @@ apply plugin: 'kotlin-kapt'
 
 android {
 	namespace 'com.dimowner.audiorecorder'
-	compileSdkVersion 33
+	compileSdkVersion 34
 	defaultConfig {
 		applicationId "com.dimowner.audiorecorder"
 		minSdkVersion 21
-		targetSdkVersion 33
-		versionCode 934
-		versionName "0.9.33-230715"
+		targetSdkVersion 34
+		versionCode 935
+		versionName "0.9.99"
 	}
 
 	buildFeatures {
@@ -92,8 +92,8 @@ android.variantFilter { variant ->
 }
 
 dependencies {
-	def androidX = "1.3.0"
-	def coroutines = "1.6.4"
+	def androidX = "1.3.2"
+	def coroutines = "1.8.0"
 	def timber = "5.0.1"
 
 	//Kotlin
