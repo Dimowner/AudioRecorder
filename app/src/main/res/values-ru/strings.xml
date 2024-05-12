@@ -250,6 +250,11 @@
 	<string name="move">Перенести</string>
 	<string name="move_all">Перенести все</string>
 
+	<string name="button_record">Запись</string>
+	<string name="button_stop">Стоп</string>
+	<string name="button_resume">Возобнов.</string>
+	<string name="button_finish">Финиш</string>
+
 	<!-- Shown in the 'About' window of the app. -->
 	<string name="about_body"><![CDATA[
     	<b>Аудио Рекордер 2023</b><br>

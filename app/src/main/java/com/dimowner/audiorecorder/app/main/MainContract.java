@@ -69,8 +69,6 @@ public interface MainContract {
 
 		void askDeleteRecord(String name);
 
-		void askDeleteRecordForever();
-
 		void showRecordInfo(RecordInfo info);
 
 		void updateRecordingView(IntArrayList data, long durationMills);
@@ -95,8 +93,7 @@ public interface MainContract {
 		void setAudioRecorder(RecorderContract.Recorder recorder);
 
 		void pauseUnpauseRecording(Context context);
-		void stopRecording(boolean deleteRecord);
-		void cancelRecording();
+		void stopRecording();
 
 		void startPlayback();
 		void seekPlayback(long mills);
@@ -133,7 +130,7 @@ public interface MainContract {
 
 		String getActiveRecordPath();
 
-		void deleteActiveRecord(boolean forever);
+		void deleteActiveRecord();
 
 		void onRecordInfo();
 
