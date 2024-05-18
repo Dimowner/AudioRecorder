@@ -107,6 +107,9 @@ dependencies {
 
 	implementation "androidx.viewpager2:viewpager2:1.0.0"
 
+	testImplementation("junit:junit:4.13.2")
+	testImplementation("io.mockk:mockk:1.13.10")
+
 //	// Import the BoM for the Firebase platform
 //	implementation platform('com.google.firebase:firebase-bom:26.1.0')
 //	// Declare the dependencies for the Crashlytics and Analytics libraries

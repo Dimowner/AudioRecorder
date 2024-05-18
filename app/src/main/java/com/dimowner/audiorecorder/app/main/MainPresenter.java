@@ -415,7 +415,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					});
 				} else {
 					if (fileRepository.renameFile(record.getPath(), name, extension)) {
-						MainPresenter.this.record = new Record(
+						Record recordUpdated = new Record(
 								record.getId(),
 								name,
 								record.getDuration(),
@@ -431,7 +431,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 								record.isBookmarked(),
 								record.isWaveformProcessed(),
 								record.getAmps());
-						if (localRepository.updateRecord(MainPresenter.this.record)) {
+						if (localRepository.updateRecord(recordUpdated)) {
+							MainPresenter.this.record = recordUpdated;
 							AndroidUtils.runOnUIThread(() -> {
 								if (view != null) {
 									view.hideProgress();
@@ -653,25 +654,26 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		if (rec != null) {
 			audioPlayer.stop();
 			recordingsTasks.postRunnable(() -> {
-				localRepository.deleteRecord(rec.getId());
-				prefs.setActiveRecord(-1);
-				AndroidUtils.runOnUIThread(() -> {
-					if (view != null) {
-						view.showWaveForm(new int[]{}, 0, 0);
-						view.showName("");
-						view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
-						view.showMessage(R.string.record_moved_into_trash);
-						view.hideOptionsMenu();
-						view.onPlayProgress(0, 0);
-						view.hideProgress();
-						record = null;
-						updateInformation(
-								prefs.getSettingRecordingFormat(),
-								prefs.getSettingSampleRate(),
-								0
-						);
-					}
-				});
+				if (localRepository.deleteRecord(rec.getId())) {
+					prefs.setActiveRecord(-1);
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) {
+							view.showWaveForm(new int[]{}, 0, 0);
+							view.showName("");
+							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
+							view.showMessage(R.string.record_moved_into_trash);
+							view.hideOptionsMenu();
+							view.onPlayProgress(0, 0);
+							view.hideProgress();
+							record = null;
+							updateInformation(
+									prefs.getSettingRecordingFormat(),
+									prefs.getSettingSampleRate(),
+									0
+							);
+						}
+					});
+				}
 			});
 		}
 	}

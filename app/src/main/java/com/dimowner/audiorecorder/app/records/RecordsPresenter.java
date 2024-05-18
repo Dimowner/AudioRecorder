@@ -252,22 +252,23 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 			audioPlayer.stop();
 		}
 		recordingsTasks.postRunnable(() -> {
-			localRepository.deleteRecord((int) id);
+			if (localRepository.deleteRecord((int) id)) {
 //				fileRepository.deleteRecordFile(path);
-			if (rec != null && rec.getId() == id) {
-				prefs.setActiveRecord(-1);
-			}
-			AndroidUtils.runOnUIThread(() -> {
-				if (view != null) {
-					view.showTrashBtn();
-					view.onDeleteRecord(id);
-					view.showMessage(R.string.record_moved_into_trash);
-					if (rec != null && rec.getId() == id) {
-						view.hidePlayPanel();
-						activeRecord = null;
-					}
+				if (rec != null && rec.getId() == id) {
+					prefs.setActiveRecord(-1);
 				}
-			});
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.showTrashBtn();
+						view.onDeleteRecord(id);
+						view.showMessage(R.string.record_moved_into_trash);
+						if (rec != null && rec.getId() == id) {
+							view.hidePlayPanel();
+							activeRecord = null;
+						}
+					}
+				});
+			}
 		});
 	}
 
@@ -275,13 +276,14 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 	public void deleteRecords(List<Long> ids) {
 		recordingsTasks.postRunnable(() -> {
 			for(Long id: ids) {
-				localRepository.deleteRecord(id.intValue());
-				AndroidUtils.runOnUIThread(() -> {
-					if (view != null) {
-						view.showTrashBtn();
-						view.onDeleteRecord(id);
-					}
-				});
+				if (localRepository.deleteRecord(id.intValue())) {
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) {
+							view.showTrashBtn();
+							view.onDeleteRecord(id);
+						}
+					});
+				}
 			}
 			AndroidUtils.runOnUIThread(() -> {
 				if (view != null) {
