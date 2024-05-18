@@ -10,7 +10,7 @@ android {
 	compileSdkVersion 34
 	defaultConfig {
 		applicationId "com.dimowner.audiorecorder"
-		minSdkVersion 21
+		minSdkVersion 23
 		targetSdkVersion 34
 		versionCode 935
 		versionName "0.9.99"

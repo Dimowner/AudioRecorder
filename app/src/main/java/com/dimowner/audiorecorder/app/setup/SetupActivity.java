@@ -125,6 +125,7 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 				SettingsMapper.BITRATE_128000,
 				SettingsMapper.BITRATE_192000,
 				SettingsMapper.BITRATE_256000,
+				SettingsMapper.BITRATE_320000,
 		};
 		bitrateSetting.setData(rates, rateKeys);
 		bitrateSetting.setOnChipCheckListener((key, name, checked) -> presenter.setSettingRecordingBitrate(SettingsMapper.keyToBitrate(key)));
