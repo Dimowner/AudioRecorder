@@ -6,11 +6,7 @@
  	<string name="settings">Ajustes</string>
  	<string name="setup">Setup</string>
  	<string name="welcome_1">Bienvenido a la aplicación simple y veloz</string>
- 	<string name="welcome_2">Hermoso diseño y buena funcionalidad</string>
- 	<string name="welcome_3">Seleccioná la mejor configuración y comenzá a grabar</string>
  	<string name="title_1">Grabador de Audio</string>
- 	<string name="title_2">Grabador de Audio</string>
- 	<string name="title_3">Recordio Audier</string>
  	<string name="rate_app">Puntuá la app</string>
  	<string name="store_records_public">Guardar grabaciones en dir público</string>
  	<string name="record_in_stereo">Grabar en Stereo</string>

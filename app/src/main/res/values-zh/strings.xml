@@ -5,11 +5,7 @@
     <string name="settings">设置</string>
     <string name="setup">设置</string>
     <string name="welcome_1">简单快速的录音应用</string>
-    <string name="welcome_2">漂亮的设计很好的功能设计</string>
-    <string name="welcome_3">选择最佳设置并开始录制</string>
     <string name="title_1">Audio Recorder</string>
-    <string name="title_2">Audio Recorder</string>
-    <string name="title_3">Recordio Audier</string>
     <string name="rate_app">评价应用</string>
     <string name="store_records_public">保存录音到Public目录</string>
     <string name="record_in_stereo">以双声道录制</string>

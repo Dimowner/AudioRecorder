@@ -5,11 +5,7 @@
 	<string name="settings">Настройки</string>
 	<string name="setup">Установки</string>
 	<string name="welcome_1">Добро пожаловать в простое и быстрое приложение</string>
-	<string name="welcome_2">Отличный дизайн и удобный функционал</string>
-	<string name="welcome_3">Выберите наилучшие настройки и начните записывать</string>
 	<string name="title_1">Аудио Рекордер</string>
-	<string name="title_2">Аудио Рекордер</string>
-	<string name="title_3">Рекордио Аудер</string>
 	<string name="rate_app">Оценить приложение</string>
 	<string name="store_records_public">Хранить записи в публичной директории</string>
 	<string name="record_in_stereo">Записывать в Стерео</string>

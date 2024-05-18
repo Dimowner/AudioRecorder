@@ -5,11 +5,7 @@
 	<string name="settings">Paramètres</string>
 	<string name="setup">Configuration</string>
 	<string name="welcome_1">Bienvenue dans une application simple et rapide</string>
-	<string name="welcome_2">Beau design et bonnes fonctionnalitées</string>
-	<string name="welcome_3">Selectionnez les meilleurs paramètres et commencez à enregistrer</string>
 	<string name="title_1">Magnétophone</string>
-	<string name="title_2">Magnétophone</string>
-	<string name="title_3">Magnétophone</string>
 	<string name="rate_app">Noter l\'application</string>
 	<string name="store_records_public">Stocker les enregistrements dans un dossier public</string>
 	<string name="record_in_stereo">Enregister en stéréo</string>

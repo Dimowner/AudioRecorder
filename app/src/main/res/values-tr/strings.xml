@@ -5,11 +5,7 @@
 	<string name="settings">Ayarlar</string>
 	<string name="setup">Kurulum</string>
 	<string name="welcome_1">Hoş geldiniz, basit ve hızlı uygulama</string>
-	<string name="welcome_2">Güzel dizayn ve iyi fonksiyonlar</string>
-	<string name="welcome_3">En iyi seçenekleri seçin ve kayıda başlayın</string>
 	<string name="title_1">Ses Kaydedici</string>
-	<string name="title_2">Ses Kaydedici</string>
-	<string name="title_3">Ses Kaydedici</string>
 	<string name="rate_app">Uygulamayı puanla</string>
 	<string name="store_records_public">Kayıtları genel dizine kaydet</string>
 	<string name="record_in_stereo">Stereo olarak kayıt al</string>
