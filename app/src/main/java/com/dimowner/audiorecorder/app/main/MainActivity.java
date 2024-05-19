@@ -487,8 +487,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnPlay.setVisibility(View.GONE);
 		btnImport.setVisibility(View.GONE);
 		btnShare.setVisibility(View.GONE);
-		btnRecordingStop.setVisibility(View.VISIBLE);
-		btnRecordingStop.setEnabled(true);
+		btnRecordingStop.setVisibility(View.GONE);
+		btnRecordingStop.setEnabled(false);
 		playProgress.setProgress(0);
 		playProgress.setEnabled(false);
 		txtDuration.setText(R.string.zero_time);

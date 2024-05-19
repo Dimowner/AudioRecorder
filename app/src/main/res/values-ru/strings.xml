@@ -203,7 +203,7 @@
 	<string name="info_bitrate_128"><b>128 кбит/с</b> битрейт звука среднего качества. Популярный битрейт для подкастов. <b>(рекомендовано)</b></string>
 	<string name="info_bitrate_192"><b>192 кбит/с</b> битрейт звука хорошего качества.</string>
 	<string name="info_bitrate_256"><b>256 кбит/с</b> битрейт звука высокого качества.</string>
-	<string name="info_bitrate_320"><b>320 кбит</b> битрейт звука высокого качества.</string>
+	<string name="info_bitrate_288"><b>288 кбит</b> битрейт звука высокого качества.</string>
 	<string name="info_sample_rate_8k"><b>8кГц</b> эта частота имеет меньшую пропускную способность, чем современные телефонные системы. Не подходит для серьезных задач записи.</string>
 	<string name="info_sample_rate_16k"><b>8кГц</b> лучше за 8кГц.</string>
 	<string name="info_sample_rate_22k"><b>22кГц</b> популярная частота для низких битрейтов, например в 64 кбит/с</string>
@@ -284,7 +284,7 @@
 		<item>128кбит/с</item>
 		<item>192кбит/с</item>
 		<item>256кбит/с</item>
-		<item>320кбит/с</item>
+		<item>288кбит/с</item>
 	</string-array>
 
 	<string-array name="sample_rates2">

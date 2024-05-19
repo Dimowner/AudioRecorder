@@ -187,7 +187,7 @@
 	<string name="info_bitrate_128"><b>128 kbps</b> 標準品質與大小，廣播服務常用速率。<b>(建議)</b></string>
 	<string name="info_bitrate_192"><b>192 kbps</b> 中階品質速率。</string>
 	<string name="info_bitrate_256"><b>256 kbps</b> 最佳品質速率。</string>
-	<string name="info_bitrate_320"><b>320 kbps</b> 最佳品質速率。</string>
+	<string name="info_bitrate_288"><b>288 kbps</b> 最佳品質速率。</string>
 	<string name="info_sample_rate_8k"><b>8 kHz</b> 用於較小頻寬的現代電話系統，不適合正式的錄音作業。</string>
 	<string name="info_sample_rate_16k"><b>16 kHz</b> 優於 8 kHz。</string>
 	<string name="info_sample_rate_22k"><b>22 kHz</b> 熱門的低位元取樣率，例如 64 kbps。</string>

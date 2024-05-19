@@ -130,7 +130,7 @@
  	<string name="info_bitrate_128"><b>128 kbps</b>: Calidad de tasa de bits de rango medio. Común para podcasts. <b>(recomendado)</b></string>
  	<string name="info_bitrate_192"><b>192 kbps</b>: Tasa de bits de calidad media.</string>
  	<string name="info_bitrate_256"><b>256 kbps</b> Tasa de bits de buena calidad.</string>
-	<string name="info_bitrate_320"><b>320 kbps</b> Tasa de bits de buena calidad.</string>
+	<string name="info_bitrate_288"><b>288 kbps</b> Tasa de bits de buena calidad.</string>
  	<string name="info_sample_rate_8k">La frecuencia de <b>8kHz</b> tiene menor ancho de banda que un sistema telefónico moderno. No apto para tareas de grabación serias.</string>
  	<string name="info_sample_rate_16k"><b>16kHz</b> es mejor que 8kHz.</string>
  	<string name="info_sample_rate_22k"><b>22kHz</b> es una frecuencia popular para tasas de bits bajas

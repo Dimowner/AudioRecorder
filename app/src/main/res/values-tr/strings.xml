@@ -189,7 +189,7 @@
 	<string name="info_bitrate_128"><b>128 kbps</b> orta sınıf bit hızı kalitesi. Podcastler için yaygındır. <b>(önerilen)</b></string>
 	<string name="info_bitrate_192"><b>192 kbps</b> orta kalite bit hızı.</string>
 	<string name="info_bitrate_256"><b>256 kbps</b> yüksek kalite bit hızı.</string>
-	<string name="info_bitrate_320"><b>320 kbps</b> yüksek kalite bit hızı.</string>
+	<string name="info_bitrate_288"><b>288 kbps</b> yüksek kalite bit hızı.</string>
 	<string name="info_sample_rate_8k"><b>8kHz</b> modern telefon sistemlerine göre daha düşük bant genişliğine sahip örnekleme oranıdır. Önemli kayıtlar için uygun değildir.</string>
 	<string name="info_sample_rate_16k"><b>16kHz</b> 8kHz\'den daha iyi.</string>
 	<string name="info_sample_rate_22k"><b>22kHz</b> 64 kbps gibi düşük bit oranı için popüler bir örnekleme oranıdır.</string>
@@ -265,7 +265,7 @@
 		<item>128 kbps</item>
 		<item>192 kbps</item>
 		<item>256 kbps</item>
-		<item>320 kbps</item>
+		<item>288 kbps</item>
 	</string-array>
 
 	<string-array name="sample_rates2">
