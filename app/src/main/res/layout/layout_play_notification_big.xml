@@ -9,6 +9,7 @@
 				  android:background="@color/md_blue_500">
 
 	<ImageButton
+			android:id="@+id/app_logo"
 			android:layout_width="@dimen/bottom_pnl_small_btn_size"
 			android:layout_height="@dimen/bottom_pnl_small_btn_size"
 			android:adjustViewBounds="true"
@@ -16,29 +17,34 @@
 			android:contentDescription="@null"
 			android:layout_gravity="center_vertical"
 			android:layout_margin="@dimen/spacing_normal"
+			android:visibility="gone"
 			android:scaleType="center"
 			android:src="@mipmap/audio_recorder_logo"/>
-
 
 	<LinearLayout
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
+			android:paddingStart="@dimen/spacing_small"
+			android:paddingEnd="@dimen/spacing_zero"
 			android:orientation="vertical">
 
 		<TextView
+				android:id="@+id/txt_app_label"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_marginTop="@dimen/spacing_normal"
+				android:layout_marginTop="@dimen/spacing_small"
 				android:textColor="@color/text_primary_light"
 				android:textSize="@dimen/text_small"
-				android:text="@string/app_name"/>
+				android:visibility="gone"
+				android:text="@string/playback"/>
 
 		<TextView
 				android:id="@+id/txt_name"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_marginTop="@dimen/spacing_tiny"
+				android:layout_marginTop="@dimen/spacing_normal"
+				android:layout_marginBottom="@dimen/spacing_normal"
 				android:textColor="@color/text_primary_light"
 				android:maxLines="1"
 				android:fontFamily="sans-serif-medium"
@@ -49,26 +55,26 @@
 
 	<ImageButton
 			android:id="@+id/btn_pause"
-			android:layout_width="@dimen/bottom_pnl_btn_size"
-			android:layout_height="match_parent"
+			android:layout_width="@dimen/notification_btn"
+			android:layout_height="@dimen/notification_btn"
 			android:adjustViewBounds="true"
 			android:background="?android:selectableItemBackgroundBorderless"
 			android:contentDescription="@null"
 			android:padding="@dimen/spacing_normal"
 			android:layout_gravity="center_vertical"
 			android:scaleType="center"
-			android:src="@drawable/ic_pause"/>
+			android:src="@drawable/ic_pause_light"/>
 
 	<ImageButton
 			android:id="@+id/btn_close"
-			android:layout_width="@dimen/bottom_pnl_small_btn_size"
-			android:layout_height="match_parent"
+			android:layout_width="@dimen/notification_btn"
+			android:layout_height="@dimen/notification_btn"
 			android:adjustViewBounds="true"
 			android:background="?android:selectableItemBackgroundBorderless"
 			android:contentDescription="@null"
 			android:padding="@dimen/spacing_normal"
 			android:layout_gravity="center_vertical"
 			android:scaleType="center"
-			android:src="@drawable/ic_round_close"/>
+			android:src="@drawable/ic_stop"/>
 
 </LinearLayout>

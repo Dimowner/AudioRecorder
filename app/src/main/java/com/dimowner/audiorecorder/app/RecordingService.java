@@ -34,6 +34,7 @@ import android.os.IBinder;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -53,6 +54,7 @@ import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.exception.ErrorParser;
 import com.dimowner.audiorecorder.exception.RecorderInitException;
 import com.dimowner.audiorecorder.util.AndroidUtils;
+import com.dimowner.audiorecorder.util.ExtensionsKt;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 import java.io.File;
@@ -79,6 +81,7 @@ public class RecordingService extends Service {
 	private static final int NOTIF_ID = 101;
 	private NotificationManager notificationManager;
 	private RemoteViews remoteViewsSmall;
+	private RemoteViews remoteViewsBig;
 	private PendingIntent contentPendingIntent;
 
 	private AppRecorder appRecorder;
@@ -232,16 +235,55 @@ public class RecordingService extends Service {
 			createNotificationChannel(CHANNEL_ID, CHANNEL_NAME);
 		}
 
+		boolean isNightMode = ExtensionsKt.isUsingNightModeResources(getApplicationContext());
+
 		remoteViewsSmall = new RemoteViews(getPackageName(), R.layout.layout_record_notification_small);
 		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_recording_stop, getPendingSelfIntent(getApplicationContext(), ACTION_STOP_RECORDING));
 		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_recording_pause, getPendingSelfIntent(getApplicationContext(), ACTION_PAUSE_RECORDING));
 		remoteViewsSmall.setTextViewText(R.id.txt_recording_progress, getResources().getString(R.string.recording_is_on));
-		remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+			remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
+			remoteViewsSmall.setInt(R.id.app_logo, "setVisibility", View.VISIBLE);
+		} else {
+			remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(R.color.transparent));
+			remoteViewsSmall.setInt(R.id.app_logo, "setVisibility", View.GONE);
+			if (isNightMode) {
+				remoteViewsSmall.setInt(R.id.txt_name, "setTextColor", this.getResources().getColor(R.color.text_primary_light));
+				remoteViewsSmall.setInt(R.id.txt_app_label, "setTextColor", this.getResources().getColor(R.color.text_primary_light));
+				remoteViewsSmall.setInt(R.id.txt_recording_progress, "setTextColor", this.getResources().getColor(R.color.text_primary_light));
+				remoteViewsSmall.setInt(R.id.btn_recording_stop, "setImageResource", R.drawable.ic_stop);
+				remoteViewsSmall.setInt(R.id.btn_recording_pause, "setImageResource", R.drawable.ic_pause_light);
+			} else {
+				remoteViewsSmall.setInt(R.id.txt_name, "setTextColor", this.getResources().getColor(R.color.text_primary_dark));
+				remoteViewsSmall.setInt(R.id.txt_app_label, "setTextColor", this.getResources().getColor(R.color.text_primary_dark));
+				remoteViewsSmall.setInt(R.id.txt_recording_progress, "setTextColor", this.getResources().getColor(R.color.text_primary_dark));
+				remoteViewsSmall.setInt(R.id.btn_recording_stop, "setImageResource", R.drawable.ic_stop_dark);
+				remoteViewsSmall.setInt(R.id.btn_recording_pause, "setImageResource", R.drawable.ic_pause_dark);
+			}
+		}
 
-//		remoteViewsBig = new RemoteViews(getPackageName(), R.layout.layout_record_notification_big);
-//		remoteViewsBig.setOnClickPendingIntent(R.id.btn_recording_stop, getPendingSelfIntent(getApplicationContext(), ACTION_STOP_RECORDING));
-//		remoteViewsBig.setTextViewText(R.id.txt_recording_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
-//		remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
+		remoteViewsBig = new RemoteViews(getPackageName(), R.layout.layout_record_notification_big);
+		remoteViewsBig.setOnClickPendingIntent(R.id.btn_recording_stop, getPendingSelfIntent(getApplicationContext(), ACTION_STOP_RECORDING));
+		remoteViewsBig.setOnClickPendingIntent(R.id.btn_recording_pause, getPendingSelfIntent(getApplicationContext(), ACTION_PAUSE_RECORDING));
+		remoteViewsBig.setTextViewText(R.id.txt_recording_progress, TimeUtils.formatTimeIntervalMinSecMills(0));
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+			remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
+			remoteViewsBig.setInt(R.id.app_logo, "setVisibility", View.VISIBLE);
+		} else {
+			remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(R.color.transparent));
+			remoteViewsBig.setInt(R.id.app_logo, "setVisibility", View.GONE);
+			if (isNightMode) {
+				remoteViewsBig.setInt(R.id.txt_app_label, "setTextColor", this.getResources().getColor(R.color.text_primary_light));
+				remoteViewsBig.setInt(R.id.txt_recording_progress, "setTextColor", this.getResources().getColor(R.color.text_primary_light));
+				remoteViewsBig.setInt(R.id.btn_recording_stop, "setImageResource", R.drawable.ic_stop);
+				remoteViewsBig.setInt(R.id.btn_recording_pause, "setImageResource", R.drawable.ic_pause_light);
+			} else {
+				remoteViewsBig.setInt(R.id.txt_app_label, "setTextColor", this.getResources().getColor(R.color.text_primary_dark));
+				remoteViewsBig.setInt(R.id.txt_recording_progress, "setTextColor", this.getResources().getColor(R.color.text_primary_dark));
+				remoteViewsBig.setInt(R.id.btn_recording_stop, "setImageResource", R.drawable.ic_stop_dark);
+				remoteViewsBig.setInt(R.id.btn_recording_pause, "setImageResource", R.drawable.ic_pause_dark);
+			}
+		}
 
 		contentPendingIntent = createContentIntent();
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
@@ -266,7 +308,7 @@ public class RecordingService extends Service {
 		// Make head-up notification.
 		builder.setContentIntent(contentPendingIntent);
 		builder.setCustomContentView(remoteViewsSmall);
-//		builder.setCustomBigContentView(remoteViewsBig);
+		builder.setCustomBigContentView(remoteViewsBig);
 		builder.setOnlyAlertOnce(true);
 		builder.setDefaults(0);
 		builder.setSound(null);
@@ -312,8 +354,22 @@ public class RecordingService extends Service {
 
 	private void updateNotificationPause() {
 		if (started && remoteViewsSmall != null) {
+			boolean isNightMode = ExtensionsKt.isUsingNightModeResources(getApplicationContext());
 			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress, getResources().getString(R.string.recording_paused));
-			remoteViewsSmall.setImageViewResource(R.id.btn_recording_pause, R.drawable.ic_recording_yellow);
+			if (isNightMode || Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+				remoteViewsSmall.setImageViewResource(R.id.btn_recording_pause, R.drawable.ic_recording_light);
+			} else {
+				remoteViewsSmall.setImageViewResource(R.id.btn_recording_pause, R.drawable.ic_recording_dark);
+			}
+
+			if (remoteViewsBig != null) {
+				remoteViewsBig.setTextViewText(R.id.txt_recording_progress, getResources().getString(R.string.recording_paused));
+				if (isNightMode || Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+					remoteViewsBig.setImageViewResource(R.id.btn_recording_pause, R.drawable.ic_recording_light);
+				} else {
+					remoteViewsBig.setImageViewResource(R.id.btn_recording_pause, R.drawable.ic_recording_dark);
+				}
+			}
 
 			notificationManager.notify(NOTIF_ID, buildNotification());
 		}
@@ -321,8 +377,22 @@ public class RecordingService extends Service {
 
 	private void updateNotificationResume() {
 		if (started && remoteViewsSmall != null) {
+			boolean isNightMode = ExtensionsKt.isUsingNightModeResources(getApplicationContext());
 			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress, getResources().getString(R.string.recording_is_on));
-			remoteViewsSmall.setImageViewResource(R.id.btn_recording_pause, R.drawable.ic_pause);
+			if (isNightMode || Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+				remoteViewsSmall.setImageViewResource(R.id.btn_recording_pause, R.drawable.ic_pause_light);
+			} else {
+				remoteViewsSmall.setImageViewResource(R.id.btn_recording_pause, R.drawable.ic_pause_dark);
+			}
+
+			if (remoteViewsBig != null) {
+				remoteViewsBig.setTextViewText(R.id.txt_recording_progress, getResources().getString(R.string.recording_is_on));
+				if (isNightMode || Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+					remoteViewsBig.setImageViewResource(R.id.btn_recording_pause, R.drawable.ic_pause_light);
+				} else {
+					remoteViewsBig.setImageViewResource(R.id.btn_recording_pause, R.drawable.ic_pause_dark);
+				}
+			}
 
 			notificationManager.notify(NOTIF_ID, buildNotification());
 		}
@@ -333,8 +403,10 @@ public class RecordingService extends Service {
 			remoteViewsSmall.setTextViewText(R.id.txt_recording_progress,
 					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
 
-//			remoteViewsBig.setTextViewText(R.id.txt_recording_progress,
-//					getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
+			if (remoteViewsBig != null) {
+				remoteViewsBig.setTextViewText(R.id.txt_recording_progress,
+						getResources().getString(R.string.recording, TimeUtils.formatTimeIntervalHourMinSec2(mills)));
+			}
 
 			notificationManager.notify(NOTIF_ID, buildNotification());
 		}

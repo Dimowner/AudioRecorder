@@ -88,6 +88,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_IMPORT = 405;
 	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK = 406;
 	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_DOWNLOAD = 407;
+	public static final int REQ_CODE_POST_NOTIFICATIONS = 408;
 	public static final int REQ_CODE_IMPORT_AUDIO = 11;
 
 	private WaveformViewNew waveformView;
@@ -263,6 +264,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				}
 			}
 		}
+		checkNotificationPermission();
 	}
 
 	@Override
@@ -833,6 +835,16 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		return true;
 	}
 
+	private boolean checkNotificationPermission() {
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+				requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQ_CODE_POST_NOTIFICATIONS);
+				return false;
+			}
+		}
+		return true;
+	}
+
 	private boolean checkStoragePermission2() {
 		if (presenter.isStorePublic()) {
 			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -893,6 +905,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				|| grantResults[1] == PackageManager.PERMISSION_DENIED)) {
 			presenter.setStoragePrivate(getApplicationContext());
 			startRecordingService();
+		} else if (requestCode == REQ_CODE_POST_NOTIFICATIONS && grantResults.length > 0
+				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+			//Post notifications permission is granted do nothing
 		}
 	}
 }
