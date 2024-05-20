@@ -298,47 +298,44 @@
 				android:src="@drawable/ic_settings"/>
 
 		<LinearLayout
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
+			style="?android:attr/buttonBarStyle"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:animateLayoutChanges="true"
+			android:orientation="horizontal">
+
+			<Button
+				android:id="@+id/btn_record"
+				style="?android:attr/buttonBarButtonStyle"
+				android:layout_width="78dp"
+				android:layout_height="78dp"
+				android:layout_margin="@dimen/spacing_small"
+				android:padding="@dimen/spacing_zero"
+				android:textSize="13sp"
+				android:adjustViewBounds="true"
+				android:contentDescription="@string/button_record"
+				android:text="@string/button_record"
+				android:background="@drawable/round_button_white"
 				android:layout_gravity="center"
-				android:orientation="horizontal">
+				android:scaleType="center"
+				android:textColor="@color/text_primary_dark" />
 
-			<ImageButton
-					android:id="@+id/btn_record_delete"
-					android:layout_width="42dp"
-					android:layout_height="42dp"
-					android:background="?android:selectableItemBackgroundBorderless"
-					android:contentDescription="@string/delete"
-					android:layout_margin="@dimen/spacing_xtiny"
-					android:layout_gravity="center"
-					android:scaleType="center"
-					android:visibility="invisible"
-					android:src="@drawable/ic_delete_forever_36"/>
-
-			<ImageButton
-					android:id="@+id/btn_record"
-					android:layout_width="@dimen/bottom_pnl_btn_size"
-					android:layout_height="@dimen/bottom_pnl_btn_size"
-					android:layout_margin="@dimen/spacing_small"
-					android:adjustViewBounds="true"
-					android:background="?android:selectableItemBackgroundBorderless"
-					android:contentDescription="@string/recording"
-					android:layout_gravity="center"
-					android:scaleType="center"
-					android:src="@drawable/ic_record"/>
-
-			<ImageButton
-					android:id="@+id/btn_record_stop"
-					android:layout_width="@dimen/bottom_pnl_small_btn_size"
-					android:layout_height="@dimen/bottom_pnl_small_btn_size"
-					android:layout_gravity="center"
-					android:adjustViewBounds="true"
-					android:background="?android:selectableItemBackgroundBorderless"
-					android:contentDescription="@null"
-					android:padding="@dimen/spacing_normal"
-					android:scaleType="center"
-					android:src="@drawable/ic_stop"
-					android:visibility="invisible" />
+			<Button
+				android:id="@+id/btn_record_stop"
+				style="?android:attr/buttonBarButtonStyle"
+				android:layout_width="78dp"
+				android:layout_height="78dp"
+				android:layout_margin="@dimen/spacing_small"
+				android:padding="@dimen/spacing_zero"
+				android:textSize="13sp"
+				android:adjustViewBounds="true"
+				android:contentDescription="@string/button_finish"
+				android:text="@string/button_finish"
+				android:background="@drawable/round_button_green"
+				android:layout_gravity="center"
+				android:scaleType="center"
+				android:textColor="@color/text_primary_light"/>
 
 		</LinearLayout>
 

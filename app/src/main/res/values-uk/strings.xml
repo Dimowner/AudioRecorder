@@ -5,11 +5,7 @@
 	<string name="settings">Налаштування</string>
 	<string name="setup">Устаноки</string>
 	<string name="welcome_1">Вітаємо в простому та швидкому додатку</string>
-	<string name="welcome_2">Чудовий дизайн і зручний функціонал</string>
-	<string name="welcome_3">Виберіть найзручніші налаштування і почніть записувати</string>
 	<string name="title_1">Аудіо Рекордер</string>
-	<string name="title_2">Аудіо Рекордер</string>
-	<string name="title_3">Рекордіо Аудіер</string>
 	<string name="rate_app">Оцінити додаток</string>
 	<string name="store_records_public">Зберігати записи в публічному каталозі</string>
 	<string name="record_in_stereo">Записувати в Стерео</string>
@@ -207,6 +203,7 @@
 	<string name="info_bitrate_128"><b>128 кбіт/с</b> бітрейт звуку середньої якості. Популярний бітрейт для подкастів. <b>(рекомендовано)</b></string>
 	<string name="info_bitrate_192"><b>192 кбіт/с</b> бітрейт звуку хорошої якості.</string>
 	<string name="info_bitrate_256"><b>256 кбіт/с</b> широко використовуваний бітрейт звуку високої якості.</string>
+	<string name="info_bitrate_288"><b>288 кбіт</b> бітрейт звуку високої якості.</string>
 	<string name="info_sample_rate_8k"><b>8кГц</b> ця частота має меншу пропускну здатність, ніж сучасні телефонні системи. Не підходить для серйозних завдань запису.</string>
 	<string name="info_sample_rate_16k"><b>16kHz</b> краще за 8кГц.</string>
 	<string name="info_sample_rate_22k"><b>22кГц</b> популярна частота для низьких бітрейтів, наприклад в 64 кбіт/с.</string>
@@ -250,6 +247,11 @@
 	<string name="move">Перенести</string>
 	<string name="move_all">Перенести всі</string>
 
+	<string name="button_record">Запис</string>
+	<string name="button_stop">Стоп</string>
+	<string name="button_resume">Відновити</string>
+	<string name="button_finish">Фініш</string>
+
 	<!-- Shown in the 'About' window of the app. -->
 	<string name="about_body"><![CDATA[
     	<b>Аудіо Рекордер 2023</b><br>
@@ -282,6 +284,7 @@
 		<item>128кбіт/с</item>
 		<item>192кбіт/с</item>
 		<item>256кбіт/с</item>
+		<item>288кбіт/с</item>
 	</string-array>
 
 	<string-array name="sample_rates2">

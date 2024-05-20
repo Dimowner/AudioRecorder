@@ -17,7 +17,11 @@
 package com.dimowner.audiorecorder.app
 
 import android.annotation.SuppressLint
-import android.app.*
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -26,19 +30,25 @@ import android.graphics.Color
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import android.view.View
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
-import com.dimowner.audiorecorder.*
-import com.dimowner.audiorecorder.AppConstants.*
+import com.dimowner.audiorecorder.ARApplication
+import com.dimowner.audiorecorder.AppConstants
+import com.dimowner.audiorecorder.AppConstants.DECODE_DURATION
+import com.dimowner.audiorecorder.AppConstants.PENDING_INTENT_FLAGS
+import com.dimowner.audiorecorder.BackgroundQueue
+import com.dimowner.audiorecorder.ColorMap
+import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.main.MainActivity
 import com.dimowner.audiorecorder.audio.AudioDecodingListener
 import com.dimowner.audiorecorder.audio.AudioWaveformVisualization
 import com.dimowner.audiorecorder.data.database.LocalRepository
 import com.dimowner.audiorecorder.data.database.Record
+import com.dimowner.audiorecorder.util.isUsingNightModeResources
 import timber.log.Timber
 
 /**
@@ -69,6 +79,7 @@ class DecodeService : Service() {
 
 	lateinit var notificationManager: NotificationManagerCompat
 	lateinit var remoteViewsSmall: RemoteViews
+	lateinit var remoteViewsBig: RemoteViews
 	lateinit var contentPendingIntent: PendingIntent
 	lateinit var processingTasks: BackgroundQueue
 	lateinit var recordingsTasks: BackgroundQueue
@@ -187,20 +198,63 @@ class DecodeService : Service() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			createNotificationChannel(CHANNEL_ID, CHANNEL_NAME)
 		}
+		val isNightMode = isUsingNightModeResources(applicationContext)
+
 		remoteViewsSmall = RemoteViews(packageName, R.layout.layout_progress_notification)
-		remoteViewsSmall.setOnClickPendingIntent(
-			R.id.btn_close,
-			getCancelDecodePendingIntent(applicationContext)
-		)
-		remoteViewsSmall.setTextViewText(
-			R.id.txt_name,
-			resources.getString(R.string.record_calculation)
-		)
-		remoteViewsSmall.setInt(
-			R.id.container,
-			"setBackgroundColor",
-			ContextCompat.getColor(applicationContext, colorMap.primaryColorRes)
-		)
+		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_close, getCancelDecodePendingIntent(applicationContext))
+		remoteViewsSmall.setTextViewText(R.id.txt_name, resources.getString(R.string.record_calculation))
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+			remoteViewsSmall.setInt(
+				R.id.container,
+				"setBackgroundColor",
+				this.resources.getColor(colorMap.primaryColorRes)
+			)
+			remoteViewsSmall.setInt(R.id.app_logo, "setVisibility", View.VISIBLE)
+		} else {
+			remoteViewsSmall.setInt(
+				R.id.container,
+				"setBackgroundColor",
+				this.resources.getColor(R.color.transparent)
+			)
+			remoteViewsSmall.setInt(R.id.app_logo, "setVisibility", View.GONE)
+			if (isNightMode) {
+				remoteViewsSmall.setInt(R.id.txt_name, "setTextColor", this.resources.getColor(R.color.text_primary_light))
+				remoteViewsSmall.setInt(R.id.txt_app_label, "setTextColor", this.resources.getColor(R.color.text_primary_light))
+				remoteViewsSmall.setInt(R.id.btn_close, "setImageResource", R.drawable.ic_round_close)
+			} else {
+				remoteViewsSmall.setInt(R.id.txt_name, "setTextColor", this.resources.getColor(R.color.text_primary_dark))
+				remoteViewsSmall.setInt(R.id.txt_app_label, "setTextColor", this.resources.getColor(R.color.text_primary_dark))
+				remoteViewsSmall.setInt(R.id.btn_close, "setImageResource", R.drawable.ic_round_close_dark)
+			}
+		}
+
+		remoteViewsBig = RemoteViews(packageName, R.layout.layout_progress_notification)
+		remoteViewsBig.setOnClickPendingIntent(R.id.btn_close, getCancelDecodePendingIntent(applicationContext))
+		remoteViewsBig.setTextViewText(R.id.txt_name, resources.getString(R.string.record_calculation))
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+			remoteViewsBig.setInt(
+				R.id.container,
+				"setBackgroundColor",
+				this.resources.getColor(colorMap.primaryColorRes)
+			)
+			remoteViewsBig.setInt(R.id.app_logo, "setVisibility", View.VISIBLE)
+		} else {
+			remoteViewsBig.setInt(
+				R.id.container,
+				"setBackgroundColor",
+				this.resources.getColor(R.color.transparent)
+			)
+			remoteViewsBig.setInt(R.id.app_logo, "setVisibility", View.GONE)
+			if (isNightMode) {
+				remoteViewsBig.setInt(R.id.txt_name, "setTextColor", this.resources.getColor(R.color.text_primary_light))
+				remoteViewsBig.setInt(R.id.txt_app_label, "setTextColor", this.resources.getColor(R.color.text_primary_light))
+				remoteViewsBig.setInt(R.id.btn_close, "setImageResource", R.drawable.ic_round_close)
+			} else {
+				remoteViewsBig.setInt(R.id.txt_name, "setTextColor", this.resources.getColor(R.color.text_primary_dark))
+				remoteViewsBig.setInt(R.id.txt_app_label, "setTextColor", this.resources.getColor(R.color.text_primary_dark))
+				remoteViewsBig.setInt(R.id.btn_close, "setImageResource", R.drawable.ic_round_close_dark)
+			}
+		}
 
 		// Create notification default intent.
 		val intent = Intent(applicationContext, MainActivity::class.java)
@@ -227,6 +281,7 @@ class DecodeService : Service() {
 		// Make head-up notification.
 		builder.setContentIntent(contentPendingIntent)
 		builder.setCustomContentView(remoteViewsSmall)
+		builder.setCustomBigContentView(remoteViewsBig)
 		builder.setOngoing(true)
 		builder.setOnlyAlertOnce(true)
 		builder.setDefaults(0)
@@ -269,6 +324,7 @@ class DecodeService : Service() {
 
 	private fun updateNotification(percent: Int) {
 		remoteViewsSmall.setProgressBar(R.id.progress, 100, percent, false)
+		remoteViewsBig.setProgressBar(R.id.progress, 100, percent, false)
 		notificationManager.notify(NOTIF_ID, buildNotification())
 	}
 

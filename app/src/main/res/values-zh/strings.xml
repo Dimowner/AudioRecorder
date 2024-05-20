@@ -5,11 +5,7 @@
     <string name="settings">设置</string>
     <string name="setup">设置</string>
     <string name="welcome_1">简单快速的录音应用</string>
-    <string name="welcome_2">漂亮的设计很好的功能设计</string>
-    <string name="welcome_3">选择最佳设置并开始录制</string>
     <string name="title_1">Audio Recorder</string>
-    <string name="title_2">Audio Recorder</string>
-    <string name="title_3">Recordio Audier</string>
     <string name="rate_app">评价应用</string>
     <string name="store_records_public">保存录音到Public目录</string>
     <string name="record_in_stereo">以双声道录制</string>
@@ -189,6 +185,7 @@
     <string name="info_bitrate_128"><b>128 kbps</b> mid-range bitrate quality. Common bitrate for podcasts. <b>(recommended)</b></string>
     <string name="info_bitrate_192"><b>192 kbps</b> medium quality bitrate.</string>
     <string name="info_bitrate_256"><b>256 kbps</b> good quality bitrate.</string>
+    <string name="info_bitrate_288"><b>288 kbps</b> very good quality bitrate.</string>
     <string name="info_sample_rate_8k"><b>8kHz</b> 采样率比现代电话系统的带宽还要小。不适合任何严肃的录音任务。</string>
     <string name="info_sample_rate_16k"><b>16kHz</b> 优于 8kHz。</string>
     <string name="info_sample_rate_22k"><b>22kHz</b> 低比特率（如64 kbps）的常用采样率。</string>
@@ -264,6 +261,7 @@
         <item>128 kbps</item>
         <item>192 kbps</item>
         <item>256 kbps</item>
+        <item>288 kbps</item>
     </string-array>
 
     <string-array name="sample_rates2">

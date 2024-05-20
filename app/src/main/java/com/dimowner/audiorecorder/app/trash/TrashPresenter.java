@@ -135,6 +135,12 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 		recordingsTasks.postRunnable(() -> {
 			try {
 				localRepository.restoreFromTrash(id);
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.showMessage(R.string.record_restored_successfully);
+						view.recordRestored(id);
+					}
+				});
 			} catch (final FailedToRestoreRecord e) {
 				AndroidUtils.runOnUIThread(() -> {
 					if (view != null) {
@@ -142,12 +148,6 @@ public class TrashPresenter implements TrashContract.UserActionsListener {
 					}
 				});
 			}
-			AndroidUtils.runOnUIThread(() -> {
-				if (view != null) {
-					view.showMessage(R.string.record_restored_successfully);
-					view.recordRestored(id);
-				}
-			});
 		});
 	}
 }

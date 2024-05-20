@@ -71,7 +71,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private final SettingsMapper settingsMapper;
 	private long songDuration = 0;
 	private Record record;
-	private boolean deleteRecord = false;
 	private boolean listenPlaybackProgress = true;
 
 	/** Flag true defines that presenter called to show import progress when view was not bind.
@@ -138,12 +137,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						view.keepScreenOn(false);
 						view.showRecordingPause();
 					}
-					if (deleteRecord) {
-						if (view != null) {
-							view.askDeleteRecordForever();
-							deleteRecord = false;
-						}
-					}
 				}
 
 				@Override
@@ -156,26 +149,20 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 				@Override
 				public void onRecordingStopped(final File file, final Record rec) {
-					if (deleteRecord) {
-						record = rec;
-						deleteActiveRecord(true);
-						deleteRecord = false;
-					} else {
-						if (view != null) {
-							if (prefs.isAskToRenameAfterStopRecording()) {
-								view.askRecordingNewName(rec.getId(), file, true);
-							}
+					if (view != null) {
+						if (prefs.isAskToRenameAfterStopRecording()) {
+							view.askRecordingNewName(rec.getId(), file, true);
 						}
-						record = rec;
-						songDuration = rec.getDuration();
-						if (view != null) {
-							view.showWaveForm(rec.getAmps(), songDuration, 0);
-							view.showName(rec.getName());
-							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
-							view.showOptionsMenu();
-						}
-						updateInformation(rec.getFormat(), rec.getSampleRate(), rec.getSize());
 					}
+					record = rec;
+					songDuration = rec.getDuration();
+					if (view != null) {
+						view.showWaveForm(rec.getAmps(), songDuration, 0);
+						view.showName(rec.getName());
+						view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
+						view.showOptionsMenu();
+					}
+					updateInformation(rec.getFormat(), rec.getSampleRate(), rec.getSize());
 					if (view != null) {
 						view.keepScreenOn(false);
 						view.hideProgress();
@@ -344,7 +331,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void pauseUnpauseRecording(Context context) {
-		deleteRecord = false;
 		try {
 			if (fileRepository.hasAvailableSpace(context)) {
 				if (appRecorder.isPaused()) {
@@ -365,28 +351,14 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void stopRecording(boolean delete) {
+	public void stopRecording() {
 		if (appRecorder.isRecording()) {
-			deleteRecord = delete;
 			if (view != null) {
 				view.showProgress();
 				view.waveFormToStart();
 			}
 			audioPlayer.seek(0);
 			appRecorder.stopRecording();
-		}
-	}
-
-	@Override
-	public void cancelRecording() {
-		if (appRecorder.isPaused()) {
-			if (view != null) {
-				view.askDeleteRecordForever();
-				deleteRecord = false;
-			}
-		} else {
-			deleteRecord = true;
-			appRecorder.pauseRecording();
 		}
 	}
 
@@ -443,7 +415,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					});
 				} else {
 					if (fileRepository.renameFile(record.getPath(), name, extension)) {
-						MainPresenter.this.record = new Record(
+						Record recordUpdated = new Record(
 								record.getId(),
 								name,
 								record.getDuration(),
@@ -459,7 +431,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 								record.isBookmarked(),
 								record.isWaveformProcessed(),
 								record.getAmps());
-						if (localRepository.updateRecord(MainPresenter.this.record)) {
+						if (localRepository.updateRecord(recordUpdated)) {
+							MainPresenter.this.record = recordUpdated;
 							AndroidUtils.runOnUIThread(() -> {
 								if (view != null) {
 									view.hideProgress();
@@ -676,37 +649,31 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void deleteActiveRecord(final boolean forever) {
+	public void deleteActiveRecord() {
 		final Record rec = record;
 		if (rec != null) {
 			audioPlayer.stop();
 			recordingsTasks.postRunnable(() -> {
-				if (forever) {
-					localRepository.deleteRecordForever(rec.getId());
-					fileRepository.deleteRecordFile(rec.getPath());
-				} else {
-					localRepository.deleteRecord(rec.getId());
-				}
-				prefs.setActiveRecord(-1);
-				AndroidUtils.runOnUIThread(() -> {
-					if (view != null) {
-						view.showWaveForm(new int[]{}, 0, 0);
-						view.showName("");
-						view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
-						if (!forever) {
+				if (localRepository.deleteRecord(rec.getId())) {
+					prefs.setActiveRecord(-1);
+					AndroidUtils.runOnUIThread(() -> {
+						if (view != null) {
+							view.showWaveForm(new int[]{}, 0, 0);
+							view.showName("");
+							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
 							view.showMessage(R.string.record_moved_into_trash);
+							view.hideOptionsMenu();
+							view.onPlayProgress(0, 0);
+							view.hideProgress();
+							record = null;
+							updateInformation(
+									prefs.getSettingRecordingFormat(),
+									prefs.getSettingSampleRate(),
+									0
+							);
 						}
-						view.hideOptionsMenu();
-						view.onPlayProgress(0, 0);
-						view.hideProgress();
-						record = null;
-						updateInformation(
-								prefs.getSettingRecordingFormat(),
-								prefs.getSettingSampleRate(),
-								0
-						);
-					}
-				});
+					});
+				}
 			});
 		}
 	}
