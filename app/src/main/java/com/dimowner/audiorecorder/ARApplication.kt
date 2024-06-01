@@ -24,6 +24,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.media.AudioManager
 import android.os.Build
 import android.os.Handler
 import android.telephony.PhoneStateListener
@@ -38,7 +39,10 @@ import timber.log.Timber.DebugTree
 
 //import com.google.firebase.FirebaseApp;
 class ARApplication : Application() {
+
     private var audioOutputChangeReceiver: AudioOutputChangeReceiver? = null
+    private var rebootReceiver: RebootReceiver? = null
+
     override fun onCreate() {
         if (BuildConfig.DEBUG) {
             //Timber initialization
@@ -56,10 +60,8 @@ class ARApplication : Application() {
         if (!prefs.isMigratedSettings) {
             prefs.migrateSettings()
         }
-        val intentFilter = IntentFilter()
-        intentFilter.addAction(AUDIO_BECOMING_NOISY)
-        audioOutputChangeReceiver = AudioOutputChangeReceiver()
-        registerReceiver(audioOutputChangeReceiver, intentFilter)
+        registerAudioOutputChangeReceiver()
+        registerRebootReceiver()
 
         // feature: pause when phone functions ringing or off-hook
         try {
@@ -81,6 +83,7 @@ class ARApplication : Application() {
         injector.releaseMainPresenter()
         injector.closeTasks()
         unregisterReceiver(audioOutputChangeReceiver)
+        unregisterReceiver(rebootReceiver)
     }
 
     fun pausePlayback() {
@@ -95,6 +98,21 @@ class ARApplication : Application() {
             Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
             telephonyMgr.registerTelephonyCallback(mainExecutor, callStateListener!!)
         }
+    }
+
+    private fun registerAudioOutputChangeReceiver() {
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+        audioOutputChangeReceiver = AudioOutputChangeReceiver()
+        registerReceiver(audioOutputChangeReceiver, intentFilter)
+    }
+
+    private fun registerRebootReceiver() {
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(Intent.ACTION_REBOOT)
+        intentFilter.addAction(Intent.ACTION_SHUTDOWN)
+        rebootReceiver = RebootReceiver()
+        registerReceiver(rebootReceiver, intentFilter)
     }
 
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -116,9 +134,20 @@ class ARApplication : Application() {
     private class AudioOutputChangeReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val actionOfIntent = intent.action
-            if (actionOfIntent != null && actionOfIntent == AUDIO_BECOMING_NOISY) {
+            if (actionOfIntent != null && actionOfIntent == AudioManager.ACTION_AUDIO_BECOMING_NOISY) {
                 val player = injector.provideAudioPlayer()
                 player.pause()
+            }
+        }
+    }
+
+    private class RebootReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == Intent.ACTION_REBOOT || intent?.action == Intent.ACTION_SHUTDOWN) {
+                val appRecorder = injector.provideAppRecorder(context)
+                val audioPlayer = injector.provideAudioPlayer()
+                appRecorder.stopRecording()
+                audioPlayer.stop()
             }
         }
     }
@@ -139,7 +168,6 @@ class ARApplication : Application() {
     }
 
     companion object {
-        const val AUDIO_BECOMING_NOISY = "android.media.AUDIO_BECOMING_NOISY"
         private var PACKAGE_NAME: String? = null
 
         @JvmField
