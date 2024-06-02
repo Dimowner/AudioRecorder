@@ -304,17 +304,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void onClick(View view) {
 		int id = view.getId();
 		if (id == R.id.btn_play) {
-			String path = presenter.getActiveRecordPath();
-			//This method Starts or Pause playback.
-			if (FileUtil.isFileInExternalStorage(getApplicationContext(), path)) {
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-					AndroidUtils.showRecordFileNotAvailable(this, path);
-				} else if (checkStoragePermissionPlayback()) {
-					presenter.startPlayback();
-				}
-			} else {
-				presenter.startPlayback();
-			}
+			presenter.onPlaybackClick(getApplicationContext(), checkStoragePermissionPlayback());
 		} else if (id == R.id.btn_record) {
 			if (checkRecordPermission2()) {
 				if (checkStoragePermission2()) {
@@ -697,6 +687,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				},
 				v -> {}
 		);
+	}
+
+	@Override
+	public void showRecordFileNotAvailable(String path) {
+		AndroidUtils.showRecordFileNotAvailable(this, path);
 	}
 
 	@Override

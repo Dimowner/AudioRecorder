@@ -48,6 +48,7 @@ import com.dimowner.audiorecorder.audio.player.PlayerContractNew;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
+import com.dimowner.audiorecorder.data.RecordDataSource;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
@@ -89,6 +90,7 @@ public class RecordingService extends Service {
 	private BackgroundQueue recordingsTasks;
 	private LocalRepository localRepository;
 	private Prefs prefs;
+	private RecordDataSource recordDataSource;
 	private RecorderContract.Recorder recorder;
 	private AppRecorderCallback appRecorderCallback;
 	private ColorMap colorMap;
@@ -106,13 +108,13 @@ public class RecordingService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		getApplicationContext();
 		appRecorder = ARApplication.getInjector().provideAppRecorder(getApplicationContext());
 		audioPlayer = ARApplication.getInjector().provideAudioPlayer();
 		recordingsTasks = ARApplication.getInjector().provideRecordingTasksQueue();
 		localRepository = ARApplication.getInjector().provideLocalRepository(getApplicationContext());
 		prefs = ARApplication.getInjector().providePrefs(getApplicationContext());
 		recorder = ARApplication.getInjector().provideAudioRecorder(getApplicationContext());
+		recordDataSource = ARApplication.getInjector().provideRecordDataSource(getApplicationContext());
 
 		colorMap = ARApplication.getInjector().provideColorMap(getApplicationContext());
 		fileRepository = ARApplication.getInjector().provideFileRepository(getApplicationContext());
@@ -427,14 +429,16 @@ public class RecordingService extends Service {
 						try {
 							Record record = localRepository.insertEmptyFile(path);
 							prefs.setActiveRecord(record.getId());
+							recordDataSource.setRecordingRecord(record);
 							AndroidUtils.runOnUIThread(() -> appRecorder.startRecording(
 									path,
 									prefs.getSettingChannelCount(),
 									prefs.getSettingSampleRate(),
 									prefs.getSettingBitrate()
 							));
-						} catch (IOException | OutOfMemoryError | IllegalStateException e) {
+						} catch (IOException | OutOfMemoryError | IllegalStateException | NullPointerException e) {
 							Timber.e(e);
+							showError(R.string.error_failed_to_start_recording);
 						}
 					});
 				}
