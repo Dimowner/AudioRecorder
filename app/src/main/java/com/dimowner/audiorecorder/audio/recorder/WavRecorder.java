@@ -20,13 +20,11 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Handler;
-
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.exception.InvalidOutputFile;
 import com.dimowner.audiorecorder.exception.RecorderInitException;
 import com.dimowner.audiorecorder.exception.RecordingException;
 import com.dimowner.audiorecorder.util.AndroidUtils;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -35,10 +33,9 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import timber.log.Timber;
-
 import static com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL;
+import androidx.annotation.RequiresPermission;
 
 public class WavRecorder implements RecorderContract.Recorder {
 
@@ -86,6 +83,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 	}
 
 	@Override
+	@RequiresPermission(value = "android.permission.RECORD_AUDIO")
 	public void startRecording(String outputFile, int channelCount, int sampleRate, int bitrate) {
 		this.sampleRate = sampleRate;
 //		this.framesPerVisInterval = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/sampleRate));
@@ -211,6 +209,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 			fos = null;
 		}
 		if (null != fos) {
+			writeEmptyHeader(fos);
 			int chunksCount = 0;
 			ByteBuffer shortBuffer = ByteBuffer.allocate(2);
 			shortBuffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -242,6 +241,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 			}
 
 			try {
+				fos.flush();
 				fos.close();
 			} catch (IOException e) {
 				Timber.e(e);
@@ -251,7 +251,7 @@ public class WavRecorder implements RecorderContract.Recorder {
 	}
 
 	private void setWaveFileHeader(File file, int channels) {
-		long fileSize = file.length() - 8;
+		long fileSize = file.length() - 44;
 		long totalSize = fileSize + 36;
 		long byteRate = sampleRate * channels * (RECORDER_BPP/8); //2 byte per 1 sample for 1 channel.
 
@@ -262,6 +262,16 @@ public class WavRecorder implements RecorderContract.Recorder {
 			wavFile.close();
 		} catch (FileNotFoundException e) {
 			Timber.e(e);
+		} catch (IOException e) {
+			Timber.e(e);
+		}
+	}
+
+	private void writeEmptyHeader(FileOutputStream fos) {
+		try {
+			byte[] header = new byte[44];
+			fos.write(header);
+			fos.flush();
 		} catch (IOException e) {
 			Timber.e(e);
 		}
