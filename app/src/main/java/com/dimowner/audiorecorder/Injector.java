@@ -38,6 +38,7 @@ import com.dimowner.audiorecorder.audio.recorder.AudioRecorder;
 import com.dimowner.audiorecorder.audio.recorder.ThreeGpRecorder;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.audio.recorder.WavRecorder;
+import com.dimowner.audiorecorder.data.RecordDataSource;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.FileRepositoryImpl;
 import com.dimowner.audiorecorder.data.Prefs;
@@ -62,6 +63,7 @@ public class Injector {
 	private BackgroundQueue copyTasks;
 
 	private MainContract.UserActionsListener mainPresenter;
+	private RecordDataSource recordDataSource;
 	private RecordsContract.UserActionsListener recordsPresenter;
 	private SettingsContract.UserActionsListener settingsPresenter;
 	private LostRecordsContract.UserActionsListener lostRecordsPresenter;
@@ -95,7 +97,7 @@ public class Injector {
 
 	public AppRecorder provideAppRecorder(Context context) {
 		return AppRecorderImpl.getInstance(provideAudioRecorder(context), provideLocalRepository(context),
-				provideLoadingTasksQueue(), providePrefs(context));
+				provideLoadingTasksQueue(), provideRecordDataSource(context));
 	}
 
 	public AudioWaveformVisualization provideAudioWaveformVisualization() {
@@ -168,12 +170,22 @@ public class Injector {
 		}
 	}
 
+	public RecordDataSource provideRecordDataSource(Context context) {
+		if (recordDataSource == null) {
+			recordDataSource = new RecordDataSource(
+					provideLocalRepository(context),
+					providePrefs(context)
+			);
+		}
+		return recordDataSource;
+	}
+
 	public MainContract.UserActionsListener provideMainPresenter(Context context) {
 		if (mainPresenter == null) {
 			mainPresenter = new MainPresenter(providePrefs(context), provideFileRepository(context),
 					provideLocalRepository(context), provideAudioPlayer(), provideAppRecorder(context),
 					provideRecordingTasksQueue(), provideLoadingTasksQueue(), provideProcessingTasksQueue(),
-					provideImportTasksQueue(), provideSettingsMapper(context));
+					provideImportTasksQueue(), provideSettingsMapper(context), provideRecordDataSource(context));
 		}
 		return mainPresenter;
 	}
