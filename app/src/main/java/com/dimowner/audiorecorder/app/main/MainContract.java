@@ -82,6 +82,8 @@ public interface MainContract {
 		void downloadRecord(Record record);
 
 		void showMigratePublicStorageWarning();
+
+		void showRecordFileNotAvailable(String path);
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
@@ -96,6 +98,7 @@ public interface MainContract {
 		void stopRecording();
 
 		void startPlayback();
+		void onPlaybackClick(Context context, boolean isStorageAvailable);
 		void seekPlayback(long mills);
 		void stopPlayback();
 
@@ -127,8 +130,6 @@ public interface MainContract {
 
 		//TODO: Remove this getters
 		boolean isStorePublic();
-
-		String getActiveRecordPath();
 
 		void deleteActiveRecord();
 
