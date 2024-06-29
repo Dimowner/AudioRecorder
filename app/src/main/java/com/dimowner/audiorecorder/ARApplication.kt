@@ -30,25 +30,23 @@ import android.os.Handler
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.dimowner.audiorecorder.util.AndroidUtils
 import timber.log.Timber
 import timber.log.Timber.DebugTree
+import com.google.firebase.FirebaseApp
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 
-
-//import com.google.firebase.FirebaseApp;
 class ARApplication : Application() {
 
     private var audioOutputChangeReceiver: AudioOutputChangeReceiver? = null
     private var rebootReceiver: RebootReceiver? = null
 
     override fun onCreate() {
-        if (BuildConfig.DEBUG) {
-            //Timber initialization
-            Timber.plant(DebugTree())
-        }
         super.onCreate()
+        initTimber()
         PACKAGE_NAME = applicationContext.packageName
         applicationHandler = Handler(applicationContext.mainLooper)
         screenWidthDp = AndroidUtils.pxToDp(
@@ -74,7 +72,20 @@ class ARApplication : Application() {
         } catch (e: Exception) {
             Timber.e(e)
         }
-        //		FirebaseApp.initializeApp(this);
+        FirebaseApp.initializeApp(this)
+    }
+
+    private fun initTimber()  = when {
+        BuildConfig.DEBUG -> {
+            Timber.plant(object : DebugTree() {
+                override fun createStackElementTag(element: StackTraceElement): String? {
+                    return super.createStackElementTag(element) + ":" + element.lineNumber
+                }
+            })
+        }
+        else -> {
+            Timber.plant(CrashlyticsTree())
+        }
     }
 
     override fun onTerminate() {
@@ -200,5 +211,42 @@ class ARApplication : Application() {
         @JvmStatic
 		val longWaveformSampleCount: Int
             get() = (AppConstants.WAVEFORM_WIDTH * screenWidthDp).toInt()
+    }
+}
+
+class CrashlyticsTree: Timber.Tree() {
+
+    private val crashlytics = FirebaseCrashlytics.getInstance()
+
+    override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+
+        if (priority == Log.VERBOSE || priority == Log.DEBUG || priority == Log.INFO) {
+            return
+        }
+
+        if (BuildConfig.DEBUG) {
+            crashlytics.setCrashlyticsCollectionEnabled(false)
+            return
+        }
+
+        crashlytics.setCustomKey(CRASHLYTICS_KEY_PRIORITY, priority)
+
+        if (tag != null) {
+            crashlytics.setCustomKey(CRASHLYTICS_KEY_TAG, tag)
+        }
+        crashlytics.setCustomKey(CRASHLYTICS_KEY_MESSAGE, message)
+
+        if (t == null) {
+            crashlytics.recordException(Exception(message))
+        }
+        else {
+            crashlytics.recordException(t)
+        }
+    }
+
+    companion object {
+        private const val CRASHLYTICS_KEY_PRIORITY = "priority"
+        private const val CRASHLYTICS_KEY_TAG = "tag"
+        private const val CRASHLYTICS_KEY_MESSAGE = "message"
     }
 }
