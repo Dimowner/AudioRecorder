@@ -225,21 +225,11 @@ public class FileRepositoryImpl implements FileRepository {
 			space = FileUtil.getAvailableInternalMemorySize(context);
 		}
 
-		final long time = spaceToTimeSecs(space, prefs.getSettingRecordingFormat(),
-				prefs.getSettingSampleRate(), prefs.getSettingBitrate(), prefs.getSettingChannelCount());
+		final long time = spaceToTimeSecs(space, prefs.getSettingRecordingFormat(), prefs.getSettingBitrate(), prefs.getSettingChannelCount());
 		return time > AppConstants.MIN_REMAIN_RECORDING_TIME;
 	}
 
-	private long spaceToTimeSecs(long spaceBytes, String recordingFormat, int sampleRate, int bitrate, int channels) {
-		switch (recordingFormat) {
-			case AppConstants.FORMAT_3GP:
-				return 1000 * (spaceBytes/(AppConstants.RECORD_ENCODING_BITRATE_12000/8));
-			case AppConstants.FORMAT_M4A:
-				return 1000 * (spaceBytes/(bitrate/8));
-			case AppConstants.FORMAT_WAV:
-				return 1000 * (spaceBytes/(sampleRate * channels * 2));
-			default:
-				return 0;
-		}
+	private long spaceToTimeSecs(long spaceBytes, String recordingFormat, int bitrate, int channels) {
+		return 1000 * (spaceBytes/(bitrate/8));
 	}
 }

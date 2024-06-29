@@ -264,8 +264,14 @@
 		<item>3gp</item>
 	</string-array>
 
+	<string-array name="bit_rates">
+		<item>8 kbps</item>
+		<item>16 kbps</item>
+	</string-array>
+
 	<string-array name="bit_rates2">
-<!--		<item>24 kbps</item>-->
+		<item>8 kbps</item>
+		<item>16 kbps</item>
 		<item>48 kbps</item>
 		<item>96 kbps</item>
 		<item>128 kbps</item>

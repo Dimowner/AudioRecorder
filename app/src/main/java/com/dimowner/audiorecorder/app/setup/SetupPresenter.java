@@ -232,7 +232,7 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 		if (format.equals(AppConstants.FORMAT_3GP)) {
 			view.showSizePerMin(
 					decimalFormat.format(
-							sizePerMin(format, sampleRate, AppConstants.RECORD_ENCODING_BITRATE_12000,
+							sizePerMin(format, sampleRate, AppConstants.RECORD_ENCODING_BITRATE_16000,
 									AppConstants.RECORD_AUDIO_MONO) / 1000000f
 					)
 			);
