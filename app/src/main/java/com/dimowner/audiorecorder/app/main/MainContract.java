@@ -69,8 +69,6 @@ public interface MainContract {
 
 		void askDeleteRecord(String name);
 
-		void askDeleteRecordForever();
-
 		void showRecordInfo(RecordInfo info);
 
 		void updateRecordingView(IntArrayList data, long durationMills);
@@ -84,6 +82,8 @@ public interface MainContract {
 		void downloadRecord(Record record);
 
 		void showMigratePublicStorageWarning();
+
+		void showRecordFileNotAvailable(String path);
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
@@ -95,10 +95,10 @@ public interface MainContract {
 		void setAudioRecorder(RecorderContract.Recorder recorder);
 
 		void pauseUnpauseRecording(Context context);
-		void stopRecording(boolean deleteRecord);
-		void cancelRecording();
+		void stopRecording();
 
 		void startPlayback();
+		void onPlaybackClick(Context context, boolean isStorageAvailable);
 		void seekPlayback(long mills);
 		void stopPlayback();
 
@@ -131,9 +131,7 @@ public interface MainContract {
 		//TODO: Remove this getters
 		boolean isStorePublic();
 
-		String getActiveRecordPath();
-
-		void deleteActiveRecord(boolean forever);
+		void deleteActiveRecord();
 
 		void onRecordInfo();
 

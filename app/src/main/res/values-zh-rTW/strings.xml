@@ -5,11 +5,7 @@
 	<string name="settings">設定</string>
 	<string name="setup">設定指引</string>
 	<string name="welcome_1">歡迎使用輕快的錄音程式</string>
-	<string name="welcome_2">兼具實用功能與亮麗外觀</string>
-	<string name="welcome_3">選擇最佳設定以開始錄製</string>
 	<string name="title_1">錄音機</string>
-	<string name="title_2">錄音器</string>
-	<string name="title_3">Recordio Audier</string>
 	<string name="rate_app">評價應用程式</string>
 	<string name="store_records_public">存放錄音至共用資料夾</string>
 	<string name="record_in_stereo">錄製立體聲</string>
@@ -191,6 +187,7 @@
 	<string name="info_bitrate_128"><b>128 kbps</b> 標準品質與大小，廣播服務常用速率。<b>(建議)</b></string>
 	<string name="info_bitrate_192"><b>192 kbps</b> 中階品質速率。</string>
 	<string name="info_bitrate_256"><b>256 kbps</b> 最佳品質速率。</string>
+	<string name="info_bitrate_288"><b>288 kbps</b> 最佳品質速率。</string>
 	<string name="info_sample_rate_8k"><b>8 kHz</b> 用於較小頻寬的現代電話系統，不適合正式的錄音作業。</string>
 	<string name="info_sample_rate_16k"><b>16 kHz</b> 優於 8 kHz。</string>
 	<string name="info_sample_rate_22k"><b>22 kHz</b> 熱門的低位元取樣率，例如 64 kbps。</string>

@@ -31,6 +31,7 @@ import android.os.IBinder;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -87,6 +88,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_IMPORT = 405;
 	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_PLAYBACK = 406;
 	public static final int REQ_CODE_READ_EXTERNAL_STORAGE_DOWNLOAD = 407;
+	public static final int REQ_CODE_POST_NOTIFICATIONS = 408;
 	public static final int REQ_CODE_IMPORT_AUDIO = 11;
 
 	private WaveformViewNew waveformView;
@@ -98,9 +100,8 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private TextView txtRecordInfo;
 	private ImageButton btnPlay;
 	private ImageButton btnStop;
-	private ImageButton btnRecord;
-	private ImageButton btnDelete;
-	private ImageButton btnRecordingStop;
+	private Button btnRecord;
+	private Button btnRecordingStop;
 	private ImageButton btnShare;
 	private ImageButton btnImport;
 	private ProgressBar progressBar;
@@ -170,7 +171,6 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnPlay = findViewById(R.id.btn_play);
 		btnRecord = findViewById(R.id.btn_record);
 		btnRecordingStop = findViewById(R.id.btn_record_stop);
-		btnDelete = findViewById(R.id.btn_record_delete);
 		btnStop = findViewById(R.id.btn_stop);
 		ImageButton btnRecordsList = findViewById(R.id.btn_records_list);
 		ImageButton btnSettings = findViewById(R.id.btn_settings);
@@ -185,15 +185,12 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		txtProgress.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 
-		btnDelete.setVisibility(View.INVISIBLE);
-		btnDelete.setEnabled(false);
-		btnRecordingStop.setVisibility(View.INVISIBLE);
+		btnRecordingStop.setVisibility(View.GONE);
 		btnRecordingStop.setEnabled(false);
 
 		btnPlay.setOnClickListener(this);
 		btnRecord.setOnClickListener(this);
 		btnRecordingStop.setOnClickListener(this);
-		btnDelete.setOnClickListener(this);
 		btnStop.setOnClickListener(this);
 		btnRecordsList.setOnClickListener(this);
 		btnSettings.setOnClickListener(this);
@@ -267,6 +264,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				}
 			}
 		}
+		checkNotificationPermission();
 	}
 
 	@Override
@@ -306,17 +304,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void onClick(View view) {
 		int id = view.getId();
 		if (id == R.id.btn_play) {
-			String path = presenter.getActiveRecordPath();
-			//This method Starts or Pause playback.
-			if (FileUtil.isFileInExternalStorage(getApplicationContext(), path)) {
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-					AndroidUtils.showRecordFileNotAvailable(this, path);
-				} else if (checkStoragePermissionPlayback()) {
-					presenter.startPlayback();
-				}
-			} else {
-				presenter.startPlayback();
-			}
+			presenter.onPlaybackClick(getApplicationContext(), checkStoragePermissionPlayback());
 		} else if (id == R.id.btn_record) {
 			if (checkRecordPermission2()) {
 				if (checkStoragePermission2()) {
@@ -326,9 +314,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				}
 			}
 		} else if (id == R.id.btn_record_stop) {
-			presenter.stopRecording(false);
-		} else if (id == R.id.btn_record_delete) {
-			presenter.cancelRecording();
+			presenter.stopRecording();
 		} else if (id == R.id.btn_stop) {
 			presenter.stopPlayback();
 		} else if (id == R.id.btn_records_list) {
@@ -415,17 +401,13 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtName.setText(R.string.recording_progress);
 		txtZeroTime.setVisibility(View.INVISIBLE);
 		txtDuration.setVisibility(View.INVISIBLE);
-		btnRecord.setImageResource(R.drawable.ic_pause_circle_filled);
+		btnRecord.setText(R.string.button_stop);
 		btnPlay.setEnabled(false);
 		btnImport.setEnabled(false);
 		btnShare.setEnabled(false);
 		btnPlay.setVisibility(View.GONE);
 		btnImport.setVisibility(View.GONE);
 		btnShare.setVisibility(View.GONE);
-		btnDelete.setVisibility(View.VISIBLE);
-		btnDelete.setEnabled(true);
-		btnRecordingStop.setVisibility(View.VISIBLE);
-		btnRecordingStop.setEnabled(true);
 		playProgress.setProgress(0);
 		playProgress.setEnabled(false);
 		txtDuration.setText(R.string.zero_time);
@@ -442,8 +424,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtZeroTime.setVisibility(View.VISIBLE);
 		txtDuration.setVisibility(View.VISIBLE);
 		txtName.setCompoundDrawablesWithIntrinsicBounds(null, null, getDrawable(R.drawable.ic_pencil_small), null);
-//		txtName.setVisibility(View.INVISIBLE);
-		btnRecord.setImageResource(R.drawable.ic_record);
+		btnRecord.setText(R.string.button_record);
 		btnPlay.setEnabled(true);
 		btnImport.setEnabled(true);
 		btnShare.setEnabled(true);
@@ -451,9 +432,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnImport.setVisibility(View.VISIBLE);
 		btnShare.setVisibility(View.VISIBLE);
 		playProgress.setEnabled(true);
-		btnDelete.setVisibility(View.INVISIBLE);
-		btnDelete.setEnabled(false);
-		btnRecordingStop.setVisibility(View.INVISIBLE);
+		btnRecordingStop.setVisibility(View.GONE);
 		btnRecordingStop.setEnabled(false);
 		waveformView.setVisibility(View.VISIBLE);
 		recordingWaveformView.setVisibility(View.GONE);
@@ -474,9 +453,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnPlay.setVisibility(View.GONE);
 		btnImport.setVisibility(View.GONE);
 		btnShare.setVisibility(View.GONE);
-		btnRecord.setImageResource(R.drawable.ic_record_rec);
-		btnDelete.setVisibility(View.VISIBLE);
-		btnDelete.setEnabled(true);
+		btnRecord.setText(R.string.button_resume);
 		btnRecordingStop.setVisibility(View.VISIBLE);
 		btnRecordingStop.setEnabled(true);
 		playProgress.setEnabled(false);
@@ -493,17 +470,15 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtName.setText(R.string.recording_progress);
 		txtZeroTime.setVisibility(View.INVISIBLE);
 		txtDuration.setVisibility(View.INVISIBLE);
-		btnRecord.setImageResource(R.drawable.ic_pause_circle_filled);
+		btnRecord.setText(R.string.button_stop);
 		btnPlay.setEnabled(false);
 		btnImport.setEnabled(false);
 		btnShare.setEnabled(false);
 		btnPlay.setVisibility(View.GONE);
 		btnImport.setVisibility(View.GONE);
 		btnShare.setVisibility(View.GONE);
-		btnDelete.setVisibility(View.VISIBLE);
-		btnDelete.setEnabled(true);
-		btnRecordingStop.setVisibility(View.VISIBLE);
-		btnRecordingStop.setEnabled(true);
+		btnRecordingStop.setVisibility(View.GONE);
+		btnRecordingStop.setEnabled(false);
 		playProgress.setProgress(0);
 		playProgress.setEnabled(false);
 		txtDuration.setText(R.string.zero_time);
@@ -651,18 +626,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				R.drawable.ic_delete_forever_dark,
 				getString(R.string.warning),
 				getString(R.string.delete_record, name),
-				v -> presenter.deleteActiveRecord(false)
-		);
-	}
-
-	@Override
-	public void askDeleteRecordForever() {
-		AndroidUtils.showDialogYesNo(
-				MainActivity.this,
-				R.drawable.ic_delete_forever_dark,
-				getString(R.string.warning),
-				getString(R.string.delete_this_record),
-				v -> presenter.stopRecording(true)
+				v -> presenter.deleteActiveRecord()
 		);
 	}
 
@@ -723,6 +687,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				},
 				v -> {}
 		);
+	}
+
+	@Override
+	public void showRecordFileNotAvailable(String path) {
+		AndroidUtils.showRecordFileNotAvailable(this, path);
 	}
 
 	@Override
@@ -861,6 +830,16 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		return true;
 	}
 
+	private boolean checkNotificationPermission() {
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+				requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQ_CODE_POST_NOTIFICATIONS);
+				return false;
+			}
+		}
+		return true;
+	}
+
 	private boolean checkStoragePermission2() {
 		if (presenter.isStorePublic()) {
 			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -921,6 +900,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				|| grantResults[1] == PackageManager.PERMISSION_DENIED)) {
 			presenter.setStoragePrivate(getApplicationContext());
 			startRecordingService();
+		} else if (requestCode == REQ_CODE_POST_NOTIFICATIONS && grantResults.length > 0
+				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+			//Post notifications permission is granted do nothing
 		}
 	}
 }

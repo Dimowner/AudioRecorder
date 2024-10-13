@@ -31,6 +31,7 @@ import android.os.Build;
 import android.os.IBinder;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
+import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -41,6 +42,7 @@ import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.app.main.MainActivity;
 import com.dimowner.audiorecorder.util.DownloadManagerKt;
+import com.dimowner.audiorecorder.util.ExtensionsKt;
 import com.dimowner.audiorecorder.util.OnCopyListListener;
 import org.jetbrains.annotations.NotNull;
 
@@ -69,6 +71,7 @@ public class DownloadService extends Service {
 	private static final int NOTIF_ID = 103;
 	private NotificationManagerCompat notificationManager;
 	private RemoteViews remoteViewsSmall;
+	private RemoteViews remoteViewsBig;
 	private PendingIntent contentPendingIntent;
 	private String downloadingRecordName = "";
 	private BackgroundQueue copyTasks;
@@ -201,10 +204,47 @@ public class DownloadService extends Service {
 			createNotificationChannel(CHANNEL_ID, CHANNEL_NAME);
 		}
 
+		boolean isNightMode = ExtensionsKt.isUsingNightModeResources(getApplicationContext());
+
 		remoteViewsSmall = new RemoteViews(getPackageName(), R.layout.layout_progress_notification);
 		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_close, getPendingSelfIntent(getApplicationContext(), ACTION_CANCEL_DOWNLOAD));
 		remoteViewsSmall.setTextViewText(R.id.txt_name, getResources().getString(R.string.downloading, downloadingRecordName));
-		remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+			remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
+			remoteViewsSmall.setInt(R.id.app_logo, "setVisibility", View.VISIBLE);
+		} else {
+			remoteViewsSmall.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(R.color.transparent));
+			remoteViewsSmall.setInt(R.id.app_logo, "setVisibility", View.GONE);
+			if (isNightMode) {
+				remoteViewsSmall.setInt(R.id.txt_app_label, "setTextColor", this.getResources().getColor(R.color.text_primary_light));
+				remoteViewsSmall.setInt(R.id.txt_name, "setTextColor", this.getResources().getColor(R.color.text_secondary_light));
+				remoteViewsSmall.setInt(R.id.btn_close, "setImageResource", R.drawable.ic_round_close);
+			} else {
+				remoteViewsSmall.setInt(R.id.txt_app_label, "setTextColor", this.getResources().getColor(R.color.text_primary_dark));
+				remoteViewsSmall.setInt(R.id.txt_name, "setTextColor", this.getResources().getColor(R.color.text_secondary_dark));
+				remoteViewsSmall.setInt(R.id.btn_close, "setImageResource", R.drawable.ic_round_close_dark);
+			}
+		}
+
+		remoteViewsBig = new RemoteViews(getPackageName(), R.layout.layout_progress_notification);
+		remoteViewsBig.setOnClickPendingIntent(R.id.btn_close, getPendingSelfIntent(getApplicationContext(), ACTION_CANCEL_DOWNLOAD));
+		remoteViewsBig.setTextViewText(R.id.txt_name, getResources().getString(R.string.downloading, downloadingRecordName));
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+			remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(colorMap.getPrimaryColorRes()));
+			remoteViewsBig.setInt(R.id.app_logo, "setVisibility", View.VISIBLE);
+		} else {
+			remoteViewsBig.setInt(R.id.container, "setBackgroundColor", this.getResources().getColor(R.color.transparent));
+			remoteViewsBig.setInt(R.id.app_logo, "setVisibility", View.GONE);
+			if (isNightMode) {
+				remoteViewsBig.setInt(R.id.txt_app_label, "setTextColor", this.getResources().getColor(R.color.text_primary_light));
+				remoteViewsBig.setInt(R.id.txt_name, "setTextColor", this.getResources().getColor(R.color.text_secondary_light));
+				remoteViewsBig.setInt(R.id.btn_close, "setImageResource", R.drawable.ic_round_close);
+			} else {
+				remoteViewsBig.setInt(R.id.txt_app_label, "setTextColor", this.getResources().getColor(R.color.text_primary_dark));
+				remoteViewsBig.setInt(R.id.txt_name, "setTextColor", this.getResources().getColor(R.color.text_secondary_dark));
+				remoteViewsBig.setInt(R.id.btn_close, "setImageResource", R.drawable.ic_round_close_dark);
+			}
+		}
 
 		// Create notification default intent.
 		Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -232,6 +272,7 @@ public class DownloadService extends Service {
 		// Make head-up notification.
 		builder.setContentIntent(contentPendingIntent);
 		builder.setCustomContentView(remoteViewsSmall);
+		builder.setCustomBigContentView(remoteViewsBig);
 		builder.setOngoing(true);
 		builder.setOnlyAlertOnce(true);
 		builder.setDefaults(0);
@@ -270,12 +311,17 @@ public class DownloadService extends Service {
 
 	private void updateNotification(int percent) {
 		remoteViewsSmall.setProgressBar(R.id.progress, 100, percent, false);
+		remoteViewsBig.setProgressBar(R.id.progress, 100, percent, false);
 		notificationManager.notify(NOTIF_ID, buildNotification());
 	}
 
 	private void updateNotificationText(String text) {
 		downloadingRecordName = text;
 		remoteViewsSmall.setTextViewText(
+				R.id.txt_name,
+				getResources().getString(R.string.downloading, downloadingRecordName)
+		);
+		remoteViewsBig.setTextViewText(
 				R.id.txt_name,
 				getResources().getString(R.string.downloading, downloadingRecordName)
 		);

@@ -1,9 +1,21 @@
+# Development Plans
+<b>Release v0.9.99:</b>
+ - Update target SDK to 34
+ - Fix few main issues and bugs
+   
+<b>Release v1.0.0:</b>
+ - Add support Bluetooth mics
+ - Add ability to select recording audio sources
+ - Add backup feature to allow download all records files into a public directory 'Downloads'
+
+<br>
+<p><b>Release v2.0.0:</b> (Currently under development)</p>
+<p>Completely rework the app by adopting a new architecture written in Kotlin, designing the UI with Android Compose, integrating a Room database, using ExoPlayer for media playback, and Hilt for dependency injection. Despite these substantial changes, the app’s existing user interface will remain mostly unchanged. Additionally, focusing on achieving robust unit test coverage. These enhancements are expected to significantly enhance app stability, accelerate feature delivery, and mitigate concerns about introducing new bugs.</p>
+
+
 ![Audio Recorder Logo](https://github.com/Dimowner/AudioRecorder/blob/master/app/src/releaseConfig/res/mipmap-xxxhdpi/audio_recorder_logo.png)
 
 # Audio Recorder
-
-<p><b>Audio recorder (Voice recorder, Sound recorder)</b> - an application that gives easy audio recording experience. 
-This app is optimized to start up as fast as possible, aiding the user in not missing important sounds.</p>
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
@@ -12,28 +24,32 @@ This app is optimized to start up as fast as possible, aiding the user in not mi
      alt="Get it on Google Play"
      height="80">](https://play.google.com/store/apps/details?id=com.dimowner.audiorecorder)
 
-<b>Two recording formats are available:</b>
- - M4A
- - Waveform Audio File Format (WAVE, or WAV)
 
-In settings, you can set sample rate, bitrate (for AAC only) and select between mono and stereo.
-Selected preferences directly affect the file size of the recordings.
+<p><b>Audio Recorder</b> is your go-to app for seamless audio recording. Whether you’re capturing important moments or creating content, Audio Recorder got you covered. Here’s what makes our app stand out:</p>
 
-Colorful themes allow customizing the app look, making the experience better.
+<p><b>1. Fast Startup</b>: the app optimized to launch quickly, so you won’t miss a beat when inspiration strikes.</p>
+<b>2. Flexible Formats</b>: Choose from three recording formats:
 
-<b>Features:</b>
-- Recording audio
-- Playing back recordings
-- Make recordings in M4A and WAV
-- Settting sample rate and bitrate
-- Recording and playing back in background
-- Displaying waveform of the recording
-- Rename recordings
-- Share recordings
-- Import audio files
-- List recordings
-- Add recordings to bookmarks
-- Color themes
+ - <b>M4A</b>: High-quality audio in a compact file size.
+ - <b>WAVE (WAV)</b>: Ideal for professional-grade recordings.
+ - <b>3Gp</b>: Perfect for sharing on the go.
+
+<b>3. Customizable Settings:</b>
+ - Easy to adjust sample rate and bitrate to suit your needs.
+ - Toggle between mono and stereo recording.
+
+<b>4. Visual Waveform</b>: See your recordings come to life with waveform display.
+
+<b>5. User-Friendly Features:</b>
+ - Rename recordings for easy organization.
+ - Share your audio files effortlessly.
+ - Import existing audio files.
+ - Create bookmarks for quick access.
+ - Personalize the app with colorful themes.
+
+# FAQ
+### <b>When option to choose recording directory will be added?</b>
+<p>There is no plans to add feature where user can change recording directory. Newer versions of Android added restrictions on ability to interact with device file system. There is no simple way how to implement the feature. So all records are stored in app's private dir. Anyway, all record files available for user to download from app's private dir to a public dir.</p> 
 
 ### License
 

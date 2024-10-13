@@ -36,6 +36,8 @@ import timber.log.Timber;
 
 import static com.dimowner.audiorecorder.data.database.SQLiteHelper.COLUMN_PATH;
 
+import androidx.annotation.VisibleForTesting;
+
 public class LocalRepositoryImpl implements LocalRepository {
 
 //**
@@ -85,6 +87,15 @@ public class LocalRepositoryImpl implements LocalRepository {
 			}
 		}
 		return instance;
+	}
+
+	@VisibleForTesting
+	public static void clearInstance() {
+		if (instance != null) {
+			synchronized (LocalRepositoryImpl.class) {
+				instance = null;
+			}
+		}
 	}
 
 	public void open() {
@@ -298,7 +309,7 @@ public class LocalRepositoryImpl implements LocalRepository {
 		return new File(path).exists();
 	}
 
-	public void deleteRecord(int id) {
+	public boolean deleteRecord(int id) {
 		if (!dataSource.isOpen()) {
 			dataSource.open();
 		}
@@ -308,21 +319,36 @@ public class LocalRepositoryImpl implements LocalRepository {
 		Record recordToDelete = dataSource.getItem(id);
 		if (recordToDelete != null) {
 			String renamed = fileRepository.markAsTrashRecord(recordToDelete.getPath());
-			if (renamed != null) {
-				recordToDelete.setPath(renamed);
-				trashDataSource.insertItem(recordToDelete);
-			} else {
+			if (renamed == null) {
 				renamed = fileRepository.markAsTrashRecord(recordToDelete.getPath());
 				if (renamed != null) {
 					recordToDelete.setPath(renamed);
-					trashDataSource.insertItem(recordToDelete);
+					if (trashDataSource.insertItem(recordToDelete) != null) {
+                        return dataSource.deleteItem(id) > 0;
+					} else {
+						//Restore file name after fail update record in local database.
+						if (fileRepository.unmarkTrashRecord(renamed) == null) {
+							if (fileRepository.unmarkTrashRecord(renamed) == null) {
+								fileRepository.unmarkTrashRecord(renamed);
+							}
+						}
+					}
+				}
+			} else {
+				recordToDelete.setPath(renamed);
+				if (trashDataSource.insertItem(recordToDelete) != null) {
+                    return dataSource.deleteItem(id) > 0;
 				} else {
-					trashDataSource.insertItem(recordToDelete);
-//					fileRepository.deleteRecordFile(recordToDelete.getPath());
+					//Restore file name after fail update record in local database.
+					if (fileRepository.unmarkTrashRecord(renamed) == null) {
+						if (fileRepository.unmarkTrashRecord(renamed) == null) {
+							fileRepository.unmarkTrashRecord(renamed);
+						}
+					}
 				}
 			}
 		}
-		dataSource.deleteItem(id);
+		return false;
 	}
 
 	@Override
@@ -428,10 +454,14 @@ public class LocalRepositoryImpl implements LocalRepository {
 		}
 		Record recordToRestore = trashDataSource.getItem(id);
 		if (recordToRestore != null) {
-			if (trashDataSource.deleteItem(id) > 0) {
-				restoreRecord(recordToRestore);
+			if (restoreRecord(recordToRestore)) {
+				//Try to delete record from trash 3 times
+				if (trashDataSource.deleteItem(id) <= 0) {
+					if (trashDataSource.deleteItem(id) <= 0) {
+						trashDataSource.deleteItem(id);
+					}
+				}
 			} else {
-				trashDataSource.insertItem(recordToRestore);
 				throw new FailedToRestoreRecord();
 			}
 		} else {
@@ -439,21 +469,35 @@ public class LocalRepositoryImpl implements LocalRepository {
 		}
 	}
 
-	private void restoreRecord(Record record) {
+	private Boolean restoreRecord(Record record) {
 		String renamed = fileRepository.unmarkTrashRecord(record.getPath());
 		if (renamed != null) {
 			record.setPath(renamed);
-			insertRecord(record);
+			if (insertRecord(record) != null) {
+				return true;
+			} else {
+				if (fileRepository.markAsTrashRecord(renamed) == null) {
+					if (fileRepository.markAsTrashRecord(renamed) == null) {
+						fileRepository.markAsTrashRecord(renamed);
+					}
+				}
+			}
 		} else {
 			renamed = fileRepository.unmarkTrashRecord(record.getPath());
 			if (renamed != null) {
 				record.setPath(renamed);
-				insertRecord(record);
-			} else {
-				insertRecord(record);
-//				throw new FailedToRestoreRecord();
+				if (insertRecord(record) != null) {
+					return true;
+				} else {
+					if (fileRepository.markAsTrashRecord(renamed) == null) {
+						if (fileRepository.markAsTrashRecord(renamed) == null) {
+							fileRepository.markAsTrashRecord(renamed);
+						}
+					}
+				}
 			}
 		}
+		return false;
 	}
 
 	@Override

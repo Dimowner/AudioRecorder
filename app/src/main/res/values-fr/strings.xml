@@ -5,11 +5,7 @@
 	<string name="settings">Paramètres</string>
 	<string name="setup">Configuration</string>
 	<string name="welcome_1">Bienvenue dans une application simple et rapide</string>
-	<string name="welcome_2">Beau design et bonnes fonctionnalitées</string>
-	<string name="welcome_3">Selectionnez les meilleurs paramètres et commencez à enregistrer</string>
 	<string name="title_1">Magnétophone</string>
-	<string name="title_2">Magnétophone</string>
-	<string name="title_3">Magnétophone</string>
 	<string name="rate_app">Noter l\'application</string>
 	<string name="store_records_public">Stocker les enregistrements dans un dossier public</string>
 	<string name="record_in_stereo">Enregister en stéréo</string>
@@ -191,6 +187,7 @@
 	<string name="info_bitrate_128"><b>128 kbps</b>: qualité de milieu de gamme. Débit commun pour les podcasts. <b>(Recommandé)</b></string>
 	<string name="info_bitrate_192"><b>192 kbps</b>: qualité moyenne.</string>
 	<string name="info_bitrate_256"><b>256 kbps</b>: bonne qualité.</string>
+	<string name="info_bitrate_288"><b>288 kbps</b>: bonne qualité.</string>
 	<string name="info_sample_rate_8k"><b>8 kHz</b>: taux d\'échantillonage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Non approprié pour n\'import quelle usage sérieux.</string>
 	<string name="info_sample_rate_16k"><b>16 kHz</b>: meilleur que 8 kHz.</string>
 	<string name="info_sample_rate_22k"><b>22 kHz</b>: taux d\'échantillonage populaire pour les débits binaires faibles comme le 64 kbps.</string>
@@ -265,6 +262,7 @@
 		<item>128 kbps</item>
 		<item>192 kbps</item>
 		<item>256 kbps</item>
+		<item>288 kbps</item>
 	</string-array>
 
 	<string-array name="sample_rates2">

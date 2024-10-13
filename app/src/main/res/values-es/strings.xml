@@ -6,11 +6,7 @@
  	<string name="settings">Ajustes</string>
  	<string name="setup">Setup</string>
  	<string name="welcome_1">Bienvenido a la aplicación simple y veloz</string>
- 	<string name="welcome_2">Hermoso diseño y buena funcionalidad</string>
- 	<string name="welcome_3">Seleccioná la mejor configuración y comenzá a grabar</string>
  	<string name="title_1">Grabador de Audio</string>
- 	<string name="title_2">Grabador de Audio</string>
- 	<string name="title_3">Recordio Audier</string>
  	<string name="rate_app">Puntuá la app</string>
  	<string name="store_records_public">Guardar grabaciones en dir público</string>
  	<string name="record_in_stereo">Grabar en Stereo</string>
@@ -134,6 +130,7 @@
  	<string name="info_bitrate_128"><b>128 kbps</b>: Calidad de tasa de bits de rango medio. Común para podcasts. <b>(recomendado)</b></string>
  	<string name="info_bitrate_192"><b>192 kbps</b>: Tasa de bits de calidad media.</string>
  	<string name="info_bitrate_256"><b>256 kbps</b> Tasa de bits de buena calidad.</string>
+	<string name="info_bitrate_288"><b>288 kbps</b> Tasa de bits de buena calidad.</string>
  	<string name="info_sample_rate_8k">La frecuencia de <b>8kHz</b> tiene menor ancho de banda que un sistema telefónico moderno. No apto para tareas de grabación serias.</string>
  	<string name="info_sample_rate_16k"><b>16kHz</b> es mejor que 8kHz.</string>
  	<string name="info_sample_rate_22k"><b>22kHz</b> es una frecuencia popular para tasas de bits bajas

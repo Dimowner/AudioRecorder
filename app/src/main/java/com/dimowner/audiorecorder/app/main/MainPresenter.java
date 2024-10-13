@@ -19,6 +19,7 @@ package com.dimowner.audiorecorder.app.main;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 
@@ -34,6 +35,7 @@ import com.dimowner.audiorecorder.app.settings.SettingsMapper;
 import com.dimowner.audiorecorder.audio.AudioDecoder;
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
+import com.dimowner.audiorecorder.data.RecordDataSource;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
@@ -70,8 +72,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private final Prefs prefs;
 	private final SettingsMapper settingsMapper;
 	private long songDuration = 0;
-	private Record record;
-	private boolean deleteRecord = false;
+	private RecordDataSource recordDataSource = null;
 	private boolean listenPlaybackProgress = true;
 
 	/** Flag true defines that presenter called to show import progress when view was not bind.
@@ -79,14 +80,16 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	private boolean showImportProgress = false;
 
 	public MainPresenter(final Prefs prefs, final FileRepository fileRepository,
-								final LocalRepository localRepository,
-								PlayerContractNew.Player audioPlayer,
-								AppRecorder appRecorder,
-								final BackgroundQueue recordingTasks,
-								final BackgroundQueue loadingTasks,
-								final BackgroundQueue processingTasks,
-								final BackgroundQueue importTasks,
-								SettingsMapper settingsMapper) {
+						 final LocalRepository localRepository,
+						 PlayerContractNew.Player audioPlayer,
+						 AppRecorder appRecorder,
+						 final BackgroundQueue recordingTasks,
+						 final BackgroundQueue loadingTasks,
+						 final BackgroundQueue processingTasks,
+						 final BackgroundQueue importTasks,
+						 SettingsMapper settingsMapper,
+						 RecordDataSource recordDataSource
+						 ) {
 		this.prefs = prefs;
 		this.fileRepository = fileRepository;
 		this.localRepository = localRepository;
@@ -97,6 +100,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		this.audioPlayer = audioPlayer;
 		this.appRecorder = appRecorder;
 		this.settingsMapper = settingsMapper;
+		this.recordDataSource = recordDataSource;
 	}
 
 	@Override
@@ -138,12 +142,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						view.keepScreenOn(false);
 						view.showRecordingPause();
 					}
-					if (deleteRecord) {
-						if (view != null) {
-							view.askDeleteRecordForever();
-							deleteRecord = false;
-						}
-					}
 				}
 
 				@Override
@@ -156,26 +154,20 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 				@Override
 				public void onRecordingStopped(final File file, final Record rec) {
-					if (deleteRecord) {
-						record = rec;
-						deleteActiveRecord(true);
-						deleteRecord = false;
-					} else {
-						if (view != null) {
-							if (prefs.isAskToRenameAfterStopRecording()) {
-								view.askRecordingNewName(rec.getId(), file, true);
-							}
+					if (view != null) {
+						if (prefs.isAskToRenameAfterStopRecording()) {
+							view.askRecordingNewName(rec.getId(), file, true);
 						}
-						record = rec;
-						songDuration = rec.getDuration();
-						if (view != null) {
-							view.showWaveForm(rec.getAmps(), songDuration, 0);
-							view.showName(rec.getName());
-							view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
-							view.showOptionsMenu();
-						}
-						updateInformation(rec.getFormat(), rec.getSampleRate(), rec.getSize());
 					}
+					prefs.setActiveRecord(rec.getId());
+					songDuration = rec.getDuration();
+					if (view != null) {
+						view.showWaveForm(rec.getAmps(), songDuration, 0);
+						view.showName(rec.getName());
+						view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(songDuration / 1000));
+						view.showOptionsMenu();
+					}
+					updateInformation(rec.getFormat(), rec.getSampleRate(), rec.getSize());
 					if (view != null) {
 						view.keepScreenOn(false);
 						view.hideProgress();
@@ -217,10 +209,15 @@ public class MainPresenter implements MainContract.UserActionsListener {
 			playerCallback = new PlayerContractNew.PlayerCallback() {
 				@Override
 				public void onStartPlay() {
-					if (record != null && view != null) {
-						view.startPlaybackService(record.getName());
-						view.showPlayStart(true);
-					}
+					loadingTasks.postRunnable(() -> {
+						Record record = recordDataSource.getActiveRecord();
+						AndroidUtils.runOnUIThread(() -> {
+							if (view != null && record != null) {
+								view.startPlaybackService(record.getName());
+								view.showPlayStart(true);
+							}
+						});
+					});
 				}
 
 				@Override
@@ -318,6 +315,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		appRecorder.release();
 		loadingTasks.close();
 		recordingsTasks.close();
+		recordDataSource.clearActiveRecord();
 	}
 
 	@Override
@@ -344,7 +342,6 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void pauseUnpauseRecording(Context context) {
-		deleteRecord = false;
 		try {
 			if (fileRepository.hasAvailableSpace(context)) {
 				if (appRecorder.isPaused()) {
@@ -365,9 +362,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void stopRecording(boolean delete) {
+	public void stopRecording() {
 		if (appRecorder.isRecording()) {
-			deleteRecord = delete;
 			if (view != null) {
 				view.showProgress();
 				view.waveFormToStart();
@@ -378,29 +374,44 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public void cancelRecording() {
-		if (appRecorder.isPaused()) {
-			if (view != null) {
-				view.askDeleteRecordForever();
-				deleteRecord = false;
-			}
+	public void startPlayback() {
+		if (audioPlayer.isPlaying()) {
+			audioPlayer.pause();
+		} else if (audioPlayer.isPaused()) {
+			audioPlayer.unpause();
 		} else {
-			deleteRecord = true;
-			appRecorder.pauseRecording();
+			loadingTasks.postRunnable(() -> {
+				Record record = recordDataSource.getActiveRecord();
+				if (record != null) {
+					AndroidUtils.runOnUIThread(() -> {
+						audioPlayer.play(record.getPath());
+					});
+				}
+			});
 		}
 	}
 
 	@Override
-	public void startPlayback() {
-		if (record != null) {
-			if (audioPlayer.isPlaying()) {
-				audioPlayer.pause();
-			} else if (audioPlayer.isPaused()) {
-				audioPlayer.unpause();
-			} else {
-				audioPlayer.play(record.getPath());
+	public void onPlaybackClick(Context context, boolean isStorageAvailable) {
+		loadingTasks.postRunnable(() -> {
+			Record record = recordDataSource.getActiveRecord();
+			if (record != null) {
+				AndroidUtils.runOnUIThread(() -> {
+					//This method Starts or Pause playback.
+					if (FileUtil.isFileInExternalStorage(context, record.getPath())) {
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+							if (view != null) {
+								view.showRecordFileNotAvailable(record.getPath());
+							}
+						} else if (isStorageAvailable) {
+							startPlayback();
+						}
+					} else {
+						startPlayback();
+					}
+				});
 			}
-		}
+		});
 	}
 
 	@Override
@@ -443,7 +454,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					});
 				} else {
 					if (fileRepository.renameFile(record.getPath(), name, extension)) {
-						MainPresenter.this.record = new Record(
+						Record recordUpdated = new Record(
 								record.getId(),
 								name,
 								record.getDuration(),
@@ -459,7 +470,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 								record.isBookmarked(),
 								record.isWaveformProcessed(),
 								record.getAmps());
-						if (localRepository.updateRecord(MainPresenter.this.record)) {
+						if (localRepository.updateRecord(recordUpdated)) {
+							recordDataSource.clearActiveRecord();
 							AndroidUtils.runOnUIThread(() -> {
 								if (view != null) {
 									view.hideProgress();
@@ -523,8 +535,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				view.showProgress();
 			}
 			loadingTasks.postRunnable(() -> {
-				final Record rec = localRepository.getRecord((int) prefs.getActiveRecord());
-				record = rec;
+				final Record rec = recordDataSource.getActiveRecord();
 				if (rec != null) {
 					songDuration = rec.getDuration();
 					AndroidUtils.runOnUIThread(() -> {
@@ -600,37 +611,72 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 	@Override
 	public void onShareRecordClick() {
-		if (view != null && record != null) {
-			view.shareRecord(record);
-		}
+		loadingTasks.postRunnable(() -> {
+			Record record = recordDataSource.getActiveRecord();
+			if (record != null) {
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.shareRecord(record);
+					}
+				});
+			}
+		});
 	}
 
 	@Override
 	public void onRenameRecordClick() {
-		if (view != null && record != null) {
-			view.askRecordingNewName(record.getId(), new File(record.getPath()), false);
-		}
+		loadingTasks.postRunnable(() -> {
+			Record record = recordDataSource.getActiveRecord();
+			if (record != null) {
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.askRecordingNewName(record.getId(), new File(record.getPath()), false);
+					}
+				});
+			}
+		});
 	}
 
 	@Override
 	public void onOpenFileClick() {
-		if (view != null && record != null) {
-			view.openFile(record);
-		}
+		loadingTasks.postRunnable(() -> {
+			Record record = recordDataSource.getActiveRecord();
+			if (record != null) {
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.openFile(record);
+					}
+				});
+			}
+		});
 	}
 
 	@Override
 	public void onSaveAsClick() {
-		if (view != null && record != null) {
-			view.downloadRecord(record);
-		}
+		loadingTasks.postRunnable(() -> {
+			Record record = recordDataSource.getActiveRecord();
+			if (record != null) {
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.downloadRecord(record);
+					}
+				});
+			}
+		});
 	}
 
 	@Override
 	public void onDeleteClick() {
-		if (view != null && record != null) {
-			view.askDeleteRecord(record.getName());
-		}
+		loadingTasks.postRunnable(() -> {
+			Record record = recordDataSource.getActiveRecord();
+			if (record != null) {
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.askDeleteRecord(record.getName());
+					}
+				});
+			}
+		});
 	}
 
 	private void updateInformation(String format, int sampleRate, long size) {
@@ -667,39 +713,22 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
-	public String getActiveRecordPath() {
-		if (record != null) {
-			return record.getPath();
-		} else {
-			return null;
-		}
-	}
-
-	@Override
-	public void deleteActiveRecord(final boolean forever) {
-		final Record rec = record;
-		if (rec != null) {
-			audioPlayer.stop();
-			recordingsTasks.postRunnable(() -> {
-				if (forever) {
-					localRepository.deleteRecordForever(rec.getId());
-					fileRepository.deleteRecordFile(rec.getPath());
-				} else {
-					localRepository.deleteRecord(rec.getId());
-				}
+	public void deleteActiveRecord() {
+		audioPlayer.stop();
+		recordingsTasks.postRunnable(() -> {
+			Record rec = recordDataSource.getActiveRecord();
+			if (rec != null && localRepository.deleteRecord(rec.getId())) {
 				prefs.setActiveRecord(-1);
 				AndroidUtils.runOnUIThread(() -> {
 					if (view != null) {
 						view.showWaveForm(new int[]{}, 0, 0);
 						view.showName("");
 						view.showDuration(TimeUtils.formatTimeIntervalHourMinSec2(0));
-						if (!forever) {
-							view.showMessage(R.string.record_moved_into_trash);
-						}
+						view.showMessage(R.string.record_moved_into_trash);
 						view.hideOptionsMenu();
 						view.onPlayProgress(0, 0);
 						view.hideProgress();
-						record = null;
+						recordDataSource.clearActiveRecord();
 						updateInformation(
 								prefs.getSettingRecordingFormat(),
 								prefs.getSettingSampleRate(),
@@ -707,16 +736,22 @@ public class MainPresenter implements MainContract.UserActionsListener {
 						);
 					}
 				});
-			});
-		}
+			}
+		});
 	}
 
 	@Override
 	public void onRecordInfo() {
-		Record rec = record;
-		if (rec != null) {
-			view.showRecordInfo(Mapper.toRecordInfo(rec));
-		}
+		loadingTasks.postRunnable(() -> {
+			Record record = recordDataSource.getActiveRecord();
+			if (record != null) {
+				AndroidUtils.runOnUIThread(() -> {
+					if (view != null) {
+						view.showRecordInfo(Mapper.toRecordInfo(record));
+					}
+				});
+			}
+		});
 	}
 
 	@Override
@@ -767,8 +802,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 								false,
 								false,
 								new int[ARApplication.getLongWaveformSampleCount()]);
-						record = localRepository.insertRecord(r);
-						final Record rec = record;
+						final Record rec = localRepository.insertRecord(r);
 						if (rec != null) {
 							id = rec.getId();
 							prefs.setActiveRecord(id);

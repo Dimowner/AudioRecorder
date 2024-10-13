@@ -23,7 +23,7 @@ import com.dimowner.audiorecorder.IntArrayList;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.audio.AudioDecoder;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
-import com.dimowner.audiorecorder.data.Prefs;
+import com.dimowner.audiorecorder.data.RecordDataSource;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
@@ -48,9 +48,7 @@ public class AppRecorderImpl implements AppRecorder {
 	private final LocalRepository localRepository;
 	private final RecorderContract.RecorderCallback recorderCallback;
 	private final List<AppRecorderCallback> appCallbacks;
-	private final Prefs prefs;
 	private final IntArrayList recordingData;
-//	private long recordingDuration;
 	private final IntArrayList apmpPool;
 	private long durationMills = 0;
 	private long updateTime = 0;
@@ -59,24 +57,31 @@ public class AppRecorderImpl implements AppRecorder {
 
 	private volatile static AppRecorderImpl instance;
 
-	public static AppRecorderImpl getInstance(RecorderContract.Recorder recorder,
-															LocalRepository localRep, BackgroundQueue tasks, Prefs prefs) {
+	public static AppRecorderImpl getInstance(
+			RecorderContract.Recorder recorder,
+			LocalRepository localRep,
+			BackgroundQueue tasks,
+			RecordDataSource recordDataSource
+	) {
 		if (instance == null) {
 			synchronized (AppRecorderImpl.class) {
 				if (instance == null) {
-					instance = new AppRecorderImpl(recorder, localRep, tasks, prefs);
+					instance = new AppRecorderImpl(recorder, localRep, tasks, recordDataSource);
 				}
 			}
 		}
 		return instance;
 	}
 
-	private AppRecorderImpl(RecorderContract.Recorder recorder,
-									LocalRepository localRep, BackgroundQueue tasks, Prefs pr) {
+	private AppRecorderImpl(
+			RecorderContract.Recorder recorder,
+			LocalRepository localRep,
+			BackgroundQueue tasks,
+			RecordDataSource recordDataSource
+	) {
 		this.audioRecorder = recorder;
 		this.localRepository = localRep;
 		this.recordingsTasks = tasks;
-		this.prefs = pr;
 		this.appCallbacks = new ArrayList<>();
 		this.recordingData = new IntArrayList();
 		this.apmpPool = new IntArrayList();
@@ -85,7 +90,6 @@ public class AppRecorderImpl implements AppRecorder {
 
 			@Override
 			public void onStartRecord(File output) {
-//				recordingDuration = 0;
 				durationMills = 0;
 				scheduleRecordingTimeUpdate();
 				onRecordingStarted(output);
@@ -117,11 +121,10 @@ public class AppRecorderImpl implements AppRecorder {
 					if (duration <= 0) {
 						duration = durationMills;
 					}
-//					recordingDuration = 0;
 					durationMills = 0;
 
 					int[] waveForm = convertRecordingData(recordingData, (int) (duration / 1000000f));
-					final Record record = localRepository.getRecord((int) prefs.getActiveRecord());
+					final Record record = recordDataSource.getRecordingRecord();
 					if (record != null) {
 						final Record update = new Record(
 								record.getId(),
@@ -153,6 +156,7 @@ public class AppRecorderImpl implements AppRecorder {
 								AndroidUtils.runOnUIThread(() -> onRecordingStopped(output, record));
 							}
 						}
+						recordDataSource.setRecordingRecord(null);
 					} else {
 						AndroidUtils.runOnUIThread(() -> onRecordingError(new RecordingException()));
 					}
@@ -258,7 +262,6 @@ public class AppRecorderImpl implements AppRecorder {
 
 	@Override
 	public long getRecordingDuration() {
-//		return recordingDuration;
 		return durationMills;
 	}
 
@@ -351,8 +354,6 @@ public class AppRecorderImpl implements AppRecorder {
 				long curTime = System.currentTimeMillis();
 				durationMills += curTime - updateTime;
 				updateTime = curTime;
-
-//				recordingDuration += VISUALIZATION_INTERVAL2;
 			}
 		}, 0, PLAYBACK_VISUALIZATION_INTERVAL);
 	}

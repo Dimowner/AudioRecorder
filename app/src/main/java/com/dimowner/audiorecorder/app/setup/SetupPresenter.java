@@ -74,6 +74,9 @@ public class SetupPresenter implements SetupContract.UserActionsListener {
 			case AppConstants.RECORD_ENCODING_BITRATE_256000:
 				text = R.string.info_bitrate_256;
 				break;
+			case AppConstants.RECORD_ENCODING_BITRATE_288000:
+				text = R.string.info_bitrate_288;
+				break;
 		}
 		if (view != null && text != -1) {
 			view.showInformation(text);

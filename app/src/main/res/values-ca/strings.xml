@@ -1,0 +1,278 @@
+<resources>
+	<string name="app_name">Gravadora d\'àudio</string>
+	<string name="records">Gravacions</string>
+	<string name="settings">Configuració</string>
+	<string name="setup">Configuració</string>
+	<string name="welcome_1">Us donem la benvinguda a una aplicació senzilla i ràpida</string>
+	<string name="title_1">Gravadora d\'àudio</string>
+	<string name="rate_app">Valoreu l\'aplicació</string>
+	<string name="store_records_public">Emmagatzema les gravacions en un directori públic</string>
+	<string name="record_in_stereo">Grava en estèreo</string>
+	<string name="keep_screen_on">Manté la pantalla encesa mentre es grava</string>
+	<string name="total_duration">Durada total gravada: %s</string>
+	<string name="total_record_count">Nombre total de gravacions: %d</string>
+	<string name="available_space">Espai disponible: %s</string>
+	<string name="delete_all">Esborra totes les gravacions</string>
+	<string name="delete_all2">Esborra-ho tot</string>
+	<string name="records_was_removed">No s\'han trobat alguns fitxers de gravació al directori de gravacions. Possiblement van ser eliminats o moguts.</string>
+	<string name="title_file_is_not_available">No es pot accedir al fitxer de la gravació.</string>
+	<string name="details_file_is_not_available">Malauradament, l\'aplicació ja no té accés a l\'emmagatzematge públic d\'Android.\nPodeu trobar el fitxer de gravació en aquesta ubicació del telèfon:\n%s</string>
+	<string name="warning">Avís.</string>
+	<string name="delete_this_record">Voleu esborrar aquesta gravació?</string>
+	<string name="delete_record">Vouleu moure %s a la paperera?</string>
+	<string name="delete_record_forever">Voleu esborrar la gravació %s per sempre?</string>
+	<plurals name="delete_selected_records">
+		<item quantity="one">Voleu tirar a la paperera %d gravació seleccionada?</item>
+		<item quantity="other">Voleu moure %d registres seleccionats a la paperera?</item>
+	</plurals>
+	<plurals name="download_selected_records">
+		<item quantity="one">Voleu copiar %d registre seleccionat al directori de Baixades?</item>
+		<item quantity="other">Voleu copiar %d registres seleccionats al directori de Baixades?</item>
+	</plurals>
+	<string name="start_recording">Comença a gravar</string>
+	<string name="recording_feature_disabled">Funció de gravació desactivada</string>
+	<string name="restore_record">Voleu restaurar la gravació %s?</string>
+	<string name="delete_all_records">Voleu esborrar tots els registres?</string>
+	<string name="all_records_deleted">S\'han esborrat tots les gravacions correctament</string>
+	<string name="failed_to_delete_all_records">No s\'ha pogut esborrar totes les gravacions</string>
+	<string name="please_select_record_to_share">Seleccioneu una gravació per compartir</string>
+	<string name="record_name">Nom nou</string>
+	<string name="recording">Gravant: %s</string>
+	<string name="recording_is_on">S\'està gravant</string>
+	<string name="recording_progress">Gravant&#8230;</string>
+	<string name="recording_paused">En pausa</string>
+	<string name="playback">Reproducció: %s</string>
+	<string name="zero_time">00:00</string>
+	<string name="empty">Buit</string>
+	<string name="selected">%d seleccionat</string>
+	<string name="no_records">No hi ha cap gravació</string>
+	<string name="no_bookmarks">No hi ha cap marcador</string>
+	<string name="bookmarks">Marcadors</string>
+	<string name="share_record">Comparteix la gravació: %s</string>
+	<plurals name="share_records_count">
+		<item quantity="one">Comparteix %d gravació</item>
+		<item quantity="other">Comparteix %d gravacions</item>
+	</plurals>
+	<string name="import_progress">S\'està important el fitxer d\'àudio&#8230;</string>
+	<string name="btn_import">Importa</string>
+	<string name="processing_canceled">S\'ha cancel·lat el procés</string>
+	<string name="record_calculation">Càlcul de la forma d\'ona&#8230;</string>
+	<string name="record_processing">Càlcul del dibuix de forma d\'ona&#8230;</string>
+	<string name="request">Sol·licituds o comentaris</string>
+	<string name="email_clients_not_found">No s\'ha trobat cap client de correu electrònic</string>
+	<string name="send_email">Envia per correu electrònic&#8230;</string>
+	<string name="open_record_with">Obre %s amb</string>
+	<string name="delete">Suprimeix</string>
+	<string name="restore">Restaura</string>
+	<string name="info">Informació</string>
+	<string name="rename">Canvia el nom</string>
+	<string name="dont_ask_again">No ho tornis a preguntar</string>
+	<string name="open_with">Obre amb&#8230;</string>
+	<string name="save_as">Anomena i desa&#8230;</string>
+	<string name="downloading">Baixant: %s</string>
+	<plurals name="downloading_success_count">
+		<item quantity="one">S\'ha copiat %d gravacions correctament</item>
+		<item quantity="other">S\'han copiat %d gravacions correctament</item>
+	</plurals>
+	<plurals name="move_records_success_count">
+		<item quantity="one">S\'ha mogut %d gravació mogut correctament</item>
+		<item quantity="other">S\'han mogut %d gravacions correctament</item>
+	</plurals>
+	<string name="downloading_success_and_fail_count">S\'han copiat %d gravacions correctament i n\'han fallat %d</string>
+	<string name="moving_records_success_and_fail_count">S\'han mogut %d gravacions correctament i n\'han fallat %d</string>
+	<string name="downloading_success">S\'ha copiat %s al directori de Baixades</string>
+	<string name="move_record_success">S\'ha mogut %s al directori privat de l\'aplicació</string>
+	<plurals name="downloading_failed_count">
+		<item quantity="one">No s\'ha pogut copiar %d gravació</item>
+		<item quantity="other">No s\'han pogut copiar %d gravacions</item>
+	</plurals>
+	<plurals name="move_records_failed_count">
+		<item quantity="one">No s\'ha pogut moure %d gravació</item>
+		<item quantity="other">No s\'han pogut moure %d gravacions</item>
+	</plurals>
+	<string name="record_will_be_copied_into_downloads">Es copiarà la gravació a la carpeta Baixades</string>
+	<string name="move_record_failed">No s\'ha pogut moure: %s</string>
+	<string name="downloading_failed">No s\'ha pogut copiar: %s</string>
+	<string name="downloading_failed_file_already_exists">No s\'ha pogut copiar. Ja existeix un fitxer amb el nom %s</string>
+	<string name="downloading_cancel">S\'ha cancel·lat la còpia</string>
+	<string name="share">Comparteix</string>
+	<string name="ask_to_rename">Mostra el diàleg de canvi de nom després d\'acabar de gravar</string>
+	<string name="record_moved_into_trash">La gravació s\'ha mogut a la paperera</string>
+	<string name="selected_records_moved_into_trash">Les gravacions seleccionades s\'han mogut a la paperera</string>
+	<string name="all_records_deleted_successfully">Totes les gravacions s\'han suprimit correctament</string>
+	<string name="record_deleted_successfully">La gravació s\'ha suprimit correctament</string>
+	<string name="record_restored_successfully">La gravació s\'ha restaurat correctament</string>
+	<string name="record_imported_successfully">La gravació s\'ha importat correctament</string>
+	<string name="cant_import_files">No es poden importar fitxers</string>
+	<string name="by_date">Per data (més recent)</string>
+	<string name="by_date_desc">Per data (més antic)</string>
+	<string name="by_name">Per nom (A-Z)</string>
+	<string name="by_name_desc">Per nom (Z-A)</string>
+	<string name="by_duration">Per durada (més llarg)</string>
+	<string name="by_duration_desc">Per durada (més curt)</string>
+	<string name="need_write_permission">L\'aplicació necessita permís per accedir a l\'emmagatzematge públic. Si no es permet, les gravacions s\'emmagatzemaran al directori privat de l\'aplicació</string>
+	<string name="rec_name">Nom:</string>
+	<string name="rec_format">Format:</string>
+	<string name="rec_duration">Durada:</string>
+	<string name="rec_frequency">Freqüència:</string>
+	<string name="rec_size">Mida:</string>
+	<string name="rec_created">Creat:</string>
+	<string name="rec_location">Ubicació del fitxer:</string>
+	<string name="naming">Nomenclatura:</string>
+	<string name="private_dir_warning">Les gravacions s\'emmagatzemaran al directori privat de l\'aplicació, que no és visible per a altres aplicacions</string>
+	<string name="public_dir_warning">Les gravacions s\'emmagatzemaran en una carpeta comuna del dispositiu, visible per a altres aplicacions</string>
+	<string name="lost_records">Gravacions perdudes</string>
+	<string name="trash">Paperera</string>
+	<string name="trash_info">Les gravacions que es moguin a la paperera s\'eliminaran automàticament en 60 dies.</string>
+	<string name="file_browser">Explorador de fitxers</string>
+	<string name="private_dir">Directori privat</string>
+	<string name="public_dir">Directori públic</string>
+	<string name="found_in_the_app">S\'ha trobat a l\'aplicació</string>
+	<string name="not_found_in_the_app">No s\'ha trobat a l\'aplicació</string>
+	<string name="in_trash">A la paperera</string>
+	<string name="app_settings">Configuració de l\'aplicació:</string>
+	<string name="recording_settings">Configuració de gravació:</string>
+	<string name="other_settings">Altres:</string>
+
+	<string name="today">Avui</string>
+	<string name="yesterday">Ahir</string>
+
+	<string name="btn_save">Desa</string>
+	<string name="btn_cancel">Cancel·la</string>
+	<string name="btn_yes">Sí</string>
+	<string name="btn_ok">D\'acord</string>
+	<string name="btn_no">No</string>
+	<string name="btn_play">Reprodueix</string>
+	<string name="btn_deny">Denega</string>
+	<string name="btn_allow">Permet</string>
+	<string name="btn_details">Detalls</string>
+	<string name="btn_get_started">Comença</string>
+	<string name="btn_apply">Aplica</string>
+	<string name="btn_reset">Restableix</string>
+	<string name="btn_next">Següent</string>
+	<string name="view">Mostra</string>
+	<string name="view_records">Mostra les gravacions</string>
+	<string name="move_records_needed">Cal moure les gravacions</string>
+	<string name="moving_record">Movent la gravació: %s</string>
+	<string name="moving_record_cancel">S\'ha cancel·lat la moguda</string>
+	<string name="move_records_info">Algunes de les gravacions encara estan desades a l\'emmagatzematge públic. Aviat l\'emmagatzematge públic ja no estarà disponible per a l\'aplicació. Cal moure aquestes gravacions al directori privat de l\'aplicació.</string>
+	<string name="info_format"><b>M4a</b> està codificat amb el còdec d\'àudio AAC, té bona qualitat i una mida petita. <b>(recomanat)</b>
+		\n<b>Wav</b> és un format de dades d\'àudio sense compressió. Ocupa molt més espai que altres formats. Es necessita en casos específics.
+		\n<b>3gp</b> és un format de contenidor multimèdia desenvolupat per a serveis de telecomunicacions mòbils. Feu-lo servir si necessiteu estalviar espai.
+	</string>
+	<string name="info_frequency">La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transportades per segon.
+		\n<b>48kHz</b> és la freqüència de mostreig utilitzada per als DVD.
+		\n<b>44,1kHz</b> és la freqüència de mostreig dels CD d\'àudio. <b>(recomanat)</b>
+		\n<b>22kHz</b> és una freqüència de mostreig comuna per a taxes de bits baixes, com ara 64 kbps.
+		\n <b>8kHz</b> té menys amplada de banda que els sistemes telefònics moderns. No és adequat per a cap tasca important d\'enregistrament.
+	</string>
+	<string name="info_bitrate"><b>Taxa de bits</b>	és la mida de dades per segon de so. Afecta directament la qualitat de la gravació i la mida del fitxer.
+		\n<b>256 kbps</b> bona qualitat.
+		\n<b>192 kbps</b> qualitat mitjana.
+		\n<b>128 kbps</b> qualitat de gamma mitjana. Taxa de bits comuna per a podcasts. <b>(recomanat)</b>
+		\n<b>96 kbps</b> s\'utilitza generalment per a parla o retransmissions a baixa qualitat.
+		\n<b>48 kbps</b> generalment és acceptable només per a veu.
+	</string>
+	<string name="info_channels">
+		<b>Estèreo</b> s\'enregistren dos canals separats. Això vol dir que cada altaveu estèreo té un senyal de so diferent. <b>(recomanat)</b>
+		\n<b>Mono</b> s\'enregistra un sol canal de senyal. Es pot reproduir a través de diversos altaveus, però tots reprodueixen la mateixa còpia del senyal.
+	</string>
+	<string name="info_3gp"><b>3gp</b> format de contenidor multimèdia desenvolupat per a serveis de telecomunicacions mòbils. Feu-lo servir si necessiteu estalviar espai.</string>
+	<string name="info_m4a"><b>M4a</b> format codificat amb el còdec d\'àudio AAC, té bona qualitat i una mida de fitxer petita. <b>(recomanat)</b></string>
+	<string name="info_wav"><b>Wav</b> format de dades d\'àudio sense compressió. Ocupa molt més espai que altres formats. Només és necessari en casos específics.</string>
+	<string name="info_stereo"><b>Estèreo</b> s\'enregistren dos canals separats. Això vol dir que cada altaveu estèreo té un senyal de so diferent. <b>(recomanat)</b></string>
+	<string name="info_mono"><b>Mono</b> s\'enregistra un sol canal de senyal. Es pot reproduir en diversos altaveus, però tots reprodueixen la mateixa còpia del senyal.</string>
+	<string name="info_bitrate_48"><b>48 kbps</b> és generalment acceptable només per a discurs.</string>
+	<string name="info_bitrate_96"><b>96 kbps</b> és generalment utilitzat per a discurs o transmissió de baixa qualitat.</string>
+	<string name="info_bitrate_128"><b>128 kbps</b>	és una taxa de bits de qualitat de rang mitjà. Taxa de bits típica per a podcasts.<b>(recomanat)</b></string>
+	<string name="info_bitrate_192"><b>192 kbps</b>	és una taxa de bits de qualitat mitjana.</string>
+	<string name="info_bitrate_256"><b>256 kbps</b>	és una taxa de bits de bona qualitat.</string>
+	<string name="info_bitrate_288"><b>288 kbps</b>	és una taxa de bits de bona qualitat.</string>
+	<string name="info_sample_rate_8k"><b>8kHz</b> és una freqüència de mostreig amb menys amplada de banda que els sistemes telefònics moderns. No és adequat per a cap tasca seriosa de gravació.</string>
+	<string name="info_sample_rate_16k"><b>16kHz</b> és millor que 8kHz.</string>
+	<string name="info_sample_rate_22k"><b>22kHz</b> és una freqüència de mostreig comuna per a taxes de bits baixes, com ara 64 kbps.</string>
+	<string name="info_sample_rate_32k"><b>32kHz</b> és una mica millor que 22kHz.</string>
+	<string name="info_sample_rate_44k"><b>44,1kHz</b> és la freqüència de mostreig dels CD d\'àudio. <b>(recomanat)</b></string>
+	<string name="info_sample_rate_48k"><b>48kHz</b> és la freqüència de mostreig utilitzada per als DVD.</string>
+	<string name="recording_format">Format d\'enregistrament:</string>
+	<string name="bitrate">Taxa de bits:</string>
+	<string name="channels">Nombre de canals:</string>
+	<string name="sample_rate">Freqüència de mostreig:</string>
+	<string name="size_per_min">%s Mb/min mida esperada</string>
+	<string name="value_hz">%d Hz</string>
+	<string name="value_kbps">%d kbps</string>
+	<string name="stereo">Estèreo</string>
+	<string name="mono">Mono</string>
+	<string name="records_location">Ubicació de les gravacions:\n%s</string>
+	<string name="feature_not_available_in_android_10">Aquesta funció ja no està disponible en l\'Android 10 o superior.</string>
+	<string name="size">%s Mb</string>
+	<string name="move_records">Mou %d gravacions</string>
+	<string name="error_unknown">Error inesperat</string>
+	<string name="error_cant_create_file">No es pot crear el fitxer</string>
+	<string name="error_invalid_output_file">El fitxer de sortida no és vàlid</string>
+	<string name="error_file_exists">Ja existeix un fitxer amb aquest nom.</string>
+	<string name="error_failed_to_rename">No s\'ha pogut canviar el nom de la gravació</string>
+	<string name="error_failed_to_init_recorder">No s\'ha pogut inicialitzar la gravadora</string>
+	<string name="error_failed_to_init_player">No s\'ha pogut inicialitzar el reproductor</string>
+	<string name="error_player_data_source">El reproductor no pot llegir el fitxer</string>
+	<string name="error_unable_to_read_sound_file">No es pot llegir el fitxer de so</string>
+	<string name="error_permission_denied">Permís denegat</string>
+	<string name="error_process_waveform">No es pot dibuixar la forma d\'ona</string>
+	<string name="error_lost_records">Algunes de les gravacions s\'han esborrat o mogut</string>
+	<string name="error_no_available_space">Espai insuficient.</string>
+	<string name="error_failed_access_to_storage">Error d\'accés a l\'emmagatzematge de fitxers</string>
+	<string name="error_on_recording">Error en la gravació.</string>
+	<string name="error_failed_to_restore">No s\'ha pogut restaurar la gravació.</string>
+	<string name="error_failed_to_delete">No s\'ha pogut esborrar la gravació.</string>
+	<string name="move_public_storage_records_message">Cal moure les gravacions de l\'emmagatzematge públic</string>
+	<string name="later">Més tard</string>
+	<string name="move">Mou</string>
+	<string name="move_all">Mou-ho tot</string>
+
+	<string name="about_body"><![CDATA[
+    	<b>Gravadora d\'àudio 2023</b><br>
+		Versió %s
+	]]></string>
+	<!--<a href="http://#/">Lloc de l\'aplicació</a>-->
+	<string-array name="theme_colors2">
+		<item>Tema Blau Gris</item>
+		<item>Tema Negre</item>
+		<item>Tema Verd Blavós</item>
+		<item>Tema Blau</item>
+		<item>Tema Lila</item>
+		<item>Tema Rosa</item>
+		<item>Tema Taronja</item>
+		<item>Tema Vermell</item>
+		<item>Tema Marró</item>
+	</string-array>
+	<string-array name="formats2">
+		<item>M4a</item>
+		<item>Wav</item>
+		<item>3gp</item>
+	</string-array>
+	<string-array name="bit_rates2">
+		<!--		<item>24 kbps</item>-->
+		<item>48 kbps</item>
+		<item>96 kbps</item>
+		<item>128 kbps</item>
+		<item>192 kbps</item>
+		<item>256 kbps</item>
+		<item>288 kbps</item>
+	</string-array>
+
+	<string-array name="sample_rates2">
+		<item>8kHz</item>
+		<item>16kHz</item>
+		<item>22kHz</item>
+		<item>32kHz</item>
+		<item>44.1kHz</item>
+		<item>48kHz</item>
+	</string-array>
+
+	<string-array name="channels">
+		<item>Estèreo</item>
+		<item>Mono</item>
+	</string-array>
+
+	<string name="app_widget_description">Widget per començar a gravar</string>
+</resources>

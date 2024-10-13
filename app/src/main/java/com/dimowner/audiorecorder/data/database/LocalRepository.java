@@ -57,7 +57,7 @@ public interface LocalRepository {
 
 	Record insertEmptyFile(String filePath) throws IOException;
 
-	void deleteRecord(int id);
+	boolean deleteRecord(int id);
 
 	void deleteRecordForever(int id);
 
