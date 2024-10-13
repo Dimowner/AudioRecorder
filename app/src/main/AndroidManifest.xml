@@ -63,6 +63,8 @@
         <activity
             android:name=".app.records.RecordsActivity"
             android:screenOrientation="portrait" />
+
+        <activity android:name=".app.v2.ui.HomeActivity" />
         <activity
             android:name=".app.settings.SettingsActivity"
             android:screenOrientation="portrait" />

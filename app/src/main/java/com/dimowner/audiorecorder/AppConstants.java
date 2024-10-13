@@ -55,6 +55,7 @@ public class AppConstants {
 	public static final String THEME_BLUE_GREY = "blue_gray";
 
 	public static final String[] SUPPORTED_EXT = new String[]{"mp3", "wav", "3gpp", "3gp", "amr", "aac", "m4a", "mp4", "ogg", "flac"};
+	//.mkv, .aiff .aif .aifc ??
 
 	public static final String FORMAT_M4A = "m4a";
 	public static final String FORMAT_WAV = "wav";

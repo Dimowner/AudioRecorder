@@ -86,7 +86,7 @@ public class LostRecordsAdapter extends RecyclerView.Adapter<LostRecordsAdapter.
 
 	@Override
 	public void onBindViewHolder(@NonNull ItemViewHolder holder, final int position) {
-		final int pos = holder.getAbsoluteAdapterPosition();
+		final int pos = holder.getAdapterPosition();
 		if (pos != RecyclerView.NO_POSITION) {
 			holder.name.setText(data.get(pos).getName());
 			holder.location.setText(data.get(pos).getPath());
