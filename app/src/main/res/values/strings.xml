@@ -24,6 +24,30 @@
 		<item quantity="other">days</item>
 	</plurals>
 
+	<!-- Confirmation for successful deletion. -->
+	<string name="msg_recording_permanently_deleted">Recording \'%1$s\' permanently deleted</string>
+	<!-- Confirmation for sending to trash (if no UNDO is provided) -->
+	<string name="msg_recording_moved_to_trash">Recording \'%1$s\' moved to Trash</string>
+	<!-- Error message when moving a recording to Trash fails -->
+	<string name="msg_move_to_trash_failed">Failed to move recording to Trash</string>
+	<!-- Confirmation for canceling a recording session (progress discarded) -->
+	<string name="msg_recording_canceled">Canceled recording moved to Trash.</string>
+	<!-- Confirmation for successful restoration after UNDO is clicked -->
+	<string name="msg_recording_restored">Recording \'%1$s\' restored</string>
+	<!--
+      Confirmation for renaming a recording.
+      %1$s is the OLD name. %2$s is the NEW name.
+    -->
+	<string name="msg_recording_renamed">Recording \'%1$s\' renamed to \'%2$s\'</string>
+	<!-- Confirmation for saving a new recording -->
+	<string name="msg_recording_saved">Recording saved</string>
+	<!-- Error message for file operation failure -->
+	<string name="msg_file_operation_failed">File operation failed. Please try again</string>
+	<!-- Error message for empty name during rename/save -->
+	<string name="msg_name_cannot_be_empty">Name cannot be empty</string>
+	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
+	<string name="action_undo">UNDO</string>
+
 	<string name="keep_screen_on">Keep screen ON while recording</string>
 	<string name="total_duration">Total recorded duration: %s</string>
 	<string name="total_record_count">Total records count: %d</string>
@@ -246,6 +270,7 @@
 	<string name="error_on_recording">Recording error!</string>
 	<string name="error_failed_to_restore">Failed to restore the record!</string>
 	<string name="error_failed_to_delete">Failed to delete the record!</string>
+	<string name="error_recording_already_started">Recording already started!</string>
 
 	<string name="move_public_storage_records_message">Move public storage records is needed</string>
 	<string name="later">Later</string>
@@ -254,6 +279,7 @@
 
 	<string name="button_record">Record</string>
 	<string name="button_stop">Stop</string>
+	<string name="button_pause">Pause</string>
 	<string name="button_resume">Resume</string>
 	<string name="button_finish">Finish</string>
 	<string name="switch_to_legacy_app">Switch to Legacy app</string>

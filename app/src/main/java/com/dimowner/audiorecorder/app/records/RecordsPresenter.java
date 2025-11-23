@@ -76,14 +76,14 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 
 		if (appRecorderCallback == null) {
 			appRecorderCallback = new AppRecorderCallback() {
-				@Override public void onRecordingStarted(File file) {}
+				@Override public void onRecordingStarted(@NonNull File file) {}
 				@Override public void onRecordingPaused() {}
 				@Override public void onRecordingResumed() { }
 
 				@Override public void onRecordingProgress(long mills, int amp) {}
 
 				@Override
-				public void onRecordingStopped(File file, Record rec) {
+				public void onRecordingStopped(@NonNull File file, @NonNull Record rec) {
 					loadRecords();
 				}
 

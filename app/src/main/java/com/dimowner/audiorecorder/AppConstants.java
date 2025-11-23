@@ -37,6 +37,15 @@ public class AppConstants {
 
 	public static final String PREF_NAME = "com.dimowner.audiorecorder.data.PrefsImpl";
 	public static final String PREF_KEY_IS_APP_V2 = "pref_is_app_v2";
+	public static final String PREF_KEY_IS_FIRST_RUN = "is_first_run";
+	public static final String PREF_KEY_RECORD_COUNTER = "record_counter";
+	public static final String PREF_KEY_KEEP_SCREEN_ON = "keep_screen_on";
+	//Recording prefs.
+	public static final String PREF_KEY_SETTING_RECORDING_FORMAT = "setting_recording_format";
+	public static final String PREF_KEY_SETTING_BITRATE = "setting_bitrate";
+	public static final String PREF_KEY_SETTING_SAMPLE_RATE = "setting_sample_rate";
+	public static final String PREF_KEY_SETTING_NAMING_FORMAT = "setting_naming_format";
+	public static final String PREF_KEY_SETTING_CHANNEL_COUNT = "setting_channel_count";
 
 	public static final String REQUESTS_RECEIVER = "dmitriy.ponomarenko.ua@gmail.com";
 

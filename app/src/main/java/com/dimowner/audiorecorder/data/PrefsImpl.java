@@ -17,6 +17,14 @@
 package com.dimowner.audiorecorder.data;
 
 import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_APP_V2;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_FIRST_RUN;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_KEEP_SCREEN_ON;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_RECORD_COUNTER;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_SETTING_BITRATE;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_SETTING_CHANNEL_COUNT;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_SETTING_NAMING_FORMAT;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_SETTING_RECORDING_FORMAT;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_SETTING_SAMPLE_RATE;
 import static com.dimowner.audiorecorder.AppConstants.PREF_NAME;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -29,16 +37,13 @@ import com.dimowner.audiorecorder.AppConstants;
  */
 public class PrefsImpl implements Prefs {
 
-	private static final String PREF_KEY_IS_FIRST_RUN = "is_first_run";
 	private static final String PREF_KEY_IS_MIGRATED = "is_migrated";
 	private static final String PREF_KEY_IS_MIGRATED_DB3 = "is_migrated_db3";
 	private static final String PREF_KEY_IS_STORE_DIR_PUBLIC = "is_store_dir_public";
 	private static final String PREF_KEY_IS_SHOW_DIRECTORY_SETTING = "is_show_directory_setting";
 	private static final String PREF_KEY_IS_ASK_TO_RENAME_AFTER_STOP_RECORDING = "is_ask_rename_after_stop_recording";
 	private static final String PREF_KEY_ACTIVE_RECORD = "active_record";
-	private static final String PREF_KEY_RECORD_COUNTER = "record_counter";
 	private static final String PREF_KEY_THEME_COLORMAP_POSITION = "theme_color";
-	private static final String PREF_KEY_KEEP_SCREEN_ON = "keep_screen_on";
 	private static final String PREF_KEY_FORMAT = "pref_format";
 	private static final String PREF_KEY_BITRATE = "pref_bitrate";
 	private static final String PREF_KEY_SAMPLE_RATE = "pref_sample_rate";
@@ -49,13 +54,7 @@ public class PrefsImpl implements Prefs {
 
 	//Recording prefs.
 	private static final String PREF_KEY_RECORD_CHANNEL_COUNT = "record_channel_count";
-
 	private static final String PREF_KEY_SETTING_THEME_COLOR = "setting_theme_color";
-	private static final String PREF_KEY_SETTING_RECORDING_FORMAT = "setting_recording_format";
-	private static final String PREF_KEY_SETTING_BITRATE = "setting_bitrate";
-	private static final String PREF_KEY_SETTING_SAMPLE_RATE = "setting_sample_rate";
-	private static final String PREF_KEY_SETTING_NAMING_FORMAT = "setting_naming_format";
-	private static final String PREF_KEY_SETTING_CHANNEL_COUNT = "setting_channel_count";
 
 	private final SharedPreferences sharedPreferences;
 

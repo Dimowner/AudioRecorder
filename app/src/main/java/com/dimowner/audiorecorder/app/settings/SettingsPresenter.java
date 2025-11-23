@@ -17,7 +17,7 @@
 package com.dimowner.audiorecorder.app.settings;
 
 import android.content.Context;
-
+import androidx.annotation.NonNull;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.app.AppRecorder;
@@ -238,10 +238,10 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		if (appRecorder.isRecording()) {
 			view.disableAudioSettings();
 			appRecorderCallback = new AppRecorderCallback() {
-				@Override public void onRecordingStarted(File file) { }
+				@Override public void onRecordingStarted(@NonNull File file) { }
 				@Override public void onRecordingPaused() { }
 				@Override public void onRecordingResumed() { }
-				@Override public void onRecordingStopped(File file, Record record) {
+				@Override public void onRecordingStopped(@NonNull File file, @NonNull Record record) {
 						view.enableAudioSettings();
 				}
 				@Override public void onRecordingProgress(long mills, int amp) { }

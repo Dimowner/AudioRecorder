@@ -21,7 +21,9 @@ public interface Prefs {
 	boolean isFirstRun();
 	void firstRunExecuted();
 
+	@Deprecated //Public storage is not used anymore
 	boolean isStoreDirPublic();
+	@Deprecated //Public storage is not used anymore
 	void setStoreDirPublic(boolean b);
 
 	//This is needed for scoped storage support

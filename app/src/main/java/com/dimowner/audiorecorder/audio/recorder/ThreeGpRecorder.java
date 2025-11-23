@@ -16,9 +16,11 @@
 
 package com.dimowner.audiorecorder.audio.recorder;
 
+import android.content.Context;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.dimowner.audiorecorder.exception.InvalidOutputFile;
 import com.dimowner.audiorecorder.exception.RecorderInitException;
@@ -26,10 +28,9 @@ import com.dimowner.audiorecorder.exception.RecorderInitException;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import timber.log.Timber;
-
 import static com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL;
+import androidx.annotation.NonNull;
 
 public class ThreeGpRecorder implements RecorderContract.Recorder {
 
@@ -40,34 +41,42 @@ public class ThreeGpRecorder implements RecorderContract.Recorder {
 
 	private final AtomicBoolean isRecording = new AtomicBoolean(false);
 	private final AtomicBoolean isPaused = new AtomicBoolean(false);
-	private final Handler handler = new Handler();
+	private final Handler handler = new Handler(Looper.getMainLooper());
+	private final Context applicationContext;
 
 	private RecorderContract.RecorderCallback recorderCallback;
 
-	private static class RecorderSingletonHolder {
-		private static final ThreeGpRecorder singleton = new ThreeGpRecorder();
+	private volatile static ThreeGpRecorder instance;
 
-		public static ThreeGpRecorder getSingleton() {
-			return RecorderSingletonHolder.singleton;
+	public static ThreeGpRecorder getInstance(Context context) {
+		if (instance == null) {
+			synchronized (ThreeGpRecorder.class) {
+				if (instance == null) {
+					instance = new ThreeGpRecorder(context);
+				}
+			}
 		}
+		return instance;
 	}
 
-	public static ThreeGpRecorder getInstance() {
-		return RecorderSingletonHolder.getSingleton();
+	private ThreeGpRecorder(Context context) {
+		this.applicationContext = context;
 	}
-
-	private ThreeGpRecorder() { }
 
 	@Override
-	public void setRecorderCallback(RecorderContract.RecorderCallback callback) {
+	public void setRecorderCallback(@NonNull RecorderContract.RecorderCallback callback) {
 		this.recorderCallback = callback;
 	}
 
 	@Override
-	public void startRecording(String outputFile, int channelCount, int sampleRate, int bitrate) {
+	public void startRecording(@NonNull String outputFile, int channelCount, int sampleRate, int bitrate) {
 		recordFile = new File(outputFile);
 		if (recordFile.exists() && recordFile.isFile()) {
-			recorder = new MediaRecorder();
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+				recorder = new MediaRecorder(applicationContext); // Requires context on S+
+			} else {
+				recorder = new MediaRecorder();
+			}
 			recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 			recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
 			if (sampleRate > 8000) {

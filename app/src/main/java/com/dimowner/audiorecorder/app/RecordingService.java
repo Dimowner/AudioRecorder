@@ -31,6 +31,7 @@ import android.media.RingtoneManager;
 import android.os.Build;
 import android.os.IBinder;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -122,7 +123,7 @@ public class RecordingService extends Service {
 		appRecorderCallback = new AppRecorderCallback() {
 			boolean checkHasSpace = true;
 
-			@Override public void onRecordingStarted(File file) {
+			@Override public void onRecordingStarted(@NonNull File file) {
 				updateNotificationResume();
 			}
 			@Override public void onRecordingPaused() {
@@ -131,7 +132,7 @@ public class RecordingService extends Service {
 			@Override public void onRecordingResumed() {
 				updateNotificationResume();
 			}
-			@Override public void onRecordingStopped(File file, Record rec) {
+			@Override public void onRecordingStopped(@NonNull File file, @NonNull Record rec) {
 				if (rec != null && rec.getDuration()/1000 < AppConstants.DECODE_DURATION && !rec.isWaveformProcessed()) {
 					DecodeService.Companion.startNotification(getApplicationContext(), rec.getId());
 				}
@@ -414,6 +415,12 @@ public class RecordingService extends Service {
 		}
 	}
 
+	// - Has available space
+	// - Is already recoding
+	// - If is playing, stop playback
+	// - Create empty record in the database
+	// - Set it as active record
+	// - Start recording
 	private void startRecording(String path) {
 		appRecorder.setRecorder(recorder);
 		try {

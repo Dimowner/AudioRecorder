@@ -28,15 +28,20 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.dimowner.audiorecorder.app.main.MainActivity
 import com.dimowner.audiorecorder.v2.app.home.HomeViewModel
+import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.navigation.RecorderNavigationGraph
 import com.dimowner.audiorecorder.v2.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeActivity: ComponentActivity() {
 
     private val viewModel: HomeViewModel by viewModels()
+
+    @Inject
+    lateinit var prefs: PrefsV2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -44,9 +49,12 @@ class HomeActivity: ComponentActivity() {
         installSplashScreen()
         setContent {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                AppTheme(dynamicColors = true, darkTheme = true) { RecorderApp(lifecycleScope) }
+                AppTheme(
+                    dynamicColors = prefs.isDynamicTheme,
+                    darkTheme = prefs.isDarkTheme
+                ) { RecorderApp(lifecycleScope) }
             } else {
-                AppTheme(darkTheme = false) { RecorderApp(lifecycleScope) }
+                AppTheme(darkTheme = prefs.isDarkTheme) { RecorderApp(lifecycleScope) }
             }
         }
     }

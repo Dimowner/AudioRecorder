@@ -32,14 +32,20 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,6 +61,7 @@ import com.dimowner.audiorecorder.v2.app.calculateScale
 import com.dimowner.audiorecorder.v2.app.components.WaveformComposeView
 import com.dimowner.audiorecorder.v2.app.components.WaveformState
 import com.google.gson.Gson
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @Composable
@@ -76,6 +83,8 @@ internal fun HomeScreen(
             else -> {}
         }
     }
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val showRenameDialog = remember { mutableStateOf(false) }
     val showDeleteDialog = remember { mutableStateOf(false) }
@@ -88,6 +97,8 @@ internal fun HomeScreen(
         }
     }
 
+    val context = LocalContext.current
+
     LaunchedEffect(key1 = event) {
         when (event) {
             HomeScreenEvent.ShowImportErrorError -> {
@@ -99,6 +110,38 @@ internal fun HomeScreen(
                 Timber.v("ON EVENT: ShareRecord json = $json")
                 showRecordInfoScreen(json)
             }
+            is HomeScreenEvent.RecordMovedToTrashSnack -> {
+                scope.launch {
+                    val message = if (event.recordName != null) {
+                        context.getString(R.string.msg_recording_moved_to_trash, event.recordName)
+                    } else {
+                        context.getString(R.string.msg_recording_canceled)
+                    }
+                    val result = snackbarHostState
+                        .showSnackbar(
+                            message = message,
+                            actionLabel = context.getString(R.string.action_undo),
+                            duration = SnackbarDuration.Short
+                        )
+                    when (result) {
+                        SnackbarResult.ActionPerformed -> {
+                            onAction(HomeScreenAction.RestoreRecordFromTrash(event.recordId))
+                        }
+                        SnackbarResult.Dismissed -> {
+                            /* Handle snackbar dismissed */
+                        }
+                    }
+                }
+            }
+            is HomeScreenEvent.ShowErrorSnack -> {
+                scope.launch {
+                    snackbarHostState
+                        .showSnackbar(
+                            message = event.message,
+                            duration = SnackbarDuration.Short
+                        )
+                }
+            }
 
             else -> {
                 Timber.v("ON EVENT: Unknown")
@@ -108,6 +151,9 @@ internal fun HomeScreen(
     }
     Scaffold(
         contentWindowInsets = WindowInsets.safeDrawing,
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
     ) { innerPadding ->
         Surface(
             modifier = Modifier.fillMaxSize().padding(innerPadding)
@@ -211,10 +257,12 @@ internal fun HomeScreen(
                 BottomBar(
                     onSettingsClick = { showSettingsScreen() },
                     onRecordsListClick = { showRecordsScreen() },
-                    onRecordingClick = {},
-                    onStopRecordingClick = {},
-                    onDeleteRecordingClick = {},
-                    uiState.isStopRecordingButtonAvailable
+                    onStartRecordingClick = { onAction(HomeScreenAction.OnStartRecordingClick) },
+                    onPauseRecordingClick = { onAction(HomeScreenAction.OnPauseRecordingClick) },
+                    onResumeRecordingClick = { onAction(HomeScreenAction.OnResumeRecordingClick) },
+                    onStopRecordingClick = { onAction(HomeScreenAction.OnStopRecordingClick) },
+                    onDeleteRecordingClick = { onAction(HomeScreenAction.OnDeleteRecordingProgressClick) },
+                    bottomBarState = uiState.bottomBarState
                 )
                 Spacer(
                     modifier = Modifier

@@ -34,6 +34,7 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dimowner.audiorecorder.ARApplication
+import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.DecodeService
 import com.dimowner.audiorecorder.app.DecodeServiceListener
@@ -42,6 +43,7 @@ import com.dimowner.audiorecorder.audio.AudioDecoder
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.exception.AppException
 import com.dimowner.audiorecorder.exception.CantCreateFileException
+import com.dimowner.audiorecorder.exception.ErrorParser
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.util.FileUtil
 import com.dimowner.audiorecorder.util.TimeUtils
@@ -52,10 +54,14 @@ import com.dimowner.audiorecorder.v2.app.components.WaveformState
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
 import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
+import com.dimowner.audiorecorder.v2.audio.RecorderEvent
+import com.dimowner.audiorecorder.v2.audio.RecorderV2
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.Record
+import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -68,6 +74,7 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
+import java.util.Date
 import javax.inject.Inject
 
 private const val ANIMATION_DURATION = 330L //mills.
@@ -79,6 +86,7 @@ class HomeViewModel @Inject constructor(
     private val fileDataSource: FileDataSource,
     private val prefs: PrefsV2,
     private val audioPlayer: PlayerContractNew.Player,
+    private val audioRecorder: RecorderV2,
     @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext context: Context,
@@ -121,6 +129,59 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    init {
+        viewModelScope.launch {
+            audioRecorder.subscribeRecorderEvents().collect { event ->
+                Timber.d("HomeViewModel audioRecorder: event: $event")
+                when (event) {
+                    is RecorderEvent.OnError -> {
+                        handleError(event.exception)
+                    }
+                    is RecorderEvent.OnRecordingProgress -> {}
+                    RecorderEvent.OnPauseRecording -> {}
+                    RecorderEvent.OnResumeRecording -> {}
+                    RecorderEvent.OnStartRecording -> {}
+                    RecorderEvent.OnStopRecording -> {
+                        viewModelScope.launch(ioDispatcher) {
+                            val record = recordsDataSource.getActiveRecord()
+                            if (record != null) {
+                                val output = File(record.path)
+                                val info = AudioDecoder.readRecordInfo(output);
+                                val success = recordsDataSource.updateRecord(
+                                    record.copy(
+                                        durationMills = info.duration/1000,
+                                        format = info.format,
+                                        size = info.size,
+                                        sampleRate = info.sampleRate,
+                                        channelCount = info.channelCount,
+                                        bitrate = info.bitrate,
+                                    )
+                                )
+                                if (success) {
+                                    //TODO: show success message
+                                    //TODO: update UI
+                                } else {
+                                    // TODO: show error message
+                                }
+                            } else {
+                                //TODO: Active record is null
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun handleError(exception: AppException) {
+        val context: Context = getApplication<Application>().applicationContext
+        emitEvent(
+            HomeScreenEvent.ShowErrorSnack(
+                context.getString(ErrorParser.parseException(exception))
+            )
+        )
+    }
+
     fun init() {
         showProgress(true)
         viewModelScope.launch(ioDispatcher) {
@@ -140,7 +201,7 @@ class HomeViewModel @Inject constructor(
                         waveformState = _state.value.waveformState.copy(
                             playProgressMills = mills
                         ),
-                        progress = mills / _state.value.waveformState.durationMills.toFloat(),
+                        progress = millsToProgress(mills, _state.value.waveformState.durationMills),
                         time = TimeUtils.formatTimeIntervalHourMinSec2(mills),
                         showPause = true,
                         showStop = true,
@@ -340,16 +401,34 @@ class HomeViewModel @Inject constructor(
     }
 
     fun deleteActiveRecord() {
-        audioPlayer.stop()
+        moveRecordToTrash(prefs.activeRecordId)
+    }
+
+    private fun moveRecordToTrash(recordId: Long, showName: Boolean = true) {
+        if (audioPlayer.isPlaying()) {
+            audioPlayer.stop()
+        }
         showProgress(true)
         viewModelScope.launch(ioDispatcher) {
-            val recordId = prefs.activeRecordId
-            if (recordId >= 0 && recordsDataSource.moveRecordToRecycle(recordId)) {
+            val record = recordsDataSource.getRecord(recordId)
+            if (record != null && recordsDataSource.moveRecordToRecycle(recordId)) {
                 prefs.activeRecordId = -1
-                //TODO: Notify active record deleted
                 updateState()
+                emitEvent(
+                    HomeScreenEvent.RecordMovedToTrashSnack(
+                        recordId,
+                        if (showName) record.name else null
+                    )
+                )
             } else {
-                //TODO: Show error message
+                val context: Context = getApplication<Application>().applicationContext
+                emitEvent(HomeScreenEvent.ShowErrorSnack(
+                    context.getString(R.string.msg_move_to_trash_failed)
+                ))
+
+                withContext(mainDispatcher) {
+                    showProgress(false)
+                }
             }
         }
     }
@@ -363,7 +442,7 @@ class HomeViewModel @Inject constructor(
     fun handleSeekProgress(mills: Long) {
         _state.value = _state.value.copy(
             time = TimeUtils.formatTimeIntervalHourMinSec2(mills),
-            progress = mills/_state.value.waveformState.durationMills.toFloat(),
+            progress = millsToProgress(mills, _state.value.waveformState.durationMills),
             waveformState = _state.value.waveformState.copy(
                 playProgressMills = mills
             )
@@ -373,7 +452,7 @@ class HomeViewModel @Inject constructor(
     fun handleSeekEnd(mills: Long) {
         _state.value = _state.value.copy(
             time = TimeUtils.formatTimeIntervalHourMinSec2(mills),
-            progress = mills/_state.value.waveformState.durationMills.toFloat(),
+            progress = millsToProgress(mills, _state.value.waveformState.durationMills),
             isSeek = false,
             waveformState = _state.value.waveformState.copy(
                 playProgressMills = mills,
@@ -392,7 +471,7 @@ class HomeViewModel @Inject constructor(
         val mills = (_state.value.waveformState.durationMills*value).toLong()
         _state.value = _state.value.copy(
             time = TimeUtils.formatTimeIntervalHourMinSec2(mills),
-            progress = mills/_state.value.waveformState.durationMills.toFloat(),
+            progress = millsToProgress(mills, _state.value.waveformState.durationMills),
             waveformState = _state.value.waveformState.copy(
                 playProgressMills = mills
             )
@@ -415,12 +494,113 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun handlePauseClick() {
+    fun handlePlaybackPauseClick() {
         audioPlayer.pause()
     }
 
-    fun handleStopClick() {
+    fun handlePlaybackStopClick() {
         audioPlayer.stop()
+    }
+
+    // - Has available space
+    // - Is already recoding
+    // - If is playing, stop playback
+    // - Create a record file
+    // - Create empty record in the database with created file path
+    // - Set it as active record
+    // - Start recording
+    fun handleStartRecordingClick() {
+        audioPlayer.stop()
+        val availableTimeSeconds = convertSpaceBytesToTimeInSeconds(
+            spaceBytes =  fileDataSource.getAvailableSpace(),
+            recordingFormat = prefs.settingRecordingFormat,
+            sampleRate = prefs.settingSampleRate.value,
+            bitrate = prefs.settingBitrate.value,
+            channels = prefs.settingChannelCount.value,
+        )
+        viewModelScope.launch(ioDispatcher) {
+            if (availableTimeSeconds > AppConstants.MIN_REMAIN_RECORDING_TIME && !audioRecorder.isRecording) {
+                if (audioPlayer.isPlaying()) {
+                    audioPlayer.stop()
+                }
+                val recordName = getNewRecordName()
+                val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
+                val record = Record(
+                    id = 0,
+                    name = recordName,
+                    durationMills = 0,
+                    created = recordFile.lastModified(),
+                    added = Date().time,
+                    removed = -1,
+                    path = recordFile.absolutePath,
+                    format = prefs.settingRecordingFormat.value,
+                    size = 0,
+                    sampleRate = prefs.settingSampleRate.value,
+                    channelCount = prefs.settingChannelCount.value,
+                    bitrate = prefs.settingBitrate.value,
+                    isBookmarked = false,
+                    isWaveformProcessed = false,
+                    isMovedToRecycle = false,
+                    amps = IntArray(ARApplication.longWaveformSampleCount)
+                )
+                val id = recordsDataSource.insertRecord(record)
+                prefs.activeRecordId = id
+
+                audioRecorder.startRecording(
+                    outputFile = recordFile,
+                    channelCount = prefs.settingChannelCount.value,
+                    sampleRate = prefs.settingSampleRate.value,
+                    bitrate = prefs.settingBitrate.value,
+                )
+                withContext(mainDispatcher) {
+                    _state.value = state.value.copy(
+                        bottomBarState = BottomBarState.RECORDING
+                    )
+                }
+            }
+        }
+    }
+
+    fun handlePauseRecordingClick() {
+        audioRecorder.pauseRecording()
+        _state.value = state.value.copy(
+            bottomBarState = BottomBarState.PAUSED
+        )
+    }
+
+    fun handleResumeRecordingClick() {
+        audioRecorder.resumeRecording()
+        _state.value = state.value.copy(
+            bottomBarState = BottomBarState.RECORDING
+        )
+    }
+
+    fun handleStopRecordingClick() {
+        audioRecorder.stopRecording()
+        _state.value = state.value.copy(
+            bottomBarState = BottomBarState.READY_TO_START_RECORDING
+        )
+    }
+
+    fun handleOnDeleteRecordingProgressClick() {
+        audioRecorder.stopRecording()
+        //TODO: move recorded progress into trash
+        _state.value = state.value.copy(
+            bottomBarState = BottomBarState.READY_TO_START_RECORDING
+        )
+    }
+
+    fun handleRestoreRecordFromTrash(recordId: Long) {
+        //TODO: Restore recording from trash
+        //TODO: Show success message or error
+    }
+
+    private fun millsToProgress(mills: Long, duration: Long): Float {
+        return if (duration <= 0) {
+            0f
+        } else {
+            mills/duration.toFloat()
+        }
     }
 
     fun moveToStart() {
@@ -442,6 +622,41 @@ class HomeViewModel @Inject constructor(
         _state.value = _state.value.copy(isShowProgress = value)
     }
 
+    fun getNewRecordName(): String {
+        val recordName = when (prefs.settingNamingFormat) {
+            NameFormat.Record -> {
+                prefs.incrementRecordCounter()
+                FileUtil.generateRecordNameCounted(prefs.recordCounter)
+            }
+            NameFormat.Date -> FileUtil.generateRecordNameDateVariant()
+            NameFormat.DateUs -> FileUtil.generateRecordNameDateUS()
+            NameFormat.DateIso8601 -> FileUtil.generateRecordNameDateISO8601()
+            NameFormat.Timestamp -> FileUtil.generateRecordNameMills()
+        }
+
+        return recordName
+    }
+
+    fun addExtension(name: String): String {
+        return FileUtil.addExtension(name, prefs.settingRecordingFormat.value)
+    }
+
+    //TODO: This function shouldn't be here
+    private fun convertSpaceBytesToTimeInSeconds(
+        spaceBytes: Long,
+        recordingFormat: RecordingFormat,
+        sampleRate: Int,
+        bitrate: Int,
+        channels: Int
+    ): Long {
+        return when (recordingFormat) {
+            RecordingFormat.ThreeGp -> 1000L * (spaceBytes / (AppConstants.RECORD_ENCODING_BITRATE_12000 / 8))
+            RecordingFormat.M4a -> 1000L * (spaceBytes / (bitrate / 8))
+            RecordingFormat.Wav -> 1000L * (spaceBytes / (sampleRate * channels * 2))
+        }
+    }
+
+    @SuppressWarnings("CyclomaticComplexMethod")
     fun onAction(action: HomeScreenAction) {
         when (action) {
             HomeScreenAction.InitHomeScreen -> init()
@@ -456,9 +671,15 @@ class HomeViewModel @Inject constructor(
             is HomeScreenAction.OnSeekProgress -> handleSeekProgress(action.mills)
             is HomeScreenAction.OnSeekEnd -> handleSeekEnd(action.mills)
             is HomeScreenAction.OnProgressBarStateChange -> handleProgressBarStateChange(action.value)
-            HomeScreenAction.OnPauseClick -> handlePauseClick()
+            HomeScreenAction.OnPauseClick -> handlePlaybackPauseClick()
             HomeScreenAction.OnPlayClick -> handlePlayClick()
-            HomeScreenAction.OnStopClick -> handleStopClick()
+            HomeScreenAction.OnStopClick -> handlePlaybackStopClick()
+            HomeScreenAction.OnPauseRecordingClick -> handlePauseRecordingClick()
+            HomeScreenAction.OnResumeRecordingClick -> handleResumeRecordingClick()
+            HomeScreenAction.OnStartRecordingClick -> handleStartRecordingClick()
+            HomeScreenAction.OnStopRecordingClick -> handleStopRecordingClick()
+            HomeScreenAction.OnDeleteRecordingProgressClick -> handleOnDeleteRecordingProgressClick()
+            is HomeScreenAction.RestoreRecordFromTrash -> handleRestoreRecordFromTrash(action.recordId)
         }
     }
 
@@ -482,10 +703,17 @@ data class HomeScreenState(
     val isShowProgress: Boolean = false,
     val isContextMenuAvailable: Boolean = false,
     val isStopRecordingButtonAvailable: Boolean = false,
+    val bottomBarState: BottomBarState = BottomBarState.READY_TO_START_RECORDING,
     val showPause: Boolean = false,
     val showStop: Boolean = false,
     val isSeek: Boolean = false,
 )
+
+enum class BottomBarState {
+    READY_TO_START_RECORDING,
+    RECORDING,
+    PAUSED,
+}
 
 sealed class HomeScreenAction {
     data object InitHomeScreen : HomeScreenAction()
@@ -494,19 +722,27 @@ sealed class HomeScreenAction {
     data object ShowActiveRecordInfo : HomeScreenAction()
     data object OpenActiveRecordWithAnotherApp : HomeScreenAction()
     data object DeleteActiveRecord : HomeScreenAction()
+    data class RestoreRecordFromTrash(val recordId: Long) : HomeScreenAction()
     data object SaveActiveRecordAs : HomeScreenAction()
     data class RenameActiveRecord(val newName: String) : HomeScreenAction()
     data object OnSeekStart : HomeScreenAction()
     data object OnPlayClick : HomeScreenAction()
     data object OnPauseClick : HomeScreenAction()
     data object OnStopClick : HomeScreenAction()
+    data object OnStartRecordingClick : HomeScreenAction()
+    data object OnPauseRecordingClick : HomeScreenAction()
+    data object OnResumeRecordingClick : HomeScreenAction()
+    data object OnStopRecordingClick : HomeScreenAction()
+    data object OnDeleteRecordingProgressClick : HomeScreenAction()
     data class OnSeekProgress(val mills: Long) : HomeScreenAction()
     data class OnSeekEnd(val mills: Long) : HomeScreenAction()
     data class OnProgressBarStateChange(val value: Float) : HomeScreenAction()
 }
 
 sealed class HomeScreenEvent {
+    data class RecordMovedToTrashSnack(val recordId: Long, val recordName: String?) : HomeScreenEvent()
     data object ShowImportErrorError : HomeScreenEvent()
+    data class ShowErrorSnack(val message: String) : HomeScreenEvent()
     data class RecordInformationEvent(val recordInfo: RecordInfoState) : HomeScreenEvent()
 }
 

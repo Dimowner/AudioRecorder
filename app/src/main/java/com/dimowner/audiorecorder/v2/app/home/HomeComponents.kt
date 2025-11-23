@@ -22,6 +22,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,9 +30,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,6 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.DeviceFontFamilyName
@@ -59,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.RecordsDropDownMenu
+import com.dimowner.audiorecorder.v2.app.components.onDebounceClick
 
 @Composable
 fun TopAppBar(
@@ -240,7 +246,6 @@ fun LegacySlider(
     )
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun LegacySliderPreview() {
@@ -250,15 +255,16 @@ fun LegacySliderPreview() {
     )
 }
 
-
 @Composable
 fun BottomBar(
     onSettingsClick: () -> Unit,
     onRecordsListClick: () -> Unit,
-    onRecordingClick: () -> Unit,
+    onStartRecordingClick: () -> Unit,
+    onPauseRecordingClick: () -> Unit,
+    onResumeRecordingClick: () -> Unit,
     onStopRecordingClick: () -> Unit,
     onDeleteRecordingClick: () -> Unit,
-    showStopDeleteButton: Boolean
+    bottomBarState: BottomBarState
 ) {
     Row(
         modifier = Modifier
@@ -269,7 +275,7 @@ fun BottomBar(
         horizontalArrangement = Arrangement.Start
     ) {
         IconButton(
-            onClick = onSettingsClick,
+            onClick = onDebounceClick(onSettingsClick),
             modifier = Modifier
                 .size(42.dp)
                 .align(Alignment.CenterVertically),
@@ -280,47 +286,33 @@ fun BottomBar(
             )
         }
         Spacer(modifier = Modifier.weight(1f))
-        if (showStopDeleteButton) {
-            IconButton(
-                onClick = onDeleteRecordingClick,
-                modifier = Modifier
-                    .size(54.dp)
-                    .align(Alignment.CenterVertically),
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_delete_forever_36),
-                    contentDescription = stringResource(id = R.string.delete),
+        when (bottomBarState) {
+            BottomBarState.READY_TO_START_RECORDING -> {
+                CircleButton(
+                    modifier = Modifier.size(80.dp),
+                    text = stringResource(R.string.button_record),
+                    onClick = onDebounceClick(onStartRecordingClick),
                 )
             }
-        }
-        IconButton(
-            onClick = onRecordingClick,
-            modifier = Modifier
-                .size(84.dp)
-                .align(Alignment.CenterVertically),
-        ) {
-            Icon(
-//                modifier = Modifier.size(90.dp),
-                painter = painterResource(id = R.drawable.ic_record),
-                contentDescription = "Record", //TODO: Use string resource
-            )
-        }
-        if (showStopDeleteButton) {
-            IconButton(
-                onClick = onStopRecordingClick,
-                modifier = Modifier
-                    .size(54.dp)
-                    .align(Alignment.CenterVertically),
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_stop),
-                    contentDescription = "Stop recording", //TODO: Use string resource
+            BottomBarState.RECORDING -> {
+                RecordingProgressPanel(
+                    modifier = Modifier,
+                    onPauseRecordingClick = onDebounceClick(onPauseRecordingClick),
+                    onStopRecordingClick = onDebounceClick(onStopRecordingClick),
+                )
+            }
+            BottomBarState.PAUSED -> {
+                RecordingPausePanel(
+                    modifier = Modifier,
+                    onResumeRecordingClick = onDebounceClick(onResumeRecordingClick),
+                    onStopRecordingClick = onDebounceClick(onStopRecordingClick),
+                    onDeleteRecordingClick = onDebounceClick(onDeleteRecordingClick),
                 )
             }
         }
         Spacer(modifier = Modifier.weight(1f))
         IconButton(
-            onClick = onRecordsListClick,
+            onClick = onDebounceClick(onRecordsListClick),
             modifier = Modifier
                 .size(42.dp)
                 .align(Alignment.CenterVertically),
@@ -333,10 +325,177 @@ fun BottomBar(
     }
 }
 
+@Composable
+fun CircleButton(
+    modifier: Modifier,
+    text: String,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        contentPadding = PaddingValues(0.dp),
+        shape = CircleShape,
+        modifier = modifier
+    ) {
+        Text(
+            text = text,
+            fontSize = 13.sp
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
-fun BottomBarPreview() {
-    BottomBar({}, {}, {}, {}, {}, true)
+fun CircleButtonPreview() {
+    CircleButton(
+        modifier = Modifier.size(64.dp),
+        text = "RECORD",
+        onClick = {}
+    )
+}
+
+@Composable
+fun RecordingProgressPanel(
+    modifier: Modifier,
+    onPauseRecordingClick: () -> Unit,
+    onStopRecordingClick: () -> Unit,
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+
+        Spacer(modifier = Modifier.size(width = 62.dp, 54.dp))
+        CircleButton(
+            modifier = Modifier.size(80.dp),
+            text = stringResource(R.string.button_pause),
+            onClick = onDebounceClick(onPauseRecordingClick),
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+
+        IconButton(
+            onClick = onDebounceClick(onStopRecordingClick),
+            modifier = Modifier
+                .size(54.dp)
+                .align(Alignment.CenterVertically),
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_stop),
+                contentDescription = "Stop recording", //TODO: Use string resource
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RecordingProgressPanelPreview() {
+    RecordingProgressPanel(Modifier, {}, {})
+}
+
+@Composable
+fun RecordingPausePanel(
+    modifier: Modifier,
+    onResumeRecordingClick: () -> Unit,
+    onStopRecordingClick: () -> Unit,
+    onDeleteRecordingClick: () -> Unit,
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Button(
+            modifier = Modifier.size(86.dp, 48.dp),
+            onClick = onDebounceClick(onDeleteRecordingClick),
+            contentPadding = PaddingValues(6.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFD01716),
+                contentColor = Color.White
+            ),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 0.dp, // Removes the default shadow
+                pressedElevation = 0.dp  // Prevents a shadow when pressed
+            ),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.End,
+                    text = stringResource(R.string.delete),
+                    fontSize = 13.sp
+                )
+                Icon(
+                    modifier = Modifier.size(32.dp).padding(4.dp),
+                    painter = painterResource(id = R.drawable.ic_delete_forever_36),
+                    contentDescription = stringResource(id = R.string.delete),
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        CircleButton(
+            modifier = Modifier.size(80.dp),
+            text = stringResource(R.string.button_resume),
+            onClick = onDebounceClick(onResumeRecordingClick),
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Button(
+            modifier = Modifier.size(86.dp, 48.dp),
+            onClick = onDebounceClick(onStopRecordingClick),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF48A54B),
+                contentColor = Color.White
+            ),
+            contentPadding = PaddingValues(6.dp),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 0.dp, // Removes the default shadow
+                pressedElevation = 0.dp  // Prevents a shadow when pressed
+            ),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Icon(
+                    modifier = Modifier.size(32.dp).padding(4.dp),
+                    painter = painterResource(id = R.drawable.ic_stop),
+                    contentDescription = stringResource(R.string.button_stop),
+                )
+                Text(
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Start,
+                    text = stringResource(R.string.button_stop),
+                    fontSize = 13.sp
+                )
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RecordingPausePanelPreview() {
+    RecordingPausePanel(Modifier, {}, {}, {})
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BottomBarReadyPreview() {
+    BottomBar({}, {}, {}, {}, {}, {}, {}, BottomBarState.READY_TO_START_RECORDING)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BottomBarRecordingPreview() {
+    BottomBar({}, {}, {}, {}, {}, {}, {}, BottomBarState.RECORDING)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BottomBarPausedPreview() {
+    BottomBar({}, {}, {}, {}, {}, {}, {}, BottomBarState.PAUSED)
 }
 
 @Composable

@@ -318,8 +318,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			if (checkRecordPermission2()) {
 				if (checkStoragePermission2()) {
 					//Start or stop recording
-					startRecordingService();
-					presenter.pauseUnpauseRecording(getApplicationContext());
+					if (presenter.isRecording()) {
+						presenter.pauseUnpauseRecording(getApplicationContext());
+					} else {
+						startRecordingService();
+					}
 				}
 			}
 		} else if (id == R.id.btn_record_stop) {

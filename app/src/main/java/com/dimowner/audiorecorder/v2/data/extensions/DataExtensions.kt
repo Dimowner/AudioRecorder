@@ -7,7 +7,7 @@ const val RECORDS_COLUMN_NAME = "name"
 const val RECORDS_COLUMN_DURATION = "duration"
 
 fun SortOrder.toSqlSortOrder(): String {
-    return when(this) {
+    return when (this) {
         SortOrder.DateDesc,
         SortOrder.NameDesc,
         SortOrder.DurationLongest -> "DESC"
@@ -18,7 +18,7 @@ fun SortOrder.toSqlSortOrder(): String {
 }
 
 fun SortOrder.toRecordsSortColumnName(): String {
-    return when(this) {
+    return when (this) {
         SortOrder.DateAsc,
         SortOrder.DateDesc -> RECORDS_COLUMN_ADDED
         SortOrder.NameAsc,

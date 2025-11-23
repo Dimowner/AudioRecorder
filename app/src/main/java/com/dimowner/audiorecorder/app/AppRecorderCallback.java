@@ -16,16 +16,16 @@
 
 package com.dimowner.audiorecorder.app;
 
+import androidx.annotation.NonNull;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
-
 import java.io.File;
 
 public interface AppRecorderCallback {
-	void onRecordingStarted(File file);
+	void onRecordingStarted(@NonNull File file);
 	void onRecordingPaused();
 	void onRecordingResumed();
-	void onRecordingStopped(File file, Record record);
+	void onRecordingStopped(@NonNull File file, @NonNull Record record);
 	void onRecordingProgress(long mills, int amp);
 	void onError(AppException throwable);
 }

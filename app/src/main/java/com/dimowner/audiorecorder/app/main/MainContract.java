@@ -130,8 +130,9 @@ public interface MainContract {
 
 		void onDeleteClick();
 
-		//TODO: Remove this getters
+		//TODO: Remove these getters
 		boolean isStorePublic();
+		boolean isRecording();
 
 		void deleteActiveRecord();
 

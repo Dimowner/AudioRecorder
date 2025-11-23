@@ -35,6 +35,7 @@ import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicBoolean;
 import timber.log.Timber;
 import static com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 
 public class WavRecorder implements RecorderContract.Recorder {
@@ -78,13 +79,13 @@ public class WavRecorder implements RecorderContract.Recorder {
 	private WavRecorder() { }
 
 	@Override
-	public void setRecorderCallback(RecorderContract.RecorderCallback callback) {
+	public void setRecorderCallback(@NonNull RecorderContract.RecorderCallback callback) {
 		recorderCallback = callback;
 	}
 
 	@Override
 	@RequiresPermission(value = "android.permission.RECORD_AUDIO")
-	public void startRecording(String outputFile, int channelCount, int sampleRate, int bitrate) {
+	public void startRecording(@NonNull String outputFile, int channelCount, int sampleRate, int bitrate) {
 		this.sampleRate = sampleRate;
 //		this.framesPerVisInterval = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/sampleRate));
 		this.channelCount = channelCount;

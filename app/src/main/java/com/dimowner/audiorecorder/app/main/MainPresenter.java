@@ -127,7 +127,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 				long prevTime = 0;
 				@Override
-				public void onRecordingStarted(final File file) {
+				public void onRecordingStarted(@NonNull final File file) {
 					if (view != null) {
 						view.showRecordingStart();
 						view.keepScreenOn(prefs.isKeepScreenOn());
@@ -156,7 +156,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				}
 
 				@Override
-				public void onRecordingStopped(final File file, final Record rec) {
+				public void onRecordingStopped(@NonNull final File file, @NonNull final Record rec) {
 					if (view != null) {
 						if (prefs.isAskToRenameAfterStopRecording()) {
 							view.askRecordingNewName(rec.getId(), file, true);
@@ -713,6 +713,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public boolean isStorePublic() {
 		return prefs.isStoreDirPublic();
+	}
+
+	@Override
+	public boolean isRecording() {
+		return appRecorder.isRecording();
 	}
 
 	@Override

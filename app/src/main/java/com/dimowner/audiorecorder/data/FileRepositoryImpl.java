@@ -51,6 +51,9 @@ public class FileRepositoryImpl implements FileRepository {
 		return instance;
 	}
 
+	// - Increment record counter
+	// - Generate new file name with new record counter value
+	// - Create a new record file with a new name.
 	@Override
 	public File provideRecordFile() throws CantCreateFileException {
 		prefs.incrementRecordCounter();
