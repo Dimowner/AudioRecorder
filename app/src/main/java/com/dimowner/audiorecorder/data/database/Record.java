@@ -32,6 +32,7 @@ public class Record {
 	private long duration;
 	private final long created;
 	private final long added;
+	/** Date when record removed. Required to be able to remove the record automatically from Trash after it expired. */
 	private final long removed;
 	private String path;
 	private final String format;

@@ -58,6 +58,7 @@ class PrefsImplTest {
 
         prefs.confirmFirstRunExecuted()
         prefs.activeRecordId = id
+        prefs.recordedRecordId = id
         prefs.isDarkTheme = true
         prefs.isAppV2 = true
         prefs.settingSampleRate = SampleRate.SR16000
@@ -66,6 +67,7 @@ class PrefsImplTest {
         prefs.fullPreferenceReset()
 
         assertEquals(-1, prefs.activeRecordId)
+        assertEquals(-1, prefs.recordedRecordId)
         assertEquals(DefaultValues.isDarkTheme, prefs.isDarkTheme)
         assertEquals(DefaultValues.isAppV2, prefs.isAppV2)
         assertEquals(DefaultValues.DefaultSampleRate, prefs.settingSampleRate)
@@ -94,6 +96,14 @@ class PrefsImplTest {
 
         prefs.activeRecordId = 303
         assertEquals(303L, prefs.activeRecordId)
+    }
+
+    @Test
+    fun test_recordedRecordId() {
+        assertEquals(-1, prefs.recordedRecordId)
+
+        prefs.recordedRecordId = 404
+        assertEquals(404L, prefs.recordedRecordId)
     }
 
     @Test

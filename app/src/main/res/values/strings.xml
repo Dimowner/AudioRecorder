@@ -31,7 +31,7 @@
 	<!-- Error message when moving a recording to Trash fails -->
 	<string name="msg_move_to_trash_failed">Failed to move recording to Trash</string>
 	<!-- Confirmation for canceling a recording session (progress discarded) -->
-	<string name="msg_recording_canceled">Canceled recording moved to Trash.</string>
+	<string name="msg_recording_canceled">Canceled recording moved to Trash</string>
 	<!-- Confirmation for successful restoration after UNDO is clicked -->
 	<string name="msg_recording_restored">Recording \'%1$s\' restored</string>
 	<!--
@@ -41,12 +41,16 @@
 	<string name="msg_recording_renamed">Recording \'%1$s\' renamed to \'%2$s\'</string>
 	<!-- Confirmation for saving a new recording -->
 	<string name="msg_recording_saved">Recording saved</string>
+	<!-- Error message when saving a recording fails -->
+	<string name="msg_save_recording_failed">Failed to save recording.</string>
 	<!-- Error message for file operation failure -->
 	<string name="msg_file_operation_failed">File operation failed. Please try again</string>
 	<!-- Error message for empty name during rename/save -->
 	<string name="msg_name_cannot_be_empty">Name cannot be empty</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
 	<string name="action_undo">UNDO</string>
+	<!-- Generic error message for a common failure -->
+	<string name="msg_operation_failed_generic">Operation failed</string>
 
 	<string name="keep_screen_on">Keep screen ON while recording</string>
 	<string name="total_duration">Total recorded duration: %s</string>

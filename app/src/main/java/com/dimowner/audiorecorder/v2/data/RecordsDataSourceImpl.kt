@@ -218,17 +218,21 @@ class RecordsDataSourceImpl @Inject internal constructor(
 
     override suspend fun moveRecordToRecycle(id: Long): Boolean {
         return recordDao.getRecordById(id)?.let { recordToRecycle ->
-            return@let recordDao.updateRecord(recordToRecycle.copy(isMovedToRecycle = true)) == 1
+            return@let recordDao.updateRecord(
+                recordToRecycle.copy(isMovedToRecycle = true, removed = System.currentTimeMillis())
+            ) == 1
         } ?: false
     }
 
     override suspend fun moveRecordsToRecycle(ids: List<Long>): Int {
-        val recordsToRecycle = recordDao.getRecordsByIds(ids).map { it.copy(isMovedToRecycle = true) }
+        val recordsToRecycle = recordDao.getRecordsByIds(ids).map {
+            it.copy(isMovedToRecycle = true, removed = System.currentTimeMillis())
+        }
         return recordDao.updateRecords(recordsToRecycle)
     }
 
     @Deprecated("Too complex logic. We don't need to mark record file as deleted")
-    private fun moveRecordToRecycle(recordToRecycle: RecordEntity): Boolean {
+    internal fun moveRecordToRecycle(recordToRecycle: RecordEntity): Boolean {
         try {
             //Save edit operation. Start transaction
             val transactionId = recordEditDao.insertRecordsEditOperation(
@@ -247,7 +251,8 @@ class RecordsDataSourceImpl @Inject internal constructor(
                     recordDao.updateRecord(
                         recordToRecycle.copy(
                             path = path,
-                            isMovedToRecycle = true
+                            isMovedToRecycle = true,
+                            removed = System.currentTimeMillis(),
                         )
                     )
                     true

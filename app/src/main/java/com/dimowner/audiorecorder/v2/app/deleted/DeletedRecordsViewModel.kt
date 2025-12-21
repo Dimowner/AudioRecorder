@@ -42,8 +42,8 @@ import javax.inject.Inject
 @HiltViewModel
 internal class DeletedRecordsViewModel @Inject constructor(
     private val recordsDataSource: RecordsDataSource,
-    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext context: Context
 ) : AndroidViewModel(context as Application) {
 

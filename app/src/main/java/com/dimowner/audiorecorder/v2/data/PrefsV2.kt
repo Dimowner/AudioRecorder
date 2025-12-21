@@ -30,6 +30,7 @@ interface PrefsV2 {
     var askToRenameAfterRecordingStopped: Boolean
 
     var activeRecordId: Long
+    var recordedRecordId: Long
 
     val recordCounter: Long
     fun incrementRecordCounter()

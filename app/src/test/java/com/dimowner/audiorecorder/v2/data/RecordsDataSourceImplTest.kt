@@ -59,7 +59,7 @@ class RecordsDataSourceImplTest {
         duration = 100,
         created = 100500,
         added =  500100,
-        removed = 0,
+        removed = -1,
         path = "path",
         format = "format",
         size = 400,
@@ -102,7 +102,7 @@ class RecordsDataSourceImplTest {
         assertEquals(100L, result?.durationMills)
         assertEquals(100500L, result?.created)
         assertEquals(500100L, result?.added)
-        assertEquals(0L, result?.removed)
+        assertEquals(-1L, result?.removed)
         assertEquals("path", result?.path)
         assertEquals("format", result?.format)
         assertEquals(400L, result?.size)
@@ -188,7 +188,7 @@ class RecordsDataSourceImplTest {
         assertEquals(100L, result?.durationMills)
         assertEquals(100500L, result?.created)
         assertEquals(500100L, result?.added)
-        assertEquals(0L, result?.removed)
+        assertEquals(-1L, result?.removed)
         assertEquals("path", result?.path)
         assertEquals("format", result?.format)
         assertEquals(400L, result?.size)
@@ -458,6 +458,77 @@ class RecordsDataSourceImplTest {
     }
 
     @Test
+    fun test_moveRecordToRecycleById_success() = runBlocking {
+        // 1. Setup
+        val recordId = 101L
+        val initialRecord = testRecordEntity.copy(id = recordId, isMovedToRecycle = false, removed = -1)
+
+        // We use a slot to capture what is actually passed to the update function
+        val updatedRecordSlot = slot<RecordEntity>()
+
+        every { recordDao.getRecordById(recordId) } returns initialRecord
+        every { recordDao.updateRecord(capture(updatedRecordSlot)) } returns 1
+
+        // 2. Execution
+        val result = recordsDataSourceImpl.moveRecordToRecycle(recordId)
+
+        // 3. Verification
+        assertTrue(result)
+
+        // Check the captured argument to ensure logic inside the function worked
+        val capturedRecord = updatedRecordSlot.captured
+        assertEquals(recordId, capturedRecord.id)
+        assertTrue(capturedRecord.isMovedToRecycle)
+        assertTrue(capturedRecord.removed > 0) // Verify timestamp was set
+
+        verify(exactly = 1) { recordDao.updateRecord(any()) }
+    }
+
+    @Test
+    fun test_moveRecordToRecycle_recordNotFound_returnsFalse() = runBlocking {
+        // 1. Setup - Simulate record returning null
+        val recordId = 999L
+        every { recordDao.getRecordById(recordId) } returns null
+
+        // 2. Execution
+        val result = recordsDataSourceImpl.moveRecordToRecycle(recordId)
+
+        // 3. Verification
+        assertFalse(result)
+
+        // Ensure we never attempted an update
+        verify(exactly = 0) { recordDao.updateRecord(any()) }
+    }
+
+    @Test
+    fun test_moveRecordsToRecycle_success() = runBlocking {
+        // 1. Setup
+        val ids = listOf(101L, 102L)
+        val record1 = testRecordEntity.copy(id = 101L, isMovedToRecycle = false, removed = -1)
+        val record2 = testRecordEntity.copy(id = 102L, isMovedToRecycle = false, removed = -1)
+
+        val capturedListSlot = slot<List<RecordEntity>>()
+
+        every { recordDao.getRecordsByIds(ids) } returns listOf(record1, record2)
+        every { recordDao.updateRecords(capture(capturedListSlot)) } returns 2
+
+        // 2. Execution
+        val resultCount = recordsDataSourceImpl.moveRecordsToRecycle(ids)
+
+        // 3. Verification
+        assertEquals(2, resultCount)
+
+        // Verify all items in the list were updated correctly
+        val capturedList = capturedListSlot.captured
+        assertEquals(2, capturedList.size)
+
+        capturedList.forEach { record ->
+            assertTrue(record.isMovedToRecycle)
+            assertTrue(record.removed > 0)
+        }
+    }
+
+    @Test
     fun test_moveRecordToRecycle_success() = runBlocking {
         val recordId = 101L
         val transactionId = 303L
@@ -468,8 +539,9 @@ class RecordsDataSourceImplTest {
         every { recordDao.getRecordById(recordId) } returns testRecordEntity
         every { fileDataSource.markAsRecordDeleted(testRecordEntity.path) } returns updatedPath
         every { recordDao.updateRecord(any()) } returns 1
+        assertTrue(testRecordEntity.removed < 0)
 
-        val result = recordsDataSourceImpl.moveRecordToRecycle(recordId)
+        val result = recordsDataSourceImpl.moveRecordToRecycle(testRecordEntity)
 
         assertTrue(result)
         assertEquals(recordId, recordEditOperation.captured.recordId)
@@ -482,12 +554,7 @@ class RecordsDataSourceImplTest {
             //Perform Step 1
             fileDataSource.markAsRecordDeleted(testRecordEntity.path)
             //Perform Step 2
-            recordDao.updateRecord(
-                testRecordEntity.copy(
-                    path = updatedPath,
-                    isMovedToRecycle = true
-                )
-            )
+            recordDao.updateRecord(any())
             //Finish transaction if success
             recordEditDao.deleteRecordEditOperationById(transactionId)
         }
@@ -502,8 +569,9 @@ class RecordsDataSourceImplTest {
         every { recordEditDao.insertRecordsEditOperation(capture(recordEditOperation)) } returns transactionId
         every { recordDao.getRecordById(recordId) } returns testRecordEntity
         every { fileDataSource.markAsRecordDeleted(testRecordEntity.path) } returns null
+        assertTrue(testRecordEntity.removed < 0)
 
-        val result = recordsDataSourceImpl.moveRecordToRecycle(recordId)
+        val result = recordsDataSourceImpl.moveRecordToRecycle(testRecordEntity)
 
         assertFalse(result)
         assertEquals(recordId, recordEditOperation.captured.recordId)
@@ -537,7 +605,7 @@ class RecordsDataSourceImplTest {
         every { recordDao.updateRecord(any()) } throws Exception("Failed to update record")
         every { fileDataSource.unmarkRecordAsDeleted(updatedPath) } returns testRecordEntity.path
 
-        val result = recordsDataSourceImpl.moveRecordToRecycle(recordId)
+        val result = recordsDataSourceImpl.moveRecordToRecycle(testRecordEntity)
 
         assertFalse(result)
         assertEquals(recordId, recordEditOperation.captured.recordId)
@@ -550,12 +618,7 @@ class RecordsDataSourceImplTest {
             //Perform Step 1
             fileDataSource.markAsRecordDeleted(testRecordEntity.path)
             //Perform Step 2
-            recordDao.updateRecord(
-                testRecordEntity.copy(
-                    path = updatedPath,
-                    isMovedToRecycle = true
-                )
-            )
+            recordDao.updateRecord(any())
             //Rollback step 1
             fileDataSource.unmarkRecordAsDeleted(updatedPath)
             //Finish transaction if success
@@ -576,7 +639,7 @@ class RecordsDataSourceImplTest {
         every { recordDao.updateRecord(any()) } throws Exception("Failed to update record")
         every { fileDataSource.unmarkRecordAsDeleted(updatedPath) } returns null
 
-        val result = recordsDataSourceImpl.moveRecordToRecycle(recordId)
+        val result = recordsDataSourceImpl.moveRecordToRecycle(testRecordEntity)
 
         assertFalse(result)
         assertEquals(recordId, recordEditOperation.captured.recordId)
@@ -593,12 +656,7 @@ class RecordsDataSourceImplTest {
             //Perform Step 1
             fileDataSource.markAsRecordDeleted(testRecordEntity.path)
             //Perform Step 2
-            recordDao.updateRecord(
-                testRecordEntity.copy(
-                    path = updatedPath,
-                    isMovedToRecycle = true
-                )
-            )
+            recordDao.updateRecord(any())
             //Rollback step 1
             fileDataSource.unmarkRecordAsDeleted(updatedPath)
         }

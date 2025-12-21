@@ -214,6 +214,7 @@ fun LegacySlider(
     val interactionSource = remember { MutableInteractionSource() }
     val trackHeight = 4.dp
     val thumbSize = DpSize(16.dp, 16.dp)
+    val zeroThumbSize = DpSize(0.dp, 0.dp)
 
     Slider(
         interactionSource = interactionSource,
@@ -225,7 +226,7 @@ fun LegacySlider(
         onValueChange = { onProgressChange(it) },
         thumb = {
             val modifier = Modifier
-                    .size(thumbSize)
+                    .size(if (enabled) thumbSize else zeroThumbSize)
                     .shadow(1.dp, CircleShape, clip = false)
                     .indication(
                         interactionSource = interactionSource,
@@ -234,7 +235,10 @@ fun LegacySlider(
             SliderDefaults.Thumb(interactionSource = interactionSource, modifier = modifier)
         },
         track = {
-            val modifier = Modifier.height(trackHeight)
+            val modifier = Modifier
+                .height(trackHeight)
+                .padding(horizontal = if (enabled) 0.dp else 8.dp)
+
             SliderDefaults.Track(
                 sliderState = it,
                 modifier = modifier,
@@ -588,6 +592,23 @@ fun TimePanelPreview() {
         "05:32",
         0.3f,
         isSliderEnabled = true,
+        onRenameClick = {},
+        onProgressChange = { prgress ->},
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TimePanelRecordingProgressPreview() {
+    TimePanel(
+        "Recording...",
+        "1.2Mb, M4a, " +
+                "44.1kHz",
+        "02:23",
+        "",
+        "",
+        0.0f,
+        isSliderEnabled = false,
         onRenameClick = {},
         onProgressChange = { prgress ->},
     )

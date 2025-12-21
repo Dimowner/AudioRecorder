@@ -32,6 +32,7 @@ import com.dimowner.audiorecorder.v2.app.formatChannelCount
 import com.dimowner.audiorecorder.v2.app.formatRecordingFormat
 import com.dimowner.audiorecorder.v2.app.formatSampleRate
 import com.dimowner.audiorecorder.v2.app.recordingSettingsCombinedText
+import com.dimowner.audiorecorder.v2.app.removeOutdatedTrashRecords
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
@@ -55,8 +56,8 @@ internal class SettingsViewModel @Inject constructor(
     private val prefs: PrefsV2,
     private val recordsDataSource: RecordsDataSource,
     private val audioPlayer: PlayerContractNew.Player,
-    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext context: Context,
 ) : ViewModel() {
 
@@ -149,6 +150,7 @@ internal class SettingsViewModel @Inject constructor(
                     totalRecordCount = recordsCount, totalRecordDuration = recordsDuration
                 )
             }
+            recordsDataSource.removeOutdatedTrashRecords()
         }
     }
 

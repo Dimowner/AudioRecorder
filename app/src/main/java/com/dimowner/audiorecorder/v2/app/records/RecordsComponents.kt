@@ -178,6 +178,7 @@ fun RecordListItemView(
     duration: String,
     isBookmarked: Boolean,
     isSelected: Boolean,
+    isShowMenuButton: Boolean,
     onClickItem: () -> Unit,
     onLongClickItem: () -> Unit,
     onClickBookmark: (Boolean) -> Unit,
@@ -270,33 +271,37 @@ fun RecordListItemView(
                 ),
             )
         }
-        Box(
-            modifier = Modifier.align(Alignment.CenterVertically),
-        ) {
-            // The DropdownMenu composable
-            RecordsDropDownMenu(
-                items = remember { getRecordsDroDownMenuItems() },
-                onItemClick = { itemId ->
-                    Timber.v("On Drop Down Menu item click id = $itemId")
-                    onClickMenu(itemId)
-                },
-                expanded = expanded
-            )
-            IconButton(
-                onClick = { expanded.value = !expanded.value },
-                modifier = Modifier
-                    .width(36.dp)
-                    .height(60.dp)
+        if (isShowMenuButton) {
+            Box(
+                modifier = Modifier.align(Alignment.CenterVertically),
             ) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = stringResource(id = androidx.compose.ui.R.string.dropdown_menu),
+                // The DropdownMenu composable
+                RecordsDropDownMenu(
+                    items = remember { getRecordsDroDownMenuItems() },
+                    onItemClick = { itemId ->
+                        Timber.v("On Drop Down Menu item click id = $itemId")
+                        onClickMenu(itemId)
+                    },
+                    expanded = expanded
+                )
+                IconButton(
+                    onClick = { expanded.value = !expanded.value },
                     modifier = Modifier
                         .width(36.dp)
-                        .padding(4.dp)
-                        .fillMaxHeight()
-                )
+                        .height(60.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = stringResource(id = androidx.compose.ui.R.string.dropdown_menu),
+                        modifier = Modifier
+                            .width(36.dp)
+                            .padding(4.dp)
+                            .fillMaxHeight()
+                    )
+                }
             }
+        } else {
+            Spacer(modifier = Modifier.width(36.dp).height(60.dp))
         }
     }
 }
@@ -304,7 +309,7 @@ fun RecordListItemView(
 @Preview(showBackground = true)
 @Composable
 fun RecordListItemPreview() {
-    RecordListItemView("Label", "Value", "Duration", true, false,  {}, {}, {}, {})
+    RecordListItemView("Label", "Value", "Duration", true, true, true,  {}, {}, {}, {})
 }
 
 @Composable

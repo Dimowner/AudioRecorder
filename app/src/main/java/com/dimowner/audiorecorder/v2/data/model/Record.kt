@@ -22,6 +22,7 @@ data class Record(
     val durationMills: Long,
     val created: Long,
     val added: Long,
+    /** Date when record removed. Required to be able to remove the record automatically from Trash after it expired. */
     val removed: Long,
     var path: String,
     val format: String,

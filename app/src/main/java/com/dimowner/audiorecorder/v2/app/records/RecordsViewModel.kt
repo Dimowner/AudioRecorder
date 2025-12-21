@@ -32,6 +32,7 @@ import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
 import com.dimowner.audiorecorder.v2.app.records.models.SortDropDownMenuItemId
 import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
+import com.dimowner.audiorecorder.v2.audio.RecorderV2
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.Record
@@ -52,8 +53,9 @@ internal class RecordsViewModel @Inject constructor(
     private val recordsDataSource: RecordsDataSource,
     private val prefs: PrefsV2,
     private val audioPlayer: PlayerContractNew.Player,
-    @MainDispatcher private val mainDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val audioRecorder: RecorderV2,
+    @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext context: Context,
 ) : AndroidViewModel(context as Application) {
 
@@ -63,36 +65,42 @@ internal class RecordsViewModel @Inject constructor(
     private val _event = MutableSharedFlow<RecordsScreenEvent?>()
     val event: SharedFlow<RecordsScreenEvent?> = _event
 
+    private val playerCallback: PlayerCallback = object : PlayerCallback {
+        override fun onStartPlay() {
+            _state.value = _state.value.copy(
+                showRecordPlaybackPanel = true,
+            )
+        }
+        override fun onPlayProgress(mills: Long) {
+            //Do nothing
+        }
+        override fun onPausePlay() {
+            //Do nothing
+        }
+        override fun onSeek(mills: Long) {
+            //Do nothing
+        }
+        override fun onStopPlay() {
+            _state.value = _state.value.copy(
+                showRecordPlaybackPanel = false,
+                activeRecord = null,
+            )
+        }
+        override fun onError(throwable: AppException) {
+            //Do nothing
+        }
+    }
+
     fun init(showPlayPanel: Boolean) {
         showLoading(true)
         viewModelScope.launch(ioDispatcher) {
             initState(showPlayPanel)
         }
-        audioPlayer.addPlayerCallback(object : PlayerCallback {
-            override fun onStartPlay() {
-                _state.value = _state.value.copy(
-                    showRecordPlaybackPanel = true,
-                )
-            }
-            override fun onPlayProgress(mills: Long) {
-                //Do nothing
-            }
-            override fun onPausePlay() {
-                //Do nothing
-            }
-            override fun onSeek(mills: Long) {
-                //Do nothing
-            }
-            override fun onStopPlay() {
-                _state.value = _state.value.copy(
-                    showRecordPlaybackPanel = false,
-                    activeRecord = null,
-                )
-            }
-            override fun onError(throwable: AppException) {
-                //Do nothing
-            }
-        })
+        audioPlayer.addPlayerCallback(playerCallback)
+    }
+
+    fun onStop() {
+        audioPlayer.removePlayerCallback(playerCallback)
     }
 
     private suspend fun initState(showPlayPanel: Boolean) {
@@ -114,6 +122,8 @@ internal class RecordsViewModel @Inject constructor(
                 showDeletedRecordsButton = deletedRecordsCount > 0,
                 deletedRecordsCount = deletedRecordsCount,
                 showRecordPlaybackPanel = showPlayPanel,
+                isRecording = audioRecorder.isRecording,
+                recordedRecordId = prefs.recordedRecordId
             )
             showLoading(false)
         }
@@ -340,6 +350,7 @@ internal class RecordsViewModel @Inject constructor(
     fun onAction(action: RecordsScreenAction) {
         when (action) {
             is RecordsScreenAction.InitRecordsScreen -> init(action.showPlayPanel)
+            is RecordsScreenAction.OnStopRecordsScreen -> onStop()
             is RecordsScreenAction.UpdateListWithSortOrder -> updateListWithSortOrder(action.sortOrderId)
             is RecordsScreenAction.UpdateListWithBookmarks -> updateListWithBookmarks(action.bookmarksSelected)
             is RecordsScreenAction.BookmarkRecord -> bookmarkRecord(action.recordId, action.addToBookmarks)
@@ -507,6 +518,8 @@ data class RecordsScreenState(
     //A record for which some operation requested (rename, save as, delete)
     val operationSelectedRecord: RecordListItem? = null,
     val activeRecord: RecordListItem? = null,
+    val isRecording: Boolean = false,
+    val recordedRecordId: Long = -1,
 )
 
 data class RecordListItem(
@@ -524,6 +537,7 @@ internal sealed class RecordsScreenEvent {
 
 internal sealed class RecordsScreenAction {
     data class InitRecordsScreen(val showPlayPanel: Boolean) : RecordsScreenAction()
+    data object OnStopRecordsScreen : RecordsScreenAction()
     data class UpdateListWithSortOrder(val sortOrderId: SortDropDownMenuItemId) : RecordsScreenAction()
     data class UpdateListWithBookmarks(val bookmarksSelected: Boolean) : RecordsScreenAction()
     data class OnItemSelect(val record: RecordListItem) : RecordsScreenAction()

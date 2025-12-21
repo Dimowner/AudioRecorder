@@ -30,6 +30,7 @@ import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.AppConstantsV2
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.settings.convertToText
+import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.Record
@@ -90,7 +91,8 @@ fun calculateGridStep(durationMills: Long): Long {
 }
 
 /**
- * Called once when a new sound file is added
+ * Readjust waveform amplitudes
+ * @param [IntArray] of int values where each element represents an amplitude
  */
 @SuppressWarnings("MagicNumber")
 fun adjustWaveformHeights(frameGains: IntArray): IntArray {
@@ -147,12 +149,12 @@ fun adjustWaveformHeights(frameGains: IntArray): IntArray {
         if (value > 1.0) value = 1.0f
         heights[i] = value * value
     }
-    val scale = 1000f
+    val scale = AppConstantsV2.WAVEFORM_AMPLITUDE_MAX_VALUE
     val waveformData = IntArray(numFrames)
     for (i in 0 until numFrames) {
         waveformData[i] = (heights[i] * scale).toInt()
     }
-    //Array of int values where each value between 0 to 1000
+    //Array of int values where each value between 0 to WAVEFORM_AMPLITUDE_MAX_VALUE
     return waveformData
 }
 
@@ -279,4 +281,19 @@ fun formatDuration(
         formattedParts.add(String.format(Locale.getDefault(),"%02dm:%02ds", minutes, seconds))
     }
     return formattedParts.joinToString(" ")
+}
+
+/**
+ * Permanently deletes all records from the recycle bin that have exceeded the
+ * maximum retention duration defined by [AppConstants.RECORD_IN_TRASH_MAX_DURATION].
+ *
+ * @receiver The [RecordsDataSource] instance.
+ */
+suspend fun RecordsDataSource.removeOutdatedTrashRecords() {
+    val currentTime = System.currentTimeMillis()
+    this.getMovedToRecycleRecords().forEach { removedRecord ->
+        if (currentTime > removedRecord.removed + AppConstants.RECORD_IN_TRASH_MAX_DURATION) {
+            this.deleteRecordAndFileForever(removedRecord.id)
+        }
+    }
 }

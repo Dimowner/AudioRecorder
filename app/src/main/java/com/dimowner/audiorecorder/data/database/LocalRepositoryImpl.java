@@ -531,8 +531,8 @@ public class LocalRepositoryImpl implements LocalRepository {
 		List<Record> list = trashDataSource.getAll();
 		for (int i = 0; i < list.size(); i++) {
 			if (list.get(i).getRemoved() + AppConstants.RECORD_IN_TRASH_MAX_DURATION < curTime) {
-				fileRepository.deleteRecordFile(list.get(i).getPath());
 				trashDataSource.deleteItem(list.get(i).getId());
+				fileRepository.deleteRecordFile(list.get(i).getPath());
 			}
 		}
 	}
