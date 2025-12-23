@@ -2,6 +2,7 @@ package com.dimowner.audiorecorder.v2.app.records
 
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.dimowner.audiorecorder.util.TimeUtils.formatDateSmartLocale
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import io.mockk.impl.annotations.MockK
 import org.junit.Assert.assertEquals
@@ -12,8 +13,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import io.mockk.MockKAnnotations
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertNull
+import org.junit.Assert.fail
 import java.util.Calendar
 import kotlin.collections.find
 
@@ -31,10 +34,10 @@ class RecordsExtensionsTest {
         MockKAnnotations.init(this)
 
         val time = Calendar.getInstance()
-        time.set(2025, 5, 20)
+        time.set(2025, 5, 24)
         val time1 = time.timeInMillis
         time.set(2025, 5, 22)
-        val time2 = time.timeInMillis
+        val time2 = time.timeInMillis + 1000
         val time3 = time.timeInMillis
         time.set(2024, 7, 20)
         val time4 = time.timeInMillis
@@ -78,6 +81,157 @@ class RecordsExtensionsTest {
             sortOrder = SortOrder.DateDesc,
             recordsMap = records.groupRecordsByDate(mockContext, SortOrder.DateDesc),
         )
+    }
+
+    @Test
+    fun sort_by_DateAsc_returns_oldest_first() {
+        // time4 (2024) is the oldest
+        val result = records.sort(SortOrder.DateAsc)
+
+        assertEquals(404L, result.first().recordId)
+        assertEquals(303L, result[1].recordId)
+        assertEquals(101L, result.last().recordId)
+    }
+
+    @Test
+    fun sort_by_DateDesc_returns_newest_first() {
+        // time1 and time2 are the newest
+        val result = records.sort(SortOrder.DateDesc)
+
+        assertEquals(101L, result.first().recordId)
+        assertEquals(202L, result[1].recordId)
+        assertEquals(404L, result.last().recordId)
+    }
+
+    @Test
+    fun sort_by_NameDesc_returns_Name4_first() {
+        val result = records.sort(SortOrder.NameDesc)
+
+        assertEquals("Name4", result.first().name)
+        assertEquals("Name3", result[1].name)
+        assertEquals("Name1", result.last().name)
+    }
+
+    @Test
+    fun sort_by_NameAsc_returns_Name1_first() {
+        val result = records.sort(SortOrder.NameAsc)
+
+        assertEquals("Name1", result.first().name)
+        assertEquals("Name2", result[1].name)
+        assertEquals("Name4", result.last().name)
+    }
+
+    @Test
+    fun sort_by_DurationShortest_returns_1_01_first() {
+        val result = records.sort(SortOrder.DurationShortest)
+
+        assertEquals("1:01", result.first().duration)
+        assertEquals("2:02", result[1].duration)
+        assertEquals("4:04", result.last().duration)
+    }
+
+    @Test
+    fun sort_by_DurationLongest_returns_1_01_first() {
+        val result = records.sort(SortOrder.DurationLongest)
+
+        assertEquals("4:04", result.first().duration)
+        assertEquals("3:03", result[1].duration)
+        assertEquals("1:01", result.last().duration)
+    }
+
+    @Test
+    fun addRecordToMap_adds_record_to_existing_group_and_maintains_sort() {
+        // 1. Setup: A new record for an existing date (June 20, 2025 - same as Name1)
+        // We'll use NameDesc sort to see it move to the top of its group
+        val sortOrder = SortOrder.NameDesc
+        val existingMap = records.groupRecordsByDate(mockContext, sortOrder)
+
+        val newRecord = RecordListItem(
+            recordId = 999,
+            name = "Name33", // Should come second in NameDesc
+            details = "Details5",
+            added = records.first().added, // June 20, 2025
+            duration = "0:30",
+            isBookmarked = false,
+        )
+
+        // 2. Execution
+        val resultMap = existingMap.addRecordToMap(mockContext, newRecord, sortOrder)
+
+        // 3. Verification
+        //For sortOrder not by date group key is always empty string.
+        val groupList = resultMap[""]
+        if (groupList == null) {
+            fail("Group key not found")
+        } else {
+            assertEquals(404L, groupList.first().recordId)
+            assertEquals(999, groupList[1].recordId)
+            assertEquals(5, groupList.size)
+        }
+    }
+
+    @Test
+    fun addRecordToMap_creates_new_group_when_date_does_not_exist() {
+        // 1. Setup: A record from a completely different year (1999)
+        val oldTime = Calendar.getInstance().apply { set(1999, 0, 1) }.timeInMillis
+        val oldRecord = RecordListItem(
+            recordId = 999,
+            name = "Vintage",
+            details = "Details",
+            added = oldTime,
+            duration = "9:99",
+            isBookmarked = false
+        )
+
+        // 2. Execution
+        val resultMap = initialState.recordsMap.addRecordToMap(
+            mockContext,
+            oldRecord,
+            SortOrder.DateDesc
+        )
+
+        // 3. Verification
+        val newKey = formatDateSmartLocale(oldTime, mockContext)
+        assertTrue(resultMap.containsKey(newKey))
+        assertEquals(1, resultMap[newKey]?.size)
+        assertEquals(999L, resultMap[newKey]?.first()?.recordId)
+    }
+
+    @Test
+    fun addRecordToMap_preserves_other_groups_during_insertion() {
+        // Setup
+        val newRecord = RecordListItem(
+            recordId = 777,
+            name = "UniqueDate",
+            added = 0L, // Different date
+            details = "Details",
+            duration = "1:00",
+            isBookmarked = false
+        )
+
+        // Execution
+        val resultMap = initialState.recordsMap.addRecordToMap(
+            mockContext,
+            newRecord,
+            SortOrder.DateDesc
+        )
+
+        // Verification
+        assertEquals(4, resultMap.size)
+        // Check that Name1 (the May 24th 2025 record) is still there
+        val key2025May24th = formatDateSmartLocale(records.first().added, mockContext)
+        assertNotNull(resultMap[key2025May24th])
+        assertEquals(1, resultMap[key2025May24th]?.size)
+
+        // Check that Name1 (the May 22th 2025 record) is still there
+        val key2025May22th = formatDateSmartLocale(records[1].added, mockContext)
+        assertNotNull(resultMap[key2025May22th])
+        assertEquals(2, resultMap[key2025May22th]?.size)
+
+        // Check that Name4 (the 2024 record) is still there
+        val key2024 = formatDateSmartLocale(records.last().added, mockContext)
+        assertNotNull(resultMap[key2024])
+        assertEquals(1, resultMap[key2024]?.size)
     }
 
     //================ Test mapRecordInMap ====================
@@ -186,7 +340,7 @@ class RecordsExtensionsTest {
         assertEquals(initialState.showDeletedRecordsButton, newState.showDeletedRecordsButton)
         assertEquals(initialState.showRecordPlaybackPanel, newState.showRecordPlaybackPanel)
         assertEquals(initialState.deletedRecordsCount, newState.deletedRecordsCount)
-        assertEquals(initialState.isShowProgress, newState.isShowProgress)
+        assertEquals(initialState.isShowLoadingProgress, newState.isShowLoadingProgress)
         assertEquals(initialState.showRenameDialog, newState.showRenameDialog)
         assertEquals(initialState.showMoveToRecycleDialog, newState.showMoveToRecycleDialog)
         assertEquals(initialState.showMoveToRecycleMultipleDialog, newState.showMoveToRecycleMultipleDialog)
@@ -280,7 +434,7 @@ class RecordsExtensionsTest {
     fun groupRecordsByDate_shouldGroupItemsByDate_whenSortOrderIsDateAsc() {
         val result = records.groupRecordsByDate(mockContext, SortOrder.DateAsc)
         assertEquals(3, result.size)
-        assertEquals(1, result["Jun 20"]?.size)
+        assertEquals(1, result["Jun 24"]?.size)
         assertEquals(2, result["Jun 22"]?.size)
         assertEquals(1, result["Aug 20, 2024"]?.size)
     }
@@ -290,7 +444,7 @@ class RecordsExtensionsTest {
         val result = records.groupRecordsByDate(mockContext, SortOrder.DateDesc)
 
         assertEquals(3, result.size)
-        assertEquals(1, result["Jun 20"]?.size)
+        assertEquals(1, result["Jun 24"]?.size)
         assertEquals(2, result["Jun 22"]?.size)
         assertEquals(1, result["Aug 20, 2024"]?.size)
     }

@@ -173,6 +173,54 @@ fun Map<String, List<RecordListItem>>.removeRecordFromMap(
 }
 
 /**
+ * Immutably adds a single [RecordListItem] to the map, placing it in the correct date group,
+ * Ensures the group remains sorted.
+ * 1. Identifies the correct group key using the provided [sortOrder].
+ * 2. Appends the record to the existing list for that key, or creates a new list if the key doesn't exist.
+ * 3. Sort the list based on the active SortOrder.
+ * 4. Returns a new Map containing the updated data.
+ */
+fun Map<String, List<RecordListItem>>.addRecordToMap(
+    context: Context,
+    record: RecordListItem,
+    sortOrder: SortOrder
+): Map<String, List<RecordListItem>> {
+    // Determine the key where this record belongs
+    val key = if (sortOrder.isSortOrderByDate()) {
+        formatDateSmartLocale(record.added, context)
+    } else {
+        ""
+    }
+
+    // Get the current list for that key (or empty if it's a new date)
+    val currentList = this[key] ?: emptyList()
+
+    // Add the new record
+    val newList = currentList + record
+
+    // Sort the list based on the active SortOrder
+    val sortedList = newList.sort(sortOrder)
+
+    return this + (key to sortedList)
+}
+
+/**
+ * Returns a new list of [RecordListItem] sorted according to the specified [SortOrder].
+ * @param sortOrder The strategy used to determine the element sequence.
+ * @return A sorted copy of the original list.
+ */
+fun List<RecordListItem>.sort(sortOrder: SortOrder): List<RecordListItem> {
+    return when (sortOrder) {
+        SortOrder.DateAsc -> this.sortedBy { it.added }
+        SortOrder.DateDesc -> this.sortedByDescending { it.added }
+        SortOrder.NameAsc -> this.sortedBy { it.name }
+        SortOrder.NameDesc -> this.sortedByDescending { it.name }
+        SortOrder.DurationShortest -> this.sortedBy { it.duration }
+        SortOrder.DurationLongest -> this.sortedByDescending { it.duration }
+    }
+}
+
+/**
  * Groups the list of [RecordListItem] objects into groups of records divided by date.
  * This function is designed to support a UI with conditional sticky headers.
  * @param context The [Context] required by [TimeUtils.formatDateSmartLocale] to generate

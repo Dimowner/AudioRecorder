@@ -70,7 +70,7 @@ fun RecorderNavigationGraph(
                 }, showDeletedRecordsScreen = {
                     navController.navigate(Routes.DELETED_RECORDS_SCREEN)
                 }, uiState = recordsViewModel.state.value,
-                recordsEvent = recordsViewModel.event.collectAsState(null).value,
+                event = recordsViewModel.event.collectAsState(null).value,
                 onAction = {
                     recordsViewModel.onAction(it)
                 },

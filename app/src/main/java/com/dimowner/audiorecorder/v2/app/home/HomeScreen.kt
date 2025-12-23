@@ -57,10 +57,9 @@ import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
 import com.dimowner.audiorecorder.v2.app.RenameAlertDialog
 import com.dimowner.audiorecorder.v2.app.SaveAsDialog
-import com.dimowner.audiorecorder.v2.app.calculateGridStep
-import com.dimowner.audiorecorder.v2.app.calculateScale
 import com.dimowner.audiorecorder.v2.app.components.WaveformComposeView
 import com.dimowner.audiorecorder.v2.app.components.WaveformState
+import com.dimowner.audiorecorder.v2.app.getTestWaveformData
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -111,7 +110,7 @@ internal fun HomeScreen(
                 Timber.v("ON EVENT: ShareRecord json = $json")
                 showRecordInfoScreen(json)
             }
-            is HomeScreenEvent.RecordMovedToTrashSnack -> {
+            is HomeScreenEvent.RecordMovedToRecycleSnack -> {
                 scope.launch {
                     val message = if (event.recordName != null) {
                         context.getString(R.string.msg_recording_moved_to_trash, event.recordName)
@@ -126,7 +125,7 @@ internal fun HomeScreen(
                         )
                     when (result) {
                         SnackbarResult.ActionPerformed -> {
-                            onAction(HomeScreenAction.RestoreRecordFromTrash(event.recordId))
+                            onAction(HomeScreenAction.RestoreRecordFromRecycle(event.recordId))
                         }
                         SnackbarResult.Dismissed -> {
                             /* Handle snackbar dismissed */
@@ -212,7 +211,7 @@ internal fun HomeScreen(
                         .weight(1f)
                         .wrapContentHeight()
                 )
-                if (uiState.isShowProgress) {
+                if (uiState.isShowLoadingProgress) {
                     //Show nothing because of progress takes very short period of time
                 } else if (uiState.isShowWaveform) {
                     WaveformComposeView(
@@ -320,19 +319,10 @@ internal fun HomeScreen(
 
 @Preview
 @Composable
-@SuppressWarnings("MaxLineLength", "MagicNumber")
 fun HomeScreenPreview() {
-    val waveformData = intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 234, 526, 0, 0, 0, 0, 8424, 4394, 7514, 23400, 13754, 10400, 21118, 12018, 24986, 6656, 7514, 10926, 32767, 24186, 21118, 16250, 10400, 7962, 5850, 4738, 4394, 26624, 10926, 5850, 4738, 5096, 4062, 11466, 10926, 14976, 22626, 21118, 30056, 21118, 32767, 23400, 21866, 21866, 23400, 27462, 25798, 24186, 14976, 18258, 11466, 15606, 23400, 29178, 29178, 26624, 16906, 12018, 16906, 12018, 14358, 7962, 22626, 22626, 14358, 6656, 4738, 3744, 2866, 4394, 3744, 4394, 3146, 2600, 416, 27462, 28314, 14976, 14976, 14976, 29178, 23400, 24186, 19662, 28314, 26624, 13162, 18258, 18258, 22626, 30946, 19662, 9886, 6246, 5096, 3744, 3744, 4394, 24186, 21118, 7078, 3146, 1878, 3438, 1878, 9386, 21118, 12584, 14976, 12584, 17576, 5850, 29178, 23400, 4738, 4062, 26624, 26624, 18954, 13754, 14358, 13162, 13754, 7962, 17576, 31850, 13754, 13162, 13754, 10400, 8898, 5850, 5466, 2866, 23400, 9386, 7514, 5850, 7962, 7514, 5466, 8424, 6656, 5850, 4394, 19662, 3438, 26624, 22626, 12018, 7514, 24986, 24186, 16250, 30946, 21118, 11466, 9886, 12584, 25798, 30056, 27462, 17576, 16906, 20384, 19662, 18258, 19662, 9386, 19662, 10400, 3744, 3146, 3744, 8424, 4062, 7078, 15606, 22626, 20384, 24186, 18258, 27462, 25798, 12584, 14358, 18954, 24986, 24986, 19662, 20384, 23400, 15606, 16906, 17576, 16906, 13162, 29178, 8898, 7514, 4738, 2600, 2106, 2866, 3438, 28314, 22626, 4394, 1462, 1098, 2866, 1878, 4394, 2600, 2346, 2346, 5466, 4738, 526, 29178, 20384, 19662, 6656, 28314, 21866, 20384, 11466, 21866, 15606, 18954, 18954, 16250, 32767, 22626, 9886, 18954, 16906, 13162, 8898, 6246, 5466, 30056, 7962, 5466, 5850, 23400, 17576, 29178, 10400, 14976, 22626, 19662, 20384, 14976, 32767, 13754, 13162, 13162, 32767, 20384, 8898, 7078, 16250, 18258, 15606, 13162, 14358, 29178, 15606, 5466, 4394, 2106, 162, 0, 0, 0, 786, 58, 58, 526, 104, 1462, 526, 786, 26, 0, 0, 0, 0, 29178, 17576, 24986, 29178, 28314, 23400, 20384, 30056, 27462, 31850, 32767, 27462, 32767, 25798, 32767, 30056, 29178, 23400, 22626, 31850, 14976, 16906, 30946, 25798, 27462, 22626, 15606, 29178, 13162, 23400, 21866, 24186, 21118, 24186, 28314, 29178, 30056, 16250, 18954, 16906, 29178, 30056, 27462, 20384, 29178, 25798, 12584, 21118, 20384, 31850, 21866, 21866, 26624, 18954, 14358, 21866, 24186, 25798, 27462, 21118, 22626, 21118, 24986, 13754, 13754, 30056, 22626, 10400, 27462, 30056, 24986, 29178, 20384, 23400, 28314, 29178, 29178, 17576, 20384, 23400, 27462, 13162, 24186, 20384, 31850, 25798, 25798, 14976, 24986, 22626, 24186, 23400, 30056, 30946, 17576, 16250, 13754, 16250, 24986, 24986, 17576, 29178, 20384, 30056, 19662, 18258, 24986, 30056, 18954, 24186, 30946, 32767, 32767, 27462, 30946, 13162, 24186, 21866, 31850, 30056, 24986, 30946, 26624, 22626, 21866, 25798, 28314, 30946, 32767, 30056, 30946, 29178, 23400, 28314, 30056, 30946, 26624, 30946, 29178, 21118, 29178, 21866, 29178, 28314, 21118, 31850, 32767, 29178, 31850, 30946, 31850, 25798, 26624, 30946, 32767, 32767, 30946, 28314, 28314, 32767, 30946, 28314, 28314, 31850, 30946, 30946, 30056, 21866, 18954, 30056, 19662, 31850, 29178, 31850, 22626, 25798, 28314, 26624, 29178, 25798, 28314, 28314, 29178, 28314, 27462, 27462, 25798, 22626, 18258, 29178, 23400, 32767, 21866, 18954, 24186, 19662, 14976, 17576, 23400, 23400, 24986, 27462, 26624, 19662, 25798, 21866, 30056, 30056, 30946, 32767, 18954, 28314, 10926, 30056, 24986, 31850, 25798, 29178, 27462, 22626, 24186, 24986, 25798, 17576, 28314, 27462, 29178, 30056, 20384, 18258, 21118, 24986, 24186, 25798, 29178, 29178, 27462, 22626, 16906, 23400, 21118, 27462, 26624, 26624, 31850, 27462, 23400, 26624, 21866, 20384, 25798, 29178, 20384, 13754, 9886, 9886, 10926, 29178, 25798, 24986, 22626, 14358, 1878, 0, 0, 0, 0, 0, 8898, 2600, 25798, 9886, 6656, 7962, 6246, 6246, 5096, 5850, 6656, 5096, 8424, 8424, 4062, 4394, 4394, 5850, 4394, 9886, 28314, 8424, 6246, 58, 6656, 3438, 0, 12018, 8898, 7514, 1878, 1098, 58, 0, 318, 318, 8424, 12018, 13162, 7962, 7514, 7514, 7514, 6246, 3146, 18954, 84)
-    val durationMills = 58728L
-    HomeScreen({}, {}, {}, uiState = HomeScreenState(
-        waveformState = WaveformState(
-            widthScale = calculateScale(durationMills, defaultWidthScale = 1.5f),
-            durationMills = durationMills,
-            progressMills = 111000L,
-            waveformData = waveformData,
-            durationSample = waveformData.size,
-            gridStepMills = calculateGridStep(durationMills)
-        ),
+    HomeScreen(
+        {}, {}, {}, uiState = HomeScreenState(
+        waveformState = getTestWaveformData(),
         progress = 0.4f,
         startTime = "00:00",
         endTime = "3:42",
@@ -355,7 +345,7 @@ fun HomeScreenEmptyPreview() {
 @Composable
 fun HomeScreenShowProgressPreview() {
     HomeScreen({}, {}, {}, uiState = HomeScreenState(
-        isShowProgress = true
+        isShowLoadingProgress = true
     ), null, {})
 }
 
@@ -365,7 +355,7 @@ fun HomeScreenShowRecordingProgressPreview() {
     HomeScreen(
         {}, {}, {},
         uiState = HomeScreenState(
-            isShowProgress = false,
+            isShowLoadingProgress = false,
             isShowWaveform = false,
             bottomBarState = BottomBarState.RECORDING,
             waveformState = WaveformState(),

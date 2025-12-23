@@ -18,10 +18,12 @@ package com.dimowner.audiorecorder.v2.app.records
 
 import android.app.Application
 import android.content.Context
+import androidx.annotation.StringRes
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.DownloadService
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew.PlayerCallback
@@ -47,6 +49,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+
+const val DEFAULT_PAGE_SIZE = 200
 
 @HiltViewModel
 internal class RecordsViewModel @Inject constructor(
@@ -92,7 +96,7 @@ internal class RecordsViewModel @Inject constructor(
     }
 
     fun init(showPlayPanel: Boolean) {
-        showLoading(true)
+        showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
             initState(showPlayPanel)
         }
@@ -109,7 +113,7 @@ internal class RecordsViewModel @Inject constructor(
         val records = recordsDataSource.getRecords(
             sortOrder = sortOrder,
             page = 1,
-            pageSize = 100,
+            pageSize = DEFAULT_PAGE_SIZE,
             isBookmarked = false,
         )
         val deletedRecordsCount = recordsDataSource.getMovedToRecycleRecordsCount()
@@ -125,7 +129,7 @@ internal class RecordsViewModel @Inject constructor(
                 isRecording = audioRecorder.isRecording,
                 recordedRecordId = prefs.recordedRecordId
             )
-            showLoading(false)
+            showLoadingProgress(false)
         }
     }
 
@@ -135,7 +139,7 @@ internal class RecordsViewModel @Inject constructor(
             val records = recordsDataSource.getRecords(
                 sortOrder = sortOrder,
                 page = 1,
-                pageSize = 100,
+                pageSize = DEFAULT_PAGE_SIZE,
                 isBookmarked = bookmarksSelected,
             )
             val context = getApplication<Application>().applicationContext
@@ -181,7 +185,7 @@ internal class RecordsViewModel @Inject constructor(
             val records = recordsDataSource.getRecords(
                 sortOrder = sortOrder,
                 page = 1,
-                pageSize = 100,
+                pageSize = DEFAULT_PAGE_SIZE,
                 isBookmarked = _state.value.bookmarksSelected,
             )
             val context = getApplication<Application>().applicationContext
@@ -322,31 +326,103 @@ internal class RecordsViewModel @Inject constructor(
         )
     }
 
-    fun moveRecordToRecycle(recordId: Long) {
-        audioPlayer.stop()
+    private fun moveRecordToRecycle(recordId: Long) {
+        val activeRecordId = prefs.activeRecordId
+        if (audioPlayer.isPlaying() && recordId == activeRecordId) {
+            audioPlayer.stop()
+        }
+        showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
-            if (recordId != -1L && recordsDataSource.moveRecordToRecycle(recordId)) {
-                prefs.activeRecordId = -1
-                //TODO: Notify active record deleted. Show Toast
+            val record = recordsDataSource.getRecord(recordId)
+            if (record != null && recordsDataSource.moveRecordToRecycle(recordId)) {
+                if (recordId == activeRecordId) {
+                    prefs.activeRecordId = -1
+                }
                 withContext(mainDispatcher) {
                     _state.value = _state.value.copy(
                         recordsMap = _state.value.recordsMap.removeRecordFromMap(recordId),
                         showMoveToRecycleDialog = false,
                         showDeletedRecordsButton = true,
                         operationSelectedRecord = null,
-                        activeRecord = null,
+                        activeRecord = if (recordId == activeRecordId) null else _state.value.activeRecord,
+                        isShowLoadingProgress = false
                     )
                 }
+                emitEvent(
+                    RecordsScreenEvent.RecordMovedToRecycleSnack(
+                        recordId,
+                        record.name
+                    )
+                )
             } else {
-                //TODO: Show error message
+                val context: Context = getApplication<Application>().applicationContext
+                emitEvent(
+                    RecordsScreenEvent.ShowErrorSnack(
+                        context.getString(R.string.msg_move_to_trash_failed)
+                    )
+                )
+
+                withContext(mainDispatcher) {
+                    showLoadingProgress(false)
+                }
             }
         }
     }
 
-    private fun showLoading(value: Boolean) {
-        _state.value = _state.value.copy(isShowProgress = value)
+    fun handleRestoreRecordFromRecycle(recordId: Long) {
+        showLoadingProgress(true)
+        viewModelScope.launch(ioDispatcher) {
+            if (recordsDataSource.restoreRecordFromRecycle(recordId)) {
+                prefs.activeRecordId = recordId
+                val record = recordsDataSource.getRecord(recordId)
+                showInfoMessage(R.string.msg_recording_restored, record?.name ?: "")
+
+                //Update list state. Put removed record back into the list.
+                if (record != null) {
+                    withContext(mainDispatcher) {
+                        val context: Context = getApplication<Application>().applicationContext
+                        _state.value = _state.value.copy(
+                            recordsMap = _state.value.recordsMap.addRecordToMap(
+                                context,
+                                record.toRecordListItem(context),
+                                state.value.sortOrder
+                            ),
+                        )
+                    }
+                }
+            } else {
+                showInfoMessage(R.string.msg_operation_failed_generic)
+
+                withContext(mainDispatcher) {
+                    showLoadingProgress(false)
+                }
+            }
+        }
     }
 
+    private fun showLoadingProgress(value: Boolean) {
+        _state.value = _state.value.copy(isShowLoadingProgress = value)
+    }
+
+    private fun showInfoMessage(@StringRes resId: Int) {
+        val context: Context = getApplication<Application>().applicationContext
+        emitEvent(
+            RecordsScreenEvent.ShowInfoSnack(
+                context.getString(resId)
+            )
+        )
+    }
+
+    private fun showInfoMessage(@StringRes resId: Int, vararg formatArgs: Any) {
+        val context: Context = getApplication<Application>().applicationContext
+        emitEvent(
+            RecordsScreenEvent.ShowInfoSnack(
+                context.getString(resId, *formatArgs)
+            )
+        )
+    }
+
+    @SuppressWarnings("CyclomaticComplexMethod")
     fun onAction(action: RecordsScreenAction) {
         when (action) {
             is RecordsScreenAction.InitRecordsScreen -> init(action.showPlayPanel)
@@ -363,6 +439,7 @@ internal class RecordsViewModel @Inject constructor(
             is RecordsScreenAction.OnMoveToRecycleRecordRequest -> onMoveToRecycleRecordRequest(action.record)
             is RecordsScreenAction.MoveRecordToRecycle -> moveRecordToRecycle(action.recordId)
             RecordsScreenAction.OnMoveToRecycleRecordDismiss -> onMoveToRecycleRecordDismiss()
+            is RecordsScreenAction.RestoreRecordFromRecycle -> handleRestoreRecordFromRecycle(action.recordId)
             is RecordsScreenAction.SaveRecordAs -> saveRecordAs(action.recordId)
             RecordsScreenAction.OnSaveAsDismiss -> onSaveAsDismiss()
             is RecordsScreenAction.RenameRecord -> renameRecord(action.recordId, action.newName)
@@ -411,7 +488,12 @@ internal class RecordsViewModel @Inject constructor(
                     multiSelectCancel()
                 }
             } else {
-                //TODO: handle error here
+                val context: Context = getApplication<Application>().applicationContext
+                emitEvent(
+                    RecordsScreenEvent.ShowErrorSnack(
+                        context.getString(R.string.error_unknown)
+                    )
+                )
             }
         }
     }
@@ -440,7 +522,12 @@ internal class RecordsViewModel @Inject constructor(
                     )
                 }
             } else {
-                //TODO: handle error here
+                val context: Context = getApplication<Application>().applicationContext
+                emitEvent(
+                    RecordsScreenEvent.ShowErrorSnack(
+                        context.getString(R.string.error_unknown)
+                    )
+                )
             }
         }
     }
@@ -464,6 +551,7 @@ internal class RecordsViewModel @Inject constructor(
     }
 
     private fun multiSelectMoveToRecycle() {
+        showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
             val deletedCount = recordsDataSource.moveRecordsToRecycle(state.value.selectedRecords.map { it.recordId })
             if (deletedCount > 0) {
@@ -472,24 +560,68 @@ internal class RecordsViewModel @Inject constructor(
                 val records = recordsDataSource.getRecords(
                     sortOrder = sortOrder,
                     page = 1,
-                    pageSize = 100,
+                    pageSize = DEFAULT_PAGE_SIZE,
                     isBookmarked = state.value.bookmarksSelected,
                 )
-                val deletedRecordsCount = recordsDataSource.getMovedToRecycleRecordsCount()
+                val recordsInRecycleCount = recordsDataSource.getMovedToRecycleRecordsCount()
+                val selectedRecords = state.value.selectedRecords
+                val isActiveRecordDeleted = selectedRecords.map { it.recordId }.contains(prefs.activeRecordId)
                 withContext(mainDispatcher) {
                     multiSelectCancel()
                     _state.value = _state.value.copy(
                         recordsMap = records.map {
                             it.toRecordListItem(context)
                         }.groupRecordsByDate(context, sortOrder),
-                        showDeletedRecordsButton = deletedRecordsCount > 0,
-                        deletedRecordsCount = deletedRecordsCount,
+                        showDeletedRecordsButton = recordsInRecycleCount > 0,
+                        deletedRecordsCount = recordsInRecycleCount,
                         showMoveToRecycleMultipleDialog = false,
+                        activeRecord = if (isActiveRecordDeleted) null else _state.value.activeRecord,
+                        isShowLoadingProgress = false
                     )
                 }
+                multipleMoveToRecycleSuccessSnack(selectedRecords, deletedCount)
             } else {
-                //TODO: show an error here.
+                multipleMoveToRecycleFailSnack()
+                withContext(mainDispatcher) {
+                    showLoadingProgress(false)
+                }
             }
+        }
+    }
+
+    private fun multipleMoveToRecycleSuccessSnack(selectedRecords: List<RecordListItem>, deletedRecordsCount: Int) {
+        if (selectedRecords.size == 1) {
+            val record = selectedRecords.first()
+            emitEvent(
+                RecordsScreenEvent.RecordMovedToRecycleSnack(
+                    record.recordId,
+                    record.name
+                )
+            )
+        } else {
+            emitEvent(
+                RecordsScreenEvent.FewRecordsMovedToRecycleSnack(
+                    deletedRecordsCount,
+                    selectedRecords.size
+                )
+            )
+        }
+    }
+
+    private fun multipleMoveToRecycleFailSnack() {
+        val context: Context = getApplication<Application>().applicationContext
+        if (state.value.selectedRecords.size > 1) {
+            emitEvent(
+                RecordsScreenEvent.ShowErrorSnack(
+                    context.getString(R.string.msg_multiple_move_to_trash_failed)
+                )
+            )
+        } else {
+            emitEvent(
+                RecordsScreenEvent.ShowErrorSnack(
+                    context.getString(R.string.msg_move_to_trash_failed)
+                )
+            )
         }
     }
 
@@ -508,7 +640,7 @@ data class RecordsScreenState(
     val showDeletedRecordsButton: Boolean = false,
     val showRecordPlaybackPanel: Boolean = false,
     val deletedRecordsCount: Int = 0,
-    val isShowProgress: Boolean = false,
+    val isShowLoadingProgress: Boolean = false,
 
     val showRenameDialog: Boolean = false,
     val showMoveToRecycleDialog: Boolean = false,
@@ -533,6 +665,12 @@ data class RecordListItem(
 
 internal sealed class RecordsScreenEvent {
     data class RecordInformationEvent(val recordInfo: RecordInfoState) : RecordsScreenEvent()
+    data class RecordMovedToRecycleSnack(val recordId: Long, val recordName: String) :
+        RecordsScreenEvent()
+    data class FewRecordsMovedToRecycleSnack(val movedCount: Int, val expectedCount: Int) :
+        RecordsScreenEvent()
+    data class ShowErrorSnack(val message: String) : RecordsScreenEvent()
+    data class ShowInfoSnack(val message: String) : RecordsScreenEvent()
 }
 
 internal sealed class RecordsScreenAction {
@@ -549,6 +687,7 @@ internal sealed class RecordsScreenAction {
     data class OnSaveAsRequest(val record: RecordListItem) : RecordsScreenAction()
     data class OnMoveToRecycleRecordRequest(val record: RecordListItem) : RecordsScreenAction()
     data class MoveRecordToRecycle(val recordId: Long) : RecordsScreenAction()
+    data class RestoreRecordFromRecycle(val recordId: Long) : RecordsScreenAction()
     data object OnMoveToRecycleRecordDismiss : RecordsScreenAction()
     data class SaveRecordAs(val recordId: Long) : RecordsScreenAction()
     data object OnSaveAsDismiss : RecordsScreenAction()

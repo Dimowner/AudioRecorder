@@ -28,8 +28,14 @@
 	<string name="msg_recording_permanently_deleted">Recording \'%1$s\' permanently deleted</string>
 	<!-- Confirmation for sending to trash (if no UNDO is provided) -->
 	<string name="msg_recording_moved_to_trash">Recording \'%1$s\' moved to Trash</string>
+	<!-- Confirmation for sending to trash multiple records.
+		Param #1: How many items actually moved.
+	 	Param #2: Expected item count to be moved. -->
+	<string name="msg_few_recordings_moved_to_trash">%1$d of %2$d recordings moved to Trash</string>
 	<!-- Error message when moving a recording to Trash fails -->
 	<string name="msg_move_to_trash_failed">Failed to move recording to Trash</string>
+	<!-- Error message when moving a multiple recordings to Trash fails -->
+	<string name="msg_multiple_move_to_trash_failed">Failed to move recordings to Trash.</string>
 	<!-- Confirmation for canceling a recording session (progress discarded) -->
 	<string name="msg_recording_canceled">Canceled recording moved to Trash</string>
 	<!-- Confirmation for successful restoration after UNDO is clicked -->

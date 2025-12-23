@@ -245,7 +245,7 @@ class HomeViewModel @Inject constructor(
     private fun handleRecordingStopped() {
         // - Read recorded file info
         // - Update recorded file duration, size, format, bitrate, sample rate, channel count
-        // - Move updated to trash if requested to delete the record, otherwise set it as active record
+        // - Move updated to recycle if requested to delete the record, otherwise set it as active record
         viewModelScope.launch(ioDispatcher) {
             val recordedRecordId = prefs.recordedRecordId
             if (recordedRecordId >= 0) {
@@ -264,7 +264,7 @@ class HomeViewModel @Inject constructor(
                         )
                     )
                     if (_state.value.isDeleteRecordingProgressRequested) {
-                        moveRecordToTrash(recordedRecordId, false)
+                        moveRecordToRecycle(recordedRecordId, false)
                     } else {
                         if (success) {
                             prefs.activeRecordId = recordedRecordId
@@ -316,7 +316,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun init() {
-        showProgress(true)
+        showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
             updateState(false)
         }
@@ -350,7 +350,7 @@ class HomeViewModel @Inject constructor(
                     recordInfo = activeRecord.toInfoCombinedText(context),
                     isContextMenuAvailable = true,
                     isShowWaveform = true,
-                    isShowProgress = false,
+                    isShowLoadingProgress = false,
                     isDeleteRecordingProgressRequested = false,
                 )
             }
@@ -363,7 +363,7 @@ class HomeViewModel @Inject constructor(
                         _state.value = state.value.copy(
                             bottomBarState = BottomBarState.RECORDING,
                             waveformState = WaveformState(),
-                            isShowProgress = false,
+                            isShowLoadingProgress = false,
                             isShowWaveform = false,
                             startTime = "",
                             endTime = "",
@@ -374,7 +374,7 @@ class HomeViewModel @Inject constructor(
                         _state.value = state.value.copy(
                             bottomBarState = BottomBarState.PAUSED,
                             waveformState = WaveformState(),
-                            isShowProgress = false,
+                            isShowLoadingProgress = false,
                             isShowWaveform = false,
                             startTime = "",
                             endTime = "",
@@ -407,7 +407,7 @@ class HomeViewModel @Inject constructor(
     @SuppressLint("Recycle")
     fun importAudioFile(uri: Uri) {
         val context: Context = getApplication<Application>().applicationContext
-        showProgress(true)
+        showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
             try {
                 val parcelFileDescriptor: ParcelFileDescriptor? =
@@ -497,7 +497,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun renameActiveRecord(newName: String) {
-        showProgress(true)
+        showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
             val activeRecord = recordsDataSource.getActiveRecord()
             if (activeRecord != null) {
@@ -535,21 +535,21 @@ class HomeViewModel @Inject constructor(
     }
 
     fun deleteActiveRecord() {
-        moveRecordToTrash(prefs.activeRecordId)
+        moveRecordToRecycle(prefs.activeRecordId)
     }
 
-    private fun moveRecordToTrash(recordId: Long, showName: Boolean = true) {
+    private fun moveRecordToRecycle(recordId: Long, showName: Boolean = true) {
         if (audioPlayer.isPlaying()) {
             audioPlayer.stop()
         }
-        showProgress(true)
+        showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
             val record = recordsDataSource.getRecord(recordId)
             if (record != null && recordsDataSource.moveRecordToRecycle(recordId)) {
                 prefs.activeRecordId = -1
                 updateState()
                 emitEvent(
-                    HomeScreenEvent.RecordMovedToTrashSnack(
+                    HomeScreenEvent.RecordMovedToRecycleSnack(
                         recordId,
                         if (showName) record.name else null
                     )
@@ -563,7 +563,7 @@ class HomeViewModel @Inject constructor(
                 )
 
                 withContext(mainDispatcher) {
-                    showProgress(false)
+                    showLoadingProgress(false)
                 }
             }
         }
@@ -716,8 +716,8 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    fun handleRestoreRecordFromTrash(recordId: Long) {
-        showProgress(true)
+    fun handleRestoreRecordFromRecycle(recordId: Long) {
+        showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
             if (recordsDataSource.restoreRecordFromRecycle(recordId)) {
                 prefs.activeRecordId = recordId
@@ -728,7 +728,7 @@ class HomeViewModel @Inject constructor(
                 showInfoMessage(R.string.msg_operation_failed_generic)
 
                 withContext(mainDispatcher) {
-                    showProgress(false)
+                    showLoadingProgress(false)
                 }
             }
         }
@@ -757,8 +757,8 @@ class HomeViewModel @Inject constructor(
         moveAnimator.start()
     }
 
-    fun showProgress(value: Boolean) {
-        _state.value = _state.value.copy(isShowProgress = value)
+    fun showLoadingProgress(value: Boolean) {
+        _state.value = _state.value.copy(isShowLoadingProgress = value)
     }
 
     fun getNewRecordName(): String {
@@ -819,7 +819,7 @@ class HomeViewModel @Inject constructor(
             HomeScreenAction.OnResumeRecordingClick -> handleResumeRecordingClick()
             HomeScreenAction.OnStopRecordingClick -> handleStopRecordingClick()
             HomeScreenAction.OnDeleteRecordingProgressClick -> handleOnDeleteRecordingProgressClick()
-            is HomeScreenAction.RestoreRecordFromTrash -> handleRestoreRecordFromTrash(action.recordId)
+            is HomeScreenAction.RestoreRecordFromRecycle -> handleRestoreRecordFromRecycle(action.recordId)
         }
     }
 
@@ -841,7 +841,7 @@ data class HomeScreenState(
     val recordInfo: String = "",
     val isShowWaveform: Boolean = false,
     // Indicates loading progress
-    val isShowProgress: Boolean = false,
+    val isShowLoadingProgress: Boolean = false,
     val isContextMenuAvailable: Boolean = false,
     val isStopRecordingButtonAvailable: Boolean = false,
     val bottomBarState: BottomBarState = BottomBarState.READY_TO_START_RECORDING,
@@ -868,7 +868,7 @@ sealed class HomeScreenAction {
     data object ShowActiveRecordInfo : HomeScreenAction()
     data object OpenActiveRecordWithAnotherApp : HomeScreenAction()
     data object DeleteActiveRecord : HomeScreenAction()
-    data class RestoreRecordFromTrash(val recordId: Long) : HomeScreenAction()
+    data class RestoreRecordFromRecycle(val recordId: Long) : HomeScreenAction()
     data object SaveActiveRecordAs : HomeScreenAction()
     data class RenameActiveRecord(val newName: String) : HomeScreenAction()
     data object OnSeekStart : HomeScreenAction()
@@ -886,7 +886,7 @@ sealed class HomeScreenAction {
 }
 
 sealed class HomeScreenEvent {
-    data class RecordMovedToTrashSnack(val recordId: Long, val recordName: String?) :
+    data class RecordMovedToRecycleSnack(val recordId: Long, val recordName: String?) :
         HomeScreenEvent()
     data object ShowImportErrorError : HomeScreenEvent()
     data class ShowErrorSnack(val message: String) : HomeScreenEvent()
