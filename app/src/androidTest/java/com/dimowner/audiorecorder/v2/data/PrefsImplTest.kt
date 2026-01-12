@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.dimowner.audiorecorder.AppConstantsV2
 import com.dimowner.audiorecorder.v2.DefaultValues
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
@@ -229,5 +230,15 @@ class PrefsImplTest {
         assertEquals(DefaultValues.DefaultSampleRate, prefs.settingSampleRate)
         assertEquals(DefaultValues.DefaultBitRate, prefs.settingBitrate)
         assertEquals(DefaultValues.DefaultChannelCount, prefs.settingChannelCount)
+    }
+
+    @Test
+    fun test_maxRecordingDurationMills() {
+        val defaultValue = AppConstantsV2.DEFAULT_MAX_RECORDING_DURATION_MS
+        assertEquals(defaultValue, prefs.maxRecordingDurationMills)
+
+        val customDuration = 180 * 60 * 1000 // 180 minutes in ms
+        prefs.maxRecordingDurationMills = customDuration
+        assertEquals(customDuration, prefs.maxRecordingDurationMills)
     }
 }

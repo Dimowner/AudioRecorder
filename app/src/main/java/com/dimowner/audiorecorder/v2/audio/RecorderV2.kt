@@ -12,7 +12,7 @@ interface RecorderV2 {
         channelCount: Int,
         sampleRate: Int,
         bitrate: Int,
-        maxRecordingDuration: Int,
+        maxRecordingDurationMills: Int,
     ): Boolean
     fun resumeRecording(): Boolean
     fun pauseRecording(): Boolean

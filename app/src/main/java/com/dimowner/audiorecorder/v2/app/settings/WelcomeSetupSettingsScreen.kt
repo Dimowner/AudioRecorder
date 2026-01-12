@@ -297,5 +297,6 @@ fun WelcomeSetupSettingsScreenPreview() {
         availableSpace = 1010101010,
         appName = "App Name",
         appVersion = "1.0.0",
+        maxRecordingDurationMinutes = 120,
     ), {})
 }

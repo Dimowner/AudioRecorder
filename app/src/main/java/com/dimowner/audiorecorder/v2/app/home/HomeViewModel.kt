@@ -37,7 +37,6 @@ import androidx.lifecycle.viewModelScope
 import com.dimowner.audiorecorder.ARApplication
 import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.AppConstantsV2
-import com.dimowner.audiorecorder.AppConstantsV2.MAX_DURATION_MS
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.DecodeService
 import com.dimowner.audiorecorder.app.DecodeServiceListener
@@ -722,7 +721,7 @@ class HomeViewModel @Inject constructor(
                     channelCount = prefs.settingChannelCount.value,
                     sampleRate = prefs.settingSampleRate.value,
                     bitrate = prefs.settingBitrate.value,
-                    maxRecordingDuration = MAX_DURATION_MS,
+                    maxRecordingDurationMills = prefs.maxRecordingDurationMills,
                 )
                 incrementRecordedRecordPartCounter()
             }

@@ -32,6 +32,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -221,6 +222,11 @@ internal fun SettingsScreen(
                         }
                     )
                     Spacer(modifier = Modifier.size(8.dp))
+                    MaxDurationSettingRow(
+                        currentValue = uiState.maxRecordingDurationMinutes,
+                        onAction = onAction
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
                     SettingsItem(stringResource(R.string.rate_app), R.drawable.ic_thumbs) {
                         rateApp(context)
                     }
@@ -289,6 +295,71 @@ internal fun SettingsScreen(
     }
 }
 
+@Composable
+internal fun MaxDurationSettingRow(
+    currentValue: Int,
+    onAction: (SettingsScreenAction) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val textFieldValue = remember(currentValue) { mutableStateOf(currentValue.toString()) }
+    val isError = remember { mutableStateOf(false) }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.max_recording_duration),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        Text(
+            text = stringResource(R.string.max_recording_duration_hint),
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = textFieldValue.value,
+                onValueChange = {
+                    textFieldValue.value = it
+                    isError.value = false
+                },
+                label = { Text(stringResource(R.string.duration_minutes)) },
+                isError = isError.value,
+                singleLine = true,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp),
+                supportingText = if (isError.value) {
+                    { Text(stringResource(R.string.error_invalid_duration)) }
+                } else null
+            )
+            Button(
+                onClick = {
+                    val duration = textFieldValue.value.toIntOrNull()
+                    if (duration != null && duration > 0) {
+                        onAction(SettingsScreenAction.SetMaxRecordingDuration(duration))
+                        isError.value = false
+                    } else {
+                        isError.value = true
+                    }
+                },
+                modifier = Modifier.wrapContentSize()
+            ) {
+                Text(text = stringResource(R.string.btn_apply))
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
 fun SettingsScreenPreview() {
@@ -330,5 +401,6 @@ fun SettingsScreenPreview() {
         availableSpace = 1010101010,
         appName = "App Name",
         appVersion = "1.0.0",
+        maxRecordingDurationMinutes = 120,
     ), {})
 }

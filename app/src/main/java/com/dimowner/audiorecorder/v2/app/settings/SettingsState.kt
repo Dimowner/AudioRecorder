@@ -43,6 +43,7 @@ data class SettingsState(
     val availableSpace: Long,
     val appName: String,
     val appVersion: String,
+    val maxRecordingDurationMinutes: Int,
 ) : Parcelable
 
 @Parcelize

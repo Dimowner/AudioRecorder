@@ -45,6 +45,7 @@ import com.dimowner.audiorecorder.AppConstants.PREF_KEY_SETTING_CHANNEL_COUNT
 import com.dimowner.audiorecorder.AppConstants.PREF_KEY_SETTING_NAMING_FORMAT
 import com.dimowner.audiorecorder.AppConstants.PREF_KEY_SETTING_RECORDING_FORMAT
 import com.dimowner.audiorecorder.AppConstants.PREF_KEY_SETTING_SAMPLE_RATE
+import com.dimowner.audiorecorder.AppConstantsV2
 
 /**
  * App V2 preferences implementation
@@ -213,6 +214,17 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             }
         }
 
+    override var maxRecordingDurationMills: Int
+        get() = sharedPreferences.getInt(
+            PREF_KEY_MAX_RECORDING_DURATION_MILLS,
+            AppConstantsV2.DEFAULT_MAX_RECORDING_DURATION_MS
+        )
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_MAX_RECORDING_DURATION_MILLS, value)
+            }
+        }
+
     override fun resetRecordingSettings() {
         sharedPreferences.edit {
             putString(
@@ -250,5 +262,6 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         private const val PREF_KEY_RECORDS_SORT_ORDER = "pref_records_sort_order"
         private const val PREF_KEY_IS_DYNAMIC_THEME = "pref_is_dynamic_theme"
         private const val PREF_KEY_IS_DARK_THEME = "pref_is_dark_theme"
+        private const val PREF_KEY_MAX_RECORDING_DURATION_MILLS = "pref_key_max_recording_duration_mills"
     }
 }

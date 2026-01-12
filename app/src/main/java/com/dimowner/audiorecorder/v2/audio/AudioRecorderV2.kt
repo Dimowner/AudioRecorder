@@ -51,7 +51,7 @@ class AudioRecorderV2 @Inject constructor(
         channelCount: Int,
         sampleRate: Int,
         bitrate: Int,
-        maxRecordingDuration: Int,
+        maxRecordingDurationMills: Int,
     ): Boolean {
         if (_isRecording) {
             Timber.e("Recording is already in progress.")
@@ -74,7 +74,7 @@ class AudioRecorderV2 @Inject constructor(
                 setAudioChannels(channelCount)
                 setAudioSamplingRate(sampleRate)
                 setAudioEncodingBitRate(bitrate)
-                setMaxDuration(maxRecordingDuration)
+                setMaxDuration(maxRecordingDurationMills)
                 setOnInfoListener { _, what, _ ->
                     handleRecorderInfo(what)
                 }

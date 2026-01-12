@@ -5,6 +5,5 @@ object AppConstantsV2 {
     const val SHORT_RECORD = 18000L //Milliseconds
     const val DEFAULT_WIDTH_SCALE = 1.5F //Const val describes how many screens a record will take.
 
-    //TODO: This should be available for edit in the app settings
-    const val MAX_DURATION_MS = 60 * 60 * 1000 // 60 minutes
+    const val DEFAULT_MAX_RECORDING_DURATION_MS = 120 * 60 * 1000 //120 minutes
 }

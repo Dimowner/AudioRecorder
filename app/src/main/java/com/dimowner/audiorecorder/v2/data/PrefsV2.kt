@@ -51,6 +51,8 @@ interface PrefsV2 {
     var settingBitrate: BitRate
     var settingChannelCount: ChannelCount
 
+    var maxRecordingDurationMills: Int
+
     fun resetRecordingSettings()
 
     fun fullPreferenceReset()

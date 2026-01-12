@@ -136,6 +136,7 @@ internal class SettingsViewModel @Inject constructor(
             availableSpace = 0,
             appName = context.getString(R.string.app_name),
             appVersion = context.getString(R.string.version, AndroidUtils.getAppVersion(context)),
+            maxRecordingDurationMinutes = prefs.maxRecordingDurationMills / 60000,
         )
     )
 
@@ -353,6 +354,13 @@ internal class SettingsViewModel @Inject constructor(
         ).recordingSettingsUpdated()
     }
 
+    fun setMaxRecordingDuration(durationMinutes: Int) {
+        if (durationMinutes > 0) {
+            prefs.maxRecordingDurationMills = durationMinutes * 60 * 1000
+            _state.value = _state.value.copy(maxRecordingDurationMinutes = durationMinutes)
+        }
+    }
+
     fun onAction(action: SettingsScreenAction) {
         when (action) {
             SettingsScreenAction.InitSettingsScreen -> initSettings()
@@ -366,6 +374,7 @@ internal class SettingsViewModel @Inject constructor(
             is SettingsScreenAction.SelectSampleRate -> selectSampleRate(action.value)
             is SettingsScreenAction.SelectBitrate -> selectBitrate(action.value)
             is SettingsScreenAction.SelectChannelCount -> selectChannelCount(action.value)
+            is SettingsScreenAction.SetMaxRecordingDuration -> setMaxRecordingDuration(action.durationMinutes)
             SettingsScreenAction.ExecuteFirstRun -> executeFirstRun()
             is SettingsScreenAction.SetAppV2 -> handleUseAppV2(action.value)
         }
@@ -414,5 +423,6 @@ internal sealed class SettingsScreenAction {
     data class SelectSampleRate(val value: SampleRate) : SettingsScreenAction()
     data class SelectBitrate(val value: BitRate) : SettingsScreenAction()
     data class SelectChannelCount(val value: ChannelCount) : SettingsScreenAction()
+    data class SetMaxRecordingDuration(val durationMinutes: Int) : SettingsScreenAction()
     data object ExecuteFirstRun : SettingsScreenAction()
 }

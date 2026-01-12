@@ -349,5 +349,10 @@
 		<item>Mono</item>
 	</string-array>
 
+	<string name="max_recording_duration">Max Recording Duration</string>
+	<string name="max_recording_duration_hint">Set the maximum duration per recording file (auto-split will create new files)</string>
+	<string name="duration_minutes">Duration (minutes)</string>
+	<string name="error_invalid_duration">Please enter a valid duration greater than 0</string>
+
 	<string name="app_widget_description">Start recording widget</string>
 </resources>
