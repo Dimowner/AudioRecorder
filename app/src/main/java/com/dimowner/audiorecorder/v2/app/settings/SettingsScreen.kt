@@ -18,6 +18,8 @@ package com.dimowner.audiorecorder.v2.app.settings
 
 import android.os.Build
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,12 +29,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -42,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -170,6 +176,7 @@ internal fun SettingsScreen(
                     ) {
                         onAction(SettingsScreenAction.ResetRecordingSettings)
                     }
+                    val infoFormat = stringResource(R.string.info_format)
                     SettingSelector(
                         name = stringResource(id = R.string.recording_format),
                         chips = uiState.recordingSettings.map { it.recordingFormat },
@@ -177,12 +184,13 @@ internal fun SettingsScreen(
                             onAction(SettingsScreenAction.SelectRecordingFormat(it.value))
                         },
                         onClickInfo = {
-                            infoText.value = context.getString(R.string.info_format)
+                            infoText.value = infoFormat
                             openInfoDialog.value = true
                         }
                     )
                     val selectedFormat =
                         uiState.recordingSettings.firstOrNull { it.recordingFormat.isSelected }
+                    val infoFrequency = stringResource(R.string.info_frequency)
                     SettingSelector(
                         name = stringResource(id = R.string.sample_rate),
                         chips = selectedFormat?.sampleRates ?: emptyList(),
@@ -190,7 +198,7 @@ internal fun SettingsScreen(
                             onAction(SettingsScreenAction.SelectSampleRate(it.value))
                         },
                         onClickInfo = {
-                            infoText.value = context.getString(R.string.info_frequency)
+                            infoText.value = infoFrequency
                             openInfoDialog.value = true
                         }
                     )
@@ -198,6 +206,7 @@ internal fun SettingsScreen(
                         isExpandedBitRatePanel.value = !selectedFormat?.bitRates.isNullOrEmpty()
                     }
                     AnimatedVisibility(visible = isExpandedBitRatePanel.value) {
+                        val infoBitrate = stringResource(R.string.info_bitrate)
                         SettingSelector(
                             name = stringResource(id = R.string.bitrate),
                             chips = selectedFormat?.bitRates ?: emptyList(),
@@ -205,11 +214,12 @@ internal fun SettingsScreen(
                                 onAction(SettingsScreenAction.SelectBitrate(it.value))
                             },
                             onClickInfo = {
-                                infoText.value = context.getString(R.string.info_bitrate)
+                                infoText.value = infoBitrate
                                 openInfoDialog.value = true
                             }
                         )
                     }
+                    val infoChannels = stringResource(R.string.info_channels)
                     SettingSelector(
                         name = stringResource(id = R.string.channels),
                         chips = selectedFormat?.channelCounts ?: emptyList(),
@@ -217,7 +227,7 @@ internal fun SettingsScreen(
                             onAction(SettingsScreenAction.SelectChannelCount(it.value))
                         },
                         onClickInfo = {
-                            infoText.value = context.getString(R.string.info_channels)
+                            infoText.value = infoChannels
                             openInfoDialog.value = true
                         }
                     )
@@ -301,61 +311,120 @@ internal fun MaxDurationSettingRow(
     onAction: (SettingsScreenAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val textFieldValue = remember(currentValue) { mutableStateOf(currentValue.toString()) }
-    val isError = remember { mutableStateOf(false) }
+    val showDialog = remember { mutableStateOf(false) }
+    
+    // Convert minutes to hours and minutes for display and dialog
+    val hours = currentValue / 60
+    val minutes = currentValue % 60
+    
+    MaxDurationSettingItem(
+        currentHours = hours,
+        currentMinutes = minutes,
+        onClick = { showDialog.value = true },
+        modifier = modifier,
+    )
+    
+    if (showDialog.value) {
+        DurationPickerDialog(
+            currentHours = hours,
+            currentMinutes = minutes,
+            onDismiss = { showDialog.value = false },
+            onConfirm = { newHours, newMinutes ->
+                val totalMinutes = (newHours * 60) + newMinutes
+                onAction(SettingsScreenAction.SetMaxRecordingDuration(totalMinutes))
+                showDialog.value = false
+            }
+        )
+    }
+}
 
-    Column(
+@Composable
+fun MaxDurationSettingItem(
+    currentHours: Int,
+    currentMinutes: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .wrapContentHeight()
+            .clickable { onClick() }
+            .padding(horizontal = 8.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = stringResource(R.string.max_recording_duration),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(bottom = 4.dp)
+        Icon(
+            modifier = Modifier
+                .padding(16.dp)
+                .wrapContentSize(),
+            painter = painterResource(id = R.drawable.ic_access_time),
+            contentDescription = stringResource(R.string.recording_duration),
         )
-        Text(
-            text = stringResource(R.string.max_recording_duration_hint),
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .wrapContentHeight()
         ) {
-            OutlinedTextField(
-                value = textFieldValue.value,
-                onValueChange = {
-                    textFieldValue.value = it
-                    isError.value = false
-                },
-                label = { Text(stringResource(R.string.duration_minutes)) },
-                isError = isError.value,
-                singleLine = true,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp),
-                supportingText = if (isError.value) {
-                    { Text(stringResource(R.string.error_invalid_duration)) }
-                } else null
+            Text(
+                text = stringResource(R.string.recording_duration),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
             )
-            Button(
-                onClick = {
-                    val duration = textFieldValue.value.toIntOrNull()
-                    if (duration != null && duration > 0) {
-                        onAction(SettingsScreenAction.SetMaxRecordingDuration(duration))
-                        isError.value = false
-                    } else {
-                        isError.value = true
-                    }
-                },
-                modifier = Modifier.wrapContentSize()
-            ) {
-                Text(text = stringResource(R.string.btn_apply))
-            }
+            Text(
+                text = stringResource(R.string.recording_duration_subtitle),
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+
+        // Duration badge/chip
+        Card(
+            modifier = Modifier
+                .wrapContentSize()
+                .padding(start = 8.dp),
+            shape = RoundedCornerShape(16.dp),
+            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+        ) {
+            Text(
+                text = formatDurationDisplay(currentHours, currentMinutes),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+            )
+        }
+    }
+}
+
+/**
+ * Formats a duration specified in hours and minutes into a human-readable string.
+ *
+ * @param hours The number of hours (0-23)
+ * @param minutes The number of minutes (0-59)
+ * @return A formatted string like "2h 30m", "5h 0m", "45m", or "0m"
+ *
+ * Examples:
+ * - formatDurationDisplay(2, 30) returns "2h 30m"
+ * - formatDurationDisplay(5, 0) returns "5h 0m"
+ * - formatDurationDisplay(0, 45) returns "45m"
+ * - formatDurationDisplay(0, 0) returns "0m"
+ */
+@Composable
+fun formatDurationDisplay(hours: Int, minutes: Int): String {
+    return when {
+        hours > 0 && minutes > 0 -> {
+            stringResource(R.string.duration_hours_and_minutes, hours, minutes)
+        }
+        hours > 0 -> {
+            stringResource(R.string.duration_hours_and_minutes, hours, minutes)
+        }
+        minutes > 0 -> {
+            stringResource(R.string.duration_minutes, minutes)
+        }
+        else -> {
+            stringResource(R.string.duration_minutes, 0)
         }
     }
 }

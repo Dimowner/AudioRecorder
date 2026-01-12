@@ -62,7 +62,14 @@
 	<!-- Generic error message for a common failure -->
 	<string name="msg_operation_failed_generic">Operation failed</string>
 
-	<string name="keep_screen_on">Keep screen ON while recording</string>
+    <string name="recording_duration">Recording Duration</string>
+    <string name="recording_duration_subtitle">Automatically start a new recording file when this limit is reached</string>
+    <string name="duration_picker_hint">Enter hours and minutes</string>
+    <string name="error_duration_at_least_one_minute">Duration must be at least 1 minute</string>
+    <!-- Warnings & Constraints -->
+    <string name="warning_duration_limit_recommended">Recordings longer than 2 hours are not recommended as you may lose all recorded progress if an error occurs</string>
+
+    <string name="keep_screen_on">Keep screen ON while recording</string>
 	<string name="total_duration">Total recorded duration: %s</string>
 	<string name="total_record_count">Total records count: %d</string>
 	<string name="available_space">Available space: %s</string>
@@ -349,10 +356,10 @@
 		<item>Mono</item>
 	</string-array>
 
-	<string name="max_recording_duration">Max Recording Duration</string>
-	<string name="max_recording_duration_hint">Set the maximum duration per recording file (auto-split will create new files)</string>
-	<string name="duration_minutes">Duration (minutes)</string>
-	<string name="error_invalid_duration">Please enter a valid duration greater than 0</string>
+    <!-- Time duration hours and minutes. Examples: "2h 30m", "5h 0m" -->
+    <string name="duration_hours_and_minutes">%1$dh %2$dm</string>
+    <!-- Time duration minutes only. Examples: "45m", or "0m"-->
+    <string name="duration_minutes">%1$dm</string>
 
-	<string name="app_widget_description">Start recording widget</string>
+    <string name="app_widget_description">Start recording widget</string>
 </resources>

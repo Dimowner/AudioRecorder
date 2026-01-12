@@ -269,3 +269,17 @@ fun getSampleRates(
         )
     }
 }
+
+/**
+ * Determines if a duration strictly exceeds two hours (120 minutes).
+ * @param hours The number of hours.
+ * @param minutes The number of minutes.
+ * @return `true` if the total duration is greater than 120 minutes; `false` if it is
+ * 120 minutes (2h 0m) or less.
+ */
+fun isDurationLongerThanTwoHours(hours: Int, minutes: Int): Boolean {
+    if (hours < 0 || minutes < 0) return false
+
+    val durationMinutes = hours * 60 + minutes
+    return durationMinutes > 120
+}
