@@ -30,6 +30,7 @@ import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -59,6 +60,8 @@ class PrefsImplTest {
         prefs.confirmFirstRunExecuted()
         prefs.activeRecordId = id
         prefs.recordedRecordId = id
+        prefs.recordedRecordPartCounter = 10
+        prefs.recordedRecordBaseName = "Record-1"
         prefs.isDarkTheme = true
         prefs.isAppV2 = true
         prefs.settingSampleRate = SampleRate.SR16000
@@ -68,6 +71,8 @@ class PrefsImplTest {
 
         assertEquals(-1, prefs.activeRecordId)
         assertEquals(-1, prefs.recordedRecordId)
+        assertEquals(0, prefs.recordedRecordPartCounter)
+        assertNull( prefs.recordedRecordBaseName)
         assertEquals(DefaultValues.isDarkTheme, prefs.isDarkTheme)
         assertEquals(DefaultValues.isAppV2, prefs.isAppV2)
         assertEquals(DefaultValues.DefaultSampleRate, prefs.settingSampleRate)
@@ -104,6 +109,23 @@ class PrefsImplTest {
 
         prefs.recordedRecordId = 404
         assertEquals(404L, prefs.recordedRecordId)
+    }
+
+    @Test
+    fun test_recordedRecordPartCounter() {
+        assertEquals(0, prefs.recordedRecordPartCounter)
+
+        prefs.recordedRecordPartCounter = 10
+        assertEquals(10, prefs.recordedRecordPartCounter)
+    }
+
+    @Test
+    fun test_recordedRecordBaseName() {
+        assertNull(prefs.recordedRecordBaseName)
+
+        val name = "Record-2"
+        prefs.recordedRecordBaseName = name
+        assertEquals(name, prefs.recordedRecordBaseName)
     }
 
     @Test

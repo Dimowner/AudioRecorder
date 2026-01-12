@@ -33,7 +33,6 @@ class AudioRecorderV2 @Inject constructor(
 
     private var _isRecording: Boolean = false
     private var _isPaused: Boolean = false
-
     override val isRecording: Boolean
         get() = _isRecording
     override val isPaused: Boolean
@@ -47,7 +46,13 @@ class AudioRecorderV2 @Inject constructor(
         return _event
     }
 
-    override fun startRecording(outputFile: File, channelCount: Int, sampleRate: Int, bitrate: Int): Boolean {
+    override fun startRecording(
+        outputFile: File,
+        channelCount: Int,
+        sampleRate: Int,
+        bitrate: Int,
+        maxRecordingDuration: Int,
+    ): Boolean {
         if (_isRecording) {
             Timber.e("Recording is already in progress.")
             emitEvent(RecorderEvent.OnError(AlreadyRecordingException()))
@@ -55,7 +60,6 @@ class AudioRecorderV2 @Inject constructor(
         }
         return if (outputFile.exists() && outputFile.isFile) {
             recordFile = outputFile
-
             val recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 MediaRecorder(applicationContext)
             } else {
@@ -70,7 +74,10 @@ class AudioRecorderV2 @Inject constructor(
                 setAudioChannels(channelCount)
                 setAudioSamplingRate(sampleRate)
                 setAudioEncodingBitRate(bitrate)
-                setMaxDuration(-1) // Unlimited duration
+                setMaxDuration(maxRecordingDuration)
+                setOnInfoListener { _, what, _ ->
+                    handleRecorderInfo(what)
+                }
                 setOutputFile(outputFile.absolutePath)
             }
 
@@ -144,6 +151,10 @@ class AudioRecorderV2 @Inject constructor(
     }
 
     override fun stopRecording(): Boolean {
+        return stopRecording(skipStopRecordingEventEmit = false)
+    }
+
+    private fun stopRecording(skipStopRecordingEventEmit: Boolean): Boolean {
         if (!_isRecording) {
             Timber.e("Recording has already stopped or hasn't started")
             return false
@@ -152,6 +163,7 @@ class AudioRecorderV2 @Inject constructor(
         stopRecordingTimer()
         val isStopSucceed = try {
             mediaRecorder?.let {
+                it.setOnInfoListener(null)
                 it.stop()
                 true
             }?: false
@@ -163,17 +175,31 @@ class AudioRecorderV2 @Inject constructor(
         } finally {
             // Always release resources
             mediaRecorder?.release()
+            mediaRecorder = null
         }
 
-        emitEvent(RecorderEvent.OnStopRecording)
+        if (!skipStopRecordingEventEmit) {
+            emitEvent(RecorderEvent.OnStopRecording)
+        }
 
         // Reset all state
         durationMills = 0
         recordFile = null
         _isRecording = false
         _isPaused = false
-        mediaRecorder = null
         return isStopSucceed
+    }
+
+    private fun handleRecorderInfo(what: Int) {
+        if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+            Timber.d("Max recording duration reached. Stop recording")
+
+            if (stopRecording(skipStopRecordingEventEmit = true)) {
+                emitEvent(RecorderEvent.OnMaxDurationReached)
+            }
+        } else {
+            //Do nothing
+        }
     }
 
     private fun emitEvent(event: RecorderEvent) {

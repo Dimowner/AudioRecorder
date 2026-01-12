@@ -73,6 +73,7 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
                 putBoolean(PREF_KEY_ASK_TO_RENAME_AFTER_RECORDING_STOPPED, value)
             }
         }
+
     override var activeRecordId: Long
         get() = sharedPreferences.getLong(PREF_KEY_ACTIVE_RECORD_ID, -1)
         set(value) {
@@ -86,6 +87,22 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         set(value) {
             sharedPreferences.edit {
                 putLong(PREF_KEY_RECORDED_RECORD_ID, value)
+            }
+        }
+
+    override var recordedRecordPartCounter: Int
+        get() = sharedPreferences.getInt(PREF_KEY_RECORDED_RECORD_PART_COUNTER, 0)
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_RECORDED_RECORD_PART_COUNTER, value)
+            }
+        }
+
+    override var recordedRecordBaseName: String?
+        get() = sharedPreferences.getString(PREF_KEY_RECORDED_RECORD_BASE_NAME, null)
+        set(value) {
+            sharedPreferences.edit {
+                putString(PREF_KEY_RECORDED_RECORD_BASE_NAME, value)
             }
         }
 
@@ -228,6 +245,8 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             "ask_to_rename_after_recording_stopped"
         private const val PREF_KEY_ACTIVE_RECORD_ID = "active_record_id"
         private const val PREF_KEY_RECORDED_RECORD_ID = "recorded_record_id"
+        private const val PREF_KEY_RECORDED_RECORD_PART_COUNTER = "recorded_record_part_counter"
+        private const val PREF_KEY_RECORDED_RECORD_BASE_NAME = "recorded_record_base_name"
         private const val PREF_KEY_RECORDS_SORT_ORDER = "pref_records_sort_order"
         private const val PREF_KEY_IS_DYNAMIC_THEME = "pref_is_dynamic_theme"
         private const val PREF_KEY_IS_DARK_THEME = "pref_is_dark_theme"

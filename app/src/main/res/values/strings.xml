@@ -47,6 +47,8 @@
 	<string name="msg_recording_renamed">Recording \'%1$s\' renamed to \'%2$s\'</string>
 	<!-- Confirmation for saving a new recording -->
 	<string name="msg_recording_saved">Recording saved</string>
+	<!-- Notification when recording auto-splits due to reaching 60-minute limit -->
+	<string name="msg_recording_auto_split">Recording reached 60-minute limit. Automatically continuing to a new file.</string>
 	<!-- Error message when saving a recording fails -->
 	<string name="msg_save_recording_failed">Failed to save recording.</string>
 	<!-- Error message for file operation failure -->

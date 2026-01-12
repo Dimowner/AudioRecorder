@@ -37,6 +37,7 @@ import androidx.lifecycle.viewModelScope
 import com.dimowner.audiorecorder.ARApplication
 import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.AppConstantsV2
+import com.dimowner.audiorecorder.AppConstantsV2.MAX_DURATION_MS
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.DecodeService
 import com.dimowner.audiorecorder.app.DecodeServiceListener
@@ -158,7 +159,7 @@ class HomeViewModel @Inject constructor(
                         endTime = "",
                         recordName = context.getString(R.string.recording_progress),
                     )
-                    viewModelScope.launch(ioDispatcher) {
+                    withContext(ioDispatcher) {
                         recordsDataSource.getRecord(prefs.recordedRecordId)?.let {
                             _state.value = state.value.copy(
                                 recordInfo = it.toInfoCombinedText(context)
@@ -186,8 +187,13 @@ class HomeViewModel @Inject constructor(
                         recordName = context.getString(R.string.recording_progress),
                     )
                 }
+                is RecorderEvent.OnMaxDurationReached -> {
+                    handleMaxDurationReached()
+                }
                 RecorderEvent.OnStopRecording -> {
                     handleRecordingStopped()
+                    resetRecordedRecordPartCounter()
+                    prefs.recordedRecordBaseName = null
                 }
             }
         }
@@ -242,11 +248,11 @@ class HomeViewModel @Inject constructor(
         })
     }
 
-    private fun handleRecordingStopped() {
+    private suspend fun handleRecordingStopped() {
         // - Read recorded file info
         // - Update recorded file duration, size, format, bitrate, sample rate, channel count
         // - Move updated to recycle if requested to delete the record, otherwise set it as active record
-        viewModelScope.launch(ioDispatcher) {
+        withContext(ioDispatcher) {
             val recordedRecordId = prefs.recordedRecordId
             if (recordedRecordId >= 0) {
                 val record = recordsDataSource.getRecord(recordedRecordId)
@@ -284,6 +290,32 @@ class HomeViewModel @Inject constructor(
                     updateState()
                 }
                 prefs.recordedRecordId = -1
+            }
+        }
+    }
+
+    private fun handleMaxDurationReached() {
+        viewModelScope.launch(ioDispatcher) {
+            handleRecordingStopped()
+
+            val partCounter = prefs.recordedRecordPartCounter
+            recordsDataSource.getActiveRecord()?.let {
+                val baseName = prefs.recordedRecordBaseName
+                if (baseName != null) {
+                    //Rename saved record to record name and part 1 at the end.
+                    //Because the first part has base name without part number by default.
+                    if (partCounter == 1) {
+                        recordsDataSource.renameRecord(it, getPartName(baseName, partCounter))
+                        updateState(false)
+                    }
+
+                    //Get record part name for the next part.
+                    val recordName = getPartName(baseName, partCounter + 1)
+                    handleStartRecordingClick(recordName)
+                } else {
+                    //In case if there something wrong with base record name, just start normal recording.
+                    handleStartRecordingClick(getNewRecordName())
+                }
             }
         }
     }
@@ -645,8 +677,10 @@ class HomeViewModel @Inject constructor(
     // - Create empty record in the database with created file path
     // - Set it as active record
     // - Start recording
-    fun handleStartRecordingClick() {
-        audioPlayer.stop()
+    suspend fun handleStartRecordingClick(recordName: String) {
+        withContext(mainDispatcher) {
+            audioPlayer.stop()
+        }
         val availableTimeSeconds = convertSpaceBytesToTimeInSeconds(
             spaceBytes = fileDataSource.getAvailableSpace(),
             recordingFormat = prefs.settingRecordingFormat,
@@ -654,12 +688,12 @@ class HomeViewModel @Inject constructor(
             bitrate = prefs.settingBitrate.value,
             channels = prefs.settingChannelCount.value,
         )
-        viewModelScope.launch(ioDispatcher) {
+
+        withContext(ioDispatcher) {
             if (availableTimeSeconds > AppConstants.MIN_REMAIN_RECORDING_TIME && !audioRecorder.isRecording) {
                 if (audioPlayer.isPlaying()) {
                     audioPlayer.stop()
                 }
-                val recordName = getNewRecordName()
                 val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
                 val record = Record(
                     id = 0,
@@ -688,7 +722,9 @@ class HomeViewModel @Inject constructor(
                     channelCount = prefs.settingChannelCount.value,
                     sampleRate = prefs.settingSampleRate.value,
                     bitrate = prefs.settingBitrate.value,
+                    maxRecordingDuration = MAX_DURATION_MS,
                 )
+                incrementRecordedRecordPartCounter()
             }
         }
     }
@@ -776,6 +812,18 @@ class HomeViewModel @Inject constructor(
         return recordName
     }
 
+    fun incrementRecordedRecordPartCounter() {
+        prefs.recordedRecordPartCounter += 1
+    }
+
+    fun resetRecordedRecordPartCounter() {
+        prefs.recordedRecordPartCounter = 0
+    }
+
+    private fun getPartName(baseName: String, partCounter: Int): String {
+        return "${baseName}_$partCounter"
+    }
+
     fun addExtension(name: String): String {
         return FileUtil.addExtension(name, prefs.settingRecordingFormat.value)
     }
@@ -805,7 +853,11 @@ class HomeViewModel @Inject constructor(
             HomeScreenAction.OpenActiveRecordWithAnotherApp -> openActiveRecordWithAnotherApp()
             HomeScreenAction.DeleteActiveRecord -> deleteActiveRecord()
             HomeScreenAction.SaveActiveRecordAs -> saveActiveRecordAs()
-            is HomeScreenAction.RenameActiveRecord -> renameActiveRecord(action.newName)
+            is HomeScreenAction.RenameActiveRecord -> {
+                viewModelScope.launch(mainDispatcher) {
+                    renameActiveRecord(action.newName)
+                }
+            }
             HomeScreenAction.OnSeekStart -> handleSeekStart()
             is HomeScreenAction.OnSeekProgress -> handleSeekProgress(action.mills)
             is HomeScreenAction.OnSeekEnd -> handleSeekEnd(action.mills)
@@ -814,7 +866,14 @@ class HomeViewModel @Inject constructor(
             HomeScreenAction.OnPlayClick -> handlePlayClick()
             HomeScreenAction.OnStopClick -> handlePlaybackStopClick()
             //Recording
-            HomeScreenAction.OnStartRecordingClick -> handleStartRecordingClick()
+            HomeScreenAction.OnStartRecordingClick -> {
+                viewModelScope.launch(mainDispatcher) {
+                    resetRecordedRecordPartCounter()
+                    val recordName = getNewRecordName()
+                    handleStartRecordingClick(recordName)
+                    prefs.recordedRecordBaseName = recordName
+                }
+            }
             HomeScreenAction.OnPauseRecordingClick -> handlePauseRecordingClick()
             HomeScreenAction.OnResumeRecordingClick -> handleResumeRecordingClick()
             HomeScreenAction.OnStopRecordingClick -> handleStopRecordingClick()

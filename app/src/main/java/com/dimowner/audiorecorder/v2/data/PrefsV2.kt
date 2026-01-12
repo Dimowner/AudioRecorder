@@ -31,6 +31,8 @@ interface PrefsV2 {
 
     var activeRecordId: Long
     var recordedRecordId: Long
+    var recordedRecordPartCounter: Int
+    var recordedRecordBaseName: String?
 
     val recordCounter: Long
     fun incrementRecordCounter()
