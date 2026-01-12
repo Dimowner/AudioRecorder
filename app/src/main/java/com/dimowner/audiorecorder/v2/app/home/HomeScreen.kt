@@ -16,6 +16,8 @@
 
 package com.dimowner.audiorecorder.v2.app.home
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -50,6 +52,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.TimeUtils
@@ -90,14 +93,46 @@ internal fun HomeScreen(
     val showDeleteDialog = remember { mutableStateOf(false) }
     val showSaveAsDialog = remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
+
+    // Permission launcher for audio recording
+    val recordAudioPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Permission granted - start recording immediately
+            onAction(HomeScreenAction.OnStartRecordingClick)
+        } else {
+            // Permission denied - show snackbar
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = context.getString(R.string.msg_permission_microphone_denied),
+                    duration = SnackbarDuration.Long
+                )
+            }
+        }
+    }
+
+    // Helper function to handle record button click with permission check
+    val handleRecordButtonClick: () -> Unit = {
+        when (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)) {
+            PackageManager.PERMISSION_GRANTED -> {
+                // Permission already granted - start recording
+                onAction(HomeScreenAction.OnStartRecordingClick)
+            }
+            else -> {
+                // Permission not granted - request it
+                recordAudioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            }
+        }
+    }
+
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         // Handle the selected document URI here
         if (uri != null) {
             onAction(HomeScreenAction.ImportAudioFile(uri))
         }
     }
-
-    val context = LocalContext.current
 
     LaunchedEffect(key1 = event) {
         when (event) {
@@ -268,7 +303,7 @@ internal fun HomeScreen(
                 BottomBar(
                     onSettingsClick = { showSettingsScreen() },
                     onRecordsListClick = { showRecordsScreen() },
-                    onStartRecordingClick = { onAction(HomeScreenAction.OnStartRecordingClick) },
+                    onStartRecordingClick = handleRecordButtonClick,
                     onPauseRecordingClick = { onAction(HomeScreenAction.OnPauseRecordingClick) },
                     onResumeRecordingClick = { onAction(HomeScreenAction.OnResumeRecordingClick) },
                     onStopRecordingClick = { onAction(HomeScreenAction.OnStopRecordingClick) },
