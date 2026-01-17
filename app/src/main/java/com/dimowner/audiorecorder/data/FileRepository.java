@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.data;
 
 import android.content.Context;
+import android.net.Uri;
 
 import com.dimowner.audiorecorder.exception.CantCreateFileException;
 
@@ -25,6 +26,25 @@ import java.io.File;
 public interface FileRepository {
 
 	File provideRecordFile() throws CantCreateFileException;
+
+	/**
+	 * Create a new recording target. This may be a regular file or a SAF-based target
+	 * depending on the current storage configuration.
+	 * @param context Application context (needed for SAF operations)
+	 * @return A RecordingTarget that can be used for recording
+	 * @throws CantCreateFileException if the target cannot be created
+	 */
+	RecordingTarget provideRecordingTarget(Context context) throws CantCreateFileException;
+
+	/**
+	 * Check if we're currently configured to use SAF for recording.
+	 */
+	boolean isUsingSaf();
+
+	/**
+	 * Get the SAF tree URI if configured.
+	 */
+	Uri getSafTreeUri();
 
 	File provideRecordFile(String name) throws CantCreateFileException;
 

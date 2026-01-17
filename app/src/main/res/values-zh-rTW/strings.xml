@@ -81,8 +81,8 @@
 		<item quantity="one">已刪除 %d 則錄音</item>
 		<item quantity="other">已刪除 %d 則錄音</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">已複製 %d 則錄音，%d 個失敗</string>
-	<string name="moving_records_success_and_fail_count">已複製 %d 則錄音，%d 個失敗</string>
+	<string name="downloading_success_and_fail_count">已複製 %1$d 則錄音，%2$d 個失敗</string>
+	<string name="moving_records_success_and_fail_count">已複製 %1$d 則錄音，%2$d 個失敗</string>
 	<string name="downloading_success">「%s」已複製到 Download 資料夾</string>
 	<string name="move_record_success">「%s」已移動到應用程式專用資料夾</string>
 	<plurals name="downloading_failed_count">
@@ -131,6 +131,11 @@
 	<string name="file_browser">檔案瀏覽</string>
 	<string name="private_dir">專用資料夾</string>
 	<string name="public_dir">共用資料夾</string>
+	<string name="storage_location">儲存位置</string>
+	<string name="storage_internal">內部儲存空間</string>
+	<string name="storage_sdcard">SD卡</string>
+	<string name="storage_custom">自訂路徑</string>
+	<string name="storage_sdcard_unavailable">SD卡（無法使用）</string>
 	<string name="found_in_the_app">已在錄音機內</string>
 	<string name="not_found_in_the_app">不在錄音機內</string>
 	<string name="in_trash">位於垃圾桶</string>
@@ -223,6 +228,9 @@
 	<string name="error_on_recording">錄製發生錯誤</string>
 	<string name="error_failed_to_restore">還原錄音失敗</string>
 	<string name="error_failed_to_delete">刪除錄音失敗</string>
+	<string name="error_saf_not_available">無法開啟資料夾選擇器。您的裝置可能不支援此功能。</string>
+	<string name="error_saf_no_write_permission">無法寫入所選資料夾。請選擇其他位置。</string>
+	<string name="error_wav_format_not_supported_saf">儲存至SD卡時不支援WAV格式。請使用M4A或3GP格式，或切換至內部儲存空間。</string>
 
 	<string name="move_public_storage_records_message">需要移動共用儲存空間中的錄音</string>
 	<string name="later">下次</string>

@@ -28,6 +28,7 @@ public abstract class AppException extends Exception {
 	public static final int NO_SPACE_AVAILABLE = 8;
 	public static final int RECORDING_ERROR = 9;
 	public static final int FAILED_TO_RESTORE = 10;
+	public static final int WAV_FORMAT_NOT_SUPPORTED_SAF = 11;
 
 	public abstract int getType();
 }

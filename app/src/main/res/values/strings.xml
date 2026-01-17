@@ -79,8 +79,8 @@
 		<item quantity="one">%d record moved successfully</item>
 		<item quantity="other">%d records moved successfully</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d records copied successfully and %d failed to copy</string>
-	<string name="moving_records_success_and_fail_count">%d records moved successfully and %d failed to move</string>
+	<string name="downloading_success_and_fail_count">%1$d records copied successfully and %2$d failed to copy</string>
+	<string name="moving_records_success_and_fail_count">%1$d records moved successfully and %2$d failed to move</string>
 	<string name="downloading_success">%s copied to the \'Downloads\' directory</string>
 	<string name="move_record_success">%s moved to the app\'s private directory</string>
 	<plurals name="downloading_failed_count">
@@ -120,14 +120,20 @@
 	<string name="rec_created">Created:</string>
 	<string name="rec_location">File location:</string>
 	<string name="naming">Naming:</string>
-	<string name="private_dir_warning">Records will be stored in the app\'s private directory which is not visible for other apps</string>
-	<string name="public_dir_warning">Records will be stored in a common directory on your device which is visible for other apps</string>
+	<string name="private_dir_warning">Records will be stored in the app\'s private directory which is not visible for other apps. Warning: Files will be deleted if the app is uninstalled.</string>
+	<string name="public_dir_warning">Records will be stored in a common directory on your device which is visible for other apps and will survive app uninstall</string>
+	<string name="private_storage_warning">Warning: Files will be deleted if the app is uninstalled</string>
 	<string name="lost_records">Lost records</string>
 	<string name="trash">Trash</string>
 	<string name="trash_info">The records moved to the trash will be automatically removed forever in 60 days.</string>
 	<string name="file_browser">File browser</string>
 	<string name="private_dir">Private directory</string>
 	<string name="public_dir">Public directory</string>
+	<string name="storage_location">Storage location</string>
+	<string name="storage_internal">Internal storage</string>
+	<string name="storage_sdcard">SD card</string>
+	<string name="storage_custom">Custom path</string>
+	<string name="storage_sdcard_unavailable">SD card (unavailable)</string>
 	<string name="found_in_the_app">Found in the app</string>
 	<string name="not_found_in_the_app">Not found in the app</string>
 	<string name="in_trash">In the trash</string>
@@ -206,7 +212,16 @@
 	<string name="stereo">Stereo</string>
 	<string name="mono">Mono</string>
 	<string name="records_location">Records location:\n%s</string>
+	<string name="change_records_directory">Change recordings directory</string>
+	<string name="change_records_directory_hint">Provide a folder path (absolute or relative to internal storage) where new recordings should be stored.</string>
+	<string name="enable_public_directory_first">Enable public storage before changing the directory.</string>
+	<string name="records_directory_reset">Recordings directory reset to default.</string>
+	<string name="error_unable_to_use_directory">Can\'t use that folder. Check that it exists and that the app has storage permission.</string>
+	<string name="store_on_sd_card">Store recordings on SD card (app folder)</string>
+	<string name="sd_card_not_available">SD card storage isn\'t available right now.</string>
 	<string name="feature_not_available_in_android_10">This feature is no longer available in Android 10 or higher.</string>
+	<string name="error_saf_not_available">Unable to open folder picker. Your device may not support this feature.</string>
+	<string name="error_saf_no_write_permission">Cannot write to selected folder. Please choose a different location.</string>
 	<string name="size">%s Mb</string>
 	<string name="move_records">Move %d records</string>
 
@@ -228,6 +243,7 @@
 	<string name="error_on_recording">Recording error!</string>
 	<string name="error_failed_to_restore">Failed to restore the record!</string>
 	<string name="error_failed_to_delete">Failed to delete the record!</string>
+	<string name="error_wav_format_not_supported_saf">WAV format is not supported when saving to SD card. Please use M4A or 3GP format, or switch to internal storage.</string>
 
 	<string name="move_public_storage_records_message">Move public storage records is needed</string>
 	<string name="later">Later</string>

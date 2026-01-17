@@ -391,6 +391,31 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		}
 	}
 
+	private void startPlaybackWithSaf(Context context, Record record) {
+		if (audioPlayer.isPlaying()) {
+			audioPlayer.pause();
+		} else if (audioPlayer.isPaused()) {
+			audioPlayer.unpause();
+		} else {
+			// Try SAF playback
+			String safTreeUriString = prefs.getSafTreeUri();
+			if (safTreeUriString != null) {
+				Uri treeUri = Uri.parse(safTreeUriString);
+				Uri documentUri = FileUtil.reconstructSafDocumentUri(record.getPath(), treeUri);
+				if (documentUri != null) {
+					Timber.d("Playing via SAF URI: %s", documentUri);
+					audioPlayer.play(context, documentUri);
+					return;
+				}
+			}
+			// Fallback: show error if SAF reconstruction failed
+			Timber.w("Failed to reconstruct SAF URI for: %s", record.getPath());
+			if (view != null) {
+				view.showRecordFileNotAvailable(record.getPath());
+			}
+		}
+	}
+
 	@Override
 	public void onPlaybackClick(Context context, boolean isStorageAvailable) {
 		loadingTasks.postRunnable(() -> {
@@ -400,9 +425,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 					//This method Starts or Pause playback.
 					if (FileUtil.isFileInExternalStorage(context, record.getPath())) {
 						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-							if (view != null) {
-								view.showRecordFileNotAvailable(record.getPath());
-							}
+							// Try SAF playback for external storage on Android 10+
+							startPlaybackWithSaf(context, record);
 						} else if (isStorageAvailable) {
 							startPlayback();
 						}

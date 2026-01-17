@@ -17,8 +17,13 @@
 package com.dimowner.audiorecorder.app.settings;
 
 import android.content.Context;
+import android.os.Environment;
+import android.text.TextUtils;
+
+import androidx.core.content.ContextCompat;
 
 import com.dimowner.audiorecorder.AppConstants;
+import com.dimowner.audiorecorder.R;
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.app.AppRecorder;
 import com.dimowner.audiorecorder.app.AppRecorderCallback;
@@ -50,11 +55,13 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	private final Prefs prefs;
 	private final SettingsMapper settingsMapper;
 	private final AppRecorder appRecorder;
+	private final Context appContext;
 	private AppRecorderCallback appRecorderCallback;
 
-	public SettingsPresenter(final LocalRepository localRepository, final FileRepository fileRepository,
-									 final BackgroundQueue recordingsTasks, final BackgroundQueue loadingTasks,
-									 final Prefs prefs,  final SettingsMapper settingsMapper,  final AppRecorder appRecorder) {
+	public SettingsPresenter(final Context context, final LocalRepository localRepository, final FileRepository fileRepository,
+					 final BackgroundQueue recordingsTasks, final BackgroundQueue loadingTasks,
+					 final Prefs prefs,  final SettingsMapper settingsMapper,  final AppRecorder appRecorder) {
+		this.appContext = context.getApplicationContext();
 		this.localRepository = localRepository;
 		this.fileRepository = fileRepository;
 		this.recordingsTasks = recordingsTasks;
@@ -103,13 +110,14 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		if (view != null) {
 			view.updateRecordingInfo(prefs.getSettingRecordingFormat());
 
-			boolean isPublicDir = prefs.isStoreDirPublic();
-			view.showStoreInPublicDir(isPublicDir);
-			if (isPublicDir) {
-				view.showRecordsLocation(fileRepository.getRecordingDir().getAbsolutePath());
-			} else {
-				view.hideRecordsLocation();
+			// Show current storage location in the spinner
+			view.showStorageLocation(prefs.getStorageLocation());
+
+			File currentDir = fileRepository.getRecordingDir();
+			if (currentDir != null) {
+				view.showRecordsLocation(currentDir.getAbsolutePath());
 			}
+
 			view.showAskToRenameAfterRecordingStop(prefs.isAskToRenameAfterStopRecording());
 			view.showKeepScreenOn(prefs.isKeepScreenOn());
 			view.showChannelCount(prefs.getSettingChannelCount());
@@ -119,20 +127,120 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 			view.showNamingFormat(prefs.getSettingNamingFormat());
 			view.showRecordingBitrate(prefs.getSettingBitrate());
 			view.showRecordingSampleRate(prefs.getSettingSampleRate());
-			//This is needed for scoped storage support
-			view.showDirectorySetting(prefs.isShowDirectorySetting());
 		}
 	}
 
 	@Override
+	public void setStorageLocation(Context context, int location) {
+		prefs.setStorageLocation(location);
+		fileRepository.updateRecordingDir(context, prefs);
+		if (view != null) {
+			File dir = fileRepository.getRecordingDir();
+			if (dir != null) {
+				view.showRecordsLocation(dir.getAbsolutePath());
+			} else {
+				view.showError(R.string.error_unable_to_use_directory);
+			}
+		}
+		updateAvailableSpace();
+	}
+
+	@Override
 	public void storeInPublicDir(Context context, boolean b) {
+		if (b) {
+			prefs.setStoreInSdCard(false);
+		}
 		prefs.setStoreDirPublic(b);
 		fileRepository.updateRecordingDir(context, prefs);
-		if (b) {
-			view.showRecordsLocation(fileRepository.getRecordingDir().getAbsolutePath());
-		} else {
-			view.hideRecordsLocation();
+		if (view != null) {
+			view.showStoreInPublicDir(b);
+			File dir = fileRepository.getRecordingDir();
+			if (dir != null) {
+				view.showRecordsLocation(dir.getAbsolutePath());
+			} else if (b) {
+				view.showError(R.string.error_unable_to_use_directory);
+			}
+			view.showSdCardStorage(isSdCardAvailable(), prefs.isStoreInSdCard(), getSdCardDefaultPath());
+			view.showDirectorySetting(prefs.isShowDirectorySetting());
 		}
+		updateAvailableSpace();
+	}
+
+	@Override
+	public void setCustomPublicDir(Context context, String path) {
+		String normalized = path == null ? "" : path.trim();
+		if (TextUtils.isEmpty(normalized)) {
+			prefs.setPublicDirectoryPath(null);
+			fileRepository.updateRecordingDir(context, prefs);
+			if (view != null) {
+				File dir = fileRepository.getRecordingDir();
+				if (dir != null) {
+					view.showRecordsLocation(dir.getAbsolutePath());
+					view.showMessage(R.string.records_directory_reset);
+					updateAvailableSpace();
+				}
+			}
+			return;
+		}
+
+		File customDir = buildPublicDir(normalized);
+		File ensured = FileUtil.createDir(customDir);
+		File targetDir = ensured != null ? ensured : customDir;
+		if (!targetDir.exists() || !targetDir.isDirectory()) {
+			if (view != null) {
+				view.showError(R.string.error_unable_to_use_directory);
+			}
+			return;
+		}
+
+		prefs.setPublicDirectoryPath(targetDir.getAbsolutePath());
+		fileRepository.updateRecordingDir(context, prefs);
+		File resolvedDir = fileRepository.getRecordingDir();
+		if (view != null) {
+			if (resolvedDir != null && targetDir.getAbsolutePath().equals(resolvedDir.getAbsolutePath())) {
+				view.showRecordsLocation(resolvedDir.getAbsolutePath());
+				updateAvailableSpace();
+			} else {
+				view.showError(R.string.error_unable_to_use_directory);
+			}
+		}
+	}
+
+	@Override
+	public void storeInSdCard(Context context, boolean useSdCard) {
+		boolean available = isSdCardAvailable();
+		if (useSdCard && !available) {
+			if (view != null) {
+				view.showError(R.string.sd_card_not_available);
+				view.showSdCardStorage(false, false, "");
+			}
+			return;
+		}
+
+		prefs.setStoreInSdCard(useSdCard);
+		if (useSdCard) {
+			prefs.setStoreDirPublic(false);
+		}
+
+		fileRepository.updateRecordingDir(context, prefs);
+		File dir = fileRepository.getRecordingDir();
+		if (view != null) {
+			view.showStoreInPublicDir(prefs.isStoreDirPublic());
+			if (dir != null) {
+				view.showRecordsLocation(dir.getAbsolutePath());
+			} else if (useSdCard) {
+				view.showError(R.string.error_unable_to_use_directory);
+			}
+			String location = dir != null ? dir.getAbsolutePath() : getSdCardDefaultPath();
+			view.showSdCardStorage(available, useSdCard, location);
+			view.showDirectorySetting(prefs.isShowDirectorySetting());
+		}
+		updateAvailableSpace();
+	}
+
+	@Override
+	public void setSafTreeUri(Context context, String uriString) {
+		prefs.setSafTreeUri(uriString);
 	}
 
 	@Override
@@ -260,6 +368,35 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		if (view != null) {
 			view.openRecordsLocation(fileRepository.getRecordingDir());
 		}
+	}
+
+	private File buildPublicDir(String input) {
+		File dir = new File(input);
+		if (!dir.isAbsolute()) {
+			dir = new File(Environment.getExternalStorageDirectory(), input);
+		}
+		return dir;
+	}
+
+	private boolean isSdCardAvailable() {
+		File[] dirs = ContextCompat.getExternalFilesDirs(appContext, Environment.DIRECTORY_MUSIC);
+		if (dirs != null) {
+			for (int i = 1; i < dirs.length; i++) {
+				if (dirs[i] != null) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private String getSdCardDefaultPath() {
+		File musicDir = FileUtil.getSecondaryExternalMusicDir(appContext);
+		if (musicDir != null) {
+			File records = new File(musicDir, AppConstants.RECORDS_DIR);
+			return records.getAbsolutePath();
+		}
+		return "";
 	}
 
 	private void updateAvailableSpace() {

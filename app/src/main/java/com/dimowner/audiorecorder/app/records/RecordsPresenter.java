@@ -16,6 +16,9 @@
 
 package com.dimowner.audiorecorder.app.records;
 
+import android.content.Context;
+import android.net.Uri;
+
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.Mapper;
@@ -208,6 +211,36 @@ public class RecordsPresenter implements RecordsContract.UserActionsListener {
 					audioPlayer.unpause();
 				} else {
 					audioPlayer.play(activeRecord.getPath());
+				}
+			}
+		}
+	}
+
+	@Override
+	public void startPlaybackWithSaf(Context context) {
+		if (!appRecorder.isRecording()) {
+			if (activeRecord != null) {
+				if (audioPlayer.isPlaying()) {
+					audioPlayer.pause();
+				} else if (audioPlayer.isPaused()) {
+					audioPlayer.unpause();
+				} else {
+					// Try SAF playback
+					String safTreeUriString = prefs.getSafTreeUri();
+					if (safTreeUriString != null) {
+						Uri treeUri = Uri.parse(safTreeUriString);
+						Uri documentUri = FileUtil.reconstructSafDocumentUri(activeRecord.getPath(), treeUri);
+						if (documentUri != null) {
+							Timber.d("Playing via SAF URI: %s", documentUri);
+							audioPlayer.play(context, documentUri);
+							return;
+						}
+					}
+					// Fallback: show error if SAF reconstruction failed
+					Timber.w("Failed to reconstruct SAF URI for: %s", activeRecord.getPath());
+					if (view != null) {
+						view.showError(R.string.error_player_data_source);
+					}
 				}
 			}
 		}

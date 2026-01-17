@@ -18,7 +18,7 @@ package com.dimowner.audiorecorder.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
+import android.text.TextUtils;
 
 import com.dimowner.audiorecorder.AppConstants;
 
@@ -33,6 +33,10 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_IS_MIGRATED = "is_migrated";
 	private static final String PREF_KEY_IS_MIGRATED_DB3 = "is_migrated_db3";
 	private static final String PREF_KEY_IS_STORE_DIR_PUBLIC = "is_store_dir_public";
+	private static final String PREF_KEY_IS_STORE_IN_SD_CARD = "is_store_in_sd_card";
+	private static final String PREF_KEY_STORAGE_LOCATION = "storage_location";
+	private static final String PREF_KEY_SAF_TREE_URI = "saf_tree_uri";
+	private static final String PREF_KEY_PUBLIC_DIRECTORY_PATH = "public_directory_path";
 	private static final String PREF_KEY_IS_SHOW_DIRECTORY_SETTING = "is_show_directory_setting";
 	private static final String PREF_KEY_IS_ASK_TO_RENAME_AFTER_STOP_RECORDING = "is_ask_rename_after_stop_recording";
 	private static final String PREF_KEY_ACTIVE_RECORD = "active_record";
@@ -88,11 +92,37 @@ public class PrefsImpl implements Prefs {
 		editor.putBoolean(PREF_KEY_IS_STORE_DIR_PUBLIC, false);
 		editor.putBoolean(PREF_KEY_IS_MIGRATED, true);
 		editor.putBoolean(PREF_KEY_IS_PUBLIC_STORAGE_MIGRATED, true);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			editor.putBoolean(PREF_KEY_IS_SHOW_DIRECTORY_SETTING, false);
+		// Default to internal storage (public, persistent)
+		editor.putInt(PREF_KEY_STORAGE_LOCATION, STORAGE_INTERNAL);
+		editor.apply();
+	}
+
+	@Override
+	public int getStorageLocation() {
+		return sharedPreferences.getInt(PREF_KEY_STORAGE_LOCATION, STORAGE_INTERNAL);
+	}
+
+	@Override
+	public void setStorageLocation(int location) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putInt(PREF_KEY_STORAGE_LOCATION, location);
+		editor.apply();
+	}
+
+	@Override
+	public String getSafTreeUri() {
+		return sharedPreferences.getString(PREF_KEY_SAF_TREE_URI, null);
+	}
+
+	@Override
+	public void setSafTreeUri(String uri) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		if (uri == null) {
+			editor.remove(PREF_KEY_SAF_TREE_URI);
+		} else {
+			editor.putString(PREF_KEY_SAF_TREE_URI, uri);
 		}
 		editor.apply();
-//		setStoreDirPublic(true);
 	}
 
 	@Override
@@ -104,6 +134,35 @@ public class PrefsImpl implements Prefs {
 	public void setStoreDirPublic(boolean b) {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putBoolean(PREF_KEY_IS_STORE_DIR_PUBLIC, b);
+		editor.apply();
+	}
+
+	@Override
+	public boolean isStoreInSdCard() {
+		return sharedPreferences.getBoolean(PREF_KEY_IS_STORE_IN_SD_CARD, false);
+	}
+
+	@Override
+	public void setStoreInSdCard(boolean b) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putBoolean(PREF_KEY_IS_STORE_IN_SD_CARD, b);
+		editor.apply();
+	}
+
+	@Override
+	public String getPublicDirectoryPath() {
+		return sharedPreferences.getString(PREF_KEY_PUBLIC_DIRECTORY_PATH, "");
+	}
+
+	@Override
+	public void setPublicDirectoryPath(String path) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		String normalized = path == null ? "" : path.trim();
+		if (TextUtils.isEmpty(normalized)) {
+			editor.remove(PREF_KEY_PUBLIC_DIRECTORY_PATH);
+		} else {
+			editor.putString(PREF_KEY_PUBLIC_DIRECTORY_PATH, normalized);
+		}
 		editor.apply();
 	}
 

@@ -16,8 +16,11 @@
 
 package com.dimowner.audiorecorder.app;
 
+import android.content.Context;
+
 import com.dimowner.audiorecorder.IntArrayList;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
+import com.dimowner.audiorecorder.data.RecordingTarget;
 
 import java.io.File;
 
@@ -27,6 +30,12 @@ public interface AppRecorder {
 	void removeRecordingCallback(AppRecorderCallback recorderCallback);
 	void setRecorder(RecorderContract.Recorder recorder);
 	void startRecording(String filePath, int channelCount, int sampleRate, int bitrate);
+	
+	/**
+	 * Start recording to a RecordingTarget (supports both File and SAF).
+	 */
+	void startRecording(Context context, RecordingTarget target, int channelCount, int sampleRate, int bitrate);
+	
 	void pauseRecording();
 	void resumeRecording();
 	void stopRecording();
@@ -35,5 +44,11 @@ public interface AppRecorder {
 	boolean isRecording();
 	boolean isPaused();
 	File getRecordFile();
+	
+	/**
+	 * Get the current recording target (may be SAF-based).
+	 */
+	RecordingTarget getRecordingTarget();
+	
 	void release();
 }

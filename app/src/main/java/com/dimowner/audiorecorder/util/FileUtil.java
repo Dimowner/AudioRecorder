@@ -28,6 +28,8 @@ import android.provider.DocumentsContract;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import androidx.core.content.ContextCompat;
+
 import com.dimowner.audiorecorder.AppConstants;
 
 import java.io.BufferedInputStream;
@@ -40,6 +42,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -70,6 +74,63 @@ public class FileUtil {
 			throw new FileNotFoundException();
 		}
 		return dir;
+	}
+
+	public static File getPrivateRecordsDir(Context context, File musicDir) throws FileNotFoundException {
+		if (musicDir != null) {
+			File dir = new File(musicDir, AppConstants.RECORDS_DIR);
+			File created = createDir(dir);
+			if (created != null) {
+				return created;
+			}
+		}
+		throw new FileNotFoundException();
+	}
+
+	public static File getSecondaryExternalMusicDir(Context context) {
+		File[] dirs = ContextCompat.getExternalFilesDirs(context, Environment.DIRECTORY_MUSIC);
+		if (dirs != null) {
+			for (int i = 1; i < dirs.length; i++) {
+				File dir = dirs[i];
+				if (dir != null) {
+					return dir;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get a public directory on the SD card (not app-specific, survives uninstall).
+	 * Extracts the SD card mount point from the app-specific path and creates a public folder.
+	 * @param context Application context
+	 * @param dirName Directory name to create on SD card root
+	 * @return Public directory on SD card, or null if SD card not available
+	 */
+	public static File getSecondaryExternalPublicDir(Context context, String dirName) {
+		File[] dirs = ContextCompat.getExternalFilesDirs(context, Environment.DIRECTORY_MUSIC);
+		if (dirs != null) {
+			for (int i = 1; i < dirs.length; i++) {
+				File appSpecificDir = dirs[i];
+				if (appSpecificDir != null) {
+					// Extract SD card root by finding /Android/data/ in the path
+					String path = appSpecificDir.getAbsolutePath();
+					int androidIndex = path.indexOf("/Android/data/");
+					if (androidIndex > 0) {
+						String sdCardRoot = path.substring(0, androidIndex);
+						File publicDir = new File(sdCardRoot, dirName);
+						File created = createDir(publicDir);
+						if (created != null) {
+							return created;
+						}
+						if (publicDir.exists() && publicDir.isDirectory()) {
+							return publicDir;
+						}
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	public static String generateRecordNameCounted(long counter) {
@@ -501,13 +562,30 @@ public class FileUtil {
 	}
 
 	public static boolean isFileInExternalStorage(Context context, String path) {
-		String privateDir = "";
+		if (path == null) {
+			return true;
+		}
+		List<String> privateDirs = new ArrayList<>();
 		try {
-			privateDir = FileUtil.getPrivateRecordsDir(context).getAbsolutePath();
+			privateDirs.add(FileUtil.getPrivateRecordsDir(context).getAbsolutePath());
 		} catch (FileNotFoundException e) {
 			Timber.e(e);
 		}
-		return path == null || !path.contains(privateDir);
+		File[] dirs = ContextCompat.getExternalFilesDirs(context, Environment.DIRECTORY_MUSIC);
+		if (dirs != null) {
+			for (File dir : dirs) {
+				if (dir != null) {
+					File records = new File(dir, AppConstants.RECORDS_DIR);
+					privateDirs.add(records.getAbsolutePath());
+				}
+			}
+		}
+		for (String dirPath : privateDirs) {
+			if (dirPath != null && !dirPath.isEmpty() && path.startsWith(dirPath)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public static File getPublicMusicStorageDir(String albumName) {
@@ -714,5 +792,66 @@ public class FileUtil {
 		void onCanceled();
 		void onCopyFinish(String message);
 		void onError(String message);
+	}
+
+	/**
+	 * Reconstruct a SAF document URI from a display path and tree URI.
+	 * Display paths look like: /storage/6264-6362/AudioRecorder/Record-1.m4a
+	 * Tree URIs look like: content://com.android.externalstorage.documents/tree/6264-6362%3AAudioRecorder
+	 *
+	 * @param displayPath The display path stored in the database
+	 * @param treeUri The SAF tree URI from preferences
+	 * @return The document URI if reconstruction succeeds, null otherwise
+	 */
+	public static Uri reconstructSafDocumentUri(String displayPath, Uri treeUri) {
+		if (displayPath == null || treeUri == null) {
+			return null;
+		}
+
+		try {
+			// Extract volume ID and folder path from tree URI
+			// Tree URI path looks like: /tree/6264-6362:AudioRecorder
+			String treeUriPath = treeUri.getPath();
+			if (treeUriPath == null || !treeUriPath.contains(":")) {
+				Timber.w("Invalid tree URI path: %s", treeUriPath);
+				return null;
+			}
+
+			// Parse tree document ID (e.g., "6264-6362:AudioRecorder")
+			String treeDocumentId = DocumentsContract.getTreeDocumentId(treeUri);
+
+			// Extract volume ID from display path
+			// Display path looks like: /storage/6264-6362/AudioRecorder/Record-1.m4a
+			if (!displayPath.startsWith("/storage/")) {
+				Timber.w("Display path doesn't start with /storage/: %s", displayPath);
+				return null;
+			}
+
+			// Remove "/storage/" prefix
+			String pathWithoutStorage = displayPath.substring(9);  // "/storage/".length()
+
+			// Find the volume ID (first path segment after /storage/)
+			int firstSlash = pathWithoutStorage.indexOf('/');
+			if (firstSlash < 0) {
+				Timber.w("Cannot find volume ID in display path: %s", displayPath);
+				return null;
+			}
+
+			String volumeId = pathWithoutStorage.substring(0, firstSlash);
+			String remainingPath = pathWithoutStorage.substring(firstSlash + 1);
+
+			// Build document ID: volumeId:path (e.g., "6264-6362:AudioRecorder/Record-1.m4a")
+			String documentId = volumeId + ":" + remainingPath;
+
+			// Build the document URI using the tree
+			Uri documentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId);
+
+			Timber.d("Reconstructed SAF URI: %s from display path: %s", documentUri, displayPath);
+			return documentUri;
+
+		} catch (Exception e) {
+			Timber.e(e, "Failed to reconstruct SAF document URI from: %s", displayPath);
+			return null;
+		}
 	}
 }

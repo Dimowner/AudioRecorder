@@ -16,6 +16,8 @@
 
 package com.dimowner.audiorecorder.app.records;
 
+import android.content.Context;
+
 import com.dimowner.audiorecorder.Contract;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.data.database.Record;
@@ -85,6 +87,8 @@ public interface RecordsContract {
 		void onResumeView();
 
 		void startPlayback();
+
+		void startPlaybackWithSaf(Context context);
 
 		void pausePlayback();
 

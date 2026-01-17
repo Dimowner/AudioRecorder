@@ -15,9 +15,11 @@
  */
 package com.dimowner.audiorecorder.audio.player
 
+import android.content.Context
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.MediaPlayer.OnPreparedListener
+import android.net.Uri
 import android.os.Handler
 import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.exception.AppException
@@ -56,6 +58,18 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 		}
 	}
 
+	private fun restartPlayer(context: Context, uri: Uri) {
+		try {
+			playerState = PlayerState.STOPPED
+			mediaPlayer.reset()
+			mediaPlayer.setDataSource(context, uri)
+			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
+		} catch (e: Exception) {
+			Timber.e(e)
+			onError(PlayerDataSourceException())
+		}
+	}
+
 	override fun play(filePath: String) {
 		try {
 			if (playerState != PlayerState.PLAYING) {
@@ -72,6 +86,30 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 					} catch (e: IllegalStateException) {
 						Timber.e(e)
 						restartPlayer(filePath)
+					}
+				}
+			}
+		} catch (e: IllegalStateException) {
+			Timber.e(e, "Player is not initialized!")
+		}
+	}
+
+	override fun play(context: Context, uri: Uri) {
+		try {
+			if (playerState != PlayerState.PLAYING) {
+				restartPlayer(context, uri)
+				try {
+					mediaPlayer.setOnPreparedListener(this)
+					mediaPlayer.prepareAsync()
+				} catch (ex: IllegalStateException) {
+					Timber.e(ex)
+					restartPlayer(context, uri)
+					mediaPlayer.setOnPreparedListener(this)
+					try {
+						mediaPlayer.prepareAsync()
+					} catch (e: IllegalStateException) {
+						Timber.e(e)
+						restartPlayer(context, uri)
 					}
 				}
 			}

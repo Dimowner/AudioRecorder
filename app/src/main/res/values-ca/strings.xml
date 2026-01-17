@@ -78,8 +78,8 @@
 		<item quantity="one">S\'ha mogut %d gravació mogut correctament</item>
 		<item quantity="other">S\'han mogut %d gravacions correctament</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">S\'han copiat %d gravacions correctament i n\'han fallat %d</string>
-	<string name="moving_records_success_and_fail_count">S\'han mogut %d gravacions correctament i n\'han fallat %d</string>
+	<string name="downloading_success_and_fail_count">S\'han copiat %1$d gravacions correctament i n\'han fallat %2$d</string>
+	<string name="moving_records_success_and_fail_count">S\'han mogut %1$d gravacions correctament i n\'han fallat %2$d</string>
 	<string name="downloading_success">S\'ha copiat %s al directori de Baixades</string>
 	<string name="move_record_success">S\'ha mogut %s al directori privat de l\'aplicació</string>
 	<plurals name="downloading_failed_count">
@@ -127,6 +127,11 @@
 	<string name="file_browser">Explorador de fitxers</string>
 	<string name="private_dir">Directori privat</string>
 	<string name="public_dir">Directori públic</string>
+	<string name="storage_location">Ubicació d\'emmagatzematge</string>
+	<string name="storage_internal">Emmagatzematge intern</string>
+	<string name="storage_sdcard">Targeta SD</string>
+	<string name="storage_custom">Ruta personalitzada</string>
+	<string name="storage_sdcard_unavailable">Targeta SD (no disponible)</string>
 	<string name="found_in_the_app">S\'ha trobat a l\'aplicació</string>
 	<string name="not_found_in_the_app">No s\'ha trobat a l\'aplicació</string>
 	<string name="in_trash">A la paperera</string>
@@ -224,6 +229,9 @@
 	<string name="error_on_recording">Error en la gravació.</string>
 	<string name="error_failed_to_restore">No s\'ha pogut restaurar la gravació.</string>
 	<string name="error_failed_to_delete">No s\'ha pogut esborrar la gravació.</string>
+	<string name="error_saf_not_available">No es pot obrir el selector de carpetes. És possible que el dispositiu no admeti aquesta funció.</string>
+	<string name="error_saf_no_write_permission">No es pot escriure a la carpeta seleccionada. Si us plau, trieu una altra ubicació.</string>
+	<string name="error_wav_format_not_supported_saf">El format WAV no és compatible quan es desa a la targeta SD. Si us plau, utilitzeu el format M4A o 3GP, o canvieu a l\'emmagatzematge intern.</string>
 	<string name="move_public_storage_records_message">Cal moure les gravacions de l\'emmagatzematge públic</string>
 	<string name="later">Més tard</string>
 	<string name="move">Mou</string>

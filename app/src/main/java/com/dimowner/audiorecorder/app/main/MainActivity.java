@@ -60,6 +60,7 @@ import com.dimowner.audiorecorder.app.widget.RecordingWaveformView;
 import com.dimowner.audiorecorder.app.widget.WaveformViewNew;
 import com.dimowner.audiorecorder.audio.AudioDecoder;
 import com.dimowner.audiorecorder.data.FileRepository;
+import com.dimowner.audiorecorder.data.RecordingTarget;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.CantCreateFileException;
 import com.dimowner.audiorecorder.exception.ErrorParser;
@@ -114,6 +115,14 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	private ColorMap colorMap;
 	private FileRepository fileRepository;
 	private ColorMap.OnThemeColorChangeListener onThemeColorChangeListener;
+
+	private enum RecordButtonState {
+		IDLE,
+		RECORDING,
+		PAUSED
+	}
+
+	private RecordButtonState recordButtonState = RecordButtonState.IDLE;
 
 	private final ServiceConnection connection = new ServiceConnection() {
 
@@ -271,11 +280,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	protected void onStart() {
 		super.onStart();
 		presenter.bindView(this);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			//This is needed for scoped storage support
-			presenter.storeInPrivateDir(getApplicationContext());
-//			presenter.checkPublicStorageRecords();
-		}
+		// Removed Android Q block that forced private storage - we use requestLegacyExternalStorage instead
 		presenter.checkFirstRun();
 		presenter.setAudioRecorder(ARApplication.getInjector().provideAudioRecorder(getApplicationContext()));
 		presenter.updateRecordingDir(getApplicationContext());
@@ -394,6 +399,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showRecordingStart() {
+		recordButtonState = RecordButtonState.RECORDING;
 		txtName.setClickable(false);
 		txtName.setFocusable(false);
 		txtName.setCompoundDrawables(null, null, null, null);
@@ -418,6 +424,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showRecordingStop() {
+		recordButtonState = RecordButtonState.IDLE;
 		txtName.setClickable(true);
 		txtName.setFocusable(true);
 //		txtName.setText("");
@@ -442,6 +449,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showRecordingPause() {
+		recordButtonState = RecordButtonState.PAUSED;
 		txtName.setClickable(false);
 		txtName.setFocusable(false);
 		txtName.setCompoundDrawables(null, null, null, null);
@@ -463,6 +471,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void showRecordingResume() {
+		recordButtonState = RecordButtonState.RECORDING;
 		txtName.setClickable(false);
 		txtName.setFocusable(false);
 		txtName.setCompoundDrawables(null, null, null, null);
@@ -506,14 +515,32 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 	@Override
 	public void startRecordingService() {
+		if (recordButtonState != RecordButtonState.IDLE) {
+			return;
+		}
 		try {
-			String path = fileRepository.provideRecordFile().getAbsolutePath();
+			// Use RecordingTarget for both file and SAF-based recording
+			RecordingTarget target = fileRepository.provideRecordingTarget(getApplicationContext());
+			String path = target.getPath();
+			
 			Intent intent = new Intent(getApplicationContext(), RecordingService.class);
 			intent.setAction(RecordingService.ACTION_START_RECORDING_SERVICE);
 			intent.putExtra(RecordingService.EXTRAS_KEY_RECORD_PATH, path);
+			
+			// Pass SAF URI if this is a SAF-based target
+			if (target.isSaf()) {
+				intent.putExtra(RecordingService.EXTRAS_KEY_SAF_URI, target.getSafUri().toString());
+			}
+			
+			recordButtonState = RecordButtonState.RECORDING;
 			startService(intent);
 		} catch (CantCreateFileException e) {
+			recordButtonState = RecordButtonState.IDLE;
 			showError(ErrorParser.parseException(e));
+		} catch (RuntimeException e) {
+			recordButtonState = RecordButtonState.IDLE;
+			Timber.e(e);
+			showError(R.string.error_failed_to_start_recording);
 		}
 	}
 
@@ -669,7 +696,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	private boolean isPublicDir(String path) {
-		return path.contains(FileUtil.getAppDir().getAbsolutePath());
+		if (path == null) {
+			return false;
+		}
+		File publicDir = fileRepository != null ? fileRepository.getPublicDir() : null;
+		return publicDir != null && path.contains(publicDir.getAbsolutePath());
 	}
 
 	@Override

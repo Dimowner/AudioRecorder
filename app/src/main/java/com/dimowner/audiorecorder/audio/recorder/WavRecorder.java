@@ -21,11 +21,14 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import com.dimowner.audiorecorder.AppConstants;
+import com.dimowner.audiorecorder.data.RecordingTarget;
 import com.dimowner.audiorecorder.exception.InvalidOutputFile;
 import com.dimowner.audiorecorder.exception.RecorderInitException;
 import com.dimowner.audiorecorder.exception.RecordingException;
+import com.dimowner.audiorecorder.exception.WavSafNotSupportedException;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -80,6 +83,19 @@ public class WavRecorder implements RecorderContract.Recorder {
 	@Override
 	public void setRecorderCallback(RecorderContract.RecorderCallback callback) {
 		recorderCallback = callback;
+	}
+
+	/**
+	 * WAV recording to SAF (SD card) is not supported because WAV requires RandomAccessFile
+	 * to update the header after recording, which SAF doesn't provide.
+	 * This method reports an error to the callback when SAF recording is attempted.
+	 */
+	@Override
+	public void startRecording(FileDescriptor fd, RecordingTarget target, int channelCount, int sampleRate, int bitrate) {
+		Timber.e("WAV recording to SAF is not supported. WAV format requires RandomAccessFile for header updates.");
+		if (recorderCallback != null) {
+			recorderCallback.onError(new WavSafNotSupportedException());
+		}
 	}
 
 	@Override

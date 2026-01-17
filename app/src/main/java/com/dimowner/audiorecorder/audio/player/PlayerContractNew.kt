@@ -16,6 +16,8 @@
 
 package com.dimowner.audiorecorder.audio.player
 
+import android.content.Context
+import android.net.Uri
 import com.dimowner.audiorecorder.exception.AppException
 
 interface PlayerContractNew {
@@ -32,6 +34,7 @@ interface PlayerContractNew {
 		fun addPlayerCallback(callback: PlayerCallback)
 		fun removePlayerCallback(callback: PlayerCallback): Boolean
 		fun play(filePath: String)
+		fun play(context: Context, uri: Uri)
 		fun pause()
 		fun unpause()
 		fun seek(mills: Long)

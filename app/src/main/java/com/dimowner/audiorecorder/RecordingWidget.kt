@@ -1,5 +1,6 @@
 package com.dimowner.audiorecorder
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -8,8 +9,17 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.RemoteViews
+import android.widget.Toast
+import androidx.core.content.ContextCompat
+import com.dimowner.audiorecorder.app.RecordingService
 import com.dimowner.audiorecorder.app.TransparentRecordingActivity
+import com.dimowner.audiorecorder.data.RecordingTarget
+import com.dimowner.audiorecorder.exception.CantCreateFileException
+import com.dimowner.audiorecorder.exception.ErrorParser
+import timber.log.Timber
 
 class RecordingWidget : AppWidgetProvider() {
 	override fun onUpdate(
@@ -52,6 +62,49 @@ private fun getRecordingPendingIntent(context: Context): PendingIntent {
 
 class WidgetReceiver : BroadcastReceiver() {
 	override fun onReceive(context: Context, intent: Intent) {
+		val fileRepository = ARApplication.injector.provideFileRepository(context)
+
+		// Check permissions first
+		if (!hasRecordingPermissions(context)) {
+			launchTransparentActivity(context)
+			return
+		}
+
+		try {
+			val target = fileRepository.provideRecordingTarget(context)
+			startRecordingService(context, target)
+		} catch (e: CantCreateFileException) {
+			Timber.e(e, "Failed to create recording file from widget")
+			Toast.makeText(context, ErrorParser.parseException(e), Toast.LENGTH_LONG).show()
+		}
+	}
+
+	private fun hasRecordingPermissions(context: Context): Boolean {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+				return false
+			}
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+				return false
+			}
+		}
+		return true
+	}
+
+	private fun startRecordingService(context: Context, target: RecordingTarget) {
+		val startIntent = Intent(context, RecordingService::class.java).apply {
+			action = RecordingService.ACTION_START_RECORDING_SERVICE
+			putExtra(RecordingService.EXTRAS_KEY_RECORD_PATH, target.path)
+			if (target.isSaf) {
+				putExtra(RecordingService.EXTRAS_KEY_SAF_URI, target.safUri.toString())
+			}
+		}
+		ContextCompat.startForegroundService(context, startIntent)
+	}
+
+	private fun launchTransparentActivity(context: Context) {
 		val activityIntent = Intent(context, TransparentRecordingActivity::class.java)
 		activityIntent.flags = FLAG_ACTIVITY_NEW_TASK
 		context.startActivity(activityIntent)

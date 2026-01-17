@@ -43,6 +43,8 @@ public class ErrorParser {
 			return R.string.error_failed_to_restore;
 		} else if (e.getType() == AppException.READ_PERMISSION_DENIED) {
 			return R.string.error_permission_denied;
+		} else if (e.getType() == AppException.WAV_FORMAT_NOT_SUPPORTED_SAF) {
+			return R.string.error_wav_format_not_supported_saf;
 		}
 		return R.string.error_unknown;
 	}

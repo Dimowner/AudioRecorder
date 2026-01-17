@@ -75,8 +75,8 @@
         <item quantity="one">%d record moved successfully</item>
         <item quantity="other">%d records moved successfully</item>
     </plurals>
-    <string name="downloading_success_and_fail_count">%d records copied successfully and %d failed to copy</string>
-    <string name="moving_records_success_and_fail_count">%d records moved successfully and %d failed to move</string>
+    <string name="downloading_success_and_fail_count">%1$d records copied successfully and %2$d failed to copy</string>
+    <string name="moving_records_success_and_fail_count">%1$d records moved successfully and %2$d failed to move</string>
     <string name="downloading_success">%s 已保存到“下载”目录</string>
     <string name="move_record_success">%s 已移动到应用的专用目录</string>
     <plurals name="downloading_failed_count">
@@ -124,6 +124,11 @@
     <string name="file_browser">文件浏览器</string>
     <string name="private_dir">私有目录</string>
     <string name="public_dir">公共目录</string>
+    <string name="storage_location">存储位置</string>
+    <string name="storage_internal">内部存储</string>
+    <string name="storage_sdcard">SD卡</string>
+    <string name="storage_custom">自定义路径</string>
+    <string name="storage_sdcard_unavailable">SD卡（不可用）</string>
     <string name="found_in_the_app">在app中</string>
     <string name="not_found_in_the_app">在app中找不到</string>
     <string name="in_trash">在回收站</string>
@@ -223,6 +228,9 @@
     <string name="error_on_recording">录制错误!</string>
     <string name="error_failed_to_restore">无法恢复录音!</string>
     <string name="error_failed_to_delete">无法删除录音!</string>
+    <string name="error_saf_not_available">无法打开文件夹选择器。您的设备可能不支持此功能。</string>
+    <string name="error_saf_no_write_permission">无法写入所选文件夹。请选择其他位置。</string>
+    <string name="error_wav_format_not_supported_saf">保存到SD卡时不支持WAV格式。请使用M4A或3GP格式，或切换到内部存储。</string>
 
     <string name="move_public_storage_records_message">Move public storage records is needed</string>
     <string name="later">Later</string>

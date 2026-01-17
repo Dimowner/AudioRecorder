@@ -89,8 +89,8 @@
 		<item quantity="few">%d записи успішно переміщено</item>
 		<item quantity="many">%d записів успішно переміщено</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d записів успішно скопійовано, та %d не вдалося скопіювати</string>
-	<string name="moving_records_success_and_fail_count">%d записів успішно переміщено, та %d не вдалося перемістити</string>
+	<string name="downloading_success_and_fail_count">%1$d записів успішно скопійовано, та %2$d не вдалося скопіювати</string>
+	<string name="moving_records_success_and_fail_count">%1$d записів успішно переміщено, та %2$d не вдалося перемістити</string>
 	<string name="downloading_success">%s скопійовано в папку \'Downloads\'</string>
 	<string name="move_record_success">%s переміщено в приватну папку додатка</string>
 	<plurals name="downloading_failed_count">
@@ -142,6 +142,11 @@
 	<string name="file_browser">Файловий менеджер</string>
 	<string name="private_dir">Приватний каталог</string>
 	<string name="public_dir">Публічний каталог</string>
+	<string name="storage_location">Місце зберігання</string>
+	<string name="storage_internal">Внутрішнє сховище</string>
+	<string name="storage_sdcard">SD-карта</string>
+	<string name="storage_custom">Користувацький шлях</string>
+	<string name="storage_sdcard_unavailable">SD-карта (недоступна)</string>
 	<string name="found_in_the_app">Є в додатку</string>
 	<string name="not_found_in_the_app">Не знайдено в додатку</string>
 	<string name="in_trash">В кошику</string>
@@ -242,6 +247,9 @@
 	<string name="error_on_recording">Помилка при запису</string>
 	<string name="error_failed_to_restore">Не вдалося відновити запис!</string>
 	<string name="error_failed_to_delete">Не вдалося видалити запис!</string>
+	<string name="error_saf_not_available">Не вдалося відкрити вибір папки. Ваш пристрій може не підтримувати цю функцію.</string>
+	<string name="error_saf_no_write_permission">Неможливо записати в обрану папку. Будь ласка, виберіть інше місце.</string>
+	<string name="error_wav_format_not_supported_saf">Формат WAV не підтримується при збереженні на SD-карту. Будь ласка, використовуйте формат M4A або 3GP, або перейдіть на внутрішнє сховище.</string>
 
 	<string name="move_public_storage_records_message">Потрібно перемістити записи з публічної папки</string>
 	<string name="later">Пізніше</string>

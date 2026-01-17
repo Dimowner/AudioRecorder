@@ -78,8 +78,8 @@
 		<item quantity="one">Les %d l\'enregistrement a bien été déplacé</item>
 		<item quantity="many">Les %d enregistrements ont bien été déplacé</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d enregistrements ont bien été copié et %d ont échoué</string>
-	<string name="moving_records_success_and_fail_count">%d enregistrements ont bien été déplacé et %d ont échoué</string>
+	<string name="downloading_success_and_fail_count">%1$d enregistrements ont bien été copiés et %2$d ont échoué</string>
+	<string name="moving_records_success_and_fail_count">%1$d enregistrements ont bien été déplacés et %2$d ont échoué</string>
 	<string name="downloading_success">%s copiés dans le dossier \'Downloads\'</string>
 	<string name="move_record_success">%s déplacés dans le dossier \'Downloads\'</string>
 	<plurals name="downloading_failed_count">
@@ -127,6 +127,11 @@
 	<string name="file_browser">Explorateur de fichier</string>
 	<string name="private_dir">Dossier privé</string>
 	<string name="public_dir">Dossier public</string>
+	<string name="storage_location">Emplacement de stockage</string>
+	<string name="storage_internal">Stockage interne</string>
+	<string name="storage_sdcard">Carte SD</string>
+	<string name="storage_custom">Chemin personnalisé</string>
+	<string name="storage_sdcard_unavailable">Carte SD (indisponible)</string>
 	<string name="found_in_the_app">Trouvé dans l\'application</string>
 	<string name="not_found_in_the_app">Pas trouvé dans l\'application</string>
 	<string name="in_trash">Dans la corbeille</string>
@@ -225,6 +230,9 @@
 	<string name="error_on_recording">Erreur pendant l\'enregistrement !</string>
 	<string name="error_failed_to_restore">Échec de la récupération de l\'enregistrement !</string>
 	<string name="error_failed_to_delete">Échec de la suppression de l\'enregistrement !</string>
+	<string name="error_saf_not_available">Impossible d\'ouvrir le sélecteur de dossier. Votre appareil ne supporte peut-être pas cette fonctionnalité.</string>
+	<string name="error_saf_no_write_permission">Impossible d\'écrire dans le dossier sélectionné. Veuillez choisir un autre emplacement.</string>
+	<string name="error_wav_format_not_supported_saf">Le format WAV n\'est pas pris en charge lors de l\'enregistrement sur carte SD. Veuillez utiliser le format M4A ou 3GP, ou passer au stockage interne.</string>
 
 	<string name="move_public_storage_records_message">Déplacement du stockage public des enregistrements nécessaire</string>
 	<string name="later">Plus tard</string>

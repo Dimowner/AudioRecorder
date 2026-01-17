@@ -16,6 +16,9 @@
 
 package com.dimowner.audiorecorder.app;
 
+import android.content.Context;
+import android.os.ParcelFileDescriptor;
+
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
@@ -24,6 +27,7 @@ import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.audio.AudioDecoder;
 import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.RecordDataSource;
+import com.dimowner.audiorecorder.data.RecordingTarget;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
@@ -31,6 +35,7 @@ import com.dimowner.audiorecorder.exception.RecordingException;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -54,6 +59,8 @@ public class AppRecorderImpl implements AppRecorder {
 	private long updateTime = 0;
 	private Timer timerProgress;
 	private String recordFilePath = null;
+	private RecordingTarget currentTarget = null;
+	private ParcelFileDescriptor currentPfd = null;
 
 	private volatile static AppRecorderImpl instance;
 
@@ -115,6 +122,7 @@ public class AppRecorderImpl implements AppRecorder {
 			@Override
 			public void onStopRecord(final File output) {
 				stopRecordingTimer();
+				closePfd();  // Close SAF file descriptor if open
 				recordingsTasks.postRunnable(() -> {
 					RecordInfo info = AudioDecoder.readRecordInfo(output);
 					long duration = info.getDuration();
@@ -230,7 +238,30 @@ public class AppRecorderImpl implements AppRecorder {
 	public void startRecording(String filePath, int channelCount, int sampleRate, int bitrate) {
 		if (!audioRecorder.isRecording()) {
 			recordFilePath = filePath;
+			currentTarget = null;
 			audioRecorder.startRecording(filePath, channelCount, sampleRate, bitrate);
+		}
+	}
+
+	@Override
+	public void startRecording(Context context, RecordingTarget target, int channelCount, int sampleRate, int bitrate) {
+		if (!audioRecorder.isRecording()) {
+			currentTarget = target;
+			recordFilePath = target.getPath();
+			
+			if (target.isSaf()) {
+				// SAF-based recording
+				try {
+					currentPfd = target.openForWriting(context);
+					audioRecorder.startRecording(currentPfd.getFileDescriptor(), target, channelCount, sampleRate, bitrate);
+				} catch (IOException e) {
+					Timber.e(e, "Failed to open SAF target for recording");
+					onRecordingError(new RecordingException());
+				}
+			} else {
+				// File-based recording
+				audioRecorder.startRecording(target.getPath(), channelCount, sampleRate, bitrate);
+			}
 		}
 	}
 
@@ -284,12 +315,29 @@ public class AppRecorderImpl implements AppRecorder {
 	}
 
 	@Override
+	public RecordingTarget getRecordingTarget() {
+		return currentTarget;
+	}
+
+	@Override
 	public void release() {
 		stopRecordingTimer();
 		recordingData.clear();
 		apmpPool.clear();
 		audioRecorder.stopRecording();
 		appCallbacks.clear();
+		closePfd();
+	}
+
+	private void closePfd() {
+		if (currentPfd != null) {
+			try {
+				currentPfd.close();
+			} catch (IOException e) {
+				Timber.e(e, "Failed to close ParcelFileDescriptor");
+			}
+			currentPfd = null;
+		}
 	}
 
 	private void onRecordingStarted(File output) {
@@ -369,14 +417,18 @@ public class AppRecorderImpl implements AppRecorder {
 	}
 
 	private void stopRecordingTimer() {
-		timerProgress.cancel();
-		timerProgress.purge();
+		if (timerProgress != null) {
+			timerProgress.cancel();
+			timerProgress.purge();
+		}
 		updateTime = 0;
 	}
 
 	private void pauseRecordingTimer() {
-		timerProgress.cancel();
-		timerProgress.purge();
+		if (timerProgress != null) {
+			timerProgress.cancel();
+			timerProgress.purge();
+		}
 		updateTime = 0;
 	}
 }

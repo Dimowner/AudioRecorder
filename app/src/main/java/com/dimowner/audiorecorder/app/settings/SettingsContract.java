@@ -26,6 +26,8 @@ public class SettingsContract {
 
 	interface View extends Contract.View {
 
+		void showStorageLocation(int location);
+
 		void showStoreInPublicDir(boolean b);
 
 		void showDirectorySetting(boolean b);
@@ -69,6 +71,8 @@ public class SettingsContract {
 		void showRecordsLocation(String location);
 		void hideRecordsLocation();
 		void openRecordsLocation(File file);
+		void showSdCardStorage(boolean available, boolean checked, String location);
+		void hideSdCardStorage();
 
 		void enableAudioSettings();
 		void disableAudioSettings();
@@ -78,7 +82,18 @@ public class SettingsContract {
 
 		void loadSettings();
 
+		void setStorageLocation(Context context, int location);
+
 		void storeInPublicDir(Context context, boolean b);
+
+		void setCustomPublicDir(Context context, String path);
+
+		void storeInSdCard(Context context, boolean b);
+
+		/**
+		 * Set the SAF tree URI for SD card access.
+		 */
+		void setSafTreeUri(Context context, String uriString);
 
 		void keepScreenOn(boolean b);
 

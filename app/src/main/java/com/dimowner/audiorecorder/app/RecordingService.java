@@ -28,8 +28,10 @@ import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.graphics.Color;
 import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
@@ -49,6 +51,7 @@ import com.dimowner.audiorecorder.audio.recorder.RecorderContract;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.RecordDataSource;
+import com.dimowner.audiorecorder.data.RecordingTarget;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.AppException;
@@ -72,6 +75,7 @@ public class RecordingService extends Service {
 	private final static String CHANNEL_ID_ERRORS = "com.dimowner.audiorecorder.Errors";
 
 	public static final String EXTRAS_KEY_RECORD_PATH = "EXTRAS_KEY_RECORD_PATH";
+	public static final String EXTRAS_KEY_SAF_URI = "EXTRAS_KEY_SAF_URI";
 	public static final String ACTION_START_RECORDING_SERVICE = "ACTION_START_RECORDING_SERVICE";
 
 	public static final String ACTION_STOP_RECORDING_SERVICE = "ACTION_STOP_RECORDING_SERVICE";
@@ -96,6 +100,7 @@ public class RecordingService extends Service {
 	private ColorMap colorMap;
 	private boolean started = false;
 	private FileRepository fileRepository;
+	private RecordingTarget currentTarget = null;
 
 	public RecordingService() {
 	}
@@ -200,7 +205,9 @@ public class RecordingService extends Service {
 						if (!started) {
 							startForegroundService();
 							if (intent.hasExtra(EXTRAS_KEY_RECORD_PATH)) {
-								startRecording(intent.getStringExtra(EXTRAS_KEY_RECORD_PATH));
+								String path = intent.getStringExtra(EXTRAS_KEY_RECORD_PATH);
+								String safUri = intent.getStringExtra(EXTRAS_KEY_SAF_URI);
+								startRecording(path, safUri);
 							} else {
 								showError(ErrorParser.parseException(new RecorderInitException()));
 								stopForegroundService();
@@ -414,8 +421,17 @@ public class RecordingService extends Service {
 		}
 	}
 
-	private void startRecording(String path) {
+	private void startRecording(String path, String safUriString) {
 		appRecorder.setRecorder(recorder);
+		
+		// Create RecordingTarget based on whether SAF URI is provided
+		if (safUriString != null) {
+			Uri safUri = Uri.parse(safUriString);
+			currentTarget = new RecordingTarget(safUri, path);
+		} else {
+			currentTarget = new RecordingTarget(new java.io.File(path));
+		}
+		
 		try {
 			if (fileRepository.hasAvailableSpace(getApplicationContext())) {
 //				if (appRecorder.isPaused()) {
@@ -425,13 +441,15 @@ public class RecordingService extends Service {
 					if (audioPlayer.isPlaying() || audioPlayer.isPaused()) {
 						audioPlayer.stop();
 					}
+					final RecordingTarget target = currentTarget;
 					recordingsTasks.postRunnable(() -> {
 						try {
 							Record record = localRepository.insertEmptyFile(path);
 							prefs.setActiveRecord(record.getId());
 							recordDataSource.setRecordingRecord(record);
 							AndroidUtils.runOnUIThread(() -> appRecorder.startRecording(
-									path,
+									getApplicationContext(),
+									target,
 									prefs.getSettingChannelCount(),
 									prefs.getSettingSampleRate(),
 									prefs.getSettingBitrate()

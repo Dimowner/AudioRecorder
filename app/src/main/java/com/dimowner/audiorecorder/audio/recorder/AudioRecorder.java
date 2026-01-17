@@ -20,10 +20,12 @@ import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Handler;
 
+import com.dimowner.audiorecorder.data.RecordingTarget;
 import com.dimowner.audiorecorder.exception.InvalidOutputFile;
 import com.dimowner.audiorecorder.exception.RecorderInitException;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -95,6 +97,38 @@ public class AudioRecorder implements RecorderContract.Recorder {
 		} else {
 			if (recorderCallback != null) {
 				recorderCallback.onError(new InvalidOutputFile());
+			}
+		}
+	}
+
+	@Override
+	public void startRecording(FileDescriptor fd, RecordingTarget target, int channelCount, int sampleRate, int bitrate) {
+		// Create a placeholder File for callbacks (the actual writing goes to fd)
+		recordFile = new File(target.getPath());
+		
+		recorder = new MediaRecorder();
+		recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+		recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+		recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+		recorder.setAudioChannels(channelCount);
+		recorder.setAudioSamplingRate(sampleRate);
+		recorder.setAudioEncodingBitRate(bitrate);
+		recorder.setMaxDuration(-1);
+		recorder.setOutputFile(fd);
+		try {
+			recorder.prepare();
+			recorder.start();
+			updateTime = System.currentTimeMillis();
+			isRecording.set(true);
+			scheduleRecordingTimeUpdate();
+			if (recorderCallback != null) {
+				recorderCallback.onStartRecord(recordFile);
+			}
+			isPaused.set(false);
+		} catch (IOException | IllegalStateException e) {
+			Timber.e(e, "prepare() failed for SAF recording");
+			if (recorderCallback != null) {
+				recorderCallback.onError(new RecorderInitException());
 			}
 		}
 	}

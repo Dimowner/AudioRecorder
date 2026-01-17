@@ -18,9 +18,11 @@ package com.dimowner.audiorecorder.app.settings;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.UriPermission;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,9 +30,12 @@ import android.provider.DocumentsContract;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.view.View;
+import android.text.InputType;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -59,44 +64,37 @@ import timber.log.Timber;
 
 public class SettingsActivity extends Activity implements SettingsContract.View, View.OnClickListener {
 
+	private static final int REQUEST_SAF_FOLDER = 1001;
+	private static final int REQUEST_CUSTOM_FOLDER = 1002;
+
 	private TextView txtTotalDuration;
 	private TextView txtRecordsCount;
 	private TextView txtAvailableSpace;
 	private TextView txtSizePerMin;
 	private TextView txtInformation;
 	private TextView txtLocation;
-	private TextView txtStorageInfo;
+	private TextView btnChangeDir;
 	private TextView txtFileBrowser;
 	private TextView btnView;
 	private View migratePublicStoragePanel;
-	private View panelPublicDir;
 
-	private Switch swPublicDir;
 	private Switch swKeepScreenOn;
 	private Switch swAskToRename;
 
 	private Spinner nameFormatSelector;
+	private Spinner storageLocationSpinner;
+	private int currentStorageLocation = 0;
 
 	private SettingView formatSetting;
 	private SettingView sampleRateSetting;
 	private SettingView bitrateSetting;
 	private SettingView channelsSetting;
 	private Button btnReset;
+	private String currentRecordsDir;
 
 	private SettingsContract.UserActionsListener presenter;
 	private ColorMap colorMap;
 	private ColorMap.OnThemeColorChangeListener onThemeColorChangeListener;
-	private final CompoundButton.OnCheckedChangeListener publicDirListener = new CompoundButton.OnCheckedChangeListener() {
-		@Override
-		public void onCheckedChanged(CompoundButton btn, boolean isChecked) {
-			presenter.storeInPublicDir(getApplicationContext(), isChecked);
-			if (isChecked) {
-				showDialogPublicDirInfo();
-			} else {
-				showDialogPrivateDirInfo();
-			}
-		}
-	};
 
 	private String[] formats;
 	private String[] formatsKeys;
@@ -133,28 +131,25 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		txtSizePerMin = findViewById(R.id.txt_size_per_min);
 		txtInformation = findViewById(R.id.txt_information);
 		txtLocation = findViewById(R.id.txt_records_location);
-		txtStorageInfo = findViewById(R.id.txt_storage_info);
+		btnChangeDir = findViewById(R.id.btn_change_records_dir);
 		migratePublicStoragePanel = findViewById(R.id.migrate_public_storage_panel);
 		migratePublicStoragePanel.setOnClickListener(this);
 		txtLocation.setOnClickListener(this);
+		btnChangeDir.setOnClickListener(this);
 		findViewById(R.id.btnBack).setOnClickListener(this);
 		TextView txtAbout = findViewById(R.id.txtAbout);
 		txtAbout.setText(getAboutContent());
 		findViewById(R.id.btnTrash).setOnClickListener(this);
 		findViewById(R.id.btnRate).setOnClickListener(this);
 		findViewById(R.id.btnRequest).setOnClickListener(this);
-		panelPublicDir = findViewById(R.id.panelPublicDir);
 		txtFileBrowser = findViewById(R.id.btn_file_browser);
 		txtFileBrowser.setOnClickListener(this);
-		swPublicDir = findViewById(R.id.swPublicDir);
 		swKeepScreenOn = findViewById(R.id.swKeepScreenOn);
 		swAskToRename = findViewById(R.id.swAskToRename);
 
 		txtRecordsCount = findViewById(R.id.txt_records_count);
 		txtTotalDuration= findViewById(R.id.txt_total_duration);
 		txtAvailableSpace = findViewById(R.id.txt_available_space);
-
-		swPublicDir.setOnCheckedChangeListener(publicDirListener);
 
 		swKeepScreenOn.setOnCheckedChangeListener((btn, isChecked) -> presenter.keepScreenOn(isChecked));
 		swAskToRename.setOnCheckedChangeListener((btn, isChecked) -> presenter.askToRenameAfterRecordingStop(isChecked));
@@ -239,6 +234,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		}
 
 		initThemeColorSelector();
+		initStorageLocationSelector();
 		initNameFormatSelector();
 	}
 
@@ -274,6 +270,144 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		});
 	}
 
+	private void initStorageLocationSelector() {
+		storageLocationSpinner = findViewById(R.id.spinnerStorageLocation);
+		List<AppSpinnerAdapter.ThemeItem> items = new ArrayList<>();
+
+		// Check if SD card is available
+		boolean sdCardAvailable = FileUtil.getSecondaryExternalPublicDir(getApplicationContext(), AppConstants.APPLICATION_NAME) != null;
+
+		// Add storage options
+		items.add(new AppSpinnerAdapter.ThemeItem(
+				getString(R.string.storage_internal),
+				getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
+
+		if (sdCardAvailable) {
+			items.add(new AppSpinnerAdapter.ThemeItem(
+					getString(R.string.storage_sdcard),
+					getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
+		} else {
+			items.add(new AppSpinnerAdapter.ThemeItem(
+					getString(R.string.storage_sdcard_unavailable),
+					getApplicationContext().getResources().getColor(R.color.text_secondary_light)));
+		}
+
+		items.add(new AppSpinnerAdapter.ThemeItem(
+				getString(R.string.storage_custom),
+				getApplicationContext().getResources().getColor(colorMap.getPrimaryColorRes())));
+
+		AppSpinnerAdapter adapter = new AppSpinnerAdapter(SettingsActivity.this,
+				R.layout.list_item_spinner, R.id.txtItem, items, R.drawable.ic_folder_open);
+		storageLocationSpinner.setAdapter(adapter);
+
+		final boolean sdAvailable = sdCardAvailable;
+		storageLocationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				// Prevent triggering on initial load
+				if (position == currentStorageLocation) {
+					return;
+				}
+
+				// Handle SD card unavailable case
+				if (position == 1 && !sdAvailable) {
+					// Reset to previous selection
+					storageLocationSpinner.setSelection(currentStorageLocation);
+					showError(R.string.storage_sdcard_unavailable);
+					return;
+				}
+
+				// For SD card on Android 10+, we need to use SAF
+				if (position == 1) {
+					// Launch SAF folder picker
+					launchSafFolderPicker();
+					return;  // Don't update storage location yet - wait for SAF result
+				}
+
+				currentStorageLocation = position;
+				presenter.setStorageLocation(getApplicationContext(), position);
+
+				// Show/hide custom directory button
+				updateCustomDirVisibility(position);
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) { }
+		});
+	}
+
+	private void launchSafFolderPicker() {
+		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+				| Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+				| Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+		
+		try {
+			startActivityForResult(intent, REQUEST_SAF_FOLDER);
+		} catch (ActivityNotFoundException e) {
+			Timber.e(e, "No activity found for SAF folder picker");
+			showError(R.string.error_saf_not_available);
+			// Reset spinner to previous value
+			storageLocationSpinner.setSelection(currentStorageLocation);
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		if (requestCode == REQUEST_SAF_FOLDER) {
+			if (resultCode == RESULT_OK && data != null) {
+				Uri treeUri = data.getData();
+				if (treeUri != null) {
+					final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+							| Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+					try {
+						getContentResolver().takePersistableUriPermission(treeUri, takeFlags);
+						presenter.setSafTreeUri(getApplicationContext(), treeUri.toString());
+						currentStorageLocation = 1;
+						presenter.setStorageLocation(getApplicationContext(), 1);
+						updateCustomDirVisibility(1);
+						Timber.d("SAF folder selected: %s", treeUri);
+					} catch (SecurityException e) {
+						Timber.e(e, "Failed to take persistable URI permission");
+						showError(R.string.error_saf_no_write_permission);
+						storageLocationSpinner.setSelection(currentStorageLocation);
+					}
+				} else {
+					storageLocationSpinner.setSelection(currentStorageLocation);
+				}
+			} else {
+				storageLocationSpinner.setSelection(currentStorageLocation);
+			}
+		} else if (requestCode == REQUEST_CUSTOM_FOLDER) {
+			if (resultCode == RESULT_OK && data != null) {
+				Uri treeUri = data.getData();
+				if (treeUri != null) {
+					final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+							| Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+					try {
+						getContentResolver().takePersistableUriPermission(treeUri, takeFlags);
+						presenter.setSafTreeUri(getApplicationContext(), treeUri.toString());
+						currentStorageLocation = 1;
+						presenter.setStorageLocation(getApplicationContext(), 1);
+						updateCustomDirVisibility(1);
+						Timber.d("Custom folder selected via SAF: %s", treeUri);
+					} catch (SecurityException e) {
+						Timber.e(e, "Failed to take persistable URI permission for custom folder");
+						showError(R.string.error_saf_no_write_permission);
+					}
+				}
+			}
+		}
+	}
+
+	private void updateCustomDirVisibility(int storageLocation) {
+		// Show "Change directory" button only for custom storage
+		boolean isCustom = (storageLocation == 2); // STORAGE_CUSTOM
+		btnChangeDir.setVisibility(isCustom ? View.VISIBLE : View.GONE);
+	}
+
 	private void initNameFormatSelector() {
 		nameFormatSelector = findViewById(R.id.name_format);
 		List<AppSpinnerAdapter.ThemeItem> items = new ArrayList<>();
@@ -304,11 +438,6 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		super.onStart();
 		presenter.bindView(this);
 		presenter.loadSettings();
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			//This is needed for scoped storage support
-			swPublicDir.setChecked(false);
-			swPublicDir.setEnabled(false);
-		}
 	}
 
 	@Override
@@ -338,13 +467,15 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			startActivity(TrashActivity.getStartIntent(getApplicationContext()));
 		} else if (id == R.id.txt_records_location) {
 			presenter.onRecordsLocationClick();
-		} else if (id == R.id.btn_file_browser) {
-			startActivity(FileBrowserActivity.getStartIntent(getApplicationContext()));
-		} else if (id == R.id.btnRate) {
-			rateApp();
-		} else if (id == R.id.btnReset) {
-			presenter.resetSettings();
-			presenter.loadSettings();
+	} else if (id == R.id.btn_file_browser) {
+		startActivity(FileBrowserActivity.getStartIntent(getApplicationContext()));
+	} else if (id == R.id.btn_change_records_dir) {
+		showChangeRecordsDirDialog();
+	} else if (id == R.id.btnRate) {
+		rateApp();
+	} else if (id == R.id.btnReset) {
+		presenter.resetSettings();
+		presenter.loadSettings();
 		} else if (id == R.id.btnRequest) {
 			requestFeature();
 		}
@@ -399,20 +530,40 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		return aboutBody;
 	}
 
+	private void showChangeRecordsDirDialog() {
+		launchCustomFolderPicker();
+	}
+
+	private void launchCustomFolderPicker() {
+		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+				| Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+		try {
+			startActivityForResult(intent, REQUEST_CUSTOM_FOLDER);
+		} catch (ActivityNotFoundException e) {
+			Timber.e(e, "No activity found for folder picker");
+			showError(R.string.error_saf_not_available);
+		}
+	}
+
+	@Override
+	public void showStorageLocation(int location) {
+		currentStorageLocation = location;
+		if (storageLocationSpinner != null && storageLocationSpinner.getSelectedItemPosition() != location) {
+			storageLocationSpinner.setSelection(location);
+		}
+		updateCustomDirVisibility(location);
+	}
+
 	@Override
 	public void showStoreInPublicDir(boolean b) {
-		swPublicDir.setOnCheckedChangeListener(null);
-		swPublicDir.setChecked(b);
-		swPublicDir.setOnCheckedChangeListener(publicDirListener);
+		// Legacy method - now handled by showStorageLocation
 	}
 
 	@Override
 	public void showDirectorySetting(boolean b) {
-		panelPublicDir.setVisibility(b ? View.VISIBLE : View.GONE);
-//		txtFileBrowser.setVisibility(b ? View.VISIBLE : View.GONE);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-			txtStorageInfo.setVisibility(b ? View.VISIBLE : View.GONE);
-		}
+		// Legacy method - storage settings now always visible
 	}
 
 	@Override
@@ -544,14 +695,28 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	@Override
 	public void showRecordsLocation(String location) {
+		currentRecordsDir = location;
 		txtLocation.setVisibility(View.VISIBLE);
 		txtLocation.setText(getString(R.string.records_location, location));
+		// btnChangeDir visibility is managed by updateCustomDirVisibility
 	}
 
 	@Override
 	public void hideRecordsLocation() {
+		currentRecordsDir = null;
 		txtLocation.setText("");
 		txtLocation.setVisibility(View.GONE);
+		btnChangeDir.setVisibility(View.GONE);
+	}
+
+	@Override
+	public void showSdCardStorage(boolean available, boolean checked, String location) {
+		// Legacy method - SD card option is now in the storage location spinner
+	}
+
+	@Override
+	public void hideSdCardStorage() {
+		// Legacy method - SD card option is now in the storage location spinner
 	}
 
 	@Override

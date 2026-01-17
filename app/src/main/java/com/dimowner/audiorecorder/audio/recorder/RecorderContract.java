@@ -16,9 +16,11 @@
 
 package com.dimowner.audiorecorder.audio.recorder;
 
+import com.dimowner.audiorecorder.data.RecordingTarget;
 import com.dimowner.audiorecorder.exception.AppException;
 
 import java.io.File;
+import java.io.FileDescriptor;
 
 public interface RecorderContract {
 
@@ -34,6 +36,22 @@ public interface RecorderContract {
 	interface Recorder {
 		void setRecorderCallback(RecorderCallback callback);
 		void startRecording(String outputFile, int channelCount, int sampleRate, int bitrate);
+		
+		/**
+		 * Start recording to a FileDescriptor (for SAF support).
+		 * @param fd The FileDescriptor to write to
+		 * @param target The RecordingTarget containing path info for callbacks
+		 * @param channelCount Number of audio channels
+		 * @param sampleRate Sample rate in Hz
+		 * @param bitrate Bitrate in bits per second
+		 */
+		default void startRecording(FileDescriptor fd, RecordingTarget target, int channelCount, int sampleRate, int bitrate) {
+			// Default implementation falls back to file path if available
+			if (target != null && target.getFile() != null) {
+				startRecording(target.getFile().getAbsolutePath(), channelCount, sampleRate, bitrate);
+			}
+		}
+		
 		void resumeRecording();
 		void pauseRecording();
 		void stopRecording();

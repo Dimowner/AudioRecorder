@@ -54,10 +54,13 @@ class TransparentRecordingActivity : Activity() {
 
     private fun startRecordingService() {
         try {
+            val target = fileRepository.provideRecordingTarget(applicationContext)
             val startIntent = Intent(applicationContext, RecordingService::class.java)
-            val path = fileRepository.provideRecordFile().absolutePath
             startIntent.action = RecordingService.ACTION_START_RECORDING_SERVICE
-            startIntent.putExtra(RecordingService.EXTRAS_KEY_RECORD_PATH, path)
+            startIntent.putExtra(RecordingService.EXTRAS_KEY_RECORD_PATH, target.path)
+            if (target.isSaf) {
+                startIntent.putExtra(RecordingService.EXTRAS_KEY_SAF_URI, target.safUri.toString())
+            }
             startService(startIntent)
         } catch (e: CantCreateFileException) {
             Toast.makeText(applicationContext, ErrorParser.parseException(e), Toast.LENGTH_LONG).show()

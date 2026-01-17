@@ -49,7 +49,30 @@
 
 # FAQ
 ### <b>When option to choose recording directory will be added?</b>
-<p>There is no plans to add feature where user can change recording directory. Newer versions of Android added restrictions on ability to interact with device file system. There is no simple way how to implement the feature. So all records are stored in app's private dir. Anyway, all record files available for user to download from app's private dir to a public dir.</p> 
+<p>There is no plans to add feature where user can change recording directory. Newer versions of Android added restrictions on ability to interact with device file system. There is no simple way how to implement the feature. So all records are stored in app's private dir. Anyway, all record files available for user to download from app's private dir to a public dir.</p>
+
+## Android 10 Storage Changes (Local Fork)
+
+This fork enables public directory storage on Android 10 using the legacy storage API.
+
+**Why:** Android 10 introduced Scoped Storage, and the upstream app disabled the "Store in public directory" option on Android 10+. However, Android 10 still supports `requestLegacyExternalStorage`, allowing apps to opt out of Scoped Storage. This fork uses that mechanism to preserve recordings in a public location (`/sdcard/AudioRecorder/`) that survives app uninstall.
+
+**Changes made:**
+
+1. `AndroidManifest.xml`:
+   - Added `android:requestLegacyExternalStorage="true"` to opt out of Scoped Storage
+   - Extended storage permissions to API 29 (`maxSdkVersion="29"`)
+
+2. `SettingsActivity.java`:
+   - Removed Android Q block that hid the public directory toggle
+
+3. `PrefsImpl.java`:
+   - Removed Android Q block in `firstRunExecuted()` that disabled directory settings
+
+4. `MainActivity.java`:
+   - Removed Android Q block in `onStart()` that forced private storage on every launch
+
+**Limitations:** This only works on Android 10. Android 11+ enforces Scoped Storage and ignores `requestLegacyExternalStorage`. For Android 11+, the app would need to use MediaStore API or Storage Access Framework.
 
 ### License
 

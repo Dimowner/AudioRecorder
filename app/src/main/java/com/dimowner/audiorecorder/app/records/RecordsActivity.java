@@ -53,12 +53,14 @@ import com.dimowner.audiorecorder.app.trash.TrashActivity;
 import com.dimowner.audiorecorder.app.widget.SimpleWaveformView;
 import com.dimowner.audiorecorder.app.widget.TouchLayout;
 import com.dimowner.audiorecorder.app.widget.WaveformViewNew;
+import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,6 +101,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private ImageButton btnDownloadMulti;
 
 	private RecordsContract.UserActionsListener presenter;
+	private FileRepository fileRepository;
 	private ColorMap colorMap;
 
 	final private List<String> downloadRecords = new ArrayList<>();
@@ -314,6 +317,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		recyclerView.setAdapter(adapter);
 
 		presenter = ARApplication.getInjector().provideRecordsPresenter(getApplicationContext());
+		fileRepository = ARApplication.getInjector().provideFileRepository(getApplicationContext());
 
 		waveformView.setOnSeekListener(new WaveformViewNew.OnSeekListener() {
 			@Override
@@ -413,8 +417,9 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		String path = presenter.getActiveRecordPath();
 		if (FileUtil.isFileInExternalStorage(getApplicationContext(), path)) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-				AndroidUtils.showRecordFileNotAvailable(this, path);
-				return false;
+				// Try SAF playback for external storage on Android 10+
+				presenter.startPlaybackWithSaf(getApplicationContext());
+				return true;
 			} else if (checkStoragePermissionPlayback()) {
 				presenter.startPlayback();
 				return true;
@@ -661,7 +666,11 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	}
 
 	private boolean isPublicDir(String path) {
-		return path.contains(FileUtil.getAppDir().getAbsolutePath());
+		if (path == null) {
+			return false;
+		}
+		File publicDir = fileRepository != null ? fileRepository.getPublicDir() : null;
+		return publicDir != null && path.contains(publicDir.getAbsolutePath());
 	}
 
 	@Override

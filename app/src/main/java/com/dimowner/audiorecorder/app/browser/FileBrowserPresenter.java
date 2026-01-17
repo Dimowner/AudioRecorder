@@ -269,8 +269,13 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 					view.showSelectedPrivateDir();
 				}
 			} else {
-				view.updatePath(fileRepository.getPublicDir().getAbsolutePath());
-				view.showSelectedPublicDir();
+				File dir = fileRepository.getPublicDir();
+				if (dir != null) {
+					view.updatePath(dir.getAbsolutePath());
+					view.showSelectedPublicDir();
+				} else {
+					view.showError(R.string.error_unable_to_use_directory);
+				}
 			}
 		}
 	}

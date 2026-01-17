@@ -79,8 +79,8 @@
 		<item quantity="one">%d kayıt taşındı</item>
 		<item quantity="other">%d kayıt taşındı</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d kayıt kopyalandı ve %d kayıt kopyalanamadı</string>
-	<string name="moving_records_success_and_fail_count">%d kayıt taşındı ve %d kayıt taşınamadı</string>
+	<string name="downloading_success_and_fail_count">%1$d kayıt kopyalandı ve %2$d kayıt kopyalanamadı</string>
+	<string name="moving_records_success_and_fail_count">%1$d kayıt taşındı ve %2$d kayıt taşınamadı</string>
 	<string name="downloading_success">%s \'Downloads\' dizinine kaydedildi</string>
 	<string name="move_record_success">%s uygulama dizinine taşındı</string>
 	<plurals name="downloading_failed_count">
@@ -128,6 +128,11 @@
 	<string name="file_browser">Dosya yöneticisi</string>
 	<string name="private_dir">Uygulama dizini</string>
 	<string name="public_dir">Genel dizin</string>
+	<string name="storage_location">Depolama konumu</string>
+	<string name="storage_internal">Dahili depolama</string>
+	<string name="storage_sdcard">SD kart</string>
+	<string name="storage_custom">Özel yol</string>
+	<string name="storage_sdcard_unavailable">SD kart (kullanılamıyor)</string>
 	<string name="found_in_the_app">Uygulama içinde bulundu</string>
 	<string name="not_found_in_the_app">Uygulama içinde bulunamadı</string>
 	<string name="in_trash">Çöp kutusunda</string>
@@ -227,6 +232,9 @@
 	<string name="error_on_recording">Kayıt hatası!</string>
 	<string name="error_failed_to_restore">Kayıt geri yüklenemedi!</string>
 	<string name="error_failed_to_delete">Kayıt silinemedi!</string>
+	<string name="error_saf_not_available">Klasör seçici açılamıyor. Cihazınız bu özelliği desteklemiyor olabilir.</string>
+	<string name="error_saf_no_write_permission">Seçilen klasöre yazılamıyor. Lütfen farklı bir konum seçin.</string>
+	<string name="error_wav_format_not_supported_saf">SD karta kaydederken WAV formatı desteklenmiyor. Lütfen M4A veya 3GP formatını kullanın veya dahili depolamaya geçin.</string>
 
 	<string name="move_public_storage_records_message">Genel dizindeki kayıtların taşınması gerekiyor</string>
 	<string name="later">Sonra</string>
