@@ -23,6 +23,7 @@ import android.media.AudioManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,16 +32,35 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
+ * Data class to wrap AudioDeviceInfo with display name
+ *
+ * @property id Unique identifier for the device
+ * @property productName Display name of the device
+ * @property type AudioDeviceInfo type constant
+ * @property audioDeviceInfo Original AudioDeviceInfo object
+ */
+data class BluetoothDeviceInfo(
+    val id: Int,
+    val productName: String,
+    val type: Int,
+    val audioDeviceInfo: AudioDeviceInfo
+)
+
+/**
  * Data class representing the state of Bluetooth microphone availability and routing.
  *
  * @property isAvailable Whether a Bluetooth microphone is currently connected and available.
  * @property isEnabled Whether Bluetooth audio routing is currently enabled for recording.
  * @property deviceName The product name of the connected Bluetooth device, if available.
+ * @property connectedDevices List of all currently connected Bluetooth microphones.
+ * @property selectedDevice The currently selected Bluetooth device, if any.
  */
 data class BluetoothMicState(
     val isAvailable: Boolean = false,
     val isEnabled: Boolean = false,
-    val deviceName: String? = null
+    val deviceName: String? = null,
+    val connectedDevices: List<BluetoothDeviceInfo> = emptyList(),
+    val selectedDevice: BluetoothDeviceInfo? = null
 )
 
 /**
@@ -56,7 +76,7 @@ data class BluetoothMicState(
  */
 @Singleton
 class AudioManagerHelper @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) {
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
@@ -66,6 +86,8 @@ class AudioManagerHelper @Inject constructor(
     private var isBluetoothScoActive = false
     private var previousAudioMode = AudioManager.MODE_NORMAL
 
+    private var selectedBluetoothDevice: BluetoothDeviceInfo? = null
+
     private val audioDeviceCallback = object : AudioDeviceCallback() {
         override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>) {
             Timber.d("Audio devices added: ${addedDevices.size}")
@@ -74,6 +96,28 @@ class AudioManagerHelper @Inject constructor(
 
         override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo>) {
             Timber.d("Audio devices removed: ${removedDevices.size}")
+            val removedDeviceIds = removedDevices.map { it.id }.toSet()
+            // Clear selection if the selected device was removed
+            if (selectedBluetoothDevice != null && removedDeviceIds.contains(selectedBluetoothDevice!!.id)) {
+                Timber.d("Selected Bluetooth device was removed, clearing selection")
+                selectedBluetoothDevice = null
+                // Disable Bluetooth routing
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    try {
+                        audioManager.clearCommunicationDevice()
+                        audioManager.mode = previousAudioMode
+                    } catch (e: Exception) {
+                        Timber.e(e, "Error clearing communication device")
+                    }
+                } else {
+                    if (isBluetoothScoActive) {
+                        audioManager.stopBluetoothSco()
+                        audioManager.isBluetoothScoOn = false
+                        audioManager.mode = previousAudioMode
+                        isBluetoothScoActive = false
+                    }
+                }
+            }
             updateBluetoothDeviceState()
         }
     }
@@ -105,7 +149,7 @@ class AudioManagerHelper @Inject constructor(
      *
      * @param enable true to enable Bluetooth microphone, false to disable.
      */
-    fun enableBluetoothMic(enable: Boolean) {
+    suspend fun enableBluetoothMic(enable: Boolean) {
         Timber.d("enableBluetoothMic: $enable")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -114,6 +158,38 @@ class AudioManagerHelper @Inject constructor(
             enableBluetoothMicLegacy(enable)
         }
 
+        delay(500)
+        updateBluetoothDeviceState()
+    }
+
+    /**
+     * Returns a list of all currently connected Bluetooth input devices.
+     * Includes TYPE_BLUETOOTH_SCO and TYPE_BLE_HEADSET (API 31+) devices.
+     * Uses BLUETOOTH_CONNECT permission to retrieve actual product names.
+     *
+     * @return List of AudioDeviceInfo for all connected Bluetooth microphones
+     */
+    fun getConnectedBluetoothInputDevices(): List<AudioDeviceInfo> {
+        return try {
+            audioManager.availableCommunicationDevices.filter {
+                isBluetoothInputDevice(it)
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error getting connected Bluetooth input devices")
+            emptyList()
+        }
+    }
+
+    /**
+     * Selects a specific Bluetooth device for audio input.
+     * For API 31+: Uses AudioManager.setCommunicationDevice(selectedDevice)
+     * For API < 31: Uses startBluetoothSco() (specific device routing limited by system)
+     *
+     * @param device The BluetoothDeviceInfo to select, or null to clear selection
+     */
+    fun selectBluetoothDevice(device: BluetoothDeviceInfo?) {
+        Timber.d("selectBluetoothDevice: ${device?.productName}")
+        selectedBluetoothDevice = device
         updateBluetoothDeviceState()
     }
 
@@ -124,7 +200,10 @@ class AudioManagerHelper @Inject constructor(
     private fun enableBluetoothMicApi31Plus(enable: Boolean) {
         try {
             if (enable) {
-                val bluetoothDevice = getBluetoothAudioInputDevice()
+                // Use selected device if available, otherwise use first available device
+                val bluetoothDevice = selectedBluetoothDevice?.audioDeviceInfo
+                    ?: getBluetoothAudioInputDevice()
+                
                 if (bluetoothDevice != null) {
                     previousAudioMode = audioManager.mode
                     audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
@@ -133,6 +212,8 @@ class AudioManagerHelper @Inject constructor(
                     if (!success) {
                         Timber.w("Failed to set communication device")
                         audioManager.mode = previousAudioMode
+                    } else {
+                        Timber.d("Success to set communication device!")
                     }
                 } else {
                     Timber.w("No Bluetooth audio input device available")
@@ -190,16 +271,7 @@ class AudioManagerHelper @Inject constructor(
             }
         }
 
-        return try {
-            val devices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)
-            devices.firstOrNull { isBluetoothInputDevice(it) }?.productName?.toString()
-        } catch (e: SecurityException) {
-            Timber.e(e, "SecurityException getting Bluetooth device name")
-            null
-        } catch (e: Exception) {
-            Timber.e(e, "Error getting Bluetooth device name")
-            null
-        }
+        return getAvailableCommunicationDevices().firstOrNull()?.productName?.toString()
     }
 
     /**
@@ -239,18 +311,61 @@ class AudioManagerHelper @Inject constructor(
      * Updates the Bluetooth device state and notifies observers via StateFlow.
      */
     private fun updateBluetoothDeviceState() {
-        val isAvailable = hasBluetoothAudioInputDevice()
-        val deviceName = if (isAvailable) getConnectedBluetoothDeviceName() else null
+        val connectedDevices = getConnectedBluetoothInputDevices().map { deviceInfo ->
+            val productName = try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (!PermissionHelper.hasBluetoothConnectPermission(context)) {
+                        "Bluetooth Device"
+                    } else {
+                        deviceInfo.productName.toString().ifEmpty { "Bluetooth Device" }
+                    }
+                } else {
+                    deviceInfo.productName.toString().ifEmpty { "Bluetooth Device" }
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Error getting product name")
+                "Bluetooth Device"
+            }
+            
+            BluetoothDeviceInfo(
+                id = deviceInfo.id,
+                productName = productName,
+                type = deviceInfo.type,
+                audioDeviceInfo = deviceInfo
+            )
+        }
+        
+        val isAvailable = connectedDevices.isNotEmpty()
+        val deviceName = if (isAvailable) {
+            selectedBluetoothDevice?.productName ?: connectedDevices.firstOrNull()?.productName
+        } else {
+            null
+        }
+        
         val isEnabled = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             isBluetoothEnabledApi31Plus()
         } else {
             isBluetoothScoActive
         }
+        
+        // Validate selected device is still in connected devices
+        val validatedSelectedDevice = if (selectedBluetoothDevice != null) {
+            connectedDevices.find { it.id == selectedBluetoothDevice!!.id }
+        } else {
+            null
+        }
+        
+        // If selected device is no longer valid, clear it
+        if (selectedBluetoothDevice != null && validatedSelectedDevice == null) {
+            selectedBluetoothDevice = null
+        }
 
         _bluetoothMicState.value = BluetoothMicState(
             isAvailable = isAvailable,
             isEnabled = isEnabled,
-            deviceName = deviceName
+            deviceName = deviceName,
+            connectedDevices = connectedDevices,
+            selectedDevice = validatedSelectedDevice
         )
 
         Timber.d("Updated Bluetooth state: ${_bluetoothMicState.value}")
@@ -274,13 +389,7 @@ class AudioManagerHelper @Inject constructor(
      * Checks if any Bluetooth audio input device is currently available.
      */
     private fun hasBluetoothAudioInputDevice(): Boolean {
-        return try {
-            val devices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS)
-            devices.any { isBluetoothInputDevice(it) }
-        } catch (e: Exception) {
-            Timber.e(e, "Error checking for Bluetooth audio input device")
-            false
-        }
+        return getAvailableCommunicationDevices().isNotEmpty()
     }
 
     /**
@@ -288,13 +397,17 @@ class AudioManagerHelper @Inject constructor(
      */
     @RequiresApi(Build.VERSION_CODES.S)
     private fun getBluetoothAudioInputDevice(): AudioDeviceInfo? {
+        return getAvailableCommunicationDevices().firstOrNull()
+    }
+
+    private fun getAvailableCommunicationDevices(): List<AudioDeviceInfo> {
         return try {
-            audioManager.availableCommunicationDevices.firstOrNull { 
-                isBluetoothInputDevice(it) 
+            audioManager.availableCommunicationDevices.filter {
+                isBluetoothInputDevice(it)
             }
         } catch (e: Exception) {
             Timber.e(e, "Error getting Bluetooth audio input device")
-            null
+            emptyList()
         }
     }
 
@@ -305,10 +418,11 @@ class AudioManagerHelper @Inject constructor(
      * @return true if the device is a Bluetooth input device with microphone capability.
      */
     private fun isBluetoothInputDevice(device: AudioDeviceInfo): Boolean {
-        // Must be an input source (has microphone)
-        if (!device.isSource) {
-            return false
-        }
+// This code commented out because of this logic is filtering out actual bluetooth headset MIC.
+//        // Must be an input source (has microphone)
+//        if (!device.isSource) {
+//            return false
+//        }
 
         // Check for Bluetooth device types
         return when (device.type) {

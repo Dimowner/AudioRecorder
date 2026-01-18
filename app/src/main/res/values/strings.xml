@@ -363,9 +363,7 @@
 
     <string name="app_widget_description">Start recording widget</string>
 
-    <!-- Bluetooth Microphone -->
-    <string name="bluetooth_microphone">Bluetooth Microphone</string>
-    <string name="bluetooth_mic_not_available">No Bluetooth microphone detected</string>
+    <string name="bluetooth_microphone_available">Bluetooth microphone available</string>
     <string name="audio_source">Audio Source</string>
     <string name="audio_source_default">Default</string>
     <string name="audio_source_mic">Mic</string>

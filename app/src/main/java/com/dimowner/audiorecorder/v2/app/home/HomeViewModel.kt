@@ -48,6 +48,7 @@ import com.dimowner.audiorecorder.exception.CantCreateFileException
 import com.dimowner.audiorecorder.exception.ErrorParser
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.util.AudioManagerHelper
+import com.dimowner.audiorecorder.util.BluetoothDeviceInfo
 import com.dimowner.audiorecorder.util.FileUtil
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.adjustWaveformHeights
@@ -149,7 +150,9 @@ class HomeViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     isBluetoothMicAvailable = bluetoothState.isAvailable,
                     isBluetoothMicEnabled = bluetoothState.isEnabled,
-                    bluetoothDeviceName = bluetoothState.deviceName
+                    bluetoothDeviceName = bluetoothState.deviceName,
+                    connectedBluetoothDevices = bluetoothState.connectedDevices,
+                    selectedBluetoothDevice = bluetoothState.selectedDevice
                 )
             }
         }
@@ -899,7 +902,12 @@ class HomeViewModel @Inject constructor(
             HomeScreenAction.OnDeleteRecordingProgressClick -> handleOnDeleteRecordingProgressClick()
             is HomeScreenAction.RestoreRecordFromRecycle -> handleRestoreRecordFromRecycle(action.recordId)
             is HomeScreenAction.SetBluetoothMicEnabled -> {
-                audioManagerHelper.enableBluetoothMic(action.enabled)
+                viewModelScope.launch {
+                    audioManagerHelper.enableBluetoothMic(action.enabled)
+                }
+            }
+            is HomeScreenAction.SelectBluetoothDevice -> {
+                audioManagerHelper.selectBluetoothDevice(action.device)
             }
         }
     }
@@ -943,6 +951,8 @@ data class HomeScreenState(
     val isBluetoothMicAvailable: Boolean = false,
     val isBluetoothMicEnabled: Boolean = false,
     val bluetoothDeviceName: String? = null,
+    val connectedBluetoothDevices: List<BluetoothDeviceInfo> = emptyList(),
+    val selectedBluetoothDevice: BluetoothDeviceInfo? = null,
     // Audio source selection
     val selectedAudioSource: AudioSource = AudioSource.MIC,
 ) {
@@ -980,6 +990,7 @@ sealed class HomeScreenAction {
     data class OnSeekEnd(val mills: Long) : HomeScreenAction()
     data class OnProgressBarStateChange(val value: Float) : HomeScreenAction()
     data class SetBluetoothMicEnabled(val enabled: Boolean) : HomeScreenAction()
+    data class SelectBluetoothDevice(val device: BluetoothDeviceInfo?) : HomeScreenAction()
 }
 
 sealed class HomeScreenEvent {
