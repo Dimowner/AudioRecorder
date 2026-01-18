@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.dimowner.audiorecorder"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -82,6 +82,12 @@ android {
             listOf("META-INF/LICENSE.md", "META-INF/LICENSE-notice.md")
         )
     }
+    testOptions {
+        unitTests {
+            // Required for Robolectric to access Android resources
+            isIncludeAndroidResources = true
+        }
+    }
 }
 
 kotlin {
@@ -133,6 +139,7 @@ dependencies {
     testImplementation(libs.androidx.junit.ktx)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
+    testImplementation(libs.robolectric)
     androidTestImplementation(libs.mockk)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

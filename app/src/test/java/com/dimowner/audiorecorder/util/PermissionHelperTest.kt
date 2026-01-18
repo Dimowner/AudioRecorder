@@ -21,12 +21,10 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.MockKAnnotations
-import io.mockk.clearStaticMockk
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockkStatic
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -34,7 +32,10 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
+@RunWith(AndroidJUnit4::class)
 class PermissionHelperTest {
 
     @MockK(relaxed = true)
@@ -43,14 +44,6 @@ class PermissionHelperTest {
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-        mockkStatic(Build.VERSION::class)
-        mockkStatic(ContextCompat::class)
-    }
-
-    @After
-    fun tearDown() {
-        clearStaticMockk(Build.VERSION::class)
-        clearStaticMockk(ContextCompat::class)
     }
 
     @Test
@@ -61,45 +54,40 @@ class PermissionHelperTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.S])
     fun testPermissionBluetoothConnect_Api31Plus() {
-        every { Build.VERSION.SDK_INT } returns Build.VERSION_CODES.S
-        
         assertNotNull(PermissionHelper.PERMISSION_BLUETOOTH_CONNECT)
         assertEquals("android.permission.BLUETOOTH_CONNECT", PermissionHelper.PERMISSION_BLUETOOTH_CONNECT)
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
     fun testPermissionBluetoothConnect_BelowApi31() {
-        every { Build.VERSION.SDK_INT } returns Build.VERSION_CODES.R
-        
         assertNull(PermissionHelper.PERMISSION_BLUETOOTH_CONNECT)
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.S])
     fun testIsBluetoothPermissionRequired_Api31Plus() {
-        every { Build.VERSION.SDK_INT } returns Build.VERSION_CODES.S
-        
         assertTrue(PermissionHelper.isBluetoothPermissionRequired())
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
     fun testIsBluetoothPermissionRequired_BelowApi31() {
-        every { Build.VERSION.SDK_INT } returns Build.VERSION_CODES.R
-        
         assertFalse(PermissionHelper.isBluetoothPermissionRequired())
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
     fun testHasBluetoothConnectPermission_BelowApi31_ReturnsTrue() {
-        every { Build.VERSION.SDK_INT } returns Build.VERSION_CODES.R
-        
         // Below API 31, this should always return true
         assertTrue(PermissionHelper.hasBluetoothConnectPermission(context))
     }
 
     @Test
+    @Config(sdk = [31])
     fun testHasBluetoothConnectPermission_Api31Plus_PermissionGranted() {
-        every { Build.VERSION.SDK_INT } returns Build.VERSION_CODES.S
         every { 
             ContextCompat.checkSelfPermission(
                 context,
@@ -111,8 +99,8 @@ class PermissionHelperTest {
     }
 
     @Test
+    @Config(sdk = [31])
     fun testHasBluetoothConnectPermission_Api31Plus_PermissionDenied() {
-        every { Build.VERSION.SDK_INT } returns Build.VERSION_CODES.S
         every { 
             ContextCompat.checkSelfPermission(
                 context,
@@ -124,9 +112,8 @@ class PermissionHelperTest {
     }
 
     @Test
+    @Config(sdk = [31])
     fun testGetBluetoothRecordingPermissionsArray_Api31Plus() {
-        every { Build.VERSION.SDK_INT } returns Build.VERSION_CODES.S
-        
         val permissions = PermissionHelper.getBluetoothRecordingPermissionsArray()
         assertEquals(3, permissions.size)
         assertTrue(permissions.contains(PermissionHelper.RECORD_AUDIO))
@@ -135,9 +122,8 @@ class PermissionHelperTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
     fun testGetBluetoothRecordingPermissionsArray_BelowApi31() {
-        every { Build.VERSION.SDK_INT } returns Build.VERSION_CODES.R
-        
         val permissions = PermissionHelper.getBluetoothRecordingPermissionsArray()
         assertEquals(2, permissions.size)
         assertTrue(permissions.contains(PermissionHelper.RECORD_AUDIO))
@@ -272,8 +258,8 @@ class PermissionHelperTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.S])
     fun testGetMissingBluetoothRecordingPermissions_Api31Plus_AllGranted() {
-        every { Build.VERSION.SDK_INT } returns Build.VERSION_CODES.S
         every { 
             ContextCompat.checkSelfPermission(
                 context,
@@ -298,8 +284,8 @@ class PermissionHelperTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.S])
     fun testGetMissingBluetoothRecordingPermissions_Api31Plus_BluetoothMissing() {
-        every { Build.VERSION.SDK_INT } returns Build.VERSION_CODES.S
         every { 
             ContextCompat.checkSelfPermission(
                 context,
@@ -325,29 +311,29 @@ class PermissionHelperTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
     fun testGetMissingBluetoothRecordingPermissions_BelowApi31() {
-        every { Build.VERSION.SDK_INT } returns Build.VERSION_CODES.R
-        every { 
+        every {
             ContextCompat.checkSelfPermission(
                 context,
                 PermissionHelper.RECORD_AUDIO
-            ) 
+            )
         } returns PackageManager.PERMISSION_GRANTED
-        every { 
+        every {
             ContextCompat.checkSelfPermission(
                 context,
                 PermissionHelper.MODIFY_AUDIO_SETTINGS
-            ) 
+            )
         } returns PackageManager.PERMISSION_GRANTED
-        
+
         // Below API 31, BLUETOOTH_CONNECT should not be in the missing permissions
         val missing = PermissionHelper.getMissingBluetoothRecordingPermissions(context)
         assertFalse(missing.contains(PermissionHelper.BLUETOOTH_CONNECT))
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.S])
     fun testCheckBluetoothRecordingPermissions_AllGranted() {
-        every { Build.VERSION.SDK_INT } returns Build.VERSION_CODES.S
         every { 
             ContextCompat.checkSelfPermission(
                 context,
@@ -374,8 +360,8 @@ class PermissionHelperTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.S])
     fun testCheckBluetoothRecordingPermissions_SomeMissing() {
-        every { Build.VERSION.SDK_INT } returns Build.VERSION_CODES.S
         every { 
             ContextCompat.checkSelfPermission(
                 context,
@@ -439,8 +425,8 @@ class PermissionHelperTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.S])
     fun testHasBluetoothRecordingPermissions_AllGranted() {
-        every { Build.VERSION.SDK_INT } returns Build.VERSION_CODES.S
         every { 
             ContextCompat.checkSelfPermission(
                 context,
@@ -464,8 +450,8 @@ class PermissionHelperTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.S])
     fun testHasBluetoothRecordingPermissions_BluetoothMissing() {
-        every { Build.VERSION.SDK_INT } returns Build.VERSION_CODES.S
         every { 
             ContextCompat.checkSelfPermission(
                 context,
