@@ -157,7 +157,7 @@ class AudioManagerHelperTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
-    fun testEnableBluetoothMic_legacy_enable() {
+    fun testEnableBluetoothMic_legacy_enable() = runTest {
         val mockDevice = mockk<AudioDeviceInfo>(relaxed = true)
         every { mockDevice.isSource } returns true
         every { mockDevice.type } returns AudioDeviceInfo.TYPE_BLUETOOTH_SCO
@@ -173,7 +173,7 @@ class AudioManagerHelperTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
-    fun testEnableBluetoothMic_legacy_disable() {
+    fun testEnableBluetoothMic_legacy_disable() = runTest {
         val mockDevice = mockk<AudioDeviceInfo>(relaxed = true)
         every { mockDevice.isSource } returns true
         every { mockDevice.type } returns AudioDeviceInfo.TYPE_BLUETOOTH_SCO
@@ -192,7 +192,7 @@ class AudioManagerHelperTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.S])
-    fun testEnableBluetoothMic_api31Plus_enable() {
+    fun testEnableBluetoothMic_api31Plus_enable() = runTest {
         val mockDevice = mockk<AudioDeviceInfo>(relaxed = true)
         every { mockDevice.isSource } returns true
         every { mockDevice.type } returns AudioDeviceInfo.TYPE_BLUETOOTH_SCO
@@ -210,7 +210,7 @@ class AudioManagerHelperTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.S])
-    fun testEnableBluetoothMic_api31Plus_disable() {
+    fun testEnableBluetoothMic_api31Plus_disable() = runTest {
         every { audioManager.mode } returns AudioManager.MODE_IN_COMMUNICATION
 
         audioManagerHelper.enableBluetoothMic(false)
@@ -221,7 +221,7 @@ class AudioManagerHelperTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.R])
-    fun testRelease_cleansUpResources_legacy() {
+    fun testRelease_cleansUpResources_legacy() = runTest {
         val mockDevice = mockk<AudioDeviceInfo>(relaxed = true)
         every { mockDevice.isSource } returns true
         every { mockDevice.type } returns AudioDeviceInfo.TYPE_BLUETOOTH_SCO
@@ -278,7 +278,7 @@ class AudioManagerHelperTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.S])
-    fun testEnableBluetoothMic_api31Plus_noDeviceAvailable() {
+    fun testEnableBluetoothMic_api31Plus_noDeviceAvailable() = runTest {
         every { audioManager.availableCommunicationDevices } returns emptyList()
 
         audioManagerHelper.enableBluetoothMic(true)
@@ -288,7 +288,7 @@ class AudioManagerHelperTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.S])
-    fun testEnableBluetoothMic_api31Plus_setCommunicationDeviceFails() {
+    fun testEnableBluetoothMic_api31Plus_setCommunicationDeviceFails() = runTest {
         val mockDevice = mockk<AudioDeviceInfo>(relaxed = true)
         every { mockDevice.isSource } returns true
         every { mockDevice.type } returns AudioDeviceInfo.TYPE_BLUETOOTH_SCO

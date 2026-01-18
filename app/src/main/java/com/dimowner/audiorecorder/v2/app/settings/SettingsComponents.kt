@@ -53,7 +53,9 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -610,9 +612,31 @@ fun SettingsInfoDialog(openDialog: MutableState<Boolean>, message: String) {
                 openDialog.value = false
             },
             dialogTitle = stringResource(id = R.string.info),
-            dialogText = message,
+            dialogText = buildAnnotatedString {
+                append(message)
+            },
             icon = Icons.Default.Info,
             dismissButton = stringResource(id = R.string.btn_ok)
+        )
+    }
+}
+
+@Composable
+fun SettingsInfoDialog(
+    openDialog: MutableState<Boolean>,
+    message: AnnotatedString,
+    title: String = stringResource(id = R.string.info)
+) {
+    if (openDialog.value) {
+        InfoAlertDialog(
+            onDismissRequest = { openDialog.value = false },
+            onConfirmation = {
+                openDialog.value = false
+            },
+            dialogTitle = title,
+            dialogText = message,
+            icon = Icons.Default.Info,
+            dismissButton = stringResource(id = R.string.btn_got_it)
         )
     }
 }
@@ -620,7 +644,12 @@ fun SettingsInfoDialog(openDialog: MutableState<Boolean>, message: String) {
 @Preview(showBackground = true)
 @Composable
 fun SettingsInfoDialogPreview() {
-    SettingsInfoDialog(remember {mutableStateOf(true) }, "Information massage")
+    SettingsInfoDialog(
+        remember {mutableStateOf(true) },
+        buildAnnotatedString {
+            append("Information massage")
+        }
+    )
 }
 
 @Composable
@@ -632,7 +661,9 @@ fun SettingsWarningDialog(openDialog: MutableState<Boolean>, message: String) {
                 openDialog.value = false
             },
             dialogTitle = stringResource(id = R.string.warning),
-            dialogText = message,
+            dialogText = buildAnnotatedString {
+                append(message)
+            },
             icon = Icons.Default.Warning,
             dismissButton = stringResource(id = R.string.btn_ok)
         )

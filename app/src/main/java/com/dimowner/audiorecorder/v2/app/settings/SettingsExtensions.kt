@@ -25,13 +25,18 @@ import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
+import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.core.text.HtmlCompat
 import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.AndroidUtils
@@ -142,6 +147,20 @@ fun Spanned.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
     }
 }
 
+/**
+ * Converts an HTML-formatted string resource to an AnnotatedString
+ * that can be displayed with proper formatting in Compose Text.
+ *
+ * @param resId The string resource ID containing HTML formatting
+ * @return AnnotatedString with preserved formatting (bold, italic, underline, etc.)
+ */
+@Composable
+fun htmlStringResource(@StringRes resId: Int): AnnotatedString {
+    val text = stringResource(resId)
+    val spanned = HtmlCompat.fromHtml(text, HtmlCompat.FROM_HTML_MODE_COMPACT)
+    return spanned.toAnnotatedString()
+}
+
 fun RecordingFormat.convertToText(formatStrings: Array<String>): String {
     return formatStrings[this.index]
 }
@@ -243,7 +262,7 @@ fun getSampleRates(
 ): List<ChipItem<SampleRate>> {
     return when (format) {
         RecordingFormat.M4a,
-        RecordingFormat.Wav-> {
+        RecordingFormat.Wav -> {
             SampleRate.entries.toList().mapIndexed { i, sampleRate ->
                 ChipItem(
                     id = i,

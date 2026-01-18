@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -79,6 +80,7 @@ internal fun SettingsScreen(
     val openInfoDialog = remember { mutableStateOf(false) }
     val openWarningDialog = remember { mutableStateOf(false) }
     val infoText = remember { mutableStateOf("") }
+    val infoTextAnnotated = remember { mutableStateOf<AnnotatedString?>(null) }
     val warningText = remember { mutableStateOf("") }
 
     val isExpandedBitRatePanel = remember { mutableStateOf(true) }
@@ -186,6 +188,7 @@ internal fun SettingsScreen(
                         },
                         onClickInfo = {
                             infoText.value = infoFormat
+                            infoTextAnnotated.value = null
                             openInfoDialog.value = true
                         }
                     )
@@ -200,6 +203,7 @@ internal fun SettingsScreen(
                         },
                         onClickInfo = {
                             infoText.value = infoFrequency
+                            infoTextAnnotated.value = null
                             openInfoDialog.value = true
                         }
                     )
@@ -216,11 +220,12 @@ internal fun SettingsScreen(
                             },
                             onClickInfo = {
                                 infoText.value = infoBitrate
+                                infoTextAnnotated.value = null
                                 openInfoDialog.value = true
                             }
                         )
                     }
-                    val infoChannels = stringResource(R.string.info_channels)
+                    val infoChannels = htmlStringResource(R.string.info_channels_html)
                     SettingSelector(
                         name = stringResource(id = R.string.channels),
                         chips = selectedFormat?.channelCounts ?: emptyList(),
@@ -228,12 +233,13 @@ internal fun SettingsScreen(
                             onAction(SettingsScreenAction.SelectChannelCount(it.value))
                         },
                         onClickInfo = {
-                            infoText.value = infoChannels
+                            infoText.value = ""
+                            infoTextAnnotated.value = infoChannels
                             openInfoDialog.value = true
                         }
                     )
                     Spacer(modifier = Modifier.size(8.dp))
-                    val infoAudioSource = stringResource(R.string.info_audio_source)
+                    val infoAudioSource = htmlStringResource(R.string.info_audio_source_html)
                     AudioSourceSelector(
                         selectedSource = uiState.selectedAudioSource,
                         options = uiState.audioSourceOptions,
@@ -241,7 +247,8 @@ internal fun SettingsScreen(
                             onAction(SettingsScreenAction.SetAudioSource(audioSource))
                         },
                         onInfoClick = {
-                            infoText.value = infoAudioSource
+                            infoText.value = ""
+                            infoTextAnnotated.value = infoAudioSource
                             openInfoDialog.value = true
                         }
                     )
@@ -309,7 +316,12 @@ internal fun SettingsScreen(
                     Spacer(modifier = Modifier.size(8.dp))
                 }
                 if (openInfoDialog.value) {
-                    SettingsInfoDialog(openInfoDialog, infoText.value)
+                    val annotated = infoTextAnnotated.value
+                    if (annotated != null) {
+                        SettingsInfoDialog(openInfoDialog, annotated)
+                    } else {
+                        SettingsInfoDialog(openInfoDialog, infoText.value)
+                    }
                 }
                 if (openWarningDialog.value) {
                     SettingsWarningDialog(openWarningDialog, warningText.value)
