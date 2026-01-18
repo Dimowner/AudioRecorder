@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.DropdownMenu
@@ -29,6 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -180,13 +182,13 @@ fun AudioSourceSelector(
     selectedSource: AudioSource,
     options: List<AudioSource>,
     onSourceSelected: (AudioSource) -> Unit,
+    onInfoClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val expanded = remember { mutableStateOf(false) }
     
     Column(
         modifier = modifier
-            .fillMaxWidth()
             .wrapContentSize(Alignment.TopStart)
     ) {
         // The DropdownMenu composable
@@ -265,10 +267,21 @@ fun AudioSourceSelector(
             Icon(
                 modifier = Modifier
                     .wrapContentSize()
-                    .padding(0.dp, 0.dp, 12.dp, 0.dp),
+                    .padding(0.dp, 0.dp, 8.dp, 0.dp),
                 painter = painterResource(id = R.drawable.ic_arrow_down),
                 contentDescription = text,
             )
+            IconButton(
+                onClick = onInfoClick,
+                modifier = Modifier
+                    .align(Alignment.CenterVertically),
+            ) {
+                Icon(
+                    modifier = Modifier.size(20.dp),
+                    painter = painterResource(id = R.drawable.ic_info),
+                    contentDescription = "",
+                )
+            }
         }
     }
 }
@@ -289,6 +302,7 @@ fun AudioSourceSelectorPreview() {
     AudioSourceSelector(
         selectedSource = AudioSource.MIC,
         options = AudioSource.entries,
-        onSourceSelected = {}
+        onSourceSelected = {},
+        onInfoClick = {}
     )
 }

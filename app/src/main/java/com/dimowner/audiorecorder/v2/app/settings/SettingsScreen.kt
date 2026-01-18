@@ -233,11 +233,16 @@ internal fun SettingsScreen(
                         }
                     )
                     Spacer(modifier = Modifier.size(8.dp))
+                    val infoAudioSource = stringResource(R.string.info_audio_source)
                     AudioSourceSelector(
                         selectedSource = uiState.selectedAudioSource,
                         options = uiState.audioSourceOptions,
                         onSourceSelected = { audioSource ->
                             onAction(SettingsScreenAction.SetAudioSource(audioSource))
+                        },
+                        onInfoClick = {
+                            infoText.value = infoAudioSource
+                            openInfoDialog.value = true
                         }
                     )
                     Spacer(modifier = Modifier.size(8.dp))

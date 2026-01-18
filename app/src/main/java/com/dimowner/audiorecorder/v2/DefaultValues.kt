@@ -34,7 +34,7 @@ object DefaultValues {
     val DefaultSampleRate: SampleRate = SampleRate.SR44100
     val DefaultBitRate: BitRate = BitRate.BR128
     val DefaultChannelCount: ChannelCount = ChannelCount.Stereo
-    val DefaultAudioSource: AudioSource = AudioSource.MIC
+    val DefaultAudioSource: AudioSource = AudioSource.DEFAULT
 
     val DefaultNameFormat: NameFormat = NameFormat.Record
     val DefaultRecordingFormat: RecordingFormat = RecordingFormat.M4a

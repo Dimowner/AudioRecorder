@@ -241,6 +241,12 @@
 		<b>Stereo</b> two separate channels are recorded. This means that each stereo speaker has a different sound signal. <b>(recommended)</b>
 		\n<b>Mono</b> one signal channel is recorded. It can be reproduced through several speakers, but all speakers are still reproducing the same copy of the signal.
 		</string>
+    <string name="info_audio_source">
+        <b>Default:</b> The manufacturer’s recommended setting. It usually behaves like the MIC option but allows the device to apply its own optimized hardware tuning.
+        \n<b>Mic:</b> The standard microphone setting. Best for general recording. It balances voice volume automatically while capturing the natural atmosphere of surroundings.
+        \n<b>Voice Communication:</b> Specifically designed for clarity of the human voice. Best for Bluetooth as it activates noise and echo cancellation.
+        \n<b>Unprocessed:</b> Captures raw audio without any system filters or adjustments. No background noise removal and no volume leveling. Best for high-fidelity or professional use.
+    </string>
 	<string name="info_3gp"><b>3gp</b> is a multimedia container format developed for mobile telecommunication services. Use it if you need to save space.</string>
 	<string name="info_m4a"><b>M4a</b> format is encoded with AAC audio codec has good quality and small size. <b>(recommended)</b></string>
 	<string name="info_wav"><b>Wav</b> is uncompressed audio data format. It takes much more space than other formats. It\'s needed for specific cases.</string>
