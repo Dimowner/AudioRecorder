@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.v2.app.settings
 
 import android.os.Parcelable
+import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
@@ -44,6 +45,9 @@ data class SettingsState(
     val appName: String,
     val appVersion: String,
     val maxRecordingDurationMinutes: Int,
+    // Audio source selection
+    val selectedAudioSource: AudioSource = AudioSource.MIC,
+    val audioSourceOptions: List<AudioSource> = AudioSource.entries,
 ) : Parcelable
 
 @Parcelize

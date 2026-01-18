@@ -52,7 +52,11 @@ class AudioRecorderV2 @Inject constructor(
         sampleRate: Int,
         bitrate: Int,
         maxRecordingDurationMills: Int,
+        audioSource: Int,
     ): Boolean {
+        Timber.d("Start Recording outputFile: ${outputFile.absolutePath} channelCount: $channelCount" +
+                " sampleRate: $sampleRate bitrate: $bitrate maxRecordingDurationMills: $maxRecordingDurationMills" +
+                " audioSource: $audioSource")
         if (_isRecording) {
             Timber.e("Recording is already in progress.")
             emitEvent(RecorderEvent.OnError(AlreadyRecordingException()))
@@ -68,7 +72,7 @@ class AudioRecorderV2 @Inject constructor(
             this.mediaRecorder = recorder
 
             recorder.apply {
-                setAudioSource(MediaRecorder.AudioSource.MIC)
+                setAudioSource(audioSource)
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                 setAudioChannels(channelCount)

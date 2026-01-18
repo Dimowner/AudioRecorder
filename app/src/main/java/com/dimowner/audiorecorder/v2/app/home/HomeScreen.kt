@@ -60,6 +60,7 @@ import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
 import com.dimowner.audiorecorder.v2.app.RenameAlertDialog
 import com.dimowner.audiorecorder.v2.app.SaveAsDialog
+import com.dimowner.audiorecorder.v2.app.components.BluetoothMicToggle
 import com.dimowner.audiorecorder.v2.app.components.WaveformComposeView
 import com.dimowner.audiorecorder.v2.app.components.WaveformState
 import com.dimowner.audiorecorder.v2.app.getTestWaveformData
@@ -289,6 +290,26 @@ internal fun HomeScreen(
                         .weight(1f)
                         .wrapContentHeight()
                 )
+                
+                // Show Bluetooth and Audio Source settings when ready to record
+                if (uiState.bottomBarState == BottomBarState.READY_TO_START_RECORDING && !uiState.isShowLoadingProgress) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(horizontal = 8.dp)
+                    ) {
+                        BluetoothMicToggle(
+                            isAvailable = uiState.isBluetoothMicAvailable,
+                            isEnabled = uiState.isBluetoothMicEnabled,
+                            deviceName = uiState.bluetoothDeviceName,
+                            onToggle = { enabled ->
+                                onAction(HomeScreenAction.SetBluetoothMicEnabled(enabled))
+                            }
+                        )
+                    }
+                }
+                
                 TimePanel(
                     uiState.recordName,
                     uiState.recordInfo,

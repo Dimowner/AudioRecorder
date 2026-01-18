@@ -21,6 +21,7 @@ import android.content.SharedPreferences
 import com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_APP_V2
 import com.dimowner.audiorecorder.AppConstants.PREF_NAME
 import com.dimowner.audiorecorder.v2.DefaultValues
+import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
@@ -214,6 +215,17 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             }
         }
 
+    override var settingAudioSource: AudioSource
+        get() = sharedPreferences.getInt(
+            PREF_KEY_SETTING_AUDIO_SOURCE,
+            DefaultValues.DefaultAudioSource.value
+        ).let { AudioSource.fromValue(it) }
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_SETTING_AUDIO_SOURCE, value.value)
+            }
+        }
+
     override var maxRecordingDurationMills: Int
         get() = sharedPreferences.getInt(
             PREF_KEY_MAX_RECORDING_DURATION_MILLS,
@@ -263,5 +275,6 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         private const val PREF_KEY_IS_DYNAMIC_THEME = "pref_is_dynamic_theme"
         private const val PREF_KEY_IS_DARK_THEME = "pref_is_dark_theme"
         private const val PREF_KEY_MAX_RECORDING_DURATION_MILLS = "pref_key_max_recording_duration_mills"
+        private const val PREF_KEY_SETTING_AUDIO_SOURCE = "pref_key_setting_audio_source"
     }
 }

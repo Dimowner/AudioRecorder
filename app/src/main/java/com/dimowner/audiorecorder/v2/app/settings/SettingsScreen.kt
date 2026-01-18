@@ -58,6 +58,7 @@ import androidx.lifecycle.Lifecycle
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.TitleBar
+import com.dimowner.audiorecorder.v2.app.components.AudioSourceSelector
 import com.dimowner.audiorecorder.v2.app.formatDuration
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
@@ -229,6 +230,14 @@ internal fun SettingsScreen(
                         onClickInfo = {
                             infoText.value = infoChannels
                             openInfoDialog.value = true
+                        }
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    AudioSourceSelector(
+                        selectedSource = uiState.selectedAudioSource,
+                        options = uiState.audioSourceOptions,
+                        onSourceSelected = { audioSource ->
+                            onAction(SettingsScreenAction.SetAudioSource(audioSource))
                         }
                     )
                     Spacer(modifier = Modifier.size(8.dp))

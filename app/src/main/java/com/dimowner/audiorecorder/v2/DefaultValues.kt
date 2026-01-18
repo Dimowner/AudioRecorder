@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.v2
 
+import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
@@ -33,6 +34,7 @@ object DefaultValues {
     val DefaultSampleRate: SampleRate = SampleRate.SR44100
     val DefaultBitRate: BitRate = BitRate.BR128
     val DefaultChannelCount: ChannelCount = ChannelCount.Stereo
+    val DefaultAudioSource: AudioSource = AudioSource.MIC
 
     val DefaultNameFormat: NameFormat = NameFormat.Record
     val DefaultRecordingFormat: RecordingFormat = RecordingFormat.M4a

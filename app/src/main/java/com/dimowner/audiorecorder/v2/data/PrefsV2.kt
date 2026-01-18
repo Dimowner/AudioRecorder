@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.v2.data
 
+import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
@@ -50,6 +51,7 @@ interface PrefsV2 {
     var settingSampleRate: SampleRate
     var settingBitrate: BitRate
     var settingChannelCount: ChannelCount
+    var settingAudioSource: AudioSource
 
     var maxRecordingDurationMills: Int
 

@@ -47,6 +47,7 @@ import com.dimowner.audiorecorder.exception.AppException
 import com.dimowner.audiorecorder.exception.CantCreateFileException
 import com.dimowner.audiorecorder.exception.ErrorParser
 import com.dimowner.audiorecorder.util.AndroidUtils
+import com.dimowner.audiorecorder.util.AudioManagerHelper
 import com.dimowner.audiorecorder.util.FileUtil
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.adjustWaveformHeights
@@ -61,6 +62,7 @@ import com.dimowner.audiorecorder.v2.audio.RecorderV2
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
@@ -88,6 +90,7 @@ class HomeViewModel @Inject constructor(
     private val prefs: PrefsV2,
     private val audioPlayer: PlayerContractNew.Player,
     private val audioRecorder: RecorderV2,
+    private val audioManagerHelper: AudioManagerHelper,
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext context: Context,
@@ -138,6 +141,18 @@ class HomeViewModel @Inject constructor(
             subscribeRecorderUpdates()
         }
         subscribePlayerUpdates()
+        
+        // Register AudioManagerHelper and subscribe to Bluetooth mic state
+        audioManagerHelper.register()
+        viewModelScope.launch {
+            audioManagerHelper.bluetoothMicState.collect { bluetoothState ->
+                _state.value = _state.value.copy(
+                    isBluetoothMicAvailable = bluetoothState.isAvailable,
+                    isBluetoothMicEnabled = bluetoothState.isEnabled,
+                    bluetoothDeviceName = bluetoothState.deviceName
+                )
+            }
+        }
     }
 
     private suspend fun subscribeRecorderUpdates() {
@@ -317,6 +332,10 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
+        // Load the selected audio source from preferences
+        _state.value = _state.value.copy(
+            selectedAudioSource = prefs.settingAudioSource
+        )
     }
 
     private fun handleError(exception: AppException) {
@@ -722,6 +741,7 @@ class HomeViewModel @Inject constructor(
                     sampleRate = prefs.settingSampleRate.value,
                     bitrate = prefs.settingBitrate.value,
                     maxRecordingDurationMills = prefs.maxRecordingDurationMills,
+                    audioSource = _state.value.selectedAudioSource.value,
                 )
                 incrementRecordedRecordPartCounter()
             }
@@ -878,12 +898,24 @@ class HomeViewModel @Inject constructor(
             HomeScreenAction.OnStopRecordingClick -> handleStopRecordingClick()
             HomeScreenAction.OnDeleteRecordingProgressClick -> handleOnDeleteRecordingProgressClick()
             is HomeScreenAction.RestoreRecordFromRecycle -> handleRestoreRecordFromRecycle(action.recordId)
+            is HomeScreenAction.SetBluetoothMicEnabled -> {
+                audioManagerHelper.enableBluetoothMic(action.enabled)
+            }
         }
     }
 
     private fun emitEvent(event: HomeScreenEvent) {
         viewModelScope.launch {
             _event.emit(event)
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        try {
+            audioManagerHelper.release()
+        } catch (e: Exception) {
+            Timber.e(e, "Error releasing AudioManagerHelper")
         }
     }
 }
@@ -907,6 +939,12 @@ data class HomeScreenState(
     val showStop: Boolean = false,
     val isSeek: Boolean = false,
     val isDeleteRecordingProgressRequested: Boolean = false,
+    // Bluetooth mic state
+    val isBluetoothMicAvailable: Boolean = false,
+    val isBluetoothMicEnabled: Boolean = false,
+    val bluetoothDeviceName: String? = null,
+    // Audio source selection
+    val selectedAudioSource: AudioSource = AudioSource.MIC,
 ) {
     fun isRecording(): Boolean {
         return this.bottomBarState == BottomBarState.RECORDING || this.bottomBarState == BottomBarState.PAUSED
@@ -941,6 +979,7 @@ sealed class HomeScreenAction {
     data class OnSeekProgress(val mills: Long) : HomeScreenAction()
     data class OnSeekEnd(val mills: Long) : HomeScreenAction()
     data class OnProgressBarStateChange(val value: Float) : HomeScreenAction()
+    data class SetBluetoothMicEnabled(val enabled: Boolean) : HomeScreenAction()
 }
 
 sealed class HomeScreenEvent {

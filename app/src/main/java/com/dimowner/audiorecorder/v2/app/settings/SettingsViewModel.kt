@@ -35,6 +35,7 @@ import com.dimowner.audiorecorder.v2.app.recordingSettingsCombinedText
 import com.dimowner.audiorecorder.v2.app.removeOutdatedTrashRecords
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
@@ -148,11 +149,18 @@ internal class SettingsViewModel @Inject constructor(
             val recordsDuration = recordsDataSource.getRecordTotalDuration()
             withContext(mainDispatcher) {
                 _state.value = _state.value.copy(
-                    totalRecordCount = recordsCount, totalRecordDuration = recordsDuration
+                    totalRecordCount = recordsCount, totalRecordDuration = recordsDuration,
+                    // Load the selected audio source from preferences
+                    selectedAudioSource = prefs.settingAudioSource
                 )
             }
             recordsDataSource.removeOutdatedTrashRecords()
         }
+    }
+
+    fun setAudioSource(audioSource: AudioSource) {
+        _state.value = _state.value.copy(selectedAudioSource = audioSource)
+        prefs.settingAudioSource = audioSource
     }
 
     fun executeFirstRun() {
@@ -200,6 +208,7 @@ internal class SettingsViewModel @Inject constructor(
         prefs.settingSampleRate = DefaultValues.DefaultSampleRate
         prefs.settingBitrate = DefaultValues.DefaultBitRate
         prefs.settingChannelCount = DefaultValues.DefaultChannelCount
+        prefs.settingAudioSource = DefaultValues.DefaultAudioSource
         _state.value = _state.value.copy(
             recordingSettings = _state.value.recordingSettings.map { formatSetting ->
                 RecordingSetting(
@@ -375,6 +384,7 @@ internal class SettingsViewModel @Inject constructor(
             is SettingsScreenAction.SelectBitrate -> selectBitrate(action.value)
             is SettingsScreenAction.SelectChannelCount -> selectChannelCount(action.value)
             is SettingsScreenAction.SetMaxRecordingDuration -> setMaxRecordingDuration(action.durationMinutes)
+            is SettingsScreenAction.SetAudioSource -> setAudioSource(action.audioSource)
             SettingsScreenAction.ExecuteFirstRun -> executeFirstRun()
             is SettingsScreenAction.SetAppV2 -> handleUseAppV2(action.value)
         }
@@ -424,5 +434,6 @@ internal sealed class SettingsScreenAction {
     data class SelectBitrate(val value: BitRate) : SettingsScreenAction()
     data class SelectChannelCount(val value: ChannelCount) : SettingsScreenAction()
     data class SetMaxRecordingDuration(val durationMinutes: Int) : SettingsScreenAction()
+    data class SetAudioSource(val audioSource: AudioSource) : SettingsScreenAction()
     data object ExecuteFirstRun : SettingsScreenAction()
 }
