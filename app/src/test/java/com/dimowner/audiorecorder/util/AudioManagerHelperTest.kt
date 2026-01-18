@@ -58,17 +58,9 @@ class AudioManagerHelperTest {
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-        mockkObject(PermissionHelper)
-
         every { context.getSystemService(Context.AUDIO_SERVICE) } returns audioManager
-        every { PermissionHelper.hasBluetoothConnectPermission(any()) } returns true
 
         audioManagerHelper = AudioManagerHelper(context)
-    }
-
-    @After
-    fun tearDown() {
-        unmockkObject(PermissionHelper)
     }
 
     @Test
@@ -96,63 +88,6 @@ class AudioManagerHelperTest {
         audioManagerHelper.unregister()
 
         verify { audioManager.unregisterAudioDeviceCallback(any()) }
-    }
-
-    @Test
-    fun testGetConnectedBluetoothDeviceName_noDevices() {
-        every { audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS) } returns emptyArray()
-
-        val deviceName = audioManagerHelper.getConnectedBluetoothDeviceName()
-
-        assertNull(deviceName)
-    }
-
-    @Test
-    fun testGetConnectedBluetoothDeviceName_withBluetoothScoDevice() {
-        val mockDevice = mockk<AudioDeviceInfo>(relaxed = true)
-        every { mockDevice.isSource } returns true
-        every { mockDevice.type } returns AudioDeviceInfo.TYPE_BLUETOOTH_SCO
-        every { mockDevice.productName } returns "Test Bluetooth Headset"
-        every { audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS) } returns arrayOf(mockDevice)
-
-        val deviceName = audioManagerHelper.getConnectedBluetoothDeviceName()
-
-        assertEquals("Test Bluetooth Headset", deviceName)
-    }
-
-    @Test
-    fun testGetConnectedBluetoothDeviceName_withBluetoothA2dpDevice() {
-        val mockDevice = mockk<AudioDeviceInfo>(relaxed = true)
-        every { mockDevice.isSource } returns true
-        every { mockDevice.type } returns AudioDeviceInfo.TYPE_BLUETOOTH_A2DP
-        every { mockDevice.productName } returns "Test A2DP Device"
-        every { audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS) } returns arrayOf(mockDevice)
-
-        val deviceName = audioManagerHelper.getConnectedBluetoothDeviceName()
-
-        assertEquals("Test A2DP Device", deviceName)
-    }
-
-    @Test
-    @Config(sdk = [Build.VERSION_CODES.S])
-    fun testGetConnectedBluetoothDeviceName_withoutPermission_api31Plus() {
-        every { PermissionHelper.hasBluetoothConnectPermission(any()) } returns false
-
-        val deviceName = audioManagerHelper.getConnectedBluetoothDeviceName()
-
-        assertNull(deviceName)
-    }
-
-    @Test
-    fun testGetConnectedBluetoothDeviceName_nonInputDevice_ignored() {
-        val mockDevice = mockk<AudioDeviceInfo>(relaxed = true)
-        every { mockDevice.isSource } returns false
-        every { mockDevice.type } returns AudioDeviceInfo.TYPE_BLUETOOTH_SCO
-        every { audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS) } returns arrayOf(mockDevice)
-
-        val deviceName = audioManagerHelper.getConnectedBluetoothDeviceName()
-
-        assertNull(deviceName)
     }
 
     @Test
@@ -265,15 +200,6 @@ class AudioManagerHelperTest {
         assertTrue(state2.isAvailable)
         assertTrue(state2.isEnabled)
         assertEquals("Test Device", state2.deviceName)
-    }
-
-    @Test
-    fun testGetConnectedBluetoothDeviceName_securityException() {
-        every { audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS) } throws SecurityException("Test exception")
-
-        val deviceName = audioManagerHelper.getConnectedBluetoothDeviceName()
-
-        assertNull(deviceName)
     }
 
     @Test

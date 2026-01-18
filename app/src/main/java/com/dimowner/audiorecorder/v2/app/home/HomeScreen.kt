@@ -243,9 +243,8 @@ internal fun HomeScreen(
                     showMenuButton = uiState.isContextMenuAvailable
                 )
 
-                // Show Bluetooth and Audio Source settings when ready to record
-                if (uiState.bottomBarState == BottomBarState.READY_TO_START_RECORDING
-                    && !uiState.isShowLoadingProgress
+                // Show Bluetooth and Audio Source settings when there are available BT devices.
+                if (!uiState.isShowLoadingProgress
                     && uiState.connectedBluetoothDevices.isNotEmpty()
                 ) {
                     BluetoothMicSelector(

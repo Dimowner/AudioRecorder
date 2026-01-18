@@ -163,24 +163,6 @@ class AudioManagerHelper @Inject constructor(
     }
 
     /**
-     * Returns a list of all currently connected Bluetooth input devices.
-     * Includes TYPE_BLUETOOTH_SCO and TYPE_BLE_HEADSET (API 31+) devices.
-     * Uses BLUETOOTH_CONNECT permission to retrieve actual product names.
-     *
-     * @return List of AudioDeviceInfo for all connected Bluetooth microphones
-     */
-    fun getConnectedBluetoothInputDevices(): List<AudioDeviceInfo> {
-        return try {
-            audioManager.availableCommunicationDevices.filter {
-                isBluetoothInputDevice(it)
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Error getting connected Bluetooth input devices")
-            emptyList()
-        }
-    }
-
-    /**
      * Selects a specific Bluetooth device for audio input.
      * For API 31+: Uses AudioManager.setCommunicationDevice(selectedDevice)
      * For API < 31: Uses startBluetoothSco() (specific device routing limited by system)
@@ -257,24 +239,6 @@ class AudioManagerHelper @Inject constructor(
     }
 
     /**
-     * Returns the product name of the connected Bluetooth audio input device.
-     * Requires BLUETOOTH_CONNECT permission on API 31+.
-     *
-     * @return The device name, or null if no device is connected or permission is missing.
-     */
-    fun getConnectedBluetoothDeviceName(): String? {
-        // Check permission on API 31+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (!PermissionHelper.hasBluetoothConnectPermission(context)) {
-                Timber.w("BLUETOOTH_CONNECT permission not granted")
-                return null
-            }
-        }
-
-        return getAvailableCommunicationDevices().firstOrNull()?.productName?.toString()
-    }
-
-    /**
      * Releases resources and resets audio routing to normal state.
      * Should be called when the helper is no longer needed.
      */
@@ -310,23 +274,9 @@ class AudioManagerHelper @Inject constructor(
     /**
      * Updates the Bluetooth device state and notifies observers via StateFlow.
      */
-    private fun updateBluetoothDeviceState() {
-        val connectedDevices = getConnectedBluetoothInputDevices().map { deviceInfo ->
-            val productName = try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    if (!PermissionHelper.hasBluetoothConnectPermission(context)) {
-                        "Bluetooth Device"
-                    } else {
-                        deviceInfo.productName.toString().ifEmpty { "Bluetooth Device" }
-                    }
-                } else {
-                    deviceInfo.productName.toString().ifEmpty { "Bluetooth Device" }
-                }
-            } catch (e: Exception) {
-                Timber.e(e, "Error getting product name")
-                "Bluetooth Device"
-            }
-            
+    private fun updateBluetoothDeviceState(defaultName: String = "Bluetooth Device") {
+        val connectedDevices = getAvailableCommunicationDevices().map { deviceInfo ->
+            val productName = deviceInfo.productName.toString().ifEmpty { defaultName }
             BluetoothDeviceInfo(
                 id = deviceInfo.id,
                 productName = productName,
@@ -401,13 +351,19 @@ class AudioManagerHelper @Inject constructor(
     }
 
     private fun getAvailableCommunicationDevices(): List<AudioDeviceInfo> {
-        return try {
-            audioManager.availableCommunicationDevices.filter {
-                isBluetoothInputDevice(it)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                audioManager.availableCommunicationDevices.filter {
+                    isBluetoothInputDevice(it)
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Error getting Bluetooth audio input device")
+                emptyList()
             }
-        } catch (e: Exception) {
-            Timber.e(e, "Error getting Bluetooth audio input device")
-            emptyList()
+        } else {
+            audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS).filter { device ->
+                isBluetoothInputDevice(device)
+            }
         }
     }
 
