@@ -115,6 +115,10 @@
             android:name=".app.moverecords.MoveRecordsService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
+        <service
+            android:name=".app.migration.DatabaseMigrationService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <receiver android:name=".WidgetReceiver" />
         <receiver android:name=".app.RecordingService$StopRecordingReceiver" />

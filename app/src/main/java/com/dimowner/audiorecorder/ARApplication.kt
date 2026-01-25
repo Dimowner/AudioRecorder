@@ -32,6 +32,7 @@ import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import com.dimowner.audiorecorder.app.migration.DatabaseMigrationService
 import com.dimowner.audiorecorder.util.AndroidUtils
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
@@ -62,6 +63,12 @@ class ARApplication : Application() {
         if (!prefs.isMigratedSettings) {
             prefs.migrateSettings()
         }
+
+        // Start database migration from SQLite to Room if not already done
+        if (!prefs.isDatabaseMigratedToRoom) {
+            DatabaseMigrationService.startService(applicationContext)
+        }
+
         registerAudioOutputChangeReceiver()
         registerRebootReceiver()
 

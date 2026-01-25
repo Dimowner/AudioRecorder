@@ -51,6 +51,7 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_NAMING_FORMAT = "pref_naming_format";
 	private static final String PREF_KEY_LAST_PUBLIC_STORAGE_MIGRATION_ASKED = "pref_last_public_storage_migration_asked";
 	private static final String PREF_KEY_IS_PUBLIC_STORAGE_MIGRATED = "pref_is_public_storage_migrated";
+    private static final String PREF_KEY_IS_DATABASE_MIGRATED_TO_ROOM = "pref_key_is_database_migrated_to_room";
 
 	//Recording prefs.
 	private static final String PREF_KEY_RECORD_CHANNEL_COUNT = "record_channel_count";
@@ -106,7 +107,20 @@ public class PrefsImpl implements Prefs {
 		editor.apply();
 	}
 
-	@Override
+    @Override
+    public boolean isDatabaseMigratedToRoom() {
+        return sharedPreferences.contains(PREF_KEY_IS_DATABASE_MIGRATED_TO_ROOM)
+                && sharedPreferences.getBoolean(PREF_KEY_IS_DATABASE_MIGRATED_TO_ROOM, false);
+    }
+
+    @Override
+    public void setDatabaseMigratedToRoom(boolean b) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(PREF_KEY_IS_DATABASE_MIGRATED_TO_ROOM, b);
+        editor.apply();
+    }
+
+    @Override
 	public boolean isShowDirectorySetting() {
 		return sharedPreferences.getBoolean(PREF_KEY_IS_SHOW_DIRECTORY_SETTING, true);
 	}

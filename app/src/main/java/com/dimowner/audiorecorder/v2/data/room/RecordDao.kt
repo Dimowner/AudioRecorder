@@ -37,6 +37,9 @@ interface RecordDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertRecord(record: RecordEntity): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertRecords(records: List<RecordEntity>)
+
     @Update
     fun updateRecord(record: RecordEntity): Int // Returns the number of updated rows
 

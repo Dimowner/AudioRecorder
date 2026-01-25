@@ -26,6 +26,12 @@ public interface Prefs {
 	@Deprecated //Public storage is not used anymore
 	void setStoreDirPublic(boolean b);
 
+    /**
+     * Flag indicates if Local database helper migrated from SQLiteHelper to Room.
+     */
+    boolean isDatabaseMigratedToRoom();
+    void setDatabaseMigratedToRoom(boolean b);
+
 	//This is needed for scoped storage support
 	boolean isShowDirectorySetting();
 

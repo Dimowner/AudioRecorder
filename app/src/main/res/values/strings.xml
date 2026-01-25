@@ -382,4 +382,7 @@
     <string name="audio_source_mic">Mic</string>
     <string name="audio_source_voice_communication">Voice Communication</string>
     <string name="audio_source_unprocessed">Unprocessed</string>
+
+    <!-- Database migration -->
+    <string name="database_update_in_progress">Database update in progress</string>
 </resources>

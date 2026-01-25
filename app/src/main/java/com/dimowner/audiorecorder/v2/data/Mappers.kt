@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.v2.data
 
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.room.RecordEntity
+import com.dimowner.audiorecorder.data.database.Record as OldRecord
 
 fun RecordEntity.toRecord(): Record {
     return Record(
@@ -58,5 +59,33 @@ fun Record.toRecordEntity(): RecordEntity {
         isWaveformProcessed = this.isWaveformProcessed,
         isMovedToRecycle = this.isMovedToRecycle,
         amps = this.amps,
+    )
+}
+
+/**
+ * Converts old SQLite Record to new Room Record model.
+ * Used during database migration from SQLiteHelper to Room.
+ *
+ * @param isMovedToRecycle Whether this record is in the trash/recycle bin
+ * @return New Record model compatible with Room database
+ */
+fun OldRecord.toRecordV2(isMovedToRecycle: Boolean): Record {
+    return Record(
+        id = this.id.toLong(),
+        name = this.name ?: "",
+        durationMills = this.duration/1000, //OldRecord stores duration in microseconds
+        created = this.created,
+        added = this.added,
+        removed = this.removed,
+        path = this.path,
+        format = this.format ?: "",
+        size = this.size,
+        sampleRate = this.sampleRate,
+        channelCount = this.channelCount,
+        bitrate = this.bitrate,
+        isBookmarked = this.isBookmarked,
+        isWaveformProcessed = this.isWaveformProcessed,
+        isMovedToRecycle = isMovedToRecycle,
+        amps = this.amps ?: IntArray(0),
     )
 }
