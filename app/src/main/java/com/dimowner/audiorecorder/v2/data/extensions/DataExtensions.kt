@@ -1,5 +1,6 @@
 package com.dimowner.audiorecorder.v2.data.extensions
 
+import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 
 const val RECORDS_COLUMN_ADDED = "added"
@@ -26,4 +27,12 @@ fun SortOrder.toRecordsSortColumnName(): String {
         SortOrder.DurationShortest,
         SortOrder.DurationLongest -> RECORDS_COLUMN_DURATION
     }
+}
+
+fun checkForLostRecords(records: List<Record>): List<Record> {
+    return records.filter { !isFileExists(it.path) }
+}
+
+fun Record.isLostRecord(): Boolean {
+    return !isFileExists(this.path)
 }

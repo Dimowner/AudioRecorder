@@ -64,6 +64,8 @@ import com.dimowner.audiorecorder.v2.app.components.BluetoothMicSelector
 import com.dimowner.audiorecorder.v2.app.components.WaveformComposeView
 import com.dimowner.audiorecorder.v2.app.components.WaveformState
 import com.dimowner.audiorecorder.v2.app.getTestWaveformData
+import com.dimowner.audiorecorder.v2.app.lostrecords.LostRecordsDialog
+import com.dimowner.audiorecorder.v2.data.model.Record
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -73,6 +75,7 @@ internal fun HomeScreen(
     showRecordsScreen: () -> Unit,
     showSettingsScreen: () -> Unit,
     showRecordInfoScreen: (String) -> Unit,
+    showLostRecordsScreen: (Record) -> Unit,
     uiState: HomeScreenState,
     event: HomeScreenEvent?,
     onAction: (HomeScreenAction) -> Unit
@@ -366,6 +369,19 @@ internal fun HomeScreen(
                         }
                     )
                 }
+                if (uiState.showLostRecordsDialog) {
+                    LostRecordsDialog(
+                        onDismiss = {
+                            onAction(HomeScreenAction.DismissLostRecordsDialog)
+                        },
+                        onDetailsClick = {
+                            onAction(HomeScreenAction.DismissLostRecordsDialog)
+                            uiState.lostRecord?.let {
+                                showLostRecordsScreen(it)
+                            }
+                        }
+                    )
+                }
             }
         }
     }
@@ -375,7 +391,7 @@ internal fun HomeScreen(
 @Composable
 fun HomeScreenPreview() {
     HomeScreen(
-        {}, {}, {}, uiState = HomeScreenState(
+        {}, {}, {}, {}, uiState = HomeScreenState(
         waveformState = getTestWaveformData(),
         progress = 0.4f,
         startTime = "00:00",
@@ -392,13 +408,13 @@ fun HomeScreenPreview() {
 @Preview
 @Composable
 fun HomeScreenEmptyPreview() {
-    HomeScreen({}, {}, {}, uiState = HomeScreenState(), null, {})
+    HomeScreen({}, {}, {}, {}, uiState = HomeScreenState(), null, {})
 }
 
 @Preview
 @Composable
 fun HomeScreenShowProgressPreview() {
-    HomeScreen({}, {}, {}, uiState = HomeScreenState(
+    HomeScreen({}, {}, {}, {}, uiState = HomeScreenState(
         isShowLoadingProgress = true
     ), null, {})
 }
@@ -407,7 +423,7 @@ fun HomeScreenShowProgressPreview() {
 @Composable
 fun HomeScreenShowRecordingProgressPreview() {
     HomeScreen(
-        {}, {}, {},
+        {}, {}, {}, {},
         uiState = HomeScreenState(
             isShowLoadingProgress = false,
             isShowWaveform = false,

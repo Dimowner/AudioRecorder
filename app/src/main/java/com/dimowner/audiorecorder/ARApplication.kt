@@ -64,11 +64,6 @@ class ARApplication : Application() {
             prefs.migrateSettings()
         }
 
-        // Start database migration from SQLite to Room if not already done
-        if (!prefs.isDatabaseMigratedToRoom) {
-            DatabaseMigrationService.startService(applicationContext)
-        }
-
         registerAudioOutputChangeReceiver()
         registerRebootReceiver()
 

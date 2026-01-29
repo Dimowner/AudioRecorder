@@ -421,4 +421,18 @@ class RecordsDataSourceImpl @Inject internal constructor(
             Timber.e(e)
         }
     }
+
+    override suspend fun deleteLostRecordForever(id: Long): Boolean {
+        return try {
+            // For lost records, the file doesn't exist, so we only need to delete from DB
+            recordDao.deleteRecordById(id)
+            if (prefs.activeRecordId == id) {
+                prefs.activeRecordId = -1
+            }
+            true
+        } catch (e: Exception) {
+            Timber.e(e)
+            false
+        }
+    }
 }

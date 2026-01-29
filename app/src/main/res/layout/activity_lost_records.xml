@@ -104,7 +104,7 @@
 			android:paddingTop="@dimen/spacing_small"
 			android:paddingBottom="@dimen/spacing_small"
 			android:textColor="@color/text_primary_light"
-			android:text="@string/records_was_removed"
+			android:text="@string/records_were_removed"
 			/>
 
 	<FrameLayout

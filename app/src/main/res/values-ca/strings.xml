@@ -14,7 +14,7 @@
 	<string name="available_space">Espai disponible: %s</string>
 	<string name="delete_all">Esborra totes les gravacions</string>
 	<string name="delete_all2">Esborra-ho tot</string>
-	<string name="records_was_removed">No s\'han trobat alguns fitxers de gravació al directori de gravacions. Possiblement van ser eliminats o moguts.</string>
+	<string name="records_were_removed">No s\'han trobat alguns fitxers de gravació al directori de gravacions. Possiblement van ser eliminats o moguts.</string>
 	<string name="title_file_is_not_available">No es pot accedir al fitxer de la gravació.</string>
 	<string name="details_file_is_not_available">Malauradament, l\'aplicació ja no té accés a l\'emmagatzematge públic d\'Android.\nPodeu trobar el fitxer de gravació en aquesta ubicació del telèfon:\n%s</string>
 	<string name="warning">Avís.</string>

@@ -9,7 +9,7 @@ import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,6 +22,8 @@ import com.dimowner.audiorecorder.v2.app.home.HomeViewModel
 import com.dimowner.audiorecorder.v2.app.info.AssetParamType
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoScreen
+import com.dimowner.audiorecorder.v2.app.lostrecords.LostRecordsScreen
+import com.dimowner.audiorecorder.v2.app.lostrecords.LostRecordsViewModel
 import com.dimowner.audiorecorder.v2.app.records.RecordsScreen
 import com.dimowner.audiorecorder.v2.app.records.RecordsViewModel
 import com.dimowner.audiorecorder.v2.app.settings.SettingsScreen
@@ -54,7 +56,12 @@ fun RecorderNavigationGraph(
                 showSettingsScreen = { navController.navigate(Routes.SETTINGS_SCREEN) },
                 showRecordInfoScreen = { json ->
                     navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
-                }, uiState = homeViewModel.state.value,
+                },
+                showLostRecordsScreen = { lostRecord ->
+                    //TODO: Need to pass lost record to the LOST_RECORDS_SCREEN
+                    navController.navigate(Routes.LOST_RECORDS_SCREEN)
+                },
+                uiState = homeViewModel.state.value,
                 event = homeViewModel.event.collectAsState(null).value,
                 onAction = { homeViewModel.onAction(it) }
             )
@@ -69,6 +76,9 @@ fun RecorderNavigationGraph(
                     navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
                 }, showDeletedRecordsScreen = {
                     navController.navigate(Routes.DELETED_RECORDS_SCREEN)
+                }, showLostRecordsScreen = { lostRecords ->
+                    //TODO: Need to pass lost records to the LOST_RECORDS_SCREEN
+                    navController.navigate(Routes.LOST_RECORDS_SCREEN)
                 }, uiState = recordsViewModel.state.value,
                 event = recordsViewModel.event.collectAsState(null).value,
                 onAction = {
@@ -88,6 +98,20 @@ fun RecorderNavigationGraph(
                 }, uiState = deletedViewModel.state.value,
                 event = deletedViewModel.event.collectAsState(null).value,
                 onAction = { deletedViewModel.onAction(it) }
+            )
+        }
+        composable(Routes.LOST_RECORDS_SCREEN) {
+            val lostRecordsViewModel: LostRecordsViewModel = hiltViewModel()
+            LostRecordsScreen(
+                onPopBackStack = {
+                    navController.popBackStack()
+                },
+                showRecordInfoScreen = { json ->
+                    navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
+                },
+                uiState = lostRecordsViewModel.state.value,
+                event = lostRecordsViewModel.event.collectAsState(null).value,
+                onAction = { lostRecordsViewModel.onAction(it) }
             )
         }
         composable(Routes.SETTINGS_SCREEN) {

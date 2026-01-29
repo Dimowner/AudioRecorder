@@ -15,7 +15,7 @@
 	<string name="available_space">可用空間：%s</string>
 	<string name="delete_all">刪除所有錄音</string>
 	<string name="delete_all2">全部刪除</string>
-	<string name="records_was_removed">找不到資料夾內的部分錄音，可能已被移動或刪除。</string>
+	<string name="records_were_removed">找不到資料夾內的部分錄音，可能已被移動或刪除。</string>
 	<string name="title_file_is_not_available">無法存取錄音檔案</string>
 	<string name="details_file_is_not_available">很抱歉，應用程式無法繼續存取共用儲存空間。
 		\n您可在裝置中的下列位置找到錄音檔案：

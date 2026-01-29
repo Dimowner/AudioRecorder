@@ -15,7 +15,7 @@
     <string name="available_space">可用空间: %s</string>
     <string name="delete_all">删除所有录音</string>
     <string name="delete_all2">删除所有</string>
-    <string name="records_was_removed">在录音目录中找不到某些录音文件。可能是被移走了。</string>
+    <string name="records_were_removed">在录音目录中找不到某些录音文件。可能是被移走了。</string>
     <string name="title_file_is_not_available">无法访问录音文件!</string>
     <string name="details_file_is_not_available">不幸的是，应用程序不再能够访问Android公共存储。\n您可以在此位置上找到录音文件:\n%s</string>
     <string name="warning">警告!</string>

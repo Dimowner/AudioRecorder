@@ -15,7 +15,7 @@
 	<string name="available_space">Place disponible: %s</string>
 	<string name="delete_all">Supprimer tout les enregistrements</string>
 	<string name="delete_all2">Tout supprimer</string>
-	<string name="records_was_removed">Un ou plusieurs enregistrements n\'ont pas été trouvé dans le dossier des enregistrements. Ils ont potentiellement été déplacé ou supprimé.</string>
+	<string name="records_were_removed">Un ou plusieurs enregistrements n\'ont pas été trouvé dans le dossier des enregistrements. Ils ont potentiellement été déplacé ou supprimé.</string>
 	<string name="title_file_is_not_available">Le fichier d\'enregistrement n\'est pas accessible !</string>
 	<string name="details_file_is_not_available">Malheureusement, l\'application n\'a plus accès au stockage public d\'Android.\nVous pouvez retrouver le fichier d\'enregistrement dans votre ordiphone à cet endroit: \n%s</string>
 	<string name="warning">Attention!</string>

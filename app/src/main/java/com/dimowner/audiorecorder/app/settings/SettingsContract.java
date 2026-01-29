@@ -84,7 +84,7 @@ public class SettingsContract {
 
 		void switchAppV2();
 
-		void confirmSwitchAppV2();
+		void confirmSwitchAppV2(Context context);
 
 		void keepScreenOn(boolean b);
 

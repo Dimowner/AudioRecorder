@@ -63,6 +63,7 @@ import com.dimowner.audiorecorder.v2.audio.RecorderV2
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.data.extensions.isLostRecord
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.Record
@@ -383,6 +384,11 @@ class HomeViewModel @Inject constructor(
         val context: Context = getApplication<Application>().applicationContext
         val activeRecord = recordsDataSource.getActiveRecord()
         if (activeRecord != null) {
+            val lostRecord = if (activeRecord.isLostRecord()) {
+                activeRecord
+            } else {
+                null
+            }
             withContext(mainDispatcher) {
                 _state.value = _state.value.copy(
                     waveformState = _state.value.waveformState.copy(
@@ -405,6 +411,8 @@ class HomeViewModel @Inject constructor(
                     isShowWaveform = true,
                     isShowLoadingProgress = false,
                     isDeleteRecordingProgressRequested = false,
+                    showLostRecordsDialog = lostRecord != null,
+                    lostRecord = lostRecord,
                 )
             }
         } else {
@@ -909,7 +917,15 @@ class HomeViewModel @Inject constructor(
             is HomeScreenAction.SelectBluetoothDevice -> {
                 audioManagerHelper.selectBluetoothDevice(action.device)
             }
+            HomeScreenAction.DismissLostRecordsDialog -> dismissLostRecordsDialog()
         }
+    }
+
+    private fun dismissLostRecordsDialog() {
+        _state.value = _state.value.copy(
+            showLostRecordsDialog = false,
+            lostRecord = null
+        )
     }
 
     private fun emitEvent(event: HomeScreenEvent) {
@@ -955,6 +971,9 @@ data class HomeScreenState(
     val selectedBluetoothDevice: BluetoothDeviceInfo? = null,
     // Audio source selection
     val selectedAudioSource: AudioSource = AudioSource.MIC,
+    // Lost records
+    val showLostRecordsDialog: Boolean = false,
+    val lostRecord: Record? = null,
 ) {
     fun isRecording(): Boolean {
         return this.bottomBarState == BottomBarState.RECORDING || this.bottomBarState == BottomBarState.PAUSED
@@ -991,6 +1010,7 @@ sealed class HomeScreenAction {
     data class OnProgressBarStateChange(val value: Float) : HomeScreenAction()
     data class SetBluetoothMicEnabled(val enabled: Boolean) : HomeScreenAction()
     data class SelectBluetoothDevice(val device: BluetoothDeviceInfo?) : HomeScreenAction()
+    data object DismissLostRecordsDialog : HomeScreenAction()
 }
 
 sealed class HomeScreenEvent {

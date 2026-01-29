@@ -123,7 +123,7 @@
 			android:paddingEnd="@dimen/spacing_normal"
 			android:paddingRight="@dimen/spacing_normal"
 			android:paddingBottom="@dimen/spacing_small"
-			android:text="@string/records_was_removed"
+			android:text="@string/records_were_removed"
 			android:textColor="@color/text_primary_light" />
 
 	<FrameLayout

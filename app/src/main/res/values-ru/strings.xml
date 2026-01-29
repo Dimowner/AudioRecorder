@@ -15,7 +15,7 @@
 	<string name="available_space">Доступное место: %s</string>
 	<string name="delete_all">Удалить все записи</string>
 	<string name="delete_all2">Удалить все</string>
-	<string name="records_was_removed">Некоторые записи не были найдены в папке с записями. Возможно они были удалены или перемещены.</string>
+	<string name="records_were_removed">Некоторые записи не были найдены в папке с записями. Возможно они были удалены или перемещены.</string>
 	<string name="title_file_is_not_available">Нет доступа к файлу записи!</string>
 	<string name="details_file_is_not_available">К сожалению, у приложения больше нет доступа к общедоступному хранилищу Android.\nВы можете найти файл записи на вашем смартфоне по такому адресу:\n%s</string>
 	<string name="warning">Внимание!</string>

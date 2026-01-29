@@ -631,7 +631,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 				getString(R.string.try_new_audio_recorder),
 				getString(R.string.audio_recorder_updated_with_improved_features_message),
 				view -> {
-					presenter.confirmSwitchAppV2();
+					presenter.confirmSwitchAppV2(getApplicationContext());
 					showAppV2();
 				}
 		);

@@ -22,6 +22,7 @@ import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.app.AppRecorder;
 import com.dimowner.audiorecorder.app.AppRecorderCallback;
+import com.dimowner.audiorecorder.app.migration.DatabaseMigrationService;
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
@@ -147,8 +148,12 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	}
 
 	@Override
-	public void confirmSwitchAppV2() {
+	public void confirmSwitchAppV2(Context context) {
 		prefs.setAppV2(true);
+        // Start database migration from SQLite to Room if not already done
+        if (!prefs.isDatabaseMigratedToRoom()) {
+            DatabaseMigrationService.Companion.startService(context);
+        }
         audioPlayer.stop();
         appRecorder.stopRecording();
 	}

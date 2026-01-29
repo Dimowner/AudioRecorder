@@ -63,8 +63,10 @@ import com.dimowner.audiorecorder.v2.app.components.TouchPanel
 import com.dimowner.audiorecorder.v2.app.getTestWaveformData
 import com.dimowner.audiorecorder.v2.app.home.HomeScreenAction
 import com.dimowner.audiorecorder.v2.app.home.HomeScreenState
+import com.dimowner.audiorecorder.v2.app.lostrecords.LostRecordsDialog
 import com.dimowner.audiorecorder.v2.app.records.models.RecordDropDownMenuItemId
 import com.dimowner.audiorecorder.v2.app.settings.SettingsItem
+import com.dimowner.audiorecorder.v2.data.model.Record
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -82,6 +84,7 @@ internal fun RecordsScreen(
     onPopBackStack: () -> Unit,
     showRecordInfoScreen: (String) -> Unit,
     showDeletedRecordsScreen: () -> Unit,
+    showLostRecordsScreen: (List<Record>) -> Unit,
     uiState: RecordsScreenState,
     event: RecordsScreenEvent?,
     onAction: (RecordsScreenAction) -> Unit,
@@ -488,6 +491,17 @@ internal fun RecordsScreen(
                             }
                         )
                     }
+                    if (uiState.showLostRecordsDialog) {
+                        LostRecordsDialog(
+                            onDismiss = {
+                                onAction(RecordsScreenAction.DismissLostRecordsDialog)
+                            },
+                            onDetailsClick = {
+                                onAction(RecordsScreenAction.DismissLostRecordsDialog)
+                                showLostRecordsScreen(uiState.lostRecords)
+                            }
+                        )
+                    }
                 }
                 TouchPanel(
                     showRecordPlaybackPanel = uiState.showRecordPlaybackPanel,
@@ -555,7 +569,7 @@ internal fun RecordsScreen(
 @Preview(showBackground = true)
 @Composable
 fun RecordsScreenPreview() {
-    RecordsScreen({}, {}, {},
+    RecordsScreen({}, {}, {}, {},
         RecordsScreenState(
             recordsMap = mapOf(
                 Pair("Today", listOf(
@@ -608,7 +622,7 @@ fun RecordsScreenPreview() {
 @Preview(showBackground = true)
 @Composable
 fun RecordsScreenEmptyPreview() {
-    RecordsScreen({}, {}, {},
+    RecordsScreen({}, {}, {}, {},
         RecordsScreenState(),
         null, {},
         uiHomeState = HomeScreenState(),
@@ -620,7 +634,7 @@ fun RecordsScreenEmptyPreview() {
 @Preview(showBackground = true)
 @Composable
 fun RecordsScreenLoadingPreview() {
-    RecordsScreen({}, {}, {},
+    RecordsScreen({}, {}, {}, {},
         RecordsScreenState(isShowLoadingProgress = true),
         null, {},
         uiHomeState = HomeScreenState(),

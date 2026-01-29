@@ -209,3 +209,7 @@ fun requestAllocateSpace(context: Context, file: File, requiredSpace: Long) {
         parcelFileDescriptor?.close()
     }
 }
+
+fun isFileExists(path: String): Boolean {
+    return File(path).exists()
+}

@@ -15,7 +15,7 @@
 	<string name="available_space">Mevcut alan: %s</string>
 	<string name="delete_all">Bütün kayıtları sil</string>
 	<string name="delete_all2">Hepsini sil</string>
-	<string name="records_was_removed">Bazı kayıtlar dizinde bulunamadı, silinmiş veya taşınmış olabilir.</string>
+	<string name="records_were_removed">Bazı kayıtlar dizinde bulunamadı, silinmiş veya taşınmış olabilir.</string>
 	<string name="title_file_is_not_available">Kayıtlar dizinine erişim izni yok!</string>
 	<string name="details_file_is_not_available">Maalesef, uygulama artık genel dizine erişemiyor.\nKayıt dosyasını telefonunuzun dosya yöneticisinde şu konumda bulabilirsiniz:\n%s</string>
 	<string name="warning">Uyarı!</string>

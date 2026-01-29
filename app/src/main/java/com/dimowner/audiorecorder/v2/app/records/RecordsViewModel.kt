@@ -37,6 +37,7 @@ import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
 import com.dimowner.audiorecorder.v2.audio.RecorderV2
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.data.extensions.checkForLostRecords
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
@@ -117,6 +118,7 @@ internal class RecordsViewModel @Inject constructor(
             isBookmarked = false,
         )
         val deletedRecordsCount = recordsDataSource.getMovedToRecycleRecordsCount()
+        val lostRecords = checkForLostRecords(records)
         withContext(mainDispatcher) {
             _state.value = RecordsScreenState(
                 sortOrder = sortOrder,
@@ -127,7 +129,9 @@ internal class RecordsViewModel @Inject constructor(
                 deletedRecordsCount = deletedRecordsCount,
                 showRecordPlaybackPanel = showPlayPanel,
                 isRecording = audioRecorder.isRecording,
-                recordedRecordId = prefs.recordedRecordId
+                recordedRecordId = prefs.recordedRecordId,
+                showLostRecordsDialog = lostRecords.isNotEmpty(),
+                lostRecords = lostRecords,
             )
             showLoadingProgress(false)
         }
@@ -454,6 +458,7 @@ internal class RecordsViewModel @Inject constructor(
             is RecordsScreenAction.MultiSelectSaveAsRequest -> multiSelectSaveAsRequest()
             RecordsScreenAction.MultiSelectSaveAsDismiss -> multiSelectSaveAsDismiss()
             is RecordsScreenAction.MultiSelectShare -> multiSelectShare(action.selectedRecords)
+            RecordsScreenAction.DismissLostRecordsDialog -> dismissLostRecordsDialog()
         }
     }
 
@@ -630,6 +635,13 @@ internal class RecordsViewModel @Inject constructor(
             _event.emit(event)
         }
     }
+
+    fun dismissLostRecordsDialog() {
+        _state.value = _state.value.copy(
+            showLostRecordsDialog = false,
+            lostRecords = emptyList()
+        )
+    }
 }
 
 data class RecordsScreenState(
@@ -647,6 +659,9 @@ data class RecordsScreenState(
     val showMoveToRecycleMultipleDialog: Boolean = false,
     val showSaveAsDialog: Boolean = false,
     val showSaveAsMultipleDialog: Boolean = false,
+    //Lost records
+    val showLostRecordsDialog: Boolean = false,
+    val lostRecords: List<Record> = emptyList(),
     //A record for which some operation requested (rename, save as, delete)
     val operationSelectedRecord: RecordListItem? = null,
     val activeRecord: RecordListItem? = null,
@@ -702,6 +717,7 @@ internal sealed class RecordsScreenAction {
     data object MultiSelectMoveToRecycle : RecordsScreenAction()
     data object MultiSelectMoveToRecycleRequest : RecordsScreenAction()
     data object MultiSelectMoveToRecycleDismiss : RecordsScreenAction()
+    data object DismissLostRecordsDialog : RecordsScreenAction()
 }
 
 internal fun Record.toRecordListItem(context: Context): RecordListItem {

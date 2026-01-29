@@ -75,7 +75,7 @@
 	<string name="available_space">Available space: %s</string>
 	<string name="delete_all">Delete all records</string>
 	<string name="delete_all2">Delete all</string>
-	<string name="records_was_removed">Some records files was not found in the records directory. Possibly they was removed or moved.</string>
+	<string name="records_were_removed">Some records files were not found in the records directory. Possibly they were removed or moved.</string>
 	<string name="title_file_is_not_available">No access to the record file!</string>
 	<string name="details_file_is_not_available">Unfortunately, the app no longer has access to the Android public storage.\nYou can find the record file on your smartphone at this location:\n%s</string>
 	<string name="warning">Warning!</string>
@@ -298,7 +298,7 @@
 	<string name="error_unable_to_read_sound_file">Unable to read sound file</string>
 	<string name="error_permission_denied">Permission denied</string>
 	<string name="error_process_waveform">Can\'t draw waveform</string>
-	<string name="error_lost_records">Some of your records was deleted or moved</string>
+	<string name="error_lost_records">Some of your records were deleted or moved</string>
 	<string name="error_no_available_space">No available space!</string>
 	<string name="error_failed_access_to_storage">Failed access to file storage</string>
 	<string name="error_on_recording">Recording error!</string>
