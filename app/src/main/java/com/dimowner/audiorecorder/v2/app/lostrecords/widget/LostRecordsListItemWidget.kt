@@ -16,13 +16,10 @@
 
 package com.dimowner.audiorecorder.v2.app.lostrecords.widget
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -35,7 +32,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.Font
@@ -46,110 +42,98 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
-import com.dimowner.audiorecorder.v2.app.ConfirmationAlertDialog
+import com.dimowner.audiorecorder.v2.app.DeleteDialog
 
 @Composable
 fun LostRecordsListItemWidget(
     name: String,
     duration: String,
+    size: String,
     path: String,
     onClickItem: () -> Unit,
     onClickDelete: () -> Unit,
 ) {
     val showDeleteDialog = remember { mutableStateOf(false) }
 
-    Column(
+    Row(
         modifier = Modifier
             .clickable { onClickItem() }
             .fillMaxWidth()
-            .wrapContentHeight()
+            .wrapContentHeight(),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .padding(12.dp, 8.dp, 0.dp, 8.dp)
+                .weight(1f)
                 .wrapContentHeight(),
-            verticalAlignment = Alignment.CenterVertically
+            horizontalAlignment = Alignment.Start
         ) {
-            Column(
+            Text(
                 modifier = Modifier
-                    .weight(1f)
+                    .padding(0.dp, 0.dp, 0.dp, 2.dp)
+                    .wrapContentWidth()
                     .wrapContentHeight(),
-                horizontalAlignment = Alignment.Start
-            ) {
-                Text(
-                    modifier = Modifier
-                        .padding(12.dp, 8.dp, 12.dp, 2.dp)
-                        .wrapContentWidth()
-                        .wrapContentHeight(),
-                    text = name,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    modifier = Modifier
-                        .padding(12.dp, 2.dp)
-                        .wrapContentWidth()
-                        .wrapContentHeight(),
-                    text = "${stringResource(R.string.rec_duration)} $duration ${stringResource(R.string.rec_size)} $duration",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 16.sp,
-                    fontFamily = FontFamily(
-                        Font(
-                            DeviceFontFamilyName("sans-serif"),
-                            weight = FontWeight.Light
-                        )
-                    ),
-                )
-                Text(
-                    modifier = Modifier
-                        .padding(12.dp, 2.dp, 12.dp, 8.dp)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = path,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 14.sp,
-                    fontFamily = FontFamily(
-                        Font(
-                            DeviceFontFamilyName("sans-serif"),
-                            weight = FontWeight.Light
-                        )
-                    ),
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            Button(
+                text = name,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
                 modifier = Modifier
-                    .padding(8.dp)
-                    .wrapContentSize(),
-                onClick = { showDeleteDialog.value = true }
-            ) {
-                Text(
-                    text = stringResource(id = R.string.delete),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Light,
-                )
-            }
+                    .padding(0.dp, 2.dp)
+                    .wrapContentWidth()
+                    .wrapContentHeight(),
+                text = "${stringResource(R.string.rec_duration)} $duration ${stringResource(R.string.rec_size)} $size",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 16.sp,
+                fontFamily = FontFamily(
+                    Font(
+                        DeviceFontFamilyName("sans-serif"),
+                        weight = FontWeight.Light
+                    )
+                ),
+            )
+            Text(
+                modifier = Modifier
+                    .padding(0.dp, 2.dp, 0.dp, 0.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                text = path,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 14.sp,
+                fontFamily = FontFamily(
+                    Font(
+                        DeviceFontFamilyName("sans-serif"),
+                        weight = FontWeight.Light
+                    )
+                ),
+                overflow = TextOverflow.Ellipsis
+            )
         }
-        Spacer(
+        Button(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(color = MaterialTheme.colorScheme.inverseOnSurface)
-        )
+                .padding(4.dp)
+                .wrapContentSize(),
+            onClick = { showDeleteDialog.value = true }
+        ) {
+            Text(
+                text = stringResource(id = R.string.delete),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Light,
+            )
+        }
         if (showDeleteDialog.value) {
-            ConfirmationAlertDialog(
-                onDismissRequest = { showDeleteDialog.value = false },
-                onConfirmation = {
+            DeleteDialog(
+                dialogText = stringResource(id = R.string.delete_record, name),
+                onAcceptClick = {
                     onClickDelete()
                     showDeleteDialog.value = false
                 },
-                dialogTitle = stringResource(id = R.string.warning),
-                dialogText = stringResource(id = R.string.delete_record, name),
-                painter = painterResource(id = R.drawable.ic_delete_forever),
-                positiveButton = stringResource(id = R.string.btn_yes),
-                negativeButton = stringResource(id = R.string.btn_no)
+                onDismissClick = {
+                    showDeleteDialog.value = false
+                },
             )
         }
     }
@@ -161,6 +145,7 @@ fun LostRecordsListItemWidgetPreview() {
     LostRecordsListItemWidget(
         name = "Recording 001",
         duration = "5:21",
+        size = "3.50Mb",
         path = "/storage/emulated/0/AudioRecorder/Recording_001.m4a",
         onClickItem = {},
         onClickDelete = {}

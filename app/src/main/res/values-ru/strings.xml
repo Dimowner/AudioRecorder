@@ -20,7 +20,7 @@
 	<string name="details_file_is_not_available">К сожалению, у приложения больше нет доступа к общедоступному хранилищу Android.\nВы можете найти файл записи на вашем смартфоне по такому адресу:\n%s</string>
 	<string name="warning">Внимание!</string>
 	<string name="delete_this_record">Удалить эту запись?</string>
-	<string name="delete_record">Переместить в корзину %s?</string>
+	<string name="move_record_to_trash">Переместить в корзину %s?</string>
 	<string name="delete_record_forever">Удалить запись %s навсегда?</string>
 	<plurals name="delete_selected_records">
 		<item quantity="one">Переместить в корзину %d выбранную запись?</item>

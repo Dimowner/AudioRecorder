@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -58,8 +59,8 @@ fun RecorderNavigationGraph(
                     navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
                 },
                 showLostRecordsScreen = { lostRecord ->
-                    //TODO: Need to pass lost record to the LOST_RECORDS_SCREEN
-                    navController.navigate(Routes.LOST_RECORDS_SCREEN)
+                    val idsString = lostRecord.id.toString()
+                    navController.navigate("${Routes.LOST_RECORDS_SCREEN}/$idsString")
                 },
                 uiState = homeViewModel.state.value,
                 event = homeViewModel.event.collectAsState(null).value,
@@ -77,8 +78,8 @@ fun RecorderNavigationGraph(
                 }, showDeletedRecordsScreen = {
                     navController.navigate(Routes.DELETED_RECORDS_SCREEN)
                 }, showLostRecordsScreen = { lostRecords ->
-                    //TODO: Need to pass lost records to the LOST_RECORDS_SCREEN
-                    navController.navigate(Routes.LOST_RECORDS_SCREEN)
+                    val idsString = lostRecords.joinToString(",") { it.id.toString() }
+                    navController.navigate("${Routes.LOST_RECORDS_SCREEN}/$idsString")
                 }, uiState = recordsViewModel.state.value,
                 event = recordsViewModel.event.collectAsState(null).value,
                 onAction = {
@@ -100,8 +101,17 @@ fun RecorderNavigationGraph(
                 onAction = { deletedViewModel.onAction(it) }
             )
         }
-        composable(Routes.LOST_RECORDS_SCREEN) {
+        composable(
+            "${Routes.LOST_RECORDS_SCREEN}/{${Routes.LOST_RECORD_IDS}}",
+            arguments = listOf(
+                navArgument(Routes.LOST_RECORD_IDS) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
             val lostRecordsViewModel: LostRecordsViewModel = hiltViewModel()
+            val idsString = backStackEntry.arguments?.getString(Routes.LOST_RECORD_IDS) ?: ""
+            lostRecordsViewModel.loadRecordsByIds(idsString)
             LostRecordsScreen(
                 onPopBackStack = {
                     navController.popBackStack()

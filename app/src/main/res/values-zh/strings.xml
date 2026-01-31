@@ -20,7 +20,7 @@
     <string name="details_file_is_not_available">不幸的是，应用程序不再能够访问Android公共存储。\n您可以在此位置上找到录音文件:\n%s</string>
     <string name="warning">警告!</string>
     <string name="delete_this_record">删除这个录音?</string>
-    <string name="delete_record">移动到回收站 %s?</string>
+    <string name="move_record_to_trash">移动到回收站 %s?</string>
     <string name="delete_record_forever">永久删除录音 %s?</string>
     <plurals name="delete_selected_records">
         <item quantity="other">移动 %d 个选择的录音到回收站?</item>

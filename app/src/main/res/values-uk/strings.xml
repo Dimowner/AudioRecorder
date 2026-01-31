@@ -20,7 +20,7 @@
 	<string name="details_file_is_not_available">На жаль, додаток більше не має доступу до загальнодоступного сховища Android.\nВи можете знайти файл запису на вашому смартфоні за такою адресою:\n%s</string>
 	<string name="warning">Увага!</string>
 	<string name="delete_this_record">Видалити цей запис?</string>
-	<string name="delete_record">Перемістити в кошик %s?</string>
+	<string name="move_record_to_trash">Перемістити в кошик %s?</string>
 	<string name="delete_record_forever">Видалити запис %s назавжди?</string>
 	<plurals name="delete_selected_records">
 		<item quantity="one">Перемістити в кошик %d вибраний запис?</item>

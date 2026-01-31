@@ -339,7 +339,7 @@ internal fun HomeScreen(
                 )
                 if (showDeleteDialog.value) {
                     DeleteDialog(
-                        dialogText = stringResource(id = R.string.delete_record, uiState.recordName),
+                        dialogText = stringResource(id = R.string.move_record_to_trash, uiState.recordName),
                         onAcceptClick = {
                             showDeleteDialog.value = false
                             onAction(HomeScreenAction.DeleteActiveRecord)

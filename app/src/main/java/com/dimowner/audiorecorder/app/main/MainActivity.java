@@ -637,7 +637,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				MainActivity.this,
 				R.drawable.ic_delete_forever_dark,
 				getString(R.string.warning),
-				getString(R.string.delete_record, name),
+				getString(R.string.move_record_to_trash, name),
 				v -> presenter.deleteActiveRecord()
 		);
 	}

@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.v2.app.lostrecords
 
 import android.app.Application
 import android.content.Context
+import android.text.format.Formatter
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
@@ -54,7 +55,7 @@ internal class LostRecordsViewModel @Inject constructor(
 
     fun deleteRecord(recordId: Long) {
         viewModelScope.launch(ioDispatcher) {
-            if (recordsDataSource.deleteLostRecordForever(recordId)) {
+            if (recordsDataSource.deleteLostRecord(recordId)) {
                 withContext(mainDispatcher) {
                     _state.value = _state.value.copy(
                         records = _state.value.records.filter { it.recordId != recordId }
@@ -68,12 +69,31 @@ internal class LostRecordsViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             val recordIds = _state.value.records.map { it.recordId }
             for (id in recordIds) {
-                recordsDataSource.deleteLostRecordForever(id)
+                recordsDataSource.deleteLostRecord(id)
             }
             withContext(mainDispatcher) {
                 _state.value = _state.value.copy(
                     records = emptyList()
                 )
+            }
+        }
+    }
+
+    fun loadRecordsByIds(ids: String) {
+        viewModelScope.launch(ioDispatcher) {
+            val context: Context = getApplication<Application>().applicationContext
+            val recordIds = ids.split(",")
+                .mapNotNull { it.trim().toLongOrNull() }
+
+            if (recordIds.isNotEmpty()) {
+                val records = recordsDataSource.getRecords(recordIds)
+                val lostRecordItems = records.map { it.toLostRecordListItem(context) }
+
+                withContext(mainDispatcher) {
+                    _state.value = _state.value.copy(
+                        records = lostRecordItems
+                    )
+                }
             }
         }
     }
@@ -109,6 +129,7 @@ internal data class LostRecordListItem(
     val recordId: Long,
     val name: String,
     val duration: String,
+    val size: String,
     val path: String,
 )
 
@@ -122,11 +143,12 @@ internal sealed class LostRecordsScreenAction {
     data class ShowRecordInfo(val recordId: Long) : LostRecordsScreenAction()
 }
 
-internal fun Record.toLostRecordListItem(): LostRecordListItem {
+internal fun Record.toLostRecordListItem(context: Context): LostRecordListItem {
     return LostRecordListItem(
         recordId = this.id,
         name = this.name,
         duration = TimeUtils.formatTimeIntervalHourMinSec2(this.durationMills),
+        size = Formatter.formatShortFileSize(context, this.size),
         path = this.path,
     )
 }

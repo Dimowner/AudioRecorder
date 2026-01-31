@@ -12,4 +12,5 @@ object Routes {
     const val WELCOME_SETUP_SETTINGS_SCREEN = "WELCOME_SETUP_SETTINGS_SCREEN"
 
     const val RECORD_INFO = "RECORD_INFO"
+    const val LOST_RECORD_IDS = "lost_record_ids"
 }

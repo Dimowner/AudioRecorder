@@ -20,7 +20,7 @@
 	<string name="details_file_is_not_available">Malheureusement, l\'application n\'a plus accès au stockage public d\'Android.\nVous pouvez retrouver le fichier d\'enregistrement dans votre ordiphone à cet endroit: \n%s</string>
 	<string name="warning">Attention!</string>
 	<string name="delete_this_record">Supprimer cet enregistrement ?</string>
-	<string name="delete_record">Déplacer %s dans la corbeille ?</string>
+	<string name="move_record_to_trash">Déplacer %s dans la corbeille ?</string>
 	<string name="delete_record_forever">Supprimer l\'enregistrement %s pour toujours ?</string>
 	<plurals name="delete_selected_records">
 		<item quantity="one">Déplacer les %d l\'enregistrement sélectionné à la corbeille ?</item>

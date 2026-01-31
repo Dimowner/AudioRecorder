@@ -18,7 +18,7 @@
  	<string name="delete_all2">Eliminar todo</string>
  	<string name="warning">¡Advertencia!</string>
  	<string name="delete_this_record">¿Eliminar esta grabación?</string>
- 	<string name="delete_record">¿Mover %s a la basura?</string>
+ 	<string name="move_record_to_trash">¿Mover %s a la basura?</string>
  	<string name="delete_record_forever">¿Eliminar la grabación %s permanentemente?</string>
 	<string name="start_recording">Start recording</string>
 	<string name="recording_feature_disabled">Recording feature disabled</string>

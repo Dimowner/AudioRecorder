@@ -40,14 +40,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
-import com.dimowner.audiorecorder.v2.app.ConfirmationAlertDialog
+import com.dimowner.audiorecorder.v2.app.DeleteDialog
 import com.dimowner.audiorecorder.v2.app.TitleBar
 import com.dimowner.audiorecorder.v2.app.lostrecords.widget.LostRecordsListItemWidget
 import com.google.gson.Gson
@@ -129,6 +128,7 @@ internal fun LostRecordsScreen(
                                 name = record.name,
                                 duration = record.duration,
                                 path = record.path,
+                                size = record.size,
                                 onClickItem = {
                                     onAction(LostRecordsScreenAction.ShowRecordInfo(record.recordId))
                                 },
@@ -141,17 +141,15 @@ internal fun LostRecordsScreen(
                 }
             }
             if (showDeleteAllDialog.value) {
-                ConfirmationAlertDialog(
-                    onDismissRequest = { showDeleteAllDialog.value = false },
-                    onConfirmation = {
+                DeleteDialog(
+                    dialogText = stringResource(id = R.string.delete_all_records),
+                    onAcceptClick = {
                         onAction(LostRecordsScreenAction.DeleteAllRecords)
                         showDeleteAllDialog.value = false
                     },
-                    dialogTitle = stringResource(id = R.string.warning),
-                    dialogText = stringResource(id = R.string.delete_all_records),
-                    painter = painterResource(id = R.drawable.ic_delete_forever),
-                    positiveButton = stringResource(id = R.string.btn_yes),
-                    negativeButton = stringResource(id = R.string.btn_no)
+                    onDismissClick = {
+                        showDeleteAllDialog.value = false
+                    },
                 )
             }
         }
@@ -170,12 +168,14 @@ fun LostRecordsScreenPreview() {
                     recordId = 0,
                     name = "Record Name 1",
                     duration = "5:21",
+                    size = "3.11Mb",
                     path = "/storage/emulated/0/AudioRecorder/Recording_001.m4a"
                 ),
                 LostRecordListItem(
                     recordId = 1,
                     name = "Record Name 2",
                     duration = "2:43",
+                    size = "1.25Mb",
                     path = "/storage/emulated/0/AudioRecorder/Recording_002.m4a"
                 )
             )

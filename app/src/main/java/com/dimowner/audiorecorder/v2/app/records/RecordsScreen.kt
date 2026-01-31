@@ -438,7 +438,7 @@ internal fun RecordsScreen(
                     if (uiState.showMoveToRecycleDialog) {
                         uiState.operationSelectedRecord?.let { record ->
                             DeleteDialog(
-                                dialogText = stringResource(id = R.string.delete_record, record.name),
+                                dialogText = stringResource(id = R.string.move_record_to_trash, record.name),
                                 onAcceptClick = {
                                     onAction(RecordsScreenAction.MoveRecordToRecycle(record.recordId))
                                 }, onDismissClick = {

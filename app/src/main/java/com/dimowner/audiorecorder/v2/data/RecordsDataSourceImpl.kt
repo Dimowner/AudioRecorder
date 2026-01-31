@@ -422,7 +422,7 @@ class RecordsDataSourceImpl @Inject internal constructor(
         }
     }
 
-    override suspend fun deleteLostRecordForever(id: Long): Boolean {
+    override suspend fun deleteLostRecord(id: Long): Boolean {
         return try {
             // For lost records, the file doesn't exist, so we only need to delete from DB
             recordDao.deleteRecordById(id)

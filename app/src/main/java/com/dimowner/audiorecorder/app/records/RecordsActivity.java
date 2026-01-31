@@ -302,7 +302,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 						RecordsActivity.this,
 						R.drawable.ic_delete_forever_dark,
 						getString(R.string.warning),
-						getString(R.string.delete_record, item.getName()),
+						getString(R.string.move_record_to_trash, item.getName()),
 						v -> presenter.deleteRecord(item.getId(), item.getPath())
 				);
 			}
@@ -496,7 +496,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 					RecordsActivity.this,
 					R.drawable.ic_delete_forever_dark,
 					getString(R.string.warning),
-					getString(R.string.delete_record, presenter.getRecordName()),
+					getString(R.string.move_record_to_trash, presenter.getRecordName()),
 					v -> presenter.deleteActiveRecord()
 			);
 		} else if (id == R.id.btn_check_bookmark) {

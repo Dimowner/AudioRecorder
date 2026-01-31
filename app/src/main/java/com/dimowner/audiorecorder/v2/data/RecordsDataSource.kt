@@ -59,5 +59,5 @@ interface RecordsDataSource {
 
     suspend fun clearRecycle(): Boolean
 
-    suspend fun deleteLostRecordForever(id: Long): Boolean
+    suspend fun deleteLostRecord(id: Long): Boolean
 }

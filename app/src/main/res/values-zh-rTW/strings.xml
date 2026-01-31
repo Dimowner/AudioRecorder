@@ -22,7 +22,7 @@
 		\n%s</string>
 	<string name="warning">警告</string>
 	<string name="delete_this_record">刪除這則錄音？</string>
-	<string name="delete_record">將「%s」移至垃圾桶？</string>
+	<string name="move_record_to_trash">將「%s」移至垃圾桶？</string>
 	<string name="delete_record_forever">永久刪除錄音？\n「%s」</string>
 	<plurals name="delete_selected_records">
 		<item quantity="one">將選取的 %d 則錄音移至垃圾桶？</item>

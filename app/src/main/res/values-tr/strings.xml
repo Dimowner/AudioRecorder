@@ -20,7 +20,7 @@
 	<string name="details_file_is_not_available">Maalesef, uygulama artık genel dizine erişemiyor.\nKayıt dosyasını telefonunuzun dosya yöneticisinde şu konumda bulabilirsiniz:\n%s</string>
 	<string name="warning">Uyarı!</string>
 	<string name="delete_this_record">Bu kaydı sil?</string>
-	<string name="delete_record">%s kaydını çöp kutusuna taşı?</string>
+	<string name="move_record_to_trash">%s kaydını çöp kutusuna taşı?</string>
 	<string name="delete_record_forever">%s kaydını sil?</string>
 	<plurals name="delete_selected_records">
 		<item quantity="one">%d kaydı çöp kutusuna taşı?</item>

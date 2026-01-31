@@ -579,7 +579,7 @@ fun DeleteDialog(
 @Preview(showBackground = true)
 @Composable
 fun DeleteDialogPreview() {
-    DeleteDialog(stringResource(id = R.string.delete_record,"Record-14"), {}, {})
+    DeleteDialog(stringResource(id = R.string.move_record_to_trash,"Record-14"), {}, {})
 }
 
 @Composable

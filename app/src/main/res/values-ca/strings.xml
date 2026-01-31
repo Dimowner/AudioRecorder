@@ -19,7 +19,7 @@
 	<string name="details_file_is_not_available">Malauradament, l\'aplicació ja no té accés a l\'emmagatzematge públic d\'Android.\nPodeu trobar el fitxer de gravació en aquesta ubicació del telèfon:\n%s</string>
 	<string name="warning">Avís.</string>
 	<string name="delete_this_record">Voleu esborrar aquesta gravació?</string>
-	<string name="delete_record">Vouleu moure %s a la paperera?</string>
+	<string name="move_record_to_trash">Vouleu moure %s a la paperera?</string>
 	<string name="delete_record_forever">Voleu esborrar la gravació %s per sempre?</string>
 	<plurals name="delete_selected_records">
 		<item quantity="one">Voleu tirar a la paperera %d gravació seleccionada?</item>
