@@ -35,6 +35,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
 import java.io.IOException
+import kotlin.io.path.createTempDirectory
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -141,7 +142,7 @@ class FileExtensionsTest {
 
     @Test
     fun test_renameExistingFile() {
-        val tempDir = createTempDir()
+        val tempDir = createTempDirectory().toFile()
         val existingFile = File(tempDir, "existing_file.txt")
         existingFile.createNewFile()
 
@@ -158,7 +159,7 @@ class FileExtensionsTest {
 
     @Test
     fun test_renameNonExistentFile() {
-        val tempDir = createTempDir()
+        val tempDir = createTempDirectory().toFile()
         val nonexistentFile = File(tempDir, "nonexistent_file.txt")
 
         val renamedFile = "renamed_file"
@@ -169,7 +170,7 @@ class FileExtensionsTest {
 
     @Test
     fun test_renameWithSameName() {
-        val tempDir = createTempDir()
+        val tempDir = createTempDirectory().toFile()
         val existingFile = File(tempDir, "existing_file.txt")
         existingFile.createNewFile()
 
@@ -182,7 +183,7 @@ class FileExtensionsTest {
 
     @Test
     fun test_deleteExistingFile() {
-        val tempDir = createTempDir()
+        val tempDir = createTempDirectory().toFile()
         val existingFile = File(tempDir, "existing_file.txt")
         existingFile.createNewFile()
 
@@ -193,7 +194,7 @@ class FileExtensionsTest {
 
     @Test
     fun test_deleteExistingDirectory() {
-        val tempDir = createTempDir()
+        val tempDir = createTempDirectory().toFile()
         val existingDir = File(tempDir, "existing_directory")
         val existingFile = File(existingDir, "existing_file.txt")
         existingFile.mkdirs()
@@ -206,7 +207,7 @@ class FileExtensionsTest {
 
     @Test
     fun test_deleteNonexistentFile() {
-        val tempDir = createTempDir()
+        val tempDir = createTempDirectory().toFile()
         val nonexistentFile = File(tempDir, "nonexistent_file.txt")
 
         assertFalse(nonexistentFile.exists())
@@ -216,7 +217,7 @@ class FileExtensionsTest {
     @Test
     fun test_markFileAsDeleted() {
         // Create a temporary file for testing
-        val tempDir = createTempDir()
+        val tempDir = createTempDirectory().toFile()
         val tempFile = File(tempDir, "Record.m4a")
         tempFile.createNewFile()
 
@@ -246,7 +247,7 @@ class FileExtensionsTest {
     @Test
     fun test_unmarkFileAsDeleted() {
         // Create a temporary trash file for testing
-        val tempDir = createTempDir()
+        val tempDir = createTempDirectory().toFile()
         val tempTrashFile = File(tempDir, "Record.m4a.deleted")
         tempTrashFile.createNewFile()
 

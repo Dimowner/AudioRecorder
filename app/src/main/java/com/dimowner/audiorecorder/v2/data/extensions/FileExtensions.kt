@@ -26,6 +26,9 @@ import androidx.core.net.toUri
 import com.dimowner.audiorecorder.v2.DefaultValues.DELETED_RECORD_MARK
 import timber.log.Timber
 import java.io.File
+import java.io.FileDescriptor
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.IOException
 
 private const val RETRY_COUNT = 3
@@ -207,6 +210,26 @@ fun requestAllocateSpace(context: Context, file: File, requiredSpace: Long) {
             Timber.e(e)
         }
         parcelFileDescriptor?.close()
+    }
+}
+
+/**
+ * Copy a file from a FileDescriptor to a new File.
+ * @param fileToCopy The source FileDescriptor to copy from.
+ * @param newFile The destination File to copy to.
+ * @return true if the copy was successful and bytes were copied, false otherwise.
+ */
+fun copyFile(fileToCopy: FileDescriptor, newFile: File): Boolean {
+    return try {
+        FileInputStream(fileToCopy).use { inputStream ->
+            FileOutputStream(newFile).use { outputStream ->
+                val bytesCopied = inputStream.copyTo(outputStream)
+                bytesCopied > 0
+            }
+        }
+    } catch (e: IOException) {
+        Timber.e(e)
+        false
     }
 }
 

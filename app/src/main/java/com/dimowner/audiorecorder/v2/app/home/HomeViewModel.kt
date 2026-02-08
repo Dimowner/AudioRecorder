@@ -65,6 +65,7 @@ import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.extensions.isLostRecord
+import com.dimowner.audiorecorder.v2.data.extensions.copyFile
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.Record
@@ -383,6 +384,12 @@ class HomeViewModel @Inject constructor(
         )
     }
 
+    private fun handleError(text: String) {
+        emitEvent(
+            HomeScreenEvent.ShowErrorSnack(text)
+        )
+    }
+
     private fun showInfoMessage(@StringRes resId: Int) {
         val context: Context = getApplication<Application>().applicationContext
         emitEvent(
@@ -516,14 +523,14 @@ class HomeViewModel @Inject constructor(
                 val name: String? = DocumentFile.fromSingleUri(context, uri)?.name
                 if (name != null) {
                     val newFile: File = fileDataSource.createRecordFile(name)
-                    if (FileUtil.copyFile(fileDescriptor, newFile)) { //TODO: Fix
+                    if (fileDescriptor != null && copyFile(fileDescriptor, newFile)) {
                         val info = AudioDecoder.readRecordInfo(newFile)
 
                         //Do 2 step import: 1) Import record with empty waveform.
                         //2) Process and update waveform in background.
                         val record = Record(
                             id = 0,
-                            name = FileUtil.removeFileExtension(newFile.name), //TODO: Fix
+                            name = newFile.nameWithoutExtension,
                             durationMills = if (info.duration >= 0) info.duration / 1000 else 0,
                             created = newFile.lastModified(),
                             added = System.currentTimeMillis(),
@@ -548,18 +555,23 @@ class HomeViewModel @Inject constructor(
                         decodeRecord(record.path, record.durationMills)
                     }
                 } else {
-                    //TODO: Show an error
+                    handleError(context.getString(R.string.error_unable_to_read_sound_file))
                 }
             } catch (e: SecurityException) {
                 Timber.e(e)
+                handleError(context.getString(R.string.error_permission_denied))
             } catch (e: IOException) {
                 Timber.e(e)
+                handleError(context.getString(R.string.error_unable_to_read_sound_file))
             } catch (e: OutOfMemoryError) {
                 Timber.e(e)
+                handleError(context.getString(R.string.error_unable_to_read_sound_file))
             } catch (e: IllegalStateException) {
                 Timber.e(e)
+                handleError(context.getString(R.string.error_unable_to_read_sound_file))
             } catch (ex: CantCreateFileException) {
                 Timber.e(ex)
+                handleError(ex)
             }
         }
     }
