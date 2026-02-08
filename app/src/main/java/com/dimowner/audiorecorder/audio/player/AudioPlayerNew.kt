@@ -19,6 +19,7 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.MediaPlayer.OnPreparedListener
 import android.os.Handler
+import android.os.Looper
 import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.exception.AppException
 import com.dimowner.audiorecorder.exception.PlayerDataSourceException
@@ -34,7 +35,7 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 	private var playerState = PlayerState.STOPPED
 	private var pauseTimeMills: Long = 0
 	private var prevPosMills: Long = 0
-	private val handler = Handler()
+	private val handler = Handler(Looper.getMainLooper())
 
 	override fun addPlayerCallback(callback: PlayerContractNew.PlayerCallback) {
 		actionsListeners.add(callback)

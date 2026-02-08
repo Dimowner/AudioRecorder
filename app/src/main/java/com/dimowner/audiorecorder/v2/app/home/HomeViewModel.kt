@@ -42,6 +42,7 @@ import com.dimowner.audiorecorder.app.DecodeService
 import com.dimowner.audiorecorder.app.DecodeServiceListener
 import com.dimowner.audiorecorder.app.DownloadService
 import com.dimowner.audiorecorder.audio.AudioDecoder
+import com.dimowner.audiorecorder.audio.player.AudioPlaybackService
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.exception.AppException
 import com.dimowner.audiorecorder.exception.CantCreateFileException
@@ -137,13 +138,30 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private var playbackService: AudioPlaybackService? = null
+    private var isBound = false
+
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as? AudioPlaybackService.ServiceBinder
+            playbackService = binder?.getService()
+            isBound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            playbackService = null
+            isBound = false
+        }
+    }
+
     init {
         viewModelScope.launch {
             //TODO: these events should be handled in a service
             subscribeRecorderUpdates()
         }
+        bindPlaybackService()
         subscribePlayerUpdates()
-        
+
         // Register AudioManagerHelper and subscribe to Bluetooth mic state
         audioManagerHelper.register()
         viewModelScope.launch {
@@ -156,6 +174,20 @@ class HomeViewModel @Inject constructor(
                     selectedBluetoothDevice = bluetoothState.selectedDevice
                 )
             }
+        }
+    }
+
+    private fun bindPlaybackService() {
+        val context: Context = getApplication<Application>().applicationContext
+        val intent = Intent(context, AudioPlaybackService::class.java)
+        context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    private fun unbindPlaybackService() {
+        if (isBound) {
+            val context: Context = getApplication<Application>().applicationContext
+            context.unbindService(serviceConnection)
+            isBound = false
         }
     }
 
@@ -373,6 +405,13 @@ class HomeViewModel @Inject constructor(
         showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
             updateState(false)
+            //Update playback progress if playback service is running
+            playbackService?.let { service ->
+                withContext(mainDispatcher) {
+                    val currentPosition = service.getCurrentProgress()
+                    handleSeekProgress(currentPosition)
+                }
+            }
         }
 
         val context: Context = getApplication<Application>().applicationContext
@@ -682,7 +721,14 @@ class HomeViewModel @Inject constructor(
                 val activeRecord = recordsDataSource.getActiveRecord()
                 if (activeRecord != null) {
                     withContext(mainDispatcher) {
-                        audioPlayer.play(activeRecord.path)
+                        //Start playback in Audio Playback Service
+                        val context: Context = getApplication<Application>().applicationContext
+                        AudioPlaybackService.startServiceForeground(
+                            context = context,
+                            name = activeRecord.name,
+                            path = activeRecord.path,
+                            durationMills = activeRecord.durationMills
+                        )
                     }
                 }
             }
@@ -941,6 +987,7 @@ class HomeViewModel @Inject constructor(
         } catch (e: Exception) {
             Timber.e(e, "Error releasing AudioManagerHelper")
         }
+        unbindPlaybackService()
     }
 }
 

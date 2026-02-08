@@ -120,6 +120,11 @@
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
+        <service
+            android:name=".audio.player.AudioPlaybackService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
         <receiver android:name=".WidgetReceiver" />
         <receiver android:name=".app.RecordingService$StopRecordingReceiver" />
         <receiver android:name=".app.PlaybackService$StopPlaybackReceiver" />

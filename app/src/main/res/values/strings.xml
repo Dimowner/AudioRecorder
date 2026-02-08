@@ -386,4 +386,9 @@
 
     <!-- Database migration -->
     <string name="database_update_in_progress">Database update in progress</string>
+
+    <!-- Audio Playback Notification channel name -->
+    <string name="notification_channel_playback_name">Audio Playback</string>
+    <!-- Audio Playback Notification channel description -->
+    <string name="notification_channel_playback_description">Shows audio playback progress</string>
 </resources>
