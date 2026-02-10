@@ -132,7 +132,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				}
 
 				@Override
-				public void onFinishProcessing(@NonNull int[] decodedData) {
+				public void onFinishProcessing(long recordId, @NonNull int[] decodedData) {
 					runOnUiThread(() -> {
 						hideRecordProcessing();
 						presenter.loadActiveRecord();

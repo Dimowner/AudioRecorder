@@ -115,15 +115,19 @@ class HomeViewModel @Inject constructor(
                     //Do nothing
                 }
 
-                override fun onFinishProcessing(decodedData: IntArray) {
+                override fun onFinishProcessing(recordId: Long, decodedData: IntArray) {
                     viewModelScope.launch(ioDispatcher) {
-                        //TODO: Handle the case when active racord has changed during decoding.
-                        recordsDataSource.getActiveRecord()?.let {
-                            recordsDataSource.updateRecord(
-                                it.copy(
+                        if (recordId < 0) return@launch
+                        recordsDataSource.getRecord(recordId)?.let { record ->
+                            val success = recordsDataSource.updateRecord(
+                                record.copy(
                                     amps = decodedData
                                 )
                             )
+                            // Only update UI if the decoded record is still the active record
+                            if (success && prefs.activeRecordId == recordId) {
+                                updateState()
+                            }
                         }
                     }
                 }
@@ -552,7 +556,7 @@ class HomeViewModel @Inject constructor(
                         }
                         prefs.activeRecordId = id
                         updateState()
-                        decodeRecord(record.path, record.durationMills)
+                        decodeRecord(id, record.path, record.durationMills)
                     }
                 } else {
                     handleError(context.getString(R.string.error_unable_to_read_sound_file))
@@ -576,9 +580,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun decodeRecord(path: String, durationMills: Long) {
+    private fun decodeRecord(recordId: Long, path: String, durationMills: Long) {
         DecodeService.startNotificationV2(
             getApplication<Application>().applicationContext,
+            recordId,
             path,
             durationMills
         )
