@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,6 +51,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -59,6 +61,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -533,18 +536,22 @@ fun TimePanel(
         )
         Row(
             modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp)
                 .wrapContentSize()
-                .padding(0.dp, 0.dp, 0.dp, 4.dp)
-                .clickable(enabled = isRenameAvailable) { onRenameClick() },
+                .clip(RoundedCornerShape(8.dp))
+                .clickable(enabled = isRenameAvailable) { onRenameClick() }
+                .padding(8.dp, 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                modifier = Modifier.wrapContentSize(),
+                modifier = Modifier.weight(1f, fill = false),
                 textAlign = TextAlign.Center,
                 text = recordName,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 22.sp,
-                fontWeight = FontWeight.Normal
+                fontWeight = FontWeight.Normal,
+                overflow = TextOverflow.Ellipsis
             )
             if (isRenameAvailable) {
                 Spacer(modifier = Modifier.width(4.dp))
