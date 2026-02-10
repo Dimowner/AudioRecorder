@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.v2.app.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -511,6 +512,7 @@ fun TimePanel(
     timeEnd: String,
     progress: Float,
     isSliderEnabled: Boolean,
+    isRenameAvailable: Boolean,
     onRenameClick: () -> Unit,
     onProgressChange: (Float) -> Unit
 ) {
@@ -529,16 +531,31 @@ fun TimePanel(
             fontSize = 60.sp,
             fontWeight = FontWeight.Bold
         )
-        Text(
+        Row(
             modifier = Modifier
                 .wrapContentSize()
-                .padding(0.dp, 0.dp, 0.dp, 4.dp),
-            textAlign = TextAlign.Center,
-            text = recordName,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Normal
-        )
+                .padding(0.dp, 0.dp, 0.dp, 4.dp)
+                .clickable(enabled = isRenameAvailable) { onRenameClick() },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier.wrapContentSize(),
+                textAlign = TextAlign.Center,
+                text = recordName,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Normal
+            )
+            if (isRenameAvailable) {
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_pencil_small),
+                    contentDescription = stringResource(id = R.string.rename),
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+            }
+        }
         Row {
             Text(
                 modifier = Modifier
@@ -592,6 +609,7 @@ fun TimePanelPreview() {
         "05:32",
         0.3f,
         isSliderEnabled = true,
+        isRenameAvailable = true,
         onRenameClick = {},
         onProgressChange = { prgress ->},
     )
@@ -609,6 +627,7 @@ fun TimePanelRecordingProgressPreview() {
         "",
         0.0f,
         isSliderEnabled = false,
+        isRenameAvailable = true,
         onRenameClick = {},
         onProgressChange = { prgress ->},
     )

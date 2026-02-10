@@ -319,7 +319,8 @@ internal fun HomeScreen(
                     uiState.endTime,
                     uiState.progress,
                     uiState.isShowWaveform,
-                    onRenameClick = {},
+                    !uiState.isRecording() && uiState.isShowWaveform,
+                    onRenameClick = { showRenameDialog.value = true },
                     onProgressChange = { onAction(HomeScreenAction.OnProgressBarStateChange(it)) }
                 )
                 BottomBar(
