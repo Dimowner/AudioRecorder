@@ -37,7 +37,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -45,12 +45,16 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -222,8 +226,8 @@ fun TitleBar(
                 .align(Alignment.CenterVertically),
         ) {
             Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Navigate back",
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = stringResource(R.string.navigate_back),
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -259,6 +263,71 @@ fun TitleBar(
 @Composable
 fun TitleBarPreview() {
     TitleBar("Title bar", {}, "BtnText", {})
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScrollableTitleBar(
+    title: String,
+    onBackPressed: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior,
+    actionButtonText: String = "",
+    onActionClick: (() -> Unit)? = null
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = title,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 24.sp,
+                fontFamily = FontFamily(
+                    Font(
+                        DeviceFontFamilyName("sans-serif"),
+                        weight = FontWeight.Light
+                    )
+                ),
+                fontWeight = FontWeight.Light,
+            )
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = onBackPressed,
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.navigate_back),
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        },
+        actions = {
+            if (onActionClick != null) {
+                Button(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .wrapContentSize(),
+                    onClick = { onActionClick() }
+                ) {
+                    Text(
+                        text = actionButtonText,
+                        fontSize = 16.sp,
+                    )
+                }
+            }
+        },
+        scrollBehavior = scrollBehavior,
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            scrolledContainerColor = MaterialTheme.colorScheme.surface,
+        )
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Composable
+fun ScrollableTitleBarPreview() {
+    ScrollableTitleBar("Title bar", {}, TopAppBarDefaults.enterAlwaysScrollBehavior(),"BtnText", {})
 }
 
 @Composable

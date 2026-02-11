@@ -30,16 +30,19 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,11 +50,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
-import com.dimowner.audiorecorder.v2.app.TitleBar
+import com.dimowner.audiorecorder.v2.app.ScrollableTitleBar
 import com.dimowner.audiorecorder.v2.app.lostrecords.widget.LostRecordsListItemWidget
 import com.google.gson.Gson
 import timber.log.Timber
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun LostRecordsScreen(
     onPopBackStack: () -> Unit,
@@ -61,6 +65,8 @@ internal fun LostRecordsScreen(
     onAction: (LostRecordsScreenAction) -> Unit,
 ) {
     val showDeleteAllDialog = remember { mutableStateOf(false) }
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
 
     LaunchedEffect(key1 = event) {
         when (event) {
@@ -77,7 +83,19 @@ internal fun LostRecordsScreen(
     }
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets.safeDrawing,
+        topBar = {
+            ScrollableTitleBar(
+                title = stringResource(id = R.string.lost_records),
+                onBackPressed = { onPopBackStack() },
+                actionButtonText = stringResource(id = R.string.delete_all2),
+                scrollBehavior = scrollBehavior,
+                onActionClick = if (uiState.records.isNotEmpty()) {
+                    { showDeleteAllDialog.value = true }
+                } else null
+            )
+        }
     ) { innerPadding ->
         Surface(
             modifier = Modifier
@@ -85,14 +103,6 @@ internal fun LostRecordsScreen(
                 .padding(innerPadding)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                TitleBar(
-                    title = stringResource(id = R.string.lost_records),
-                    onBackPressed = { onPopBackStack() },
-                    actionButtonText = stringResource(id = R.string.delete_all2),
-                    onActionClick = if (uiState.records.isNotEmpty()) {
-                        { showDeleteAllDialog.value = true }
-                    } else null
-                )
                 Spacer(
                     modifier = Modifier
                         .fillMaxWidth()

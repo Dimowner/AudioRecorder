@@ -21,24 +21,30 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -49,7 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
-import com.dimowner.audiorecorder.v2.app.TitleBar
+import com.dimowner.audiorecorder.v2.app.ScrollableTitleBar
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
@@ -57,6 +63,7 @@ import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import timber.log.Timber
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun WelcomeSetupSettingsScreen(
     onPopBackStack: () -> Unit,
@@ -71,6 +78,8 @@ internal fun WelcomeSetupSettingsScreen(
 
     val isExpandedBitRatePanel = remember { mutableStateOf(true) }
 
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
     ComposableLifecycle { _, event ->
         when (event) {
             Lifecycle.Event.ON_CREATE -> {
@@ -81,167 +90,179 @@ internal fun WelcomeSetupSettingsScreen(
         }
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TitleBar(
-                stringResource(R.string.setup),
-                onBackPressed = { onPopBackStack() })
-            Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .weight(weight = 1f, fill = true)
-            ) {
-                Spacer(modifier = Modifier.size(8.dp))
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        contentWindowInsets = WindowInsets.safeDrawing,
+        topBar = {
+            ScrollableTitleBar(
+                title = stringResource(R.string.setup),
+                onBackPressed = { onPopBackStack() },
+                scrollBehavior = scrollBehavior
+            )
+        }
+    ) { innerPadding ->
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .weight(weight = 1f, fill = true)
+                ) {
+                    Spacer(modifier = Modifier.size(8.dp))
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        SettingsItemCheckBox(
+                            uiState.isDynamicColors,
+                            stringResource(R.string.dynamic_theme_colors),
+                            R.drawable.ic_palette_outline,
+                            {
+                                onAction(SettingsScreenAction.SetDynamicTheme(it))
+                            })
+                    }
                     SettingsItemCheckBox(
-                        uiState.isDynamicColors,
-                        stringResource(R.string.dynamic_theme_colors),
-                        R.drawable.ic_palette_outline,
+                        uiState.isDarkTheme,
+                        stringResource(R.string.dark_theme),
+                        R.drawable.ic_dark_mode,
                         {
-                            onAction(SettingsScreenAction.SetDynamicTheme(it))
+                            onAction(SettingsScreenAction.SetDarkTheme(it))
                         })
-                }
-                SettingsItemCheckBox(
-                    uiState.isDarkTheme,
-                    stringResource(R.string.dark_theme),
-                    R.drawable.ic_dark_mode,
-                    {
-                        onAction(SettingsScreenAction.SetDarkTheme(it))
-                    })
-                DropDownSetting(
-                    items = uiState.nameFormats,
-                    selectedItem = uiState.selectedNameFormat,
-                    onSelect = {
-                        onAction(SettingsScreenAction.SetNameFormat(it))
-                    }
-                )
-                SettingSelector(
-                    name = stringResource(id = R.string.recording_format),
-                    chips = uiState.recordingSettings.map { it.recordingFormat },
-                    onSelect = {
-                        onAction(SettingsScreenAction.SelectRecordingFormat(it.value))
-                    },
-                    onClickInfo = {
-                        infoText.value = context.getString(R.string.info_format)
-                        openInfoDialog.value = true
-                    }
-                )
-                val selectedFormat = uiState.recordingSettings.firstOrNull { it.recordingFormat.isSelected }
-                SettingSelector(
-                    name = stringResource(id = R.string.sample_rate),
-                    chips = selectedFormat?.sampleRates ?: emptyList(),
-                    onSelect = {
-                        onAction(SettingsScreenAction.SelectSampleRate(it.value))
-                    },
-                    onClickInfo = {
-                        infoText.value = context.getString(R.string.info_frequency)
-                        openInfoDialog.value = true
-                    }
-                )
-                if (isExpandedBitRatePanel.value != !selectedFormat?.bitRates.isNullOrEmpty()) {
-                    isExpandedBitRatePanel.value = !selectedFormat?.bitRates.isNullOrEmpty()
-                }
-                AnimatedVisibility(visible = isExpandedBitRatePanel.value) {
-                    SettingSelector(
-                        name = stringResource(id = R.string.bitrate),
-                        chips = selectedFormat?.bitRates ?: emptyList(),
+                    DropDownSetting(
+                        items = uiState.nameFormats,
+                        selectedItem = uiState.selectedNameFormat,
                         onSelect = {
-                            onAction(SettingsScreenAction.SelectBitrate(it.value))
+                            onAction(SettingsScreenAction.SetNameFormat(it))
+                        }
+                    )
+                    SettingSelector(
+                        name = stringResource(id = R.string.recording_format),
+                        chips = uiState.recordingSettings.map { it.recordingFormat },
+                        onSelect = {
+                            onAction(SettingsScreenAction.SelectRecordingFormat(it.value))
                         },
                         onClickInfo = {
-                            infoText.value = context.getString(R.string.info_bitrate)
+                            infoText.value = context.getString(R.string.info_format)
                             openInfoDialog.value = true
                         }
                     )
-                }
-                SettingSelector(
-                    name = stringResource(id = R.string.channels),
-                    chips = selectedFormat?.channelCounts ?: emptyList(),
-                    onSelect = {
-                        onAction(SettingsScreenAction.SelectChannelCount(it.value))
-                    },
-                    onClickInfo = {
-                        infoText.value = context.getString(R.string.info_channels)
-                        openInfoDialog.value = true
-                    }
-                )
-                Spacer(modifier = Modifier.size(8.dp))
-            }
-            Column {
-                Row {
-                    Icon(
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .wrapContentSize()
-                            .align(Alignment.CenterVertically),
-                        painter = painterResource(id = R.drawable.ic_info),
-                        contentDescription = stringResource(id = R.string.info)
+                    val selectedFormat =
+                        uiState.recordingSettings.firstOrNull { it.recordingFormat.isSelected }
+                    SettingSelector(
+                        name = stringResource(id = R.string.sample_rate),
+                        chips = selectedFormat?.sampleRates ?: emptyList(),
+                        onSelect = {
+                            onAction(SettingsScreenAction.SelectSampleRate(it.value))
+                        },
+                        onClickInfo = {
+                            infoText.value = context.getString(R.string.info_frequency)
+                            openInfoDialog.value = true
+                        }
                     )
-                    Column {
-                        Text(
-                            modifier = Modifier
-                                .wrapContentHeight()
-                                .fillMaxWidth()
-                                .padding(4.dp, 8.dp, 4.dp, 0.dp),
-                            textAlign = TextAlign.Start,
-                            text = stringResource(
-                                id = R.string.size_per_min,
-                                uiState.sizePerMin
-                            ),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 16.sp,
+                    if (isExpandedBitRatePanel.value != !selectedFormat?.bitRates.isNullOrEmpty()) {
+                        isExpandedBitRatePanel.value = !selectedFormat?.bitRates.isNullOrEmpty()
+                    }
+                    AnimatedVisibility(visible = isExpandedBitRatePanel.value) {
+                        SettingSelector(
+                            name = stringResource(id = R.string.bitrate),
+                            chips = selectedFormat?.bitRates ?: emptyList(),
+                            onSelect = {
+                                onAction(SettingsScreenAction.SelectBitrate(it.value))
+                            },
+                            onClickInfo = {
+                                infoText.value = context.getString(R.string.info_bitrate)
+                                openInfoDialog.value = true
+                            }
                         )
-                        val selectedFormat = uiState.recordingSettings.firstOrNull {
-                            it.recordingFormat.isSelected
+                    }
+                    SettingSelector(
+                        name = stringResource(id = R.string.channels),
+                        chips = selectedFormat?.channelCounts ?: emptyList(),
+                        onSelect = {
+                            onAction(SettingsScreenAction.SelectChannelCount(it.value))
+                        },
+                        onClickInfo = {
+                            infoText.value = context.getString(R.string.info_channels)
+                            openInfoDialog.value = true
                         }
-                        Text(
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                }
+                Column {
+                    Row {
+                        Icon(
                             modifier = Modifier
-                                .wrapContentHeight()
-                                .fillMaxWidth()
-                                .padding(4.dp, 4.dp, 4.dp, 0.dp),
-                            textAlign = TextAlign.Start,
-                            text = selectedFormat?.recordingFormat?.value?.toFormatInfo() ?: "",
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 16.sp,
+                                .padding(4.dp)
+                                .wrapContentSize()
+                                .align(Alignment.CenterVertically),
+                            painter = painterResource(id = R.drawable.ic_info),
+                            contentDescription = stringResource(id = R.string.info)
                         )
+                        Column {
+                            Text(
+                                modifier = Modifier
+                                    .wrapContentHeight()
+                                    .fillMaxWidth()
+                                    .padding(4.dp, 8.dp, 4.dp, 0.dp),
+                                textAlign = TextAlign.Start,
+                                text = stringResource(
+                                    id = R.string.size_per_min,
+                                    uiState.sizePerMin
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontSize = 16.sp,
+                            )
+                            val selectedFormat = uiState.recordingSettings.firstOrNull {
+                                it.recordingFormat.isSelected
+                            }
+                            Text(
+                                modifier = Modifier
+                                    .wrapContentHeight()
+                                    .fillMaxWidth()
+                                    .padding(4.dp, 4.dp, 4.dp, 0.dp),
+                                textAlign = TextAlign.Start,
+                                text = selectedFormat?.recordingFormat?.value?.toFormatInfo() ?: "",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontSize = 16.sp,
+                            )
+                        }
+                    }
+                    Row {
+                        Button(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .wrapContentHeight()
+                                .weight(1F),
+                            onClick = {
+                                onAction(SettingsScreenAction.ResetRecordingSettings)
+                            }
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.btn_reset),
+                                fontSize = 18.sp,
+                            )
+                        }
+                        Button(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .wrapContentHeight()
+                                .weight(1F),
+                            onClick = {
+                                onAction(SettingsScreenAction.ExecuteFirstRun)
+                                onApplySettings()
+                            }
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.btn_apply),
+                                fontSize = 18.sp,
+                            )
+                        }
                     }
                 }
-                Row {
-                    Button(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .wrapContentHeight()
-                            .weight(1F),
-                        onClick = {
-                            onAction(SettingsScreenAction.ResetRecordingSettings)
-                        }
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.btn_reset),
-                            fontSize = 18.sp,
-                        )
-                    }
-                    Button(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .wrapContentHeight()
-                            .weight(1F),
-                        onClick = {
-                            onAction(SettingsScreenAction.ExecuteFirstRun)
-                            onApplySettings()
-                        }
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.btn_apply),
-                            fontSize = 18.sp,
-                        )
-                    }
+                if (openInfoDialog.value) {
+                    SettingsInfoDialog(openInfoDialog, infoText.value)
                 }
-            }
-            if (openInfoDialog.value) {
-                SettingsInfoDialog(openInfoDialog, infoText.value)
             }
         }
     }

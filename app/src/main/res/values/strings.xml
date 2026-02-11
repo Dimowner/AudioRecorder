@@ -391,4 +391,6 @@
     <string name="notification_channel_playback_name">Audio Playback</string>
     <!-- Audio Playback Notification channel description -->
     <string name="notification_channel_playback_description">Shows audio playback progress</string>
+    <!-- Navigate back button description -->
+    <string name="navigate_back">Navigate back</string>
 </resources>

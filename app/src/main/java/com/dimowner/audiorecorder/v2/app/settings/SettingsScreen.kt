@@ -36,16 +36,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -58,7 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
-import com.dimowner.audiorecorder.v2.app.TitleBar
+import com.dimowner.audiorecorder.v2.app.ScrollableTitleBar
 import com.dimowner.audiorecorder.v2.app.components.AudioSourceSelector
 import com.dimowner.audiorecorder.v2.app.formatDuration
 import com.dimowner.audiorecorder.v2.data.model.BitRate
@@ -68,6 +71,7 @@ import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import timber.log.Timber
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SettingsScreen(
     onPopBackStack: () -> Unit,
@@ -84,6 +88,8 @@ internal fun SettingsScreen(
     val warningText = remember { mutableStateOf("") }
 
     val isExpandedBitRatePanel = remember { mutableStateOf(true) }
+
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     ComposableLifecycle { _, event ->
         when (event) {
@@ -115,217 +121,222 @@ internal fun SettingsScreen(
     }
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets.safeDrawing,
+        topBar = {
+            ScrollableTitleBar(
+                title = stringResource(R.string.settings),
+                onBackPressed = { onPopBackStack() },
+                scrollBehavior = scrollBehavior
+            )
+        }
     ) { innerPadding ->
         Surface(
-            modifier = Modifier.fillMaxSize().padding(innerPadding)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                TitleBar(
-                    stringResource(R.string.settings),
-                    onBackPressed = {
-                        onPopBackStack()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Spacer(modifier = Modifier.size(8.dp))
+                SettingsItem(stringResource(R.string.trash), R.drawable.ic_delete) {
+                    showDeletedRecordsScreen()
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    SettingsItemCheckBox(
+                        uiState.isDynamicColors,
+                        stringResource(R.string.dynamic_theme_colors),
+                        R.drawable.ic_palette_outline,
+                        {
+                            onAction(SettingsScreenAction.SetDynamicTheme(it))
+                        })
+                }
+                SettingsItemCheckBox(
+                    uiState.isDarkTheme,
+                    stringResource(R.string.dark_theme),
+                    R.drawable.ic_dark_mode,
+                    {
+                        onAction(SettingsScreenAction.SetDarkTheme(it))
                     })
-                Column(
-                    modifier = Modifier
-                        .verticalScroll(rememberScrollState())
-                        .weight(weight = 1f, fill = false)
+                SettingsItemCheckBox(
+                    uiState.isKeepScreenOn,
+                    stringResource(R.string.keep_screen_on),
+                    R.drawable.ic_lightbulb_on,
+                    {
+                        onAction(SettingsScreenAction.SetKeepScreenOn(it))
+                    })
+                SettingsItemCheckBox(
+                    uiState.isShowRenameDialog,
+                    stringResource(R.string.ask_to_rename),
+                    R.drawable.ic_pencil,
+                    {
+                        onAction(SettingsScreenAction.SetShowRenamingDialog(it))
+                    })
+                DropDownSetting(
+                    items = uiState.nameFormats,
+                    selectedItem = uiState.selectedNameFormat,
+                    onSelect = {
+                        onAction(SettingsScreenAction.SetNameFormat(it))
+                    }
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                ResetRecordingSettingsPanel(
+                    stringResource(id = R.string.size_per_min, uiState.sizePerMin),
+                    uiState.recordingSettingsText
                 ) {
-                    Spacer(modifier = Modifier.size(8.dp))
-                    SettingsItem(stringResource(R.string.trash), R.drawable.ic_delete) {
-                        showDeletedRecordsScreen()
+                    onAction(SettingsScreenAction.ResetRecordingSettings)
+                }
+                val infoFormat = stringResource(R.string.info_format)
+                SettingSelector(
+                    name = stringResource(id = R.string.recording_format),
+                    chips = uiState.recordingSettings.map { it.recordingFormat },
+                    onSelect = {
+                        onAction(SettingsScreenAction.SelectRecordingFormat(it.value))
+                    },
+                    onClickInfo = {
+                        infoText.value = infoFormat
+                        infoTextAnnotated.value = null
+                        openInfoDialog.value = true
                     }
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        SettingsItemCheckBox(
-                            uiState.isDynamicColors,
-                            stringResource(R.string.dynamic_theme_colors),
-                            R.drawable.ic_palette_outline,
-                            {
-                                onAction(SettingsScreenAction.SetDynamicTheme(it))
-                            })
+                )
+                val selectedFormat =
+                    uiState.recordingSettings.firstOrNull { it.recordingFormat.isSelected }
+                val infoFrequency = stringResource(R.string.info_frequency)
+                SettingSelector(
+                    name = stringResource(id = R.string.sample_rate),
+                    chips = selectedFormat?.sampleRates ?: emptyList(),
+                    onSelect = {
+                        onAction(SettingsScreenAction.SelectSampleRate(it.value))
+                    },
+                    onClickInfo = {
+                        infoText.value = infoFrequency
+                        infoTextAnnotated.value = null
+                        openInfoDialog.value = true
                     }
-                    SettingsItemCheckBox(
-                        uiState.isDarkTheme,
-                        stringResource(R.string.dark_theme),
-                        R.drawable.ic_dark_mode,
-                        {
-                            onAction(SettingsScreenAction.SetDarkTheme(it))
-                        })
-                    SettingsItemCheckBox(
-                        uiState.isKeepScreenOn,
-                        stringResource(R.string.keep_screen_on),
-                        R.drawable.ic_lightbulb_on,
-                        {
-                            onAction(SettingsScreenAction.SetKeepScreenOn(it))
-                        })
-                    SettingsItemCheckBox(
-                        uiState.isShowRenameDialog,
-                        stringResource(R.string.ask_to_rename),
-                        R.drawable.ic_pencil,
-                        {
-                            onAction(SettingsScreenAction.SetShowRenamingDialog(it))
-                        })
-                    DropDownSetting(
-                        items = uiState.nameFormats,
-                        selectedItem = uiState.selectedNameFormat,
-                        onSelect = {
-                            onAction(SettingsScreenAction.SetNameFormat(it))
-                        }
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    ResetRecordingSettingsPanel(
-                        stringResource(id = R.string.size_per_min, uiState.sizePerMin),
-                        uiState.recordingSettingsText
-                    ) {
-                        onAction(SettingsScreenAction.ResetRecordingSettings)
-                    }
-                    val infoFormat = stringResource(R.string.info_format)
+                )
+                if (isExpandedBitRatePanel.value != !selectedFormat?.bitRates.isNullOrEmpty()) {
+                    isExpandedBitRatePanel.value = !selectedFormat?.bitRates.isNullOrEmpty()
+                }
+                AnimatedVisibility(visible = isExpandedBitRatePanel.value) {
+                    val infoBitrate = stringResource(R.string.info_bitrate)
                     SettingSelector(
-                        name = stringResource(id = R.string.recording_format),
-                        chips = uiState.recordingSettings.map { it.recordingFormat },
+                        name = stringResource(id = R.string.bitrate),
+                        chips = selectedFormat?.bitRates ?: emptyList(),
                         onSelect = {
-                            onAction(SettingsScreenAction.SelectRecordingFormat(it.value))
+                            onAction(SettingsScreenAction.SelectBitrate(it.value))
                         },
                         onClickInfo = {
-                            infoText.value = infoFormat
+                            infoText.value = infoBitrate
                             infoTextAnnotated.value = null
                             openInfoDialog.value = true
                         }
                     )
-                    val selectedFormat =
-                        uiState.recordingSettings.firstOrNull { it.recordingFormat.isSelected }
-                    val infoFrequency = stringResource(R.string.info_frequency)
-                    SettingSelector(
-                        name = stringResource(id = R.string.sample_rate),
-                        chips = selectedFormat?.sampleRates ?: emptyList(),
-                        onSelect = {
-                            onAction(SettingsScreenAction.SelectSampleRate(it.value))
-                        },
-                        onClickInfo = {
-                            infoText.value = infoFrequency
-                            infoTextAnnotated.value = null
-                            openInfoDialog.value = true
-                        }
-                    )
-                    if (isExpandedBitRatePanel.value != !selectedFormat?.bitRates.isNullOrEmpty()) {
-                        isExpandedBitRatePanel.value = !selectedFormat?.bitRates.isNullOrEmpty()
+                }
+                val infoChannels = htmlStringResource(R.string.info_channels_html)
+                SettingSelector(
+                    name = stringResource(id = R.string.channels),
+                    chips = selectedFormat?.channelCounts ?: emptyList(),
+                    onSelect = {
+                        onAction(SettingsScreenAction.SelectChannelCount(it.value))
+                    },
+                    onClickInfo = {
+                        infoText.value = ""
+                        infoTextAnnotated.value = infoChannels
+                        openInfoDialog.value = true
                     }
-                    AnimatedVisibility(visible = isExpandedBitRatePanel.value) {
-                        val infoBitrate = stringResource(R.string.info_bitrate)
-                        SettingSelector(
-                            name = stringResource(id = R.string.bitrate),
-                            chips = selectedFormat?.bitRates ?: emptyList(),
-                            onSelect = {
-                                onAction(SettingsScreenAction.SelectBitrate(it.value))
-                            },
-                            onClickInfo = {
-                                infoText.value = infoBitrate
-                                infoTextAnnotated.value = null
-                                openInfoDialog.value = true
-                            }
-                        )
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                val infoAudioSource = htmlStringResource(R.string.info_audio_source_html)
+                AudioSourceSelector(
+                    selectedSource = uiState.selectedAudioSource,
+                    options = uiState.audioSourceOptions,
+                    onSourceSelected = { audioSource ->
+                        onAction(SettingsScreenAction.SetAudioSource(audioSource))
+                    },
+                    onInfoClick = {
+                        infoText.value = ""
+                        infoTextAnnotated.value = infoAudioSource
+                        openInfoDialog.value = true
                     }
-                    val infoChannels = htmlStringResource(R.string.info_channels_html)
-                    SettingSelector(
-                        name = stringResource(id = R.string.channels),
-                        chips = selectedFormat?.channelCounts ?: emptyList(),
-                        onSelect = {
-                            onAction(SettingsScreenAction.SelectChannelCount(it.value))
-                        },
-                        onClickInfo = {
-                            infoText.value = ""
-                            infoTextAnnotated.value = infoChannels
-                            openInfoDialog.value = true
-                        }
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    val infoAudioSource = htmlStringResource(R.string.info_audio_source_html)
-                    AudioSourceSelector(
-                        selectedSource = uiState.selectedAudioSource,
-                        options = uiState.audioSourceOptions,
-                        onSourceSelected = { audioSource ->
-                            onAction(SettingsScreenAction.SetAudioSource(audioSource))
-                        },
-                        onInfoClick = {
-                            infoText.value = ""
-                            infoTextAnnotated.value = infoAudioSource
-                            openInfoDialog.value = true
-                        }
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    MaxDurationSettingRow(
-                        currentValue = uiState.maxRecordingDurationMinutes,
-                        onAction = onAction
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    SettingsItem(stringResource(R.string.rate_app), R.drawable.ic_thumbs) {
-                        rateApp(context)
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                MaxDurationSettingRow(
+                    currentValue = uiState.maxRecordingDurationMinutes,
+                    onAction = onAction
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                SettingsItem(stringResource(R.string.rate_app), R.drawable.ic_thumbs) {
+                    rateApp(context)
+                }
+                SettingsItem(stringResource(R.string.request), R.drawable.ic_chat_bubble) {
+                    requestFeature(context) {
+                        warningText.value = it
+                        openWarningDialog.value = true
                     }
-                    SettingsItem(stringResource(R.string.request), R.drawable.ic_chat_bubble) {
-                        requestFeature(context) {
-                            warningText.value = it
-                            openWarningDialog.value = true
+                }
+                Spacer(modifier = Modifier.size(8.dp))
+                InfoTextView(
+                    stringResource(
+                        id = R.string.total_record_count,
+                        (uiState.totalRecordCount)
+                    )
+                )
+                InfoTextView(
+                    stringResource(
+                        id = R.string.total_duration,
+                        formatDuration(context.resources, (uiState.totalRecordDuration))
+                    )
+                )
+                InfoTextView(
+                    stringResource(
+                        id = R.string.available_space,
+                        (uiState.availableSpace)
+                    )
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Start,
+                        text = stringResource(R.string.switch_to_legacy_app),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Light
+                    )
+                    Button(
+                        modifier = Modifier
+                            .wrapContentSize(),
+                        onClick = {
+                            onAction(SettingsScreenAction.SetAppV2(false))
                         }
-                    }
-                    Spacer(modifier = Modifier.size(8.dp))
-                    InfoTextView(
-                        stringResource(
-                            id = R.string.total_record_count,
-                            (uiState.totalRecordCount)
-                        )
-                    )
-                    InfoTextView(
-                        stringResource(
-                            id = R.string.total_duration,
-                            formatDuration(context.resources, (uiState.totalRecordDuration))
-                        )
-                    )
-                    InfoTextView(
-                        stringResource(
-                            id = R.string.available_space,
-                            (uiState.availableSpace)
-                        )
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            modifier = Modifier.weight(1f),
-                            textAlign = TextAlign.Start,
-                            text = stringResource(R.string.switch_to_legacy_app),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Light
+                            text = stringResource(id = R.string.btn_apply),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Light,
                         )
-                        Button(
-                            modifier = Modifier
-                                .wrapContentSize(),
-                            onClick = {
-                                onAction(SettingsScreenAction.SetAppV2(false))
-                            }
-                        ) {
-                            Text(
-                                text = stringResource(id = R.string.btn_apply),
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Light,
-                            )
-                        }
-                    }
-                    AppInfoView(uiState.appName, uiState.appVersion)
-                    Spacer(modifier = Modifier.size(8.dp))
-                }
-                if (openInfoDialog.value) {
-                    val annotated = infoTextAnnotated.value
-                    if (annotated != null) {
-                        SettingsInfoDialog(openInfoDialog, annotated)
-                    } else {
-                        SettingsInfoDialog(openInfoDialog, infoText.value)
                     }
                 }
-                if (openWarningDialog.value) {
-                    SettingsWarningDialog(openWarningDialog, warningText.value)
+                AppInfoView(uiState.appName, uiState.appVersion)
+                Spacer(modifier = Modifier.size(8.dp))
+            }
+            if (openInfoDialog.value) {
+                val annotated = infoTextAnnotated.value
+                if (annotated != null) {
+                    SettingsInfoDialog(openInfoDialog, annotated)
+                } else {
+                    SettingsInfoDialog(openInfoDialog, infoText.value)
                 }
+            }
+            if (openWarningDialog.value) {
+                SettingsWarningDialog(openWarningDialog, warningText.value)
             }
         }
     }
@@ -338,18 +349,18 @@ internal fun MaxDurationSettingRow(
     modifier: Modifier = Modifier,
 ) {
     val showDialog = remember { mutableStateOf(false) }
-    
+
     // Convert minutes to hours and minutes for display and dialog
     val hours = currentValue / 60
     val minutes = currentValue % 60
-    
+
     MaxDurationSettingItem(
         currentHours = hours,
         currentMinutes = minutes,
         onClick = { showDialog.value = true },
         modifier = modifier,
     )
-    
+
     if (showDialog.value) {
         DurationPickerDialog(
             currentHours = hours,

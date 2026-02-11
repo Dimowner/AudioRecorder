@@ -29,15 +29,18 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,11 +49,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ConfirmationAlertDialog
-import com.dimowner.audiorecorder.v2.app.TitleBar
+import com.dimowner.audiorecorder.v2.app.ScrollableTitleBar
 import com.dimowner.audiorecorder.v2.app.deleted.widget.DeletedRecordsListItemWidget
 import com.google.gson.Gson
 import timber.log.Timber
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DeletedRecordsScreen(
     onPopBackStack: () -> Unit,
@@ -61,6 +65,7 @@ internal fun DeletedRecordsScreen(
 ) {
 
     val showDeleteAllDialog = remember { mutableStateOf(false) }
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     LaunchedEffect(key1 = event) {
         when (event) {
@@ -78,20 +83,24 @@ internal fun DeletedRecordsScreen(
     }
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets.safeDrawing,
+        topBar = {
+            ScrollableTitleBar(
+                title = stringResource(id = R.string.trash),
+                onBackPressed = { onPopBackStack() },
+                actionButtonText = stringResource(id = R.string.delete_all2),
+                scrollBehavior = scrollBehavior,
+                onActionClick = if (uiState.records.isNotEmpty()) {
+                    { showDeleteAllDialog.value = true }
+                } else null
+            )
+        }
     ) { innerPadding ->
         Surface(
             modifier = Modifier.fillMaxSize().padding(innerPadding)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                TitleBar(
-                    title = stringResource(id = R.string.trash),
-                    onBackPressed = { onPopBackStack() },
-                    actionButtonText = stringResource(id = R.string.delete_all2),
-                    onActionClick = if (uiState.records.isNotEmpty()) {
-                        { showDeleteAllDialog.value = true }
-                    } else null
-                )
                 Text(
                     modifier = Modifier
                         .padding(16.dp, 8.dp)
