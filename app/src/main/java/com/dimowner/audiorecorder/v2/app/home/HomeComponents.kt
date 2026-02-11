@@ -16,6 +16,11 @@
 
 package com.dimowner.audiorecorder.v2.app.home
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
@@ -69,6 +74,8 @@ import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.RecordsDropDownMenu
 import com.dimowner.audiorecorder.v2.app.components.onDebounceClick
+
+private const val ANIMATION_DURATION = 300
 
 @Composable
 fun TopAppBar(
@@ -155,7 +162,7 @@ fun PlayPanel(
     onPauseClick: () -> Unit,
 ) {
     Row(
-        modifier = modifier,
+        modifier = Modifier.animateContentSize(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
@@ -175,18 +182,24 @@ fun PlayPanel(
                 contentDescription = stringResource(id = R.string.btn_play),
             )
         }
-        if (showStop) {
-            Spacer(modifier = Modifier.size(8.dp))
-            IconButton(
-                onClick = onStopClick,
-                modifier = Modifier
-                    .size(42.dp)
-                    .align(Alignment.CenterVertically),
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_stop),
-                    contentDescription = stringResource(id = R.string.button_stop),
-                )
+        AnimatedVisibility(
+            visible = showStop,
+            enter = fadeIn(animationSpec = tween(ANIMATION_DURATION)),
+            exit = fadeOut(animationSpec = tween(ANIMATION_DURATION)),
+        ) {
+            Row {
+                Spacer(modifier = Modifier.size(8.dp))
+                IconButton(
+                    onClick = onStopClick,
+                    modifier = Modifier
+                        .size(42.dp)
+                        .align(Alignment.CenterVertically),
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_stop),
+                        contentDescription = stringResource(id = R.string.button_stop),
+                    )
+                }
             }
         }
     }
