@@ -103,17 +103,6 @@ internal fun LostRecordsScreen(
                 .padding(innerPadding)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(1.dp)
-                        .background(color = MaterialTheme.colorScheme.inverseOnSurface)
-                )
-                Text(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp),
-                    text = stringResource(R.string.records_were_removed),
-                    fontSize = 16.sp
-                )
                 if (uiState.records.isEmpty()) {
                     Box(
                         modifier = Modifier
@@ -133,6 +122,19 @@ internal fun LostRecordsScreen(
                     LazyColumn(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
+                        item(key = "info_header") {
+                            Text(
+                                modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp),
+                                text = stringResource(R.string.records_were_removed),
+                                fontSize = 16.sp
+                            )
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(color = MaterialTheme.colorScheme.inverseOnSurface)
+                            )
+                        }
                         items(uiState.records) { record ->
                             LostRecordsListItemWidget(
                                 name = record.name,

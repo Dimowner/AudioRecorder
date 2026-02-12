@@ -101,24 +101,26 @@ internal fun DeletedRecordsScreen(
             modifier = Modifier.fillMaxSize().padding(innerPadding)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                Text(
-                    modifier = Modifier
-                        .padding(16.dp, 8.dp)
-                        .wrapContentSize(),
-                    text = stringResource(id = R.string.trash_info),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal
-                )
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(1.dp)
-                        .background(color = MaterialTheme.colorScheme.inverseOnSurface)
-                )
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
+                    item(key = "info_header") {
+                        Text(
+                            modifier = Modifier
+                                .padding(16.dp, 8.dp)
+                                .wrapContentSize(),
+                            text = stringResource(id = R.string.trash_info),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Normal
+                        )
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(color = MaterialTheme.colorScheme.inverseOnSurface)
+                        )
+                    }
                     items(uiState.records) { record ->
                         DeletedRecordsListItemWidget(
                             name = record.name,

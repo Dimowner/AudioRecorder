@@ -76,7 +76,6 @@ private const val MAX_MOVE = 250
 
 
 //TODO: Add simple waveform to each record item
-//TODO: Make app bar with 'Trash' button scrollable together with records list.
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -326,16 +325,18 @@ internal fun RecordsScreen(
                             },
                         )
                     }
-                    if (uiState.showDeletedRecordsButton) {
-                        SettingsItem(stringResource(R.string.trash), R.drawable.ic_delete) {
-                            showDeletedRecordsScreen()
-                        }
-                    }
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f),
                     ) {
+                        if (uiState.showDeletedRecordsButton) {
+                            item(key = "trash_button") {
+                                SettingsItem(stringResource(R.string.trash), R.drawable.ic_delete) {
+                                    showDeletedRecordsScreen()
+                                }
+                            }
+                        }
                         uiState.recordsMap.forEach { (date, recordsOnDate) ->
                             //Sticky date header
                             stickyHeader {
