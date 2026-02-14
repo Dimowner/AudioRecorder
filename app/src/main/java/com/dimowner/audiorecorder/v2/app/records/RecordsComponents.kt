@@ -33,13 +33,18 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -89,7 +94,7 @@ fun RecordsTopBar(
         ) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Navigate back",
+                contentDescription = stringResource(R.string.navigate_back),
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -170,6 +175,218 @@ fun RecordsTopBar(
 fun RecordsTopBarPreview() {
     RecordsTopBar("Title bar", "By date", false, {}, {}, {})
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScrollableRecordsTopBar(
+    title: String,
+    subTitle: String,
+    bookmarksSelected: Boolean,
+    onBackPressed: () -> Unit,
+    onSortItemClick: (SortDropDownMenuItemId) -> Unit,
+    onBookmarksClick: (Boolean) -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior,
+) {
+    val expanded = remember { mutableStateOf(false) }
+
+    TopAppBar(
+        title = {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .wrapContentHeight(),
+                    text = title,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 22.sp,
+                    fontFamily = FontFamily(
+                        Font(
+                            DeviceFontFamilyName("sans-serif"),
+                            weight = FontWeight.Light
+                        )
+                    ),
+                    fontWeight = FontWeight.Light,
+                )
+                Text(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .wrapContentHeight(),
+                    text = subTitle,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 16.sp,
+                    fontFamily = FontFamily(
+                        Font(
+                            DeviceFontFamilyName("sans-serif"),
+                            weight = FontWeight.Light
+                        )
+                    ),
+                    fontWeight = FontWeight.Light,
+                )
+            }
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = onBackPressed,
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.navigate_back),
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        },
+        actions = {
+            Box {
+                RecordsDropDownMenu(
+                    items = remember { getSortDroDownMenuItems() },
+                    onItemClick = { itemId ->
+                        onSortItemClick(itemId)
+                        Timber.v("On Drop Down Menu item click id = $itemId")
+                    },
+                    expanded = expanded
+                )
+                IconButton(
+                    onClick = {
+                        expanded.value = true
+                    },
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_sort),
+                        contentDescription = stringResource(id = androidx.compose.ui.R.string.dropdown_menu),
+                        modifier = Modifier
+                            .size(36.dp)
+                            .padding(6.dp)
+                    )
+                }
+            }
+            IconButton(
+                onClick = {
+                    onBookmarksClick(!bookmarksSelected)
+                },
+            ) {
+                Icon(
+                    painter = if (bookmarksSelected) {
+                        painterResource(id = R.drawable.ic_bookmark)
+                    } else {
+                        painterResource(id = R.drawable.ic_bookmark_bordered)
+                    },
+                    contentDescription = stringResource(id = androidx.compose.ui.R.string.dropdown_menu),
+                    modifier = Modifier
+                        .size(36.dp)
+                        .padding(6.dp)
+                )
+            }
+        },
+        scrollBehavior = scrollBehavior,
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            scrolledContainerColor = MaterialTheme.colorScheme.surface,
+        )
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Composable
+fun ScrollableRecordsTopBarPreview() {
+    ScrollableRecordsTopBar(
+        "Title bar",
+        "By date",
+        false,
+        {},
+        {},
+        {},
+        TopAppBarDefaults.enterAlwaysScrollBehavior()
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MultiSelectTopBar(
+    selectedItemsCount: Int,
+    onCancelClick: () -> Unit,
+    onShareClick: () -> Unit,
+    onDownloadClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = stringResource(R.string.selected, selectedItemsCount),
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 22.sp,
+                fontFamily = FontFamily(
+                    Font(
+                        DeviceFontFamilyName("sans-serif"),
+                        weight = FontWeight.Light
+                    )
+                ),
+                fontWeight = FontWeight.Light,
+            )
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = onCancelClick,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = stringResource(R.string.btn_cancel),
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        },
+        actions = {
+            IconButton(
+                onClick = onShareClick,
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_share),
+                    contentDescription = stringResource(id = R.string.share),
+                    modifier = Modifier
+                        .size(36.dp)
+                        .padding(6.dp)
+                )
+            }
+            IconButton(
+                onClick = onDownloadClick,
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_save_alt),
+                    contentDescription = stringResource(id = R.string.save_as),
+                    modifier = Modifier
+                        .size(36.dp)
+                        .padding(6.dp)
+                )
+            }
+            IconButton(
+                onClick = onDeleteClick,
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_delete),
+                    contentDescription = stringResource(id = R.string.delete),
+                    modifier = Modifier
+                        .size(36.dp)
+                        .padding(6.dp)
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            scrolledContainerColor = MaterialTheme.colorScheme.surface,
+        )
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Composable
+fun MultiSelectTopBarPreview() {
+    MultiSelectTopBar(3, {}, {}, {}, {})
+}
+
 
 @Composable
 fun RecordListItemView(
@@ -336,7 +553,7 @@ fun MultiSelectMenu(
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
-                contentDescription = "Navigate back",
+                contentDescription = stringResource(R.string.btn_cancel),
                 modifier = Modifier.size(24.dp)
             )
         }

@@ -37,6 +37,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -44,6 +45,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -251,9 +253,48 @@ internal fun RecordsScreen(
         }
     }
 
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets.safeDrawing,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        topBar = {
+            if (uiState.selectedRecords.isEmpty()) {
+                ScrollableRecordsTopBar(
+                    stringResource(id = R.string.records),
+                    uiState.sortOrder.toText(context),
+                    bookmarksSelected = uiState.bookmarksSelected,
+                    onBackPressed = { onPopBackStack() },
+                    onSortItemClick = { order ->
+                        onAction(RecordsScreenAction.UpdateListWithSortOrder(order))
+                    },
+                    onBookmarksClick = { bookmarksSelected ->
+                        onAction(
+                            RecordsScreenAction.UpdateListWithBookmarks(
+                                bookmarksSelected
+                            )
+                        )
+                    },
+                    scrollBehavior = scrollBehavior
+                )
+            } else {
+                MultiSelectTopBar(
+                    selectedItemsCount = uiState.selectedRecords.size,
+                    onCancelClick = { onAction(RecordsScreenAction.MultiSelectCancel) },
+                    onShareClick = {
+                        onAction(RecordsScreenAction.MultiSelectShare(uiState.selectedRecords))
+                    },
+                    onDownloadClick = {
+                        onAction(RecordsScreenAction.MultiSelectSaveAsRequest)
+                    },
+                    onDeleteClick = {
+                        onAction(RecordsScreenAction.MultiSelectMoveToRecycleRequest)
+                    },
+                )
+            }
+
+        }
     ) { innerPadding ->
         Surface(
             modifier = Modifier
@@ -293,38 +334,6 @@ internal fun RecordsScreen(
                     }
                 }
                 Column(modifier = Modifier.fillMaxSize()) {
-                    if (uiState.selectedRecords.isEmpty()) {
-                        RecordsTopBar(
-                            stringResource(id = R.string.records),
-                            uiState.sortOrder.toText(context),
-                            bookmarksSelected = uiState.bookmarksSelected,
-                            onBackPressed = { onPopBackStack() },
-                            onSortItemClick = { order ->
-                                onAction(RecordsScreenAction.UpdateListWithSortOrder(order))
-                            },
-                            onBookmarksClick = { bookmarksSelected ->
-                                onAction(
-                                    RecordsScreenAction.UpdateListWithBookmarks(
-                                        bookmarksSelected
-                                    )
-                                )
-                            }
-                        )
-                    } else {
-                        MultiSelectMenu(
-                            selectedItemsCount = uiState.selectedRecords.size,
-                            onCancelClick = { onAction(RecordsScreenAction.MultiSelectCancel)},
-                            onShareClick = {
-                                onAction(RecordsScreenAction.MultiSelectShare(uiState.selectedRecords))
-                            },
-                            onDownloadClick = {
-                                onAction(RecordsScreenAction.MultiSelectSaveAsRequest)
-                            },
-                            onDeleteClick = {
-                                onAction(RecordsScreenAction.MultiSelectMoveToRecycleRequest)
-                            },
-                        )
-                    }
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
