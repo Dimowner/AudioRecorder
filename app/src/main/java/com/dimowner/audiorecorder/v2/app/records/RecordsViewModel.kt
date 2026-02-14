@@ -571,6 +571,9 @@ internal class RecordsViewModel @Inject constructor(
                 val recordsInRecycleCount = recordsDataSource.getMovedToRecycleRecordsCount()
                 val selectedRecords = state.value.selectedRecords
                 val isActiveRecordDeleted = selectedRecords.map { it.recordId }.contains(prefs.activeRecordId)
+                if (isActiveRecordDeleted) {
+                    prefs.activeRecordId = -1
+                }
                 withContext(mainDispatcher) {
                     multiSelectCancel()
                     _state.value = _state.value.copy(

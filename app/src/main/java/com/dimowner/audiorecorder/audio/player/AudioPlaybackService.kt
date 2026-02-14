@@ -22,6 +22,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.Binder
 import android.os.Build
 import android.os.Handler
@@ -35,8 +36,6 @@ import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.HomeActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -48,9 +47,9 @@ class AudioPlaybackService : Service() {
         private const val CHANNEL_ID = "audio_playback_channel"
         private const val NOTIFICATION_UPDATE_INTERVAL = 5000L // 5 seconds
 
-        private const val ACTION_START_SERVICE = "com.dimowner.audiorecorder.ACTION_START_SERVICE"
-        private const val ACTION_PLAY_PAUSE = "com.dimowner.audiorecorder.ACTION_PLAY_PAUSE"
-        private const val ACTION_STOP = "com.dimowner.audiorecorder.ACTION_STOP"
+        private const val ACTION_START_PLAYBACK = "com.dimowner.audiorecorder.ACTION_START_PLAYBACK"
+        private const val ACTION_PAUSE_RESUME_PLAYBACK = "com.dimowner.audiorecorder.ACTION_PAUSE_RESUME_PLAYBACK"
+        private const val ACTION_STOP_PLAYBACK = "com.dimowner.audiorecorder.ACTION_STOP_PLAYBACK"
 
         const val EXTRA_FILE_PATH = "extra_file_path"
         const val EXTRA_FILE_NAME = "extra_file_name"
@@ -58,11 +57,15 @@ class AudioPlaybackService : Service() {
 
         fun startServiceForeground(context: Context, name: String, path: String, durationMills: Long) {
             val intent = Intent(context, AudioPlaybackService::class.java)
-            intent.setAction(ACTION_START_SERVICE)
+            intent.setAction(ACTION_START_PLAYBACK)
             intent.putExtra(EXTRA_FILE_PATH, path)
             intent.putExtra(EXTRA_FILE_NAME, name)
             intent.putExtra(EXTRA_DURATION, durationMills)
-            context.startService(intent)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
         }
     }
 
@@ -97,9 +100,9 @@ class AudioPlaybackService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            ACTION_START_SERVICE -> handleStartServiceAction(intent)
-            ACTION_PLAY_PAUSE -> handlePlayPauseAction()
-            ACTION_STOP -> handleStopAction()
+            ACTION_START_PLAYBACK -> handleStartServiceAction(intent)
+            ACTION_PAUSE_RESUME_PLAYBACK -> handlePlayPauseAction()
+            ACTION_STOP_PLAYBACK -> handleStopAction()
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -200,6 +203,7 @@ class AudioPlaybackService : Service() {
         )
 
         audioPlayer.play(filePath)
+        startForegroundWithNotification()
     }
 
     fun pause() {
@@ -267,6 +271,22 @@ class AudioPlaybackService : Service() {
         notificationHandler.removeCallbacksAndMessages(null)
     }
 
+    private fun startForegroundWithNotification() {
+        val state = _playbackState.value
+        val notification = buildNotification(
+            trackName = state.trackName ?: getString(R.string.app_name),
+            currentPosition = state.currentPositionMills,
+            duration = state.duration,
+            isPlaying = state.isPlaying,
+            isPaused = state.isPaused
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+        } else {
+            startForeground(NOTIFICATION_ID, notification)
+        }
+    }
+
     private fun updateNotification() {
         val state = _playbackState.value
         val notification = buildNotification(
@@ -277,11 +297,7 @@ class AudioPlaybackService : Service() {
             isPaused = state.isPaused
         )
 
-        notificationManager?.notify(NOTIFICATION_ID, notification.build())
-
-        if (state.isPlaying || state.isPaused) {
-            startForeground(NOTIFICATION_ID, notification.build())
-        }
+        notificationManager?.notify(NOTIFICATION_ID, notification)
     }
 
     private fun buildNotification(
@@ -290,7 +306,7 @@ class AudioPlaybackService : Service() {
         duration: Long,
         isPlaying: Boolean,
         isPaused: Boolean
-    ): NotificationCompat.Builder {
+    ): Notification {
         val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         } else {
@@ -307,7 +323,7 @@ class AudioPlaybackService : Service() {
             this,
             0,
             Intent(this, AudioPlaybackService::class.java).apply {
-                action = ACTION_PLAY_PAUSE
+                action = ACTION_PAUSE_RESUME_PLAYBACK
             },
             flags
         )
@@ -316,7 +332,7 @@ class AudioPlaybackService : Service() {
             this,
             1,
             Intent(this, AudioPlaybackService::class.java).apply {
-                action = ACTION_STOP
+                action = ACTION_STOP_PLAYBACK
             },
             AppConstants.PENDING_INTENT_FLAGS or PendingIntent.FLAG_UPDATE_CURRENT
         )
@@ -350,7 +366,6 @@ class AudioPlaybackService : Service() {
             .setContentText(timeText)
             .setSmallIcon(R.drawable.ic_play_circle)
             .setContentIntent(contentIntent)
-            .setOngoing(isPlaying)
             .setShowWhen(false)
             .addAction(playPauseIcon, playPauseText, playPauseIntent)
             .addAction(R.drawable.ic_stop, getString(R.string.button_stop), stopIntent)
@@ -359,12 +374,12 @@ class AudioPlaybackService : Service() {
                     .setShowActionsInCompactView(0, 1)
             )
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
-
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setDefaults(0)
             .setSound(null)
+            .build()
     }
 }
 

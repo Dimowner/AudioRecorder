@@ -391,6 +391,13 @@
     <string name="notification_channel_playback_name">Audio Playback</string>
     <!-- Audio Playback Notification channel description -->
     <string name="notification_channel_playback_description">Shows audio playback progress</string>
+    <!-- Audio Recording Notification channel name -->
+    <string name="notification_channel_recording_name">Audio Recording</string>
+    <!-- Audio Recording Notification channel description -->
+    <string name="notification_channel_recording_description">Shows audio recording progress</string>
+    <!-- Recording Notification Status Messages -->
+    <string name="status_recording_active">Recording in progress</string>
+    <string name="status_recording_paused">Recording paused</string>
     <!-- Navigate back button description -->
     <string name="navigate_back">Navigate back</string>
 </resources>

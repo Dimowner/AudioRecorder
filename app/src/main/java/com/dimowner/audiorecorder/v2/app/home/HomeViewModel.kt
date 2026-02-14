@@ -59,6 +59,7 @@ import com.dimowner.audiorecorder.v2.app.components.WaveformState
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
 import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
+import com.dimowner.audiorecorder.v2.audio.AudioRecordingService
 import com.dimowner.audiorecorder.v2.audio.RecorderEvent
 import com.dimowner.audiorecorder.v2.audio.RecorderV2
 import com.dimowner.audiorecorder.v2.data.FileDataSource
@@ -116,6 +117,7 @@ class HomeViewModel @Inject constructor(
                 }
 
                 override fun onFinishProcessing(recordId: Long, decodedData: IntArray) {
+                    //TODO: This should be moved into a DecodingService
                     viewModelScope.launch(ioDispatcher) {
                         if (recordId < 0) return@launch
                         recordsDataSource.getRecord(recordId)?.let { record ->
@@ -144,27 +146,47 @@ class HomeViewModel @Inject constructor(
     }
 
     private var playbackService: AudioPlaybackService? = null
-    private var isBound = false
+    private var isPlaybackServiceBound = false
 
-    private val serviceConnection = object : ServiceConnection {
+    private val playbackServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            Timber.d("HomeViewModel onServiceConnected: $name")
             val binder = service as? AudioPlaybackService.ServiceBinder
             playbackService = binder?.getService()
-            isBound = true
+            isPlaybackServiceBound = true
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
+            Timber.d("HomeViewModel onServiceDisconnected: $name")
             playbackService = null
-            isBound = false
+            isPlaybackServiceBound = false
+        }
+    }
+
+    private var recordingService: AudioRecordingService? = null
+    private var isRecordingServiceBound = false
+
+    private val recordingServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            Timber.d("HomeViewModel onServiceConnected: $name")
+            val binder = service as? AudioRecordingService.ServiceBinder
+            recordingService = binder?.getService()
+            isRecordingServiceBound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            Timber.d("HomeViewModel onServiceDisconnected: $name")
+            recordingService = null
+            isRecordingServiceBound = false
         }
     }
 
     init {
         viewModelScope.launch {
-            //TODO: these events should be handled in a service
             subscribeRecorderUpdates()
         }
         bindPlaybackService()
+        bindRecordingService()
         subscribePlayerUpdates()
 
         // Register AudioManagerHelper and subscribe to Bluetooth mic state
@@ -185,14 +207,28 @@ class HomeViewModel @Inject constructor(
     private fun bindPlaybackService() {
         val context: Context = getApplication<Application>().applicationContext
         val intent = Intent(context, AudioPlaybackService::class.java)
-        context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+        context.bindService(intent, playbackServiceConnection, Context.BIND_AUTO_CREATE)
     }
 
     private fun unbindPlaybackService() {
-        if (isBound) {
+        if (isPlaybackServiceBound) {
             val context: Context = getApplication<Application>().applicationContext
-            context.unbindService(serviceConnection)
-            isBound = false
+            context.unbindService(playbackServiceConnection)
+            isPlaybackServiceBound = false
+        }
+    }
+
+    private fun bindRecordingService() {
+        val context: Context = getApplication<Application>().applicationContext
+        val intent = Intent(context, AudioRecordingService::class.java)
+        context.bindService(intent, recordingServiceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    private fun unbindRecordingService() {
+        if (isRecordingServiceBound) {
+            val context: Context = getApplication<Application>().applicationContext
+            context.unbindService(recordingServiceConnection)
+            isRecordingServiceBound = false
         }
     }
 
@@ -421,6 +457,12 @@ class HomeViewModel @Inject constructor(
                 withContext(mainDispatcher) {
                     val currentPosition = service.getCurrentProgress()
                     handleSeekProgress(currentPosition)
+                    if (service.isPlaying()) {
+                        _state.value = _state.value.copy(
+                            showPause = true,
+                            showStop = false
+                        )
+                    }
                 }
             }
         }
@@ -762,64 +804,18 @@ class HomeViewModel @Inject constructor(
         audioPlayer.stop()
     }
 
-    // - Has available space
-    // - Is already recoding
     // - If is playing, stop playback
-    // - Create a record file
-    // - Create empty record in the database with created file path
-    // - Set it as active record
-    // - Start recording
+    // - Start recording service
+    // - Increment recorded records counter
     suspend fun handleStartRecordingClick(recordName: String) {
         withContext(mainDispatcher) {
             audioPlayer.stop()
         }
-        val availableTimeSeconds = convertSpaceBytesToTimeInSeconds(
-            spaceBytes = fileDataSource.getAvailableSpace(),
-            recordingFormat = prefs.settingRecordingFormat,
-            sampleRate = prefs.settingSampleRate.value,
-            bitrate = prefs.settingBitrate.value,
-            channels = prefs.settingChannelCount.value,
-        )
+        val context: Context = getApplication<Application>().applicationContext
 
-        withContext(ioDispatcher) {
-            if (availableTimeSeconds > AppConstants.MIN_REMAIN_RECORDING_TIME && !audioRecorder.isRecording) {
-                if (audioPlayer.isPlaying()) {
-                    audioPlayer.stop()
-                }
-                val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
-                val record = Record(
-                    id = 0,
-                    name = recordName,
-                    durationMills = 0,
-                    created = recordFile.lastModified(),
-                    added = System.currentTimeMillis(),
-                    removed = -1,
-                    path = recordFile.absolutePath,
-                    format = prefs.settingRecordingFormat.value,
-                    size = 0,
-                    sampleRate = prefs.settingSampleRate.value,
-                    channelCount = prefs.settingChannelCount.value,
-                    bitrate = prefs.settingBitrate.value,
-                    isBookmarked = false,
-                    isWaveformProcessed = false,
-                    isMovedToRecycle = false,
-                    amps = IntArray(ARApplication.longWaveformSampleCount)
-                )
-                val id = recordsDataSource.insertRecord(record)
-                prefs.activeRecordId = -1
-                prefs.recordedRecordId = id
-
-                audioRecorder.startRecording(
-                    outputFile = recordFile,
-                    channelCount = prefs.settingChannelCount.value,
-                    sampleRate = prefs.settingSampleRate.value,
-                    bitrate = prefs.settingBitrate.value,
-                    maxRecordingDurationMills = prefs.maxRecordingDurationMills,
-                    audioSource = _state.value.selectedAudioSource.value,
-                )
-                incrementRecordedRecordPartCounter()
-            }
-        }
+        // Start the recording service
+        AudioRecordingService.startServiceForeground(context, recordName)
+        incrementRecordedRecordPartCounter()
     }
 
     fun handlePauseRecordingClick() {
@@ -1005,6 +1001,7 @@ class HomeViewModel @Inject constructor(
             Timber.e(e, "Error releasing AudioManagerHelper")
         }
         unbindPlaybackService()
+        unbindRecordingService()
     }
 }
 
