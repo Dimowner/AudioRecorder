@@ -330,7 +330,7 @@ class HomeViewModel @Inject constructor(
                         if (success) {
                             prefs.activeRecordId = recordedRecordId
                             //Record saved successfully
-                            showInfoMessage(R.string.msg_recording_saved)
+                            showInfoMessage(R.string.msg_recording_saved_with_name, record.name)
                         } else {
                             //Failed to save record
                             showInfoMessage(R.string.msg_save_recording_failed)
