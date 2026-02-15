@@ -34,9 +34,9 @@ import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.DecodeService
 import com.dimowner.audiorecorder.audio.AudioDecoder
-import com.dimowner.audiorecorder.exception.AppException
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.HomeActivity
+import com.dimowner.audiorecorder.v2.app.getNewRecordName
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
@@ -46,7 +46,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -109,6 +111,9 @@ class AudioRecordingService : Service() {
     private val _recordingState = MutableStateFlow(RecordingServiceState())
     val recordingState: StateFlow<RecordingServiceState> = _recordingState.asStateFlow()
 
+    private val _event = MutableSharedFlow<AudioRecordingServiceEvent?>()
+    val event: SharedFlow<AudioRecordingServiceEvent?> = _event
+
     inner class ServiceBinder : Binder() {
         fun getService(): AudioRecordingService = this@AudioRecordingService
     }
@@ -129,7 +134,11 @@ class AudioRecordingService : Service() {
             ACTION_START_RECORDING -> {
                 val recordName = intent.getStringExtra(EXTRA_RECORD_NAME)
                 if (recordName != null) {
-                    handleStartRecording(recordName)
+                    serviceScope.launch {
+                        resetRecordedRecordPartCounter()
+                        prefs.recordedRecordBaseName = recordName
+                        handleStartRecording(recordName)
+                    }
                 }
             }
             ACTION_PAUSE_RESUME_RECORDING -> handlePauseResumeAction()
@@ -178,7 +187,6 @@ class AudioRecordingService : Service() {
                         _recordingState.value = _recordingState.value.copy(
                             isRecording = true,
                             isPaused = false,
-                            error = null
                         )
                         startNotificationUpdates()
                         updateNotification()
@@ -205,15 +213,10 @@ class AudioRecordingService : Service() {
                         handleRecordingStopped()
                     }
                     is RecorderEvent.OnMaxDurationReached -> {
-                        _recordingState.value = _recordingState.value.copy(
-                            maxDurationReached = true
-                        )
-                        handleRecordingStopped()
+                        handleMaxDurationReachedInternal()
                     }
                     is RecorderEvent.OnError -> {
-                        _recordingState.value = _recordingState.value.copy(
-                            error = event.exception
-                        )
+                        //TODO: handle error???
                         handleRecordingStopped()
                     }
                 }
@@ -227,58 +230,59 @@ class AudioRecordingService : Service() {
     // - Create empty record in the database with created file path
     // - Set it as active record
     // - Start recording
-    private fun handleStartRecording(recordName: String) {
-        serviceScope.launch {
-            val availableTimeSeconds = convertSpaceBytesToTimeInSeconds(
-                spaceBytes = fileDataSource.getAvailableSpace(),
-                recordingFormat = prefs.settingRecordingFormat,
+    private suspend fun handleStartRecording(recordName: String): Long? {
+        val availableTimeSeconds = convertSpaceBytesToTimeInSeconds(
+            spaceBytes = fileDataSource.getAvailableSpace(),
+            recordingFormat = prefs.settingRecordingFormat,
+            sampleRate = prefs.settingSampleRate.value,
+            bitrate = prefs.settingBitrate.value,
+            channels = prefs.settingChannelCount.value,
+        )
+
+        if (availableTimeSeconds > AppConstants.MIN_REMAIN_RECORDING_TIME && !audioRecorder.isRecording) {
+            val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
+            val record = Record(
+                id = 0,
+                name = recordName,
+                durationMills = 0,
+                created = recordFile.lastModified(),
+                added = System.currentTimeMillis(),
+                removed = -1,
+                path = recordFile.absolutePath,
+                format = prefs.settingRecordingFormat.value,
+                size = 0,
                 sampleRate = prefs.settingSampleRate.value,
+                channelCount = prefs.settingChannelCount.value,
                 bitrate = prefs.settingBitrate.value,
-                channels = prefs.settingChannelCount.value,
+                isBookmarked = false,
+                isWaveformProcessed = false,
+                isMovedToRecycle = false,
+                amps = IntArray(ARApplication.longWaveformSampleCount)
+            )
+            val id = recordsDataSource.insertRecord(record)
+            prefs.activeRecordId = -1
+            prefs.recordedRecordId = id
+            prefs.recordedRecordPartCounter += 1
+
+            _recordingState.value = _recordingState.value.copy(
+                recordId = id,
+                recordName = recordName
             )
 
-            if (availableTimeSeconds > AppConstants.MIN_REMAIN_RECORDING_TIME && !audioRecorder.isRecording) {
-                val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
-                val record = Record(
-                    id = 0,
-                    name = recordName,
-                    durationMills = 0,
-                    created = recordFile.lastModified(),
-                    added = System.currentTimeMillis(),
-                    removed = -1,
-                    path = recordFile.absolutePath,
-                    format = prefs.settingRecordingFormat.value,
-                    size = 0,
-                    sampleRate = prefs.settingSampleRate.value,
-                    channelCount = prefs.settingChannelCount.value,
-                    bitrate = prefs.settingBitrate.value,
-                    isBookmarked = false,
-                    isWaveformProcessed = false,
-                    isMovedToRecycle = false,
-                    amps = IntArray(ARApplication.longWaveformSampleCount)
-                )
-                val id = recordsDataSource.insertRecord(record)
-                prefs.activeRecordId = -1
-                prefs.recordedRecordId = id
+            audioRecorder.startRecording(
+                outputFile = recordFile,
+                channelCount = prefs.settingChannelCount.value,
+                sampleRate = prefs.settingSampleRate.value,
+                bitrate = prefs.settingBitrate.value,
+                maxRecordingDurationMills = prefs.maxRecordingDurationMills,
+                audioSource = prefs.settingAudioSource.value,
+            )
 
-                _recordingState.value = _recordingState.value.copy(
-                    recordId = id,
-                    recordName = recordName
-                )
-
-                audioRecorder.startRecording(
-                    outputFile = recordFile,
-                    channelCount = prefs.settingChannelCount.value,
-                    sampleRate = prefs.settingSampleRate.value,
-                    bitrate = prefs.settingBitrate.value,
-                    maxRecordingDurationMills = prefs.maxRecordingDurationMills,
-                    audioSource = prefs.settingAudioSource.value,
-                )
-
-                // Start foreground with notification
-                startForegroundWithNotification()
-            }
+            // Start foreground with notification
+            startForegroundWithNotification()
+            return id
         }
+        return null
     }
 
     private fun startForegroundWithNotification() {
@@ -318,7 +322,7 @@ class AudioRecordingService : Service() {
         audioRecorder.stopRecording()
     }
 
-    private suspend fun handleRecordingStopped() {
+    private suspend fun handleRecordingStopped(shouldStopService: Boolean = true) {
         // - Read recorded file info
         // - Update recorded file duration, size, format, bitrate, sample rate, channel count
         // - Move updated to recycle if requested to delete the record, otherwise set it as active record
@@ -329,7 +333,7 @@ class AudioRecordingService : Service() {
                 if (record != null) {
                     val output = File(record.path)
                     val info = AudioDecoder.readRecordInfo(output)
-                    val recordUpdated =                         record.copy(
+                    val recordUpdated = record.copy(
                         durationMills = info.duration / 1000,
                         format = info.format,
                         size = info.size,
@@ -341,7 +345,9 @@ class AudioRecordingService : Service() {
                     if (success) {
                         prefs.activeRecordId = recordedRecordId
                         //Record saved successfully
-//                      showInfoMessage(R.string.msg_recording_saved_with_name, record.name)
+                        emitEvent(AudioRecordingServiceEvent.ShowInfoSnack(
+                            applicationContext.getString(R.string.msg_recording_saved_with_name, record.name)
+                        ))
                         decodeRecord(
                             recordId = recordUpdated.id,
                             path = recordUpdated.path,
@@ -349,14 +355,21 @@ class AudioRecordingService : Service() {
                         )
                     } else {
                         //Failed to save record
-//                       showInfoMessage(R.string.msg_save_recording_failed)
+                        emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(
+                            applicationContext.getString(R.string.msg_save_recording_failed)
+                        ))
                     }
                 } else {
-//                   //Failed to save record
-//                   showInfoMessage(R.string.msg_save_recording_failed)
+                   //Failed to save record
+                    emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(
+                        applicationContext.getString(R.string.msg_save_recording_failed)
+                    ))
                 }
                 prefs.recordedRecordId = -1
-                stopForegroundService()
+                if (shouldStopService) {
+                    resetRecordedRecordPartCounter()
+                    stopForegroundService()
+                }
             }
         }
     }
@@ -471,6 +484,51 @@ class AudioRecordingService : Service() {
         return "$name.${prefs.settingRecordingFormat.value}"
     }
 
+    private fun getPartName(baseName: String, partCounter: Int): String {
+        return "${baseName}_$partCounter"
+    }
+
+    private suspend fun handleMaxDurationReachedInternal() {
+        // Save the current recording first
+        handleRecordingStopped(shouldStopService = false)
+
+        val partCounter = prefs.recordedRecordPartCounter
+        val activeRecord = withContext(ioDispatcher) {
+            recordsDataSource.getActiveRecord()
+        }
+
+        activeRecord?.let {
+            val baseName = prefs.recordedRecordBaseName
+            if (baseName != null) {
+                // Rename saved record to record name and part 1 at the end.
+                // Because the first part has base name without part number by default.
+                if (partCounter == 1) {
+                    withContext(ioDispatcher) {
+                        recordsDataSource.renameRecord(it, getPartName(baseName, partCounter))
+                    }
+                }
+                val incrementedPart = partCounter + 1
+
+                // Get record part name for the next part and start recording
+                val recordName = getPartName(baseName, incrementedPart)
+                val recordId = handleStartRecording(recordName)
+                recordId?.let {
+                    emitEvent(
+                        AudioRecordingServiceEvent.NewRecordingPartStarted(
+                            part = incrementedPart, recordId = recordId,
+                        )
+                    )
+                }
+            } else {
+                //In case if there something wrong with base record name, just start normal recording.
+                handleStartRecording(prefs.settingNamingFormat.getNewRecordName(prefs))
+            }
+        } ?: run {
+            // Failed to get active record, set error state
+            //TODO: need to handle error here.
+        }
+    }
+
     private fun convertSpaceBytesToTimeInSeconds(
         spaceBytes: Long,
         recordingFormat: com.dimowner.audiorecorder.v2.data.model.RecordingFormat,
@@ -499,6 +557,16 @@ class AudioRecordingService : Service() {
             }
         }
     }
+
+    fun resetRecordedRecordPartCounter() {
+        prefs.recordedRecordPartCounter = 0
+    }
+
+    private fun emitEvent(event: AudioRecordingServiceEvent) {
+        serviceScope.launch {
+            _event.emit(event)
+        }
+    }
 }
 
 data class RecordingServiceState(
@@ -508,6 +576,10 @@ data class RecordingServiceState(
     val amplitude: Int = 0,
     val recordId: Long = -1L,
     val recordName: String? = null,
-    val error: AppException? = null,
-    val maxDurationReached: Boolean = false
 )
+
+sealed class AudioRecordingServiceEvent {
+    data class ShowErrorSnack(val message: String) : AudioRecordingServiceEvent()
+    data class ShowInfoSnack(val message: String) : AudioRecordingServiceEvent()
+    data class NewRecordingPartStarted(val part: Int, val recordId: Long) : AudioRecordingServiceEvent()
+}

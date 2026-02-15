@@ -29,10 +29,13 @@ import androidx.lifecycle.LifecycleOwner
 import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.AppConstantsV2
 import com.dimowner.audiorecorder.R
+import com.dimowner.audiorecorder.util.FileUtil
 import com.dimowner.audiorecorder.v2.app.settings.convertToText
+import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
+import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
@@ -296,4 +299,33 @@ suspend fun RecordsDataSource.removeOutdatedTrashRecords() {
             this.deleteRecordAndFileForever(removedRecord.id)
         }
     }
+}
+
+/**
+ * Generates a new record name based on the specified [NameFormat].
+ * This extension function creates a unique name for an audio recording according to
+ * the format type. The record counter is always incremented regardless of the format used.
+ *
+ * The name format depends on the [NameFormat] type:
+ * - [NameFormat.Record]: Numbered format (e.g., "Record-1")
+ * - [NameFormat.Date]: Date-based format
+ * - [NameFormat.DateUs]: US date format
+ * - [NameFormat.DateIso8601]: ISO 8601 date format
+ * - [NameFormat.Timestamp]: Unix timestamp format
+ * @param prefs The preferences instance used to access and increment the record counter.
+ * @return A formatted string to be used as the record name.
+ */
+fun NameFormat.getNewRecordName(prefs: PrefsV2): String {
+    val recordName = when (this) {
+        NameFormat.Record -> {
+            FileUtil.generateRecordNameCounted(prefs.recordCounter)
+        }
+        NameFormat.Date -> FileUtil.generateRecordNameDateVariant()
+        NameFormat.DateUs -> FileUtil.generateRecordNameDateUS()
+        NameFormat.DateIso8601 -> FileUtil.generateRecordNameDateISO8601()
+        NameFormat.Timestamp -> FileUtil.generateRecordNameMills()
+    }
+    prefs.incrementRecordCounter()
+
+    return recordName
 }

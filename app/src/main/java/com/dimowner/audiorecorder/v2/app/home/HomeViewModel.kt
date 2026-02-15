@@ -56,10 +56,12 @@ import com.dimowner.audiorecorder.v2.app.adjustWaveformHeights
 import com.dimowner.audiorecorder.v2.app.calculateGridStep
 import com.dimowner.audiorecorder.v2.app.calculateScale
 import com.dimowner.audiorecorder.v2.app.components.WaveformState
+import com.dimowner.audiorecorder.v2.app.getNewRecordName
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
 import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingService
+import com.dimowner.audiorecorder.v2.audio.AudioRecordingServiceEvent
 import com.dimowner.audiorecorder.v2.audio.RecorderEvent
 import com.dimowner.audiorecorder.v2.audio.RecorderV2
 import com.dimowner.audiorecorder.v2.data.FileDataSource
@@ -279,12 +281,10 @@ class HomeViewModel @Inject constructor(
                     )
                 }
                 is RecorderEvent.OnMaxDurationReached -> {
-                    handleMaxDurationReached()
+                    //Handled in the AudioRecordingService
                 }
                 RecorderEvent.OnStopRecording -> {
                     handleRecordingStopped()
-                    resetRecordedRecordPartCounter()
-                    prefs.recordedRecordBaseName = null
                 }
             }
         }
@@ -340,79 +340,24 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun handleRecordingStopped() {
-        // - Read recorded file info
-        // - Update recorded file duration, size, format, bitrate, sample rate, channel count
         // - Move updated to recycle if requested to delete the record, otherwise set it as active record
         withContext(ioDispatcher) {
             val recordedRecordId = prefs.recordedRecordId
             if (recordedRecordId >= 0) {
-                val record = recordsDataSource.getRecord(recordedRecordId)
-                if (record != null) {
-                    val output = File(record.path)
-                    val info = AudioDecoder.readRecordInfo(output);
-                    val success = recordsDataSource.updateRecord(
-                        record.copy(
-                            durationMills = info.duration / 1000,
-                            format = info.format,
-                            size = info.size,
-                            sampleRate = info.sampleRate,
-                            channelCount = info.channelCount,
-                            bitrate = info.bitrate,
-                        )
-                    )
-                    if (_state.value.isDeleteRecordingProgressRequested) {
-                        moveRecordToRecycle(recordedRecordId, false)
-                    } else {
-                        if (success) {
-                            prefs.activeRecordId = recordedRecordId
-                            //Record saved successfully
-                            showInfoMessage(R.string.msg_recording_saved_with_name, record.name)
-                        } else {
-                            //Failed to save record
-                            showInfoMessage(R.string.msg_save_recording_failed)
-                        }
-                        updateState()
-                    }
-                } else {
-                    if (!_state.value.isDeleteRecordingProgressRequested) {
-                        //Failed to save record
-                        showInfoMessage(R.string.msg_save_recording_failed)
-                    }
-                    updateState()
+                if (_state.value.isDeleteRecordingProgressRequested) {
+                    moveRecordToRecycle(recordedRecordId, false)
                 }
-                prefs.recordedRecordId = -1
             }
         }
     }
 
-    private fun handleMaxDurationReached() {
+    private fun handleNewRecordingPartStarted(recordId: Long) {
         viewModelScope.launch(ioDispatcher) {
-            handleRecordingStopped()
+            recordsDataSource.getRecord(recordId)?.let {
 
-            val partCounter = prefs.recordedRecordPartCounter
-            recordsDataSource.getActiveRecord()?.let {
-                val baseName = prefs.recordedRecordBaseName
-                if (baseName != null) {
-                    //Rename saved record to record name and part 1 at the end.
-                    //Because the first part has base name without part number by default.
-                    if (partCounter == 1) {
-                        recordsDataSource.renameRecord(it, getPartName(baseName, partCounter))
-                        updateState(false)
-                    }
-
-                    //Get record part name for the next part.
-                    val recordName = getPartName(baseName, partCounter + 1)
-                    handleStartRecordingClick(recordName)
-                } else {
-                    //In case if there something wrong with base record name, just start normal recording.
-                    handleStartRecordingClick(getNewRecordName())
-                }
             }
+//                ?: showInfoMessage() //TODO: show message
         }
-        // Load the selected audio source from preferences
-        _state.value = _state.value.copy(
-            selectedAudioSource = prefs.settingAudioSource
-        )
     }
 
     private fun handleError(exception: AppException) {
@@ -427,6 +372,14 @@ class HomeViewModel @Inject constructor(
     private fun handleError(text: String) {
         emitEvent(
             HomeScreenEvent.ShowErrorSnack(text)
+        )
+    }
+
+    private fun showInfoMessage(text: String) {
+        emitEvent(
+            HomeScreenEvent.ShowInfoSnack(
+                text
+            )
         )
     }
 
@@ -462,6 +415,31 @@ class HomeViewModel @Inject constructor(
                             showPause = true,
                             showStop = false
                         )
+                    }
+                }
+            }
+            //TODO: Fix this. It is not triggered. Looks like recordingService still null when this called.
+            recordingService?.let { service ->
+                withContext(mainDispatcher) {
+                    service.event.collect { event ->
+                        when (event) {
+                            is AudioRecordingServiceEvent.NewRecordingPartStarted -> {
+                                handleNewRecordingPartStarted(event.recordId)
+                            }
+
+                            is AudioRecordingServiceEvent.ShowInfoSnack -> {
+                                showInfoMessage(event.message)
+                            }
+
+                            is AudioRecordingServiceEvent.ShowErrorSnack -> {
+                                handleError(event.message)
+                            }
+
+                            else -> {
+                                Timber.d("Unknown Audio Recording Service Event")
+                            }
+                        }
+
                     }
                 }
             }
@@ -815,7 +793,7 @@ class HomeViewModel @Inject constructor(
 
         // Start the recording service
         AudioRecordingService.startServiceForeground(context, recordName)
-        incrementRecordedRecordPartCounter()
+//        incrementRecordedRecordPartCounter()
     }
 
     fun handlePauseRecordingClick() {
@@ -887,36 +865,16 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getNewRecordName(): String {
-        val recordName = when (prefs.settingNamingFormat) {
-            NameFormat.Record -> {
-                prefs.incrementRecordCounter()
-                FileUtil.generateRecordNameCounted(prefs.recordCounter)
-            }
-            NameFormat.Date -> FileUtil.generateRecordNameDateVariant()
-            NameFormat.DateUs -> FileUtil.generateRecordNameDateUS()
-            NameFormat.DateIso8601 -> FileUtil.generateRecordNameDateISO8601()
-            NameFormat.Timestamp -> FileUtil.generateRecordNameMills()
-        }
-
-        return recordName
+        return prefs.settingNamingFormat.getNewRecordName(prefs)
     }
 
-    fun incrementRecordedRecordPartCounter() {
-        prefs.recordedRecordPartCounter += 1
-    }
 
-    fun resetRecordedRecordPartCounter() {
-        prefs.recordedRecordPartCounter = 0
-    }
-
-    private fun getPartName(baseName: String, partCounter: Int): String {
-        return "${baseName}_$partCounter"
-    }
-
+    //TODO: Remove this?
     fun addExtension(name: String): String {
         return FileUtil.addExtension(name, prefs.settingRecordingFormat.value)
     }
 
+    //TODO: Remove this?
     //TODO: This function shouldn't be here
     private fun convertSpaceBytesToTimeInSeconds(
         spaceBytes: Long,
@@ -957,10 +915,9 @@ class HomeViewModel @Inject constructor(
             //Recording
             HomeScreenAction.OnStartRecordingClick -> {
                 viewModelScope.launch(mainDispatcher) {
-                    resetRecordedRecordPartCounter()
+//                    resetRecordedRecordPartCounter()
                     val recordName = getNewRecordName()
                     handleStartRecordingClick(recordName)
-                    prefs.recordedRecordBaseName = recordName
                 }
             }
             HomeScreenAction.OnPauseRecordingClick -> handlePauseRecordingClick()
