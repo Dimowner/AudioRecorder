@@ -122,16 +122,9 @@ class HomeViewModel @Inject constructor(
                     //TODO: This should be moved into a DecodingService
                     viewModelScope.launch(ioDispatcher) {
                         if (recordId < 0) return@launch
-                        recordsDataSource.getRecord(recordId)?.let { record ->
-                            val success = recordsDataSource.updateRecord(
-                                record.copy(
-                                    amps = decodedData
-                                )
-                            )
-                            // Only update UI if the decoded record is still the active record
-                            if (success && prefs.activeRecordId == recordId) {
-                                updateState()
-                            }
+                        // Only update UI if the decoded record is still the active record
+                        if (prefs.activeRecordId == recordId) {
+                            updateState()
                         }
                     }
                 }
@@ -284,6 +277,7 @@ class HomeViewModel @Inject constructor(
                     //Handled in the AudioRecordingService
                 }
                 RecorderEvent.OnStopRecording -> {
+                    //TODO: Need to update UI state here but only after recording stopped and the recorded record updated in database after stop recording.
                     handleRecordingStopped()
                 }
             }

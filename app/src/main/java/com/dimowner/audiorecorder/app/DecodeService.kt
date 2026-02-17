@@ -49,12 +49,21 @@ import com.dimowner.audiorecorder.audio.AudioWaveformVisualization
 import com.dimowner.audiorecorder.data.database.LocalRepository
 import com.dimowner.audiorecorder.data.database.Record
 import com.dimowner.audiorecorder.util.isUsingNightModeResources
+import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * Created on 02.02.2021.
  * @author Dimowner
  */
+@AndroidEntryPoint
 class DecodeService : Service() {
 
 	companion object {
@@ -85,7 +94,17 @@ class DecodeService : Service() {
 		}
 	}
 
-	private var decodeListener: DecodeServiceListener? = null
+    @Inject
+    lateinit var recordsDataSource: RecordsDataSource
+
+    @Inject
+    @IoDispatcher
+    lateinit var ioDispatcher: CoroutineDispatcher
+
+    private val serviceJob = SupervisorJob()
+    private val serviceScope by lazy { CoroutineScope(ioDispatcher + serviceJob) }
+
+    private var decodeListener: DecodeServiceListener? = null
 	private val binder = LocalBinder()
 
 	lateinit var notificationManager: NotificationManagerCompat
@@ -142,6 +161,11 @@ class DecodeService : Service() {
 		}
 		return super.onStartCommand(intent, flags, startId)
 	}
+
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceJob.cancel()
+    }
 
 	private fun startDecode(id: Long) {
 		isCancel = false
@@ -243,6 +267,17 @@ class DecodeService : Service() {
 
 					override fun onFinishProcessing(data: IntArray, duration: Long) {
 						recordingsTasks.postRunnable {
+                            serviceScope.launch(ioDispatcher) {
+                                if (recordId < 0) return@launch
+                                recordsDataSource.getRecord(recordId)?.let { record ->
+                                    recordsDataSource.updateRecord(
+                                        record.copy(
+                                            amps = data
+                                        )
+                                    )
+                                }
+                            }
+
 							decodeListener?.onFinishProcessing(recordId, data)
 							stopService()
 						}
