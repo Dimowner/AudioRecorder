@@ -119,7 +119,6 @@ class HomeViewModel @Inject constructor(
                 }
 
                 override fun onFinishProcessing(recordId: Long, decodedData: IntArray) {
-                    //TODO: This should be moved into a DecodingService
                     viewModelScope.launch(ioDispatcher) {
                         if (recordId < 0) return@launch
                         // Only update UI if the decoded record is still the active record

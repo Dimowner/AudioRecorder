@@ -253,7 +253,7 @@ class RecordsExtensionsTest {
         val newMap = originalMap.mapRecordInMap(recordId, updateOperation)
 
         // Retrieve the updated record from the new map
-        val updatedRecord = newMap["Jun 22"]?.find { it.recordId == recordId }
+        val updatedRecord = newMap["Jun 22, 2025"]?.find { it.recordId == recordId }
 
         // Assert
         assertNotEquals(originalMap, newMap)
@@ -313,7 +313,7 @@ class RecordsExtensionsTest {
         val newState = initialState.updateRecordInMap(recordId, updateOperation)
 
         // Retrieve the updated record from the new map
-        val updatedRecord = newState.recordsMap["Jun 22"]?.find { it.recordId == recordId }
+        val updatedRecord = newState.recordsMap["Jun 22, 2025"]?.find { it.recordId == recordId }
 
         // Assert
         assertNotEquals(initialState, newState)
@@ -375,13 +375,13 @@ class RecordsExtensionsTest {
         val newMap = initialMap.removeRecordFromMap(recordId)
 
         // Assert 1: The key for Group A still exists
-        assert(newMap.containsKey("Jun 22")) { "Group key should still exist." }
+        assert(newMap.containsKey("Jun 22, 2025")) { "Group key should still exist." }
 
         // Assert 2: Group A now has only 1 item
-        assertEquals(1, newMap["Jun 22"]?.size)
+        assertEquals(1, newMap["Jun 22, 2025"]?.size)
 
         // Assert 3: The removed record is gone
-        val removedRecord = newMap["Jun 22"]?.find { it.recordId == recordId }
+        val removedRecord = newMap["Jun 22, 2025"]?.find { it.recordId == recordId }
         assertNull(removedRecord)
     }
 
@@ -394,7 +394,7 @@ class RecordsExtensionsTest {
         val newMap = initialMap.removeRecordFromMap(recordId)
 
         // Assert 1: The key for Group (Jun 20) should be gone
-        assert(!newMap.containsKey("Jun 20")) { "Group Jun 20 key should be deleted because its list is now empty." }
+        assert(!newMap.containsKey("Jun 20, 2025")) { "Group Jun 20 key should be deleted because its list is now empty." }
 
         // Assert 2: The map size should be reduced from 3 to 2
         assertEquals(2, newMap.size)
@@ -434,8 +434,8 @@ class RecordsExtensionsTest {
     fun groupRecordsByDate_shouldGroupItemsByDate_whenSortOrderIsDateAsc() {
         val result = records.groupRecordsByDate(mockContext, SortOrder.DateAsc)
         assertEquals(3, result.size)
-        assertEquals(1, result["Jun 24"]?.size)
-        assertEquals(2, result["Jun 22"]?.size)
+        assertEquals(1, result["Jun 24, 2025"]?.size)
+        assertEquals(2, result["Jun 22, 2025"]?.size)
         assertEquals(1, result["Aug 20, 2024"]?.size)
     }
 
@@ -444,8 +444,8 @@ class RecordsExtensionsTest {
         val result = records.groupRecordsByDate(mockContext, SortOrder.DateDesc)
 
         assertEquals(3, result.size)
-        assertEquals(1, result["Jun 24"]?.size)
-        assertEquals(2, result["Jun 22"]?.size)
+        assertEquals(1, result["Jun 24, 2025"]?.size)
+        assertEquals(2, result["Jun 22, 2025"]?.size)
         assertEquals(1, result["Aug 20, 2024"]?.size)
     }
 

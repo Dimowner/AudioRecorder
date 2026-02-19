@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.util
 
+import android.app.Application
 import android.content.Context
 import android.media.AudioDeviceCallback
 import android.media.AudioDeviceInfo
@@ -26,13 +27,10 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import io.mockk.mockkObject
 import io.mockk.slot
-import io.mockk.unmockkObject
 import io.mockk.verify
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -45,6 +43,7 @@ import org.robolectric.annotation.Config
 import kotlin.intArrayOf
 
 @RunWith(AndroidJUnit4::class)
+@Config(application = TestARApplication::class)
 class AudioManagerHelperTest {
 
     @MockK(relaxed = true)
@@ -229,5 +228,11 @@ class AudioManagerHelperTest {
         verify { audioManager.setCommunicationDevice(mockDevice) }
         // Audio mode should be restored on failure
         verify(atLeast = 1) { audioManager.mode = any() }
+    }
+}
+
+class TestARApplication : Application() {
+    override fun onTerminate() {
+        // Do nothing - avoid calling Injector.closeTasks() in tests
     }
 }

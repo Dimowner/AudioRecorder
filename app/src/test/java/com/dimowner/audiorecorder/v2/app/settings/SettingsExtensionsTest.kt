@@ -1,17 +1,21 @@
 package com.dimowner.audiorecorder.v2.app.settings
 
+import android.app.Application
 import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.style.StyleSpan
 import androidx.compose.ui.text.font.FontWeight
 import androidx.core.text.HtmlCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.dimowner.audiorecorder.util.TestARApplication
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
+@Config(application = TestARApplication::class)
 class SettingsExtensionsTest {
 
     @Test
@@ -72,5 +76,11 @@ class SettingsExtensionsTest {
         val spanStyles = annotatedString.spanStyles
         val boldSpans = spanStyles.filter { it.item.fontWeight == FontWeight.Bold }
         assertTrue("Should have at least two bold spans", boldSpans.size >= 2)
+    }
+}
+
+class TestARApplication : Application() {
+    override fun onTerminate() {
+        // Do nothing - avoid calling Injector.closeTasks() in tests
     }
 }
