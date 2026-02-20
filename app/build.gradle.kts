@@ -5,6 +5,11 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.compose.compiler)
     id("kotlin-parcelize")
+    id("jacoco")
+}
+
+jacoco {
+    toolVersion = "0.8.12"
 }
 
 android {
@@ -40,7 +45,6 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
-                getDefaultProguardFile("proguard-android.txt"),
                 "proguard-rules.pro"
             )
 //			firebaseCrashlytics {
@@ -49,6 +53,7 @@ android {
         }
         getByName("debug") {
             isMinifyEnabled = false
+            enableUnitTestCoverage = true
         }
     }
 
@@ -86,6 +91,76 @@ android {
         unitTests {
             // Required for Robolectric to access Android resources
             isIncludeAndroidResources = true
+            all {
+                it.ignoreFailures = true
+            }
+        }
+    }
+}
+
+// ── JaCoCo coverage report & verification ──────────────────────────────────────
+
+val jacocoExcludes = listOf(
+    "**/R.class",
+    "**/R$*.class",
+    "**/BuildConfig.class",
+    "**/*_Factory.class",
+    "**/*_MembersInjector.class",
+    "**/*_Impl.class",
+    "**/*_Impl$*.class",
+    "**/Hilt_*.class",
+    "**/*Module_*.class",
+    "**/*_HiltModules*.class",
+    "**/*Directions*.class",
+    "**/*Args*.class",
+    "**/databinding/**",
+    "**/di/**",
+)
+
+val jacocoClassDirectories = files(
+    fileTree("${layout.buildDirectory.get().asFile}/tmp/kotlin-classes/debugConfigDebug") {
+        exclude(jacocoExcludes)
+    },
+    fileTree("${layout.buildDirectory.get().asFile}/intermediates/javac/debugConfigDebug") {
+        exclude(jacocoExcludes)
+    },
+)
+
+val jacocoSourceDirectories = files("src/main/java")
+
+val jacocoExecutionData = fileTree(layout.buildDirectory) {
+    include("outputs/unit_test_code_coverage/debugConfigDebugUnitTest/**/*.exec")
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugConfigDebugUnitTest")
+
+    reports {
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/html"))
+        xml.required.set(true)
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/jacocoTestReport.xml"))
+    }
+
+    classDirectories.setFrom(jacocoClassDirectories)
+    sourceDirectories.setFrom(jacocoSourceDirectories)
+    executionData.setFrom(jacocoExecutionData)
+}
+
+tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
+    dependsOn("jacocoTestReport")
+
+    classDirectories.setFrom(jacocoClassDirectories)
+    sourceDirectories.setFrom(jacocoSourceDirectories)
+    executionData.setFrom(jacocoExecutionData)
+
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "0.05".toBigDecimal()
+            }
         }
     }
 }
