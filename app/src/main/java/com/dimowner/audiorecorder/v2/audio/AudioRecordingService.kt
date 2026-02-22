@@ -240,6 +240,7 @@ class AudioRecordingService : Service() {
         )
 
         if (availableTimeSeconds > AppConstants.MIN_REMAIN_RECORDING_TIME && !audioRecorder.isRecording) {
+            //TODO: hande CantCreateFileException
             val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
             val record = Record(
                 id = 0,

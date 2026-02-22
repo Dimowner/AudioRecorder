@@ -29,8 +29,10 @@ interface FileDataSource {
 
     fun deleteRecordFile(path: String): Boolean
 
+    @Deprecated("Not used anymore as redundant complexity logic")
     fun markAsRecordDeleted(path: String): String?
 
+    @Deprecated("Not used anymore as redundant complexity logic")
     fun unmarkRecordAsDeleted(path: String): String?
 
     fun renameFile(path: String, newName: String): File?

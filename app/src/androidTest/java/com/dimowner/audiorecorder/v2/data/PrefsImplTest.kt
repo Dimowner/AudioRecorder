@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.dimowner.audiorecorder.AppConstantsV2
 import com.dimowner.audiorecorder.v2.DefaultValues
+import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
@@ -230,6 +231,17 @@ class PrefsImplTest {
         assertEquals(DefaultValues.DefaultSampleRate, prefs.settingSampleRate)
         assertEquals(DefaultValues.DefaultBitRate, prefs.settingBitrate)
         assertEquals(DefaultValues.DefaultChannelCount, prefs.settingChannelCount)
+    }
+
+    @Test
+    fun test_settingAudioSource() {
+        assertEquals(DefaultValues.DefaultAudioSource, prefs.settingAudioSource)
+
+        prefs.settingAudioSource = AudioSource.MIC
+        assertEquals(AudioSource.MIC, prefs.settingAudioSource)
+
+        prefs.settingAudioSource = AudioSource.VOICE_COMMUNICATION
+        assertEquals(AudioSource.VOICE_COMMUNICATION, prefs.settingAudioSource)
     }
 
     @Test
