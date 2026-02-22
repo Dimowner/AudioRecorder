@@ -47,6 +47,48 @@
  - Create bookmarks for quick access.
  - Personalize the app with colorful themes.
 
+# Test Coverage Reports
+
+The project uses [JaCoCo](https://www.jacoco.org/) for code-coverage reporting. Two Gradle tasks are available:
+
+### Unit-test-only report (no device required)
+
+```bash
+./gradlew jacocoTestReport
+```
+
+Runs **unit tests** (`testDebugConfigDebugUnitTest`) and generates a coverage report.
+
+| Output   | Path                                                  |
+|----------|-------------------------------------------------------|
+| HTML     | `app/build/reports/jacoco/html/index.html`            |
+| XML      | `app/build/reports/jacoco/jacocoTestReport.xml`       |
+
+### Full report — unit tests + connected (instrumented) tests
+
+> **Prerequisite:** a connected device or running emulator.
+
+```bash
+./gradlew jacocoFullReport
+```
+
+Runs both **unit tests** and **connected Android tests** (`connectedDebugConfigDebugAndroidTest`), then merges the coverage data into a single report.
+
+| Output   | Path                                                  |
+|----------|-------------------------------------------------------|
+| HTML     | `app/build/reports/jacoco/htmlFull/index.html`        |
+| XML      | `app/build/reports/jacoco/jacocoFullReport.xml`       |
+
+### Coverage verification
+
+```bash
+./gradlew jacocoTestCoverageVerification
+```
+
+Runs `jacocoFullReport` and then asserts that the overall **line coverage ratio ≥ 5 %**. The build will fail if the threshold is not met.
+
+> **Tip:** For fast local iteration use `jacocoTestReport` (unit tests only). Reserve `jacocoFullReport` / `jacocoTestCoverageVerification` for CI or when you need instrumented-test coverage.
+
 # FAQ
 ### <b>When option to choose recording directory will be added?</b>
 <p>There is no plans to add feature where user can change recording directory. Newer versions of Android added restrictions on ability to interact with device file system. There is no simple way how to implement the feature. So all records are stored in app's private dir. Anyway, all record files available for user to download from app's private dir to a public dir.</p> 

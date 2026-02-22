@@ -54,6 +54,7 @@ android {
         getByName("debug") {
             isMinifyEnabled = false
             enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
         }
     }
 
@@ -128,10 +129,16 @@ val jacocoClassDirectories = files(
 
 val jacocoSourceDirectories = files("src/main/java")
 
-val jacocoExecutionData = fileTree(layout.buildDirectory) {
+val jacocoUnitTestData = fileTree(layout.buildDirectory) {
     include("outputs/unit_test_code_coverage/debugConfigDebugUnitTest/**/*.exec")
 }
 
+val jacocoFullExecutionData = fileTree(layout.buildDirectory) {
+    include("outputs/unit_test_code_coverage/debugConfigDebugUnitTest/**/*.exec")
+    include("outputs/code_coverage/debugConfigDebugAndroidTest/connected/**/*.ec")
+}
+
+// Unit-test-only report (fast, no device needed)
 tasks.register<JacocoReport>("jacocoTestReport") {
     dependsOn("testDebugConfigDebugUnitTest")
 
@@ -144,15 +151,32 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 
     classDirectories.setFrom(jacocoClassDirectories)
     sourceDirectories.setFrom(jacocoSourceDirectories)
-    executionData.setFrom(jacocoExecutionData)
+    executionData.setFrom(jacocoUnitTestData)
 }
 
-tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
-    dependsOn("jacocoTestReport")
+// Combined unit + androidTest report (requires a connected device/emulator)
+tasks.register<JacocoReport>("jacocoFullReport") {
+    dependsOn("testDebugConfigDebugUnitTest")
+    dependsOn("connectedDebugConfigDebugAndroidTest")
+
+    reports {
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/htmlFull"))
+        xml.required.set(true)
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/jacocoFullReport.xml"))
+    }
 
     classDirectories.setFrom(jacocoClassDirectories)
     sourceDirectories.setFrom(jacocoSourceDirectories)
-    executionData.setFrom(jacocoExecutionData)
+    executionData.setFrom(jacocoFullExecutionData)
+}
+
+tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
+    dependsOn("jacocoFullReport")
+
+    classDirectories.setFrom(jacocoClassDirectories)
+    sourceDirectories.setFrom(jacocoSourceDirectories)
+    executionData.setFrom(jacocoFullExecutionData)
 
     violationRules {
         rule {
