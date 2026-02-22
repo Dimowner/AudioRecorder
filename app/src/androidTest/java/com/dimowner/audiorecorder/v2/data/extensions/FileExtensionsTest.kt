@@ -34,6 +34,7 @@ import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
 import kotlin.io.path.createTempDirectory
 
@@ -285,5 +286,50 @@ class FileExtensionsTest {
         assertNotNull(result)
         assertTrue(result!!.exists())
         assertEquals(directoryName, result.name)
+    }
+
+    @Test
+    fun test_copyFile_success() {
+        val sourceFile = tempFolder.newFile("source.m4a")
+        val content = "Hello, this is test audio content"
+        sourceFile.writeText(content)
+
+        val destFile = File(tempFolder.root, "destination.m4a")
+
+        val fileDescriptor = FileInputStream(sourceFile).use { fis ->
+            val fd = fis.fd
+            val result = copyFile(fd, destFile)
+            result
+        }
+
+        assertTrue(fileDescriptor)
+        assertTrue(destFile.exists())
+        assertEquals(content, destFile.readText())
+    }
+
+    @Test
+    fun test_copyFile_emptySource() {
+        val sourceFile = tempFolder.newFile("empty_source.m4a")
+        val destFile = File(tempFolder.root, "destination.m4a")
+
+        val result = FileInputStream(sourceFile).use { fis ->
+            copyFile(fis.fd, destFile)
+        }
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun test_copyFile_invalidDestination() {
+        val sourceFile = tempFolder.newFile("source.m4a")
+        sourceFile.writeText("some content")
+
+        val destFile = File("/nonexistent/directory/destination.m4a")
+
+        val result = FileInputStream(sourceFile).use { fis ->
+            copyFile(fis.fd, destFile)
+        }
+
+        assertFalse(result)
     }
 }

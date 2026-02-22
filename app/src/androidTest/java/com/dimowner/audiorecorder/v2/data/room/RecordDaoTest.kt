@@ -153,6 +153,52 @@ class RecordDaoTest {
     }
 
     @Test
+    fun testInsertRecordsAndGetRecords() {
+        val record1 = RecordEntity(
+            1001L,
+            "Test Record",
+            1000,
+            123456789L,
+            123456789L,
+            0L,
+            "path/to/record",
+            "mp3",
+            1024,
+            44100,
+            2,
+            128,
+            false,
+            false,
+            false,
+            IntArray(10),
+        )
+        val record2 = RecordEntity(
+            1002L,
+            "Test Record2",
+            2000,
+            12345678910L,
+            12345678911L,
+            0L,
+            "path/to/record2",
+            "mp3",
+            2048,
+            44100,
+            1,
+            192,
+            false,
+            false,
+            false,
+            IntArray(20),
+        )
+        recordDao.insertRecords(listOf(record1, record2))
+
+        val loaded = recordDao.getRecordsByIds(listOf(1001L, 1002L))
+        assertEquals(2, loaded.size)
+        assertEquals(record1, loaded[0])
+        assertEquals(record2, loaded[1])
+    }
+
+    @Test
     fun testGetRecordsByIds() {
         //Test valid records request
         val records = recordDao.getRecordsByIds(listOf(2, 45, 91, 28))
@@ -240,6 +286,8 @@ class RecordDaoTest {
             false,
             IntArray(10),
         )
+        val result = recordDao.getRecordById(1001L)
+        assertNull(result)
         //Delete not existing record silently skipped
         recordDao.deleteRecord(record)
     }
@@ -252,6 +300,11 @@ class RecordDaoTest {
         recordDao.deleteRecordById(1)
         val recordAfter = recordDao.getRecordById(1)
         assertNull(recordAfter)
+
+        val result = recordDao.getRecordById(1001L)
+        assertNull(result)
+        //Delete not existing record silently skipped
+        recordDao.deleteRecordById(1001L)
     }
 
     @Test
