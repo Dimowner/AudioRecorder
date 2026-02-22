@@ -102,6 +102,7 @@ android {
 // ── JaCoCo coverage report & verification ──────────────────────────────────────
 
 val jacocoExcludes = listOf(
+    // ── Generated / DI ──
     "**/R.class",
     "**/R$*.class",
     "**/BuildConfig.class",
@@ -116,6 +117,53 @@ val jacocoExcludes = listOf(
     "**/*Args*.class",
     "**/databinding/**",
     "**/di/**",
+
+    // ── UI: Activities, Fragments, Adapters ──
+    "**/*Activity.class",
+    "**/*Activity$*.class",
+    "**/*Fragment.class",
+    "**/*Fragment$*.class",
+    "**/*Adapter.class",
+    "**/*Adapter$*.class",
+
+    // ── UI: custom Views & widgets (legacy) ──
+    "**/app/widget/**",
+
+    // ── UI: legacy v1 app screens (Activities, Presenters, Contracts, Views) ──
+    "**/app/main/**",
+    "**/app/browser/**",
+    "**/app/info/**",
+    "**/app/lostrecords/**",
+    "**/app/records/**",
+    "**/app/settings/**",
+    "**/app/setup/**",
+    "**/app/trash/**",
+    "**/app/welcome/**",
+    "**/app/moverecords/**",
+    "**/app/UiExtensions*",
+
+    // ── UI: Compose screens, components, theme, navigation ──
+    "**/v2/app/*Screen*.class",
+    "**/v2/app/*Screen*$*.class",
+    "**/v2/app/**/*Screen*.class",
+    "**/v2/app/**/*Screen*$*.class",
+    "**/v2/app/**/*Components*.class",
+    "**/v2/app/**/*Components*$*.class",
+    "**/v2/app/**/*Widget*.class",
+    "**/v2/app/**/*Widget*$*.class",
+    "**/v2/app/**/*Dialog*.class",
+    "**/v2/app/**/*Dialog*$*.class",
+    "**/v2/app/components/**",
+    "**/v2/app/ComposePlaygroundScreen*",
+    "**/v2/app/ComposePreviewData*",
+    "**/v2/app/AppComponents*",
+    "**/v2/app/AppExtensions*",
+    "**/v2/theme/**",
+    "**/v2/navigation/**",
+
+    // ── Compose compiler-generated ──
+    "**/*ComposableSingletons*.class",
+    "**/*ComposableSingletons*$*.class",
 )
 
 val jacocoClassDirectories = files(
