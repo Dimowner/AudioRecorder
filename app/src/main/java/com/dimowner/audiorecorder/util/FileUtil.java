@@ -465,6 +465,7 @@ public class FileUtil {
 	 * Get public external storage directory
 	 * @param dirName Directory name.
 	 */
+	@Deprecated
 	public static File getStorageDir(String dirName) {
 //		TODO: deprecated fix this
 		if (dirName != null && !dirName.isEmpty()) {
@@ -600,8 +601,10 @@ public class FileUtil {
 					Log.d(LOG_TAG, "File deleted: " + file.getAbsolutePath());
 				}
 			}
+			return ok;
+		} else {
+			return false;
 		}
-		return ok;
 	}
 
 	private static boolean isVirtualFile(Context context, Uri uri) {

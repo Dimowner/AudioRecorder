@@ -35,7 +35,7 @@ public class FileRepositoryImpl implements FileRepository {
 
 	private volatile static FileRepositoryImpl instance;
 
-	private FileRepositoryImpl(Context context, Prefs prefs) {
+	FileRepositoryImpl(Context context, Prefs prefs) {
 		updateRecordingDir(context, prefs);
 		this.prefs = prefs;
 	}
