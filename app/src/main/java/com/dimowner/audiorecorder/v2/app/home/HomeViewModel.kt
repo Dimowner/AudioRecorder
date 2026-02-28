@@ -243,6 +243,7 @@ class HomeViewModel @Inject constructor(
                         startTime = "",
                         endTime = "",
                         recordName = context.getString(R.string.recording_progress),
+                        keepScreenOn = prefs.isKeepScreenOn,
                     )
                     withContext(ioDispatcher) {
                         recordsDataSource.getRecord(prefs.recordedRecordId)?.let {
@@ -264,16 +265,19 @@ class HomeViewModel @Inject constructor(
                     _state.value = state.value.copy(
                         bottomBarState = BottomBarState.PAUSED,
                         recordName = context.getString(R.string.recording_paused),
+                        keepScreenOn = false,
                     )
                 }
                 RecorderEvent.OnResumeRecording -> {
                     _state.value = state.value.copy(
                         bottomBarState = BottomBarState.RECORDING,
                         recordName = context.getString(R.string.recording_progress),
+                        keepScreenOn = prefs.isKeepScreenOn,
                     )
                 }
                 is RecorderEvent.OnMaxDurationReached -> {
                     //Handled in the AudioRecordingService
+                    _state.value = state.value.copy(keepScreenOn = false)
                 }
                 RecorderEvent.OnStopRecording -> {
                     //TODO: Need to update UI state here but only after recording stopped and the recorded record updated in database after stop recording.
@@ -493,6 +497,7 @@ class HomeViewModel @Inject constructor(
                             endTime = "",
                             recordInfo = recordInfo,
                             recordName = context.getString(R.string.recording_progress),
+                            keepScreenOn = prefs.isKeepScreenOn,
                         )
                     } else if (bottomBarState == BottomBarState.PAUSED) {
                         _state.value = state.value.copy(
@@ -504,6 +509,7 @@ class HomeViewModel @Inject constructor(
                             endTime = "",
                             recordInfo = recordInfo,
                             recordName = context.getString(R.string.recording_paused),
+                            keepScreenOn = false,
                         )
                     }
                 }
@@ -801,14 +807,16 @@ class HomeViewModel @Inject constructor(
         audioRecorder.stopRecording()
         _state.value = state.value.copy(
             waveformState = _state.value.waveformState.copy(isRecording = false),
-            bottomBarState = BottomBarState.READY_TO_START_RECORDING
+            bottomBarState = BottomBarState.READY_TO_START_RECORDING,
+            keepScreenOn = false,
         )
     }
 
     fun handleOnDeleteRecordingProgressClick() {
         audioRecorder.stopRecording()
         _state.value = state.value.copy(
-            isDeleteRecordingProgressRequested = true
+            isDeleteRecordingProgressRequested = true,
+            keepScreenOn = false,
         )
     }
 
@@ -985,6 +993,8 @@ data class HomeScreenState(
     // Lost records
     val showLostRecordsDialog: Boolean = false,
     val lostRecord: Record? = null,
+    // Keep screen on during recording
+    val keepScreenOn: Boolean = false,
 ) {
     fun isRecording(): Boolean {
         return this.bottomBarState == BottomBarState.RECORDING || this.bottomBarState == BottomBarState.PAUSED

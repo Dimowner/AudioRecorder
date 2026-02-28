@@ -1,13 +1,17 @@
 package com.dimowner.audiorecorder.v2.app.components
 
+import android.app.Activity
+import android.view.WindowManager
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.platform.LocalContext
 
 /**
  * Wraps an [onClick] lambda with another one that supports debounce clicks.
@@ -54,3 +58,27 @@ fun Modifier.onDebounceClickable(
         this.clickable { clickable() }
     }
 }
+
+/**
+ * A composable that keeps the screen on while [enabled] is true.
+ * When [enabled] becomes false or the composable leaves the composition,
+ * the FLAG_KEEP_SCREEN_ON flag is cleared.
+ *
+ * @param enabled Whether the screen should be kept on.
+ */
+@Composable
+fun KeepScreenOn(enabled: Boolean) {
+    val context = LocalContext.current
+    DisposableEffect(enabled) {
+        val window = (context as? Activity)?.window
+        if (enabled) {
+            window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+        onDispose {
+            window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+    }
+}
+

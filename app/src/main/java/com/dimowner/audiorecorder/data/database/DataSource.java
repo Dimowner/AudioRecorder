@@ -245,7 +245,10 @@ public abstract class DataSource<T> {
 		ArrayList<Integer> items = new ArrayList<>();
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast() && !cursor.isBeforeFirst()) {
-			items.add(cursor.getInt(cursor.getColumnIndex(SQLiteHelper.COLUMN_ID)));
+			int columnIndex = cursor.getColumnIndex(SQLiteHelper.COLUMN_ID);
+			if (columnIndex >= 0) {
+				items.add(cursor.getInt(columnIndex));
+			}
 			cursor.moveToNext();
 		}
 		cursor.close();
@@ -315,7 +318,10 @@ public abstract class DataSource<T> {
 		ArrayList<Long> items = new ArrayList<>();
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
-			items.add(cursor.getLong(cursor.getColumnIndex(SQLiteHelper.COLUMN_DURATION)));
+			int columnIndex = cursor.getColumnIndex(SQLiteHelper.COLUMN_DURATION);
+			if (columnIndex >= 0) {
+				items.add(cursor.getLong(columnIndex));
+			}
 			cursor.moveToNext();
 		}
 		cursor.close();

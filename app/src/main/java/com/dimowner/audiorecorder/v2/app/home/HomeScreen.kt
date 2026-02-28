@@ -61,6 +61,7 @@ import com.dimowner.audiorecorder.v2.app.DeleteDialog
 import com.dimowner.audiorecorder.v2.app.RenameAlertDialog
 import com.dimowner.audiorecorder.v2.app.SaveAsDialog
 import com.dimowner.audiorecorder.v2.app.components.BluetoothMicSelector
+import com.dimowner.audiorecorder.v2.app.components.KeepScreenOn
 import com.dimowner.audiorecorder.v2.app.components.WaveformComposeView
 import com.dimowner.audiorecorder.v2.app.components.WaveformState
 import com.dimowner.audiorecorder.v2.app.getTestWaveformData
@@ -197,6 +198,7 @@ internal fun HomeScreen(
             }
         }
     }
+    KeepScreenOn(enabled = uiState.keepScreenOn)
     Scaffold(
         contentWindowInsets = WindowInsets.safeDrawing,
         snackbarHost = {
