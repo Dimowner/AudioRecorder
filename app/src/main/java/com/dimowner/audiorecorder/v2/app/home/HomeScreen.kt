@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -208,6 +209,25 @@ internal fun HomeScreen(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         },
+        bottomBar = {
+            Column(modifier = Modifier.navigationBarsPadding()) {
+                BottomBar(
+                    onSettingsClick = { showSettingsScreen() },
+                    onRecordsListClick = { showRecordsScreen() },
+                    onStartRecordingClick = handleRecordButtonClick,
+                    onPauseRecordingClick = { onAction(HomeScreenAction.OnPauseRecordingClick) },
+                    onResumeRecordingClick = { onAction(HomeScreenAction.OnResumeRecordingClick) },
+                    onStopRecordingClick = { onAction(HomeScreenAction.OnStopRecordingClick) },
+                    onDeleteRecordingClick = { onAction(HomeScreenAction.OnDeleteRecordingProgressClick) },
+                    bottomBarState = uiState.bottomBarState
+                )
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(12.dp)
+                )
+            }
+        },
     ) { innerPadding ->
         Surface(
             modifier = Modifier
@@ -328,21 +348,6 @@ internal fun HomeScreen(
                     !uiState.isRecording() && uiState.isShowWaveform,
                     onRenameClick = { showRenameDialog.value = true },
                     onProgressChange = { onAction(HomeScreenAction.OnProgressBarStateChange(it)) }
-                )
-                BottomBar(
-                    onSettingsClick = { showSettingsScreen() },
-                    onRecordsListClick = { showRecordsScreen() },
-                    onStartRecordingClick = handleRecordButtonClick,
-                    onPauseRecordingClick = { onAction(HomeScreenAction.OnPauseRecordingClick) },
-                    onResumeRecordingClick = { onAction(HomeScreenAction.OnResumeRecordingClick) },
-                    onStopRecordingClick = { onAction(HomeScreenAction.OnStopRecordingClick) },
-                    onDeleteRecordingClick = { onAction(HomeScreenAction.OnDeleteRecordingProgressClick) },
-                    bottomBarState = uiState.bottomBarState
-                )
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(12.dp)
                 )
                 if (showDeleteDialog.value) {
                     DeleteDialog(
