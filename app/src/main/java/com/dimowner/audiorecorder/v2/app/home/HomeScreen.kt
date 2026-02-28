@@ -100,6 +100,10 @@ internal fun HomeScreen(
 
     val context = LocalContext.current
 
+    val msgPermissionDenied = stringResource(R.string.msg_permission_microphone_denied)
+    val msgCanceled = stringResource(R.string.msg_recording_canceled)
+    val actionUndo = stringResource(R.string.action_undo)
+
     // Permission launcher for audio recording
     val recordAudioPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -111,7 +115,7 @@ internal fun HomeScreen(
             // Permission denied - show snackbar
             scope.launch {
                 snackbarHostState.showSnackbar(
-                    message = context.getString(R.string.msg_permission_microphone_denied),
+                    message = msgPermissionDenied,
                     duration = SnackbarDuration.Long
                 )
             }
@@ -155,12 +159,12 @@ internal fun HomeScreen(
                     val message = if (event.recordName != null) {
                         context.getString(R.string.msg_recording_moved_to_trash, event.recordName)
                     } else {
-                        context.getString(R.string.msg_recording_canceled)
+                        msgCanceled
                     }
                     val result = snackbarHostState
                         .showSnackbar(
                             message = message,
-                            actionLabel = context.getString(R.string.action_undo),
+                            actionLabel = actionUndo,
                             duration = SnackbarDuration.Short
                         )
                     when (result) {

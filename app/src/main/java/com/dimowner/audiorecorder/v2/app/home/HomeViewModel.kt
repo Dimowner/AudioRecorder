@@ -70,7 +70,6 @@ import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.extensions.isLostRecord
 import com.dimowner.audiorecorder.v2.data.extensions.copyFile
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
-import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
@@ -88,6 +87,7 @@ import java.io.IOException
 import javax.inject.Inject
 
 private const val ANIMATION_DURATION = 330L //mills.
+private const val RECORDING_PROGRESS_UPDATE_INTERVAL = 1000L //mills.
 
 @SuppressWarnings("LongParameterList")
 @HiltViewModel
@@ -105,6 +105,8 @@ class HomeViewModel @Inject constructor(
 
     private val _state = mutableStateOf(HomeScreenState())
     val state: State<HomeScreenState> = _state
+
+    private var lastRecordingProgressUpdate = 0L
 
     private val _event = MutableSharedFlow<HomeScreenEvent?>()
     val event: SharedFlow<HomeScreenEvent?> = _event
@@ -254,12 +256,11 @@ class HomeViewModel @Inject constructor(
                     }
                 }
                 is RecorderEvent.OnRecordingProgress -> {
-                    _state.value = _state.value.copy(
-                        time = TimeUtils.formatTimeIntervalHourMinSec2(event.durationMills),
-                        showPause = false,
-                        showStop = false,
-                        isShowWaveform = false
-                    )
+                    val now = System.currentTimeMillis()
+                    if (now - lastRecordingProgressUpdate >= RECORDING_PROGRESS_UPDATE_INTERVAL) {
+                        lastRecordingProgressUpdate = now
+                        handleRecordingProgress(event.durationMills)
+                    }
                 }
                 RecorderEvent.OnPauseRecording -> {
                     _state.value = state.value.copy(
@@ -284,6 +285,18 @@ class HomeViewModel @Inject constructor(
                     handleRecordingStopped()
                 }
             }
+        }
+    }
+
+    private suspend fun handleRecordingProgress(durationMills: Long) {
+        _state.value = _state.value.copy(
+            time = TimeUtils.formatTimeIntervalHourMinSec2(durationMills),
+            showPause = false,
+            showStop = false,
+            isShowWaveform = false
+        )
+        withContext(ioDispatcher) {
+            updateRecordingProgressInfo()
         }
     }
 
@@ -453,6 +466,19 @@ class HomeViewModel @Inject constructor(
         val context: Context = getApplication<Application>().applicationContext
         val intent = Intent(context, DecodeService::class.java)
         context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+    }
+
+    private suspend fun updateRecordingProgressInfo() {
+        val context: Context = getApplication<Application>().applicationContext
+        val record = recordsDataSource.getRecord(prefs.recordedRecordId)
+        record?.let {
+            val file = File(record.path)
+            withContext(mainDispatcher) {
+                _state.value = _state.value.copy(
+                    recordInfo = record.copy(size = file.length()).toInfoCombinedText(context)
+                )
+            }
+        }
     }
 
     private suspend fun updateState(resetPlayProgress: Boolean = true) {
