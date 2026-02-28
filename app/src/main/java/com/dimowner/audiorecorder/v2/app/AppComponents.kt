@@ -525,6 +525,9 @@ fun RenameAlertDialog(
         },
         onDismissRequest = {
             onDismissClick()
+            if (showDontAskAgain) {
+                onDontAskAgain(checkedState.value)
+            }
         },
         confirmButton = {
             TextButton(
@@ -543,6 +546,9 @@ fun RenameAlertDialog(
             TextButton(
                 onClick = {
                     onDismissClick()
+                    if (showDontAskAgain) {
+                        onDontAskAgain(checkedState.value)
+                    }
                 }
             ) {
                 Text(stringResource(id = R.string.btn_cancel))

@@ -366,7 +366,6 @@ class AudioRecordingService : Service() {
                         applicationContext.getString(R.string.msg_save_recording_failed)
                     ))
                 }
-                prefs.recordedRecordId = -1
                 if (shouldStopService) {
                     resetRecordedRecordPartCounter()
                     stopForegroundService()

@@ -336,6 +336,7 @@ class HomeViewModel @Inject constructor(
         })
     }
 
+    //TODO: This function call is unsynchronized with service
     private suspend fun handleRecordingStopped() {
         // - Move updated to recycle if requested to delete the record, otherwise set it as active record
         withContext(ioDispatcher) {
@@ -343,6 +344,14 @@ class HomeViewModel @Inject constructor(
             if (recordedRecordId >= 0) {
                 if (_state.value.isDeleteRecordingProgressRequested) {
                     moveRecordToRecycle(recordedRecordId, false)
+                } else if (prefs.askToRenameAfterRecordingStopped) {
+                    updateState()
+                    withContext(mainDispatcher) {
+                        _state.value = _state.value.copy(
+                            showRenameAfterRecordingDialog = true,
+                            keepScreenOn = false,
+                        )
+                    }
                 }
             }
         }
@@ -436,7 +445,6 @@ class HomeViewModel @Inject constructor(
                                 Timber.d("Unknown Audio Recording Service Event")
                             }
                         }
-
                     }
                 }
             }
@@ -935,6 +943,16 @@ class HomeViewModel @Inject constructor(
                 audioManagerHelper.selectBluetoothDevice(action.device)
             }
             HomeScreenAction.DismissLostRecordsDialog -> dismissLostRecordsDialog()
+            is HomeScreenAction.DismissRenameAfterRecordingDialog -> {
+                dismissRenameAfterRecordingDialog(action.dontAskAgain)
+            }
+        }
+    }
+
+    private fun dismissRenameAfterRecordingDialog(dontAskAgain: Boolean) {
+        _state.value = _state.value.copy(showRenameAfterRecordingDialog = false)
+        if (dontAskAgain) {
+            prefs.askToRenameAfterRecordingStopped = false
         }
     }
 
@@ -995,6 +1013,8 @@ data class HomeScreenState(
     val lostRecord: Record? = null,
     // Keep screen on during recording
     val keepScreenOn: Boolean = false,
+    // Show rename dialog after recording stopped
+    val showRenameAfterRecordingDialog: Boolean = false,
 ) {
     fun isRecording(): Boolean {
         return this.bottomBarState == BottomBarState.RECORDING || this.bottomBarState == BottomBarState.PAUSED
@@ -1032,6 +1052,7 @@ sealed class HomeScreenAction {
     data class SetBluetoothMicEnabled(val enabled: Boolean) : HomeScreenAction()
     data class SelectBluetoothDevice(val device: BluetoothDeviceInfo?) : HomeScreenAction()
     data object DismissLostRecordsDialog : HomeScreenAction()
+    data class DismissRenameAfterRecordingDialog(val dontAskAgain: Boolean) : HomeScreenAction()
 }
 
 sealed class HomeScreenEvent {

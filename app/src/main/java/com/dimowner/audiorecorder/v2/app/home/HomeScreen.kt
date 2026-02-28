@@ -385,6 +385,21 @@ internal fun HomeScreen(
                         }
                     )
                 }
+                if (uiState.showRenameAfterRecordingDialog) {
+                    RenameAlertDialog(
+                        recordName = uiState.recordName,
+                        onAcceptClick = { newName ->
+                            onAction(HomeScreenAction.RenameActiveRecord(newName))
+                        },
+                        onDismissClick = {
+                            //Do nothing, onDontAskAgain triggers, it will dismiss the dialog
+                        },
+                        onDontAskAgain = { dontAskAgain ->
+                            onAction(HomeScreenAction.DismissRenameAfterRecordingDialog(dontAskAgain))
+                        },
+                        showDontAskAgain = true
+                    )
+                }
             }
         }
     }

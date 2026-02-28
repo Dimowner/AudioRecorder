@@ -31,6 +31,8 @@ interface PrefsV2 {
     var askToRenameAfterRecordingStopped: Boolean
 
     var activeRecordId: Long
+    //Stores the last recorded record id. It is not gets cleared after recording stops.
+    // It gets overwritten after new recording starts.
     var recordedRecordId: Long
     var recordedRecordPartCounter: Int
     var recordedRecordBaseName: String?
