@@ -184,11 +184,13 @@ internal fun SettingsScreen(
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 ResetRecordingSettingsPanel(
-                    stringResource(id = R.string.size_per_min, uiState.sizePerMin),
-                    uiState.recordingSettingsText
-                ) {
-                    onAction(SettingsScreenAction.ResetRecordingSettings)
-                }
+                    sizePerMin = stringResource(id = R.string.size_per_min, uiState.sizePerMin),
+                    recordingSettingsText = uiState.recordingSettingsText,
+                    onClick = {
+                        onAction(SettingsScreenAction.ResetRecordingSettings)
+                    },
+                    enabled = uiState.isRecordingSettingEditable,
+                )
                 val infoFormat = stringResource(R.string.info_format)
                 SettingSelector(
                     name = stringResource(id = R.string.recording_format),
@@ -200,7 +202,8 @@ internal fun SettingsScreen(
                         infoText.value = infoFormat
                         infoTextAnnotated.value = null
                         openInfoDialog.value = true
-                    }
+                    },
+                    enabled = uiState.isRecordingSettingEditable
                 )
                 val selectedFormat =
                     uiState.recordingSettings.firstOrNull { it.recordingFormat.isSelected }
@@ -215,7 +218,8 @@ internal fun SettingsScreen(
                         infoText.value = infoFrequency
                         infoTextAnnotated.value = null
                         openInfoDialog.value = true
-                    }
+                    },
+                    enabled = uiState.isRecordingSettingEditable
                 )
                 if (isExpandedBitRatePanel.value != !selectedFormat?.bitRates.isNullOrEmpty()) {
                     isExpandedBitRatePanel.value = !selectedFormat?.bitRates.isNullOrEmpty()
@@ -232,7 +236,8 @@ internal fun SettingsScreen(
                             infoText.value = infoBitrate
                             infoTextAnnotated.value = null
                             openInfoDialog.value = true
-                        }
+                        },
+                        enabled = uiState.isRecordingSettingEditable
                     )
                 }
                 val infoChannels = htmlStringResource(R.string.info_channels_html)
@@ -246,7 +251,8 @@ internal fun SettingsScreen(
                         infoText.value = ""
                         infoTextAnnotated.value = infoChannels
                         openInfoDialog.value = true
-                    }
+                    },
+                    enabled = uiState.isRecordingSettingEditable
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 val infoAudioSource = htmlStringResource(R.string.info_audio_source_html)
@@ -260,7 +266,8 @@ internal fun SettingsScreen(
                         infoText.value = ""
                         infoTextAnnotated.value = infoAudioSource
                         openInfoDialog.value = true
-                    }
+                    },
+                    enabled = uiState.isRecordingSettingEditable
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 MaxDurationSettingRow(
@@ -475,6 +482,7 @@ fun SettingsScreenPreview() {
         isAppV2 = false,
         isKeepScreenOn = false,
         isShowRenameDialog = true,
+        isRecordingSettingEditable = true,
         nameFormats = listOf(NameFormatItem(NameFormat.Record, "Name text")),
         selectedNameFormat = NameFormatItem(NameFormat.Record, "Name text"),
         recordingSettings = listOf(RecordingSetting(

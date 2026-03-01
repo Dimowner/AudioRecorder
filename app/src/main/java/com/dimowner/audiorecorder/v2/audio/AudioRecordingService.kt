@@ -86,8 +86,10 @@ class AudioRecordingService : Service() {
 
     private val binder = ServiceBinder()
 
+    private lateinit var audioRecorder: RecorderV2
+
     @Inject
-    lateinit var audioRecorder: RecorderV2
+    lateinit var audioRecorderDelegate: AudioRecorderDelegate
 
     @Inject
     lateinit var recordsDataSource: RecordsDataSource
@@ -122,7 +124,6 @@ class AudioRecordingService : Service() {
         super.onCreate()
         createNotificationChannel()
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        subscribeRecorderEvents()
     }
 
     override fun onBind(intent: Intent?): IBinder {
@@ -130,6 +131,8 @@ class AudioRecordingService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        audioRecorder = audioRecorderDelegate.provideAudioRecorder()
+        subscribeRecorderEvents()
         when (intent?.action) {
             ACTION_START_RECORDING -> {
                 val recordName = intent.getStringExtra(EXTRA_RECORD_NAME)
@@ -440,7 +443,7 @@ class AudioRecordingService : Service() {
             Intent(this, AudioRecordingService::class.java).apply {
                 action = ACTION_STOP_RECORDING
             },
-            AppConstants.PENDING_INTENT_FLAGS or PendingIntent.FLAG_UPDATE_CURRENT
+            flags
         )
 
         val pauseResumeIcon: Int

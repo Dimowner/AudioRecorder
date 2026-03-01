@@ -87,7 +87,11 @@ internal fun HomeScreen(
         when (event) {
             Lifecycle.Event.ON_START -> {
                 Timber.d("HomeScreen: On Start")
-                onAction(HomeScreenAction.InitHomeScreen)
+                onAction(HomeScreenAction.OnStartHomeScreen)
+            }
+            Lifecycle.Event.ON_STOP -> {
+                Timber.d("HomeScreen: On Stop")
+                onAction(HomeScreenAction.OnStopHomeScreen)
             }
             else -> {}
         }

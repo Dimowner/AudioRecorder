@@ -9,13 +9,14 @@ import javax.inject.Singleton
 class AudioRecorderDelegate @Inject constructor(
     private val prefs: PrefsV2,
     private val audioRecorder: AudioRecorderV2,
+    private val threeGpRecorder: ThreeGpRecorderV2,
 ) {
 
     fun provideAudioRecorder(): RecorderV2 {
         return when (prefs.settingRecordingFormat) {
             RecordingFormat.M4a -> audioRecorder
             RecordingFormat.Wav -> TODO("Not implemented")
-            RecordingFormat.ThreeGp -> TODO("Not implemented")
+            RecordingFormat.ThreeGp -> threeGpRecorder
         }
     }
 }

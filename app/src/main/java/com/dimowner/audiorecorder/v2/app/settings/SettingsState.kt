@@ -32,6 +32,7 @@ data class SettingsState(
     val isAppV2: Boolean,
     val isKeepScreenOn: Boolean,
     val isShowRenameDialog: Boolean,
+    val isRecordingSettingEditable: Boolean,
     val nameFormats: List<NameFormatItem>,
     val selectedNameFormat: NameFormatItem,
     val recordingSettings: List<RecordingSetting>,

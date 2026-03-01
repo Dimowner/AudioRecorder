@@ -48,6 +48,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalDensity
@@ -68,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.InfoAlertDialog
+import com.dimowner.audiorecorder.v2.app.components.DISABLED_ALPHA
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 
 @Composable
@@ -245,12 +247,14 @@ fun ResetRecordingSettingsPanel(
     sizePerMin: String,
     recordingSettingsText: String,
     onClick: () -> Unit,
+    enabled: Boolean = true,
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(4.dp),
+            .padding(4.dp)
+            .alpha(if (enabled) 1f else DISABLED_ALPHA),
     ) {
         Row(
             modifier = Modifier.wrapContentSize(),
@@ -281,7 +285,7 @@ fun ResetRecordingSettingsPanel(
                 modifier = Modifier
                     .padding(8.dp)
                     .wrapContentSize(),
-
+                enabled = enabled,
                 onClick = { onClick() }
             ) {
                 Text(
@@ -306,13 +310,15 @@ fun <T: Parcelable> SettingSelector(
     name: String,
     chips: List<ChipItem<T>>,
     onSelect: (ChipItem<T>) -> Unit,
-    onClickInfo: () -> Unit
+    onClickInfo: () -> Unit,
+    enabled: Boolean = true,
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .animateContentSize()
             .wrapContentHeight()
+            .alpha(if (enabled) 1f else DISABLED_ALPHA)
     ) {
         Row(
             modifier = Modifier
@@ -334,6 +340,7 @@ fun <T: Parcelable> SettingSelector(
             )
             IconButton(
                 onClick = onClickInfo,
+                enabled = enabled,
                 modifier = Modifier
                     .align(Alignment.CenterVertically),
             ) {
@@ -348,7 +355,8 @@ fun <T: Parcelable> SettingSelector(
         ChipsPanel(
             modifier = Modifier.wrapContentSize(),
             chips = chips,
-            onSelect = onSelect
+            onSelect = onSelect,
+            enabled = enabled
         )
     }
 }
@@ -358,6 +366,7 @@ fun <T: Parcelable> ChipComponent(
     modifier: Modifier = Modifier,
     item: ChipItem<T>,
     onSelect: (ChipItem<T>) -> Unit,
+    enabled: Boolean = true,
 ) {
     Card(
         modifier = modifier
@@ -367,7 +376,8 @@ fun <T: Parcelable> ChipComponent(
         border = if (item.isSelected) {
             BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
         } else { null },
-        onClick = { onSelect(item) }
+        onClick = { if (enabled) onSelect(item) },
+        enabled = enabled
     ) {
         Row(
             modifier = Modifier
@@ -406,8 +416,9 @@ fun <T: Parcelable> ChipComponent(
 fun ChipComponentPreview() {
     ChipComponent(
         Modifier.wrapContentSize(),
-        ChipItem(id = 0, value = SampleRate.SR8000, name = "8000", false)
-    ) {}
+        item = ChipItem(id = 0, value = SampleRate.SR8000, name = "8000", false),
+        onSelect = {},
+    )
 }
 
 //@Composable
@@ -456,11 +467,12 @@ fun <T: Parcelable> ChipsPanel(
     modifier: Modifier = Modifier,
     chips: List<ChipItem<T>>,
     onSelect: (ChipItem<T>) -> Unit,
+    enabled: Boolean = true,
 ) {
     Layout(
         modifier = modifier,
         content = { chips.map {
-            ChipComponent(modifier = Modifier.wrapContentSize(), item = it, onSelect = onSelect) }
+            ChipComponent(modifier = Modifier.wrapContentSize(), item = it, onSelect = onSelect, enabled = enabled) }
         }
     ) { measurables, constraints ->
         // List of measured children
@@ -483,7 +495,7 @@ fun <T: Parcelable> ChipsPanel(
 @Preview(showBackground = true)
 @Composable
 fun ChipsPanelPreview() {
-    ChipsPanel(Modifier.wrapContentSize(), getTestChips()) {}
+    ChipsPanel(Modifier.wrapContentSize(), getTestChips(), {})
 }
 
 fun calculatePositionsDefault(

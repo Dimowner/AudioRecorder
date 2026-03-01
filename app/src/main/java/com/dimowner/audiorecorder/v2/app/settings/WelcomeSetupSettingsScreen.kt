@@ -82,8 +82,8 @@ internal fun WelcomeSetupSettingsScreen(
 
     ComposableLifecycle { _, event ->
         when (event) {
-            Lifecycle.Event.ON_CREATE -> {
-                Timber.d("SettingsScreen: onCreate")
+            Lifecycle.Event.ON_START -> {
+                Timber.d("SettingsScreen: onStart")
                 onAction(SettingsScreenAction.InitSettingsScreen)
             }
             else -> {}
@@ -136,6 +136,7 @@ internal fun WelcomeSetupSettingsScreen(
                             onAction(SettingsScreenAction.SetNameFormat(it))
                         }
                     )
+                    val infoFormat = stringResource(R.string.info_format)
                     SettingSelector(
                         name = stringResource(id = R.string.recording_format),
                         chips = uiState.recordingSettings.map { it.recordingFormat },
@@ -143,12 +144,13 @@ internal fun WelcomeSetupSettingsScreen(
                             onAction(SettingsScreenAction.SelectRecordingFormat(it.value))
                         },
                         onClickInfo = {
-                            infoText.value = context.getString(R.string.info_format)
+                            infoText.value = infoFormat
                             openInfoDialog.value = true
                         }
                     )
                     val selectedFormat =
                         uiState.recordingSettings.firstOrNull { it.recordingFormat.isSelected }
+                    val infoFrequency = stringResource(R.string.info_frequency)
                     SettingSelector(
                         name = stringResource(id = R.string.sample_rate),
                         chips = selectedFormat?.sampleRates ?: emptyList(),
@@ -156,7 +158,7 @@ internal fun WelcomeSetupSettingsScreen(
                             onAction(SettingsScreenAction.SelectSampleRate(it.value))
                         },
                         onClickInfo = {
-                            infoText.value = context.getString(R.string.info_frequency)
+                            infoText.value = infoFrequency
                             openInfoDialog.value = true
                         }
                     )
@@ -164,6 +166,7 @@ internal fun WelcomeSetupSettingsScreen(
                         isExpandedBitRatePanel.value = !selectedFormat?.bitRates.isNullOrEmpty()
                     }
                     AnimatedVisibility(visible = isExpandedBitRatePanel.value) {
+                        val infoBitrate = stringResource(R.string.info_bitrate)
                         SettingSelector(
                             name = stringResource(id = R.string.bitrate),
                             chips = selectedFormat?.bitRates ?: emptyList(),
@@ -171,11 +174,12 @@ internal fun WelcomeSetupSettingsScreen(
                                 onAction(SettingsScreenAction.SelectBitrate(it.value))
                             },
                             onClickInfo = {
-                                infoText.value = context.getString(R.string.info_bitrate)
+                                infoText.value = infoBitrate
                                 openInfoDialog.value = true
                             }
                         )
                     }
+                    val infoChannels = stringResource(R.string.info_channels)
                     SettingSelector(
                         name = stringResource(id = R.string.channels),
                         chips = selectedFormat?.channelCounts ?: emptyList(),
@@ -183,7 +187,7 @@ internal fun WelcomeSetupSettingsScreen(
                             onAction(SettingsScreenAction.SelectChannelCount(it.value))
                         },
                         onClickInfo = {
-                            infoText.value = context.getString(R.string.info_channels)
+                            infoText.value = infoChannels
                             openInfoDialog.value = true
                         }
                     )
@@ -286,6 +290,7 @@ fun WelcomeSetupSettingsScreenPreview() {
         isDarkTheme = false,
         isKeepScreenOn = false,
         isShowRenameDialog = true,
+        isRecordingSettingEditable = true,
         nameFormats = listOf(NameFormatItem(NameFormat.Record, "Name text")),
         selectedNameFormat = NameFormatItem(NameFormat.Record, "Name text"),
         recordingSettings = listOf(RecordingSetting(

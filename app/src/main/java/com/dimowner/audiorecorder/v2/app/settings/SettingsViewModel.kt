@@ -33,6 +33,7 @@ import com.dimowner.audiorecorder.v2.app.formatRecordingFormat
 import com.dimowner.audiorecorder.v2.app.formatSampleRate
 import com.dimowner.audiorecorder.v2.app.recordingSettingsCombinedText
 import com.dimowner.audiorecorder.v2.app.removeOutdatedTrashRecords
+import com.dimowner.audiorecorder.v2.audio.AudioRecorderDelegate
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
@@ -57,6 +58,7 @@ internal class SettingsViewModel @Inject constructor(
     private val prefs: PrefsV2,
     private val recordsDataSource: RecordsDataSource,
     private val audioPlayer: PlayerContractNew.Player,
+    private val audioRecorderDelegate: AudioRecorderDelegate,
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext context: Context,
@@ -88,6 +90,7 @@ internal class SettingsViewModel @Inject constructor(
             isAppV2 = prefs.isAppV2,
             isKeepScreenOn = prefs.isKeepScreenOn,
             isShowRenameDialog = prefs.askToRenameAfterRecordingStopped,
+            isRecordingSettingEditable = true,
             selectedNameFormat = prefs.settingNamingFormat.toNameFormatItem(),
             nameFormats = makeNameFormats(),
             recordingSettings = RecordingFormat.entries.toList().mapIndexed { index, format ->
@@ -149,6 +152,7 @@ internal class SettingsViewModel @Inject constructor(
             val recordsDuration = recordsDataSource.getRecordTotalDuration()
             withContext(mainDispatcher) {
                 _state.value = _state.value.copy(
+                    isRecordingSettingEditable = !audioRecorderDelegate.provideAudioRecorder().isRecording,
                     totalRecordCount = recordsCount, totalRecordDuration = recordsDuration,
                     // Load the selected audio source from preferences
                     selectedAudioSource = prefs.settingAudioSource

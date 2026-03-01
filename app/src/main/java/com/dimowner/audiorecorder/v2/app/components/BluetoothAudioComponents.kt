@@ -49,9 +49,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.draw.alpha
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.BluetoothDeviceInfo
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
+
+const val DISABLED_ALPHA = 0.6f
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -183,13 +186,15 @@ fun AudioSourceSelector(
     options: List<AudioSource>,
     onSourceSelected: (AudioSource) -> Unit,
     onInfoClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     val expanded = remember { mutableStateOf(false) }
     
     Column(
         modifier = modifier
             .wrapContentSize(Alignment.TopStart)
+            .alpha(if (enabled) 1f else DISABLED_ALPHA)
     ) {
         // The DropdownMenu composable
         DropdownMenu(
@@ -226,7 +231,10 @@ fun AudioSourceSelector(
             modifier = Modifier
                 .wrapContentHeight()
                 .fillMaxWidth()
-                .clickable { expanded.value = !expanded.value },
+                .then(
+                    if (enabled) Modifier.clickable { expanded.value = !expanded.value }
+                    else Modifier
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -273,6 +281,7 @@ fun AudioSourceSelector(
             )
             IconButton(
                 onClick = onInfoClick,
+                enabled = enabled,
                 modifier = Modifier
                     .align(Alignment.CenterVertically),
             ) {

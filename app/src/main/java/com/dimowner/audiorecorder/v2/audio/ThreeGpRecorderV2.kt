@@ -1,3 +1,18 @@
+/*
+ * Copyright 2026 Dmytro Ponomarenko
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.dimowner.audiorecorder.v2.audio
 
 import android.content.Context
@@ -5,6 +20,7 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import com.dimowner.audiorecorder.AppConstants.RECORD_SAMPLE_RATE_8000
 import com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL
 import com.dimowner.audiorecorder.exception.AlreadyRecordingException
 import com.dimowner.audiorecorder.exception.InvalidOutputFile
@@ -22,7 +38,7 @@ import javax.inject.Singleton
 
 @SuppressWarnings("TooManyFunctions")
 @Singleton
-class AudioRecorderV2 @Inject constructor(
+class ThreeGpRecorderV2 @Inject constructor(
     @param:ApplicationContext private val applicationContext: Context,
     private val coroutineScope: CoroutineScope,
 ) : RecorderV2 {
@@ -55,7 +71,7 @@ class AudioRecorderV2 @Inject constructor(
         maxRecordingDurationMills: Int,
         audioSource: Int,
     ): Boolean {
-        Timber.d("Start Recording outputFile: ${outputFile.absolutePath} channelCount: $channelCount" +
+        Timber.d("Start 3GP Recording outputFile: ${outputFile.absolutePath} channelCount: $channelCount" +
                 " sampleRate: $sampleRate bitrate: $bitrate maxRecordingDurationMills: $maxRecordingDurationMills" +
                 " audioSource: $audioSource")
         if (_isRecording) {
@@ -74,11 +90,14 @@ class AudioRecorderV2 @Inject constructor(
 
             recorder.apply {
                 setAudioSource(audioSource)
-                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                setAudioChannels(channelCount)
-                setAudioSamplingRate(sampleRate)
-                setAudioEncodingBitRate(bitrate)
+                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                if (sampleRate > RECORD_SAMPLE_RATE_8000) {
+                    // AMR-WB records at 16000 Hz frequency, ~23 kbps bitrate
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB)
+                } else {
+                    // AMR-NB records at 8000 Hz frequency, ~12 kbps bitrate
+                    setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+                }
                 setMaxDuration(maxRecordingDurationMills)
                 setOnInfoListener { _, what, _ ->
                     handleRecorderInfo(what)
@@ -171,7 +190,7 @@ class AudioRecorderV2 @Inject constructor(
                 it.setOnInfoListener(null)
                 it.stop()
                 true
-            }?: false
+            } ?: false
         } catch (e: IllegalStateException) {
             // This can happen if start() failed and stop() is called, or if the recorder
             // was never fully prepared/started.
@@ -235,7 +254,6 @@ class AudioRecorderV2 @Inject constructor(
     }
 
     private fun scheduleRecordingTimeUpdate() {
-        // Remove any pending messages before scheduling a new one
         handler.removeCallbacks(recordingTimeUpdateRunnable)
         handler.postDelayed(recordingTimeUpdateRunnable, RECORDING_VISUALIZATION_INTERVAL.toLong())
     }
@@ -250,3 +268,6 @@ class AudioRecorderV2 @Inject constructor(
         updateTime = 0
     }
 }
+
+
+

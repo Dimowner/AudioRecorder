@@ -382,7 +382,7 @@ internal fun RecordsScreen(
                                         if (!uiState.isRecording) {
                                             if (uiState.selectedRecords.isEmpty()) {
                                                 onAction(RecordsScreenAction.OnItemSelect(record))
-                                                onHomeAction(HomeScreenAction.InitHomeScreen)
+                                                onHomeAction(HomeScreenAction.OnStartHomeScreen)
                                                 onHomeAction(HomeScreenAction.OnPlayClick)
                                             } else {
                                                 onAction(RecordsScreenAction.MultiSelectAddItem(record))

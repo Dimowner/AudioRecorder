@@ -60,6 +60,7 @@ import com.dimowner.audiorecorder.v2.app.getNewRecordName
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
 import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
+import com.dimowner.audiorecorder.v2.audio.AudioRecorderDelegate
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingService
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingServiceEvent
 import com.dimowner.audiorecorder.v2.audio.RecorderEvent
@@ -77,6 +78,7 @@ import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -96,12 +98,15 @@ class HomeViewModel @Inject constructor(
     private val fileDataSource: FileDataSource,
     private val prefs: PrefsV2,
     private val audioPlayer: PlayerContractNew.Player,
-    private val audioRecorder: RecorderV2,
+    private val audioRecorderDelegate: AudioRecorderDelegate,
     private val audioManagerHelper: AudioManagerHelper,
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext context: Context,
 ) : AndroidViewModel(context as Application) {
+
+    private var audioRecorder: RecorderV2 = audioRecorderDelegate.provideAudioRecorder()
+    private var recordingUpdateJob: Job? = null
 
     private val _state = mutableStateOf(HomeScreenState())
     val state: State<HomeScreenState> = _state
@@ -178,9 +183,6 @@ class HomeViewModel @Inject constructor(
     }
 
     init {
-        viewModelScope.launch {
-            subscribeRecorderUpdates()
-        }
         bindPlaybackService()
         bindRecordingService()
         subscribePlayerUpdates()
@@ -421,6 +423,10 @@ class HomeViewModel @Inject constructor(
     }
 
     fun init() {
+        audioRecorder = audioRecorderDelegate.provideAudioRecorder()
+        recordingUpdateJob = viewModelScope.launch {
+            subscribeRecorderUpdates()
+        }
         showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
             updateState(false)
@@ -466,6 +472,11 @@ class HomeViewModel @Inject constructor(
         val context: Context = getApplication<Application>().applicationContext
         val intent = Intent(context, DecodeService::class.java)
         context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+    }
+
+    private fun onStop() {
+        recordingUpdateJob?.cancel()
+        recordingUpdateJob = null
     }
 
     private suspend fun updateRecordingProgressInfo() {
@@ -928,7 +939,8 @@ class HomeViewModel @Inject constructor(
     @SuppressWarnings("CyclomaticComplexMethod")
     fun onAction(action: HomeScreenAction) {
         when (action) {
-            HomeScreenAction.InitHomeScreen -> init()
+            HomeScreenAction.OnStartHomeScreen -> init()
+            HomeScreenAction.OnStopHomeScreen -> onStop()
             is HomeScreenAction.ImportAudioFile -> importAudioFile(action.uri)
             HomeScreenAction.ShareActiveRecord -> shareActiveRecord()
             HomeScreenAction.ShowActiveRecordInfo -> showActiveRecordInfo()
@@ -1054,7 +1066,8 @@ enum class BottomBarState {
 }
 
 sealed class HomeScreenAction {
-    data object InitHomeScreen : HomeScreenAction()
+    data object OnStartHomeScreen : HomeScreenAction()
+    data object OnStopHomeScreen : HomeScreenAction()
     data class ImportAudioFile(val uri: Uri) : HomeScreenAction()
     data object ShareActiveRecord : HomeScreenAction()
     data object ShowActiveRecordInfo : HomeScreenAction()

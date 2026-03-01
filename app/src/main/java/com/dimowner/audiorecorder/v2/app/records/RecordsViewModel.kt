@@ -34,7 +34,7 @@ import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
 import com.dimowner.audiorecorder.v2.app.records.models.SortDropDownMenuItemId
 import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
-import com.dimowner.audiorecorder.v2.audio.RecorderV2
+import com.dimowner.audiorecorder.v2.audio.AudioRecorderDelegate
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.extensions.checkForLostRecords
@@ -58,7 +58,7 @@ internal class RecordsViewModel @Inject constructor(
     private val recordsDataSource: RecordsDataSource,
     private val prefs: PrefsV2,
     private val audioPlayer: PlayerContractNew.Player,
-    private val audioRecorder: RecorderV2,
+    private val audioRecorderDelegate: AudioRecorderDelegate,
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext context: Context,
@@ -128,7 +128,7 @@ internal class RecordsViewModel @Inject constructor(
                 showDeletedRecordsButton = deletedRecordsCount > 0,
                 deletedRecordsCount = deletedRecordsCount,
                 showRecordPlaybackPanel = showPlayPanel,
-                isRecording = audioRecorder.isRecording,
+                isRecording = audioRecorderDelegate.provideAudioRecorder().isRecording,
                 recordedRecordId = prefs.recordedRecordId,
                 showLostRecordsDialog = lostRecords.isNotEmpty(),
                 lostRecords = lostRecords,

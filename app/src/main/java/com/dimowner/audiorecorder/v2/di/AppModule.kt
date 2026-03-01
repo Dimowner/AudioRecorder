@@ -2,8 +2,6 @@ package com.dimowner.audiorecorder.v2.di
 
 import com.dimowner.audiorecorder.audio.player.AudioPlayerNew
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew
-import com.dimowner.audiorecorder.v2.audio.AudioRecorderDelegate
-import com.dimowner.audiorecorder.v2.audio.RecorderV2
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
 import dagger.Module
@@ -36,14 +34,6 @@ class AppModule {
     @Provides
     fun providePlayerContractNew(): PlayerContractNew.Player {
         return AudioPlayerNew()
-    }
-
-    @Singleton
-    @Provides
-    fun provideRecorderV2(
-        audioRecorderDelegate: AudioRecorderDelegate
-    ): RecorderV2 {
-        return audioRecorderDelegate.provideAudioRecorder()
     }
 
     /**
