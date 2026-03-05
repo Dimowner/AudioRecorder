@@ -57,6 +57,8 @@ interface PrefsV2 {
 
     var maxRecordingDurationMills: Int
 
+    var recordAuthorName: String
+
     fun resetRecordingSettings()
 
     fun fullPreferenceReset()

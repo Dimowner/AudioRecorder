@@ -85,7 +85,12 @@ android {
     }
     packaging {
         resources.excludes.addAll(
-            listOf("META-INF/LICENSE.md", "META-INF/LICENSE-notice.md")
+            listOf(
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md",
+                "META-INF/DEPENDENCIES",
+                "META-INF/INDEX.LIST",
+            )
         )
     }
     testOptions {
@@ -263,6 +268,7 @@ dependencies {
     implementation(libs.exoplayer.ui)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.gson)
+    implementation(libs.jaudiotagger)
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))

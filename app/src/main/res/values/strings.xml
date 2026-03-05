@@ -70,6 +70,10 @@
     <string name="warning_duration_limit_recommended">Recordings longer than 2 hours are not recommended as you may lose all recorded progress if an error occurs</string>
 
     <string name="keep_screen_on">Keep screen ON while recording</string>
+    <string name="records_author_name">Records author name</string>
+    <string name="records_author_name_hint">Author name</string>
+	<!-- Records Author name explanation -->
+	<string name="info_record_author_name">Sets the artist/author tag embedded in the metadata of each new recording file. This name will appear in music players and file managers.</string>
 	<string name="total_duration">Total recorded duration: %s</string>
 	<string name="total_record_count">Total records count: %d</string>
 	<string name="available_space">Available space: %s</string>

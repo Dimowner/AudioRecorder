@@ -253,4 +253,14 @@ class PrefsImplTest {
         prefs.maxRecordingDurationMills = customDuration
         assertEquals(customDuration, prefs.maxRecordingDurationMills)
     }
+
+    @Test
+    fun test_recordAuthorName() {
+        val defaultValue = DefaultValues.DEFAULT_RECORD_AUTHOR_NAME
+        assertEquals(defaultValue, prefs.recordAuthorName)
+
+        val newName = "NEW_TEST_NAME"
+        prefs.recordAuthorName = newName
+        assertEquals(newName, prefs.recordAuthorName)
+    }
 }

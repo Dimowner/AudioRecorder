@@ -141,6 +141,7 @@ internal class SettingsViewModel @Inject constructor(
             appName = context.getString(R.string.app_name),
             appVersion = context.getString(R.string.version, AndroidUtils.getAppVersion(context)),
             maxRecordingDurationMinutes = prefs.maxRecordingDurationMills / 60000,
+            recordAuthorName = prefs.recordAuthorName,
         )
     )
 
@@ -374,6 +375,12 @@ internal class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setRecordAuthorName(name: String) {
+        val trimmed = name.trim()
+        prefs.recordAuthorName = trimmed
+        _state.value = _state.value.copy(recordAuthorName = trimmed)
+    }
+
     fun onAction(action: SettingsScreenAction) {
         when (action) {
             SettingsScreenAction.InitSettingsScreen -> initSettings()
@@ -389,6 +396,7 @@ internal class SettingsViewModel @Inject constructor(
             is SettingsScreenAction.SelectChannelCount -> selectChannelCount(action.value)
             is SettingsScreenAction.SetMaxRecordingDuration -> setMaxRecordingDuration(action.durationMinutes)
             is SettingsScreenAction.SetAudioSource -> setAudioSource(action.audioSource)
+            is SettingsScreenAction.SetRecordAuthorName -> setRecordAuthorName(action.name)
             SettingsScreenAction.ExecuteFirstRun -> executeFirstRun()
             is SettingsScreenAction.SetAppV2 -> handleUseAppV2(action.value)
         }
@@ -439,5 +447,6 @@ internal sealed class SettingsScreenAction {
     data class SelectChannelCount(val value: ChannelCount) : SettingsScreenAction()
     data class SetMaxRecordingDuration(val durationMinutes: Int) : SettingsScreenAction()
     data class SetAudioSource(val audioSource: AudioSource) : SettingsScreenAction()
+    data class SetRecordAuthorName(val name: String) : SettingsScreenAction()
     data object ExecuteFirstRun : SettingsScreenAction()
 }

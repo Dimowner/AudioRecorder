@@ -324,5 +324,6 @@ fun WelcomeSetupSettingsScreenPreview() {
         appName = "App Name",
         appVersion = "1.0.0",
         maxRecordingDurationMinutes = 120,
+        recordAuthorName = "Author"
     ), {})
 }

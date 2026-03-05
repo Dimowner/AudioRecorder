@@ -71,6 +71,14 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.InfoAlertDialog
 import com.dimowner.audiorecorder.v2.app.components.DISABLED_ALPHA
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.window.Dialog
 
 @Composable
 fun SettingsItem(
@@ -686,6 +694,126 @@ fun SettingsWarningDialog(openDialog: MutableState<Boolean>, message: String) {
 @Composable
 fun SettingsWarningDialogPreview() {
     SettingsWarningDialog(remember {mutableStateOf(true) }, "Warning message")
+}
+
+@Composable
+fun AuthorNameSettingItem(
+    currentAuthorName: String,
+    onClick: () -> Unit,
+    onClickInfo: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .wrapContentHeight()
+            .fillMaxWidth()
+            .clickable { onClick() },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            modifier = Modifier
+                .padding(24.dp, 16.dp, 16.dp, 16.dp)
+                .wrapContentWidth()
+                .wrapContentHeight(),
+            painter = painterResource(id = R.drawable.ic_artist),
+            contentDescription = stringResource(id = R.string.records_author_name),
+        )
+        Column(
+            modifier = Modifier
+                .padding(0.dp, 12.dp)
+                .weight(1f)
+        ) {
+            Text(
+                text = stringResource(id = R.string.records_author_name),
+                fontFamily = FontFamily(
+                    Font(
+                        DeviceFontFamilyName("sans-serif"),
+                        weight = FontWeight.Bold
+                    )
+                ),
+            )
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                text = currentAuthorName,
+                fontSize = 20.sp,
+                fontFamily = FontFamily(
+                    Font(
+                        DeviceFontFamilyName("sans-serif"),
+                        weight = FontWeight.Light
+                    )
+                ),
+            )
+        }
+        IconButton(
+            onClick = onClickInfo,
+            modifier = Modifier.align(Alignment.CenterVertically),
+        ) {
+            Icon(
+                modifier = Modifier.size(20.dp),
+                painter = painterResource(id = R.drawable.ic_info),
+                contentDescription = stringResource(id = R.string.records_author_name),
+            )
+        }
+    }
+}
+
+@Composable
+fun AuthorNameEditDialog(
+    currentName: String,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit,
+) {
+    var text by remember { mutableStateOf(currentName) }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            shape = MaterialTheme.shapes.large,
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(id = R.string.records_author_name),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    label = { Text(stringResource(id = R.string.records_author_name_hint)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text(stringResource(id = R.string.btn_cancel))
+                    }
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Button(
+                        onClick = {
+                            onConfirm(text)
+                        },
+                    ) {
+                        Text(stringResource(id = R.string.btn_save))
+                    }
+                }
+            }
+        }
+    }
 }
 
 private fun getTestChips(): List<ChipItem<SampleRate>> {

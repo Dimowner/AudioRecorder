@@ -237,6 +237,17 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             }
         }
 
+    override var recordAuthorName: String
+        get() = sharedPreferences.getString(
+            PREF_KEY_RECORD_AUTHOR_NAME,
+            DefaultValues.DEFAULT_RECORD_AUTHOR_NAME
+        ) ?: DefaultValues.DEFAULT_RECORD_AUTHOR_NAME
+        set(value) {
+            sharedPreferences.edit {
+                putString(PREF_KEY_RECORD_AUTHOR_NAME, value)
+            }
+        }
+
     override fun resetRecordingSettings() {
         sharedPreferences.edit {
             putString(
@@ -276,5 +287,6 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         private const val PREF_KEY_IS_DARK_THEME = "pref_is_dark_theme"
         private const val PREF_KEY_MAX_RECORDING_DURATION_MILLS = "pref_key_max_recording_duration_mills"
         private const val PREF_KEY_SETTING_AUDIO_SOURCE = "pref_key_setting_audio_source"
+        private const val PREF_KEY_RECORD_AUTHOR_NAME = "pref_key_record_author_name"
     }
 }

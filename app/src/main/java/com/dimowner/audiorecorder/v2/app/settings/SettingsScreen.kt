@@ -182,6 +182,10 @@ internal fun SettingsScreen(
                         onAction(SettingsScreenAction.SetNameFormat(it))
                     }
                 )
+                AuthorNameSettingRow(
+                    currentAuthorName = uiState.recordAuthorName,
+                    onAction = onAction,
+                )
                 Spacer(modifier = Modifier.size(8.dp))
                 ResetRecordingSettingsPanel(
                     sizePerMin = stringResource(id = R.string.size_per_min, uiState.sizePerMin),
@@ -383,6 +387,38 @@ internal fun MaxDurationSettingRow(
 }
 
 @Composable
+internal fun AuthorNameSettingRow(
+    currentAuthorName: String,
+    onAction: (SettingsScreenAction) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val showDialog = remember { mutableStateOf(false) }
+    val showInfoDialog = remember { mutableStateOf(false) }
+
+    AuthorNameSettingItem(
+        currentAuthorName = currentAuthorName,
+        onClick = { showDialog.value = true },
+        onClickInfo = { showInfoDialog.value = true },
+        modifier = modifier,
+    )
+
+    if (showDialog.value) {
+        AuthorNameEditDialog(
+            currentName = currentAuthorName,
+            onDismiss = { showDialog.value = false },
+            onConfirm = { newName ->
+                onAction(SettingsScreenAction.SetRecordAuthorName(newName))
+                showDialog.value = false
+            }
+        )
+    }
+
+    if (showInfoDialog.value) {
+        SettingsInfoDialog(showInfoDialog, stringResource(R.string.info_record_author_name))
+    }
+}
+
+@Composable
 fun MaxDurationSettingItem(
     currentHours: Int,
     currentMinutes: Int,
@@ -516,5 +552,6 @@ fun SettingsScreenPreview() {
         appName = "App Name",
         appVersion = "1.0.0",
         maxRecordingDurationMinutes = 120,
+        recordAuthorName = "Author name"
     ), {})
 }

@@ -22,5 +22,7 @@
 
 -keep class com.dimowner.audiorecorder.** { *; }
 
+-keep class org.jaudiotagger.** { *; }
+
 -keepattributes SourceFile,LineNumberTable        # Keep file names and line numbers.
 -keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.

@@ -15,7 +15,7 @@ class AudioRecorderDelegate @Inject constructor(
     fun provideAudioRecorder(): RecorderV2 {
         return when (prefs.settingRecordingFormat) {
             RecordingFormat.M4a -> audioRecorder
-            RecordingFormat.Wav -> TODO("Not implemented")
+            RecordingFormat.Wav -> audioRecorder
             RecordingFormat.ThreeGp -> threeGpRecorder
         }
     }

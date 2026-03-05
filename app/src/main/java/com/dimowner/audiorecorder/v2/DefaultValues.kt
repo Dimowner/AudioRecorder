@@ -44,5 +44,8 @@ object DefaultValues {
     val Default3GpSampleRate: SampleRate = SampleRate.SR16000
     val Default3GpChannelCount: ChannelCount = ChannelCount.Mono
 
+    const val DEFAULT_RECORD_AUTHOR_NAME = "Audio Recorder"
+
+    @Deprecated("Should not be used anymore")
     const val DELETED_RECORD_MARK = ".deleted"
 }

@@ -49,6 +49,8 @@ data class SettingsState(
     // Audio source selection
     val selectedAudioSource: AudioSource = AudioSource.MIC,
     val audioSourceOptions: List<AudioSource> = AudioSource.entries,
+    //Recording author name tag to be added to each new recording.
+    val recordAuthorName: String,
 ) : Parcelable
 
 @Parcelize
