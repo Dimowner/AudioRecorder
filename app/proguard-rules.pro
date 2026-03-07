@@ -24,5 +24,8 @@
 
 -keep class org.jaudiotagger.** { *; }
 
+-keep class org.mp4parser.** { *; }
+-dontwarn org.mp4parser.**
+
 -keepattributes SourceFile,LineNumberTable        # Keep file names and line numbers.
 -keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.

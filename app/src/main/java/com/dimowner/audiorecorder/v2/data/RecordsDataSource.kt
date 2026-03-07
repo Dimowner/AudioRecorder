@@ -60,4 +60,19 @@ interface RecordsDataSource {
     suspend fun clearRecycle(): Boolean
 
     suspend fun deleteLostRecord(id: Long): Boolean
+
+    /**
+     * Returns records that appear to be broken due to an interrupted recording.
+     * A broken record has duration=0 and size=0 in the database,
+     * but its file exists on disk with non-zero size.
+     */
+    suspend fun getBrokenRecords(): List<Record>
+
+    /**
+     * Attempts to restore a broken record by fixing its audio file container
+     * and updating the database with the recovered metadata.
+     *
+     * @return true if restoration was successful
+     */
+    suspend fun restoreBrokenRecord(recordId: Long): Boolean
 }

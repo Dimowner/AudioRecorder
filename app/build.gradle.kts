@@ -269,6 +269,8 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.gson)
     implementation(libs.jaudiotagger)
+//    implementation(libs.mp4parser)
+    implementation(libs.mp4parser.muxer)
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))

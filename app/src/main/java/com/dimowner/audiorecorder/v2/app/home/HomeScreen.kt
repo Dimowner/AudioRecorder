@@ -413,6 +413,17 @@ internal fun HomeScreen(
                         showDontAskAgain = true
                     )
                 }
+                if (uiState.showBrokenRecordDialog) {
+                    BrokenRecordDialog(
+                        recordName = uiState.brokenRecord?.name ?: "",
+                        onRestore = {
+                            onAction(HomeScreenAction.RestoreBrokenRecord)
+                        },
+                        onDismiss = {
+                            onAction(HomeScreenAction.DismissBrokenRecordDialog)
+                        }
+                    )
+                }
             }
         }
     }

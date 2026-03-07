@@ -35,6 +35,7 @@ gson = "2.13.2"
 documentfile = "1.1.0"
 materialIconsExtended = "1.7.8"
 jaudiotagger = "3.0.1"
+mp4parser = "1.9.41"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -86,6 +87,8 @@ androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.
 mockk = { module = "io.mockk:mockk-android", version.ref = "mockkVersion" }
 androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
 jaudiotagger = { module = "net.jthink:jaudiotagger", version.ref = "jaudiotagger" }
+#mp4parser = { module = "org.mp4parser:isoparser", version.ref = "mp4parser" }
+mp4parser-muxer = { module = "org.mp4parser:muxer", version.ref = "mp4parser" }
 #androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 #androidx-fragment = { group = "androidx.fragment:fragment-ktx:", version.ref = "fragment" }
 

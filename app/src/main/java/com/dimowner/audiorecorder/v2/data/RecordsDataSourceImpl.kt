@@ -17,6 +17,8 @@
 package com.dimowner.audiorecorder.v2.data
 
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.dimowner.audiorecorder.audio.AudioDecoder
+import com.dimowner.audiorecorder.v2.audio.BrokenRecordRestorer
 import com.dimowner.audiorecorder.v2.data.extensions.toRecordsSortColumnName
 import com.dimowner.audiorecorder.v2.data.extensions.toSqlSortOrder
 import com.dimowner.audiorecorder.v2.data.model.Record
@@ -27,6 +29,7 @@ import com.dimowner.audiorecorder.v2.data.room.RecordEditDao
 import com.dimowner.audiorecorder.v2.data.room.RecordEditEntity
 import com.dimowner.audiorecorder.v2.data.room.RecordEntity
 import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,6 +40,7 @@ class RecordsDataSourceImpl @Inject internal constructor(
     private val recordDao: RecordDao,
     private val recordEditDao: RecordEditDao,
     private val fileDataSource: FileDataSource,
+    private val brokenRecordRestorer: BrokenRecordRestorer,
 ) : RecordsDataSource {
 
     override suspend fun getRecord(id: Long): Record? {
@@ -435,6 +439,70 @@ class RecordsDataSourceImpl @Inject internal constructor(
             true
         } catch (e: Exception) {
             Timber.e(e)
+            false
+        }
+    }
+
+    override suspend fun getBrokenRecords(): List<Record> {
+        return try {
+            recordDao.getBrokenRecords()
+                .map { it.toRecord() }
+                .filter { record ->
+                    // Only include records whose file exists on disk with non-zero size.
+                    // If the file doesn't exist or is empty, the record data is truly lost.
+                    val file = File(record.path)
+                    file.exists() && file.length() > 0
+                }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to get broken records")
+            emptyList()
+        }
+    }
+
+    override suspend fun restoreBrokenRecord(recordId: Long): Boolean {
+        return try {
+            val record = recordDao.getRecordById(recordId)?.toRecord() ?: return false
+            val file = File(record.path)
+            if (!file.exists() || file.length() == 0L) {
+                Timber.e("Cannot restore broken record: file does not exist or is empty: ${record.path}")
+                return false
+            }
+
+            // Attempt to restore the file
+//            val restoreResult = brokenRecordRestorer.restoreFile(record.path)
+            val restoreResult = brokenRecordRestorer.restoreFile(
+                filePath = record.path,
+                sampleRate = record.sampleRate,
+                channelCount = record.channelCount,
+                bitrate = record.bitrate,
+            )
+
+            when (restoreResult) {
+                is BrokenRecordRestorer.RestoreResult.Success,
+                is BrokenRecordRestorer.RestoreResult.AlreadyReadable -> {
+                    // File is now readable — read its metadata
+                    val info = AudioDecoder.readRecordInfo(file)
+                    val updatedRecord = record.copy(
+                        durationMills = if (info.duration >= 0) info.duration / 1000 else 0,
+                        format = info.format,
+                        size = info.size,
+                        sampleRate = if (info.sampleRate > 0) info.sampleRate else record.sampleRate,
+                        channelCount = if (info.channelCount > 0) info.channelCount else record.channelCount,
+                        bitrate = if (info.bitrate > 0) info.bitrate else record.bitrate,
+                    )
+                    val success = recordDao.updateRecord(updatedRecord.toRecordEntity()) == 1
+                    if (success) {
+                        Timber.d("Broken record restored successfully: id=$recordId, duration=${updatedRecord.durationMills}ms")
+                    }
+                    success
+                }
+                is BrokenRecordRestorer.RestoreResult.Failed -> {
+                    Timber.e("Failed to restore broken record: id=$recordId, error=${restoreResult.error}")
+                    false
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to restore broken record: id=$recordId")
             false
         }
     }

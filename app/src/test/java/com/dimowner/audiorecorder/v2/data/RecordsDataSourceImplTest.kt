@@ -15,6 +15,7 @@
 */
 package com.dimowner.audiorecorder.v2.data
 
+import com.dimowner.audiorecorder.v2.audio.BrokenRecordRestorer
 import com.dimowner.audiorecorder.v2.data.model.RecordEditOperation
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.data.room.RecordDao
@@ -52,6 +53,9 @@ class RecordsDataSourceImplTest {
     @MockK
     lateinit var fileDataSource: FileDataSource
 
+    @MockK
+    lateinit var brokenRecordRestorer: BrokenRecordRestorer
+
     private lateinit var recordsDataSourceImpl: RecordsDataSourceImpl
 
     private val testRecordEntity =  RecordEntity(
@@ -81,7 +85,8 @@ class RecordsDataSourceImplTest {
             prefs,
             recordDao,
             recordEditDao,
-            fileDataSource
+            fileDataSource,
+            brokenRecordRestorer
         )
     }
 

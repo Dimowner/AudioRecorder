@@ -75,4 +75,12 @@ interface RecordDao {
 
     @RawQuery
     fun getRecordsRewQuery(query: SupportSQLiteQuery): List<RecordEntity>
+
+    /**
+     * Returns records that appear to be broken due to an interrupted recording.
+     * A broken record has duration=0 (meaning handleRecordingStopped never ran)
+     * and is not moved to recycle.
+     */
+    @Query("SELECT * FROM records WHERE duration = 0 AND isMovedToRecycle = 0")
+    fun getBrokenRecords(): List<RecordEntity>
 }

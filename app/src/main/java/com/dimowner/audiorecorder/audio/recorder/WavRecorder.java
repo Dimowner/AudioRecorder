@@ -210,12 +210,10 @@ public class WavRecorder implements RecorderContract.Recorder {
 		}
 		if (null != fos) {
 			writeEmptyHeader(fos);
-			int chunksCount = 0;
 			while (isRecording.get()) {
 				if (!isPaused.get()) {
 					int bytesRead = recorder.read(data, 0, bufferSize);
 					if (bytesRead > 0) {
-						chunksCount += bytesRead;
 						long sum = AudioUtilsKt.sumOfAmplitudes(data, bytesRead);
 						lastVal = (int)(sum/(bytesRead/16 + 1));
 						try {

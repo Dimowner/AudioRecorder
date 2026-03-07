@@ -430,6 +430,8 @@ class HomeViewModel @Inject constructor(
         showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
             updateState(false)
+            // Check for broken records after a potentially interrupted recording
+            checkForBrokenRecords()
             //Update playback progress if playback service is running
             playbackService?.let { service ->
                 withContext(mainDispatcher) {
@@ -984,6 +986,8 @@ class HomeViewModel @Inject constructor(
             is HomeScreenAction.DismissRenameAfterRecordingDialog -> {
                 dismissRenameAfterRecordingDialog(action.dontAskAgain)
             }
+            HomeScreenAction.RestoreBrokenRecord -> restoreBrokenRecord()
+            HomeScreenAction.DismissBrokenRecordDialog -> dismissBrokenRecordDialog()
         }
     }
 
@@ -998,6 +1002,74 @@ class HomeViewModel @Inject constructor(
         _state.value = _state.value.copy(
             showLostRecordsDialog = false,
             lostRecord = null
+        )
+    }
+
+    /**
+     * Checks if a previous recording was interrupted (e.g., by device reboot)
+     * and shows a dialog to restore or delete the broken record.
+     */
+    private suspend fun checkForBrokenRecords() {
+        // Recording was in progress but the app restarted - recording was interrupted
+        withContext(ioDispatcher) {
+            val brokenRecords = recordsDataSource.getBrokenRecords()
+            if (brokenRecords.isNotEmpty()) {
+                // Show the last broken record for restoration
+                val brokenRecord = brokenRecords.last()
+                Timber.d("Broken record detected: id=${brokenRecord.id}, name=${brokenRecord.name}, path=${brokenRecord.path}")
+                withContext(mainDispatcher) {
+                    _state.value = _state.value.copy(
+                        showBrokenRecordDialog = true,
+                        brokenRecord = brokenRecord,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun restoreBrokenRecord() {
+        val brokenRecord = _state.value.brokenRecord ?: return
+        dismissBrokenRecordDialog()
+        showLoadingProgress(true)
+        viewModelScope.launch(ioDispatcher) {
+            val context: Context = getApplication<Application>().applicationContext
+            val success = recordsDataSource.restoreBrokenRecord(brokenRecord.id)
+            if (success) {
+                prefs.activeRecordId = brokenRecord.id
+                updateState()
+                // Trigger waveform decoding for the restored record
+                val restoredRecord = recordsDataSource.getRecord(brokenRecord.id)
+                restoredRecord?.let {
+                    decodeRecord(it.id, it.path, it.durationMills)
+                }
+                showInfoMessage(
+                    context.getString(R.string.msg_broken_record_restored, brokenRecord.name)
+                )
+            } else {
+                withContext(mainDispatcher) {
+                    showLoadingProgress(false)
+                }
+                handleError(context.getString(R.string.error_broken_record_restore_failed))
+            }
+        }
+    }
+
+//    private fun deleteBrokenRecord() {
+//        val brokenRecord = _state.value.brokenRecord ?: return
+//        dismissBrokenRecordDialog()
+//        viewModelScope.launch(ioDispatcher) {
+//            recordsDataSource.deleteRecordAndFileForever(brokenRecord.id)
+//            if (prefs.activeRecordId == brokenRecord.id) {
+//                prefs.activeRecordId = -1
+//            }
+//            updateState()
+//        }
+//    }
+
+    private fun dismissBrokenRecordDialog() {
+        _state.value = _state.value.copy(
+            showBrokenRecordDialog = false,
+            brokenRecord = null,
         )
     }
 
@@ -1053,6 +1125,9 @@ data class HomeScreenState(
     val keepScreenOn: Boolean = false,
     // Show rename dialog after recording stopped
     val showRenameAfterRecordingDialog: Boolean = false,
+    // Broken record detection and restoration
+    val showBrokenRecordDialog: Boolean = false,
+    val brokenRecord: Record? = null,
 ) {
     fun isRecording(): Boolean {
         return this.bottomBarState == BottomBarState.RECORDING || this.bottomBarState == BottomBarState.PAUSED
@@ -1092,6 +1167,8 @@ sealed class HomeScreenAction {
     data class SelectBluetoothDevice(val device: BluetoothDeviceInfo?) : HomeScreenAction()
     data object DismissLostRecordsDialog : HomeScreenAction()
     data class DismissRenameAfterRecordingDialog(val dontAskAgain: Boolean) : HomeScreenAction()
+    data object RestoreBrokenRecord : HomeScreenAction()
+    data object DismissBrokenRecordDialog : HomeScreenAction()
 }
 
 sealed class HomeScreenEvent {
