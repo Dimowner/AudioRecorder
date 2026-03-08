@@ -16,9 +16,9 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.RandomAccessFile
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,8 +29,6 @@ class WavRecorderV2 @Inject constructor(
 
     private var audioRecord: AudioRecord? = null
     private var recordingJob: Job? = null
-    private var recordFile: File? = null
-    private var pcmFile: File? = null
 
     @Volatile private var _isRecording: Boolean = false
     @Volatile private var _isPaused: Boolean = false
@@ -73,7 +71,6 @@ class WavRecorderV2 @Inject constructor(
             return false
         }
 
-        recordFile = outputFile
         sampleRateConfig = sampleRate
         channelCountConfig = channelCount
         maxDurationMills = maxRecordingDurationMills
@@ -114,8 +111,18 @@ class WavRecorderV2 @Inject constructor(
 
         audioRecord = recorder
 
-        // Create a temporary PCM file alongside the output file
-        pcmFile = File(outputFile.parent, outputFile.nameWithoutExtension + "_pcm.tmp")
+        // Write a placeholder 44-byte WAV header; it will be overwritten with real values after recording.
+        try {
+            FileOutputStream(outputFile).use { fos ->
+                fos.write(ByteArray(44))
+            }
+        } catch (e: IOException) {
+            Timber.e(e, "Failed to write placeholder WAV header")
+            recorder.release()
+            audioRecord = null
+            emitEvent(RecorderEvent.OnError(RecorderInitException()))
+            return false
+        }
 
         try {
             recorder.startRecording()
@@ -142,7 +149,7 @@ class WavRecorderV2 @Inject constructor(
             var maxDurationReached = false
 
             try {
-                fos = FileOutputStream(pcmFile)
+                fos = FileOutputStream(outputFile, true) // append after the placeholder header
                 while (isActive && _isRecording) {
                     if (_isPaused) {
                         delay(RECORDING_VISUALIZATION_INTERVAL.toLong())
@@ -175,7 +182,7 @@ class WavRecorderV2 @Inject constructor(
                             Timber.d("Max recording duration reached. Stop recording")
                             // Signal the loop to stop; hardware teardown happens via stopHardware().
                             // OnStopRecording and OnMaxDurationReached are both emitted after
-                            // PCM→WAV conversion completes, so consumers always see a complete file.
+                            // the WAV header is written in-place, so consumers always see a complete file.
                             maxDurationReached = true
                             _isRecording = false
                             _isPaused = false
@@ -197,38 +204,44 @@ class WavRecorderV2 @Inject constructor(
                 try {
                     fos?.close()
                 } catch (e: IOException) {
-                    Timber.e(e, "Error closing PCM file")
+                    Timber.e(e, "Error closing output file stream")
                 }
             }
 
-            // Convert PCM to WAV after recording stops
-            if (pcmFile != null && pcmFile!!.exists()) {
+            // Write the real WAV header in-place now that we know the final audio length.
+            if (outputFile.exists()) {
                 try {
-                    convertPcmToWav(
-                        pcmFile = pcmFile!!,
-                        wavFile = recordFile!!,
-                        sampleRate = sampleRateConfig,
-                        channels = channelCountConfig,
-                        bitsPerSample = bitsPerSample,
-                    )
-                    pcmFile?.delete() // Clean up temp file
+                    val totalAudioLen = totalBytesWritten
+                    val totalDataLen = totalAudioLen + 36
+                    val byteRate = (sampleRateConfig * channelCountConfig * bitsPerSample / 8).toLong()
 
-                    // WAV file is fully written — safe to notify consumers now.
+                    RandomAccessFile(outputFile, "rw").use { raf ->
+                        raf.seek(0)
+                        val headerStream = FileOutputStream(raf.fd)
+                        writeWavHeader(
+                            out = headerStream,
+                            totalAudioLen = totalAudioLen,
+                            totalDataLen = totalDataLen,
+                            longSampleRate = sampleRateConfig.toLong(),
+                            channels = channelCountConfig,
+                            byteRate = byteRate,
+                        )
+                        headerStream.flush()
+                    }
+
                     if (maxDurationReached) {
                         emitEvent(RecorderEvent.OnMaxDurationReached)
                     } else {
                         emitEvent(RecorderEvent.OnStopRecording)
                     }
                 } catch (e: IOException) {
-                    Timber.e(e, "Error converting PCM to WAV")
+                    Timber.e(e, "Error writing WAV header")
                     emitEvent(RecorderEvent.OnError(RecorderInitException()))
                 }
             }
 
-            // Clean up state only after conversion so nothing above reads stale nulls.
+            // Clean up state only after header write so nothing above reads stale nulls.
             durationMills = 0
-            recordFile = null
-            pcmFile = null
         }
         return true
     }
@@ -262,7 +275,7 @@ class WavRecorderV2 @Inject constructor(
         _isRecording = false
         _isPaused = false
         // Tear down the hardware; the recording coroutine will finish its current
-        // read(), flush to the PCM file, convert to WAV, and then emit OnStopRecording.
+        // read(), flush PCM data, write the WAV header in-place, and then emit OnStopRecording.
         return stopHardware()
     }
 
@@ -311,131 +324,92 @@ class WavRecorderV2 @Inject constructor(
         }
     }
 
-    companion object {
-        /**
-         * Converts a raw PCM file to a WAV file by prepending a 44-byte RIFF/WAV header
-         * and appending all the PCM data.
-         */
-        @Throws(IOException::class)
-        fun convertPcmToWav(
-            pcmFile: File,
-            wavFile: File,
-            sampleRate: Int,
-            channels: Int,
-            bitsPerSample: Int,
-        ) {
-            val totalAudioLen = pcmFile.length()
-            val totalDataLen = totalAudioLen + 36 // 44 - 8 = 36 bytes of header after the initial 8
-            val byteRate = (sampleRate * channels * bitsPerSample / 8).toLong()
+    /**
+     * Writes a 44-byte RIFF/WAV header to a FileOutputStream.
+     * The header follows the standard little-endian format required for WAV files.
+     *
+     * @param out              The output stream to write the header to.
+     * @param totalAudioLen    The total length of the raw audio data in bytes.
+     * @param totalDataLen     The total data length (totalAudioLen + 36).
+     * @param longSampleRate   The sample rate in Hz.
+     * @param channels         The number of audio channels (1 = mono, 2 = stereo).
+     * @param byteRate         The byte rate (sampleRate * channels * bitsPerSample / 8).
+     */
+    @SuppressWarnings("MagicNumber")
+    @Throws(IOException::class)
+    private fun writeWavHeader(
+        out: FileOutputStream,
+        totalAudioLen: Long,
+        totalDataLen: Long,
+        longSampleRate: Long,
+        channels: Int,
+        byteRate: Long,
+    ) {
+        val bitsPerSample = 16
+        val blockAlign = channels * bitsPerSample / 8
 
-            FileOutputStream(wavFile).use { out ->
-                writeWavHeader(
-                    out = out,
-                    totalAudioLen = totalAudioLen,
-                    totalDataLen = totalDataLen,
-                    longSampleRate = sampleRate.toLong(),
-                    channels = channels,
-                    byteRate = byteRate,
-                )
+        val header = ByteArray(44)
 
-                // Append all PCM data bytes into the WAV file
-                FileInputStream(pcmFile).use { input ->
-                    val buffer = ByteArray(4096)
-                    var bytesRead: Int
-                    while (input.read(buffer).also { bytesRead = it } != -1) {
-                        out.write(buffer, 0, bytesRead)
-                    }
-                }
-            }
-        }
+        // RIFF chunk descriptor
+        header[0] = 'R'.code.toByte()  // ChunkID
+        header[1] = 'I'.code.toByte()
+        header[2] = 'F'.code.toByte()
+        header[3] = 'F'.code.toByte()
+        // ChunkSize = totalDataLen (little-endian)
+        header[4] = (totalDataLen and 0xFFL).toByte()
+        header[5] = ((totalDataLen shr 8) and 0xFFL).toByte()
+        header[6] = ((totalDataLen shr 16) and 0xFFL).toByte()
+        header[7] = ((totalDataLen shr 24) and 0xFFL).toByte()
+        // Format
+        header[8] = 'W'.code.toByte()
+        header[9] = 'A'.code.toByte()
+        header[10] = 'V'.code.toByte()
+        header[11] = 'E'.code.toByte()
 
-        /**
-         * Writes a 44-byte RIFF/WAV header to a FileOutputStream.
-         * The header follows the standard little-endian format required for WAV files.
-         *
-         * @param out              The output stream to write the header to.
-         * @param totalAudioLen    The total length of the raw audio data in bytes.
-         * @param totalDataLen     The total data length (totalAudioLen + 36).
-         * @param longSampleRate   The sample rate in Hz.
-         * @param channels         The number of audio channels (1 = mono, 2 = stereo).
-         * @param byteRate         The byte rate (sampleRate * channels * bitsPerSample / 8).
-         */
-        @SuppressWarnings("MagicNumber")
-        @Throws(IOException::class)
-        fun writeWavHeader(
-            out: FileOutputStream,
-            totalAudioLen: Long,
-            totalDataLen: Long,
-            longSampleRate: Long,
-            channels: Int,
-            byteRate: Long,
-        ) {
-            val bitsPerSample = 16
-            val blockAlign = channels * bitsPerSample / 8
+        // "fmt " sub-chunk
+        header[12] = 'f'.code.toByte() // Subchunk1ID
+        header[13] = 'm'.code.toByte()
+        header[14] = 't'.code.toByte()
+        header[15] = ' '.code.toByte()
+        // Subchunk1Size = 16 for PCM (little-endian)
+        header[16] = 16
+        header[17] = 0
+        header[18] = 0
+        header[19] = 0
+        // AudioFormat = 1 (PCM) (little-endian)
+        header[20] = 1
+        header[21] = 0
+        // NumChannels (little-endian)
+        header[22] = (channels and 0xFF).toByte()
+        header[23] = ((channels shr 8) and 0xFF).toByte()
+        // SampleRate (little-endian)
+        header[24] = (longSampleRate and 0xFFL).toByte()
+        header[25] = ((longSampleRate shr 8) and 0xFFL).toByte()
+        header[26] = ((longSampleRate shr 16) and 0xFFL).toByte()
+        header[27] = ((longSampleRate shr 24) and 0xFFL).toByte()
+        // ByteRate (little-endian)
+        header[28] = (byteRate and 0xFFL).toByte()
+        header[29] = ((byteRate shr 8) and 0xFFL).toByte()
+        header[30] = ((byteRate shr 16) and 0xFFL).toByte()
+        header[31] = ((byteRate shr 24) and 0xFFL).toByte()
+        // BlockAlign (little-endian)
+        header[32] = (blockAlign and 0xFF).toByte()
+        header[33] = ((blockAlign shr 8) and 0xFF).toByte()
+        // BitsPerSample (little-endian)
+        header[34] = (bitsPerSample and 0xFF).toByte()
+        header[35] = ((bitsPerSample shr 8) and 0xFF).toByte()
 
-            val header = ByteArray(44)
+        // "data" sub-chunk
+        header[36] = 'd'.code.toByte() // Subchunk2ID
+        header[37] = 'a'.code.toByte()
+        header[38] = 't'.code.toByte()
+        header[39] = 'a'.code.toByte()
+        // Subchunk2Size = totalAudioLen (little-endian)
+        header[40] = (totalAudioLen and 0xFFL).toByte()
+        header[41] = ((totalAudioLen shr 8) and 0xFFL).toByte()
+        header[42] = ((totalAudioLen shr 16) and 0xFFL).toByte()
+        header[43] = ((totalAudioLen shr 24) and 0xFFL).toByte()
 
-            // RIFF chunk descriptor
-            header[0] = 'R'.code.toByte()  // ChunkID
-            header[1] = 'I'.code.toByte()
-            header[2] = 'F'.code.toByte()
-            header[3] = 'F'.code.toByte()
-            // ChunkSize = totalDataLen (little-endian)
-            header[4] = (totalDataLen and 0xFFL).toByte()
-            header[5] = ((totalDataLen shr 8) and 0xFFL).toByte()
-            header[6] = ((totalDataLen shr 16) and 0xFFL).toByte()
-            header[7] = ((totalDataLen shr 24) and 0xFFL).toByte()
-            // Format
-            header[8] = 'W'.code.toByte()
-            header[9] = 'A'.code.toByte()
-            header[10] = 'V'.code.toByte()
-            header[11] = 'E'.code.toByte()
-
-            // "fmt " sub-chunk
-            header[12] = 'f'.code.toByte() // Subchunk1ID
-            header[13] = 'm'.code.toByte()
-            header[14] = 't'.code.toByte()
-            header[15] = ' '.code.toByte()
-            // Subchunk1Size = 16 for PCM (little-endian)
-            header[16] = 16
-            header[17] = 0
-            header[18] = 0
-            header[19] = 0
-            // AudioFormat = 1 (PCM) (little-endian)
-            header[20] = 1
-            header[21] = 0
-            // NumChannels (little-endian)
-            header[22] = (channels and 0xFF).toByte()
-            header[23] = ((channels shr 8) and 0xFF).toByte()
-            // SampleRate (little-endian)
-            header[24] = (longSampleRate and 0xFFL).toByte()
-            header[25] = ((longSampleRate shr 8) and 0xFFL).toByte()
-            header[26] = ((longSampleRate shr 16) and 0xFFL).toByte()
-            header[27] = ((longSampleRate shr 24) and 0xFFL).toByte()
-            // ByteRate (little-endian)
-            header[28] = (byteRate and 0xFFL).toByte()
-            header[29] = ((byteRate shr 8) and 0xFFL).toByte()
-            header[30] = ((byteRate shr 16) and 0xFFL).toByte()
-            header[31] = ((byteRate shr 24) and 0xFFL).toByte()
-            // BlockAlign (little-endian)
-            header[32] = (blockAlign and 0xFF).toByte()
-            header[33] = ((blockAlign shr 8) and 0xFF).toByte()
-            // BitsPerSample (little-endian)
-            header[34] = (bitsPerSample and 0xFF).toByte()
-            header[35] = ((bitsPerSample shr 8) and 0xFF).toByte()
-
-            // "data" sub-chunk
-            header[36] = 'd'.code.toByte() // Subchunk2ID
-            header[37] = 'a'.code.toByte()
-            header[38] = 't'.code.toByte()
-            header[39] = 'a'.code.toByte()
-            // Subchunk2Size = totalAudioLen (little-endian)
-            header[40] = (totalAudioLen and 0xFFL).toByte()
-            header[41] = ((totalAudioLen shr 8) and 0xFFL).toByte()
-            header[42] = ((totalAudioLen shr 16) and 0xFFL).toByte()
-            header[43] = ((totalAudioLen shr 24) and 0xFFL).toByte()
-
-            out.write(header, 0, 44)
-        }
+        out.write(header, 0, 44)
     }
 }

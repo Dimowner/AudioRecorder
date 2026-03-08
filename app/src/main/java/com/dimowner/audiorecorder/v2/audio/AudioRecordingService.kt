@@ -41,6 +41,7 @@ import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.Record
+import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
@@ -247,6 +248,7 @@ class AudioRecordingService : Service() {
 
         if (availableTimeSeconds > AppConstants.MIN_REMAIN_RECORDING_TIME && !audioRecorder.isRecording) {
             //TODO: hande CantCreateFileException
+            val format = prefs.settingRecordingFormat
             val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
             val record = Record(
                 id = 0,
@@ -256,11 +258,11 @@ class AudioRecordingService : Service() {
                 added = System.currentTimeMillis(),
                 removed = -1,
                 path = recordFile.absolutePath,
-                format = prefs.settingRecordingFormat.value,
+                format = format.value,
                 size = 0,
                 sampleRate = prefs.settingSampleRate.value,
                 channelCount = prefs.settingChannelCount.value,
-                bitrate = prefs.settingBitrate.value,
+                bitrate = if (format == RecordingFormat.M4a) prefs.settingBitrate.value else 0,
                 isBookmarked = false,
                 isWaveformProcessed = false,
                 isMovedToRecycle = false,
