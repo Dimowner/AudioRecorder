@@ -469,7 +469,6 @@ class RecordsDataSourceImpl @Inject internal constructor(
             }
 
             // Attempt to restore the file
-//            val restoreResult = brokenRecordRestorer.restoreFile(record.path)
             val restoreResult = brokenRecordRestorer.restoreFile(
                 filePath = record.path,
                 sampleRate = record.sampleRate,

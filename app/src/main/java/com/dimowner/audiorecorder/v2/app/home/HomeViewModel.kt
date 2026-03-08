@@ -431,7 +431,9 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             updateState(false)
             // Check for broken records after a potentially interrupted recording
-            checkForBrokenRecords()
+            if (!state.value.isRecording()) {
+                checkForBrokenRecords()
+            }
             //Update playback progress if playback service is running
             playbackService?.let { service ->
                 withContext(mainDispatcher) {

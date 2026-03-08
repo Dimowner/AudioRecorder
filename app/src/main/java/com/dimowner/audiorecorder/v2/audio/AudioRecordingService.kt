@@ -331,7 +331,7 @@ class AudioRecordingService : Service() {
         audioRecorder.stopRecording()
     }
 
-    private suspend fun handleRecordingStopped(shouldStopService: Boolean = true) {
+    private suspend fun handleRecordingStopped(isNotMaxDurationHandling: Boolean = true) {
         // - Read recorded file info
         // - Update recorded file duration, size, format, bitrate, sample rate, channel count
         // - Move updated to recycle if requested to delete the record, otherwise set it as active record
@@ -358,11 +358,13 @@ class AudioRecordingService : Service() {
                         emitEvent(AudioRecordingServiceEvent.ShowInfoSnack(
                             applicationContext.getString(R.string.msg_recording_saved_with_name, record.name)
                         ))
-                        decodeRecord(
-                            recordId = recordUpdated.id,
-                            path = recordUpdated.path,
-                            durationMills = recordUpdated.durationMills,
-                        )
+                        if (isNotMaxDurationHandling) {
+                            decodeRecord(
+                                recordId = recordUpdated.id,
+                                path = recordUpdated.path,
+                                durationMills = recordUpdated.durationMills,
+                            )
+                        }
                     } else {
                         //Failed to save record
                         emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(
@@ -375,7 +377,7 @@ class AudioRecordingService : Service() {
                         applicationContext.getString(R.string.msg_save_recording_failed)
                     ))
                 }
-                if (shouldStopService) {
+                if (isNotMaxDurationHandling) {
                     resetRecordedRecordPartCounter()
                     stopForegroundService()
                 }
@@ -499,7 +501,7 @@ class AudioRecordingService : Service() {
 
     private suspend fun handleMaxDurationReachedInternal() {
         // Save the current recording first
-        handleRecordingStopped(shouldStopService = false)
+        handleRecordingStopped(isNotMaxDurationHandling = false)
 
         val partCounter = prefs.recordedRecordPartCounter
         val activeRecord = withContext(ioDispatcher) {
@@ -515,6 +517,13 @@ class AudioRecordingService : Service() {
                     withContext(ioDispatcher) {
                         recordsDataSource.renameRecord(it, getPartName(baseName, partCounter))
                     }
+                }
+                recordsDataSource.getRecord(it.id)?.let { recordUpdated ->
+                    decodeRecord(
+                        recordId = recordUpdated.id,
+                        path = recordUpdated.path,
+                        durationMills = recordUpdated.durationMills,
+                    )
                 }
                 val incrementedPart = partCounter + 1
 

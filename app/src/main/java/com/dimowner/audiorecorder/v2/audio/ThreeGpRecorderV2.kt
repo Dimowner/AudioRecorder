@@ -25,7 +25,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ThreeGpRecorderV2 @Inject constructor(
-    @param:ApplicationContext applicationContext: Context,
+    @ApplicationContext applicationContext: Context,
     coroutineScope: CoroutineScope,
 ) : MediaRecorderBase(applicationContext, coroutineScope) {
 

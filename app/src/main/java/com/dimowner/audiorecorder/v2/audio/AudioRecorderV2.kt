@@ -9,9 +9,11 @@ import javax.inject.Singleton
 
 @Singleton
 class AudioRecorderV2 @Inject constructor(
-    @param:ApplicationContext applicationContext: Context,
+    @ApplicationContext applicationContext: Context,
     coroutineScope: CoroutineScope,
 ) : MediaRecorderBase(applicationContext, coroutineScope) {
+
+    override val recordingLogTag: String = "AAC "
 
     override fun configureRecorder(
         recorder: MediaRecorder,
