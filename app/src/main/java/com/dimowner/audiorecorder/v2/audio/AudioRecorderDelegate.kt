@@ -10,12 +10,13 @@ class AudioRecorderDelegate @Inject constructor(
     private val prefs: PrefsV2,
     private val audioRecorder: AudioRecorderV2,
     private val threeGpRecorder: ThreeGpRecorderV2,
+    private val wavRecorder: WavRecorderV2,
 ) {
 
     fun provideAudioRecorder(): RecorderV2 {
         return when (prefs.settingRecordingFormat) {
             RecordingFormat.M4a -> audioRecorder
-            RecordingFormat.Wav -> audioRecorder
+            RecordingFormat.Wav -> wavRecorder
             RecordingFormat.ThreeGp -> threeGpRecorder
         }
     }
