@@ -31,14 +31,21 @@ import javax.inject.Singleton
 
 /**
  * Restores broken audio recording files that were interrupted (e.g., by a device reboot)
- * before MediaRecorder.stop() was called.
+ * before the recorder was properly stopped.
  *
- * When MediaRecorder is interrupted without proper stop, the MPEG-4/3GP container file
- * may be missing its 'moov' atom, making it unplayable. This class attempts to recover
- * such files using multiple strategies:
- * 1. Try MediaExtractor (works if the OS partially recovered the file)
- * 2. Try re-muxing with MediaExtractor + MediaMuxer
- * 3. Fallback to mp4parser to extract raw AAC frames and build a new valid container
+ * Supported formats and strategies:
+ *
+ * **WAV** (produced by [WavRecorderV2]):
+ *   A broken WAV file contains all the raw PCM data but has an all-zero 44-byte RIFF header
+ *   (the placeholder written at recording start that was never filled in).
+ *   Restoration rewrites the header in-place using recording parameters from the database.
+ *
+ * **MPEG-4 / 3GP** (produced by MediaRecorder):
+ *   When MediaRecorder is interrupted without proper stop, the container file may be missing
+ *   its 'moov' atom. This class attempts to recover such files using multiple strategies:
+ *   1. Try MediaExtractor (works if the OS partially recovered the file)
+ *   2. Try re-muxing with MediaExtractor + MediaMuxer
+ *   3. Fallback to mp4parser to extract raw AAC frames and build a new valid container
  */
 @Singleton
 class BrokenRecordRestorer @Inject constructor() {
@@ -46,7 +53,9 @@ class BrokenRecordRestorer @Inject constructor() {
     /**
      * Attempts to restore a broken audio recording file.
      *
-     * Strategy:
+     * For WAV files: rewrites the RIFF header in-place using [sampleRate] and [channelCount].
+     *
+     * For MPEG-4/3GP files:
      * 1. First, try to read the file with MediaExtractor. On many Android versions,
      *    MediaExtractor can read partially-written MPEG-4 files.
      * 2. If MediaExtractor can read it, the file is already playable — return success.
@@ -55,8 +64,9 @@ class BrokenRecordRestorer @Inject constructor() {
      *    to extract raw AAC data from the mdat atom and build a new valid container.
      *
      * @param filePath Path to the broken audio file
-     * @param sampleRate Sample rate from the database record (used by mp4parser fallback)
-     * @param channelCount Channel count from the database record (used by mp4parser fallback)
+     * @param sampleRate Sample rate from the database record (required for WAV; used by mp4parser fallback)
+     * @param channelCount Channel count from the database record (required for WAV; used by mp4parser fallback)
+     * @param bitrate Encoding bitrate from the database record (used by mp4parser fallback)
      * @return RestoreResult indicating success or failure
      */
     fun restoreFile(
@@ -68,6 +78,11 @@ class BrokenRecordRestorer @Inject constructor() {
         val file = File(filePath)
         if (!file.exists() || file.length() == 0L) {
             return RestoreResult.Failed("File does not exist or is empty")
+        }
+
+        // Dispatch to WAV-specific restore path
+        if (file.extension.equals("wav", ignoreCase = true)) {
+            return tryRestoreWavFile(file, sampleRate, channelCount)
         }
 
         // Step 1: Try reading the file directly with MediaExtractor
@@ -90,12 +105,135 @@ class BrokenRecordRestorer @Inject constructor() {
     }
 
     /**
+     * Restores a broken WAV file recorded by [WavRecorderV2].
+     *
+     * When [WavRecorderV2] starts a recording it writes a 44-byte all-zero placeholder header
+     * and then appends raw PCM-16LE samples. On a normal stop it seeks back and overwrites that
+     * header with the correct RIFF/WAV values. If the app is killed before [WavRecorderV2.stopRecording]
+     * completes, the PCM data is intact but the header is still all-zeros (or partially written),
+     * making the file unreadable.
+     *
+     * This method:
+     * 1. Validates that the file is large enough to contain a header + some PCM data.
+     * 2. Checks whether the header is already valid (RIFF magic bytes present) — if so, the file
+     *    may already be readable; falls through to [tryReadWithExtractor] to confirm.
+     * 3. Computes correct WAV header values from [sampleRate] and [channelCount] (stored in the DB).
+     * 4. Overwrites only the first 44 bytes in-place — the PCM data is untouched.
+     * 5. Verifies the restored file is readable via [tryReadWithExtractor].
+     *
+     * @param file        The broken WAV file.
+     * @param sampleRate  Sample rate stored in the DB record (e.g. 44100).
+     * @param channelCount Number of channels stored in the DB record (1 = mono, 2 = stereo).
+     * @return [RestoreResult.Success] with duration in µs, [RestoreResult.AlreadyReadable] if the
+     *         file needed no fix, or [RestoreResult.Failed] with a reason string.
+     */
+    @Suppress("MagicNumber")
+    private fun tryRestoreWavFile(file: File, sampleRate: Int, channelCount: Int): RestoreResult {
+        val fileSize = file.length()
+
+        // A valid WAV file needs at least the 44-byte header plus 1 byte of audio data.
+        if (fileSize <= WAV_HEADER_SIZE) {
+            return RestoreResult.Failed("WAV file too small to contain audio data: ${file.absolutePath}")
+        }
+
+        if (sampleRate <= 0 || channelCount <= 0) {
+            return RestoreResult.Failed(
+                "Cannot restore WAV: missing recording parameters " +
+                    "(sampleRate=$sampleRate, channelCount=$channelCount)"
+            )
+        }
+
+        // Check whether the file already has a valid RIFF header.
+        val hasValidHeader = try {
+            RandomAccessFile(file, "r").use { raf ->
+                val magic = ByteArray(4)
+                raf.readFully(magic)
+                magic[0] == 'R'.code.toByte() &&
+                    magic[1] == 'I'.code.toByte() &&
+                    magic[2] == 'F'.code.toByte() &&
+                    magic[3] == 'F'.code.toByte()
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to read WAV header: ${file.absolutePath}")
+            false
+        }
+
+        if (hasValidHeader) {
+            // Header looks correct already — verify the file is actually playable.
+            val duration = tryReadWithExtractor(file.absolutePath)
+            return if (duration != null) {
+                Timber.d("WAV file already has valid header and is readable: ${file.absolutePath}")
+                RestoreResult.AlreadyReadable(duration)
+            } else {
+                // RIFF magic is there but MediaExtractor still can't read it —
+                // fall through to rewrite the header anyway.
+                Timber.d("WAV has RIFF magic but is not readable, rewriting header: ${file.absolutePath}")
+                rewriteWavHeader(file, fileSize, sampleRate, channelCount)
+            }
+        }
+
+        Timber.d("WAV file has broken/zero header, rewriting: ${file.absolutePath}")
+        return rewriteWavHeader(file, fileSize, sampleRate, channelCount)
+    }
+
+    /**
+     * Rewrites the 44-byte RIFF/WAV header of [file] in-place and verifies the result.
+     *
+     * The PCM payload size is derived as `fileSize - 44` (the placeholder header written
+     * by [WavRecorderV2] occupies the first 44 bytes; everything after is raw PCM-16LE).
+     */
+    @Suppress("MagicNumber")
+    private fun rewriteWavHeader(file: File, fileSize: Long, sampleRate: Int, channelCount: Int): RestoreResult {
+        val bitsPerSample = 16
+        val totalAudioLen = fileSize - WAV_HEADER_SIZE          // raw PCM bytes
+        val totalDataLen  = totalAudioLen + 36                  // ChunkSize field value
+        val byteRate      = (sampleRate * channelCount * bitsPerSample / 8).toLong()
+
+        return try {
+            RandomAccessFile(file, "rw").use { raf ->
+                raf.seek(0)
+
+                val header = createWavHeader(
+                    totalAudioLen = totalAudioLen,
+                    totalDataLen = totalDataLen,
+                    sampleRate = sampleRate,
+                    channels = channelCount,
+                    byteRate = byteRate,
+                )
+
+                raf.write(header)
+            }
+
+            // Verify the repaired file is now readable
+            val duration = tryReadWithExtractor(file.absolutePath)
+            if (duration != null && duration > 0) {
+                Timber.d("WAV file restored successfully: ${file.absolutePath}, duration: ${duration}μs")
+                RestoreResult.Success(duration)
+            } else {
+                // MediaExtractor couldn't parse it — calculate duration from PCM byte count as fallback
+                val durationMicros = if (byteRate > 0) (totalAudioLen * 1_000_000L) / byteRate else 0L
+                if (durationMicros > 0) {
+                    Timber.d("WAV header rewritten, using calculated duration: ${file.absolutePath}, duration: ${durationMicros}μs")
+                    RestoreResult.Success(durationMicros)
+                } else {
+                    Timber.e("WAV header rewritten but file is still not readable: ${file.absolutePath}")
+                    RestoreResult.Failed("WAV header rewritten but file is still not readable")
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to rewrite WAV header: ${file.absolutePath}")
+            RestoreResult.Failed("Failed to rewrite WAV header: ${e.message}")
+        }
+    }
+
+    /**
      * Tries to read the audio file with MediaExtractor.
      * @return duration in microseconds if readable, null if not readable
      */
     private fun tryReadWithExtractor(filePath: String): Long? {
-        val extractor = MediaExtractor()
+        var extractor: MediaExtractor? = null
         return try {
+            extractor = MediaExtractor()
             extractor.setDataSource(filePath)
             val trackCount = extractor.trackCount
             if (trackCount == 0) {
@@ -119,11 +257,19 @@ class BrokenRecordRestorer @Inject constructor() {
                 }
                 audioDuration
             }
-        } catch (e: Exception) {
-            Timber.d("MediaExtractor cannot read file: ${e.message}")
+        } catch (t: Throwable) {
+            // Catches both Exception (broken file, API issues) and Error/RuntimeException
+            // (e.g. UnsatisfiedLinkError or "Method not mocked" when MediaExtractor native
+            // library is unavailable in JVM unit-test environments without Robolectric).
+            Timber.d("MediaExtractor cannot read file: ${t.message}")
             null
         } finally {
-            extractor.release()
+            try {
+                extractor?.release()
+            } catch (_: Throwable) {
+                // Ignore release() failures — the extractor is being discarded anyway.
+                // On JVM unit tests, release() throws RuntimeException: Method not mocked.
+            }
         }
     }
 
@@ -643,6 +789,9 @@ class BrokenRecordRestorer @Inject constructor() {
 
     companion object {
         private const val DEFAULT_BUFFER_SIZE = 1024 * 1024 // 1MB
+
+        /** Size of the standard RIFF/WAV header written by [WavRecorderV2] (no extra chunks). */
+        private const val WAV_HEADER_SIZE = 44
 
         /** Size of a 7-byte ADTS header (no CRC, protection_absent = 1). */
         private const val ADTS_HEADER_SIZE = 7

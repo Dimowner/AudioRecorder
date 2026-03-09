@@ -222,7 +222,7 @@ class WavRecorderV2 @Inject constructor(
                             out = headerStream,
                             totalAudioLen = totalAudioLen,
                             totalDataLen = totalDataLen,
-                            longSampleRate = sampleRateConfig.toLong(),
+                            sampleRate = sampleRateConfig,
                             channels = channelCountConfig,
                             byteRate = byteRate,
                         )
@@ -331,85 +331,102 @@ class WavRecorderV2 @Inject constructor(
      * @param out              The output stream to write the header to.
      * @param totalAudioLen    The total length of the raw audio data in bytes.
      * @param totalDataLen     The total data length (totalAudioLen + 36).
-     * @param longSampleRate   The sample rate in Hz.
+     * @param sampleRate       The sample rate in Hz.
      * @param channels         The number of audio channels (1 = mono, 2 = stereo).
      * @param byteRate         The byte rate (sampleRate * channels * bitsPerSample / 8).
      */
-    @SuppressWarnings("MagicNumber")
+    @SuppressWarnings("MagicNumber", "LongParameterList")
     @Throws(IOException::class)
     private fun writeWavHeader(
         out: FileOutputStream,
         totalAudioLen: Long,
         totalDataLen: Long,
-        longSampleRate: Long,
+        sampleRate: Int,
         channels: Int,
         byteRate: Long,
     ) {
-        val bitsPerSample = 16
-        val blockAlign = channels * bitsPerSample / 8
-
-        val header = ByteArray(44)
-
-        // RIFF chunk descriptor
-        header[0] = 'R'.code.toByte()  // ChunkID
-        header[1] = 'I'.code.toByte()
-        header[2] = 'F'.code.toByte()
-        header[3] = 'F'.code.toByte()
-        // ChunkSize = totalDataLen (little-endian)
-        header[4] = (totalDataLen and 0xFFL).toByte()
-        header[5] = ((totalDataLen shr 8) and 0xFFL).toByte()
-        header[6] = ((totalDataLen shr 16) and 0xFFL).toByte()
-        header[7] = ((totalDataLen shr 24) and 0xFFL).toByte()
-        // Format
-        header[8] = 'W'.code.toByte()
-        header[9] = 'A'.code.toByte()
-        header[10] = 'V'.code.toByte()
-        header[11] = 'E'.code.toByte()
-
-        // "fmt " sub-chunk
-        header[12] = 'f'.code.toByte() // Subchunk1ID
-        header[13] = 'm'.code.toByte()
-        header[14] = 't'.code.toByte()
-        header[15] = ' '.code.toByte()
-        // Subchunk1Size = 16 for PCM (little-endian)
-        header[16] = 16
-        header[17] = 0
-        header[18] = 0
-        header[19] = 0
-        // AudioFormat = 1 (PCM) (little-endian)
-        header[20] = 1
-        header[21] = 0
-        // NumChannels (little-endian)
-        header[22] = (channels and 0xFF).toByte()
-        header[23] = ((channels shr 8) and 0xFF).toByte()
-        // SampleRate (little-endian)
-        header[24] = (longSampleRate and 0xFFL).toByte()
-        header[25] = ((longSampleRate shr 8) and 0xFFL).toByte()
-        header[26] = ((longSampleRate shr 16) and 0xFFL).toByte()
-        header[27] = ((longSampleRate shr 24) and 0xFFL).toByte()
-        // ByteRate (little-endian)
-        header[28] = (byteRate and 0xFFL).toByte()
-        header[29] = ((byteRate shr 8) and 0xFFL).toByte()
-        header[30] = ((byteRate shr 16) and 0xFFL).toByte()
-        header[31] = ((byteRate shr 24) and 0xFFL).toByte()
-        // BlockAlign (little-endian)
-        header[32] = (blockAlign and 0xFF).toByte()
-        header[33] = ((blockAlign shr 8) and 0xFF).toByte()
-        // BitsPerSample (little-endian)
-        header[34] = (bitsPerSample and 0xFF).toByte()
-        header[35] = ((bitsPerSample shr 8) and 0xFF).toByte()
-
-        // "data" sub-chunk
-        header[36] = 'd'.code.toByte() // Subchunk2ID
-        header[37] = 'a'.code.toByte()
-        header[38] = 't'.code.toByte()
-        header[39] = 'a'.code.toByte()
-        // Subchunk2Size = totalAudioLen (little-endian)
-        header[40] = (totalAudioLen and 0xFFL).toByte()
-        header[41] = ((totalAudioLen shr 8) and 0xFFL).toByte()
-        header[42] = ((totalAudioLen shr 16) and 0xFFL).toByte()
-        header[43] = ((totalAudioLen shr 24) and 0xFFL).toByte()
-
+        val header = createWavHeader(
+            totalAudioLen = totalAudioLen,
+            totalDataLen = totalDataLen,
+            sampleRate = sampleRate,
+            channels = channels,
+            byteRate = byteRate,
+        )
         out.write(header, 0, 44)
     }
+}
+
+fun createWavHeader(
+    totalAudioLen: Long,
+    totalDataLen: Long,
+    sampleRate: Int,
+    channels: Int,
+    byteRate: Long,
+): ByteArray {
+    val bitsPerSample = 16
+    val blockAlign = channels * bitsPerSample / 8
+
+    val header = ByteArray(44)
+
+    // RIFF chunk descriptor
+    header[0] = 'R'.code.toByte()  // ChunkID
+    header[1] = 'I'.code.toByte()
+    header[2] = 'F'.code.toByte()
+    header[3] = 'F'.code.toByte()
+    // ChunkSize = totalDataLen (little-endian)
+    header[4] = (totalDataLen and 0xFFL).toByte()
+    header[5] = ((totalDataLen shr 8) and 0xFFL).toByte()
+    header[6] = ((totalDataLen shr 16) and 0xFFL).toByte()
+    header[7] = ((totalDataLen shr 24) and 0xFFL).toByte()
+    // Format
+    header[8] = 'W'.code.toByte()
+    header[9] = 'A'.code.toByte()
+    header[10] = 'V'.code.toByte()
+    header[11] = 'E'.code.toByte()
+
+    // "fmt " sub-chunk
+    header[12] = 'f'.code.toByte() // Subchunk1ID
+    header[13] = 'm'.code.toByte()
+    header[14] = 't'.code.toByte()
+    header[15] = ' '.code.toByte()
+    // Subchunk1Size = 16 for PCM (little-endian)
+    header[16] = 16
+    header[17] = 0
+    header[18] = 0
+    header[19] = 0
+    // AudioFormat = 1 (PCM) (little-endian)
+    header[20] = 1
+    header[21] = 0
+    // NumChannels (little-endian)
+    header[22] = (channels and 0xFF).toByte()
+    header[23] = ((channels shr 8) and 0xFF).toByte()
+    // SampleRate (little-endian)
+    header[24] = (sampleRate and 0xFF).toByte()
+    header[25] = ((sampleRate shr 8) and 0xFF).toByte()
+    header[26] = ((sampleRate shr 16) and 0xFF).toByte()
+    header[27] = ((sampleRate shr 24) and 0xFF).toByte()
+    // ByteRate (little-endian)
+    header[28] = (byteRate and 0xFFL).toByte()
+    header[29] = ((byteRate shr 8) and 0xFFL).toByte()
+    header[30] = ((byteRate shr 16) and 0xFFL).toByte()
+    header[31] = ((byteRate shr 24) and 0xFFL).toByte()
+    // BlockAlign (little-endian)
+    header[32] = (blockAlign and 0xFF).toByte()
+    header[33] = ((blockAlign shr 8) and 0xFF).toByte()
+    // BitsPerSample (little-endian)
+    header[34] = (bitsPerSample and 0xFF).toByte()
+    header[35] = ((bitsPerSample shr 8) and 0xFF).toByte()
+
+    // "data" sub-chunk
+    header[36] = 'd'.code.toByte() // Subchunk2ID
+    header[37] = 'a'.code.toByte()
+    header[38] = 't'.code.toByte()
+    header[39] = 'a'.code.toByte()
+    // Subchunk2Size = totalAudioLen (little-endian)
+    header[40] = (totalAudioLen and 0xFFL).toByte()
+    header[41] = ((totalAudioLen shr 8) and 0xFFL).toByte()
+    header[42] = ((totalAudioLen shr 16) and 0xFFL).toByte()
+    header[43] = ((totalAudioLen shr 24) and 0xFFL).toByte()
+
+    return header
 }
