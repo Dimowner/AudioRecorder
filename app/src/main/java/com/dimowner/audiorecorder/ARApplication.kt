@@ -33,10 +33,14 @@ import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.dimowner.audiorecorder.app.migration.DatabaseMigrationService
+import com.dimowner.audiorecorder.audio.player.AudioPlayerNew
+import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.util.AndroidUtils
+import com.dimowner.audiorecorder.v2.audio.AudioRecorderDelegate
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import timber.log.Timber.DebugTree
+import javax.inject.Inject
 
 //import com.google.firebase.FirebaseApp;
 
@@ -45,6 +49,12 @@ class ARApplication : Application() {
 
     private var audioOutputChangeReceiver: AudioOutputChangeReceiver? = null
     private var rebootReceiver: RebootReceiver? = null
+
+    @Inject
+    lateinit var audioRecorderDelegate: AudioRecorderDelegate
+
+    @Inject
+    lateinit var audioPlayerV2: PlayerContractNew.Player
 
     override fun onCreate() {
         if (BuildConfig.DEBUG) {
@@ -94,6 +104,7 @@ class ARApplication : Application() {
         //Pause playback when incoming call or on hold
         val player = injector.provideAudioPlayer()
         player.pause()
+        audioPlayerV2.pause()
     }
 
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -141,6 +152,9 @@ class ARApplication : Application() {
             if (actionOfIntent != null && actionOfIntent == AudioManager.ACTION_AUDIO_BECOMING_NOISY) {
                 val player = injector.provideAudioPlayer()
                 player.pause()
+
+                val app = context.applicationContext as? ARApplication
+                app?.audioPlayerV2?.pause()
             }
         }
     }
@@ -152,6 +166,10 @@ class ARApplication : Application() {
                 val audioPlayer = injector.provideAudioPlayer()
                 appRecorder.stopRecording()
                 audioPlayer.stop()
+
+                val app = context?.applicationContext as? ARApplication
+                app?.audioPlayerV2?.stop()
+                app?.audioRecorderDelegate?.provideAudioRecorder()?.stopRecording()
             }
         }
     }
