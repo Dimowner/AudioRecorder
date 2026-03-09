@@ -199,6 +199,22 @@ class AudioRecordingService : Service() {
                         updateNotification()
                     }
                     is RecorderEvent.OnRecordingProgress -> {
+                        val state = _recordingState.value
+                        state.recordingFormat?.let { format ->
+                            val space = fileDataSource.getAvailableSpace()
+                            val availableTimeSeconds = convertSpaceBytesToTimeInSeconds(
+                                spaceBytes = space,
+                                recordingFormat = format,
+                                sampleRate = state.sampleRate,
+                                bitrate = state.bitrate,
+                                channels = state.channelCount,
+                            )
+                            if (availableTimeSeconds < AppConstants.MIN_REMAIN_RECORDING_TIME) {
+                                //There is running out space on the device.
+                                //Stop recording before it completely run out.
+                                audioRecorder.stopRecording()
+                            }
+                        }
                         _recordingState.value = _recordingState.value.copy(
                             durationMills = event.durationMills,
                             amplitude = event.amplitude
@@ -238,17 +254,21 @@ class AudioRecordingService : Service() {
     // - Set it as active record
     // - Start recording
     private suspend fun handleStartRecording(recordName: String): Long? {
+        val format = prefs.settingRecordingFormat
+        val sampleRate = prefs.settingSampleRate.value
+        val bitrate = prefs.settingBitrate.value
+        val channelCount = prefs.settingChannelCount.value
+
         val availableTimeSeconds = convertSpaceBytesToTimeInSeconds(
             spaceBytes = fileDataSource.getAvailableSpace(),
-            recordingFormat = prefs.settingRecordingFormat,
-            sampleRate = prefs.settingSampleRate.value,
-            bitrate = prefs.settingBitrate.value,
-            channels = prefs.settingChannelCount.value,
+            recordingFormat = format,
+            sampleRate = sampleRate,
+            bitrate = bitrate,
+            channels = channelCount
         )
 
         if (availableTimeSeconds > AppConstants.MIN_REMAIN_RECORDING_TIME && !audioRecorder.isRecording) {
             //TODO: hande CantCreateFileException
-            val format = prefs.settingRecordingFormat
             val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
             val record = Record(
                 id = 0,
@@ -260,9 +280,9 @@ class AudioRecordingService : Service() {
                 path = recordFile.absolutePath,
                 format = format.value,
                 size = 0,
-                sampleRate = prefs.settingSampleRate.value,
-                channelCount = prefs.settingChannelCount.value,
-                bitrate = if (format == RecordingFormat.M4a) prefs.settingBitrate.value else 0,
+                sampleRate = sampleRate,
+                channelCount = channelCount,
+                bitrate = if (format == RecordingFormat.M4a) bitrate else 0,
                 isBookmarked = false,
                 isWaveformProcessed = false,
                 isMovedToRecycle = false,
@@ -275,14 +295,18 @@ class AudioRecordingService : Service() {
 
             _recordingState.value = _recordingState.value.copy(
                 recordId = id,
-                recordName = recordName
+                recordName = recordName,
+                recordingFormat = format,
+                sampleRate = sampleRate,
+                bitrate = bitrate,
+                channelCount = channelCount,
             )
 
             audioRecorder.startRecording(
                 outputFile = recordFile,
-                channelCount = prefs.settingChannelCount.value,
-                sampleRate = prefs.settingSampleRate.value,
-                bitrate = prefs.settingBitrate.value,
+                channelCount = channelCount,
+                sampleRate = sampleRate,
+                bitrate = bitrate,
                 maxRecordingDurationMills = prefs.maxRecordingDurationMills,
                 audioSource = prefs.settingAudioSource.value,
             )
@@ -549,14 +573,14 @@ class AudioRecordingService : Service() {
 
     private fun convertSpaceBytesToTimeInSeconds(
         spaceBytes: Long,
-        recordingFormat: com.dimowner.audiorecorder.v2.data.model.RecordingFormat,
+        recordingFormat: RecordingFormat,
         sampleRate: Int,
         bitrate: Int,
         channels: Int
     ): Long {
         return when (recordingFormat) {
-            com.dimowner.audiorecorder.v2.data.model.RecordingFormat.M4a,
-            com.dimowner.audiorecorder.v2.data.model.RecordingFormat.ThreeGp -> {
+            RecordingFormat.M4a,
+            RecordingFormat.ThreeGp -> {
                 // For compressed formats, use bitrate
                 if (bitrate > 0) {
                     (spaceBytes * 8) / bitrate
@@ -564,7 +588,7 @@ class AudioRecordingService : Service() {
                     Long.MAX_VALUE
                 }
             }
-            com.dimowner.audiorecorder.v2.data.model.RecordingFormat.Wav -> {
+            RecordingFormat.Wav -> {
                 // For WAV: bytes per second = sampleRate * channels * 2 (16-bit)
                 val bytesPerSecond = sampleRate * channels * 2
                 if (bytesPerSecond > 0) {
@@ -588,6 +612,10 @@ class AudioRecordingService : Service() {
 }
 
 data class RecordingServiceState(
+    val recordingFormat: RecordingFormat? = null,
+    val sampleRate: Int = 0,
+    val bitrate: Int = 0,
+    val channelCount: Int = 0,
     val isRecording: Boolean = false,
     val isPaused: Boolean = false,
     val durationMills: Long = 0L,
