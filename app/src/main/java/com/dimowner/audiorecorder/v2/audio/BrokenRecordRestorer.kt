@@ -99,7 +99,13 @@ class BrokenRecordRestorer @Inject constructor() {
             return remuxResult
         }
 
-        // Step 3: Fallback to mp4parser for raw AAC extraction
+        // Step 3: For 3GP files use AMR-specific restore; for everything else fall back to mp4parser
+        if (file.extension.equals("3gp", ignoreCase = true)) {
+            Timber.d("Re-mux failed, attempting 3GP/AMR-specific restore: $filePath")
+            return tryRestore3gpFile(file, sampleRate)
+        }
+
+        // Step 4: Fallback to mp4parser for raw AAC extraction
         Timber.d("Re-mux failed, attempting mp4parser fallback: $filePath")
         return tryRestoreWithMp4Parser(file, sampleRate, channelCount, bitrate)
     }
@@ -379,6 +385,204 @@ class BrokenRecordRestorer @Inject constructor() {
             extractor.release()
         }
     }
+
+    // -------------------------------------------------------------------------
+    // 3GP / AMR restoration
+    // -------------------------------------------------------------------------
+
+    /**
+     * Restores a broken 3GPP recording whose moov atom was never written.
+     *
+     * Strategy:
+     * 1. Extract the raw AMR bitstream from the mdat atom of the broken 3GP container.
+     * 2. Prepend the magic file header so the stream is a valid standalone AMR file
+     *    (`#!AMR\n` for AMR-NB / `#!AMR-WB\n` for AMR-WB).
+     * 3. Re-mux the valid AMR file into a new 3GPP container using
+     *    MediaExtractor + MediaMuxer — the same technique used by [tryRemuxFile].
+     * 4. Verify the result is playable and replace the original file.
+     *
+     * Codec choice is based on [sampleRate]: ≤ 8 000 Hz → AMR-NB, otherwise → AMR-WB,
+     * matching the logic in [ThreeGpRecorderV2].
+     */
+    private fun tryRestore3gpFile(file: File, sampleRate: Int): RestoreResult {
+        val isWb = sampleRate > AMR_NB_SAMPLE_RATE
+        val codec = if (isWb) "AMR-WB" else "AMR-NB"
+        Timber.d("Restoring 3GP file as $codec (sampleRate=$sampleRate): ${file.absolutePath}")
+
+        val rawAmrFile = File(file.parent, "${file.nameWithoutExtension}_raw.amr")
+        val restoredFile = File(file.parent, "${file.nameWithoutExtension}_restored.3gp")
+
+        return try {
+            // Step 1: Extract raw AMR payload from the mdat atom
+            val extracted = extractMdatPayload(file, rawAmrFile)
+            if (!extracted) {
+                return RestoreResult.Failed("3GP: could not extract audio data from broken file")
+            }
+            Timber.d("3GP: extracted ${rawAmrFile.length()} bytes from mdat atom")
+
+            // Step 2: Build a valid standalone AMR file by prepending the magic header
+            val amrFile = File(file.parent, "${file.nameWithoutExtension}.amr")
+            val built = buildAmrFile(rawAmrFile, amrFile, isWb)
+            if (!built) {
+                return RestoreResult.Failed("3GP: could not build a valid AMR stream from extracted data")
+            }
+            Timber.d("3GP: built valid AMR file (${amrFile.length()} bytes)")
+
+            // Step 3: Re-mux the AMR file into a new 3GPP container
+            val remuxResult = remuxAmrInto3gp(amrFile, restoredFile)
+            if (remuxResult is RestoreResult.Failed) {
+                return remuxResult
+            }
+
+            // Step 4: Replace the original broken file
+            replaceFile(restoredFile, file)
+            Timber.d("3GP file restored successfully: ${file.absolutePath}")
+            remuxResult
+        } catch (e: Exception) {
+            Timber.e(e, "3GP restore failed for: ${file.absolutePath}")
+            RestoreResult.Failed("3GP restore failed: ${e.message}")
+        } finally {
+            rawAmrFile.delete()
+            // amrFile may not exist if buildAmrFile failed — delete silently
+            File(file.parent, "${file.nameWithoutExtension}.amr").delete()
+            restoredFile.delete()
+        }
+    }
+
+    /**
+     * Prepends the AMR magic file header to [rawAmrData] and writes the result to
+     * [outputFile]. Before writing, attempts to detect and skip any bytes that precede
+     * the first valid AMR frame so we don't corrupt the stream with container remnants.
+     *
+     * AMR-NB frame sync byte: high nibble = 0x0 (class bits), overall structure
+     *   `0 FT(4) Q(1) P(2)` = `0xxxxxx0` where top bit is always 0.
+     * AMR-WB frame sync byte: `0 FT(4) Q(1) P(2)` same layout, FT 0–8 are speech.
+     *
+     * @return true if at least one valid frame was found and written, false otherwise.
+     */
+    @Suppress("MagicNumber")
+    internal fun buildAmrFile(rawAmrData: File, outputFile: File, isWb: Boolean): Boolean {
+        val raw = rawAmrData.readBytes()
+        if (raw.isEmpty()) return false
+
+        // Find where valid AMR frames begin in the raw blob
+        val frameStart = findFirstAmrFrame(raw, isWb)
+        if (frameStart < 0) return false
+
+        val magic = if (isWb) AMR_WB_MAGIC else AMR_NB_MAGIC
+        FileOutputStream(outputFile).use { fos ->
+            fos.write(magic)
+            fos.write(raw, frameStart, raw.size - frameStart)
+        }
+        return outputFile.length() > magic.size
+    }
+
+    /**
+     * Scans [data] for the first byte that looks like a valid AMR frame header and
+     * returns its index, or -1 if none found in the first [AMR_SCAN_LIMIT] bytes.
+     *
+     * For both AMR-NB and AMR-WB the TOC byte layout is:
+     *   `P | FT(4) | Q | P | P`  (bit 7 = padding/F-bit = 0 for single-frame files)
+     * The top bit must be 0 (it is the continuation bit, 0 = last frame in the list).
+     * FT for speech frames: NB 0–7, WB 0–8.  FT = 15 (NO_DATA) is also valid.
+     */
+    @Suppress("MagicNumber")
+    internal fun findFirstAmrFrame(data: ByteArray, isWb: Boolean): Int {
+        val maxFt = if (isWb) AMR_WB_MAX_SPEECH_FT else AMR_NB_MAX_SPEECH_FT
+        val limit = minOf(data.size, AMR_SCAN_LIMIT)
+        for (i in 0 until limit) {
+            val b = data[i].toInt() and 0xFF
+            if (b and 0x80 != 0) continue          // top bit must be 0
+            val ft = (b ushr 3) and 0x0F
+            if (ft <= maxFt || ft == AMR_FT_NO_DATA) return i
+        }
+        return -1
+    }
+
+    /**
+     * Re-muxes a valid standalone AMR file into a 3GPP container using
+     * MediaExtractor + MediaMuxer.
+     *
+     * @param amrFile   Valid AMR file (with magic header)
+     * @param outputFile Destination 3GP file
+     * @return [RestoreResult.Success] with duration in µs, or [RestoreResult.Failed]
+     */
+    private fun remuxAmrInto3gp(amrFile: File, outputFile: File): RestoreResult {
+        val extractor = MediaExtractor()
+        return try {
+            extractor.setDataSource(amrFile.absolutePath)
+            if (extractor.trackCount == 0) {
+                return RestoreResult.Failed("3GP: MediaExtractor found no tracks in AMR file")
+            }
+
+            var audioTrackIndex = -1
+            var audioFormat: MediaFormat? = null
+            for (i in 0 until extractor.trackCount) {
+                val fmt = extractor.getTrackFormat(i)
+                val mime = fmt.getString(MediaFormat.KEY_MIME) ?: continue
+                if (mime.startsWith("audio/")) {
+                    audioTrackIndex = i
+                    audioFormat = fmt
+                    break
+                }
+            }
+
+            if (audioTrackIndex == -1 || audioFormat == null) {
+                return RestoreResult.Failed("3GP: no audio track in AMR file")
+            }
+
+            extractor.selectTrack(audioTrackIndex)
+
+            val muxer = MediaMuxer(outputFile.absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_3GPP)
+            val muxerTrack = muxer.addTrack(audioFormat)
+            muxer.start()
+
+            val bufSize = try {
+                audioFormat.getInteger(MediaFormat.KEY_MAX_INPUT_SIZE)
+            } catch (_: Exception) {
+                DEFAULT_BUFFER_SIZE
+            }
+            val buffer = java.nio.ByteBuffer.allocate(bufSize)
+            val info = android.media.MediaCodec.BufferInfo()
+            var lastTs = 0L
+            var sampleCount = 0
+
+            while (true) {
+                val n = extractor.readSampleData(buffer, 0)
+                if (n < 0) break
+                info.offset = 0
+                info.size = n
+                info.presentationTimeUs = extractor.sampleTime
+                info.flags = if (extractor.sampleFlags and android.media.MediaExtractor.SAMPLE_FLAG_SYNC != 0)
+                    android.media.MediaCodec.BUFFER_FLAG_KEY_FRAME else 0
+                lastTs = extractor.sampleTime
+                muxer.writeSampleData(muxerTrack, buffer, info)
+                sampleCount++
+                extractor.advance()
+            }
+
+            muxer.stop()
+            muxer.release()
+
+            if (sampleCount == 0) {
+                outputFile.delete()
+                return RestoreResult.Failed("3GP: no audio samples found in AMR file")
+            }
+
+            Timber.d("3GP: remuxed $sampleCount AMR frames, duration=${lastTs}μs")
+            RestoreResult.Success(lastTs)
+        } catch (e: Exception) {
+            Timber.e(e, "3GP: remux into 3GP failed")
+            outputFile.delete()
+            RestoreResult.Failed("3GP remux failed: ${e.message}")
+        } finally {
+            extractor.release()
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // End of 3GP / AMR restoration
+    // -------------------------------------------------------------------------
 
     /**
      * Fallback restoration using mp4parser library.
@@ -808,6 +1012,42 @@ class BrokenRecordRestorer @Inject constructor() {
          * Very small values would indicate noise rather than real frame boundaries.
          */
         private const val MIN_AAC_FRAME_BYTES = 32
+
+        // -----------------------------------------------------------------
+        // AMR constants
+        // -----------------------------------------------------------------
+
+        /** AMR-NB is recorded at 8 000 Hz; anything above this uses AMR-WB. */
+        internal const val AMR_NB_SAMPLE_RATE = 8_000
+
+        /** Magic header for a standalone AMR-NB file (RFC 4867 §5.1). */
+        internal val AMR_NB_MAGIC = "#!AMR\n".toByteArray(Charsets.US_ASCII)
+
+        /** Magic header for a standalone AMR-WB file (RFC 4867 §5.1). */
+        internal val AMR_WB_MAGIC = "#!AMR-WB\n".toByteArray(Charsets.US_ASCII)
+
+        /**
+         * Maximum valid speech frame-type index for AMR-NB (FT 0–7).
+         * FT 8–14 are reserved/comfort-noise; 15 = NO_DATA.
+         */
+        internal const val AMR_NB_MAX_SPEECH_FT = 7
+
+        /**
+         * Maximum valid speech frame-type index for AMR-WB (FT 0–8).
+         * FT 9–14 are reserved/comfort-noise; 15 = NO_DATA.
+         */
+        internal const val AMR_WB_MAX_SPEECH_FT = 8
+
+        /** Frame-type 15 = NO_DATA, valid in both NB and WB. */
+        internal const val AMR_FT_NO_DATA = 15
+
+        /**
+         * How far into the raw mdat payload to scan for the first AMR frame header.
+         * Container remnants (ftyp/mdat atom bytes) are typically at most a few dozen
+         * bytes; 512 bytes gives ample margin without risking false positives deep in
+         * the audio payload.
+         */
+        internal const val AMR_SCAN_LIMIT = 512
     }
 
 
