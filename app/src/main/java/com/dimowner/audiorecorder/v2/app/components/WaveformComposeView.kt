@@ -180,9 +180,9 @@ private fun drawStartAndEnd(
     )
     //Draw waveform end indication
     canvas.nativeCanvas.drawLine(
-        viewState.waveformShiftPx + state.waveformData.size * viewState.pxPerSample,
+        viewState.waveformShiftPx + state.durationSample * viewState.pxPerSample,
         viewState.textIndent,
-        viewState.waveformShiftPx + state.waveformData.size * viewState.pxPerSample,
+        viewState.waveformShiftPx + state.durationSample * viewState.pxPerSample,
         size.height - viewState.textIndent,
         paintState.linePaint
     )
@@ -262,15 +262,23 @@ private fun drawWaveform(
         var step = 0
         for (index in 0 until viewState.durationPx.toInt()) {
             var sampleIndex = (index * viewState.samplePerPx).toInt()
-            if (sampleIndex >= state.waveformData.size) {
-                sampleIndex = state.waveformData.size - 1
+            if (sampleIndex >= state.durationSample) {
+                sampleIndex = state.durationSample - 1
             }
             val xPos = viewState.waveformShiftPx + index
             if (xPos >= 0 && xPos <= size.width && step + 3 < viewState.drawLinesArray.size) {
+                // Adjust sample index by the buffer offset (used during RECORDING ONLY when
+                // waveformData is a sliding window over the full sample timeline).
+                val bufferIndex = sampleIndex - state.waveformDataOffset
+                val amp = if (bufferIndex in state.waveformData.indices) {
+                    state.waveformData[bufferIndex]
+                } else {
+                    0
+                }
                 viewState.drawLinesArray[step] = xPos
-                viewState.drawLinesArray[step + 1] = (half + state.waveformData[sampleIndex]*(half-textIndent)/AppConstantsV2.WAVEFORM_AMPLITUDE_MAX_VALUE + 1)
+                viewState.drawLinesArray[step + 1] = (half + amp*(half-textIndent)/AppConstantsV2.WAVEFORM_AMPLITUDE_MAX_VALUE + 1)
                 viewState.drawLinesArray[step + 2] = xPos
-                viewState.drawLinesArray[step + 3] = (half - state.waveformData[sampleIndex]*(half-textIndent)/AppConstantsV2.WAVEFORM_AMPLITUDE_MAX_VALUE - 1)
+                viewState.drawLinesArray[step + 3] = (half - amp*(half-textIndent)/AppConstantsV2.WAVEFORM_AMPLITUDE_MAX_VALUE - 1)
                 step += 4
             }
         }
@@ -400,6 +408,14 @@ data class WaveformState(
     val widthScale: Float = 1.5f,
     val durationSample: Int = 0,
     val gridStepMills: Long = 4000,
+    /**
+     * Offset of the first element in [waveformData] relative to the total sample timeline.
+     * Used during recording when [waveformData] is a sliding window buffer: the view only
+     * holds the last N samples, while [durationSample] reflects the total number of samples
+     * recorded so far. The drawing code skips pixel positions whose sample index falls before
+     * this offset, ensuring the waveform scrolls in sync with the grid.
+     */
+    val waveformDataOffset: Int = 0,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -412,6 +428,7 @@ data class WaveformState(
         if (isRecording != other.isRecording) return false
         if (durationSample != other.durationSample) return false
         if (gridStepMills != other.gridStepMills) return false
+        if (waveformDataOffset != other.waveformDataOffset) return false
 
         return true
     }
@@ -424,6 +441,7 @@ data class WaveformState(
         result = 31 * result + isRecording.hashCode()
         result = 31 * result + durationSample
         result = 31 * result + gridStepMills.hashCode()
+        result = 31 * result + waveformDataOffset.hashCode()
         return result
     }
 }

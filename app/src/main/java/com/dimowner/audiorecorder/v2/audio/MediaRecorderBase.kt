@@ -20,7 +20,8 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL
+import com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
+import com.dimowner.audiorecorder.IntArrayList
 import com.dimowner.audiorecorder.exception.AlreadyRecordingException
 import com.dimowner.audiorecorder.exception.InvalidOutputFile
 import com.dimowner.audiorecorder.exception.RecorderInitException
@@ -31,6 +32,8 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
+import java.util.Timer
+import java.util.TimerTask
 
 /**
  * Abstract base class for [MediaRecorder]-based recorder implementations.
@@ -45,6 +48,8 @@ abstract class MediaRecorderBase(
     private val coroutineScope: CoroutineScope,
 ) : RecorderV2 {
 
+    private var timerProgress: Timer? = null
+    private val amplitudesBuffer: IntArrayList = IntArrayList()
     private var mediaRecorder: MediaRecorder? = null
     private var recordFile: File? = null
     private var updateTime: Long = 0
@@ -100,6 +105,7 @@ abstract class MediaRecorderBase(
             emitEvent(RecorderEvent.OnError(AlreadyRecordingException()))
             return false
         }
+        amplitudesBuffer.clear()
         return if (outputFile.exists() && outputFile.isFile) {
             recordFile = outputFile
             val recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -124,6 +130,7 @@ abstract class MediaRecorderBase(
                 updateTime = System.currentTimeMillis()
                 _isRecording = true
                 scheduleRecordingTimeUpdate()
+                scheduleRecordingTimeUpdateBuffered()
                 emitEvent(RecorderEvent.OnStartRecording)
                 _isPaused = false
                 true
@@ -150,6 +157,7 @@ abstract class MediaRecorderBase(
                 recorder.resume()
                 updateTime = System.currentTimeMillis()
                 scheduleRecordingTimeUpdate()
+                scheduleRecordingTimeUpdateBuffered()
                 emitEvent(RecorderEvent.OnResumeRecording)
                 _isPaused = false
                 true
@@ -172,6 +180,7 @@ abstract class MediaRecorderBase(
                     recorder.pause()
                     durationMills += System.currentTimeMillis() - updateTime
                     pauseRecordingTimer()
+                    pauseRecordingTimerBuffered()
                     emitEvent(RecorderEvent.OnPauseRecording)
                     _isPaused = true
                     true
@@ -198,6 +207,7 @@ abstract class MediaRecorderBase(
         }
 
         stopRecordingTimer()
+        stopRecordingTimerBuffered()
         val isStopSucceed = try {
             mediaRecorder?.let {
                 it.setOnInfoListener(null)
@@ -224,6 +234,7 @@ abstract class MediaRecorderBase(
         recordFile = null
         _isRecording = false
         _isPaused = false
+        amplitudesBuffer.clear()
         return isStopSucceed
     }
 
@@ -243,7 +254,7 @@ abstract class MediaRecorderBase(
     }
 
     /**
-     * Runnable that fires every [RECORDING_VISUALIZATION_INTERVAL] ms to push
+     * Runnable that fires every [RECORDING_VISUALIZATION_INTERVAL_NEW] ms to push
      * duration + amplitude progress events.
      */
     private val recordingTimeUpdateRunnable = Runnable {
@@ -251,11 +262,8 @@ abstract class MediaRecorderBase(
             val currentRecorder = mediaRecorder
             if (currentRecorder != null) {
                 try {
-                    val curTime = System.currentTimeMillis()
-                    durationMills += curTime - updateTime
-                    updateTime = curTime
                     val amplitude = currentRecorder.maxAmplitude
-                    emitEvent(RecorderEvent.OnRecordingProgress(durationMills = durationMills, amplitude = amplitude))
+                    amplitudesBuffer.add(amplitude)
                 } catch (e: IllegalStateException) {
                     Timber.e(e, "Error reading amplitude or updating progress")
                 }
@@ -266,17 +274,58 @@ abstract class MediaRecorderBase(
 
     private fun scheduleRecordingTimeUpdate() {
         handler.removeCallbacks(recordingTimeUpdateRunnable)
-        handler.postDelayed(recordingTimeUpdateRunnable, RECORDING_VISUALIZATION_INTERVAL.toLong())
+        handler.postDelayed(recordingTimeUpdateRunnable, (RECORDING_VISUALIZATION_INTERVAL_NEW/1.5).toLong())
     }
 
     private fun stopRecordingTimer() {
         handler.removeCallbacks(recordingTimeUpdateRunnable)
-        updateTime = 0
     }
 
     private fun pauseRecordingTimer() {
         handler.removeCallbacks(recordingTimeUpdateRunnable)
+    }
+
+    private fun scheduleRecordingTimeUpdateBuffered() {
+        timerProgress = Timer()
+        timerProgress?.schedule(object : TimerTask() {
+            override fun run() {
+                try {
+                    readBufferedProgress()
+                } catch (e: java.lang.IllegalStateException) {
+                    Timber.e(e)
+                }
+            }
+        }, 0, RECORDING_VISUALIZATION_INTERVAL_NEW.toLong())
+    }
+
+    private fun stopRecordingTimerBuffered() {
+        timerProgress?.cancel()
+        timerProgress?.purge()
         updateTime = 0
+    }
+
+    private fun pauseRecordingTimerBuffered() {
+        timerProgress?.cancel()
+        timerProgress?.purge()
+        updateTime = 0
+    }
+
+    private fun readBufferedProgress() {
+        val curTime = System.currentTimeMillis()
+        durationMills += curTime - updateTime
+        updateTime = curTime
+        if (amplitudesBuffer.size() > 0) {
+            var amp = amplitudesBuffer.get(amplitudesBuffer.size() - 1)
+            if (amp == 0 && amplitudesBuffer.size() > 1) {
+                amp = amplitudesBuffer.get(amplitudesBuffer.size() - 2)
+            }
+            if (amp == 0 && amplitudesBuffer.size() > 2) {
+                amp = amplitudesBuffer.get(amplitudesBuffer.size() - 3)
+            }
+            amplitudesBuffer.clear()
+            amplitudesBuffer.add(amp)
+            emitEvent(RecorderEvent.OnRecordingProgress(durationMills = durationMills, amplitude = amp))
+        }
     }
 }
 

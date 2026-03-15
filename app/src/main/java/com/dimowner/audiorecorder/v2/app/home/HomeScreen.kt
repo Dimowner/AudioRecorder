@@ -316,17 +316,19 @@ internal fun HomeScreen(
                             onAction(HomeScreenAction.OnSeekEnd(mills))
                         }
                     )
-                    PlayPanel(
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .fillMaxWidth()
-                            .padding(8.dp, 8.dp),
-                        showPause = uiState.showPause,
-                        showStop = uiState.showStop,
-                        onPlayClick = { onAction(HomeScreenAction.OnPlayClick) },
-                        onStopClick = { onAction(HomeScreenAction.OnStopClick) },
-                        onPauseClick = { onAction(HomeScreenAction.OnPauseClick) }
-                    )
+                    if (!uiState.isRecording()) {
+                        PlayPanel(
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .fillMaxWidth()
+                                .padding(8.dp, 8.dp),
+                            showPause = uiState.showPause,
+                            showStop = uiState.showStop,
+                            onPlayClick = { onAction(HomeScreenAction.OnPlayClick) },
+                            onStopClick = { onAction(HomeScreenAction.OnStopClick) },
+                            onPauseClick = { onAction(HomeScreenAction.OnPauseClick) }
+                        )
+                    }
                 } else {
                     Image(
                         painter = painterResource(id = R.drawable.waveform),

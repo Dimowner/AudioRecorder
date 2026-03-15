@@ -2,7 +2,8 @@ package com.dimowner.audiorecorder.v2.audio
 
 import android.media.AudioFormat
 import android.media.AudioRecord
-import com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL
+import com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
+import com.dimowner.audiorecorder.IntArrayList
 import com.dimowner.audiorecorder.exception.AlreadyRecordingException
 import com.dimowner.audiorecorder.exception.InvalidOutputFile
 import com.dimowner.audiorecorder.exception.RecorderInitException
@@ -19,6 +20,8 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.RandomAccessFile
+import java.util.Timer
+import java.util.TimerTask
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,10 +41,14 @@ class WavRecorderV2 @Inject constructor(
     override val isPaused: Boolean
         get() = _isPaused
 
+    private var updateTime: Long = 0
     private var durationMills: Long = 0
     private var sampleRateConfig: Int = 44100
     private var channelCountConfig: Int = 1
     private var maxDurationMills: Int = Int.MAX_VALUE
+
+    private var timerProgress: Timer? = null
+    private val amplitudesBuffer: IntArrayList = IntArrayList()
 
     private val _event = MutableSharedFlow<RecorderEvent>()
     override fun subscribeRecorderEvents(): Flow<RecorderEvent> {
@@ -66,6 +73,7 @@ class WavRecorderV2 @Inject constructor(
             emitEvent(RecorderEvent.OnError(AlreadyRecordingException()))
             return false
         }
+        amplitudesBuffer.clear()
         if (!outputFile.exists() || !outputFile.isFile) {
             emitEvent(RecorderEvent.OnError(InvalidOutputFile()))
             return false
@@ -138,6 +146,7 @@ class WavRecorderV2 @Inject constructor(
         _isPaused = false
         durationMills = 0
         emitEvent(RecorderEvent.OnStartRecording)
+        scheduleRecordingTimeUpdateBuffered()
 
         // Launch a coroutine to read audio data in the background
         recordingJob = coroutineScope.launch(Dispatchers.IO) {
@@ -152,7 +161,7 @@ class WavRecorderV2 @Inject constructor(
                 fos = FileOutputStream(outputFile, true) // append after the placeholder header
                 while (isActive && _isRecording) {
                     if (_isPaused) {
-                        delay(RECORDING_VISUALIZATION_INTERVAL.toLong())
+                        delay(RECORDING_VISUALIZATION_INTERVAL_NEW.toLong())
                         continue
                     }
                     val readResult = recorder.read(buffer, 0, bufferSize)
@@ -165,16 +174,11 @@ class WavRecorderV2 @Inject constructor(
 
                         // Emit progress at regular intervals
                         val now = System.currentTimeMillis()
-                        if (now - lastProgressUpdate >= RECORDING_VISUALIZATION_INTERVAL) {
+                        if (now - lastProgressUpdate >= RECORDING_VISUALIZATION_INTERVAL_NEW) {
                             lastProgressUpdate = now
                             // Calculate amplitude from the buffer (RMS of 16-bit samples)
                             val amplitude = calculateAmplitude(buffer, readResult)
-                            emitEvent(
-                                RecorderEvent.OnRecordingProgress(
-                                    durationMills = durationMills,
-                                    amplitude = amplitude,
-                                )
-                            )
+                            amplitudesBuffer.add(amplitude)
                         }
 
                         // Check max duration
@@ -250,10 +254,12 @@ class WavRecorderV2 @Inject constructor(
         if (!_isRecording || !_isPaused) return false
         _isPaused = false
         emitEvent(RecorderEvent.OnResumeRecording)
+        scheduleRecordingTimeUpdateBuffered()
         return true
     }
 
     override fun pauseRecording(): Boolean {
+        pauseRecordingTimer()
         if (!_isRecording) {
             Timber.e("Recording has already stopped or hasn't started")
             return false
@@ -268,12 +274,14 @@ class WavRecorderV2 @Inject constructor(
     }
 
     override fun stopRecording(): Boolean {
+        stopRecordingTimer()
         if (!_isRecording) {
             Timber.e("Recording has already stopped or hasn't started")
             return false
         }
         _isRecording = false
         _isPaused = false
+        amplitudesBuffer.clear()
         // Tear down the hardware; the recording coroutine will finish its current
         // read(), flush PCM data, write the WAV header in-place, and then emit OnStopRecording.
         return stopHardware()
@@ -353,6 +361,49 @@ class WavRecorderV2 @Inject constructor(
             byteRate = byteRate,
         )
         out.write(header, 0, 44)
+    }
+
+    private fun scheduleRecordingTimeUpdateBuffered() {
+        timerProgress = Timer()
+        timerProgress?.schedule(object : TimerTask() {
+            override fun run() {
+                try {
+                    readBufferedProgress()
+                } catch (e: java.lang.IllegalStateException) {
+                    Timber.e(e)
+                }
+            }
+        }, 0, RECORDING_VISUALIZATION_INTERVAL_NEW.toLong())
+    }
+
+    private fun stopRecordingTimer() {
+        timerProgress?.cancel()
+        timerProgress?.purge()
+        updateTime = 0
+    }
+
+    private fun pauseRecordingTimer() {
+        timerProgress?.cancel()
+        timerProgress?.purge()
+        updateTime = 0
+    }
+
+    private fun readBufferedProgress() {
+        val curTime = System.currentTimeMillis()
+        durationMills += curTime - updateTime
+        updateTime = curTime
+        if (amplitudesBuffer.size() > 0) {
+            var amp = amplitudesBuffer.get(amplitudesBuffer.size() - 1)
+            if (amp == 0 && amplitudesBuffer.size() > 1) {
+                amp = amplitudesBuffer.get(amplitudesBuffer.size() - 2)
+            }
+            if (amp == 0 && amplitudesBuffer.size() > 2) {
+                amp = amplitudesBuffer.get(amplitudesBuffer.size() - 3)
+            }
+            amplitudesBuffer.clear()
+            amplitudesBuffer.add(amp)
+            emitEvent(RecorderEvent.OnRecordingProgress(durationMills = durationMills, amplitude = amp))
+        }
     }
 }
 
