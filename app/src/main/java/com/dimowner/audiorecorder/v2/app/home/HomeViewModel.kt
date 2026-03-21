@@ -24,7 +24,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.res.Resources
 import android.net.Uri
 import android.os.IBinder
 import android.os.ParcelFileDescriptor
@@ -36,7 +35,6 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dimowner.audiorecorder.ARApplication
-import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.AppConstantsV2
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.DecodeService
@@ -51,7 +49,6 @@ import com.dimowner.audiorecorder.exception.ErrorParser
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.util.AudioManagerHelper
 import com.dimowner.audiorecorder.util.BluetoothDeviceInfo
-import com.dimowner.audiorecorder.util.FileUtil
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.adjustWaveformHeights
 import com.dimowner.audiorecorder.v2.app.calculateGridStep
@@ -61,11 +58,8 @@ import com.dimowner.audiorecorder.v2.app.getNewRecordName
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
 import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
-import com.dimowner.audiorecorder.v2.audio.AudioRecorderDelegate
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingService
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingServiceEvent
-import com.dimowner.audiorecorder.v2.audio.RecorderEvent
-import com.dimowner.audiorecorder.v2.audio.RecorderV2
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
@@ -73,7 +67,6 @@ import com.dimowner.audiorecorder.v2.data.extensions.isLostRecord
 import com.dimowner.audiorecorder.v2.data.extensions.copyFile
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.Record
-import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -87,7 +80,6 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
-import java.util.LinkedList
 import javax.inject.Inject
 
 private const val ANIMATION_DURATION = 330L //mills.
@@ -100,36 +92,18 @@ class HomeViewModel @Inject constructor(
     private val fileDataSource: FileDataSource,
     private val prefs: PrefsV2,
     private val audioPlayer: PlayerContractNew.Player,
-    private val audioRecorderDelegate: AudioRecorderDelegate,
     private val audioManagerHelper: AudioManagerHelper,
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext context: Context,
 ) : AndroidViewModel(context as Application) {
 
-    private var audioRecorder: RecorderV2 = audioRecorderDelegate.provideAudioRecorder()
-    private var recordingUpdateJob: Job? = null
-
-    /**
-     * The number of recording amplitude samples that fit in half the waveform view width.
-     * Calculated from screen width so the buffer adapts to different screen sizes.
-     */
-    private val recordingAmplitudeBufferSize: Int = calculateRecordingAmplitudeBufferSize()
-
-    /**
-     * Fixed-size sliding-window buffer of recording amplitudes, pre-filled with zeros.
-     * When a new amplitude arrives it is appended at the end and the oldest value is removed
-     * from the front, creating a moving-waveform effect.
-     */
-    private val recordingAmplitudes = LinkedList<Int>()
-
-    /** Total number of amplitude samples received during the current recording session. */
-    private var totalRecordingSampleCount: Int = 0
+    private var recordingStateJob: Job? = null
+    private var recordingEventJob: Job? = null
 
     private val _state = mutableStateOf(HomeScreenState())
     val state: State<HomeScreenState> = _state
 
-    private var lastRecordingProgressUpdate = 0L
 
     private val _event = MutableSharedFlow<HomeScreenEvent?>()
     val event: SharedFlow<HomeScreenEvent?> = _event
@@ -191,10 +165,18 @@ class HomeViewModel @Inject constructor(
             val binder = service as? AudioRecordingService.ServiceBinder
             recordingService = binder?.getService()
             isRecordingServiceBound = true
+            recordingService?.let { svc ->
+                subscribeRecordingServiceState(svc)
+                subscribeRecordingServiceEvents(svc)
+            }
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             Timber.d("HomeViewModel onServiceDisconnected: $name")
+            recordingStateJob?.cancel()
+            recordingStateJob = null
+            recordingEventJob?.cancel()
+            recordingEventJob = null
             recordingService = null
             isRecordingServiceBound = false
         }
@@ -248,71 +230,80 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun subscribeRecorderUpdates() {
-        val context: Context = getApplication<Application>().applicationContext
-        audioRecorder.subscribeRecorderEvents().collect { event ->
-            Timber.d("HomeViewModel audioRecorder: event: $event")
-            when (event) {
-                is RecorderEvent.OnError -> {
-                    handleError(event.exception)
-                }
-
-                RecorderEvent.OnStartRecording -> {
-                    recordingAmplitudes.clear()
-                    totalRecordingSampleCount = 0
-                    _state.value = state.value.copy(
-                        bottomBarState = BottomBarState.RECORDING,
-                        waveformState = WaveformState(isRecording = true),
-                        isShowWaveform = true,
-                        startTime = "",
-                        endTime = "",
-                        recordName = context.getString(R.string.recording_progress),
-                        keepScreenOn = prefs.isKeepScreenOn,
-                    )
-                    withContext(ioDispatcher) {
-                        recordsDataSource.getRecord(prefs.recordedRecordId)?.let {
-                            _state.value = state.value.copy(
-                                recordInfo = it.toInfoCombinedText(context)
-                            )
+    private fun subscribeRecordingServiceState(service: AudioRecordingService) {
+        recordingStateJob?.cancel()
+        recordingStateJob = viewModelScope.launch {
+            val context: Context = getApplication<Application>().applicationContext
+            var wasRecording = false
+            var lastProgressUpdate = 0L
+            service.recordingState.collect { recState ->
+                if (recState.isRecording && !recState.isPaused) {
+                    if (!wasRecording) {
+                        // Recording just started – initialise UI
+                        wasRecording = true
+                        lastProgressUpdate = 0L
+                        _state.value = state.value.copy(
+                            bottomBarState = BottomBarState.RECORDING,
+                            waveformState = WaveformState(isRecording = true),
+                            isShowWaveform = true,
+                            startTime = "",
+                            endTime = "",
+                            recordName = context.getString(R.string.recording_progress),
+                            keepScreenOn = prefs.isKeepScreenOn,
+                        )
+                        withContext(ioDispatcher) {
+                            recordsDataSource.getRecord(prefs.recordedRecordId)?.let {
+                                _state.value = state.value.copy(
+                                    recordInfo = it.toInfoCombinedText(context)
+                                )
+                            }
                         }
                     }
-                }
-                is RecorderEvent.OnRecordingProgress -> {
-                    recordingAmplitudes.addLast(event.amplitude)
-                    if (recordingAmplitudes.size > recordingAmplitudeBufferSize) {
-                        recordingAmplitudes.removeFirst()
+
+                    // Update waveform on every progress tick
+                    if (recState.syntheticDurationMills > 0) {
+                        _state.value = _state.value.copy(
+                            isShowWaveform = true,
+                            waveformState = _state.value.waveformState.copy(
+                                waveformData = recState.amplitudes,
+                                durationSample = recState.totalSampleCount,
+                                durationMills = recState.syntheticDurationMills,
+                                progressMills = recState.syntheticDurationMills,
+                                widthScale = recState.widthScale,
+                                gridStepMills = 2000,
+                                isRecording = true,
+                                waveformDataOffset = recState.waveformDataOffset,
+                            )
+                        )
                     }
-                    totalRecordingSampleCount++
+
+                    // Update time text and record info at a slower interval
                     val now = System.currentTimeMillis()
-                    updateRecordingWaveform(event.durationMills)
-                    if (now - lastRecordingProgressUpdate >= RECORDING_PROGRESS_UPDATE_INTERVAL) {
-                        lastRecordingProgressUpdate = now
-                        handleRecordingProgress(event.durationMills)
+                    if (now - lastProgressUpdate >= RECORDING_PROGRESS_UPDATE_INTERVAL) {
+                        lastProgressUpdate = now
+                        _state.value = _state.value.copy(
+                            time = TimeUtils.formatTimeIntervalHourMinSec2(recState.durationMills),
+                            showPause = false,
+                            showStop = false,
+                        )
+                        withContext(ioDispatcher) {
+                            updateRecordingProgressInfo()
+                        }
                     }
-                }
-                RecorderEvent.OnPauseRecording -> {
+                } else if (recState.isRecording && recState.isPaused) {
+                    wasRecording = true
                     _state.value = state.value.copy(
                         bottomBarState = BottomBarState.PAUSED,
                         recordName = context.getString(R.string.recording_paused),
                         keepScreenOn = false,
                     )
-                }
-                RecorderEvent.OnResumeRecording -> {
-                    _state.value = state.value.copy(
-                        bottomBarState = BottomBarState.RECORDING,
-                        recordName = context.getString(R.string.recording_progress),
-                        keepScreenOn = prefs.isKeepScreenOn,
-                    )
-                }
-                is RecorderEvent.OnMaxDurationReached -> {
-                    //Handled in the AudioRecordingService
-                    _state.value = state.value.copy(keepScreenOn = false)
-                }
-                RecorderEvent.OnStopRecording -> {
-                    //TODO: Need to update UI state here but only after recording stopped and the recorded record updated in database after stop recording.
+                } else if (wasRecording && !recState.isRecording) {
+                    // Recording stopped
+                    wasRecording = false
                     _state.value = _state.value.copy(
                         waveformState = _state.value.waveformState.copy(isRecording = false),
                         bottomBarState = BottomBarState.READY_TO_START_RECORDING,
+                        keepScreenOn = false,
                     )
                     handleRecordingStopped()
                 }
@@ -320,49 +311,26 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun handleRecordingProgress(durationMills: Long) {
-        _state.value = _state.value.copy(
-            time = TimeUtils.formatTimeIntervalHourMinSec2(durationMills),
-            showPause = false,
-            showStop = false,
-        )
-        withContext(ioDispatcher) {
-            updateRecordingProgressInfo()
+    private fun subscribeRecordingServiceEvents(service: AudioRecordingService) {
+        recordingEventJob?.cancel()
+        recordingEventJob = viewModelScope.launch {
+            service.event.collect { event ->
+                when (event) {
+                    is AudioRecordingServiceEvent.NewRecordingPartStarted -> {
+                        handleNewRecordingPartStarted(event.recordId)
+                    }
+                    is AudioRecordingServiceEvent.ShowInfoSnack -> {
+                        showInfoMessage(event.message)
+                    }
+                    is AudioRecordingServiceEvent.ShowErrorSnack -> {
+                        handleError(event.message)
+                    }
+                    else -> {
+                        Timber.d("Unknown Audio Recording Service Event")
+                    }
+                }
+            }
         }
-    }
-
-    private fun updateRecordingWaveform(durationMills: Long) {
-        if (durationMills <= 0) return
-
-        // Use a synthetic duration derived from the sample count so that pxPerSample
-        // (= durationPx / durationSample) stays perfectly constant during recording.
-        // Real durationMills drifts relative to sample count because the recording
-        // progress timer interval is not exactly RECORDING_VISUALIZATION_INTERVAL_NEW ms.
-        var syntheticDurationMills = totalRecordingSampleCount.toLong() * AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
-        if (durationMills - syntheticDurationMills > AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW) {
-            totalRecordingSampleCount++
-            recordingAmplitudes.addLast(recordingAmplitudes.lastOrNull() ?: 0)
-            syntheticDurationMills = totalRecordingSampleCount.toLong() * AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
-        }
-        val amps = recordingAmplitudes.toIntArray()
-        val scale = syntheticDurationMills * (AppConstantsV2.DEFAULT_WIDTH_SCALE / AppConstantsV2.SHORT_RECORD)
-
-        // The buffer only holds the last `recordingAmplitudeBufferSize` samples, so we need
-        // an offset to map global sample indices into the buffer array.
-        val waveformDataOffset = (totalRecordingSampleCount - amps.size).coerceAtLeast(0)
-        _state.value = _state.value.copy(
-            isShowWaveform = true,
-            waveformState = _state.value.waveformState.copy(
-                waveformData = amps,
-                durationSample = totalRecordingSampleCount,
-                durationMills = syntheticDurationMills,
-                progressMills = syntheticDurationMills,
-                widthScale = scale,
-                gridStepMills = 2000,
-                isRecording = true,
-                waveformDataOffset = waveformDataOffset,
-            )
-        )
     }
 
     private fun subscribePlayerUpdates() {
@@ -486,10 +454,6 @@ class HomeViewModel @Inject constructor(
     }
 
     fun init() {
-        audioRecorder = audioRecorderDelegate.provideAudioRecorder()
-        recordingUpdateJob = viewModelScope.launch {
-            subscribeRecorderUpdates()
-        }
         showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
             updateState(false)
@@ -510,30 +474,6 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             }
-            //TODO: Fix this. It is not triggered. Looks like recordingService still null when this called.
-            recordingService?.let { service ->
-                withContext(mainDispatcher) {
-                    service.event.collect { event ->
-                        when (event) {
-                            is AudioRecordingServiceEvent.NewRecordingPartStarted -> {
-                                handleNewRecordingPartStarted(event.recordId)
-                            }
-
-                            is AudioRecordingServiceEvent.ShowInfoSnack -> {
-                                showInfoMessage(event.message)
-                            }
-
-                            is AudioRecordingServiceEvent.ShowErrorSnack -> {
-                                handleError(event.message)
-                            }
-
-                            else -> {
-                                Timber.d("Unknown Audio Recording Service Event")
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         val context: Context = getApplication<Application>().applicationContext
@@ -542,8 +482,10 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun onStop() {
-        recordingUpdateJob?.cancel()
-        recordingUpdateJob = null
+        recordingStateJob?.cancel()
+        recordingStateJob = null
+        recordingEventJob?.cancel()
+        recordingEventJob = null
     }
 
     private suspend fun updateRecordingProgressInfo() {
@@ -596,8 +538,17 @@ class HomeViewModel @Inject constructor(
                 )
             }
         } else {
-            val bottomBarState = audioRecorder.toBottomBarState()
-            if (audioRecorder.isRecording) {
+            val recState = recordingService?.recordingState?.value
+            val isServiceRecording = recState?.isRecording == true
+            //TODO: Fix this
+            val bottomBarState = if (recState?.isPaused == true) {
+                BottomBarState.PAUSED
+            } else if (isServiceRecording) {
+                BottomBarState.RECORDING
+            } else {
+                BottomBarState.READY_TO_START_RECORDING
+            }
+            if (isServiceRecording) {
                 recordsDataSource.getRecord(prefs.recordedRecordId)?.let {
                     val recordInfo = it.toInfoCombinedText(context)
                     if (bottomBarState == BottomBarState.RECORDING) {
@@ -640,15 +591,15 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun RecorderV2.toBottomBarState(): BottomBarState {
-        return if (this.isPaused) {
-            BottomBarState.PAUSED
-        } else if (this.isRecording) {
-            BottomBarState.RECORDING
-        } else {
-            BottomBarState.READY_TO_START_RECORDING
-        }
-    }
+//    private fun RecorderV2.toBottomBarState(): BottomBarState {
+//        return if (this.isPaused) {
+//            BottomBarState.PAUSED
+//        } else if (this.isRecording) {
+//            BottomBarState.RECORDING
+//        } else {
+//            BottomBarState.READY_TO_START_RECORDING
+//        }
+//    }
 
     @SuppressLint("Recycle")
     fun importAudioFile(uri: Uri) {
@@ -912,31 +863,28 @@ class HomeViewModel @Inject constructor(
     }
 
     fun handlePauseRecordingClick() {
-        audioRecorder.pauseRecording()
+        recordingService?.pauseRecording()
     }
 
     fun handleResumeRecordingClick() {
-        audioRecorder.resumeRecording()
+        recordingService?.resumeRecording()
     }
 
     fun handleStopRecordingClick() {
-        audioRecorder.stopRecording()
-        recordingAmplitudes.clear()
-        totalRecordingSampleCount = 0
+        recordingService?.stopRecording()
         _state.value = state.value.copy(
             waveformState = _state.value.waveformState.copy(
                 isRecording = false,
                 waveformDataOffset = 0,
             ),
+            //TODO: do not change state to READY_TO_START_RECORDING before recording stopped
             bottomBarState = BottomBarState.READY_TO_START_RECORDING,
             keepScreenOn = false,
         )
     }
 
     fun handleOnDeleteRecordingProgressClick() {
-        audioRecorder.stopRecording()
-        recordingAmplitudes.clear()
-        totalRecordingSampleCount = 0
+        recordingService?.stopRecording()
         _state.value = state.value.copy(
             isDeleteRecordingProgressRequested = true,
             keepScreenOn = false,
@@ -992,27 +940,6 @@ class HomeViewModel @Inject constructor(
         return prefs.settingNamingFormat.getNewRecordName(prefs)
     }
 
-
-    //TODO: Remove this?
-    fun addExtension(name: String): String {
-        return FileUtil.addExtension(name, prefs.settingRecordingFormat.value)
-    }
-
-    //TODO: Remove this?
-    //TODO: This function shouldn't be here
-    private fun convertSpaceBytesToTimeInSeconds(
-        spaceBytes: Long,
-        recordingFormat: RecordingFormat,
-        sampleRate: Int,
-        bitrate: Int,
-        channels: Int
-    ): Long {
-        return when (recordingFormat) {
-            RecordingFormat.ThreeGp -> 1000L * (spaceBytes / (AppConstants.RECORD_ENCODING_BITRATE_12000 / 8))
-            RecordingFormat.M4a -> 1000L * (spaceBytes / (bitrate / 8))
-            RecordingFormat.Wav -> 1000L * (spaceBytes / (sampleRate * channels * 2))
-        }
-    }
 
     @SuppressWarnings("CyclomaticComplexMethod")
     fun onAction(action: HomeScreenAction) {
@@ -1167,23 +1094,6 @@ class HomeViewModel @Inject constructor(
     }
 }
 
-/**
- * Calculates how many amplitude samples fit in half the waveform view width.
- *
- * The calculation mirrors the rendering math in [WaveformComposeView]:
- *   pxPerMill  = screenWidth × DEFAULT_WIDTH_SCALE / SHORT_RECORD
- *   pxPerSample = pxPerMill × RECORDING_VISUALIZATION_INTERVAL_NEW
- *   bufferSize  = (screenWidth / 2) / pxPerSample
- *
- * This keeps the buffer size proportional to the actual screen so the
- * waveform fills half the view regardless of screen size or density.
- */
-private fun calculateRecordingAmplitudeBufferSize(): Int {
-    val screenWidthPx = Resources.getSystem().displayMetrics.widthPixels
-    val pxPerMill = screenWidthPx * AppConstantsV2.DEFAULT_WIDTH_SCALE / AppConstantsV2.SHORT_RECORD
-    val pxPerSample = pxPerMill * AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
-    return ((screenWidthPx / 2f) / pxPerSample).toInt() + 5 //added 5 more items to make sure it fills whole screen
-}
 
 data class HomeScreenState(
     val waveformState: WaveformState = WaveformState(),

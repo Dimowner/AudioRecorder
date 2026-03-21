@@ -29,8 +29,10 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import androidx.core.app.NotificationCompat
+import android.content.res.Resources
 import com.dimowner.audiorecorder.ARApplication
 import com.dimowner.audiorecorder.AppConstants
+import com.dimowner.audiorecorder.AppConstantsV2
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.DecodeService
 import com.dimowner.audiorecorder.audio.AudioDecoder
@@ -56,6 +58,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
+import java.util.LinkedList
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -119,6 +122,22 @@ class AudioRecordingService : Service() {
 
     private val _event = MutableSharedFlow<AudioRecordingServiceEvent?>()
     val event: SharedFlow<AudioRecordingServiceEvent?> = _event
+
+    /**
+     * The number of recording amplitude samples that fit in half the waveform view width.
+     * Calculated from screen width so the buffer adapts to different screen sizes.
+     */
+    private val recordingAmplitudeBufferSize: Int = calculateRecordingAmplitudeBufferSize()
+
+    /**
+     * Fixed-size sliding-window buffer of recording amplitudes, pre-filled with zeros.
+     * When a new amplitude arrives it is appended at the end and the oldest value is removed
+     * from the front, creating a moving-waveform effect.
+     */
+    private val recordingAmplitudes = LinkedList<Int>()
+
+    /** Total number of amplitude samples received during the current recording session. */
+    private var totalRecordingSampleCount: Int = 0
 
     inner class ServiceBinder : Binder() {
         fun getService(): AudioRecordingService = this@AudioRecordingService
@@ -191,9 +210,14 @@ class AudioRecordingService : Service() {
                 Timber.d("AudioRecordingService: event: $event")
                 when (event) {
                     is RecorderEvent.OnStartRecording -> {
+                        recordingAmplitudes.clear()
+                        totalRecordingSampleCount = 0
                         _recordingState.value = _recordingState.value.copy(
                             isRecording = true,
                             isPaused = false,
+                            amplitudes = intArrayOf(),
+                            totalSampleCount = 0,
+                            waveformDataOffset = 0,
                         )
                         startNotificationUpdates()
                         updateNotification()
@@ -215,9 +239,41 @@ class AudioRecordingService : Service() {
                                 audioRecorder.stopRecording()
                             }
                         }
+
+                        // Accumulate amplitude into sliding-window buffer
+                        recordingAmplitudes.addLast(event.amplitude)
+                        if (recordingAmplitudes.size > recordingAmplitudeBufferSize) {
+                            recordingAmplitudes.removeFirst()
+                        }
+                        totalRecordingSampleCount++
+
+                        // Compute synthetic duration for stable waveform rendering
+                        var syntheticDurationMills =
+                            totalRecordingSampleCount.toLong() * AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
+                        if (event.durationMills - syntheticDurationMills > AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW) {
+                            totalRecordingSampleCount++
+                            recordingAmplitudes.addLast(recordingAmplitudes.lastOrNull() ?: 0)
+                            if (recordingAmplitudes.size > recordingAmplitudeBufferSize) {
+                                recordingAmplitudes.removeFirst()
+                            }
+                            syntheticDurationMills =
+                                totalRecordingSampleCount.toLong() * AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
+                        }
+
+                        val amps = recordingAmplitudes.toIntArray()
+                        val waveformDataOffset =
+                            (totalRecordingSampleCount - amps.size).coerceAtLeast(0)
+                        val widthScale =
+                            syntheticDurationMills * (AppConstantsV2.DEFAULT_WIDTH_SCALE / AppConstantsV2.SHORT_RECORD)
+
                         _recordingState.value = _recordingState.value.copy(
                             durationMills = event.durationMills,
-                            amplitude = event.amplitude
+                            amplitude = event.amplitude,
+                            amplitudes = amps,
+                            totalSampleCount = totalRecordingSampleCount,
+                            waveformDataOffset = waveformDataOffset,
+                            syntheticDurationMills = syntheticDurationMills,
+                            widthScale = widthScale,
                         )
                     }
                     is RecorderEvent.OnPauseRecording -> {
@@ -410,6 +466,8 @@ class AudioRecordingService : Service() {
     }
 
     private fun stopForegroundService() {
+        recordingAmplitudes.clear()
+        totalRecordingSampleCount = 0
         _recordingState.value = RecordingServiceState()
         stopNotificationUpdates()
         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -622,7 +680,72 @@ data class RecordingServiceState(
     val amplitude: Int = 0,
     val recordId: Long = -1L,
     val recordName: String? = null,
-)
+    /** Sliding-window amplitude buffer snapshot for waveform rendering. */
+    val amplitudes: IntArray = intArrayOf(),
+    /** Total number of amplitude samples received during the current recording session. */
+    val totalSampleCount: Int = 0,
+    /** Offset of the first element in [amplitudes] relative to the total sample timeline. */
+    val waveformDataOffset: Int = 0,
+    /** Duration derived from sample count for stable waveform rendering. */
+    val syntheticDurationMills: Long = 0L,
+    /** Width scale for waveform rendering. */
+    val widthScale: Float = 1.5f,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RecordingServiceState) return false
+        if (recordingFormat != other.recordingFormat) return false
+        if (sampleRate != other.sampleRate) return false
+        if (bitrate != other.bitrate) return false
+        if (channelCount != other.channelCount) return false
+        if (isRecording != other.isRecording) return false
+        if (isPaused != other.isPaused) return false
+        if (durationMills != other.durationMills) return false
+        if (amplitude != other.amplitude) return false
+        if (recordId != other.recordId) return false
+        if (recordName != other.recordName) return false
+        if (!amplitudes.contentEquals(other.amplitudes)) return false
+        if (totalSampleCount != other.totalSampleCount) return false
+        if (waveformDataOffset != other.waveformDataOffset) return false
+        if (syntheticDurationMills != other.syntheticDurationMills) return false
+        if (widthScale != other.widthScale) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = recordingFormat?.hashCode() ?: 0
+        result = 31 * result + sampleRate
+        result = 31 * result + bitrate
+        result = 31 * result + channelCount
+        result = 31 * result + isRecording.hashCode()
+        result = 31 * result + isPaused.hashCode()
+        result = 31 * result + durationMills.hashCode()
+        result = 31 * result + amplitude
+        result = 31 * result + recordId.hashCode()
+        result = 31 * result + (recordName?.hashCode() ?: 0)
+        result = 31 * result + amplitudes.contentHashCode()
+        result = 31 * result + totalSampleCount
+        result = 31 * result + waveformDataOffset
+        result = 31 * result + syntheticDurationMills.hashCode()
+        result = 31 * result + widthScale.hashCode()
+        return result
+    }
+}
+
+/**
+ * Calculates how many amplitude samples fit in half the waveform view width.
+ *
+ * The calculation mirrors the rendering math in WaveformComposeView:
+ *   pxPerMill  = screenWidth × DEFAULT_WIDTH_SCALE / SHORT_RECORD
+ *   pxPerSample = pxPerMill × RECORDING_VISUALIZATION_INTERVAL_NEW
+ *   bufferSize  = (screenWidth / 2) / pxPerSample
+ */
+private fun calculateRecordingAmplitudeBufferSize(): Int {
+    val screenWidthPx = Resources.getSystem().displayMetrics.widthPixels
+    val pxPerMill = screenWidthPx * AppConstantsV2.DEFAULT_WIDTH_SCALE / AppConstantsV2.SHORT_RECORD
+    val pxPerSample = pxPerMill * AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
+    return ((screenWidthPx / 2f) / pxPerSample).toInt() + 5
+}
 
 sealed class AudioRecordingServiceEvent {
     data class ShowErrorSnack(val message: String) : AudioRecordingServiceEvent()
