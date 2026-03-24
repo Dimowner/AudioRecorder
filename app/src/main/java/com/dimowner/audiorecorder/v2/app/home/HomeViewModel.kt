@@ -116,10 +116,11 @@ class HomeViewModel @Inject constructor(
             val decodeService = binder.getService()
             decodeService.setDecodeListener(object : DecodeServiceListener {
                 override fun onStartProcessing() {
-                    //Do nothing
+                    _state.value = _state.value.copy(isShowRecordProcessing = true)
                 }
 
                 override fun onFinishProcessing(recordId: Long, decodedData: IntArray) {
+                    _state.value = _state.value.copy(isShowRecordProcessing = false)
                     viewModelScope.launch(ioDispatcher) {
                         if (recordId < 0) return@launch
                         // Only update UI if the decoded record is still the active record
@@ -132,11 +133,11 @@ class HomeViewModel @Inject constructor(
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
-            //Do nothing
+            _state.value = _state.value.copy(isShowRecordProcessing = false)
         }
 
         override fun onBindingDied(name: ComponentName) {
-            //Do nothing
+            _state.value = _state.value.copy(isShowRecordProcessing = false)
         }
     }
 
@@ -632,6 +633,7 @@ class HomeViewModel @Inject constructor(
     fun importAudioFile(uri: Uri) {
         val context: Context = getApplication<Application>().applicationContext
         showLoadingProgress(true)
+        _state.value = _state.value.copy(isShowImportProgress = true)
         viewModelScope.launch(ioDispatcher) {
             try {
                 val parcelFileDescriptor: ParcelFileDescriptor? =
@@ -666,28 +668,47 @@ class HomeViewModel @Inject constructor(
                         val id = recordsDataSource.insertRecord(record)
                         withContext(mainDispatcher) {
                             audioPlayer.stop()
+                            _state.value = _state.value.copy(isShowImportProgress = false)
                         }
                         prefs.activeRecordId = id
                         updateState()
                         decodeRecord(id, record.path, record.durationMills)
                     }
                 } else {
+                    withContext(mainDispatcher) {
+                        _state.value = _state.value.copy(isShowImportProgress = false)
+                    }
                     handleError(context.getString(R.string.error_unable_to_read_sound_file))
                 }
             } catch (e: SecurityException) {
                 Timber.e(e)
+                withContext(mainDispatcher) {
+                    _state.value = _state.value.copy(isShowImportProgress = false)
+                }
                 handleError(context.getString(R.string.error_permission_denied))
             } catch (e: IOException) {
                 Timber.e(e)
+                withContext(mainDispatcher) {
+                    _state.value = _state.value.copy(isShowImportProgress = false)
+                }
                 handleError(context.getString(R.string.error_unable_to_read_sound_file))
             } catch (e: OutOfMemoryError) {
                 Timber.e(e)
+                withContext(mainDispatcher) {
+                    _state.value = _state.value.copy(isShowImportProgress = false)
+                }
                 handleError(context.getString(R.string.error_unable_to_read_sound_file))
             } catch (e: IllegalStateException) {
                 Timber.e(e)
+                withContext(mainDispatcher) {
+                    _state.value = _state.value.copy(isShowImportProgress = false)
+                }
                 handleError(context.getString(R.string.error_unable_to_read_sound_file))
             } catch (ex: CantCreateFileException) {
                 Timber.e(ex)
+                withContext(mainDispatcher) {
+                    _state.value = _state.value.copy(isShowImportProgress = false)
+                }
                 handleError(ex)
             }
         }
@@ -1134,6 +1155,10 @@ data class HomeScreenState(
     val isShowWaveform: Boolean = false,
     // Indicates loading progress
     val isShowLoadingProgress: Boolean = false,
+    // Indicates waveform decoding in progress
+    val isShowRecordProcessing: Boolean = false,
+    // Indicates audio file import in progress
+    val isShowImportProgress: Boolean = false,
     val isContextMenuAvailable: Boolean = false,
     val isStopRecordingButtonAvailable: Boolean = false,
     val bottomBarState: BottomBarState = BottomBarState.READY_TO_START_RECORDING,

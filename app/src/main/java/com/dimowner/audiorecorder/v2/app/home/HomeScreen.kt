@@ -22,7 +22,9 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,8 +33,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -40,6 +45,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -291,6 +297,14 @@ internal fun HomeScreen(
                         }
                     )
                 }
+                if (uiState.isShowImportProgress) {
+                    Spacer(modifier = Modifier.width(24.dp))
+                    ProgressPanel(text = stringResource(R.string.import_progress))
+                }
+                if (uiState.isShowRecordProcessing) {
+                    Spacer(modifier = Modifier.width(24.dp))
+                    ProgressPanel(text = stringResource(R.string.record_processing))
+                }
                 Spacer(
                     modifier = Modifier
                         .weight(1f)
@@ -430,6 +444,32 @@ internal fun HomeScreen(
     }
 }
 
+@Composable
+private fun ProgressPanel(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(bottom = 4.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(16.dp),
+            strokeWidth = 2.dp,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = text,
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+}
+
 @Preview
 @Composable
 fun HomeScreenPreview() {
@@ -481,3 +521,30 @@ fun HomeScreenShowRecordingProgressPreview() {
         null, {},
     )
 }
+
+@Preview
+@Composable
+fun HomeScreenRecordProcessingPreview() {
+    HomeScreen(
+        {}, {}, {}, {},
+        uiState = HomeScreenState(
+            isShowRecordProcessing = true,
+            isShowWaveform = false,
+        ),
+        null, {},
+    )
+}
+
+@Preview
+@Composable
+fun HomeScreenImportProgressPreview() {
+    HomeScreen(
+        {}, {}, {}, {},
+        uiState = HomeScreenState(
+            isShowImportProgress = true,
+            isShowWaveform = false,
+        ),
+        null, {},
+    )
+}
+
