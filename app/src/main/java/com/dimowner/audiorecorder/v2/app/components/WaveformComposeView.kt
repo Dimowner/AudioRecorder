@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.dimowner.audiorecorder.AppConstantsV2
+import com.dimowner.audiorecorder.AppConstantsV2.RECORDING_GRID_STEP
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.util.TimeUtils
@@ -334,7 +335,7 @@ fun WaveformComposeViewRecordingPreview() {
             durationMills = TEST_WAVEFORM_DATA_DURATION_MILLS,
             waveformData = TEST_WAVEFORM_DATA,
             durationSample = TEST_WAVEFORM_DATA.size,
-            gridStepMills = 2000
+            gridStepMills = RECORDING_GRID_STEP
         ),
         showTimeline = true,
         onSeekStart = {},

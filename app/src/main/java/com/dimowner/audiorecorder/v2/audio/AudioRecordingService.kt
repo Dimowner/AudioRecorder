@@ -260,6 +260,7 @@ class AudioRecordingService : Service() {
                                 totalRecordingSampleCount.toLong() * AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
                         }
 
+//                      TODO:  java.util.ConcurrentModificationException at this line
                         val amps = recordingAmplitudes.toIntArray()
                         val waveformDataOffset =
                             (totalRecordingSampleCount - amps.size).coerceAtLeast(0)

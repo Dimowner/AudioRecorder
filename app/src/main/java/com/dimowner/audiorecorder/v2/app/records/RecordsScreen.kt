@@ -513,27 +513,29 @@ internal fun RecordsScreen(
                         )
                     }
                 }
-                TouchPanel(
-                    showRecordPlaybackPanel = uiState.showRecordPlaybackPanel,
-                    uiHomeState = uiHomeState,
-                    onProgressChange = {
-                        onHomeAction(
-                            HomeScreenAction.OnProgressBarStateChange(
-                                it
+                if (!uiState.isRecording) {
+                    TouchPanel(
+                        showRecordPlaybackPanel = uiState.showRecordPlaybackPanel,
+                        uiHomeState = uiHomeState,
+                        onProgressChange = {
+                            onHomeAction(
+                                HomeScreenAction.OnProgressBarStateChange(
+                                    it
+                                )
                             )
-                        )
-                    },
-                    onSeekStart = { onHomeAction(HomeScreenAction.OnSeekStart) },
-                    onSeekProgress = { onHomeAction(HomeScreenAction.OnSeekProgress(it)) },
-                    onSeekEnd = { onHomeAction(HomeScreenAction.OnSeekEnd(it)) },
-                    onPlayClick = { onHomeAction(HomeScreenAction.OnPlayClick) },
-                    onStopClick = {
-                        coroutineScope.launch {
-                            onHomeAction(HomeScreenAction.OnStopClick)
-                        }
-                    },
-                    onPauseClick = { onHomeAction(HomeScreenAction.OnPauseClick) },
-                )
+                        },
+                        onSeekStart = { onHomeAction(HomeScreenAction.OnSeekStart) },
+                        onSeekProgress = { onHomeAction(HomeScreenAction.OnSeekProgress(it)) },
+                        onSeekEnd = { onHomeAction(HomeScreenAction.OnSeekEnd(it)) },
+                        onPlayClick = { onHomeAction(HomeScreenAction.OnPlayClick) },
+                        onStopClick = {
+                            coroutineScope.launch {
+                                onHomeAction(HomeScreenAction.OnStopClick)
+                            }
+                        },
+                        onPauseClick = { onHomeAction(HomeScreenAction.OnPauseClick) },
+                    )
+                }
 //                AnimatedVisibility(
 //                    visible = uiState.showRecordPlaybackPanel,
 //                    enter = slideInVertically(initialOffsetY = { it }),

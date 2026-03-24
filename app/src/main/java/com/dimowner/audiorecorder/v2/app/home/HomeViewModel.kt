@@ -36,6 +36,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dimowner.audiorecorder.ARApplication
 import com.dimowner.audiorecorder.AppConstantsV2
+import com.dimowner.audiorecorder.AppConstantsV2.RECORDING_GRID_STEP
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.DecodeService
 import com.dimowner.audiorecorder.app.DecodeServiceListener
@@ -60,6 +61,7 @@ import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
 import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingService
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingServiceEvent
+import com.dimowner.audiorecorder.v2.audio.RecordingServiceState
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
@@ -270,7 +272,7 @@ class HomeViewModel @Inject constructor(
                                 durationMills = recState.syntheticDurationMills,
                                 progressMills = recState.syntheticDurationMills,
                                 widthScale = recState.widthScale,
-                                gridStepMills = 2000,
+                                gridStepMills = RECORDING_GRID_STEP,
                                 isRecording = true,
                                 waveformDataOffset = recState.waveformDataOffset,
                             )
@@ -453,7 +455,18 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    fun init() {
+    fun onStart() {
+        // Re-subscribe to recording service flows if the service is already bound
+        // but the jobs were cancelled (e.g. after navigating away and back).
+        recordingService?.let { service ->
+            if (recordingStateJob == null) {
+                subscribeRecordingServiceState(service)
+            }
+            if (recordingEventJob == null) {
+                subscribeRecordingServiceEvents(service)
+            }
+        }
+
         showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
             updateState(false)
@@ -540,41 +553,55 @@ class HomeViewModel @Inject constructor(
         } else {
             val recState = recordingService?.recordingState?.value
             val isServiceRecording = recState?.isRecording == true
-            //TODO: Fix this
-            val bottomBarState = if (recState?.isPaused == true) {
-                BottomBarState.PAUSED
-            } else if (isServiceRecording) {
-                BottomBarState.RECORDING
-            } else {
-                BottomBarState.READY_TO_START_RECORDING
-            }
+            val bottomBarState = recState.toBottomBarState()
             if (isServiceRecording) {
                 recordsDataSource.getRecord(prefs.recordedRecordId)?.let {
                     val recordInfo = it.toInfoCombinedText(context)
+                    val hasWaveformData = recState.syntheticDurationMills > 0
+                    val waveformState = if (hasWaveformData) {
+                        WaveformState(
+                            waveformData = recState.amplitudes,
+                            durationSample = recState.totalSampleCount,
+                            durationMills = recState.syntheticDurationMills,
+                            progressMills = recState.syntheticDurationMills,
+                            widthScale = recState.widthScale,
+                            gridStepMills = RECORDING_GRID_STEP,
+                            isRecording = true,
+                            waveformDataOffset = recState.waveformDataOffset,
+                        )
+                    } else {
+                        WaveformState(isRecording = true)
+                    }
                     if (bottomBarState == BottomBarState.RECORDING) {
-                        _state.value = state.value.copy(
-                            bottomBarState = BottomBarState.RECORDING,
-                            waveformState = WaveformState(),
-                            isShowLoadingProgress = false,
-                            isShowWaveform = false,
-                            startTime = "",
-                            endTime = "",
-                            recordInfo = recordInfo,
-                            recordName = context.getString(R.string.recording_progress),
-                            keepScreenOn = prefs.isKeepScreenOn,
-                        )
+                        withContext(mainDispatcher) {
+                            _state.value = state.value.copy(
+                                bottomBarState = BottomBarState.RECORDING,
+                                waveformState = waveformState,
+                                isShowLoadingProgress = false,
+                                isShowWaveform = true,
+                                startTime = "",
+                                endTime = "",
+                                time = TimeUtils.formatTimeIntervalHourMinSec2(recState.durationMills),
+                                recordInfo = recordInfo,
+                                recordName = context.getString(R.string.recording_progress),
+                                keepScreenOn = prefs.isKeepScreenOn,
+                            )
+                        }
                     } else if (bottomBarState == BottomBarState.PAUSED) {
-                        _state.value = state.value.copy(
-                            bottomBarState = BottomBarState.PAUSED,
-                            waveformState = WaveformState(),
-                            isShowLoadingProgress = false,
-                            isShowWaveform = false,
-                            startTime = "",
-                            endTime = "",
-                            recordInfo = recordInfo,
-                            recordName = context.getString(R.string.recording_paused),
-                            keepScreenOn = false,
-                        )
+                        withContext(mainDispatcher) {
+                            _state.value = state.value.copy(
+                                bottomBarState = BottomBarState.PAUSED,
+                                waveformState = waveformState,
+                                isShowLoadingProgress = false,
+                                isShowWaveform = true,
+                                startTime = "",
+                                endTime = "",
+                                time = TimeUtils.formatTimeIntervalHourMinSec2(recState.durationMills),
+                                recordInfo = recordInfo,
+                                recordName = context.getString(R.string.recording_paused),
+                                keepScreenOn = false,
+                            )
+                        }
                     }
                 }
             } else {
@@ -591,15 +618,15 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-//    private fun RecorderV2.toBottomBarState(): BottomBarState {
-//        return if (this.isPaused) {
-//            BottomBarState.PAUSED
-//        } else if (this.isRecording) {
-//            BottomBarState.RECORDING
-//        } else {
-//            BottomBarState.READY_TO_START_RECORDING
-//        }
-//    }
+    private fun RecordingServiceState?.toBottomBarState(): BottomBarState {
+        return if (this?.isPaused == true) {
+            BottomBarState.PAUSED
+        } else if (this?.isRecording == true) {
+            BottomBarState.RECORDING
+        } else {
+            BottomBarState.READY_TO_START_RECORDING
+        }
+    }
 
     @SuppressLint("Recycle")
     fun importAudioFile(uri: Uri) {
@@ -944,7 +971,7 @@ class HomeViewModel @Inject constructor(
     @SuppressWarnings("CyclomaticComplexMethod")
     fun onAction(action: HomeScreenAction) {
         when (action) {
-            HomeScreenAction.OnStartHomeScreen -> init()
+            HomeScreenAction.OnStartHomeScreen -> onStart()
             HomeScreenAction.OnStopHomeScreen -> onStop()
             is HomeScreenAction.ImportAudioFile -> importAudioFile(action.uri)
             HomeScreenAction.ShareActiveRecord -> shareActiveRecord()
