@@ -172,11 +172,19 @@ internal fun RecordsScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val recordMovedToTrashMessage = if (event is RecordsScreenEvent.RecordMovedToRecycleSnack) {
+        stringResource(R.string.msg_recording_moved_to_trash, event.recordName)
+    } else ""
+    val undoLabel = stringResource(R.string.action_undo)
+    val fewRecordsMovedMessage = if (event is RecordsScreenEvent.FewRecordsMovedToRecycleSnack) {
+        stringResource(R.string.msg_few_recordings_moved_to_trash, event.movedCount, event.expectedCount)
+    } else ""
+
     ComposableLifecycle { _, event ->
         when (event) {
             Lifecycle.Event.ON_START -> {
                 Timber.d("RecordsScreen: On Start")
-                onAction(RecordsScreenAction.InitRecordsScreen(
+                onAction(RecordsScreenAction.OnStartRecordsScreen(
                     showPlayPanel = uiHomeState.waveformState.progressMills > 0)
                 )
             }
@@ -196,12 +204,10 @@ internal fun RecordsScreen(
             }
             is RecordsScreenEvent.RecordMovedToRecycleSnack -> {
                 scope.launch {
-                    val message = context.getString(R.string.msg_recording_moved_to_trash, event.recordName)
-
                     val result = snackbarHostState
                         .showSnackbar(
-                            message = message,
-                            actionLabel = context.getString(R.string.action_undo),
+                            message = recordMovedToTrashMessage,
+                            actionLabel = undoLabel,
                             duration = SnackbarDuration.Short
                         )
                     when (result) {
@@ -218,11 +224,7 @@ internal fun RecordsScreen(
                 scope.launch {
                     snackbarHostState
                         .showSnackbar(
-                            message = context.getString(
-                                R.string.msg_few_recordings_moved_to_trash,
-                                event.movedCount,
-                                event.expectedCount
-                            ),
+                            message = fewRecordsMovedMessage,
                             duration = SnackbarDuration.Short
                         )
                 }

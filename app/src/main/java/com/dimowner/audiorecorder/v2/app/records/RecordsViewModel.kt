@@ -96,7 +96,7 @@ internal class RecordsViewModel @Inject constructor(
         }
     }
 
-    fun init(showPlayPanel: Boolean) {
+    fun onStart(showPlayPanel: Boolean) {
         showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
             initState(showPlayPanel)
@@ -429,7 +429,7 @@ internal class RecordsViewModel @Inject constructor(
     @SuppressWarnings("CyclomaticComplexMethod")
     fun onAction(action: RecordsScreenAction) {
         when (action) {
-            is RecordsScreenAction.InitRecordsScreen -> init(action.showPlayPanel)
+            is RecordsScreenAction.OnStartRecordsScreen -> onStart(action.showPlayPanel)
             is RecordsScreenAction.OnStopRecordsScreen -> onStop()
             is RecordsScreenAction.UpdateListWithSortOrder -> updateListWithSortOrder(action.sortOrderId)
             is RecordsScreenAction.UpdateListWithBookmarks -> updateListWithBookmarks(action.bookmarksSelected)
@@ -692,7 +692,7 @@ internal sealed class RecordsScreenEvent {
 }
 
 internal sealed class RecordsScreenAction {
-    data class InitRecordsScreen(val showPlayPanel: Boolean) : RecordsScreenAction()
+    data class OnStartRecordsScreen(val showPlayPanel: Boolean) : RecordsScreenAction()
     data object OnStopRecordsScreen : RecordsScreenAction()
     data class UpdateListWithSortOrder(val sortOrderId: SortDropDownMenuItemId) : RecordsScreenAction()
     data class UpdateListWithBookmarks(val bookmarksSelected: Boolean) : RecordsScreenAction()
