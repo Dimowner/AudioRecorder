@@ -49,6 +49,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -139,6 +140,9 @@ class AudioRecordingService : Service() {
     /** Total number of amplitude samples received during the current recording session. */
     private var totalRecordingSampleCount: Int = 0
 
+    /** Job for the current recorder-events subscription; cancelled before re-subscribing. */
+    private var subscriptionJob: Job? = null
+
     inner class ServiceBinder : Binder() {
         fun getService(): AudioRecordingService = this@AudioRecordingService
     }
@@ -175,6 +179,7 @@ class AudioRecordingService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        subscriptionJob?.cancel()
         serviceJob.cancel()
         stopNotificationUpdates()
         notificationManager = null
@@ -205,7 +210,8 @@ class AudioRecordingService : Service() {
     }
 
     private fun subscribeRecorderEvents() {
-        serviceScope.launch {
+        subscriptionJob?.cancel()
+        subscriptionJob = serviceScope.launch {
             audioRecorder.subscribeRecorderEvents().collect { event ->
                 Timber.d("AudioRecordingService: event: $event")
                 when (event) {
@@ -260,7 +266,6 @@ class AudioRecordingService : Service() {
                                 totalRecordingSampleCount.toLong() * AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
                         }
 
-//                      TODO:  java.util.ConcurrentModificationException at this line
                         val amps = recordingAmplitudes.toIntArray()
                         val waveformDataOffset =
                             (totalRecordingSampleCount - amps.size).coerceAtLeast(0)
