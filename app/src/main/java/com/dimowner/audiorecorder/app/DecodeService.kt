@@ -51,11 +51,14 @@ import com.dimowner.audiorecorder.data.database.Record
 import com.dimowner.audiorecorder.util.isUsingNightModeResources
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
+import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -100,6 +103,10 @@ class DecodeService : Service() {
     @Inject
     @IoDispatcher
     lateinit var ioDispatcher: CoroutineDispatcher
+
+	@Inject
+	@MainDispatcher
+	lateinit var mainDispatcher: CoroutineDispatcher
 
     private val serviceJob = SupervisorJob()
     private val serviceScope by lazy { CoroutineScope(ioDispatcher + serviceJob) }
@@ -266,20 +273,19 @@ class DecodeService : Service() {
 					}
 
 					override fun onFinishProcessing(data: IntArray, duration: Long) {
-						recordingsTasks.postRunnable {
-                            serviceScope.launch(ioDispatcher) {
-                                if (recordId < 0) return@launch
-                                recordsDataSource.getRecord(recordId)?.let { record ->
-                                    recordsDataSource.updateRecord(
-                                        record.copy(
-                                            amps = data
-                                        )
-                                    )
-                                }
-                            }
-
-							decodeListener?.onFinishProcessing(recordId, data)
-							stopService()
+						serviceScope.launch(ioDispatcher) {
+							if (recordId < 0) return@launch
+							recordsDataSource.getRecord(recordId)?.let { record ->
+								recordsDataSource.updateRecord(
+									record.copy(
+										amps = data
+									)
+								)
+							}
+							withContext(mainDispatcher) {
+								decodeListener?.onFinishProcessing(recordId, data)
+								stopService()
+							}
 						}
 					}
 
