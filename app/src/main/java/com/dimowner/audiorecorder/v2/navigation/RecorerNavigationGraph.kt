@@ -40,12 +40,13 @@ private const val ANIMATION_DURATION = 120
 fun RecorderNavigationGraph(
     coroutineScope: CoroutineScope,
     homeViewModel: HomeViewModel,
+    isFirstRun: Boolean,
     onSwitchToLegacyApp: () -> Unit,
 ) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = Routes.HOME_SCREEN,
+        startDestination = if (isFirstRun) Routes.WELCOME_SCREEN else Routes.HOME_SCREEN,
         enterTransition = { enterTransition(this) },
         exitTransition = { exitTransition(this) },
         popEnterTransition = { popEnterTransition(this) },

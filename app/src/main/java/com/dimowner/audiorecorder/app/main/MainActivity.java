@@ -285,7 +285,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			presenter.storeInPrivateDir(getApplicationContext());
 //			presenter.checkPublicStorageRecords();
 		}
-		presenter.checkFirstRun();
+//		presenter.checkFirstRun();
 		presenter.setAudioRecorder(ARApplication.getInjector().provideAudioRecorder(getApplicationContext()));
 		presenter.updateRecordingDir(getApplicationContext());
 		presenter.loadActiveRecord();

@@ -106,6 +106,9 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void bindView(final MainContract.View v) {
 		this.view = v;
+		if (prefs.isFirstRun()) {
+			prefs.setAppV2(true);
+		}
 		if (prefs.isAppV2()) {
 			view.showAppV2();
 		}

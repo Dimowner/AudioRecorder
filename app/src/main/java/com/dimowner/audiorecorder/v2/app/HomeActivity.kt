@@ -63,7 +63,7 @@ class HomeActivity: ComponentActivity() {
     fun RecorderApp(
         coroutineScope: CoroutineScope
     ) {
-        RecorderNavigationGraph(coroutineScope, viewModel, onSwitchToLegacyApp = {
+        RecorderNavigationGraph(coroutineScope, viewModel, isFirstRun = prefs.isFirstRun, onSwitchToLegacyApp = {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
