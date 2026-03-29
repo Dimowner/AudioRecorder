@@ -45,9 +45,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -56,6 +56,7 @@ import androidx.lifecycle.Lifecycle
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.ScrollableTitleBar
+import com.dimowner.audiorecorder.v2.app.components.AudioSourceSelector
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
@@ -71,10 +72,9 @@ internal fun WelcomeSetupSettingsScreen(
     uiState: SettingsState,
     onAction: (SettingsScreenAction) -> Unit,
 ) {
-    val context = LocalContext.current
-
     val openInfoDialog = remember { mutableStateOf(false) }
     val infoText = remember { mutableStateOf("") }
+    val infoTextAnnotated = remember { mutableStateOf<AnnotatedString?>(null) }
 
     val isExpandedBitRatePanel = remember { mutableStateOf(true) }
 
@@ -136,6 +136,10 @@ internal fun WelcomeSetupSettingsScreen(
                             onAction(SettingsScreenAction.SetNameFormat(it))
                         }
                     )
+                    AuthorNameSettingRow(
+                        currentAuthorName = uiState.recordAuthorName,
+                        onAction = onAction,
+                    )
                     val infoFormat = stringResource(R.string.info_format)
                     SettingSelector(
                         name = stringResource(id = R.string.recording_format),
@@ -188,8 +192,28 @@ internal fun WelcomeSetupSettingsScreen(
                         },
                         onClickInfo = {
                             infoText.value = infoChannels
+                            infoTextAnnotated.value = null
                             openInfoDialog.value = true
                         }
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    val infoAudioSource = htmlStringResource(R.string.info_audio_source_html)
+                    AudioSourceSelector(
+                        selectedSource = uiState.selectedAudioSource,
+                        options = uiState.audioSourceOptions,
+                        onSourceSelected = { audioSource ->
+                            onAction(SettingsScreenAction.SetAudioSource(audioSource))
+                        },
+                        onInfoClick = {
+                            infoText.value = ""
+                            infoTextAnnotated.value = infoAudioSource
+                            openInfoDialog.value = true
+                        }
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    MaxDurationSettingRow(
+                        currentValue = uiState.maxRecordingDurationMinutes,
+                        onAction = onAction,
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                 }
@@ -265,7 +289,12 @@ internal fun WelcomeSetupSettingsScreen(
                     }
                 }
                 if (openInfoDialog.value) {
-                    SettingsInfoDialog(openInfoDialog, infoText.value)
+                    val annotated = infoTextAnnotated.value
+                    if (annotated != null) {
+                        SettingsInfoDialog(openInfoDialog, annotated)
+                    } else {
+                        SettingsInfoDialog(openInfoDialog, infoText.value)
+                    }
                 }
             }
         }
