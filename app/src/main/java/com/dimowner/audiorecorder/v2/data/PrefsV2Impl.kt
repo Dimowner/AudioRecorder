@@ -35,6 +35,9 @@ import com.dimowner.audiorecorder.v2.data.model.convertToRecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.convertToSampleRate
 import com.dimowner.audiorecorder.v2.data.model.convertToSortOrder
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 import androidx.core.content.edit
@@ -56,6 +59,18 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
 
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+
+    private val _isDarkThemeFlow = MutableStateFlow(
+        sharedPreferences.getBoolean(PREF_KEY_IS_DARK_THEME, DefaultValues.isDarkTheme)
+    )
+
+    override val isDarkThemeFlow: StateFlow<Boolean> = _isDarkThemeFlow.asStateFlow()
+
+    private val _isDynamicThemeFlow = MutableStateFlow(
+        sharedPreferences.getBoolean(PREF_KEY_IS_DYNAMIC_THEME, DefaultValues.isDynamicTheme)
+    )
+
+    override val isDynamicThemeFlow: StateFlow<Boolean> = _isDynamicThemeFlow.asStateFlow()
 
     override val isFirstRun: Boolean
         get() = sharedPreferences.getBoolean(PREF_KEY_IS_FIRST_RUN, true)
@@ -142,6 +157,7 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             sharedPreferences.edit {
                 putBoolean(PREF_KEY_IS_DYNAMIC_THEME, value)
             }
+            _isDynamicThemeFlow.value = value
         }
 
     override var isDarkTheme: Boolean
@@ -150,6 +166,7 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             sharedPreferences.edit {
                 putBoolean(PREF_KEY_IS_DARK_THEME, value)
             }
+            _isDarkThemeFlow.value = value
         }
 
     override var isAppV2: Boolean

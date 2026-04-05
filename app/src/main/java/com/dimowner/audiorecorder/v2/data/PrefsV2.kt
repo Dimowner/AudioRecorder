@@ -23,6 +23,7 @@ import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
+import kotlinx.coroutines.flow.StateFlow
 
 interface PrefsV2 {
     val isFirstRun: Boolean
@@ -45,7 +46,9 @@ interface PrefsV2 {
     var recordsSortOrder: SortOrder
 
     var isDynamicTheme: Boolean
+    val isDynamicThemeFlow: StateFlow<Boolean>
     var isDarkTheme: Boolean
+    val isDarkThemeFlow: StateFlow<Boolean>
     var isAppV2: Boolean
 
     var settingNamingFormat: NameFormat

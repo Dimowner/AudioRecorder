@@ -24,6 +24,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.dimowner.audiorecorder.app.main.MainActivity
@@ -48,13 +50,15 @@ class HomeActivity: ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         setContent {
+            val isDark by prefs.isDarkThemeFlow.collectAsState()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val isDynamic by prefs.isDynamicThemeFlow.collectAsState()
                 AppTheme(
-                    dynamicColors = prefs.isDynamicTheme,
-                    darkTheme = prefs.isDarkTheme
+                    dynamicColors = isDynamic,
+                    darkTheme = isDark
                 ) { RecorderApp(lifecycleScope) }
             } else {
-                AppTheme(darkTheme = prefs.isDarkTheme) { RecorderApp(lifecycleScope) }
+                AppTheme(darkTheme = isDark) { RecorderApp(lifecycleScope) }
             }
         }
     }

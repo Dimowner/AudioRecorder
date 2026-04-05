@@ -184,12 +184,14 @@ internal class SettingsViewModel @Inject constructor(
     fun setDarkTheme(value: Boolean) {
         if (prefs.isDarkTheme != value) {
             prefs.isDarkTheme = value
+            _state.value = _state.value.copy(isDarkTheme = value)
         }
     }
 
     fun setDynamicTheme(value: Boolean) {
         if (prefs.isDynamicTheme != value) {
             prefs.isDynamicTheme = value
+            _state.value = _state.value.copy(isDynamicColors = value)
         }
     }
 
