@@ -55,7 +55,6 @@ import com.dimowner.audiorecorder.v2.app.adjustWaveformHeights
 import com.dimowner.audiorecorder.v2.app.calculateGridStep
 import com.dimowner.audiorecorder.v2.app.calculateScale
 import com.dimowner.audiorecorder.v2.app.components.WaveformState
-import com.dimowner.audiorecorder.v2.app.getNewRecordName
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
 import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
@@ -898,16 +897,14 @@ class HomeViewModel @Inject constructor(
 
     // - If is playing, stop playback
     // - Start recording service
-    // - Increment recorded records counter
-    suspend fun handleStartRecordingClick(recordName: String) {
+    suspend fun handleStartRecordingClick() {
         withContext(mainDispatcher) {
             audioPlayer.stop()
         }
         val context: Context = getApplication<Application>().applicationContext
 
         // Start the recording service
-        AudioRecordingService.startServiceForeground(context, recordName)
-//        incrementRecordedRecordPartCounter()
+        AudioRecordingService.startServiceForeground(context)
     }
 
     fun handlePauseRecordingClick() {
@@ -984,11 +981,6 @@ class HomeViewModel @Inject constructor(
         _state.value = _state.value.copy(isShowLoadingProgress = value)
     }
 
-    fun getNewRecordName(): String {
-        return prefs.settingNamingFormat.getNewRecordName(prefs)
-    }
-
-
     @SuppressWarnings("CyclomaticComplexMethod")
     fun onAction(action: HomeScreenAction) {
         when (action) {
@@ -1015,9 +1007,7 @@ class HomeViewModel @Inject constructor(
             //Recording
             HomeScreenAction.OnStartRecordingClick -> {
                 viewModelScope.launch(mainDispatcher) {
-//                    resetRecordedRecordPartCounter()
-                    val recordName = getNewRecordName()
-                    handleStartRecordingClick(recordName)
+                    handleStartRecordingClick()
                 }
             }
             HomeScreenAction.OnPauseRecordingClick -> handlePauseRecordingClick()

@@ -74,12 +74,9 @@ class AudioRecordingService : Service() {
         private const val ACTION_PAUSE_RESUME_RECORDING = "com.dimowner.audiorecorder.ACTION_PAUSE_RESUME_RECORDING"
         private const val ACTION_STOP_RECORDING = "com.dimowner.audiorecorder.ACTION_STOP_RECORDING"
 
-        const val EXTRA_RECORD_NAME = "extra_record_name"
-
-        fun startServiceForeground(context: Context, recordName: String) {
+        fun startServiceForeground(context: Context) {
             val intent = Intent(context, AudioRecordingService::class.java).apply {
                 action = ACTION_START_RECORDING
-                putExtra(EXTRA_RECORD_NAME, recordName)
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intent)
@@ -162,13 +159,11 @@ class AudioRecordingService : Service() {
         subscribeRecorderEvents()
         when (intent?.action) {
             ACTION_START_RECORDING -> {
-                val recordName = intent.getStringExtra(EXTRA_RECORD_NAME)
-                if (recordName != null) {
-                    serviceScope.launch {
-                        resetRecordedRecordPartCounter()
-                        prefs.recordedRecordBaseName = recordName
-                        handleStartRecording(recordName)
-                    }
+                serviceScope.launch {
+                    val recordName = prefs.settingNamingFormat.getNewRecordName(prefs)
+                    resetRecordedRecordPartCounter()
+                    prefs.recordedRecordBaseName = recordName
+                    handleStartRecording(recordName)
                 }
             }
             ACTION_PAUSE_RESUME_RECORDING -> handlePauseResumeAction()

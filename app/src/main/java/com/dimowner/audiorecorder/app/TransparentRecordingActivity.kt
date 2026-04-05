@@ -30,22 +30,10 @@ import com.dimowner.audiorecorder.data.Prefs
 import com.dimowner.audiorecorder.exception.CantCreateFileException
 import com.dimowner.audiorecorder.exception.ErrorParser
 import com.dimowner.audiorecorder.util.AndroidUtils
-import com.dimowner.audiorecorder.v2.app.getNewRecordName
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingService
-import com.dimowner.audiorecorder.v2.data.PrefsV2
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
 
 const val REQ_CODE_RECORD_AUDIO = 303
 const val REQ_CODE_WRITE_EXTERNAL_STORAGE = 404
-
-@EntryPoint
-@InstallIn(SingletonComponent::class)
-interface TransparentRecordingEntryPoint {
-    fun prefsV2(): PrefsV2
-}
 
 class TransparentRecordingActivity : Activity() {
 
@@ -74,13 +62,7 @@ class TransparentRecordingActivity : Activity() {
     }
 
     private fun startRecordingServiceV2() {
-        val entryPoint = EntryPointAccessors.fromApplication(
-            applicationContext,
-            TransparentRecordingEntryPoint::class.java
-        )
-        val prefsV2 = entryPoint.prefsV2()
-        val recordName = prefsV2.settingNamingFormat.getNewRecordName(prefsV2)
-        AudioRecordingService.startServiceForeground(applicationContext, recordName)
+        AudioRecordingService.startServiceForeground(applicationContext)
     }
 
     private fun startLegacyRecordingService() {

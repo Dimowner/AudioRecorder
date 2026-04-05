@@ -51,7 +51,6 @@ import com.dimowner.audiorecorder.app.DecodeServiceListener;
 import com.dimowner.audiorecorder.app.DownloadService;
 import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.RecordingService;
-import com.dimowner.audiorecorder.app.TransparentRecordingEntryPoint;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.moverecords.MoveRecordsActivity;
@@ -69,10 +68,8 @@ import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
-import com.dimowner.audiorecorder.v2.app.AppExtensionsKt;
 import com.dimowner.audiorecorder.v2.app.HomeActivity;
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingService;
-import com.dimowner.audiorecorder.v2.data.PrefsV2;
 
 import java.io.File;
 import java.util.List;
@@ -542,14 +539,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	private void startRecordingServiceV2() {
-		PrefsV2 prefsV2 = EntryPointAccessors.fromApplication(
-				getApplicationContext(),
-				TransparentRecordingEntryPoint.class
-		).prefsV2();
-		String recordName = AppExtensionsKt.getNewRecordName(
-				prefsV2.getSettingNamingFormat(), prefsV2
-		);
-		AudioRecordingService.Companion.startServiceForeground(getApplicationContext(), recordName);
+		AudioRecordingService.Companion.startServiceForeground(getApplicationContext());
 	}
 
 	@Override
