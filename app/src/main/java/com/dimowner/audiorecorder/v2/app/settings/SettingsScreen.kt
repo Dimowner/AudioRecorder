@@ -195,7 +195,7 @@ internal fun SettingsScreen(
                     },
                     enabled = uiState.isRecordingSettingEditable,
                 )
-                val infoFormat = stringResource(R.string.info_format)
+                val infoFormat = htmlStringResource(R.string.info_format_html)
                 SettingSelector(
                     name = stringResource(id = R.string.recording_format),
                     chips = uiState.recordingSettings.map { it.recordingFormat },
@@ -203,15 +203,15 @@ internal fun SettingsScreen(
                         onAction(SettingsScreenAction.SelectRecordingFormat(it.value))
                     },
                     onClickInfo = {
-                        infoText.value = infoFormat
-                        infoTextAnnotated.value = null
+                        infoText.value = ""
+                        infoTextAnnotated.value = infoFormat
                         openInfoDialog.value = true
                     },
                     enabled = uiState.isRecordingSettingEditable
                 )
                 val selectedFormat =
                     uiState.recordingSettings.firstOrNull { it.recordingFormat.isSelected }
-                val infoFrequency = stringResource(R.string.info_frequency)
+                val infoFrequency = htmlStringResource(R.string.info_frequency_html)
                 SettingSelector(
                     name = stringResource(id = R.string.sample_rate),
                     chips = selectedFormat?.sampleRates ?: emptyList(),
@@ -219,8 +219,8 @@ internal fun SettingsScreen(
                         onAction(SettingsScreenAction.SelectSampleRate(it.value))
                     },
                     onClickInfo = {
-                        infoText.value = infoFrequency
-                        infoTextAnnotated.value = null
+                        infoText.value = ""
+                        infoTextAnnotated.value = infoFrequency
                         openInfoDialog.value = true
                     },
                     enabled = uiState.isRecordingSettingEditable

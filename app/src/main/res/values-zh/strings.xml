@@ -158,12 +158,24 @@
 		\n<b>Wav</b> 是未压缩的音频数据格式。它比其他格式占用更多的空间。特定情况下需要这种格式。
 		\n<b>3gp</b> 是为移动通信服务开发的多媒体格式，如果需要节省空间，请使用它。
 		</string>
+    <string name="info_format_html"><![CDATA[
+<b>M4a</b> 格式采用AAC音频编解码器编码，质量好，体积小。 <b>(推荐)</b>
+<br/><br/><b>Wav</b> 是未压缩的音频数据格式。它比其他格式占用更多的空间。特定情况下需要这种格式。
+<br/><b>3gp</b> 是为移动通信服务开发的多媒体格式，如果需要节省空间，请使用它。
+]]></string>
     <string name="info_frequency"><b>采样率</b> 是每秒采集的音频样本数。
 		\n<b>48kHz</b> 是用于DVD的采样率.
 		\n<b>44,1kHz</b> 是音频CD的采样率. <b>(推荐)</b>
 		\n<b>22kHz</b> 低比特率（如64 kbps）的常用采样率。
 		\n<b>8kHz</b> 采样率比现代电话系统的带宽还要小。不适合任何严肃的录音任务。
 		</string>
+    <string name="info_frequency_html"><![CDATA[
+<b>采样率</b> 是每秒采集的音频样本数。
+<br/><br/><b>48kHz</b> 是用于DVD的采样率.
+<br/><b>44,1kHz</b> 是音频CD的采样率. <b>(推荐)</b>
+<br/><b>22kHz</b> 低比特率（如64 kbps）的常用采样率。
+<br/><b>8kHz</b> 采样率比现代电话系统的带宽还要小。不适合任何严肃的录音任务。
+]]></string>
     <string name="info_bitrate"><b>Bitrate</b> is size of data per second of sound. Directly affects recording quality and size.
 		\n<b>256 kbps</b> good quality bitrate.
 		\n<b>192 kbps</b> medium quality bitrate.

@@ -85,7 +85,7 @@
 	<string name="move_record_success">%s uygulama dizinine taşındı</string>
 	<plurals name="downloading_failed_count">
 		<item quantity="one">%d kayıt kopyalanırken bir sorun oluştu</item>
-		<item quantity="other">%d kayıt kopyalanırken bir sorun oluştu</item>
+		<item quantity="other">%d kayıt kopyalanirken bir sorun oluştu</item>
 	</plurals>
 	<plurals name="move_records_failed_count">
 		<item quantity="one">%d kayıt taşınırken bir sorun oluştu</item>
@@ -162,12 +162,27 @@
 		\n<b>Wav</b> sıkıştırılmamış ses formatıdır. Diğer formatlardan daha fazla alan kaplar. Özel durumlarda kullanılabilir.
 		\n<b>3gp</b> mobil telekomünikasyon servisleri için geliştirilmiş bir multimedya formatıdır. Alandan tasarruf etmeniz gerekiyorsa kullanabilirsiniz.
 		</string>
+	<string name="info_format_html"><![CDATA[
+<b>M4a</b> formatı AAC ses çözücüsüyle kodlanmıştır, iyi kalitede ve düşük boyutludur. <b>(önerilen)</b>
+<br/><br/><b>Wav</b> sıkıştırılmamış ses formatıdır. Diğer formatlardan daha fazla alan kaplar. Özel durumlarda kullanılabilir.
+<br/><b>3gp</b> mobil telekomünikasyon servisleri için geliştirilmiş bir multimedya formatıdır. Alandan tasarruf etmeniz gerekiyorsa kullanabilirsiniz.
+]]></string>
+
 	<string name="info_frequency"><b>Örnekleme oranı</b> saniyede taşınan ses örneklerinin oranıdır.
 		\n<b>48kHz</b> DVD\'ler için kullanılan örnekleme oranıdır.
 		\n<b>44,1kHz</b> Ses CD\'leri için kullanılan örnekleme oranıdır. <b>(önerilen)</b>
 		\n<b>22kHz</b> 64 kbps gibi düşük bit oranı için popüler bir örnekleme oranıdır.
 		\n <b>8kHz</b> modern telefon sistemlerine göre daha düşük bant genişliğine sahip örnekleme oranıdır. Önemli kayıtlar için uygun değildir.
 		</string>
+
+	<string name="info_frequency_html"><![CDATA[
+<b>Örnekleme oranı</b> saniyede taşınan ses örneklerinin oranıdır.
+<br/><br/><b>48kHz</b> DVD\'ler için kullanılan örnekleme oranıdır.
+<br/><b>44,1kHz</b> Ses CD\'leri için kullanılan örnekleme oranıdır. <b>(önerilen)</b>
+<br/><b>22kHz</b> 64 kbps gibi düşük bit oranı için popüler bir örnekleme oranıdır.
+<br/><b>8kHz</b> modern telefon sistemlerine göre daha düşük bant genişliğine sahip örnekleme oranıdır. Önemli kayıtlar için uygun değildir.
+]]></string>
+
 	<string name="info_bitrate"><b>Bit hızı</b> sesin saniye başına sahip olduğu veri boyutudur. Kayıt kalitesini ve boyutunu doğrudan etkiler.
 		\n<b>256 kbps</b> yüksek kalite bit hızı.
 		\n<b>192 kbps</b> orta kalite bit hızı.

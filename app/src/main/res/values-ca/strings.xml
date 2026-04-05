@@ -160,12 +160,27 @@
 		\n<b>Wav</b> és un format de dades d\'àudio sense compressió. Ocupa molt més espai que altres formats. Es necessita en casos específics.
 		\n<b>3gp</b> és un format de contenidor multimèdia desenvolupat per a serveis de telecomunicacions mòbils. Feu-lo servir si necessiteu estalviar espai.
 	</string>
+	<string name="info_format_html"><![CDATA[
+<b>M4a</b> està codificat amb el còdec d\'àudio AAC, té bona qualitat i una mida petita. <b>(recomanat)</b>
+<br/><br/><b>Wav</b> és un format de dades d\'àudio sense compressió. Ocupa molt més espai que altres formats. Es necessita en casos específics.
+<br/><b>3gp</b> és un format de contenidor multimèdia desenvolupat per a serveis de telecomunicacions mòbils. Feu-lo servir si necessiteu estalviar espai.
+]]></string>
+
 	<string name="info_frequency">La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transportades per segon.
 		\n<b>48kHz</b> és la freqüència de mostreig utilitzada per als DVD.
 		\n<b>44,1kHz</b> és la freqüència de mostreig dels CD d\'àudio. <b>(recomanat)</b>
 		\n<b>22kHz</b> és una freqüència de mostreig comuna per a taxes de bits baixes, com ara 64 kbps.
 		\n <b>8kHz</b> té menys amplada de banda que els sistemes telefònics moderns. No és adequat per a cap tasca important d\'enregistrament.
 	</string>
+
+	<string name="info_frequency_html"><![CDATA[
+La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transportades per segon.
+<br/><br/><b>48kHz</b> és la freqüència de mostreig utilitzada per als DVD.
+<br/><b>44,1kHz</b> és la freqüència de mostreig dels CD d\'àudio. <b>(recomanat)</b>
+<br/><b>22kHz</b> és una freqüència de mostreig comuna per a taxes de bits baixes, com ara 64 kbps.
+<br/><b>8kHz</b> té menys amplada de banda que els sistemes telefònics moderns. No és adequat per a cap tasca important d\'enregistrament.
+]]></string>
+
 	<string name="info_bitrate"><b>Taxa de bits</b>	és la mida de dades per segon de so. Afecta directament la qualitat de la gravació i la mida del fitxer.
 		\n<b>256 kbps</b> bona qualitat.
 		\n<b>192 kbps</b> qualitat mitjana.
@@ -198,7 +213,7 @@
 	<string name="info_bitrate_192"><b>192 kbps</b>	és una taxa de bits de qualitat mitjana.</string>
 	<string name="info_bitrate_256"><b>256 kbps</b>	és una taxa de bits de bona qualitat.</string>
 	<string name="info_bitrate_288"><b>288 kbps</b>	és una taxa de bits de bona qualitat.</string>
-	<string name="info_sample_rate_8k"><b>8kHz</b> és una freqüència de mostreig amb menys amplada de banda que els sistemes telefònics moderns. No és adequat per a cap tasca seriosa de gravació.</string>
+	<string name="info_sample_rate_8k"><b>8kHz</b> és una freqüència de mostreig amb menys amplada de banda que els sistemes telefònics modernes. No és adequat per a cap tasca seriosa de gravació.</string>
 	<string name="info_sample_rate_16k"><b>16kHz</b> és millor que 8kHz.</string>
 	<string name="info_sample_rate_22k"><b>22kHz</b> és una freqüència de mostreig comuna per a taxes de bits baixes, com ara 64 kbps.</string>
 	<string name="info_sample_rate_32k"><b>32kHz</b> és una mica millor que 22kHz.</string>

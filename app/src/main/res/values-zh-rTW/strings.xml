@@ -164,11 +164,26 @@
 	<string name="info_format"><b>M4a</b> 採用 AAC 音訊編碼，兼具較小體積與較佳品質。<b>(建議)</b>
 		\n\n<b>Wav</b> 未壓縮的音訊，需要比其他格式更多的空間，特殊情況使用。
 		\n\n<b>3gp</b> 為行動電信服務而設的多媒體封裝格式，需要節省空間時使用。</string>
+	<string name="info_format_html"><![CDATA[
+<b>M4a</b> 採用 AAC 音訊編碼，兼具較小體積與較佳品質。<b>(建議)</b>
+<br/><br/><b>Wav</b> 未壓縮的音訊，需要比其他格式更多的空間，特殊情況使用。
+<br/><b>3gp</b> 為行動電信服務而設的多媒體封裝格式，需要節省空間時使用。
+]]></string>
+
 	<string name="info_frequency"><b>取樣率</b> 每秒能夠傳遞的音訊取樣個數。
 		\n\n<b>48 kHz</b> DVD 取樣率。
 		\n\n<b>44,1 kHz</b> CD 音訊取樣率。<b>(建議)</b>
 		\n\n<b>22 kHz</b> 熱門的低位元取樣率，例如 64 kbps。
 		\n\n<b>8 kHz</b> 用於較小頻寬的現代電話系統，不適合正式的錄音作業。</string>
+
+	<string name="info_frequency_html"><![CDATA[
+<b>取樣率</b> 每秒能夠傳遞的音訊取樣個數。
+<br/><br/><b>48 kHz</b> DVD 取樣率。
+<br/><b>44,1 kHz</b> CD 音訊取樣率。<b>(建議)</b>
+<br/><b>22 kHz</b> 熱門的低位元取樣率，例如 64 kbps。
+<br/><b>8 kHz</b> 用於較小頻寬的現代電話系統，不適合正式的錄音作業。
+]]></string>
+
 	<string name="info_bitrate"><b>位元速率</b> 每秒處理的音訊資料量，直接影響品質與大小。
 		\n\n<b>256 kbps</b> 最佳品質速率。
 		\n\n<b>192 kbps</b> 中階品質速率。
