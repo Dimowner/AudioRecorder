@@ -21,8 +21,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.wrapContentSize
@@ -444,6 +446,13 @@ internal fun RecordsScreen(
                                         }
                                     },
                                 )
+                            }
+                        }
+                        // Add bottom spacing when TouchPanel is visible so the last items
+                        // are not covered by the playback panel overlay
+                        if (uiState.showRecordPlaybackPanel) {
+                            item(key = "bottom_spacer") {
+                                Spacer(modifier = Modifier.height(225.dp))
                             }
                         }
                     }
