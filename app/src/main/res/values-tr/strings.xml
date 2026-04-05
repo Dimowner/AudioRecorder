@@ -175,6 +175,16 @@
 		\n<b>96 kbps</b> genelde konuşma ve düşük kaliteli yayınlarda kullanılır.
 		\n<b>48 kbps</b> genelde sadece konuşmalar için kullanılır.
 		</string>
+
+	<string name="info_bitrate_html"><![CDATA[
+<b>Bit hızı</b> sesin saniye başına sahip olduğu veri boyutudur. Kayıt kalitesini ve boyutunu doğrudan etkiler.
+<br/><br/><b>256 kbps</b> yüksek kalite bit hızı.
+<br/><b>192 kbps</b> orta kalite bit hızı.
+<br/><b>128 kbps</b> orta sınıf bit hızı kalitesi. Podcastler için yaygındır. <b>(önerilen)</b>
+<br/><b>96 kbps</b> genelde konuşma ve düşük kaliteli yayınlarda kullanılır.
+<br/><b>48 kbps</b> genelde sadece konuşmalar için kullanılır.
+]]></string>
+
 	<string name="info_channels">
 		<b>Stereo</b> iki ayrı kanalda kaydedilir. Her hoparlör farklı ses sinyaline sahip olur. <b>(önerilen)</b>
 		\n<b>Mono</b> tek kanalda kaydedilir. Ses birkaç hoparlör ile çoğaltılbilir, ancak bütün hoparlörler aynı ses sinyalinin kopyasını üretir.

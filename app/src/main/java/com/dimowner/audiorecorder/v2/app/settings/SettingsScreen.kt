@@ -229,7 +229,7 @@ internal fun SettingsScreen(
                     isExpandedBitRatePanel.value = !selectedFormat?.bitRates.isNullOrEmpty()
                 }
                 AnimatedVisibility(visible = isExpandedBitRatePanel.value) {
-                    val infoBitrate = stringResource(R.string.info_bitrate)
+                    val infoBitrate = htmlStringResource(R.string.info_bitrate_html)
                     SettingSelector(
                         name = stringResource(id = R.string.bitrate),
                         chips = selectedFormat?.bitRates ?: emptyList(),
@@ -237,8 +237,8 @@ internal fun SettingsScreen(
                             onAction(SettingsScreenAction.SelectBitrate(it.value))
                         },
                         onClickInfo = {
-                            infoText.value = infoBitrate
-                            infoTextAnnotated.value = null
+                            infoText.value = ""
+                            infoTextAnnotated.value = infoBitrate
                             openInfoDialog.value = true
                         },
                         enabled = uiState.isRecordingSettingEditable
