@@ -1063,7 +1063,9 @@ class HomeViewModel @Inject constructor(
     private suspend fun checkForBrokenRecords() {
         // Recording was in progress but the app restarted - recording was interrupted
         withContext(ioDispatcher) {
+            val currentRecordingId = prefs.recordedRecordId
             val brokenRecords = recordsDataSource.getBrokenRecords()
+                .filter { it.id != currentRecordingId }
             if (brokenRecords.isNotEmpty()) {
                 // Show the last broken record for restoration
                 val brokenRecord = brokenRecords.last()

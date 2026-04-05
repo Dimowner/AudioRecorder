@@ -51,6 +51,7 @@ import com.dimowner.audiorecorder.app.DecodeServiceListener;
 import com.dimowner.audiorecorder.app.DownloadService;
 import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.RecordingService;
+import com.dimowner.audiorecorder.app.TransparentRecordingEntryPoint;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.moverecords.MoveRecordsActivity;
@@ -68,13 +69,18 @@ import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
+import com.dimowner.audiorecorder.v2.app.AppExtensionsKt;
 import com.dimowner.audiorecorder.v2.app.HomeActivity;
+import com.dimowner.audiorecorder.v2.audio.AudioRecordingService;
+import com.dimowner.audiorecorder.v2.data.PrefsV2;
 
 import java.io.File;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.WindowCompat;
+
+import dagger.hilt.android.EntryPointAccessors;
 
 import timber.log.Timber;
 
@@ -266,10 +272,16 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		//Check start recording shortcut
 		if ("android.intent.action.ACTION_RUN".equals(getIntent().getAction())) {
-			if (checkRecordPermission2()) {
-				if (checkStoragePermission2()) {
-					//Start or stop recording
-					startRecordingService();
+			if (ARApplication.getInjector().providePrefs(getApplicationContext()).isAppV2()) {
+				if (checkRecordPermission2()) {
+					startRecordingServiceV2();
+				}
+			} else {
+				if (checkRecordPermission2()) {
+					if (checkStoragePermission2()) {
+						//Start or stop recording
+						startRecordingService();
+					}
 				}
 			}
 		}
@@ -527,6 +539,17 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		} catch (CantCreateFileException e) {
 			showError(ErrorParser.parseException(e));
 		}
+	}
+
+	private void startRecordingServiceV2() {
+		PrefsV2 prefsV2 = EntryPointAccessors.fromApplication(
+				getApplicationContext(),
+				TransparentRecordingEntryPoint.class
+		).prefsV2();
+		String recordName = AppExtensionsKt.getNewRecordName(
+				prefsV2.getSettingNamingFormat(), prefsV2
+		);
+		AudioRecordingService.Companion.startServiceForeground(getApplicationContext(), recordName);
 	}
 
 	@Override
@@ -893,7 +916,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			startRecordingService();
 		} else if (requestCode == REQ_CODE_RECORD_AUDIO && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-			if (checkStoragePermission2()) {
+			if (ARApplication.getInjector().providePrefs(getApplicationContext()).isAppV2()) {
+				startRecordingServiceV2();
+			} else if (checkStoragePermission2()) {
 				startRecordingService();
 			}
 		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.length > 0
