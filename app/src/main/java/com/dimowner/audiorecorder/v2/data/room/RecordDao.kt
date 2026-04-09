@@ -25,6 +25,7 @@ import androidx.room.RawQuery
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
 
+@SuppressWarnings("TooManyFunctions")
 @Dao
 interface RecordDao {
 
@@ -67,11 +68,47 @@ interface RecordDao {
     @Query("SELECT * FROM records WHERE isMovedToRecycle = 0 ORDER BY added DESC")
     fun getAllRecords(): List<RecordEntity>
 
+    @Deprecated("Used only for legacy app v1")
+    @Query("SELECT id FROM records WHERE isMovedToRecycle = 0 ORDER BY added DESC")
+    fun getAllRecordIds(): List<Long>
+
+    @Deprecated("Used only for legacy app v1")
+    @Query("SELECT * FROM records WHERE path = :path AND isMovedToRecycle = 0 LIMIT 1")
+    fun findRecordByPath(path: String): RecordEntity?
+
+    @Deprecated("Used only for legacy app v1")
+    @Query("SELECT * FROM records WHERE path LIKE '%' || :path || '%' AND isMovedToRecycle = 0")
+    fun findRecordsByPathLike(path: String): List<RecordEntity>
+
+    @Deprecated("Used only for legacy app v1")
+    @Query("SELECT COUNT(*) FROM records WHERE path LIKE '%' || :path || '%' AND isMovedToRecycle = 0")
+    fun countRecordsByPathLike(path: String): Int
+
+    @Deprecated("Used only for legacy app v1")
+    @Query("SELECT * FROM records WHERE isBookmarked = 1 AND isMovedToRecycle = 0 ORDER BY created DESC")
+    fun getBookmarkedRecords(): List<RecordEntity>
+
+    @Deprecated("Used only for legacy app v1")
+    @Query("SELECT duration FROM records WHERE isMovedToRecycle = 0")
+    fun getRecordsDurations(): List<Long>
+
     @Query("SELECT * FROM records WHERE isMovedToRecycle = 1 ORDER BY removed DESC")
     fun getMovedToRecycleRecords(): List<RecordEntity>
 
+    @Deprecated("Used only for legacy app v1")
+    @Query("SELECT id FROM records WHERE isMovedToRecycle = 1 ORDER BY removed DESC")
+    fun getMovedToRecycleRecordIds(): List<Long>
+
     @Query("SELECT COUNT(*) FROM records WHERE isMovedToRecycle = 1")
     fun getMovedToRecycleRecordsCount(): Int
+
+    @Deprecated("Used only for legacy app v1")
+    @Query("SELECT * FROM records WHERE id = :recordId AND isMovedToRecycle = 1")
+    fun getTrashRecordById(recordId: Long): RecordEntity?
+
+    @Deprecated("Used only for legacy app v1")
+    @Query("DELETE FROM records WHERE isMovedToRecycle = 1")
+    fun deleteAllTrashRecords()
 
     @RawQuery
     fun getRecordsRewQuery(query: SupportSQLiteQuery): List<RecordEntity>

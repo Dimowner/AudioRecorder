@@ -396,29 +396,6 @@ class LocalRepositoryImplTest {
         assertEquals("long", records[2].name)
     }
 
-    // ── Get last record ─────────────────────────────────────────────────────────
-
-    @Test
-    fun getLastRecord_returnsLastInsertedRecord() {
-        val f1 = createTempFile("last1.m4a")
-        val f2 = createTempFile("last2.m4a")
-
-        repository.insertRecord(createRecord(name = "first", path = f1.absolutePath))
-        repository.insertRecord(createRecord(name = "second", path = f2.absolutePath))
-
-        val last = repository.lastRecord
-
-        assertNotNull(last)
-        assertEquals("second", last!!.name)
-    }
-
-    @Test
-    fun getLastRecord_returnsNull_whenNoRecords() {
-        val last = repository.lastRecord
-
-        assertNull(last)
-    }
-
     // ── Delete record (moves to trash) ──────────────────────────────────────────
 
     @Test

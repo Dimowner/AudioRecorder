@@ -326,7 +326,7 @@ fun WelcomeSetupSettingsScreenPreview() {
             recordingFormat = ChipItem(id = 0, value = RecordingFormat.M4a, name = "M4a", isSelected = true),
             sampleRates = listOf(
                 ChipItem(id = 0, value = SampleRate.SR16000, name = "16 kHz", isSelected = false),
-                ChipItem(id = 0, value = SampleRate.SR22500, name = "22.5 kHz", isSelected = false),
+                ChipItem(id = 0, value = SampleRate.SR22050, name = "22.05 kHz", isSelected = false),
                 ChipItem(id = 0, value = SampleRate.SR32000, name = "32 kHz", isSelected = false),
                 ChipItem(id = 1, value = SampleRate.SR44100, name = "44.1 kHz", isSelected = true),
                 ChipItem(id = 1, value = SampleRate.SR48000, name = "48 kHz", isSelected = false),

@@ -22,7 +22,7 @@ import kotlinx.parcelize.Parcelize
 enum class SampleRate(val value: Int, val index: Int): Parcelable {
     SR8000(value = 8000, index = 0),
     SR16000(value = 16000, index = 1),
-    SR22500(value = 22500, index = 2),
+    SR22050(value = 22050, index = 2),
     SR32000(value = 32000, index = 3),
     SR44100(value = 44100, index = 4),
     SR48000(value = 48000, index = 5),
@@ -31,7 +31,7 @@ enum class SampleRate(val value: Int, val index: Int): Parcelable {
 fun Int.convertToSampleRate(): SampleRate? {
     return if (this == SampleRate.SR8000.value) SampleRate.SR8000
     else if (this == SampleRate.SR16000.value) SampleRate.SR16000
-    else if (this == SampleRate.SR22500.value) SampleRate.SR22500
+    else if (this == SampleRate.SR22050.value) SampleRate.SR22050
     else if (this == SampleRate.SR32000.value) SampleRate.SR32000
     else if (this == SampleRate.SR44100.value) SampleRate.SR44100
     else if (this == SampleRate.SR48000.value) SampleRate.SR48000

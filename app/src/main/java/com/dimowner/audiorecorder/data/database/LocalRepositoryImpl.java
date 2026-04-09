@@ -285,26 +285,6 @@ public class LocalRepositoryImpl implements LocalRepository {
 		return list;
 	}
 
-	@Override
-	public Record getLastRecord() {
-		if (!dataSource.isOpen()) {
-			dataSource.open();
-		}
-		Cursor c = dataSource.queryLocal("SELECT * FROM " + SQLiteHelper.TABLE_RECORDS +
-				" ORDER BY " + SQLiteHelper.COLUMN_ID + " DESC LIMIT 1");
-		if (c != null && c.moveToFirst()) {
-			Record r = dataSource.recordToItem(c);
-			if (!isFileExists(r.getPath())) {
-				List<Record> l = new ArrayList<>(1);
-				l.add(r);
-				checkForLostRecords(l);
-			}
-			return r;
-		} else {
-			return null;
-		}
-	}
-
 	private boolean isFileExists(String path) {
 		return new File(path).exists();
 	}

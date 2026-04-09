@@ -820,7 +820,7 @@ private fun getTestChips(): List<ChipItem<SampleRate>> {
     return listOf(
         ChipItem(id = 0, value = SampleRate.SR8000, name = "8000", false),
         ChipItem(id = 1, value = SampleRate.SR16000, name = "16000", false),
-        ChipItem(id = 2, value = SampleRate.SR22500, name = "22500", true),
+        ChipItem(id = 2, value = SampleRate.SR22050, name = "22050", true),
         ChipItem(id = 3, value = SampleRate.SR32000, name = "32000", false),
     )
 }

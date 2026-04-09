@@ -62,7 +62,7 @@ class ModelTest {
         //Success cases
         assertEquals(SampleRate.SR8000, SampleRate.SR8000.value.convertToSampleRate())
         assertEquals(SampleRate.SR16000, SampleRate.SR16000.value.convertToSampleRate())
-        assertEquals(SampleRate.SR22500, SampleRate.SR22500.value.convertToSampleRate())
+        assertEquals(SampleRate.SR22050, SampleRate.SR22050.value.convertToSampleRate())
         assertEquals(SampleRate.SR32000, SampleRate.SR32000.value.convertToSampleRate())
         assertEquals(SampleRate.SR44100, SampleRate.SR44100.value.convertToSampleRate())
         assertEquals(SampleRate.SR48000, SampleRate.SR48000.value.convertToSampleRate())
