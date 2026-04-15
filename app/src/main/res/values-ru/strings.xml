@@ -328,4 +328,8 @@
 	</string-array>
 
 	<string name="app_widget_description">Начать запись виджет</string>
+
+    <string name="duration_days_hours_minutes">%1$dд %2$dч %3$dмин</string>
+    <string name="duration_hours_and_minutes">%1$dч %2$dмин</string>
+    <string name="duration_minutes">%1$dмин</string>
 </resources>

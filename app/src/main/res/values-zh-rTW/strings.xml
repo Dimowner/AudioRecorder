@@ -288,4 +288,8 @@
 	</string-array>
 
 	<string name="app_widget_description">啟動錄音小工具</string>
+
+    <string name="duration_days_hours_minutes">%1$d天 %2$d時 %3$d分</string>
+    <string name="duration_hours_and_minutes">%1$d時 %2$d分</string>
+    <string name="duration_minutes">%1$d分</string>
 </resources>

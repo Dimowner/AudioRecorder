@@ -406,6 +406,8 @@
 		<item>Mono</item>
 	</string-array>
 
+    <!-- Time duration days, hours and minutes. Example: "1d 2h 30m" -->
+    <string name="duration_days_hours_minutes">%1$dd %2$dh %3$dm</string>
     <!-- Time duration hours and minutes. Examples: "2h 30m", "5h 0m" -->
     <string name="duration_hours_and_minutes">%1$dh %2$dm</string>
     <!-- Time duration minutes only. Examples: "45m", or "0m"-->

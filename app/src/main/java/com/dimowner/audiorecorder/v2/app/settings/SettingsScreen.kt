@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.v2.app.settings
 
 import android.os.Build
+import android.text.format.Formatter
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -63,13 +64,13 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.ScrollableTitleBar
 import com.dimowner.audiorecorder.v2.app.components.AudioSourceSelector
-import com.dimowner.audiorecorder.v2.app.formatDuration
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import timber.log.Timber
+import androidx.compose.ui.platform.LocalResources
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -299,13 +300,13 @@ internal fun SettingsScreen(
                 InfoTextView(
                     stringResource(
                         id = R.string.total_duration,
-                        formatDuration(context.resources, (uiState.totalRecordDuration))
+                        formatAvailableRecordingTime(uiState.totalRecordDuration, LocalResources.current)
                     )
                 )
                 InfoTextView(
                     stringResource(
                         id = R.string.available_space,
-                        (uiState.availableSpace)
+                        "${formatAvailableRecordingTime(uiState.availableSpaceMills, LocalResources.current)} (${Formatter.formatShortFileSize(context, uiState.availableSpaceBytes)})"
                     )
                 )
                 Row(
@@ -549,7 +550,8 @@ fun SettingsScreenPreview() {
         feedbackEmail = "feedbackEmail",
         totalRecordCount = 10,
         totalRecordDuration = 1000500,
-        availableSpace = 1010101010,
+        availableSpaceMills = 1010101010,
+        availableSpaceBytes = 2020202020,
         appName = "App Name",
         appVersion = "1.0.0",
         maxRecordingDurationMinutes = 120,

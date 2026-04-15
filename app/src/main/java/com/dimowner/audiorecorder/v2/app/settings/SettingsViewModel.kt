@@ -34,6 +34,7 @@ import com.dimowner.audiorecorder.v2.app.formatSampleRate
 import com.dimowner.audiorecorder.v2.app.recordingSettingsCombinedText
 import com.dimowner.audiorecorder.v2.app.removeOutdatedTrashRecords
 import com.dimowner.audiorecorder.v2.audio.AudioRecorderDelegate
+import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
@@ -57,6 +58,7 @@ import javax.inject.Inject
 internal class SettingsViewModel @Inject constructor(
     private val prefs: PrefsV2,
     private val recordsDataSource: RecordsDataSource,
+    private val fileDataSource: FileDataSource,
     private val audioPlayer: PlayerContractNew.Player,
     private val audioRecorderDelegate: AudioRecorderDelegate,
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
@@ -137,7 +139,8 @@ internal class SettingsViewModel @Inject constructor(
             feedbackEmail = "email",//TODO: Fix hardcoded value
             totalRecordCount = 0,
             totalRecordDuration = 0,
-            availableSpace = 0,
+            availableSpaceMills = 0,
+            availableSpaceBytes = 0,
             appName = context.getString(R.string.app_name),
             appVersion = context.getString(R.string.version, AndroidUtils.getAppVersion(context)),
             maxRecordingDurationMinutes = prefs.maxRecordingDurationMills / 60000,
@@ -151,10 +154,22 @@ internal class SettingsViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             val recordsCount = recordsDataSource.getRecordsCount()
             val recordsDuration = recordsDataSource.getRecordTotalDuration()
+            val rawAvailableSpaceBytes = fileDataSource.getAvailableSpace()
+            val settings = _state.value.recordingSettings.firstOrNull { it.recordingFormat.isSelected }
+            val availableTimeMills = spaceToRecordingTimeMills(
+                rawAvailableSpaceBytes,
+                settings?.recordingFormat?.value,
+                settings?.sampleRates?.firstOrNull { it.isSelected }?.value,
+                settings?.bitRates?.firstOrNull { it.isSelected }?.value,
+                settings?.channelCounts?.firstOrNull { it.isSelected }?.value,
+            )
             withContext(mainDispatcher) {
                 _state.value = _state.value.copy(
                     isRecordingSettingEditable = !audioRecorderDelegate.provideAudioRecorder().isRecording,
-                    totalRecordCount = recordsCount, totalRecordDuration = recordsDuration,
+                    totalRecordCount = recordsCount,
+                    totalRecordDuration = recordsDuration,
+                    availableSpaceMills = availableTimeMills,
+                    availableSpaceBytes = rawAvailableSpaceBytes,
                     // Load the selected audio source from preferences
                     selectedAudioSource = prefs.settingAudioSource
                 )
@@ -421,7 +436,15 @@ internal class SettingsViewModel @Inject constructor(
                 formatSampleRate(sampleRateStrings, settings?.sampleRates?.firstOrNull { it.isSelected }?.value),
                 formatBitRate(bitRateStrings, settings?.bitRates?.firstOrNull { it.isSelected }?.value),
                 formatChannelCount(channelCountsStrings, settings?.channelCounts?.firstOrNull { it.isSelected }?.value),
-            )
+            ),
+            availableSpaceMills = spaceToRecordingTimeMills(
+                this.availableSpaceBytes,
+                settings?.recordingFormat?.value,
+                settings?.sampleRates?.firstOrNull { it.isSelected }?.value,
+                settings?.bitRates?.firstOrNull { it.isSelected }?.value,
+                settings?.channelCounts?.firstOrNull { it.isSelected }?.value,
+            ),
+            availableSpaceBytes = this.availableSpaceBytes,
         )
     }
 

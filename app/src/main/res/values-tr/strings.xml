@@ -308,4 +308,8 @@
 	</string-array>
 
 	<string name="app_widget_description">Kayıt widgetini başlat</string>
+
+    <string name="duration_days_hours_minutes">%1$dg %2$ds %3$ddk</string>
+    <string name="duration_hours_and_minutes">%1$ds %2$ddk</string>
+    <string name="duration_minutes">%1$ddk</string>
 </resources>

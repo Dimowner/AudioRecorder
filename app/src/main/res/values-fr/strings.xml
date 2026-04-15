@@ -304,5 +304,9 @@ Le <b>débit binaire</b> est la taille des données par seconde de son. Cela aff
 		<item>Mono</item>
 	</string-array>
 
-	<string name="app_widget_description">Widget début d\'enregistrement</string>
+	<string name="app_widget_description">Widget dbut d\'enregistrement</string>
+
+    <string name="duration_days_hours_minutes">%1$dj %2$dh %3$dmin</string>
+    <string name="duration_hours_and_minutes">%1$dh %2$dmin</string>
+    <string name="duration_minutes">%1$dmin</string>
 </resources>

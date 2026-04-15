@@ -19,6 +19,7 @@ package com.dimowner.audiorecorder.v2.app.settings
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.graphics.Typeface
 import android.net.Uri
 import android.text.Spanned
@@ -27,7 +28,6 @@ import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -201,6 +201,51 @@ fun sizeMbPerMin(
                 0F
             }
         }
+    }
+}
+
+@SuppressWarnings("MagicNumber")
+fun spaceToRecordingTimeMills(
+    spaceBytes: Long,
+    recordingFormat: RecordingFormat?,
+    sampleRate: SampleRate?,
+    bitrate: BitRate?,
+    channels: ChannelCount?
+): Long {
+    if (recordingFormat == null || spaceBytes <= 0L) return 0L
+    return when (recordingFormat) {
+        RecordingFormat.M4a -> {
+            if (bitrate == null) 0L
+            else 1000L * (spaceBytes / (bitrate.value / 8L))
+        }
+        RecordingFormat.ThreeGp -> {
+            1000L * (spaceBytes / (DefaultValues.Default3GpBitRate / 8L))
+        }
+        RecordingFormat.Wav -> {
+            if (sampleRate != null && channels != null) {
+                1000L * (spaceBytes / (sampleRate.value.toLong() * channels.value * 2L))
+            } else {
+                0L
+            }
+        }
+    }
+}
+
+/**
+ * Formats recording time in milliseconds as "Xd Xh Xm", "Xh Xm", or "Xm".
+ * Days and hours are omitted when zero; minutes are always shown.
+ * Unit abbreviations are resolved from string resources for proper localisation.
+ */
+@SuppressWarnings("MagicNumber")
+fun formatAvailableRecordingTime(mills: Long, resources: Resources): String {
+    val totalMinutes = mills / 1000 / 60
+    val days = totalMinutes / (24 * 60)
+    val hours = (totalMinutes % (24 * 60)) / 60
+    val minutes = totalMinutes % 60
+    return when {
+        days > 0 -> resources.getString(R.string.duration_days_hours_minutes, days, hours, minutes)
+        hours > 0 -> resources.getString(R.string.duration_hours_and_minutes, hours, minutes)
+        else -> resources.getString(R.string.duration_minutes, minutes)
     }
 }
 

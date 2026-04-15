@@ -291,4 +291,8 @@
     </string-array>
 
     <string name="app_widget_description">Start recording widget</string>
+
+    <string name="duration_days_hours_minutes">%1$d天 %2$d时 %3$d分</string>
+    <string name="duration_hours_and_minutes">%1$d时 %2$d分</string>
+    <string name="duration_minutes">%1$d分</string>
 </resources>
