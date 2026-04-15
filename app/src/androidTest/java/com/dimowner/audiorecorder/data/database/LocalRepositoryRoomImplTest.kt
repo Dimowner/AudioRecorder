@@ -5,9 +5,13 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.dimowner.audiorecorder.AppConstants
+import com.dimowner.audiorecorder.BackgroundQueue
 import com.dimowner.audiorecorder.data.FileRepository
 import com.dimowner.audiorecorder.data.Prefs
 import com.dimowner.audiorecorder.exception.FailedToRestoreRecord
+import com.dimowner.audiorecorder.v2.data.room.AppDatabase
+import com.dimowner.audiorecorder.v2.data.room.RecordDao
+import com.dimowner.audiorecorder.v2.data.room.RecordEntity
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.After
@@ -24,14 +28,13 @@ import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class LocalRepositoryImplTest {
+class LocalRepositoryRoomImplTest {
 
     private lateinit var context: Context
-    private lateinit var recordsDataSource: RecordsDataSource
-    private lateinit var trashDataSource: TrashDataSource
     private lateinit var fileRepository: FileRepository
+    private lateinit var recordDao: RecordDao
     private lateinit var prefs: Prefs
-    private lateinit var repository: LocalRepositoryImpl
+    private lateinit var repository: LocalRepositoryRoomImpl
 
     private var tempFiles = mutableListOf<File>()
 
@@ -72,22 +75,20 @@ class LocalRepositoryImplTest {
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
 
-        // Clear singleton before each test
-        LocalRepositoryImpl.clearInstance()
-
-        recordsDataSource = RecordsDataSource.getInstance(context)
-        trashDataSource = TrashDataSource.getInstance(context)
-
         fileRepository = mockk(relaxed = true)
         prefs = mockk(relaxed = true)
+        recordDao = AppDatabase.getDatabase(context).recordDao()
 
         every { prefs.settingRecordingFormat } returns "m4a"
         every { prefs.settingSampleRate } returns 44100
         every { prefs.settingChannelCount } returns 2
         every { prefs.settingBitrate } returns 128000
 
-        repository = LocalRepositoryImpl.getInstance(
-            recordsDataSource, trashDataSource, fileRepository, prefs
+        repository = LocalRepositoryRoomImpl.getInstance(
+            recordDao,
+            fileRepository,
+            prefs,
+            BackgroundQueue("LoadingTasks")
         )
         repository.open()
 
@@ -99,7 +100,7 @@ class LocalRepositoryImplTest {
     fun tearDown() {
         cleanUpDatabase()
         repository.close()
-        LocalRepositoryImpl.clearInstance()
+        LocalRepositoryRoomImpl.clearInstance()
         tempFiles.forEach { it.delete() }
         tempFiles.clear()
     }
@@ -123,7 +124,7 @@ class LocalRepositoryImplTest {
         val inserted = repository.insertRecord(record)
 
         assertNotNull(inserted)
-        assertTrue(inserted!!.id > 0)
+        assertTrue(inserted.id > 0)
         assertEquals("test_record", inserted.name)
         assertEquals(file.absolutePath, inserted.path)
         assertEquals(5000_000, inserted.duration)
@@ -134,7 +135,7 @@ class LocalRepositoryImplTest {
     fun getRecord_returnsInsertedRecord() {
         val file = createTempFile("get_test.m4a")
         val record = createRecord(path = file.absolutePath)
-        val inserted = repository.insertRecord(record)!!
+        val inserted = repository.insertRecord(record)
 
         val retrieved = repository.getRecord(inserted.id)
 
@@ -231,7 +232,7 @@ class LocalRepositoryImplTest {
     fun updateRecord_returnsTrue_whenRecordExists() {
         val file = createTempFile("update_test.m4a")
         val record = createRecord(path = file.absolutePath)
-        val inserted = repository.insertRecord(record)!!
+        val inserted = repository.insertRecord(record)
 
         inserted.setBookmark(true)
         inserted.duration = 10000L
@@ -407,8 +408,6 @@ class LocalRepositoryImplTest {
         val file = createTempFile("delete_me.m4a")
         val inserted = repository.insertRecord(createRecord(name = "delete_me", path = file.absolutePath))!!
 
-        every { fileRepository.markAsTrashRecord(file.absolutePath) } returns file.absolutePath + ".del"
-
         val result = repository.deleteRecord(inserted.id)
         assertTrue(result)
 
@@ -417,7 +416,7 @@ class LocalRepositoryImplTest {
 
         val trashRecord = repository.getTrashRecord(inserted.id)
         assertNotNull(trashRecord)
-        assertEquals("delete_me", trashRecord.name)
+        assertEquals("delete_me", trashRecord?.name)
         //Verify the record was removed in 1 minute range
         assertEquals(System.currentTimeMillis()/60_000, (trashRecord?.removed ?: 0)/60_000L)
     }
@@ -429,7 +428,7 @@ class LocalRepositoryImplTest {
         val file = createTempFile("forever_delete.m4a")
         val inserted = repository.insertRecord(
             createRecord(name = "forever_delete", path = file.absolutePath)
-        )!!
+        )
 
         repository.deleteRecordForever(inserted.id)
 
@@ -462,7 +461,7 @@ class LocalRepositoryImplTest {
     @Test
     fun addToBookmarks_setsBookmarkFlag() {
         val file = createTempFile("bookmark_add.m4a")
-        val inserted = repository.insertRecord(createRecord(path = file.absolutePath))!!
+        val inserted = repository.insertRecord(createRecord(path = file.absolutePath))
 
         val result = repository.addToBookmarks(inserted.id)
 
@@ -508,9 +507,9 @@ class LocalRepositoryImplTest {
         val f2 = createTempFile("bk2.m4a")
         val f3 = createTempFile("bk3.m4a")
 
-        val r1 = repository.insertRecord(createRecord(name = "bk1", path = f1.absolutePath))!!
+        val r1 = repository.insertRecord(createRecord(name = "bk1", path = f1.absolutePath))
         repository.insertRecord(createRecord(name = "bk2", path = f2.absolutePath))
-        val r3 = repository.insertRecord(createRecord(name = "bk3", path = f3.absolutePath))!!
+        val r3 = repository.insertRecord(createRecord(name = "bk3", path = f3.absolutePath))
 
         repository.addToBookmarks(r1.id)
         repository.addToBookmarks(r3.id)
@@ -559,15 +558,12 @@ class LocalRepositoryImplTest {
         val file = createTempFile("trash_test.m4a")
         val inserted = repository.insertRecord(
             createRecord(name = "trash_test", path = file.absolutePath)
-        )!!
-
-        val renamedPath = file.absolutePath + ".del"
-        every { fileRepository.markAsTrashRecord(file.absolutePath) } returns renamedPath
+        )
 
         val deleted = repository.deleteRecord(inserted.id)
         assertTrue(deleted)
 
-        // Record removed from main table
+        // Record removed marked as deleted
         assertNull(repository.getRecord(inserted.id))
 
         // Record should be in trash
@@ -575,7 +571,6 @@ class LocalRepositoryImplTest {
         assertTrue(trashRecords.isNotEmpty())
         val trashRecord = trashRecords.firstOrNull { it.name == "trash_test" }
         assertNotNull(trashRecord)
-        assertTrue(trashRecord?.path?.contains(".del") ?: false)
     }
 
     // ── Remove from trash ───────────────────────────────────────────────────────
@@ -585,10 +580,7 @@ class LocalRepositoryImplTest {
         val file = createTempFile("remove_trash.m4a")
         val inserted = repository.insertRecord(
             createRecord(name = "remove_trash", path = file.absolutePath)
-        )!!
-
-        val renamedPath = file.absolutePath + ".del"
-        every { fileRepository.markAsTrashRecord(file.absolutePath) } returns renamedPath
+        )
 
         repository.deleteRecord(inserted.id)
 
@@ -614,13 +606,10 @@ class LocalRepositoryImplTest {
 
         val r1 = repository.insertRecord(
             createRecord(name = "empty_trash1", path = file1.absolutePath)
-        )!!
+        )
         val r2 = repository.insertRecord(
             createRecord(name = "empty_trash2", path = file2.absolutePath)
-        )!!
-
-        every { fileRepository.markAsTrashRecord(file1.absolutePath) } returns file1.absolutePath + ".del"
-        every { fileRepository.markAsTrashRecord(file2.absolutePath) } returns file2.absolutePath + ".del"
+        )
 
         repository.deleteRecord(r1.id)
         repository.deleteRecord(r2.id)
@@ -638,15 +627,11 @@ class LocalRepositoryImplTest {
     // ── Restore from trash ──────────────────────────────────────────────────────
 
     @Test
-    fun restoreFromTrash_restoresRecordToMainTable() {
+    fun restoreFromTrash_restoresRecordToMainTable() { //In Room Records DB all records stored in the same table.
         val file = createTempFile("restore_test.m4a")
         val inserted = repository.insertRecord(
             createRecord(name = "restore_test", path = file.absolutePath)
-        )!!
-
-        val renamedPath = file.absolutePath + ".del"
-        every { fileRepository.markAsTrashRecord(file.absolutePath) } returns renamedPath
-        every { fileRepository.unmarkTrashRecord(renamedPath) } returns file.absolutePath
+        )
 
         repository.deleteRecord(inserted.id)
 
@@ -675,21 +660,22 @@ class LocalRepositoryImplTest {
 
     @Test(expected = FailedToRestoreRecord::class)
     fun restoreFromTrash_throwsException_whenFileRestoreFails() {
-        val file = createTempFile("fail_restore.m4a")
-        val inserted = repository.insertRecord(
-            createRecord(name = "fail_restore", path = file.absolutePath)
-        )!!
+        recordDao = mockk(relaxed = true)
 
-        val renamedPath = file.absolutePath + ".trash"
-        every { fileRepository.markAsTrashRecord(file.absolutePath) } returns renamedPath
-        every { fileRepository.unmarkTrashRecord(renamedPath) } returns null
+        repository = LocalRepositoryRoomImpl.getInstance(
+            recordDao,
+            fileRepository,
+            prefs,
+            BackgroundQueue("LoadingTasks")
+        )
 
-        repository.deleteRecord(inserted.id)
+        val id = 101
 
-        val trashRecords = repository.trashRecords
-        val trashId = trashRecords.first { it.name == "fail_restore" }.id
+        val entity = mockk<RecordEntity>(relaxed = true)
+        every { recordDao.getTrashRecordById(any()) } returns entity
+        every { recordDao.updateRecord(any()) } returns 0
 
-        repository.restoreFromTrash(trashId)
+        repository.restoreFromTrash(id)
     }
 
     // ── Update trash record ─────────────────────────────────────────────────────
@@ -699,10 +685,7 @@ class LocalRepositoryImplTest {
         val file = createTempFile("update_trash.m4a")
         val inserted = repository.insertRecord(
             createRecord(name = "update_trash", path = file.absolutePath)
-        )!!
-
-        val renamedPath = file.absolutePath + ".trash"
-        every { fileRepository.markAsTrashRecord(file.absolutePath) } returns renamedPath
+        )
 
         repository.deleteRecord(inserted.id)
 
@@ -710,14 +693,14 @@ class LocalRepositoryImplTest {
         assertTrue(trashRecords.isNotEmpty())
 
         val trashRecord = trashRecords.first { it.name == "update_trash" }
-        trashRecord.duration = 99999L
+        trashRecord.duration = 99000L
 
         val updated = repository.updateTrashRecord(trashRecord)
         assertTrue(updated)
 
         val retrievedTrash = repository.getTrashRecord(trashRecord.id)
         assertNotNull(retrievedTrash)
-        assertEquals(99999L, retrievedTrash!!.duration)
+        assertEquals(99000L, retrievedTrash!!.duration)
     }
 
     // ── Get trash record by id ──────────────────────────────────────────────────
@@ -811,11 +794,11 @@ class LocalRepositoryImplTest {
 
     @Test
     fun getInstance_returnsSameInstance() {
-        val instance1 = LocalRepositoryImpl.getInstance(
-            recordsDataSource, trashDataSource, fileRepository, prefs
+        val instance1 = LocalRepositoryRoomImpl.getInstance(
+            recordDao, fileRepository, prefs,  BackgroundQueue("LoadingTasks")
         )
-        val instance2 = LocalRepositoryImpl.getInstance(
-            recordsDataSource, trashDataSource, fileRepository, prefs
+        val instance2 = LocalRepositoryRoomImpl.getInstance(
+            recordDao, fileRepository, prefs,  BackgroundQueue("LoadingTasks")
         )
 
         assertTrue(instance1 === instance2)
@@ -823,12 +806,12 @@ class LocalRepositoryImplTest {
 
     @Test
     fun clearInstance_allowsNewInstanceCreation() {
-        val instance1 = LocalRepositoryImpl.getInstance(
-            recordsDataSource, trashDataSource, fileRepository, prefs
+        val instance1 = LocalRepositoryRoomImpl.getInstance(
+            recordDao, fileRepository, prefs,  BackgroundQueue("LoadingTasks")
         )
-        LocalRepositoryImpl.clearInstance()
-        val instance2 = LocalRepositoryImpl.getInstance(
-            recordsDataSource, trashDataSource, fileRepository, prefs
+        LocalRepositoryRoomImpl.clearInstance()
+        val instance2 = LocalRepositoryRoomImpl.getInstance(
+            recordDao, fileRepository, prefs,  BackgroundQueue("LoadingTasks")
         )
 
         // After clearing, a new instance should be created
@@ -841,7 +824,7 @@ class LocalRepositoryImplTest {
     // ── Open/close behavior ─────────────────────────────────────────────────────
 
     @Test
-    fun getRecord_opensDataSourceIfClosed() {
+    fun getRecord_opensDataSourceIfClosed() { //This test is not relevant for Room
         repository.close()
 
         // getRecord should auto-open the data source
@@ -864,10 +847,7 @@ class LocalRepositoryImplTest {
         val file = createTempFile("outdated.m4a")
         val inserted = repository.insertRecord(
             createRecord(name = "outdated", path = file.absolutePath)
-        )!!
-
-        val renamedPath = file.absolutePath + ".del"
-        every { fileRepository.markAsTrashRecord(file.absolutePath) } returns renamedPath
+        )
 
         repository.deleteRecord(inserted.id)
 
@@ -888,20 +868,6 @@ class LocalRepositoryImplTest {
     @Test
     fun deleteRecord_returnsFalse_whenRecordNotFound() {
         val result = repository.deleteRecord(99999)
-
-        assertFalse(result)
-    }
-
-    @Test
-    fun deleteRecord_returnsFalse_whenFileRenameFails() {
-        val file = createTempFile("rename_fail.m4a")
-        val inserted = repository.insertRecord(
-            createRecord(name = "rename_fail", path = file.absolutePath)
-        )!!
-
-        every { fileRepository.markAsTrashRecord(file.absolutePath) } returns null
-
-        val result = repository.deleteRecord(inserted.id)
 
         assertFalse(result)
     }

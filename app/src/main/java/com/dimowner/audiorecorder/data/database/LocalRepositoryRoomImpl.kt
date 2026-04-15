@@ -195,7 +195,7 @@ class LocalRepositoryRoomImpl(
     }
 
     override fun getRecordsDurations(): List<Long> {
-        return recordDao.getRecordsDurations()
+        return recordDao.getRecordsDurations().map { it * 1000 }
     }
 
     // ── Bookmarks ───────────────────────────────────────────────────────

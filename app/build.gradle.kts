@@ -249,6 +249,16 @@ kotlin {
     }
 }
 
+// junit:junit:4.12 leaks into the main runtime classpath as a transitive dependency
+// (e.g. via exoplayer-core). AGP's consistent-resolution then enforces {strictly 4.12}
+// on the androidTest classpath, conflicting with the 4.13.2 required by assertThrows.
+// Forcing 4.13.2 everywhere aligns both classpaths and removes the conflict.
+configurations.all {
+    resolutionStrategy {
+        force("junit:junit:4.13.2")
+    }
+}
+
 composeCompiler {
     reportsDestination = layout.buildDirectory.dir("compose_compiler")
     stabilityConfigurationFile = rootProject.layout.projectDirectory.file("stability_config.conf")
@@ -299,4 +309,5 @@ dependencies {
     androidTestImplementation(libs.mockk)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.junit)
 }
