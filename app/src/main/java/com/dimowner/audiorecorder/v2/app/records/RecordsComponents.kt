@@ -131,7 +131,6 @@ fun RecordsTopBar(
                 items = remember { getSortDroDownMenuItems() },
                 onItemClick = { itemId ->
                     onSortItemClick(itemId)
-                    Timber.v("On Drop Down Menu item click id = $itemId")
                 },
                 expanded = expanded
             )
@@ -243,7 +242,6 @@ fun ScrollableRecordsTopBar(
                     items = remember { getSortDroDownMenuItems() },
                     onItemClick = { itemId ->
                         onSortItemClick(itemId)
-                        Timber.v("On Drop Down Menu item click id = $itemId")
                     },
                     expanded = expanded
                 )
@@ -490,7 +488,6 @@ fun RecordListItemView(
                 RecordsDropDownMenu(
                     items = remember { getRecordsDroDownMenuItems() },
                     onItemClick = { itemId ->
-                        Timber.v("On Drop Down Menu item click id = $itemId")
                         onClickMenu(itemId)
                     },
                     expanded = expanded
@@ -505,7 +502,7 @@ fun RecordListItemView(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = stringResource(id = androidx.compose.ui.R.string.dropdown_menu),
                         modifier = Modifier
-                            .width(36.dp)
+                            .width(30.dp)
                             .padding(4.dp)
                             .fillMaxHeight()
                     )

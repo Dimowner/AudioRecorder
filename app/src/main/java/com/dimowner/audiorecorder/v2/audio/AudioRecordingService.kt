@@ -418,6 +418,7 @@ class AudioRecordingService : Service() {
         // - Move updated to recycle if requested to delete the record, otherwise set it as active record
         withContext(ioDispatcher) {
             val recordedRecordId = prefs.recordedRecordId
+            prefs.recordedRecordId = -1
             if (recordedRecordId >= 0) {
                 val record = recordsDataSource.getRecord(recordedRecordId)
                 if (record != null) {
