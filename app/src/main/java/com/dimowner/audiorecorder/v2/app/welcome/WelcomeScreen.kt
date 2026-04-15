@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -75,7 +76,7 @@ fun WelcomeScreen(
                         .wrapContentSize()
                         .align(Alignment.CenterHorizontally),
                     text = stringResource(id = R.string.welcome_1),
-                    fontSize = 24.sp,
+                    style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Light,
                     textAlign = TextAlign.Center
                 )
@@ -89,7 +90,7 @@ fun WelcomeScreen(
                 ) {
                     Text(
                         text = stringResource(id = R.string.btn_get_started),
-                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.titleLarge,
                     )
                 }
             }

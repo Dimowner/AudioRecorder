@@ -43,7 +43,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ConfirmationAlertDialog
 
@@ -75,8 +74,7 @@ fun DeletedRecordsListItemWidget(
                     .wrapContentHeight(),
                 text = name,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium
+                style = MaterialTheme.typography.titleLarge,
             )
             Text(
                 modifier = Modifier
@@ -85,7 +83,7 @@ fun DeletedRecordsListItemWidget(
                     .wrapContentHeight(),
                 text = details,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.bodyLarge,
                 fontFamily = FontFamily(
                     Font(
                         DeviceFontFamilyName("sans-serif"),
@@ -103,7 +101,7 @@ fun DeletedRecordsListItemWidget(
             ) {
                 Text(
                     text = stringResource(id = R.string.restore),
-                    fontSize = 16.sp,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Light,
                 )
             }
@@ -113,7 +111,7 @@ fun DeletedRecordsListItemWidget(
             ) {
                 Text(
                     text = stringResource(id = R.string.delete),
-                    fontSize = 16.sp,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Light,
                 )
             }

@@ -237,7 +237,7 @@ fun LegacySlider(
         interactionSource = interactionSource,
         modifier = Modifier
             .requiredSizeIn(minWidth = thumbSize.width, minHeight = trackHeight)
-            .padding(0.dp, 0.dp),
+            .padding(8.dp, 0.dp),
         value = progress,
         enabled = enabled,
         onValueChange = { onProgressChange(it) },

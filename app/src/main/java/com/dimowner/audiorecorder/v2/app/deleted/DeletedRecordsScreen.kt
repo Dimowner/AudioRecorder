@@ -43,10 +43,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ConfirmationAlertDialog
 import com.dimowner.audiorecorder.v2.app.ScrollableTitleBar
@@ -111,8 +109,7 @@ internal fun DeletedRecordsScreen(
                                 .wrapContentSize(),
                             text = stringResource(id = R.string.trash_info),
                             color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal
+                            style = MaterialTheme.typography.bodyLarge,
                         )
                         Spacer(
                             modifier = Modifier

@@ -11,13 +11,19 @@ val typography = Typography(
     headlineSmall = TextStyle(
         fontWeight = FontWeight.SemiBold,
         fontSize = 24.sp,
-        lineHeight = 28.sp,
+        lineHeight = 30.sp,
         letterSpacing = 0.sp
     ),
     titleLarge = TextStyle(
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Medium,
+        fontSize = 20.sp,
+        lineHeight = 26.sp,
+        letterSpacing = 0.sp
+    ),
+    titleMedium = TextStyle(
+        fontWeight = FontWeight.Medium,
         fontSize = 18.sp,
-        lineHeight = 22.sp,
+        lineHeight = 24.sp,
         letterSpacing = 0.sp
     ),
     bodyLarge = TextStyle(
@@ -27,7 +33,7 @@ val typography = Typography(
         letterSpacing = 0.15.sp
     ),
     bodyMedium = TextStyle(
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 16.sp,
         letterSpacing = 0.25.sp

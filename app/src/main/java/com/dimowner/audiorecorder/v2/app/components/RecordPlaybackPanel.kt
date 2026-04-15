@@ -19,7 +19,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.v2.app.getTestWaveformData
 import com.dimowner.audiorecorder.v2.app.home.HomeScreenState
 import com.dimowner.audiorecorder.v2.app.home.LegacySlider
@@ -47,7 +46,7 @@ internal fun RecordPlaybackPanel(
             textAlign = TextAlign.Center,
             text = uiState.time,
             color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 24.sp,
+            style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
         WaveformComposeView(
@@ -75,8 +74,7 @@ internal fun RecordPlaybackPanel(
                 textAlign = TextAlign.Start,
                 text = uiState.startTime,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal,
+                style = MaterialTheme.typography.bodyLarge,
             )
             Text(
                 modifier = Modifier
@@ -85,8 +83,7 @@ internal fun RecordPlaybackPanel(
                 textAlign = TextAlign.Center,
                 text = uiState.recordName,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Normal
+                style = MaterialTheme.typography.titleLarge,
             )
             Text(
                 modifier = Modifier
@@ -95,8 +92,7 @@ internal fun RecordPlaybackPanel(
                 textAlign = TextAlign.Start,
                 text = uiState.endTime,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal
+                style = MaterialTheme.typography.bodyLarge,
             )
         }
         LegacySlider(

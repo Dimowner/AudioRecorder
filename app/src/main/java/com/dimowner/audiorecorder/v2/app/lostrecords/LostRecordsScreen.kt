@@ -47,7 +47,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
 import com.dimowner.audiorecorder.v2.app.ScrollableTitleBar
@@ -114,7 +113,7 @@ internal fun LostRecordsScreen(
                             modifier = Modifier.wrapContentSize(),
                             text = stringResource(id = R.string.no_records),
                             color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 20.sp,
+                            style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Normal
                         )
                     }
@@ -126,7 +125,7 @@ internal fun LostRecordsScreen(
                             Text(
                                 modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp),
                                 text = stringResource(R.string.records_were_removed),
-                                fontSize = 16.sp
+                                style = MaterialTheme.typography.bodyLarge
                             )
                             Spacer(
                                 modifier = Modifier

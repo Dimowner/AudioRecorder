@@ -139,6 +139,7 @@ internal fun SettingsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(3.dp, 0.dp)
                     .verticalScroll(rememberScrollState())
             ) {
                 Spacer(modifier = Modifier.size(8.dp))

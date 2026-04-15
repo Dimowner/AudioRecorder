@@ -51,7 +51,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.DeviceFontFamilyName
@@ -405,7 +404,7 @@ fun RecordListItemView(
 
     Row(
         modifier = Modifier
-            .background(color = if (isSelected) colorResource(R.color.selected_item_color) else Color.Transparent)
+            .background(color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f) else Color.Transparent)
             .combinedClickable(
                 onClick = {
                     onClickItem()
@@ -423,28 +422,23 @@ fun RecordListItemView(
         ) {
             Text(
                 modifier = Modifier
-                    .padding(16.dp, 10.dp, 12.dp, 2.dp)
+                    .padding(16.dp, 12.dp, 12.dp, 2.dp)
                     .fillMaxWidth()
                     .wrapContentHeight(),
                 text = name,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium
+                style = MaterialTheme.typography.titleLarge,
+                fontSize = 19.sp,
             )
             Text(
                 modifier = Modifier
-                    .padding(16.dp, 2.dp, 12.dp, 10.dp)
+                    .padding(16.dp, 4.dp, 12.dp, 8.dp)
                     .fillMaxWidth()
                     .wrapContentHeight(),
                 text = details,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 14.sp,
-                fontFamily = FontFamily(
-                    Font(
-                        DeviceFontFamilyName("sans-serif"),
-                        weight = FontWeight.Light
-                    )
-                ),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Light,
             )
         }
         Column(

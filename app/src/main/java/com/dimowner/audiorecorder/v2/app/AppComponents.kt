@@ -103,40 +103,6 @@ fun TextComponentPreview() {
 }
 
 @Composable
-fun TextFieldComponent(onTextChanged: (name: String) -> Unit) {
-
-    var currentValue by remember {
-        mutableStateOf("")
-    }
-
-    val localFocusManager = LocalFocusManager.current
-    OutlinedTextField(
-        modifier = Modifier.fillMaxWidth(),
-        value = currentValue,
-        onValueChange = {
-            currentValue = it
-            onTextChanged(it)
-        },
-        placeholder = {
-            Text(text = "Enter your name", fontSize = 18.sp)
-        },
-        textStyle = TextStyle.Default.copy(fontSize = 24.sp),
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Done
-        ),
-        keyboardActions = KeyboardActions {
-            localFocusManager.clearFocus()
-        }
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun TextFieldComponentPreview() {
-    TextFieldComponent {}
-}
-
-@Composable
 fun AnimalCard(image: Int, selected: Boolean, onImageClicked: (animalName: String) -> Unit) {
     val localFocusManager = LocalFocusManager.current
     Card(
@@ -292,6 +258,9 @@ fun ScrollableTitleBar(
         navigationIcon = {
             IconButton(
                 onClick = onBackPressed,
+                modifier = Modifier
+                    .size(58.dp, 54.dp)
+                    .padding(8.dp, 0.dp, 0.dp, 0.dp)
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -340,13 +309,8 @@ fun InfoItem(label: String, value: String) {
                 .wrapContentHeight(),
             text = label,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.Light,
             fontSize = 18.sp,
-            fontFamily = FontFamily(
-                Font(
-                    DeviceFontFamilyName("sans-serif"),
-                    weight = FontWeight.Light
-                )
-            ),
         )
         Text(
             modifier = Modifier
@@ -355,7 +319,7 @@ fun InfoItem(label: String, value: String) {
                 .wrapContentHeight(),
             text = value,
             color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 22.sp,
+            fontSize = 20.sp,
             fontWeight = FontWeight.Normal
         )
     }

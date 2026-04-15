@@ -40,7 +40,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
 
@@ -76,8 +75,7 @@ fun LostRecordsListItemWidget(
                     .wrapContentHeight(),
                 text = name,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.titleLarge,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
@@ -87,7 +85,7 @@ fun LostRecordsListItemWidget(
                     .wrapContentHeight(),
                 text = "${stringResource(R.string.rec_duration)} $duration ${stringResource(R.string.rec_size)} $size",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.bodyLarge,
                 fontFamily = FontFamily(
                     Font(
                         DeviceFontFamilyName("sans-serif"),
@@ -102,7 +100,7 @@ fun LostRecordsListItemWidget(
                     .wrapContentHeight(),
                 text = path,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.bodyMedium,
                 fontFamily = FontFamily(
                     Font(
                         DeviceFontFamilyName("sans-serif"),
@@ -120,7 +118,7 @@ fun LostRecordsListItemWidget(
         ) {
             Text(
                 text = stringResource(id = R.string.delete),
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Light,
             )
         }
