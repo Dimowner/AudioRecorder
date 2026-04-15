@@ -104,12 +104,21 @@ class AudioPlaybackService : Service() {
             ACTION_PAUSE_RESUME_PLAYBACK -> handlePlayPauseAction()
             ACTION_STOP_PLAYBACK -> handleStopAction()
         }
-        return super.onStartCommand(intent, flags, startId)
+        return START_NOT_STICKY
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        Timber.d("AudioPlaybackService onTaskRemoved: stopping playback")
+        audioPlayer.stop()
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         stopNotificationUpdates()
+        audioPlayer.stop()
         notificationManager = null
     }
 

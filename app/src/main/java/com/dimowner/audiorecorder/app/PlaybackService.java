@@ -144,7 +144,21 @@ public class PlaybackService extends Service {
 				}
 			}
 		}
-		return super.onStartCommand(intent, flags, startId);
+		return START_NOT_STICKY;
+	}
+
+	@Override
+	public void onTaskRemoved(Intent rootIntent) {
+		super.onTaskRemoved(rootIntent);
+		Timber.d("PlaybackService onTaskRemoved: stopping playback");
+		audioPlayer.stop();
+		stopForegroundService();
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		audioPlayer.stop();
 	}
 
 	@SuppressLint("WrongConstant")
