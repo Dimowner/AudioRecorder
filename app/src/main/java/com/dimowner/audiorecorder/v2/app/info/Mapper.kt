@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.v2.app.info
 
+import com.dimowner.audiorecorder.v2.app.adjustWaveformHeights
 import com.dimowner.audiorecorder.v2.data.model.Record
 
 fun Record.toRecordInfoState(): RecordInfoState {
@@ -29,5 +30,6 @@ fun Record.toRecordInfoState(): RecordInfoState {
         sampleRate = this.sampleRate,
         channelCount = this.channelCount,
         bitrate = this.bitrate,
+        amps = adjustWaveformHeights(this.amps),
     )
 }

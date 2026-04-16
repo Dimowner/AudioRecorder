@@ -40,7 +40,9 @@ import androidx.compose.ui.unit.dp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.InfoItem
+import com.dimowner.audiorecorder.v2.app.TEST_WAVEFORM_DATA
 import com.dimowner.audiorecorder.v2.app.TitleBar
+import com.dimowner.audiorecorder.v2.app.info.widget.WaveformStaticWidget
 
 @Composable
 fun RecordInfoScreen(
@@ -67,6 +69,12 @@ fun RecordInfoScreen(
                 ) {
                     Spacer(modifier = Modifier.size(8.dp))
                     if (recordInfo != null) {
+                        if (recordInfo.amps.isNotEmpty()) {
+                            WaveformStaticWidget(
+                                amps = recordInfo.amps,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                            )
+                        }
                         InfoItem(stringResource(R.string.rec_name), recordInfo.name)
                         InfoItem(stringResource(R.string.rec_format), recordInfo.format)
                         if (recordInfo.bitrate > 0) {
@@ -131,5 +139,6 @@ fun RecordInfoScreenPreview() {
         sampleRate = 44000,
         channelCount = 1,
         bitrate = 240000,
+        amps = TEST_WAVEFORM_DATA,
     ))
 }

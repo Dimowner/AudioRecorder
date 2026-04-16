@@ -19,6 +19,7 @@ package com.dimowner.audiorecorder.v2.app.info
 import android.os.Parcelable
 import com.dimowner.audiorecorder.AppConstants
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.RawValue
 
 @Parcelize
 data class RecordInfoState(
@@ -31,8 +32,39 @@ data class RecordInfoState(
     val sampleRate: Int,
     val channelCount: Int,
     val bitrate: Int,
+    val amps: @RawValue IntArray,
 ) : Parcelable {
 
     val nameWithExtension: String
         get() = name + AppConstants.EXTENSION_SEPARATOR + format
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as RecordInfoState
+        if (name != other.name) return false
+        if (format != other.format) return false
+        if (duration != other.duration) return false
+        if (size != other.size) return false
+        if (location != other.location) return false
+        if (created != other.created) return false
+        if (sampleRate != other.sampleRate) return false
+        if (channelCount != other.channelCount) return false
+        if (bitrate != other.bitrate) return false
+        return amps.contentEquals(other.amps)
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + format.hashCode()
+        result = 31 * result + duration.hashCode()
+        result = 31 * result + size.hashCode()
+        result = 31 * result + location.hashCode()
+        result = 31 * result + created.hashCode()
+        result = 31 * result + sampleRate
+        result = 31 * result + channelCount
+        result = 31 * result + bitrate
+        result = 31 * result + amps.contentHashCode()
+        return result
+    }
 }
