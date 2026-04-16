@@ -61,6 +61,7 @@ import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingService
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingServiceEvent
 import com.dimowner.audiorecorder.v2.audio.RecordingServiceState
+import com.dimowner.audiorecorder.v2.audio.RecordingState
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
@@ -236,29 +237,42 @@ class HomeViewModel @Inject constructor(
         recordingStateJob?.cancel()
         recordingStateJob = viewModelScope.launch {
             val context: Context = getApplication<Application>().applicationContext
-            var wasRecording = false
             var lastProgressUpdate = 0L
             service.recordingState.collect { recState ->
-                if (recState.isRecording && !recState.isPaused) {
-                    if (!wasRecording) {
-                        // Recording just started – initialise UI
-                        wasRecording = true
-                        lastProgressUpdate = 0L
-                        _state.value = state.value.copy(
-                            bottomBarState = BottomBarState.RECORDING,
-                            waveformState = WaveformState(isRecording = true),
-                            isShowWaveform = true,
-                            startTime = "",
-                            endTime = "",
-                            recordName = context.getString(R.string.recording_progress),
-                            keepScreenOn = prefs.isKeepScreenOn,
-                        )
-                        withContext(ioDispatcher) {
-                            recordsDataSource.getRecord(prefs.recordedRecordId)?.let {
-                                _state.value = state.value.copy(
-                                    recordInfo = it.toInfoCombinedText(context)
-                                )
+                if (recState.isRecording()) {
+                    when (recState.recordingState) {
+                        RecordingState.STARTED -> {
+                            // Recording just started – initialise UI
+                            lastProgressUpdate = 0L
+                            _state.value = state.value.copy(
+                                bottomBarState = BottomBarState.RECORDING,
+                                waveformState = WaveformState(isRecording = true),
+                                isShowWaveform = true,
+                                startTime = "",
+                                endTime = "",
+                                recordName = context.getString(R.string.recording_progress),
+                                keepScreenOn = prefs.isKeepScreenOn,
+                            )
+                            withContext(ioDispatcher) {
+                                recordsDataSource.getRecord(prefs.recordedRecordId)?.let {
+                                    _state.value = state.value.copy(
+                                        recordInfo = it.toInfoCombinedText(context)
+                                    )
+                                }
                             }
+                        }
+                        RecordingState.RESUMED -> {
+                            // Recording resumed from pause – update BottomBar state without resetting waveform
+                            _state.value = _state.value.copy(
+                                bottomBarState = BottomBarState.RECORDING,
+                                recordName = context.getString(R.string.recording_progress),
+                                keepScreenOn = prefs.isKeepScreenOn,
+                            )
+                        }
+                        else -> {
+                            _state.value = state.value.copy(
+                                bottomBarState = BottomBarState.RECORDING,
+                            )
                         }
                     }
 
@@ -292,22 +306,19 @@ class HomeViewModel @Inject constructor(
                             updateRecordingProgressInfo()
                         }
                     }
-                } else if (recState.isRecording && recState.isPaused) {
-                    wasRecording = true
+                } else if (recState.isPaused()) {
                     _state.value = state.value.copy(
                         bottomBarState = BottomBarState.PAUSED,
                         recordName = context.getString(R.string.recording_paused),
                         keepScreenOn = false,
                     )
-                } else if (wasRecording && !recState.isRecording) {
-                    // Recording stopped
-                    wasRecording = false
+                } else if (recState.isStoppedRecording()) {
                     _state.value = _state.value.copy(
                         waveformState = _state.value.waveformState.copy(isRecording = false),
                         bottomBarState = BottomBarState.READY_TO_START_RECORDING,
                         keepScreenOn = false,
                     )
-                    handleRecordingStopped()
+                    handleRecordingStopped(recState.recordId)
                 }
             }
         }
@@ -385,10 +396,8 @@ class HomeViewModel @Inject constructor(
     }
 
     //TODO: This function call is unsynchronized with service
-    private suspend fun handleRecordingStopped() {
-        // - Move updated to recycle if requested to delete the record, otherwise set it as active record
+    private suspend fun handleRecordingStopped(recordedRecordId: Long) {
         withContext(ioDispatcher) {
-            val recordedRecordId = prefs.recordedRecordId
             if (recordedRecordId >= 0) {
                 if (_state.value.isDeleteRecordingProgressRequested) {
                     moveRecordToRecycle(recordedRecordId, false)
@@ -552,7 +561,7 @@ class HomeViewModel @Inject constructor(
             }
         } else {
             val recState = recordingService?.recordingState?.value
-            val isServiceRecording = recState?.isRecording == true
+            val isServiceRecording = recState?.isRecording() == true
             val bottomBarState = recState.toBottomBarState()
             if (isServiceRecording) {
                 recordsDataSource.getRecord(prefs.recordedRecordId)?.let {
@@ -619,9 +628,9 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun RecordingServiceState?.toBottomBarState(): BottomBarState {
-        return if (this?.isPaused == true) {
+        return if (this?.isPaused() == true) {
             BottomBarState.PAUSED
-        } else if (this?.isRecording == true) {
+        } else if (this?.isRecording() == true) {
             BottomBarState.RECORDING
         } else {
             BottomBarState.READY_TO_START_RECORDING
@@ -929,11 +938,12 @@ class HomeViewModel @Inject constructor(
     }
 
     fun handleOnDeleteRecordingProgressClick() {
-        recordingService?.stopRecording()
+        // Set the flag BEFORE stopping recording so handleRecordingStopped() sees it
         _state.value = state.value.copy(
             isDeleteRecordingProgressRequested = true,
             keepScreenOn = false,
         )
+        recordingService?.stopRecording()
     }
 
     fun handleRestoreRecordFromRecycle(recordId: Long) {

@@ -39,6 +39,7 @@ import com.dimowner.audiorecorder.audio.AudioDecoder
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.HomeActivity
 import com.dimowner.audiorecorder.v2.app.getNewRecordName
+import com.dimowner.audiorecorder.v2.app.home.BottomBarState
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
@@ -214,8 +215,7 @@ class AudioRecordingService : Service() {
                         recordingAmplitudes.clear()
                         totalRecordingSampleCount = 0
                         _recordingState.value = _recordingState.value.copy(
-                            isRecording = true,
-                            isPaused = false,
+                            recordingState = RecordingState.STARTED,
                             amplitudes = intArrayOf(),
                             totalSampleCount = 0,
                             waveformDataOffset = 0,
@@ -224,6 +224,9 @@ class AudioRecordingService : Service() {
                         updateNotification()
                     }
                     is RecorderEvent.OnRecordingProgress -> {
+                        _recordingState.value = _recordingState.value.copy(
+                            recordingState = RecordingState.PROGRESS,
+                        )
                         val state = _recordingState.value
                         state.recordingFormat?.let { format ->
                             val space = fileDataSource.getAvailableSpace()
@@ -279,13 +282,13 @@ class AudioRecordingService : Service() {
                     }
                     is RecorderEvent.OnPauseRecording -> {
                         _recordingState.value = _recordingState.value.copy(
-                            isPaused = true
+                            recordingState = RecordingState.PAUSED,
                         )
                         updateNotification()
                     }
                     is RecorderEvent.OnResumeRecording -> {
                         _recordingState.value = _recordingState.value.copy(
-                            isPaused = false
+                            recordingState = RecordingState.RESUMED,
                         )
                         updateNotification()
                     }
@@ -433,6 +436,9 @@ class AudioRecordingService : Service() {
                         channelCount = info.channelCount,
                         bitrate = info.bitrate,
                     )
+                    _recordingState.value = _recordingState.value.copy(
+                        recordingState = RecordingState.STOPPED,
+                    )
                     val success = recordsDataSource.updateRecord(recordUpdated)
                     if (success) {
                         prefs.activeRecordId = recordedRecordId
@@ -542,7 +548,7 @@ class AudioRecordingService : Service() {
         val pauseResumeText: String
         val statusText: String
 
-        if (state.isPaused) {
+        if (state.isPaused()) {
             pauseResumeIcon = R.drawable.ic_play
             pauseResumeText = getString(R.string.button_resume)
             statusText = getString(R.string.status_recording_paused)
@@ -676,8 +682,7 @@ data class RecordingServiceState(
     val sampleRate: Int = 0,
     val bitrate: Int = 0,
     val channelCount: Int = 0,
-    val isRecording: Boolean = false,
-    val isPaused: Boolean = false,
+    val recordingState: RecordingState = RecordingState.IDLE,
     val durationMills: Long = 0L,
     val amplitude: Int = 0,
     val recordId: Long = -1L,
@@ -693,6 +698,21 @@ data class RecordingServiceState(
     /** Width scale for waveform rendering. */
     val widthScale: Float = 1.5f,
 ) {
+
+    fun isRecording(): Boolean {
+        return this.recordingState == RecordingState.STARTED
+                || this.recordingState == RecordingState.PROGRESS
+                || this.recordingState == RecordingState.RESUMED
+    }
+
+    fun isPaused(): Boolean {
+        return this.recordingState == RecordingState.PAUSED
+    }
+
+    fun isStoppedRecording(): Boolean {
+        return this.recordingState == RecordingState.STOPPED
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RecordingServiceState) return false
@@ -700,8 +720,7 @@ data class RecordingServiceState(
         if (sampleRate != other.sampleRate) return false
         if (bitrate != other.bitrate) return false
         if (channelCount != other.channelCount) return false
-        if (isRecording != other.isRecording) return false
-        if (isPaused != other.isPaused) return false
+        if (recordingState != other.recordingState) return false
         if (durationMills != other.durationMills) return false
         if (amplitude != other.amplitude) return false
         if (recordId != other.recordId) return false
@@ -719,8 +738,7 @@ data class RecordingServiceState(
         result = 31 * result + sampleRate
         result = 31 * result + bitrate
         result = 31 * result + channelCount
-        result = 31 * result + isRecording.hashCode()
-        result = 31 * result + isPaused.hashCode()
+        result = 31 * result + recordingState.hashCode()
         result = 31 * result + durationMills.hashCode()
         result = 31 * result + amplitude
         result = 31 * result + recordId.hashCode()
@@ -732,6 +750,15 @@ data class RecordingServiceState(
         result = 31 * result + widthScale.hashCode()
         return result
     }
+}
+
+enum class RecordingState {
+    IDLE,
+    STARTED,
+    PROGRESS,
+    PAUSED,
+    RESUMED,
+    STOPPED,
 }
 
 /**
