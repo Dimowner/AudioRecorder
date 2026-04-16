@@ -56,11 +56,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -439,6 +438,13 @@ fun RenameAlertDialog(
 ) {
     val currentValue = remember { mutableStateOf(recordName) }
     val checkedState = remember { mutableStateOf(false) }
+    // If recordName arrives after first composition (e.g. async state update), populate
+    // the field as long as the user hasn't started typing yet.
+    LaunchedEffect(recordName) {
+        if (currentValue.value != recordName) {
+            currentValue.value = recordName
+        }
+    }
     AlertDialog(
         title = {
             Row(

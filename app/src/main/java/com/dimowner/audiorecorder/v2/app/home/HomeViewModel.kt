@@ -318,7 +318,7 @@ class HomeViewModel @Inject constructor(
                         bottomBarState = BottomBarState.READY_TO_START_RECORDING,
                         keepScreenOn = false,
                     )
-                    handleRecordingStopped(recState.recordId)
+                    handleRecordingStopped(recState.recordId, recState.recordName)
                 }
             }
         }
@@ -396,7 +396,7 @@ class HomeViewModel @Inject constructor(
     }
 
     //TODO: This function call is unsynchronized with service
-    private suspend fun handleRecordingStopped(recordedRecordId: Long) {
+    private suspend fun handleRecordingStopped(recordedRecordId: Long, recordName: String?) {
         withContext(ioDispatcher) {
             if (recordedRecordId >= 0) {
                 if (_state.value.isDeleteRecordingProgressRequested) {
@@ -405,6 +405,7 @@ class HomeViewModel @Inject constructor(
                     updateState()
                     withContext(mainDispatcher) {
                         _state.value = _state.value.copy(
+                            recordName = recordName ?: _state.value.recordName,
                             showRenameAfterRecordingDialog = true,
                             keepScreenOn = false,
                         )

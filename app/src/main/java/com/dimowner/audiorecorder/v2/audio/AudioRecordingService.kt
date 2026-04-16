@@ -436,10 +436,10 @@ class AudioRecordingService : Service() {
                         channelCount = info.channelCount,
                         bitrate = info.bitrate,
                     )
+                    val success = recordsDataSource.updateRecord(recordUpdated)
                     _recordingState.value = _recordingState.value.copy(
                         recordingState = RecordingState.STOPPED,
                     )
-                    val success = recordsDataSource.updateRecord(recordUpdated)
                     if (success) {
                         prefs.activeRecordId = recordedRecordId
                         //Record saved successfully
