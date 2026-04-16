@@ -330,9 +330,11 @@ class AudioRecordingService : Service() {
         if (availableTimeSeconds > AppConstants.MIN_REMAIN_RECORDING_TIME && !audioRecorder.isRecording) {
             //TODO: hande CantCreateFileException
             val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
+            // Use the actual file name (without extension) in case a suffix was added to avoid collision
+            val actualRecordName = recordFile.nameWithoutExtension
             val record = Record(
                 id = 0,
-                name = recordName,
+                name = actualRecordName,
                 durationMills = 0,
                 created = recordFile.lastModified(),
                 added = System.currentTimeMillis(),
@@ -355,7 +357,7 @@ class AudioRecordingService : Service() {
 
             _recordingState.value = _recordingState.value.copy(
                 recordId = id,
-                recordName = recordName,
+                recordName = actualRecordName,
                 recordingFormat = format,
                 sampleRate = sampleRate,
                 bitrate = bitrate,

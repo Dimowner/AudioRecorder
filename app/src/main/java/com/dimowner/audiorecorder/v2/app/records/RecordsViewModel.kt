@@ -49,6 +49,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 const val DEFAULT_PAGE_SIZE = 200
@@ -247,7 +248,22 @@ internal class RecordsViewModel @Inject constructor(
     fun renameRecord(recordId: Long, newName: String) {
         viewModelScope.launch(ioDispatcher) {
             recordsDataSource.getRecord(recordId)?.let { record ->
-                if (recordsDataSource.renameRecord(record, newName)) {
+                // Check if a file with the new name already exists on disk
+                val currentFile = File(record.path)
+                val extension = currentFile.extension
+                val targetFile = File(currentFile.parentFile, "$newName.$extension")
+                if (targetFile.exists() && currentFile.nameWithoutExtension != newName) {
+                    val context: Context = getApplication<Application>().applicationContext
+                    emitEvent(
+                        RecordsScreenEvent.ShowErrorSnack(
+                            context.getString(R.string.error_file_exists)
+                        )
+                    )
+                    _state.value = _state.value.copy(
+                        showRenameDialog = false,
+                        operationSelectedRecord = null
+                    )
+                } else if (recordsDataSource.renameRecord(record, newName)) {
                     _state.value = _state.value.copy(
                         showRenameDialog = false,
                         operationSelectedRecord = null,

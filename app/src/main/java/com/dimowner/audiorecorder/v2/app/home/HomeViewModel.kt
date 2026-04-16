@@ -761,7 +761,22 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             val activeRecord = recordsDataSource.getActiveRecord()
             if (activeRecord != null) {
-                recordsDataSource.renameRecord(activeRecord, newName)
+                // Check if a file with the new name already exists on disk
+                val currentFile = File(activeRecord.path)
+                val extension = currentFile.extension
+                val targetFile = File(currentFile.parentFile, "$newName.$extension")
+                if (targetFile.exists() && currentFile.nameWithoutExtension != newName) {
+                    val context: Context = getApplication<Application>().applicationContext
+                    emitEvent(
+                        HomeScreenEvent.ShowErrorSnack(
+                            context.getString(R.string.error_file_exists)
+                        )
+                    )
+                    showLoadingProgress(false)
+                    return@launch
+                } else {
+                    recordsDataSource.renameRecord(activeRecord, newName)
+                }
                 updateState(false)
             }
         }
