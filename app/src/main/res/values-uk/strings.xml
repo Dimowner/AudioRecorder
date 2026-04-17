@@ -138,7 +138,7 @@
 	<string name="public_dir_warning">Записи будуть зберігатись в звичайній директорії пристрою, видимій іншим додаткам.</string>
 	<string name="lost_records">Втрачені записи</string>
 	<string name="trash">Кошик</string>
-	<string name="trash_info">Записи переміщені в кошик автоматично будуть видалені назавжди через 60 днів.</string>
+	<string name="trash_info">Записи в кошику будуть остаточно видалені через 60 днів.</string>
 	<string name="file_browser">Файловий менеджер</string>
 	<string name="private_dir">Приватний каталог</string>
 	<string name="public_dir">Публічний каталог</string>

@@ -123,7 +123,7 @@
 	<string name="public_dir_warning">Les gravacions s\'emmagatzemaran en una carpeta comuna del dispositiu, visible per a altres aplicacions</string>
 	<string name="lost_records">Gravacions perdudes</string>
 	<string name="trash">Paperera</string>
-	<string name="trash_info">Les gravacions que es moguin a la paperera s\'eliminaran automàticament en 60 dies.</string>
+	<string name="trash_info">Les gravacions a la paperera s\'eliminaran permanentment al cap de 60 dies.</string>
 	<string name="file_browser">Explorador de fitxers</string>
 	<string name="private_dir">Directori privat</string>
 	<string name="public_dir">Directori públic</string>

@@ -123,7 +123,7 @@
 	<string name="public_dir_warning">Les enregistrements seront stockés dans un dossier accessible aux autres applications</string>
 	<string name="lost_records">Enregistrements perdus</string>
 	<string name="trash">Corbeille</string>
-	<string name="trash_info">Les enregistrements déplacés dans la corbeille seront supprimé automatiquement dans 60 jours.</string>
+	<string name="trash_info">Les enregistrements dans la corbeille sont définitivement supprimés après 60 jours.</string>
 	<string name="file_browser">Explorateur de fichier</string>
 	<string name="private_dir">Dossier privé</string>
 	<string name="public_dir">Dossier public</string>

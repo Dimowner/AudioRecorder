@@ -138,7 +138,7 @@
 	<string name="public_dir_warning">Записи будут сохранятся в обычной директории устройства, видимой другим приложениям.</string>
 	<string name="lost_records">Потеряные записи</string>
 	<string name="trash">Корзина</string>
-	<string name="trash_info">Записи помещенные в корзину автоматически будет удалены навсегда через 60 дней.</string>
+	<string name="trash_info">Записи в корзине будут окончательно удалены через 60 дней.</string>
 	<string name="file_browser">Файловый менеджер</string>
 	<string name="private_dir">Приватный каталог</string>
 	<string name="public_dir">Публичный каталог</string>

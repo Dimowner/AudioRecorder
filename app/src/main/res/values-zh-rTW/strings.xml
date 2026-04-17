@@ -127,7 +127,7 @@
 	<string name="public_dir_warning">錄音將會儲存至共用資料夾，且可在其他應用程式中顯示。</string>
 	<string name="lost_records">錄音遺失</string>
 	<string name="trash">垃圾桶</string>
-	<string name="trash_info">移至垃圾桶的錄音將在 60 天後自動刪除。</string>
+	<string name="trash_info">垃圾桶中的錄音將在 60 天後永久刪除。</string>
 	<string name="file_browser">檔案瀏覽</string>
 	<string name="private_dir">專用資料夾</string>
 	<string name="public_dir">共用資料夾</string>

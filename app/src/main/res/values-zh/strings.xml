@@ -120,7 +120,7 @@
     <string name="public_dir_warning">Records will be stored in a common directory on your device which is visible for other apps</string>
     <string name="lost_records">丢失的录音</string>
     <string name="trash">回收站</string>
-    <string name="trash_info">移至回收站的记录将在 60 天内自动永久删除。</string>
+    <string name="trash_info">回收站中的录音将在 60 天后永久删除。</string>
     <string name="file_browser">文件浏览器</string>
     <string name="private_dir">私有目录</string>
     <string name="public_dir">公共目录</string>

@@ -190,7 +190,7 @@
 	<string name="public_dir_warning">Records will be stored in a common directory on your device which is visible for other apps</string>
 	<string name="lost_records">Lost records</string>
 	<string name="trash">Trash</string>
-	<string name="trash_info">The records moved to the trash will be automatically removed forever in 60 days.</string>
+	<string name="trash_info">Recordings in the trash are permanently deleted after 60 days.</string>
 	<string name="file_browser">File browser</string>
 	<string name="private_dir">Private directory</string>
 	<string name="public_dir">Public directory</string>

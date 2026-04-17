@@ -92,7 +92,7 @@
  que es visible para otras apps</string>
  	<string name="lost_records">Grabaciones perdidas</string>
  	<string name="trash">Basura</string>
- 	<string name="trash_info">Las grabaciones movidas a la basura se eliminarán automática y permanentemente pasados 60 días</string>
+ 	<string name="trash_info">Las grabaciones en la papelera se eliminarán permanentemente tras 60 días.</string>
  	<string name="file_browser">Gestor de archivos</string>
  	<string name="private_dir">Directorio privado</string>
  	<string name="public_dir">Directorio público</string>

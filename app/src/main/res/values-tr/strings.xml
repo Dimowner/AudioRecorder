@@ -124,7 +124,7 @@
 	<string name="public_dir_warning">Records will be stored in a common directory on your device which is visible for other apps</string>
 	<string name="lost_records">Kayıp kayıtlar</string>
 	<string name="trash">Çöp Kutusu</string>
-	<string name="trash_info">Çöp kutusuna taşınan kayıtlar 60 gün sonra kendiliğinden silinir.</string>
+	<string name="trash_info">Çöp kutusundaki kayıtlar 60 gün sonra kalıcı olarak silinir.</string>
 	<string name="file_browser">Dosya yöneticisi</string>
 	<string name="private_dir">Uygulama dizini</string>
 	<string name="public_dir">Genel dizin</string>
