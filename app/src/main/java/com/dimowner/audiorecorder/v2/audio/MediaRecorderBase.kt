@@ -50,6 +50,7 @@ abstract class MediaRecorderBase(
 
     private var timerProgress: Timer? = null
     private val amplitudesBuffer: IntArrayList = IntArrayList()
+    @Volatile private var lastNonZeroAmplitude: Int = 0
     private var mediaRecorder: MediaRecorder? = null
     private var recordFile: File? = null
     private var updateTime: Long = 0
@@ -106,6 +107,7 @@ abstract class MediaRecorderBase(
             return false
         }
         amplitudesBuffer.clear()
+        lastNonZeroAmplitude = 0
         return if (outputFile.exists() && outputFile.isFile) {
             recordFile = outputFile
             val recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -295,7 +297,7 @@ abstract class MediaRecorderBase(
                     Timber.e(e)
                 }
             }
-        }, 0, RECORDING_VISUALIZATION_INTERVAL_NEW.toLong())
+        }, 1, RECORDING_VISUALIZATION_INTERVAL_NEW.toLong())
     }
 
     private fun stopRecordingTimerBuffered() {
@@ -316,14 +318,9 @@ abstract class MediaRecorderBase(
         updateTime = curTime
         if (amplitudesBuffer.size() > 0) {
             var amp = amplitudesBuffer.get(amplitudesBuffer.size() - 1)
-            if (amp == 0 && amplitudesBuffer.size() > 1) {
-                amp = amplitudesBuffer.get(amplitudesBuffer.size() - 2)
-            }
-            if (amp == 0 && amplitudesBuffer.size() > 2) {
-                amp = amplitudesBuffer.get(amplitudesBuffer.size() - 3)
-            }
+            if (amp == 0) amp = lastNonZeroAmplitude
+            else lastNonZeroAmplitude = amp
             amplitudesBuffer.clear()
-            amplitudesBuffer.add(amp)
             emitEvent(RecorderEvent.OnRecordingProgress(durationMills = durationMills, amplitude = amp))
         }
     }

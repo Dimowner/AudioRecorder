@@ -50,6 +50,7 @@ class WavRecorderV2 @Inject constructor(
 
     private var timerProgress: Timer? = null
     private val amplitudesBuffer: IntArrayList = IntArrayList()
+    @Volatile private var lastNonZeroAmplitude: Int = 0
 
     private val _event = MutableSharedFlow<RecorderEvent>()
     override fun subscribeRecorderEvents(): Flow<RecorderEvent> {
@@ -75,6 +76,7 @@ class WavRecorderV2 @Inject constructor(
             return false
         }
         amplitudesBuffer.clear()
+        lastNonZeroAmplitude = 0
         if (!outputFile.exists() || !outputFile.isFile) {
             emitEvent(RecorderEvent.OnError(InvalidOutputFile()))
             return false
@@ -382,12 +384,8 @@ class WavRecorderV2 @Inject constructor(
         updateTime = curTime
         if (amplitudesBuffer.size() > 0) {
             var amp = amplitudesBuffer.get(amplitudesBuffer.size() - 1)
-            if (amp == 0 && amplitudesBuffer.size() > 1) {
-                amp = amplitudesBuffer.get(amplitudesBuffer.size() - 2)
-            }
-            if (amp == 0 && amplitudesBuffer.size() > 2) {
-                amp = amplitudesBuffer.get(amplitudesBuffer.size() - 3)
-            }
+            if (amp == 0) amp = lastNonZeroAmplitude
+            else lastNonZeroAmplitude = amp
             amplitudesBuffer.clear()
             amplitudesBuffer.add(amp)
             emitEvent(RecorderEvent.OnRecordingProgress(durationMills = durationMills, amplitude = amp))

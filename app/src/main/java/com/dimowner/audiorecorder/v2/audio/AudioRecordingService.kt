@@ -63,6 +63,9 @@ import java.io.File
 import java.util.LinkedList
 import javax.inject.Inject
 
+/** Scaling factor applied to raw amplitude samples to visually amplify the recorded waveform. */
+private const val WAVEFORM_AMPLITUDE_SCALE = 1.2f
+
 @AndroidEntryPoint
 class AudioRecordingService : Service() {
 
@@ -245,7 +248,7 @@ class AudioRecordingService : Service() {
                         }
 
                         // Accumulate amplitude into sliding-window buffer
-                        recordingAmplitudes.addLast(event.amplitude)
+                        recordingAmplitudes.addLast((event.amplitude * WAVEFORM_AMPLITUDE_SCALE).toInt())
                         if (recordingAmplitudes.size > recordingAmplitudeBufferSize) {
                             recordingAmplitudes.removeFirst()
                         }
