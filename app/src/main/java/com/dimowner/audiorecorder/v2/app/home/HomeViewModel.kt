@@ -333,7 +333,9 @@ class HomeViewModel @Inject constructor(
                         handleNewRecordingPartStarted(event.recordId)
                     }
                     is AudioRecordingServiceEvent.ShowInfoSnack -> {
-                        showInfoMessage(event.message)
+                        if (!_state.value.isDeleteRecordingProgressRequested) {
+                            showInfoMessage(event.message)
+                        }
                     }
                     is AudioRecordingServiceEvent.ShowErrorSnack -> {
                         handleError(event.message)
