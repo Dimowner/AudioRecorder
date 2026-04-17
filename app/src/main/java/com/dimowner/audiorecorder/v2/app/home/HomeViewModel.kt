@@ -319,7 +319,10 @@ class HomeViewModel @Inject constructor(
                     // event can't leave the BottomBar stuck in RECORDING.
                     if (_state.value.bottomBarState != BottomBarState.READY_TO_START_RECORDING) {
                         _state.value = _state.value.copy(
-                            waveformState = _state.value.waveformState.copy(isRecording = false),
+                            waveformState = _state.value.waveformState.copy(
+                                isRecording = false,
+                                waveformDataOffset = 0,
+                            ),
                             bottomBarState = BottomBarState.READY_TO_START_RECORDING,
                             keepScreenOn = false,
                         )
@@ -555,7 +558,8 @@ class HomeViewModel @Inject constructor(
                         waveformData = adjustWaveformHeights(activeRecord.amps),
                         durationSample = activeRecord.amps.size,
                         gridStepMills = calculateGridStep(activeRecord.durationMills),
-                        isRecording = _state.value.bottomBarState != BottomBarState.READY_TO_START_RECORDING
+                        isRecording = _state.value.bottomBarState != BottomBarState.READY_TO_START_RECORDING,
+                        waveformDataOffset = 0,
                     ),
                     startTime = context.getString(R.string.zero_time),
                     endTime = TimeUtils.formatTimeIntervalHourMinSec2(activeRecord.durationMills),
