@@ -3,6 +3,7 @@ package com.dimowner.audiorecorder.v2.audio
 import android.media.AudioFormat
 import android.media.AudioRecord
 import com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
+import com.dimowner.audiorecorder.audio.sumOfAmplitudes
 import com.dimowner.audiorecorder.IntArrayList
 import com.dimowner.audiorecorder.exception.AlreadyRecordingException
 import com.dimowner.audiorecorder.exception.InvalidOutputFile
@@ -309,21 +310,8 @@ class WavRecorderV2 @Inject constructor(
 
     private fun calculateAmplitude(buffer: ByteArray, bytesRead: Int): Int {
         if (bytesRead <= 0) return 0
-
-        var sumOfSquares = 0.0
-        val numSamples = bytesRead / 2 // Since it's 16-bit (2 bytes per sample)
-
-        for (i in 0 until bytesRead - 1 step 2) {
-            // 1. Extract 16-bit little-endian PCM sample
-            val sample = (buffer[i + 1].toInt() shl 8) or (buffer[i].toInt() and 0xFF)
-
-            // 2. Add the square of the sample to the sum
-            sumOfSquares += sample.toDouble() * sample.toDouble()
-        }
-        // 3. Calculate the Mean of the squares
-        val meanSquare = sumOfSquares / numSamples
-        // 4. Return the Square Root (RMS)
-        return kotlin.math.sqrt(meanSquare).toInt()
+        val sum = buffer.sumOfAmplitudes(bytesRead)
+        return (sum / (bytesRead / 16 + 1)).toInt()
     }
 
     private fun emitEvent(event: RecorderEvent) {
