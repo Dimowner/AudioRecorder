@@ -61,13 +61,13 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
 
     private val _isDarkThemeFlow = MutableStateFlow(
-        sharedPreferences.getBoolean(PREF_KEY_IS_DARK_THEME, DefaultValues.isDarkTheme)
+        sharedPreferences.getBoolean(PREF_KEY_IS_DARK_THEME, DefaultValues.IS_DARK_THEME)
     )
 
     override val isDarkThemeFlow: StateFlow<Boolean> = _isDarkThemeFlow.asStateFlow()
 
     private val _isDynamicThemeFlow = MutableStateFlow(
-        sharedPreferences.getBoolean(PREF_KEY_IS_DYNAMIC_THEME, DefaultValues.isDynamicTheme)
+        sharedPreferences.getBoolean(PREF_KEY_IS_DYNAMIC_THEME, DefaultValues.IS_DYNAMIC_THEME)
     )
 
     override val isDynamicThemeFlow: StateFlow<Boolean> = _isDynamicThemeFlow.asStateFlow()
@@ -83,7 +83,7 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
 
     override var askToRenameAfterRecordingStopped: Boolean
         get() = sharedPreferences.getBoolean(
-            PREF_KEY_ASK_TO_RENAME_AFTER_RECORDING_STOPPED, DefaultValues.isAskToRename
+            PREF_KEY_ASK_TO_RENAME_AFTER_RECORDING_STOPPED, DefaultValues.IS_ASK_TO_RENAME
         )
         set(value) {
             sharedPreferences.edit {
@@ -133,7 +133,7 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
     }
 
     override var isKeepScreenOn: Boolean
-        get() = sharedPreferences.getBoolean(PREF_KEY_KEEP_SCREEN_ON, DefaultValues.isKeepScreenOn)
+        get() = sharedPreferences.getBoolean(PREF_KEY_KEEP_SCREEN_ON, DefaultValues.IS_KEEP_SCREEN_ON)
         set(value) {
             sharedPreferences.edit {
                 putBoolean(PREF_KEY_KEEP_SCREEN_ON, value)
@@ -152,7 +152,7 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         }
 
     override var isDynamicTheme: Boolean
-        get() = sharedPreferences.getBoolean(PREF_KEY_IS_DYNAMIC_THEME, DefaultValues.isDynamicTheme)
+        get() = sharedPreferences.getBoolean(PREF_KEY_IS_DYNAMIC_THEME, DefaultValues.IS_DYNAMIC_THEME)
         set(value) {
             sharedPreferences.edit {
                 putBoolean(PREF_KEY_IS_DYNAMIC_THEME, value)
@@ -161,7 +161,7 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         }
 
     override var isDarkTheme: Boolean
-        get() = sharedPreferences.getBoolean(PREF_KEY_IS_DARK_THEME, DefaultValues.isDarkTheme)
+        get() = sharedPreferences.getBoolean(PREF_KEY_IS_DARK_THEME, DefaultValues.IS_DARK_THEME)
         set(value) {
             sharedPreferences.edit {
                 putBoolean(PREF_KEY_IS_DARK_THEME, value)
@@ -170,7 +170,7 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         }
 
     override var isAppV2: Boolean
-        get() = sharedPreferences.getBoolean(PREF_KEY_IS_APP_V2, DefaultValues.isAppV2)
+        get() = sharedPreferences.getBoolean(PREF_KEY_IS_APP_V2, DefaultValues.IS_APP_V2)
         set(value) {
             sharedPreferences.edit {
                 putBoolean(PREF_KEY_IS_APP_V2, value)

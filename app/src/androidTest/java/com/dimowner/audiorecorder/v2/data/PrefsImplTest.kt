@@ -75,8 +75,8 @@ class PrefsImplTest {
         assertEquals(-1, prefs.recordedRecordId)
         assertEquals(0, prefs.recordedRecordPartCounter)
         assertNull( prefs.recordedRecordBaseName)
-        assertEquals(DefaultValues.isDarkTheme, prefs.isDarkTheme)
-        assertEquals(DefaultValues.isAppV2, prefs.isAppV2)
+        assertEquals(DefaultValues.IS_DARK_THEME, prefs.isDarkTheme)
+        assertEquals(DefaultValues.IS_APP_V2, prefs.isAppV2)
         assertEquals(DefaultValues.DefaultSampleRate, prefs.settingSampleRate)
         assertEquals(DefaultValues.DefaultNameFormat, prefs.settingNamingFormat)
     }
@@ -91,10 +91,10 @@ class PrefsImplTest {
 
     @Test
     fun test_askToRenameAfterRecordingStopped() {
-        assertEquals(DefaultValues.isAskToRename, prefs.askToRenameAfterRecordingStopped)
+        assertEquals(DefaultValues.IS_ASK_TO_RENAME, prefs.askToRenameAfterRecordingStopped)
 
-        prefs.askToRenameAfterRecordingStopped = !DefaultValues.isAskToRename
-        assertEquals(!DefaultValues.isAskToRename, prefs.askToRenameAfterRecordingStopped)
+        prefs.askToRenameAfterRecordingStopped = !DefaultValues.IS_ASK_TO_RENAME
+        assertEquals(!DefaultValues.IS_ASK_TO_RENAME, prefs.askToRenameAfterRecordingStopped)
     }
 
     @Test
@@ -140,10 +140,10 @@ class PrefsImplTest {
 
     @Test
     fun test_isKeepScreenOn() {
-        assertEquals(DefaultValues.isKeepScreenOn, prefs.isKeepScreenOn)
+        assertEquals(DefaultValues.IS_KEEP_SCREEN_ON, prefs.isKeepScreenOn)
 
-        prefs.isKeepScreenOn = !DefaultValues.isKeepScreenOn
-        assertEquals(!DefaultValues.isKeepScreenOn, prefs.isKeepScreenOn)
+        prefs.isKeepScreenOn = !DefaultValues.IS_KEEP_SCREEN_ON
+        assertEquals(!DefaultValues.IS_KEEP_SCREEN_ON, prefs.isKeepScreenOn)
     }
 
     @Test
@@ -156,26 +156,26 @@ class PrefsImplTest {
 
     @Test
     fun test_isDynamicTheme() {
-        assertEquals(DefaultValues.isDynamicTheme, prefs.isDynamicTheme)
+        assertEquals(DefaultValues.IS_DYNAMIC_THEME, prefs.isDynamicTheme)
 
-        prefs.isDynamicTheme = !DefaultValues.isDynamicTheme
-        assertEquals(!DefaultValues.isDynamicTheme, prefs.isDynamicTheme)
+        prefs.isDynamicTheme = !DefaultValues.IS_DYNAMIC_THEME
+        assertEquals(!DefaultValues.IS_DYNAMIC_THEME, prefs.isDynamicTheme)
     }
 
     @Test
     fun test_isDarkTheme() {
-        assertEquals(DefaultValues.isDarkTheme, prefs.isDarkTheme)
+        assertEquals(DefaultValues.IS_DARK_THEME, prefs.isDarkTheme)
 
-        prefs.isDarkTheme = !DefaultValues.isDarkTheme
-        assertEquals(!DefaultValues.isDarkTheme, prefs.isDarkTheme)
+        prefs.isDarkTheme = !DefaultValues.IS_DARK_THEME
+        assertEquals(!DefaultValues.IS_DARK_THEME, prefs.isDarkTheme)
     }
 
     @Test
     fun test_isAppV2() {
-        assertEquals(DefaultValues.isAppV2, prefs.isAppV2)
+        assertEquals(DefaultValues.IS_APP_V2, prefs.isAppV2)
 
-        prefs.isAppV2 = !DefaultValues.isAppV2
-        assertEquals(!DefaultValues.isAppV2, prefs.isAppV2)
+        prefs.isAppV2 = !DefaultValues.IS_APP_V2
+        assertEquals(!DefaultValues.IS_APP_V2, prefs.isAppV2)
     }
 
     @Test

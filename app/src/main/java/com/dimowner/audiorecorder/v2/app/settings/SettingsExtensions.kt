@@ -193,7 +193,10 @@ fun sizeMbPerMin(
                 (60F * (bitrate.value / 8F)) / 1000000f
             }
         }
-        RecordingFormat.ThreeGp -> (60F * (DefaultValues.Default3GpBitRate / 8F)) / 1000000f
+        RecordingFormat.ThreeGp -> {
+            val threeGpBitrate = recordingFormat.getThreeGpBitRateForSampleRate(sampleRate) ?: DefaultValues.MAX_3GP_BITRATE_WB
+            (60F * (threeGpBitrate / 8F)) / 1000000f
+        }
         RecordingFormat.Wav -> {
             if (sampleRate != null && channels != null) {
                 (60F * (sampleRate.value * channels.value * 2F)) / 1000000f
@@ -219,7 +222,8 @@ fun spaceToRecordingTimeMills(
             else 1000L * (spaceBytes / (bitrate.value / 8L))
         }
         RecordingFormat.ThreeGp -> {
-            1000L * (spaceBytes / (DefaultValues.Default3GpBitRate / 8L))
+            val threeGpBitrate = recordingFormat.getThreeGpBitRateForSampleRate(sampleRate) ?: DefaultValues.MAX_3GP_BITRATE_WB
+            1000L * (spaceBytes / (threeGpBitrate / 8L))
         }
         RecordingFormat.Wav -> {
             if (sampleRate != null && channels != null) {
@@ -228,6 +232,37 @@ fun spaceToRecordingTimeMills(
                 0L
             }
         }
+    }
+}
+
+/**
+ * Returns the maximum AMR bitrate (in bits per second) to use when encoding a 3GP file at the
+ * given [sampleRate].
+ *
+ * 3GP audio is encoded with the AMR codec, which has two operating modes tied directly to the
+ * sample rate:
+ * - **AMR-NB (Narrow-Band)** — 8 000 Hz → [DefaultValues.MAX_3GP_BITRATE_NB] (12 000 bps)
+ * - **AMR-WB (Wide-Band)**   — 16 000 Hz → [DefaultValues.MAX_3GP_BITRATE_WB] (24 000 bps)
+ *
+ * The function returns `null` in two cases:
+ * 1. The receiver is not [RecordingFormat.ThreeGp] — bitrate selection via this mapping is only
+ *    meaningful for 3GP; other formats use their own bitrate settings.
+ * 2. The supplied [sampleRate] is `null` or is not one of the two AMR-supported rates
+ *    ([SampleRate.SR8000] / [SampleRate.SR16000]) — callers should fall back to a sensible
+ *    default (e.g. [DefaultValues.MAX_3GP_BITRATE_WB]).
+ *
+ * @param sampleRate The target sample rate for the recording; may be `null`.
+ * @return The recommended max bitrate in bps, or `null` if no mapping applies.
+ */
+fun RecordingFormat.getThreeGpBitRateForSampleRate(sampleRate: SampleRate?): Int? {
+    return if (this == RecordingFormat.ThreeGp) {
+        when (sampleRate) {
+            SampleRate.SR8000 -> DefaultValues.MAX_3GP_BITRATE_NB
+            SampleRate.SR16000 -> DefaultValues.MAX_3GP_BITRATE_WB
+            else -> null
+        }
+    } else {
+        null
     }
 }
 

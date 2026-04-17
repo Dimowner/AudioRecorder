@@ -25,11 +25,11 @@ import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 
 object DefaultValues {
-    const val isAppV2: Boolean = true
-    const val isDarkTheme: Boolean = false
-    const val isDynamicTheme: Boolean = false
-    const val isAskToRename: Boolean = true
-    const val isKeepScreenOn: Boolean = false
+    const val IS_APP_V2: Boolean = true
+    const val IS_DARK_THEME: Boolean = false
+    const val IS_DYNAMIC_THEME: Boolean = false
+    const val IS_ASK_TO_RENAME: Boolean = true
+    const val IS_KEEP_SCREEN_ON: Boolean = false
 
     val DefaultSampleRate: SampleRate = SampleRate.SR44100
     val DefaultBitRate: BitRate = BitRate.BR128
@@ -40,7 +40,12 @@ object DefaultValues {
     val DefaultRecordingFormat: RecordingFormat = RecordingFormat.M4a
     val DefaultSortOrder: SortOrder = SortOrder.DateAsc
 
-    val Default3GpBitRate: Int = 12000 //TODO: Find a better solution for 3Gp bitrate
+    /** AMR-NB (Adaptive Multi-Rate Narrowband) bitrate (Bits per second) */
+    const val MAX_3GP_BITRATE_NB: Int = 12000
+
+    /** Adaptive Multi-Rate Wideband (AMR-WB) bitrate (Bits per second) */
+    const val MAX_3GP_BITRATE_WB: Int = 24000
+
     val Default3GpSampleRate: SampleRate = SampleRate.SR16000
     val Default3GpChannelCount: ChannelCount = ChannelCount.Mono
 
