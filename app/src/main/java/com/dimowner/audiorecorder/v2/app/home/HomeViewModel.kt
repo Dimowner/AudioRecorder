@@ -312,13 +312,21 @@ class HomeViewModel @Inject constructor(
                         recordName = context.getString(R.string.recording_paused),
                         keepScreenOn = false,
                     )
-                } else if (recState.isStoppedRecording()) {
-                    _state.value = _state.value.copy(
-                        waveformState = _state.value.waveformState.copy(isRecording = false),
-                        bottomBarState = BottomBarState.READY_TO_START_RECORDING,
-                        keepScreenOn = false,
-                    )
-                    handleRecordingStopped(recState.recordId, recState.recordName)
+                } else {
+                    // Covers STOPPED and IDLE (e.g. after stopForegroundService resets state,
+                    // or when STOPPED is skipped because the recorded record couldn't be loaded).
+                    // Always reconcile the UI to READY_TO_START_RECORDING so a late PROGRESS
+                    // event can't leave the BottomBar stuck in RECORDING.
+                    if (_state.value.bottomBarState != BottomBarState.READY_TO_START_RECORDING) {
+                        _state.value = _state.value.copy(
+                            waveformState = _state.value.waveformState.copy(isRecording = false),
+                            bottomBarState = BottomBarState.READY_TO_START_RECORDING,
+                            keepScreenOn = false,
+                        )
+                    }
+                    if (recState.isStoppedRecording()) {
+                        handleRecordingStopped(recState.recordId, recState.recordName)
+                    }
                 }
             }
         }

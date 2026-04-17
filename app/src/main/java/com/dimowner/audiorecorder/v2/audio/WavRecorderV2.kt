@@ -379,6 +379,9 @@ class WavRecorderV2 @Inject constructor(
     }
 
     private fun readBufferedProgress() {
+        // Timer.cancel() doesn't prevent an already-scheduled task from running; skip stale
+        // fires so a late progress event can't flip state back to RECORDING after stop.
+        if (!_isRecording || _isPaused) return
         val curTime = System.currentTimeMillis()
         durationMills += curTime - updateTime
         updateTime = curTime
