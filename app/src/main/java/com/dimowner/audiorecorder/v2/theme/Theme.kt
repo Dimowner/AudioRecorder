@@ -175,8 +175,16 @@ private fun AppTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colors.primary.toArgb()
-            window.navigationBarColor = colors.surface.toArgb()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                // On Android 12+, enableEdgeToEdge handles status/nav bar colors automatically
+                window.statusBarColor = Color.Transparent.toArgb()
+                window.navigationBarColor = Color.Transparent.toArgb()
+            } else {
+                // On Android 11 and below, set status bar to background color to avoid
+                // the primary color bleeding through
+                window.statusBarColor = colors.background.toArgb()
+                window.navigationBarColor = colors.background.toArgb()
+            }
             val insetsController = WindowCompat.getInsetsController(window, view)
             insetsController.isAppearanceLightStatusBars = !darkTheme
             insetsController.isAppearanceLightNavigationBars = !darkTheme
