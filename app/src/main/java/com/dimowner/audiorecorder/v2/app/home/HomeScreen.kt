@@ -61,6 +61,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.flowWithLifecycle
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
@@ -75,6 +77,8 @@ import com.dimowner.audiorecorder.v2.app.getTestWaveformData
 import com.dimowner.audiorecorder.v2.app.lostrecords.LostRecordsDialog
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -85,12 +89,12 @@ internal fun HomeScreen(
     showRecordInfoScreen: (String) -> Unit,
     showLostRecordsScreen: (Record) -> Unit,
     uiState: HomeScreenState,
-    event: HomeScreenEvent?,
+    event: SharedFlow<HomeScreenEvent?>,
     onAction: (HomeScreenAction) -> Unit
 ) {
 
-    ComposableLifecycle { _, event ->
-        when (event) {
+    ComposableLifecycle { _, lifecycleEvent ->
+        when (lifecycleEvent) {
             Lifecycle.Event.ON_START -> {
                 Timber.d("HomeScreen: On Start")
                 onAction(HomeScreenAction.OnStartHomeScreen)
@@ -114,9 +118,7 @@ internal fun HomeScreen(
     val msgPermissionDenied = stringResource(R.string.msg_permission_microphone_denied)
     val msgCanceled = stringResource(R.string.msg_recording_canceled)
     val actionUndo = stringResource(R.string.action_undo)
-    val recordMovedToTrashMessage = if (event is HomeScreenEvent.RecordMovedToRecycleSnack && event.recordName != null) {
-        stringResource(R.string.msg_recording_moved_to_trash, event.recordName)
-    } else null
+    val msgRecordMovedToTrashFormat = stringResource(R.string.msg_recording_moved_to_trash)
 
     // Permission launcher for audio recording
     val recordAudioPermissionLauncher = rememberLauncherForActivityResult(
@@ -157,60 +159,66 @@ internal fun HomeScreen(
         }
     }
 
+    val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(key1 = event) {
-        when (event) {
-            HomeScreenEvent.ShowImportErrorError -> {
-                Timber.v("ON EVENT: ShowImportErrorError")
-            }
+        event.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .collect { event ->
+                when (event) {
+                    is HomeScreenEvent.ShowImportErrorError -> {
+                        Timber.v("ON EVENT: ShowImportErrorError")
+                    }
 
-            is HomeScreenEvent.RecordInformationEvent -> {
-                val json = Uri.encode(Gson().toJson(event.recordInfo))
-                Timber.v("ON EVENT: ShareRecord json = $json")
-                showRecordInfoScreen(json)
-            }
-            is HomeScreenEvent.RecordMovedToRecycleSnack -> {
-                scope.launch {
-                    val message = recordMovedToTrashMessage ?: msgCanceled
-                    val result = snackbarHostState
-                        .showSnackbar(
-                            message = message,
-                            actionLabel = actionUndo,
-                            duration = SnackbarDuration.Short
-                        )
-                    when (result) {
-                        SnackbarResult.ActionPerformed -> {
-                            onAction(HomeScreenAction.RestoreRecordFromRecycle(event.recordId))
+                    is HomeScreenEvent.RecordInformationEvent -> {
+                        val json = Uri.encode(Gson().toJson(event.recordInfo))
+                        Timber.v("ON EVENT: ShareRecord json = $json")
+                        showRecordInfoScreen(json)
+                    }
+
+                    is HomeScreenEvent.RecordMovedToRecycleSnack -> {
+                        val message = if (event.recordName != null) {
+                            String.format(msgRecordMovedToTrashFormat, event.recordName)
+                        } else {
+                            msgCanceled
                         }
-                        SnackbarResult.Dismissed -> {
-                            /* Handle snackbar dismissed */
+                        val result = snackbarHostState
+                            .showSnackbar(
+                                message = message,
+                                actionLabel = actionUndo,
+                                duration = SnackbarDuration.Short
+                            )
+                        when (result) {
+                            SnackbarResult.ActionPerformed -> {
+                                onAction(HomeScreenAction.RestoreRecordFromRecycle(event.recordId))
+                            }
+
+                            SnackbarResult.Dismissed -> {
+                                /* Handle snackbar dismissed */
+                            }
                         }
+                    }
+
+                    is HomeScreenEvent.ShowInfoSnack -> {
+                        snackbarHostState
+                            .showSnackbar(
+                                message = event.message,
+                                duration = SnackbarDuration.Short
+                            )
+                    }
+
+                    is HomeScreenEvent.ShowErrorSnack -> {
+                        snackbarHostState
+                            .showSnackbar(
+                                message = event.message,
+                                duration = SnackbarDuration.Short
+                            )
+                    }
+
+                    else -> {
+                        Timber.v("ON EVENT: Unknown")
+                        //Do nothing
                     }
                 }
             }
-            is HomeScreenEvent.ShowInfoSnack -> {
-                scope.launch {
-                    snackbarHostState
-                        .showSnackbar(
-                            message = event.message,
-                            duration = SnackbarDuration.Short
-                        )
-                }
-            }
-            is HomeScreenEvent.ShowErrorSnack -> {
-                scope.launch {
-                    snackbarHostState
-                        .showSnackbar(
-                            message = event.message,
-                            duration = SnackbarDuration.Short
-                        )
-                }
-            }
-
-            else -> {
-                Timber.v("ON EVENT: Unknown")
-                //Do nothing
-            }
-        }
     }
     KeepScreenOn(enabled = uiState.keepScreenOn)
     Scaffold(
@@ -475,31 +483,32 @@ private fun ProgressPanel(
 fun HomeScreenPreview() {
     HomeScreen(
         {}, {}, {}, {}, uiState = HomeScreenState(
-        waveformState = getTestWaveformData(),
-        progress = 0.4f,
-        startTime = "00:00",
-        endTime = "3:42",
-        time = "1:51",
-        recordName = "Test Record Name",
-        recordInfo = "1.5 MB, mp4, 192 kbps, 48 kHz",
-        isContextMenuAvailable = true,
-        isStopRecordingButtonAvailable = true,
-        isShowWaveform = true,
-    ), null, {})
+            waveformState = getTestWaveformData(),
+            progress = 0.4f,
+            startTime = "00:00",
+            endTime = "3:42",
+            time = "1:51",
+            recordName = "Test Record Name",
+            recordInfo = "1.5 MB, mp4, 192 kbps, 48 kHz",
+            isContextMenuAvailable = true,
+            isStopRecordingButtonAvailable = true,
+            isShowWaveform = true,
+        ), MutableSharedFlow(), {})
 }
 
 @Preview
 @Composable
 fun HomeScreenEmptyPreview() {
-    HomeScreen({}, {}, {}, {}, uiState = HomeScreenState(), null, {})
+    HomeScreen({}, {}, {}, {}, uiState = HomeScreenState(), MutableSharedFlow(), {})
 }
 
 @Preview
 @Composable
 fun HomeScreenShowProgressPreview() {
-    HomeScreen({}, {}, {}, {}, uiState = HomeScreenState(
+    HomeScreen(
+        {}, {}, {}, {}, uiState = HomeScreenState(
         isShowLoadingProgress = true
-    ), null, {})
+    ), MutableSharedFlow(), {})
 }
 
 @Preview
@@ -518,7 +527,7 @@ fun HomeScreenShowRecordingProgressPreview() {
             recordName = stringResource(R.string.recording_progress),
             recordInfo = "1.5 MB, mp4, 192 kbps, 48 kHz",
         ),
-        null, {},
+        MutableSharedFlow(), {},
     )
 }
 
@@ -531,7 +540,7 @@ fun HomeScreenRecordProcessingPreview() {
             isShowRecordProcessing = true,
             isShowWaveform = false,
         ),
-        null, {},
+        MutableSharedFlow(), {},
     )
 }
 
@@ -544,7 +553,6 @@ fun HomeScreenImportProgressPreview() {
             isShowImportProgress = true,
             isShowWaveform = false,
         ),
-        null, {},
+        MutableSharedFlow(), {},
     )
 }
-

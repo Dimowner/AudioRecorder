@@ -936,10 +936,8 @@ class HomeViewModel @Inject constructor(
 
     // - If is playing, stop playback
     // - Start recording service
-    suspend fun handleStartRecordingClick() {
-        withContext(mainDispatcher) {
-            audioPlayer.stop()
-        }
+    fun handleStartRecordingClick() {
+        audioPlayer.stop()
         val context: Context = getApplication<Application>().applicationContext
 
         // Start the recording service
@@ -1046,9 +1044,7 @@ class HomeViewModel @Inject constructor(
             HomeScreenAction.OnStopClick -> handlePlaybackStopClick()
             //Recording
             HomeScreenAction.OnStartRecordingClick -> {
-                viewModelScope.launch(mainDispatcher) {
-                    handleStartRecordingClick()
-                }
+                handleStartRecordingClick()
             }
             HomeScreenAction.OnPauseRecordingClick -> handlePauseRecordingClick()
             HomeScreenAction.OnResumeRecordingClick -> handleResumeRecordingClick()

@@ -28,7 +28,9 @@ import com.dimowner.audiorecorder.v2.data.extensions.renameFileWithExtension
 import com.dimowner.audiorecorder.v2.data.extensions.requestAllocateSpace
 import com.dimowner.audiorecorder.v2.data.extensions.unmarkFileAsDeleted
 import dagger.hilt.android.qualifiers.ApplicationContext
+import timber.log.Timber
 import java.io.File
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -47,7 +49,12 @@ class FileDataSourceImpl @Inject internal constructor(
 
     override fun createRecordFile(fileName: String): File {
         val recordFile = recordDirectory?.let {
-            createFile(it, fileName)
+            try {
+                createFile(it, fileName)
+            } catch (e: IOException) {
+                Timber.e(e, "Failed to create record file with name: $fileName in directory: ${it.absolutePath}")
+                throw CantCreateFileException()
+            }
         }
         if (recordFile != null) {
             return recordFile

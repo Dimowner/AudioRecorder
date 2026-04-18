@@ -36,10 +36,10 @@ import com.dimowner.audiorecorder.AppConstantsV2
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.DecodeService
 import com.dimowner.audiorecorder.audio.AudioDecoder
+import com.dimowner.audiorecorder.exception.CantCreateFileException
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.HomeActivity
 import com.dimowner.audiorecorder.v2.app.getNewRecordName
-import com.dimowner.audiorecorder.v2.app.home.BottomBarState
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
@@ -163,6 +163,9 @@ class AudioRecordingService : Service() {
         subscribeRecorderEvents()
         when (intent?.action) {
             ACTION_START_RECORDING -> {
+                // Must call startForeground() synchronously before any async work
+                // to satisfy the foreground service contract and avoid ANR.
+                startForegroundWithNotification()
                 serviceScope.launch {
                     val recordName = prefs.settingNamingFormat.getNewRecordName(prefs)
                     resetRecordedRecordPartCounter()
@@ -227,61 +230,7 @@ class AudioRecordingService : Service() {
                         updateNotification()
                     }
                     is RecorderEvent.OnRecordingProgress -> {
-                        _recordingState.value = _recordingState.value.copy(
-                            recordingState = RecordingState.PROGRESS,
-                        )
-                        val state = _recordingState.value
-                        state.recordingFormat?.let { format ->
-                            val space = fileDataSource.getAvailableSpace()
-                            val availableTimeSeconds = convertSpaceBytesToTimeInSeconds(
-                                spaceBytes = space,
-                                recordingFormat = format,
-                                sampleRate = state.sampleRate,
-                                bitrate = state.bitrate,
-                                channels = state.channelCount,
-                            )
-                            if (availableTimeSeconds < AppConstants.MIN_REMAIN_RECORDING_TIME) {
-                                //There is running out space on the device.
-                                //Stop recording before it completely run out.
-                                audioRecorder.stopRecording()
-                            }
-                        }
-
-                        // Accumulate amplitude into sliding-window buffer
-                        recordingAmplitudes.addLast((event.amplitude * WAVEFORM_AMPLITUDE_SCALE).toInt())
-                        if (recordingAmplitudes.size > recordingAmplitudeBufferSize) {
-                            recordingAmplitudes.removeFirst()
-                        }
-                        totalRecordingSampleCount++
-
-                        // Compute synthetic duration for stable waveform rendering
-                        var syntheticDurationMills =
-                            totalRecordingSampleCount.toLong() * AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
-                        if (event.durationMills - syntheticDurationMills > AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW) {
-                            totalRecordingSampleCount++
-                            recordingAmplitudes.addLast(recordingAmplitudes.lastOrNull() ?: 0)
-                            if (recordingAmplitudes.size > recordingAmplitudeBufferSize) {
-                                recordingAmplitudes.removeFirst()
-                            }
-                            syntheticDurationMills =
-                                totalRecordingSampleCount.toLong() * AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
-                        }
-
-                        val amps = recordingAmplitudes.toIntArray()
-                        val waveformDataOffset =
-                            (totalRecordingSampleCount - amps.size).coerceAtLeast(0)
-                        val widthScale =
-                            syntheticDurationMills * (AppConstantsV2.DEFAULT_WIDTH_SCALE / AppConstantsV2.SHORT_RECORD)
-
-                        _recordingState.value = _recordingState.value.copy(
-                            durationMills = event.durationMills,
-                            amplitude = event.amplitude,
-                            amplitudes = amps,
-                            totalSampleCount = totalRecordingSampleCount,
-                            waveformDataOffset = waveformDataOffset,
-                            syntheticDurationMills = syntheticDurationMills,
-                            widthScale = widthScale,
-                        )
+                        handleRecordingProgress(event.durationMills, event.amplitude)
                     }
                     is RecorderEvent.OnPauseRecording -> {
                         _recordingState.value = _recordingState.value.copy(
@@ -310,6 +259,64 @@ class AudioRecordingService : Service() {
         }
     }
 
+    fun handleRecordingProgress(durationMills: Long, amplitude: Int) {
+        _recordingState.value = _recordingState.value.copy(
+            recordingState = RecordingState.PROGRESS,
+        )
+        val state = _recordingState.value
+        state.recordingFormat?.let { format ->
+            val space = fileDataSource.getAvailableSpace()
+            val availableTimeSeconds = convertSpaceBytesToTimeInSeconds(
+                spaceBytes = space,
+                recordingFormat = format,
+                sampleRate = state.sampleRate,
+                bitrate = state.bitrate,
+                channels = state.channelCount,
+            )
+            if (availableTimeSeconds < AppConstants.MIN_REMAIN_RECORDING_TIME) {
+                //There is running out space on the device.
+                //Stop recording before it completely run out.
+                audioRecorder.stopRecording()
+            }
+        }
+
+        // Accumulate amplitude into sliding-window buffer
+        recordingAmplitudes.addLast((amplitude * WAVEFORM_AMPLITUDE_SCALE).toInt())
+        if (recordingAmplitudes.size > recordingAmplitudeBufferSize) {
+            recordingAmplitudes.removeFirst()
+        }
+        totalRecordingSampleCount++
+
+        // Compute synthetic duration for stable waveform rendering
+        var syntheticDurationMills =
+            totalRecordingSampleCount.toLong() * AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
+        if (durationMills - syntheticDurationMills > AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW) {
+            totalRecordingSampleCount++
+            recordingAmplitudes.addLast(recordingAmplitudes.lastOrNull() ?: 0)
+            if (recordingAmplitudes.size > recordingAmplitudeBufferSize) {
+                recordingAmplitudes.removeFirst()
+            }
+            syntheticDurationMills =
+                totalRecordingSampleCount.toLong() * AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
+        }
+
+        val amps = recordingAmplitudes.toIntArray()
+        val waveformDataOffset =
+            (totalRecordingSampleCount - amps.size).coerceAtLeast(0)
+        val widthScale =
+            syntheticDurationMills * (AppConstantsV2.DEFAULT_WIDTH_SCALE / AppConstantsV2.SHORT_RECORD)
+
+        _recordingState.value = _recordingState.value.copy(
+            durationMills = durationMills,
+            amplitude = amplitude,
+            amplitudes = amps,
+            totalSampleCount = totalRecordingSampleCount,
+            waveformDataOffset = waveformDataOffset,
+            syntheticDurationMills = syntheticDurationMills,
+            widthScale = widthScale,
+        )
+    }
+
     // - Has available space
     // - Is already recoding
     // - Create a record file
@@ -331,54 +338,60 @@ class AudioRecordingService : Service() {
         )
 
         if (availableTimeSeconds > AppConstants.MIN_REMAIN_RECORDING_TIME && !audioRecorder.isRecording) {
-            //TODO: hande CantCreateFileException
-            val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
-            // Use the actual file name (without extension) in case a suffix was added to avoid collision
-            val actualRecordName = recordFile.nameWithoutExtension
-            val record = Record(
-                id = 0,
-                name = actualRecordName,
-                durationMills = 0,
-                created = recordFile.lastModified(),
-                added = System.currentTimeMillis(),
-                removed = -1,
-                path = recordFile.absolutePath,
-                format = format.value,
-                size = 0,
-                sampleRate = sampleRate,
-                channelCount = channelCount,
-                bitrate = if (format == RecordingFormat.M4a) bitrate else 0,
-                isBookmarked = false,
-                isWaveformProcessed = false,
-                isMovedToRecycle = false,
-                amps = IntArray(ARApplication.longWaveformSampleCount)
-            )
-            val id = recordsDataSource.insertRecord(record)
-            prefs.activeRecordId = -1
-            prefs.recordedRecordId = id
-            prefs.recordedRecordPartCounter += 1
+            try {
+                val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
+                // Use the actual file name (without extension) in case a suffix was added to avoid collision
+                val actualRecordName = recordFile.nameWithoutExtension
+                val record = Record(
+                    id = 0,
+                    name = actualRecordName,
+                    durationMills = 0,
+                    created = recordFile.lastModified(),
+                    added = System.currentTimeMillis(),
+                    removed = -1,
+                    path = recordFile.absolutePath,
+                    format = format.value,
+                    size = 0,
+                    sampleRate = sampleRate,
+                    channelCount = channelCount,
+                    bitrate = if (format == RecordingFormat.M4a) bitrate else 0,
+                    isBookmarked = false,
+                    isWaveformProcessed = false,
+                    isMovedToRecycle = false,
+                    amps = IntArray(ARApplication.longWaveformSampleCount)
+                )
+                val id = recordsDataSource.insertRecord(record)
+                prefs.activeRecordId = -1
+                prefs.recordedRecordId = id
+                prefs.recordedRecordPartCounter += 1
 
-            _recordingState.value = _recordingState.value.copy(
-                recordId = id,
-                recordName = actualRecordName,
-                recordingFormat = format,
-                sampleRate = sampleRate,
-                bitrate = bitrate,
-                channelCount = channelCount,
-            )
+                _recordingState.value = _recordingState.value.copy(
+                    recordId = id,
+                    recordName = actualRecordName,
+                    recordingFormat = format,
+                    sampleRate = sampleRate,
+                    bitrate = bitrate,
+                    channelCount = channelCount,
+                )
 
-            audioRecorder.startRecording(
-                outputFile = recordFile,
-                channelCount = channelCount,
-                sampleRate = sampleRate,
-                bitrate = bitrate,
-                maxRecordingDurationMills = prefs.maxRecordingDurationMills,
-                audioSource = prefs.settingAudioSource.value,
-            )
-
-            // Start foreground with notification
-            startForegroundWithNotification()
-            return id
+                audioRecorder.startRecording(
+                    outputFile = recordFile,
+                    channelCount = channelCount,
+                    sampleRate = sampleRate,
+                    bitrate = bitrate,
+                    maxRecordingDurationMills = prefs.maxRecordingDurationMills,
+                    audioSource = prefs.settingAudioSource.value,
+                )
+                return id
+            } catch (e: CantCreateFileException) {
+                Timber.e(e, "Failed to start recording with name: $recordName")
+                val cantCreateFileMsg = applicationContext.getString(R.string.error_cant_create_file)
+                val failedToStartRecordingMsg = applicationContext.getString(R.string.error_failed_to_start_recording)
+                emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(
+                    "$failedToStartRecordingMsg\n$cantCreateFileMsg"
+                ))
+                stopForegroundService()
+            }
         }
         return null
     }

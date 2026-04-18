@@ -64,7 +64,7 @@ fun RecorderNavigationGraph(
                     navController.navigate("${Routes.LOST_RECORDS_SCREEN}/$idsString")
                 },
                 uiState = homeViewModel.state.value,
-                event = homeViewModel.event.collectAsState(null).value,
+                event = homeViewModel.event,
                 onAction = { homeViewModel.onAction(it) }
             )
         }
