@@ -277,14 +277,16 @@ class HomeViewModel @Inject constructor(
                     }
 
                     // Update waveform on every progress tick
-                    if (recState.syntheticDurationMills > 0) {
+                    if (recState.durationMills > 0) {
                         _state.value = _state.value.copy(
                             isShowWaveform = true,
+                            showPause = false,
+                            showStop = false,
                             waveformState = _state.value.waveformState.copy(
                                 waveformData = recState.amplitudes,
                                 durationSample = recState.totalSampleCount,
-                                durationMills = recState.syntheticDurationMills,
-                                progressMills = recState.syntheticDurationMills,
+                                durationMills = recState.durationMills,
+                                progressMills = recState.durationMills,
                                 widthScale = recState.widthScale,
                                 gridStepMills = RECORDING_GRID_STEP,
                                 isRecording = true,
@@ -293,14 +295,12 @@ class HomeViewModel @Inject constructor(
                         )
                     }
 
-                    // Update time text and record info at a slower interval
+                    // Refresh record info (file size, etc.) at a slower interval to avoid IO churn
                     val now = System.currentTimeMillis()
                     if (now - lastProgressUpdate >= RECORDING_PROGRESS_UPDATE_INTERVAL) {
                         lastProgressUpdate = now
                         _state.value = _state.value.copy(
                             time = TimeUtils.formatTimeIntervalHourMinSec2(recState.durationMills),
-                            showPause = false,
-                            showStop = false,
                         )
                         withContext(ioDispatcher) {
                             updateRecordingProgressInfo()
@@ -581,13 +581,13 @@ class HomeViewModel @Inject constructor(
             if (isServiceRecording) {
                 recordsDataSource.getRecord(prefs.recordedRecordId)?.let {
                     val recordInfo = it.toInfoCombinedText(context)
-                    val hasWaveformData = recState.syntheticDurationMills > 0
+                    val hasWaveformData = recState.durationMills > 0
                     val waveformState = if (hasWaveformData) {
                         WaveformState(
                             waveformData = recState.amplitudes,
                             durationSample = recState.totalSampleCount,
-                            durationMills = recState.syntheticDurationMills,
-                            progressMills = recState.syntheticDurationMills,
+                            durationMills = recState.durationMills,
+                            progressMills = recState.durationMills,
                             widthScale = recState.widthScale,
                             gridStepMills = RECORDING_GRID_STEP,
                             isRecording = true,

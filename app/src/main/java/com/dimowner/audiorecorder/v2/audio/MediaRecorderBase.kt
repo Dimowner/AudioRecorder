@@ -319,6 +319,10 @@ abstract class MediaRecorderBase(
         val curTime = System.currentTimeMillis()
         durationMills += curTime - updateTime
         updateTime = curTime
+        // Snap durationMills to the nearest RECORDING_VISUALIZATION_INTERVAL_NEW boundary
+        // so that the sample count derived in AudioRecordingService stays perfectly aligned
+        // with the reported duration, preventing waveform-vs-timeline drift.
+        durationMills = (durationMills / RECORDING_VISUALIZATION_INTERVAL_NEW) * RECORDING_VISUALIZATION_INTERVAL_NEW
         if (amplitudesBuffer.size() > 0) {
             var amp = amplitudesBuffer.get(amplitudesBuffer.size() - 1)
             if (amp == 0) amp = lastNonZeroAmplitude

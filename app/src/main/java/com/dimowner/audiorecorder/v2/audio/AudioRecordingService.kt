@@ -280,31 +280,29 @@ class AudioRecordingService : Service() {
             }
         }
 
-        // Accumulate amplitude into sliding-window buffer
-        recordingAmplitudes.addLast((amplitude * WAVEFORM_AMPLITUDE_SCALE).toInt())
-        if (recordingAmplitudes.size > recordingAmplitudeBufferSize) {
-            recordingAmplitudes.removeFirst()
-        }
-        totalRecordingSampleCount++
+        // Derive sample count from durationMills so waveform stays in sync with the
+        // recorder's clock (the single source of truth) instead of counting timer ticks
+        // which drift due to scheduling jitter.
+        val newSampleCount =
+            (durationMills / AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW).toInt()
+        val samplesToAdd = (newSampleCount - totalRecordingSampleCount).coerceAtLeast(0)
+        val scaledAmplitude = (amplitude * WAVEFORM_AMPLITUDE_SCALE).toInt()
 
-        // Compute synthetic duration for stable waveform rendering
-        var syntheticDurationMills =
-            totalRecordingSampleCount.toLong() * AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
-        if (durationMills - syntheticDurationMills > AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW) {
-            totalRecordingSampleCount++
-            recordingAmplitudes.addLast(recordingAmplitudes.lastOrNull() ?: 0)
+        // If the timer skipped ticks, fill the gap by repeating the current amplitude
+        // so the waveform buffer stays aligned with the time-derived sample count.
+        repeat(samplesToAdd) {
+            recordingAmplitudes.addLast(scaledAmplitude)
             if (recordingAmplitudes.size > recordingAmplitudeBufferSize) {
                 recordingAmplitudes.removeFirst()
             }
-            syntheticDurationMills =
-                totalRecordingSampleCount.toLong() * AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
         }
+        totalRecordingSampleCount = newSampleCount
 
         val amps = recordingAmplitudes.toIntArray()
         val waveformDataOffset =
             (totalRecordingSampleCount - amps.size).coerceAtLeast(0)
         val widthScale =
-            syntheticDurationMills * (AppConstantsV2.DEFAULT_WIDTH_SCALE / AppConstantsV2.SHORT_RECORD)
+            durationMills * (AppConstantsV2.DEFAULT_WIDTH_SCALE / AppConstantsV2.SHORT_RECORD)
 
         _recordingState.value = _recordingState.value.copy(
             durationMills = durationMills,
@@ -312,7 +310,6 @@ class AudioRecordingService : Service() {
             amplitudes = amps,
             totalSampleCount = totalRecordingSampleCount,
             waveformDataOffset = waveformDataOffset,
-            syntheticDurationMills = syntheticDurationMills,
             widthScale = widthScale,
         )
     }
@@ -711,8 +708,6 @@ data class RecordingServiceState(
     val totalSampleCount: Int = 0,
     /** Offset of the first element in [amplitudes] relative to the total sample timeline. */
     val waveformDataOffset: Int = 0,
-    /** Duration derived from sample count for stable waveform rendering. */
-    val syntheticDurationMills: Long = 0L,
     /** Width scale for waveform rendering. */
     val widthScale: Float = 1.5f,
 ) {
@@ -746,7 +741,6 @@ data class RecordingServiceState(
         if (!amplitudes.contentEquals(other.amplitudes)) return false
         if (totalSampleCount != other.totalSampleCount) return false
         if (waveformDataOffset != other.waveformDataOffset) return false
-        if (syntheticDurationMills != other.syntheticDurationMills) return false
         if (widthScale != other.widthScale) return false
         return true
     }
@@ -764,7 +758,6 @@ data class RecordingServiceState(
         result = 31 * result + amplitudes.contentHashCode()
         result = 31 * result + totalSampleCount
         result = 31 * result + waveformDataOffset
-        result = 31 * result + syntheticDurationMills.hashCode()
         result = 31 * result + widthScale.hashCode()
         return result
     }
