@@ -106,8 +106,6 @@ class AudioRecordingService : Service() {
     @Inject
     lateinit var prefs: PrefsV2
 
-    @Inject
-    lateinit var recordTagWriter: RecordTagWriter
 
     @Inject
     @IoDispatcher
@@ -442,7 +440,7 @@ class AudioRecordingService : Service() {
                 if (record != null) {
                     val output = File(record.path)
                     val info = AudioDecoder.readRecordInfo(output)
-                    recordTagWriter.writeTags(output, record.name, prefs.recordAuthorName)
+                    output.writeTags(record.name, prefs.recordAuthorName)
                     val recordUpdated = record.copy(
                         durationMills = info.duration / 1000,
                         format = info.format,
