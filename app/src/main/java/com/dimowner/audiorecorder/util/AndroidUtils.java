@@ -479,23 +479,6 @@ public class AndroidUtils {
 				v -> {});
 	}
 
-	public static void showDialogConfirmation(Activity activity,
-									   int drawableRes,
-									   String titleStr,
-									   String contentStr,
-									   final View.OnClickListener positiveBtnListener){
-		showDialog(activity,
-				drawableRes,
-				activity.getString(R.string.btn_confirm),
-				activity.getString(R.string.btn_cancel),
-				titleStr,
-				contentStr,
-				-1,
-				true,
-				positiveBtnListener,
-				v -> {});
-	}
-
 	private static void showDialog(Activity activity,
 											int drawableRes,
 											String positiveBtnText,

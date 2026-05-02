@@ -141,9 +141,10 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	}
 
 	@Override
-	public void switchAppV2() {
+	public void switchAppV2(Context context) {
 		if (view != null) {
-			view.showAppV2Confirmation();
+			confirmSwitchAppV2(context);
+			view.showAppV2();
 		}
 	}
 
@@ -151,7 +152,7 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	public void confirmSwitchAppV2(Context context) {
 		prefs.setAppV2(true);
 		prefs.setLegacyAppUser(true);
-		//TODO: fix db migration
+		//TODO: fix db migration. It should be done before!
         // Start database migration from SQLite to Room if not already done
         if (!prefs.isDatabaseMigratedToRoom()) {
             DatabaseMigrationService.Companion.startService(context);

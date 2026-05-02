@@ -267,7 +267,7 @@ internal fun WelcomeSetupSettingsScreen(
                             }
                         ) {
                             Text(
-                                text = stringResource(id = R.string.btn_reset),
+                                text = stringResource(id = R.string.btn_recommended),
                                 fontSize = 18.sp,
                             )
                         }

@@ -94,32 +94,63 @@
 			android:layout_marginStart="@dimen/spacing_small"
 			android:layout_marginEnd="@dimen/spacing_small"
 			android:layout_marginTop="@dimen/spacing_small"
-			android:gravity="center_vertical"
-			android:orientation="horizontal">
+			android:orientation="vertical">
 
-			<TextView
-				style="@style/Text.NormalLabel"
-				android:layout_width="0dp"
+			<LinearLayout
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:text="@string/try_new_audio_recorder"
-				android:layout_marginTop="@dimen/spacing_medium"
-				android:layout_marginBottom="@dimen/spacing_medium"
-				android:layout_marginEnd="@dimen/spacing_normal"
-				android:layout_marginStart="@dimen/spacing_small"
-				android:drawableStart="@drawable/ic_apps"
-				android:drawablePadding="@dimen/spacing_normal"
-				/>
+				android:paddingTop="12dp"
+				android:paddingBottom="4dp"
+				android:paddingStart="4dp"
+				android:paddingEnd="4dp"
+				android:gravity="center_vertical"
+				android:orientation="horizontal">
 
-			<ImageView
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:background="?android:selectableItemBackgroundBorderless"
-				android:contentDescription="@null"
-				android:visibility="visible"
-				android:layout_gravity="center_vertical|end"
-				android:padding="@dimen/spacing_xsmall"
-				android:src="@drawable/ic_info"/>
+				<ImageView
+					android:layout_width="28dp"
+					android:layout_height="28dp"
+					android:layout_marginStart="12dp"
+					android:layout_marginEnd="12dp"
+					android:src="@drawable/ic_mobile_arrow_down"
+					android:contentDescription="@null"/>
+
+				<LinearLayout
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:layout_marginEnd="@dimen/spacing_small"
+					android:orientation="vertical">
+
+					<TextView
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:text="@string/new_audio_recorder_available"
+						android:fontFamily="sans-serif-medium"
+						android:textSize="@dimen/text_xmedium"
+						android:textColor="@color/text_primary_light"/>
+
+					<TextView
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:text="@string/try_new_app_subtitle"
+						android:fontFamily="sans-serif-light"
+						android:textSize="@dimen/text_normal"
+						android:paddingTop="2dp"
+						android:textColor="@color/text_secondary_light"/>
+				</LinearLayout>
+			</LinearLayout>
+
+			<Button
+				android:id="@+id/btnTryNewApp"
+				android:layout_width="match_parent"
+				android:layout_height="40dp"
+				android:layout_marginStart="12dp"
+				android:layout_marginEnd="12dp"
+				android:layout_marginTop="4dp"
+				android:layout_marginBottom="12dp"
+				android:textColor="@color/text_primary_light"
+				android:textSize="@dimen/text_normal"
+				android:text="@string/try_new_app"/>
 		</LinearLayout>
 
 		<TextView

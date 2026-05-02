@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -74,6 +75,7 @@ import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.getValue
@@ -290,17 +292,21 @@ fun ResetRecordingSettingsPanel(
                     fontWeight = FontWeight.Light
                 )
             }
-            Button(
+            OutlinedButton(
                 modifier = Modifier
                     .padding(8.dp)
                     .wrapContentSize(),
                 enabled = enabled,
-                onClick = { onClick() }
+                onClick = { onClick() },
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f)),
             ) {
                 Text(
                     text = stringResource(id = R.string.btn_reset),
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Light,
+                    fontWeight = FontWeight.Normal,
                 )
             }
         }
@@ -815,6 +821,77 @@ fun AuthorNameEditDialog(
             }
         }
     }
+}
+
+@Composable
+fun LegacyAppSwitchPanel(
+    onSwitch: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(4.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .size(28.dp),
+            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.legacy_app),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+                Text(
+                    text = stringResource(R.string.legacy_app_subtitle),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Light,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
+                    modifier = Modifier.padding(top = 2.dp),
+                )
+            }
+        }
+        OutlinedButton(
+            onClick = onSwitch,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 8.dp),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            ),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f)),
+        ) {
+            Text(
+                text = stringResource(R.string.switch_to_legacy),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LegacyAppSwitchPanelPreview() {
+    LegacyAppSwitchPanel(onSwitch = {})
 }
 
 private fun getTestChips(): List<ChipItem<SampleRate>> {

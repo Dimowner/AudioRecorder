@@ -218,6 +218,7 @@
 	<string name="btn_get_started">Get started</string>
 	<string name="btn_apply">Apply</string>
 	<string name="btn_reset">Reset</string>
+	<string name="btn_recommended">Recommended</string>
 	<string name="btn_next">Next</string>
 	<string name="btn_dismiss">Dismiss</string>
 	<string name="btn_confirm">Confirm</string>
@@ -353,9 +354,12 @@
 	<string name="button_pause">Pause</string>
 	<string name="button_resume">Resume</string>
 	<string name="button_finish">Finish</string>
-	<string name="switch_to_legacy_app">Switch to Legacy app</string>
-	<string name="try_new_audio_recorder">Try new Audio Recorder</string>
-	<string name="audio_recorder_updated_with_improved_features_message">Switch to a new Audio Recorder updated with improved features while keeping all your recordings. You can always go back to the old version.</string>
+	<string name="legacy_app">Legacy App</string>
+	<string name="legacy_app_subtitle">Switch back to the original app interface</string>
+	<string name="switch_to_legacy">Switch to Legacy</string>
+	<string name="new_audio_recorder_available">New Audio Recorder available</string>
+	<string name="try_new_app_subtitle">Keep all your recordings — switch back anytime</string>
+	<string name="try_new_app">Try New App</string>
 
 	<!-- Shown in the 'About' window of the app. -->
 	<string name="about_body"><![CDATA[

@@ -313,34 +313,10 @@ internal fun SettingsScreen(
                     )
                 )
                 if (uiState.isLegacyAppUser) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            modifier = Modifier.weight(1f),
-                            textAlign = TextAlign.Start,
-                            text = stringResource(R.string.switch_to_legacy_app),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Light
-                        )
-                        Button(
-                            modifier = Modifier
-                                .wrapContentSize(),
-                            onClick = {
-                                onAction(SettingsScreenAction.SetAppV2(false))
-                            }
-                        ) {
-                            Text(
-                                text = stringResource(id = R.string.btn_apply),
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Light,
-                            )
-                        }
-                    }
+                    Spacer(modifier = Modifier.size(8.dp))
+                    LegacyAppSwitchPanel(
+                        onSwitch = { onAction(SettingsScreenAction.SetAppV2(false)) }
+                    )
                 }
                 AppInfoView(uiState.appName, uiState.appVersion) {
                     //Click 10 times to show 'Switch to Legacy App' button

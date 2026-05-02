@@ -145,7 +145,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		btnReset = findViewById(R.id.btnReset);
 		btnReset.setOnClickListener(this);
 		LinearLayout pnlTry = findViewById(R.id.tryPanel);
-		pnlTry.setOnClickListener(this);
+        Button btnTryNewApp = findViewById(R.id.btnTryNewApp);
+		btnTryNewApp.setOnClickListener(this);
 		txtSizePerMin = findViewById(R.id.txt_size_per_min);
 		txtInformation = findViewById(R.id.txt_information);
 		txtLocation = findViewById(R.id.txt_records_location);
@@ -244,6 +245,20 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 						getResources().getDimension(R.dimen.spacing_normal)
 				)
 		);
+		btnTryNewApp.setBackground(
+				RippleUtils.createShape(
+						ContextCompat.getColor(getApplicationContext(), colorMap.getPrimaryColorRes()),
+						getResources().getDimension(R.dimen.spacing_normal)
+				)
+		);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			btnTryNewApp.setForeground(
+					RippleUtils.createRippleMaskShape(
+							ContextCompat.getColor(getApplicationContext(), R.color.white_transparent_80),
+							getResources().getDimension(R.dimen.spacing_normal)
+					)
+			);
+		}
 
 		btnReset.setBackground(
 				RippleUtils.createShape(
@@ -370,8 +385,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		} else if (id == R.id.btnReset) {
 			presenter.resetSettings();
 			presenter.loadSettings();
-		} else if (id == R.id.tryPanel) {
-			presenter.switchAppV2();
+		} else if (id == R.id.btnTryNewApp) {
+			presenter.switchAppV2(getApplicationContext());
 		} else if (id == R.id.btnRequest) {
 			requestFeature();
 		}
@@ -621,20 +636,6 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		sampleRateSetting.setEnabled(false);
 		bitrateSetting.setEnabled(false);
 		channelsSetting.setEnabled(false);
-	}
-
-	@Override
-	public void showAppV2Confirmation() {
-		AndroidUtils.showDialogConfirmation(
-				SettingsActivity.this,
-				R.drawable.ic_info,
-				getString(R.string.try_new_audio_recorder),
-				getString(R.string.audio_recorder_updated_with_improved_features_message),
-				view -> {
-					presenter.confirmSwitchAppV2(getApplicationContext());
-					showAppV2();
-				}
-		);
 	}
 
 	@Override
