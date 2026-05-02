@@ -8,6 +8,7 @@ import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
@@ -42,6 +43,7 @@ fun RecorderNavigationGraph(
     homeViewModel: HomeViewModel,
     isFirstRun: Boolean,
     onSwitchToLegacyApp: () -> Unit,
+    onCheckNotificationPermission: () -> Unit = {},
 ) {
     val navController = rememberNavController()
     NavHost(
@@ -53,6 +55,9 @@ fun RecorderNavigationGraph(
         popExitTransition = { popExitTransition(this) }
     ) {
         composable(Routes.HOME_SCREEN) {
+            LaunchedEffect(Unit) {
+                onCheckNotificationPermission()
+            }
             HomeScreen(
                 showRecordsScreen = { navController.navigate(Routes.RECORDS_SCREEN) },
                 showSettingsScreen = { navController.navigate(Routes.SETTINGS_SCREEN) },

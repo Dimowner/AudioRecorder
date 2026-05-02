@@ -57,7 +57,6 @@ class HomeActivity: ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         installSplashScreen()
-        checkNotificationPermission()
         setContent {
             val isDark by prefs.isDarkThemeFlow.collectAsState()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -76,11 +75,17 @@ class HomeActivity: ComponentActivity() {
     fun RecorderApp(
         coroutineScope: CoroutineScope
     ) {
-        RecorderNavigationGraph(coroutineScope, viewModel, isFirstRun = prefs.isFirstRun, onSwitchToLegacyApp = {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish()
-        })
+        RecorderNavigationGraph(
+            coroutineScope,
+            viewModel,
+            isFirstRun = prefs.isFirstRun,
+            onSwitchToLegacyApp = {
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+                finish()
+            },
+            onCheckNotificationPermission = { checkNotificationPermission() }
+        )
     }
 
     private fun checkNotificationPermission() {
