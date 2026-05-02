@@ -51,6 +51,12 @@ interface PrefsV2 {
     val isDarkThemeFlow: StateFlow<Boolean>
     var isAppV2: Boolean
 
+    /**
+     * Flag indicates that the user previously used the legacy V1 app and intentionally switched to V2.
+     * Read-only in V2 — set by V1's SettingsPresenter.confirmSwitchAppV2().
+     */
+    var isLegacyAppUser: Boolean
+
     var settingNamingFormat: NameFormat
     var settingRecordingFormat: RecordingFormat
     var settingSampleRate: SampleRate

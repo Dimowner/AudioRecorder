@@ -65,6 +65,13 @@ public interface Prefs {
 	boolean isAppV2();
 	void setAppV2(boolean value);
 
+	/**
+	 * Flag indicates that the user previously used the legacy V1 app and intentionally switched to V2.
+	 * Used to show the "Switch to Legacy App" option in V2 settings.
+	 */
+	boolean isLegacyAppUser();
+	void setLegacyAppUser(boolean value);
+
 	void setSettingThemeColor(String colorKey);
 	String getSettingThemeColor();
 

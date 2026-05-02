@@ -185,10 +185,11 @@ fun SettingsItemCheckBoxPreview() {
 }
 
 @Composable
-fun AppInfoView(appName: String, version: String) {
+fun AppInfoView(appName: String, version: String, onClick: () -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onClick() }
             .padding(16.dp),
     ) {
         Text(

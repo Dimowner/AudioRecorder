@@ -145,6 +145,7 @@ internal class SettingsViewModel @Inject constructor(
             appVersion = context.getString(R.string.version, AndroidUtils.getAppVersion(context)),
             maxRecordingDurationMinutes = prefs.maxRecordingDurationMills / 60000,
             recordAuthorName = prefs.recordAuthorName,
+            isLegacyAppUser = prefs.isLegacyAppUser,
         )
     )
 
@@ -416,6 +417,14 @@ internal class SettingsViewModel @Inject constructor(
             is SettingsScreenAction.SetRecordAuthorName -> setRecordAuthorName(action.name)
             SettingsScreenAction.ExecuteFirstRun -> executeFirstRun()
             is SettingsScreenAction.SetAppV2 -> handleUseAppV2(action.value)
+            SettingsScreenAction.UnlockLegacyAppSwitch -> unlockLegacyAppSwitch()
+        }
+    }
+
+    fun unlockLegacyAppSwitch() {
+        if (!prefs.isLegacyAppUser) {
+            prefs.isLegacyAppUser = true
+            _state.value = _state.value.copy(isLegacyAppUser = true)
         }
     }
 
@@ -474,4 +483,5 @@ internal sealed class SettingsScreenAction {
     data class SetAudioSource(val audioSource: AudioSource) : SettingsScreenAction()
     data class SetRecordAuthorName(val name: String) : SettingsScreenAction()
     data object ExecuteFirstRun : SettingsScreenAction()
+    data object UnlockLegacyAppSwitch : SettingsScreenAction()
 }

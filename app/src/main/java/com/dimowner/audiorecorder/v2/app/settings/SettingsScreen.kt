@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.v2.app.settings
 
 import android.os.Build
 import android.text.format.Formatter
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -45,6 +46,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -89,6 +91,7 @@ internal fun SettingsScreen(
     val warningText = remember { mutableStateOf("") }
 
     val isExpandedBitRatePanel = remember { mutableStateOf(true) }
+    val appInfoTapCount = remember { mutableIntStateOf(0) }
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -309,35 +312,53 @@ internal fun SettingsScreen(
                         "${formatAvailableRecordingTime(uiState.availableSpaceMills, LocalResources.current)} (${Formatter.formatShortFileSize(context, uiState.availableSpaceBytes)})"
                     )
                 )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Start,
-                        text = stringResource(R.string.switch_to_legacy_app),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Light
-                    )
-                    Button(
+                if (uiState.isLegacyAppUser) {
+                    Row(
                         modifier = Modifier
-                            .wrapContentSize(),
-                        onClick = {
-                            onAction(SettingsScreenAction.SetAppV2(false))
-                        }
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = stringResource(id = R.string.btn_apply),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Light,
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Start,
+                            text = stringResource(R.string.switch_to_legacy_app),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Light
                         )
+                        Button(
+                            modifier = Modifier
+                                .wrapContentSize(),
+                            onClick = {
+                                onAction(SettingsScreenAction.SetAppV2(false))
+                            }
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.btn_apply),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Light,
+                            )
+                        }
                     }
                 }
-                AppInfoView(uiState.appName, uiState.appVersion)
+                AppInfoView(uiState.appName, uiState.appVersion) {
+                    //Click 10 times to show 'Switch to Legacy App' button
+                    if (!uiState.isLegacyAppUser) {
+                        appInfoTapCount.intValue++
+                        val count = appInfoTapCount.intValue
+                        when {
+                            count >= 10 -> {
+                                onAction(SettingsScreenAction.UnlockLegacyAppSwitch)
+                                appInfoTapCount.intValue = 0
+                            }
+                            count >= 5 -> {
+                                val remaining = 10 - count
+                                Toast.makeText(context, "$remaining", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.size(8.dp))
             }
             if (openInfoDialog.value) {
@@ -555,6 +576,7 @@ fun SettingsScreenPreview() {
         appName = "App Name",
         appVersion = "1.0.0",
         maxRecordingDurationMinutes = 120,
-        recordAuthorName = "Author name"
+        recordAuthorName = "Author name",
+        isLegacyAppUser = true,
     ), {})
 }

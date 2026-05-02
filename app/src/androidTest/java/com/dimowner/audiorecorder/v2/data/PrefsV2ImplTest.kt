@@ -40,7 +40,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class PrefsImplTest {
+class PrefsV2ImplTest {
 
     private lateinit var prefs: PrefsV2Impl
 
@@ -262,5 +262,25 @@ class PrefsImplTest {
         val newName = "NEW_TEST_NAME"
         prefs.recordAuthorName = newName
         assertEquals(newName, prefs.recordAuthorName)
+    }
+
+    // ── Legacy app user ────────────────────────────────────────────────────────
+
+    @Test
+    fun test_isLegacyAppUser_returnsFalseByDefault() {
+        assertFalse(prefs.isLegacyAppUser)
+    }
+
+    @Test
+    fun test_isLegacyAppUser_persistsTrue() {
+        prefs.isLegacyAppUser = true
+        assertTrue(prefs.isLegacyAppUser)
+    }
+
+    @Test
+    fun test_isLegacyAppUser_persistsFalse() {
+        prefs.isLegacyAppUser = true
+        prefs.isLegacyAppUser = false
+        assertFalse(prefs.isLegacyAppUser)
     }
 }

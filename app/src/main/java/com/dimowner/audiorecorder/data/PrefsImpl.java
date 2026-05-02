@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.data;
 
 import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_APP_V2;
 import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_FIRST_RUN;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_LEGACY_APP_USER;
 import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_KEEP_SCREEN_ON;
 import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_RECORD_COUNTER;
 import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_SETTING_BITRATE;
@@ -31,6 +32,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 
 import com.dimowner.audiorecorder.AppConstants;
+import com.dimowner.audiorecorder.v2.DefaultValues;
 
 /**
  * App preferences implementation
@@ -338,13 +340,25 @@ public class PrefsImpl implements Prefs {
 
 	@Override
 	public boolean isAppV2() {
-		return sharedPreferences.getBoolean(PREF_KEY_IS_APP_V2, true);
+		return sharedPreferences.getBoolean(PREF_KEY_IS_APP_V2, DefaultValues.IS_APP_V2);
 	}
 
 	@Override
 	public void setAppV2(boolean value) {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putBoolean(PREF_KEY_IS_APP_V2, value);
+		editor.apply();
+	}
+
+	@Override
+	public boolean isLegacyAppUser() {
+		return sharedPreferences.getBoolean(PREF_KEY_IS_LEGACY_APP_USER, DefaultValues.IS_LEGACY_APP_USER);
+	}
+
+	@Override
+	public void setLegacyAppUser(boolean value) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putBoolean(PREF_KEY_IS_LEGACY_APP_USER, value);
 		editor.apply();
 	}
 

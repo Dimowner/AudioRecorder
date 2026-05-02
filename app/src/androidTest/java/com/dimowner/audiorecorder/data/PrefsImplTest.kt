@@ -247,6 +247,26 @@ class PrefsImplTest {
         assertTrue(prefs.isAppV2)
     }
 
+    // ── Legacy app user ─────────────────────────────────────────────────────────
+
+    @Test
+    fun isLegacyAppUser_returnsFalseByDefault() {
+        assertFalse(prefs.isLegacyAppUser)
+    }
+
+    @Test
+    fun setLegacyAppUser_persistsTrue() {
+        prefs.setLegacyAppUser(true)
+        assertTrue(prefs.isLegacyAppUser)
+    }
+
+    @Test
+    fun setLegacyAppUser_persistsFalse() {
+        prefs.setLegacyAppUser(true)
+        prefs.setLegacyAppUser(false)
+        assertFalse(prefs.isLegacyAppUser)
+    }
+
     // ── Theme color ─────────────────────────────────────────────────────────────
 
     @Test

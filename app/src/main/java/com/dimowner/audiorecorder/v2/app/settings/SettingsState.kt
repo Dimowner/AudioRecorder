@@ -52,6 +52,8 @@ data class SettingsState(
     val audioSourceOptions: List<AudioSource> = AudioSource.entries,
     //Recording author name tag to be added to each new recording.
     val recordAuthorName: String,
+    /** True when the user previously used V1 and intentionally switched to V2. */
+    val isLegacyAppUser: Boolean = false,
 ) : Parcelable
 
 @Parcelize

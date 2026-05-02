@@ -19,6 +19,7 @@ package com.dimowner.audiorecorder.v2.data
 import android.content.Context
 import android.content.SharedPreferences
 import com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_APP_V2
+import com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_LEGACY_APP_USER
 import com.dimowner.audiorecorder.AppConstants.PREF_NAME
 import com.dimowner.audiorecorder.v2.DefaultValues
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
@@ -174,6 +175,14 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         set(value) {
             sharedPreferences.edit {
                 putBoolean(PREF_KEY_IS_APP_V2, value)
+            }
+        }
+
+    override var isLegacyAppUser: Boolean
+        get() = sharedPreferences.getBoolean(PREF_KEY_IS_LEGACY_APP_USER, DefaultValues.IS_LEGACY_APP_USER)
+        set(value) {
+            sharedPreferences.edit {
+                putBoolean(PREF_KEY_IS_LEGACY_APP_USER, value)
             }
         }
 
