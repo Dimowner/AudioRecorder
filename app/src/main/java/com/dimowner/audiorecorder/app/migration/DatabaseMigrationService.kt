@@ -129,7 +129,7 @@ class DatabaseMigrationService : Service() {
         var totalMigrated = 0
 
         // Migrate regular records page by page
-        var page = 0
+        var page = 1
         while (true) {
             val records = localRepository.getRecords(page, AppConstants.SORT_DATE_DESC)
             if (records.isNullOrEmpty()) {

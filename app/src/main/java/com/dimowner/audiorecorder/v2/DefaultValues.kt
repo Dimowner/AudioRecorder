@@ -25,7 +25,7 @@ import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 
 object DefaultValues {
-    const val IS_APP_V2: Boolean = true
+    const val IS_APP_V2: Boolean = false
     const val IS_LEGACY_APP_USER: Boolean = false
     const val IS_DARK_THEME: Boolean = true
     const val IS_DYNAMIC_THEME: Boolean = false
