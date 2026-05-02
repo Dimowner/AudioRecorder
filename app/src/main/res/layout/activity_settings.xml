@@ -94,7 +94,9 @@
 			android:layout_marginStart="@dimen/spacing_small"
 			android:layout_marginEnd="@dimen/spacing_small"
 			android:layout_marginTop="@dimen/spacing_small"
-			android:orientation="vertical">
+			android:visibility="gone"
+			android:orientation="vertical"
+			tools:visibility="visible">
 
 			<LinearLayout
 				android:layout_width="match_parent"

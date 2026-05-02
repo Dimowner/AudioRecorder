@@ -152,13 +152,9 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	public void confirmSwitchAppV2(Context context) {
 		prefs.setAppV2(true);
 		prefs.setLegacyAppUser(true);
-		//TODO: fix db migration. It should be done before!
-        // Start database migration from SQLite to Room if not already done
-        if (!prefs.isDatabaseMigratedToRoom()) {
-            DatabaseMigrationService.Companion.startService(context);
-        }
-        audioPlayer.stop();
-        appRecorder.stopRecording();
+
+		audioPlayer.stop();
+		appRecorder.stopRecording();
 	}
 
 	@Override

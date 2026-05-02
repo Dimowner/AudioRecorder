@@ -32,6 +32,13 @@ public interface Prefs {
     boolean isDatabaseMigratedToRoom();
     void setDatabaseMigratedToRoom(boolean b);
 
+    /**
+     * Timestamp (ms) of the last failed migration attempt to Room.
+     * Returns 0 if no failure has been recorded.
+     */
+    long getLastMigrationToRoomFailedTime();
+    void setLastMigrationToRoomFailedTime(long time);
+
 	//This is needed for scoped storage support
 	boolean isShowDirectorySetting();
 

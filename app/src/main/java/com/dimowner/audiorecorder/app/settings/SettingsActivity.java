@@ -72,6 +72,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private TextView btnView;
 	private View migratePublicStoragePanel;
 	private View panelPublicDir;
+	private LinearLayout pnlTry;
 
 	private Switch swPublicDir;
 	private Switch swKeepScreenOn;
@@ -144,7 +145,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		btnView.setOnClickListener(this);
 		btnReset = findViewById(R.id.btnReset);
 		btnReset.setOnClickListener(this);
-		LinearLayout pnlTry = findViewById(R.id.tryPanel);
+		pnlTry = findViewById(R.id.tryPanel);
         Button btnTryNewApp = findViewById(R.id.btnTryNewApp);
 		btnTryNewApp.setOnClickListener(this);
 		txtSizePerMin = findViewById(R.id.txt_size_per_min);
@@ -346,6 +347,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			swPublicDir.setChecked(false);
 			swPublicDir.setEnabled(false);
 		}
+		boolean migrated = ARApplication.getInjector().providePrefs(getApplicationContext()).isDatabaseMigratedToRoom();
+		pnlTry.setVisibility(migrated ? View.VISIBLE : View.GONE);
 	}
 
 	@Override

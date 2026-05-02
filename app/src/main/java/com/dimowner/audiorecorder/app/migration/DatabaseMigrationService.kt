@@ -116,6 +116,7 @@ class DatabaseMigrationService : Service() {
                 performMigration()
             } catch (e: Exception) {
                 Timber.e(e, "Database migration failed")
+                prefs.setLastMigrationToRoomFailedTime(System.currentTimeMillis())
                 stopService()
             }
         }
