@@ -131,7 +131,7 @@
 	<string name="not_found_in_the_app">No s\'ha trobat a l\'aplicació</string>
 	<string name="in_trash">A la paperera</string>
 	<string name="app_settings">Configuració de l\'aplicació:</string>
-	<string name="recording_settings">Configuració de gravació:</string>
+	<string name="recording_settings">Configuració de gravació</string>
 	<string name="other_settings">Altres:</string>
 
 	<string name="today">Avui</string>

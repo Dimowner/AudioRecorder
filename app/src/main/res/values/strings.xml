@@ -199,7 +199,7 @@
 	<string name="in_trash">In the trash</string>
 
 	<string name="app_settings">App settings:</string>
-	<string name="recording_settings">Recording settings:</string>
+    <string name="recording_settings">Recording settings</string>
 	<string name="other_settings">Other:</string>
 
 	<string name="today">Today</string>
@@ -355,7 +355,7 @@
 	<string name="button_resume">Resume</string>
 	<string name="button_finish">Finish</string>
 	<string name="legacy_app">Legacy App</string>
-	<string name="legacy_app_subtitle">Switch back to the original app interface</string>
+	<string name="legacy_app_subtitle">Switch to the old app interface</string>
 	<string name="switch_to_legacy">Switch to Legacy</string>
 	<string name="new_audio_recorder_available">New Audio Recorder available</string>
 	<string name="try_new_app_subtitle">Keep all your recordings — switch back anytime</string>

@@ -191,7 +191,6 @@ internal fun SettingsScreen(
                     currentAuthorName = uiState.recordAuthorName,
                     onAction = onAction,
                 )
-                Spacer(modifier = Modifier.size(8.dp))
                 ResetRecordingSettingsPanel(
                     sizePerMin = stringResource(id = R.string.size_per_min, uiState.sizePerMin),
                     recordingSettingsText = uiState.recordingSettingsText,

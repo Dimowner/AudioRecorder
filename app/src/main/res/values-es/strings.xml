@@ -100,7 +100,7 @@
  	<string name="not_found_in_the_app">No encontrado en la app</string>
  	<string name="in_trash">En la basura</string>
  	<string name="app_settings">Configuración de app:</string>
- 	<string name="recording_settings">Configuración de grabaciones:</string>
+ 	<string name="recording_settings">Configuración de grabaciones</string>
  	<string name="other_settings">Otro:</string>
  	<string name="today">Hoy</string>
  	<string name="yesterday">Ayer</string>

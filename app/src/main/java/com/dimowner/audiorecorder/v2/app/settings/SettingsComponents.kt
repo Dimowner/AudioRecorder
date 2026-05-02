@@ -268,49 +268,62 @@ fun ResetRecordingSettingsPanel(
             .alpha(if (enabled) 1f else DISABLED_ALPHA),
     ) {
         Row(
-            modifier = Modifier.wrapContentSize(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            Icon(
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .size(24.dp),
+                painter = painterResource(id = R.drawable.ic_settings),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .wrapContentHeight()
-                    .padding(8.dp),
+                    .padding(end = 8.dp),
             ) {
                 Text(
-                    textAlign = TextAlign.Start,
-                    text = sizePerMin,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Light
+                    text = stringResource(id = R.string.recording_settings),
+                    fontFamily = FontFamily(
+                        Font(
+                            DeviceFontFamilyName("sans-serif"),
+                            weight = FontWeight.Bold
+                        )
+                    ),
+                    modifier = Modifier.padding(bottom = 4.dp),
                 )
                 Text(
-                    textAlign = TextAlign.Start,
+                    text = sizePerMin,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Light,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
                     text = recordingSettingsText,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Light
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Light,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp),
                 )
             }
             OutlinedButton(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .wrapContentSize(),
+                onClick = onClick,
                 enabled = enabled,
-                onClick = { onClick() },
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f)),
+                modifier = Modifier
+                    .wrapContentSize(),
             ) {
                 Text(
                     text = stringResource(id = R.string.btn_reset),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Normal,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
                 )
             }
         }
-
     }
 }
 
