@@ -139,6 +139,18 @@ class AudioRecordingService : Service() {
     /** Total number of amplitude samples received during the current recording session. */
     private var totalRecordingSampleCount: Int = 0
 
+    /**
+     * Full-session amplitude accumulator. Stays memory-bounded via progressive pair-averaging
+     * halving. Used to persist an initial waveform on the [Record] immediately after recording
+     * stops, before [DecodeService] replaces it with the fully decoded version.
+     *
+     * Initialised lazily so [ARApplication.longWaveformSampleCount] is resolved after
+     * [Application.onCreate] has run.
+     */
+    private val recordingFullDataBuffer: RecordingWaveformBuffer by lazy {
+        RecordingWaveformBuffer(ARApplication.longWaveformSampleCount)
+    }
+
     /** Job for the current recorder-events subscription; cancelled before re-subscribing. */
     private var subscriptionJob: Job? = null
 
@@ -218,6 +230,7 @@ class AudioRecordingService : Service() {
                     is RecorderEvent.OnStartRecording -> {
                         recordingAmplitudes.clear()
                         totalRecordingSampleCount = 0
+                        recordingFullDataBuffer.reset()
                         _recordingState.value = _recordingState.value.copy(
                             recordingState = RecordingState.STARTED,
                             amplitudes = intArrayOf(),
@@ -293,8 +306,16 @@ class AudioRecordingService : Service() {
             if (recordingAmplitudes.size > recordingAmplitudeBufferSize) {
                 recordingAmplitudes.removeFirst()
             }
+
+            // Feed the full-session buffer with raw (unscaled) amplitude values so the
+            // persisted waveform stays in the 0–32767 range expected by WaveformStaticWidget.
+            recordingFullDataBuffer.add(amplitude)
         }
         totalRecordingSampleCount = newSampleCount
+
+//        // Feed the full-session buffer with raw (unscaled) amplitude values so the
+//        // persisted waveform stays in the 0–32767 range expected by WaveformStaticWidget.
+//        repeat(samplesToAdd) { recordingFullDataBuffer.add(amplitude) }
 
         val amps = recordingAmplitudes.toIntArray()
         val waveformDataOffset =
@@ -448,6 +469,10 @@ class AudioRecordingService : Service() {
                         sampleRate = info.sampleRate,
                         channelCount = info.channelCount,
                         bitrate = info.bitrate,
+                        // Persist the full-session amplitude data captured during recording as
+                        // the initial waveform. Gives the UI an immediate waveform to display
+                        // while DecodeService runs in the background to produce the final version.
+                        amps = recordingFullDataBuffer.downsampleToIntArray(),
                     )
                     val success = recordsDataSource.updateRecord(recordUpdated)
                     _recordingState.value = _recordingState.value.copy(
@@ -489,6 +514,7 @@ class AudioRecordingService : Service() {
     private fun stopForegroundService() {
         recordingAmplitudes.clear()
         totalRecordingSampleCount = 0
+        recordingFullDataBuffer.reset()
         _recordingState.value = RecordingServiceState()
         stopNotificationUpdates()
         stopForeground(STOP_FOREGROUND_REMOVE)
