@@ -423,6 +423,8 @@ class HomeViewModel @Inject constructor(
                             keepScreenOn = false,
                         )
                     }
+                } else {
+                    updateState()
                 }
             }
         }

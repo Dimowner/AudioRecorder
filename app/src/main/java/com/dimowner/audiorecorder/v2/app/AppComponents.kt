@@ -453,9 +453,9 @@ fun RenameAlertDialog(
                 Icon(
                     modifier = Modifier.padding(0.dp, 0.dp, 16.dp, 0.dp),
                     painter = painterResource(id = R.drawable.ic_pencil),
-                    contentDescription = stringResource(id = R.string.record_name)
+                    contentDescription = stringResource(id = R.string.update_record_name)
                 )
-                Text(text = stringResource(id = R.string.record_name))
+                Text(text = stringResource(id = R.string.update_record_name))
             }
         },
         text = {
