@@ -397,6 +397,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 
 	public void showAppV2() {
 		Intent intent = new Intent(this, HomeActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		startActivity(intent);
 		finish();
 	}

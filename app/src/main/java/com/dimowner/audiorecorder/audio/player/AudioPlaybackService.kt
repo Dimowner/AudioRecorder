@@ -324,7 +324,9 @@ class AudioPlaybackService : Service() {
         val contentIntent = PendingIntent.getActivity(
             this,
             0,
-            Intent(this, HomeActivity::class.java),
+            Intent(this, HomeActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            },
             flags
         )
 
