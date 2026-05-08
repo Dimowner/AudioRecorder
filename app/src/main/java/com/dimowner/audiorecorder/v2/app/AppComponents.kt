@@ -438,6 +438,7 @@ fun RenameAlertDialog(
 ) {
     val currentValue = remember { mutableStateOf(recordName) }
     val checkedState = remember { mutableStateOf(false) }
+    val isNameEmpty = currentValue.value.isBlank()
     // If recordName arrives after first composition (e.g. async state update), populate
     // the field as long as the user hasn't started typing yet.
     LaunchedEffect(recordName) {
@@ -471,6 +472,10 @@ fun RenameAlertDialog(
                         Text(text = stringResource(id = R.string.rename), fontSize = 18.sp)
                     },
                     textStyle = TextStyle.Default.copy(fontSize = 20.sp),
+                    isError = isNameEmpty,
+                    supportingText = if (isNameEmpty) {
+                        { Text(text = stringResource(id = R.string.msg_name_cannot_be_empty)) }
+                    } else null,
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Done
                     ),
@@ -501,6 +506,7 @@ fun RenameAlertDialog(
         },
         confirmButton = {
             TextButton(
+                enabled = !isNameEmpty,
                 onClick = {
                     onAcceptClick(currentValue.value)
                     if (showDontAskAgain) {

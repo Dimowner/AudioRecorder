@@ -40,11 +40,7 @@
 	<string name="msg_recording_canceled">Canceled recording moved to Trash</string>
 	<!-- Confirmation for successful restoration after UNDO is clicked -->
 	<string name="msg_recording_restored">Recording \'%1$s\' restored</string>
-	<!--
-      Confirmation for renaming a recording.
-      %1$s is the OLD name. %2$s is the NEW name.
-    -->
-	<string name="msg_recording_renamed">Recording \'%1$s\' renamed to \'%2$s\'</string>
+
 	<!-- Confirmation for saving a new recording -->
 	<string name="msg_recording_saved_with_name">Recording saved with name: %s</string>
 	<!-- Notification when recording auto-splits due to reaching 60-minute limit -->
@@ -326,6 +322,7 @@
 	<string name="error_invalid_output_file">Invalid output file</string>
 	<string name="error_file_exists">File with this name is already exists!</string>
 	<string name="error_failed_to_rename">Failed to rename the record!</string>
+	<string name="msg_record_renamed">Record renamed to \'%1$s\'</string>
 	<string name="error_failed_to_init_recorder">Failed to init the Recorder</string>
 	<string name="error_failed_to_init_player">Failed to init the Player</string>
 	<string name="error_player_data_source">Player can\'t read the file</string>

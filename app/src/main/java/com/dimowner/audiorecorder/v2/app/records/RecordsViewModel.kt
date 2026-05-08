@@ -301,6 +301,12 @@ internal class RecordsViewModel @Inject constructor(
                         operationSelectedRecord = null
                     )
                 } else if (recordsDataSource.renameRecord(record, newName)) {
+                    val context: Context = getApplication<Application>().applicationContext
+                    emitEvent(
+                        RecordsScreenEvent.ShowInfoSnack(
+                            context.getString(R.string.msg_record_renamed, newName)
+                        )
+                    )
                     _state.value = _state.value.copy(
                         showRenameDialog = false,
                         operationSelectedRecord = null,

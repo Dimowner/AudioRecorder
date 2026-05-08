@@ -792,6 +792,12 @@ class HomeViewModel @Inject constructor(
                     return@launch
                 } else {
                     recordsDataSource.renameRecord(activeRecord, newName)
+                    val context: Context = getApplication<Application>().applicationContext
+                    emitEvent(
+                        HomeScreenEvent.ShowInfoSnack(
+                            context.getString(R.string.msg_record_renamed, newName)
+                        )
+                    )
                 }
                 updateState(false)
             }
