@@ -40,6 +40,8 @@
 	<!-- Confirmation for successful restoration after UNDO is clicked -->
 	<string name="msg_recording_restored">Recording \'%1$s\' restored</string>
 
+	<string name="msg_record_renamed">Record renamed to \'%1$s\'</string>
+
 	<!-- Confirmation for saving a new recording -->
 	<string name="msg_recording_saved_with_name">Recording saved with name: %s</string>
     <!-- Error message when saving a recording fails -->
@@ -310,7 +312,6 @@
 	<string name="error_invalid_output_file">Invalid output file</string>
 	<string name="error_file_exists">File with this name is already exists!</string>
 	<string name="error_failed_to_rename">Failed to rename the record!</string>
-	<string name="msg_record_renamed">Record renamed to \'%1$s\'</string>
 	<string name="error_failed_to_init_recorder">Failed to init the Recorder</string>
 	<string name="error_failed_to_init_player">Failed to init the Player</string>
 	<string name="error_player_data_source">Player can\'t read the file</string>
@@ -318,10 +319,10 @@
 	<string name="error_permission_denied">Permission denied</string>
 	<string name="error_process_waveform">Can\'t draw waveform</string>
 	<string name="error_lost_records">Some of your records were deleted or moved</string>
-	<string name="broken_record_title">Interrupted recording</string>
-	<string name="broken_record_message">The recording \"%s\" was interrupted (possibly due to a device reboot) and its file may be broken. Would you like to attempt to restore it?</string>
+	<string name="broken_record_title">Recording interrupted</string>
+	<string name="broken_record_message">The recording \'%s\' was interrupted (possibly due to a device reboot) and its file may be broken. Would you like to attempt to restore it?</string>
 	<string name="btn_restore">Restore</string>
-	<string name="msg_broken_record_restored">Recording \"%s\" restored successfully</string>
+	<string name="msg_broken_record_restored">Recording \'%s\' restored successfully</string>
 	<string name="error_broken_record_restore_failed">Failed to restore the recording. The file may be unrecoverable.</string>
 	<string name="error_no_available_space">No available space!</string>
 	<string name="error_failed_access_to_storage">Failed access to file storage</string>
@@ -342,7 +343,7 @@
 	<string name="button_finish">Finish</string>
 	<string name="legacy_app">Legacy App</string>
 	<string name="legacy_app_subtitle">Switch to the old app interface</string>
-	<string name="switch_to_legacy">Switch to Legacy</string>
+	<string name="switch_to_legacy">Switch to Legacy app</string>
 	<string name="new_audio_recorder_available">New Audio Recorder available</string>
 	<string name="try_new_app_subtitle">Keep all your recordings — switch back anytime</string>
 	<string name="try_new_app">Try New App</string>
