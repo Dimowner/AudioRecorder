@@ -5,7 +5,6 @@
     <string name="settings">设置</string>
     <string name="setup">设置</string>
     <string name="welcome_1">简单快速的录音应用</string>
-    <string name="title_1">Audio Recorder</string>
     <string name="rate_app">评价应用</string>
     <string name="store_records_public">保存录音到Public目录</string>
     <string name="record_in_stereo">以双声道录制</string>
@@ -13,13 +12,11 @@
     <string name="total_duration">总记录音时长: %s</string>
     <string name="total_record_count">总计录音数量: %d</string>
     <string name="available_space">可用空间: %s</string>
-    <string name="delete_all">删除所有录音</string>
     <string name="delete_all2">删除所有</string>
     <string name="records_were_removed">在录音目录中找不到某些录音文件。可能是被移走了。</string>
     <string name="title_file_is_not_available">无法访问录音文件!</string>
     <string name="details_file_is_not_available">不幸的是，应用程序不再能够访问Android公共存储。\n您可以在此位置上找到录音文件:\n%s</string>
     <string name="warning">警告!</string>
-    <string name="delete_this_record">删除这个录音?</string>
     <string name="move_record_to_trash">移动到回收站 %s?</string>
     <string name="delete_record_forever">永久删除录音 %s?</string>
     <plurals name="delete_selected_records">
@@ -35,7 +32,6 @@
     <string name="all_records_deleted">所有录音删除成功</string>
     <string name="failed_to_delete_all_records">未能删除所有录音</string>
     <string name="please_select_record_to_share">请选择一项要分享的录音</string>
-    <string name="record_name">新名字</string>
     <string name="recording">Recording: %s</string>
     <string name="recording_is_on">Recording is ON</string>
     <string name="recording_progress">录制中&#8230;</string>
@@ -111,7 +107,6 @@
     <string name="rec_name">名字:</string>
     <string name="rec_format">格式:</string>
     <string name="rec_duration">时长:</string>
-    <string name="rec_frequency">Frequency:</string>
     <string name="rec_size">大小:</string>
     <string name="rec_created">创建时间:</string>
     <string name="rec_location">文件位置:</string>
@@ -128,9 +123,7 @@
     <string name="not_found_in_the_app">在app中找不到</string>
     <string name="in_trash">在回收站</string>
 
-    <string name="app_settings">应用设置:</string>
     <string name="recording_settings">录制设置</string>
-    <string name="other_settings">其他:</string>
 
     <string name="today">今天</string>
     <string name="yesterday">昨天</string>
@@ -142,12 +135,10 @@
     <string name="btn_no">取消</string>
     <string name="btn_play">播放</string>
     <string name="btn_deny">Deny</string>
-    <string name="btn_allow">接受</string>
     <string name="btn_details">详情</string>
     <string name="btn_get_started">开始</string>
     <string name="btn_apply">应用</string>
     <string name="btn_reset">重置</string>
-    <string name="btn_next">下一步</string>
     <string name="view">View</string>
     <string name="view_records">View records</string>
     <string name="move_records_needed">Move records needed</string>

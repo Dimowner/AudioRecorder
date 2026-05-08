@@ -5,24 +5,21 @@
 	<string name="settings">設定</string>
 	<string name="setup">設定指引</string>
 	<string name="welcome_1">歡迎使用輕快的錄音程式</string>
-	<string name="title_1">錄音機</string>
-	<string name="rate_app">評價應用程式</string>
+    <string name="rate_app">評價應用程式</string>
 	<string name="store_records_public">存放錄音至共用資料夾</string>
 	<string name="record_in_stereo">錄製立體聲</string>
 	<string name="keep_screen_on">錄製期間保持螢幕開啟</string>
 	<string name="total_duration">時間總計：%s</string>
 	<string name="total_record_count">數量總計：%d</string>
 	<string name="available_space">可用空間：%s</string>
-	<string name="delete_all">刪除所有錄音</string>
-	<string name="delete_all2">全部刪除</string>
+    <string name="delete_all2">全部刪除</string>
 	<string name="records_were_removed">找不到資料夾內的部分錄音，可能已被移動或刪除。</string>
 	<string name="title_file_is_not_available">無法存取錄音檔案</string>
 	<string name="details_file_is_not_available">很抱歉，應用程式無法繼續存取共用儲存空間。
 		\n您可在裝置中的下列位置找到錄音檔案：
 		\n%s</string>
 	<string name="warning">警告</string>
-	<string name="delete_this_record">刪除這則錄音？</string>
-	<string name="move_record_to_trash">將「%s」移至垃圾桶？</string>
+    <string name="move_record_to_trash">將「%s」移至垃圾桶？</string>
 	<string name="delete_record_forever">永久刪除錄音？\n「%s」</string>
 	<plurals name="delete_selected_records">
 		<item quantity="one">將選取的 %d 則錄音移至垃圾桶？</item>
@@ -39,8 +36,7 @@
 	<string name="all_records_deleted">已刪除所有錄音</string>
 	<string name="failed_to_delete_all_records">刪除所有錄音失敗</string>
 	<string name="please_select_record_to_share">請選擇要分享的錄音</string>
-	<string name="record_name">新的名稱</string>
-	<string name="recording">錄音：%s</string>
+    <string name="recording">錄音：%s</string>
 	<string name="recording_is_on">已啟動錄音</string>
 	<string name="recording_progress">正在錄製&#8230;</string>
 	<string name="recording_paused">已暫停</string>
@@ -118,8 +114,7 @@
 	<string name="rec_name">名稱：</string>
 	<string name="rec_format">格式：</string>
 	<string name="rec_duration">長度：</string>
-	<string name="rec_frequency">頻率：</string>
-	<string name="rec_size">大小：</string>
+    <string name="rec_size">大小：</string>
 	<string name="rec_created">建立：</string>
 	<string name="rec_location">位置：</string>
 	<string name="naming">名稱 </string>
@@ -135,11 +130,9 @@
 	<string name="not_found_in_the_app">不在錄音機內</string>
 	<string name="in_trash">位於垃圾桶</string>
 
-	<string name="app_settings">應用程式設定：</string>
-	<string name="recording_settings">錄製設定</string>
-	<string name="other_settings">其他：</string>
+    <string name="recording_settings">錄製設定</string>
 
-	<string name="today">今天</string>
+    <string name="today">今天</string>
 	<string name="yesterday">昨天</string>
 
 	<string name="btn_save">儲存</string>
@@ -149,13 +142,11 @@
 	<string name="btn_no">否</string>
 	<string name="btn_play">播放</string>
 	<string name="btn_deny">拒絕</string>
-	<string name="btn_allow">允許</string>
-	<string name="btn_details">資訊</string>
+    <string name="btn_details">資訊</string>
 	<string name="btn_get_started">開始</string>
 	<string name="btn_apply">套用</string>
 	<string name="btn_reset">重設</string>
-	<string name="btn_next">下一步</string>
-	<string name="view">檢視</string>
+    <string name="view">檢視</string>
 	<string name="view_records">檢視錄音</string>
 	<string name="move_records_needed">需要移動錄音</string>
 	<string name="moving_record">移動錄音：%s</string>
