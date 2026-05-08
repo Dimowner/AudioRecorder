@@ -385,6 +385,88 @@ class RecordDaoTest {
     }
 
     @Test
+    fun test_getMovedToRecycleRecordsByPage_firstPage() {
+        // Move 25 records to recycle with distinct removed timestamps so ordering is deterministic
+        for (i in 1..25) {
+            val record = recordDao.getRecordById(i.toLong())
+            record?.copy(isMovedToRecycle = true, removed = i.toLong() * 1000L)?.let {
+                recordDao.updateRecord(it)
+            }
+        }
+
+        // Page 1 — should return items with highest removed timestamp (ids 25..16)
+        val page1 = recordDao.getMovedToRecycleRecordsByPage(pageSize = 10, offset = 0)
+        assertEquals(10, page1.size)
+        // Sorted by removed DESC: id 25 first, id 16 last
+        assertEquals(25L, page1[0].id)
+        assertEquals(16L, page1[9].id)
+    }
+
+    @Test
+    fun test_getMovedToRecycleRecordsByPage_secondPage() {
+        for (i in 1..25) {
+            val record = recordDao.getRecordById(i.toLong())
+            record?.copy(isMovedToRecycle = true, removed = i.toLong() * 1000L)?.let {
+                recordDao.updateRecord(it)
+            }
+        }
+
+        // Page 2 — offset 10 → items 15..6
+        val page2 = recordDao.getMovedToRecycleRecordsByPage(pageSize = 10, offset = 10)
+        assertEquals(10, page2.size)
+        assertEquals(15L, page2[0].id)
+        assertEquals(6L, page2[9].id)
+    }
+
+    @Test
+    fun test_getMovedToRecycleRecordsByPage_partialLastPage() {
+        for (i in 1..25) {
+            val record = recordDao.getRecordById(i.toLong())
+            record?.copy(isMovedToRecycle = true, removed = i.toLong() * 1000L)?.let {
+                recordDao.updateRecord(it)
+            }
+        }
+
+        // Page 3 — offset 20 → only 5 items left (ids 5..1)
+        val page3 = recordDao.getMovedToRecycleRecordsByPage(pageSize = 10, offset = 20)
+        assertEquals(5, page3.size)
+        assertEquals(5L, page3[0].id)
+        assertEquals(1L, page3[4].id)
+    }
+
+    @Test
+    fun test_getMovedToRecycleRecordsByPage_emptyWhenNoneInRecycle() {
+        val page = recordDao.getMovedToRecycleRecordsByPage(pageSize = 10, offset = 0)
+        assertEquals(0, page.size)
+    }
+
+    @Test
+    fun test_getMovedToRecycleRecordsByPage_offsetBeyondTotalReturnsEmpty() {
+        for (i in 1..5) {
+            val record = recordDao.getRecordById(i.toLong())
+            record?.copy(isMovedToRecycle = true, removed = i.toLong() * 1000L)?.let {
+                recordDao.updateRecord(it)
+            }
+        }
+
+        val page = recordDao.getMovedToRecycleRecordsByPage(pageSize = 10, offset = 100)
+        assertEquals(0, page.size)
+    }
+
+    @Test
+    fun test_getMovedToRecycleRecordsByPage_doesNotIncludeNonRecycleRecords() {
+        // Only move record 1 to recycle
+        val record = recordDao.getRecordById(1L)
+        record?.copy(isMovedToRecycle = true, removed = 5000L)?.let {
+            recordDao.updateRecord(it)
+        }
+
+        val page = recordDao.getMovedToRecycleRecordsByPage(pageSize = 10, offset = 0)
+        assertEquals(1, page.size)
+        assertEquals(1L, page[0].id)
+    }
+
+    @Test
     fun test_getMovedToRecycleRecordsCount() {
         val count = recordDao.getMovedToRecycleRecordsCount()
         assertEquals(0, count)

@@ -95,6 +95,9 @@ interface RecordDao {
     @Query("SELECT * FROM records WHERE isMovedToRecycle = 1 ORDER BY removed DESC")
     fun getMovedToRecycleRecords(): List<RecordEntity>
 
+    @Query("SELECT * FROM records WHERE isMovedToRecycle = 1 ORDER BY removed DESC LIMIT :pageSize OFFSET :offset")
+    fun getMovedToRecycleRecordsByPage(pageSize: Int, offset: Int): List<RecordEntity>
+
     @Deprecated("Used only for legacy app v1")
     @Query("SELECT id FROM records WHERE isMovedToRecycle = 1 ORDER BY removed DESC")
     fun getMovedToRecycleRecordIds(): List<Long>

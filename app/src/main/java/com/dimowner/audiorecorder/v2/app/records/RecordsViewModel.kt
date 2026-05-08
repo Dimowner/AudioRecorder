@@ -52,7 +52,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
-const val DEFAULT_PAGE_SIZE = 200
+const val DEFAULT_PAGE_SIZE = 50
 
 @HiltViewModel
 internal class RecordsViewModel @Inject constructor(
@@ -97,6 +97,8 @@ internal class RecordsViewModel @Inject constructor(
         }
     }
 
+    private var currentPage = 1
+
     fun onStart(showPlayPanel: Boolean) {
         showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
@@ -110,11 +112,12 @@ internal class RecordsViewModel @Inject constructor(
     }
 
     private suspend fun initState(showPlayPanel: Boolean) {
+        currentPage = 1
         val context: Context = getApplication<Application>().applicationContext
         val sortOrder = state.value.sortOrder
         val records = recordsDataSource.getRecords(
             sortOrder = sortOrder,
-            page = 1,
+            page = currentPage,
             pageSize = DEFAULT_PAGE_SIZE,
             isBookmarked = false,
         )
@@ -133,17 +136,48 @@ internal class RecordsViewModel @Inject constructor(
                 recordedRecordId = prefs.recordedRecordId,
                 showLostRecordsDialog = lostRecords.isNotEmpty(),
                 lostRecords = lostRecords,
+                hasMoreData = records.size >= DEFAULT_PAGE_SIZE,
             )
             showLoadingProgress(false)
         }
     }
 
+    fun loadNextPage() {
+        if (!state.value.hasMoreData || state.value.isShowLoadingProgress) return
+        showLoadingProgress(true)
+        viewModelScope.launch(ioDispatcher) {
+            currentPage++
+            val context: Context = getApplication<Application>().applicationContext
+            val sortOrder = state.value.sortOrder
+            val newRecords = recordsDataSource.getRecords(
+                sortOrder = sortOrder,
+                page = currentPage,
+                pageSize = DEFAULT_PAGE_SIZE,
+                isBookmarked = state.value.bookmarksSelected,
+            )
+            withContext(mainDispatcher) {
+                val newRecordsMap = newRecords.map { it.toRecordListItem(context) }
+                    .groupRecordsByDate(context, sortOrder)
+                val merged = state.value.recordsMap.toMutableMap()
+                newRecordsMap.forEach { (key, list) ->
+                    merged[key] = (merged[key] ?: emptyList()) + list
+                }
+                _state.value = _state.value.copy(
+                    recordsMap = merged,
+                    hasMoreData = newRecords.size >= DEFAULT_PAGE_SIZE,
+                    isShowLoadingProgress = false,
+                )
+            }
+        }
+    }
+
     fun updateListWithBookmarks(bookmarksSelected: Boolean) {
         viewModelScope.launch(ioDispatcher) {
+            currentPage = 1
             val sortOrder = state.value.sortOrder
             val records = recordsDataSource.getRecords(
                 sortOrder = sortOrder,
-                page = 1,
+                page = currentPage,
                 pageSize = DEFAULT_PAGE_SIZE,
                 isBookmarked = bookmarksSelected,
             )
@@ -153,7 +187,8 @@ internal class RecordsViewModel @Inject constructor(
                     recordsMap = records.map {
                         it.toRecordListItem(context)
                     }.groupRecordsByDate(context, sortOrder),
-                    bookmarksSelected = bookmarksSelected
+                    bookmarksSelected = bookmarksSelected,
+                    hasMoreData = records.size >= DEFAULT_PAGE_SIZE,
                 )
             }
         }
@@ -186,10 +221,11 @@ internal class RecordsViewModel @Inject constructor(
 
     fun updateListWithSortOrder(sortOrderId: SortDropDownMenuItemId) {
         viewModelScope.launch(ioDispatcher) {
+            currentPage = 1
             val sortOrder = sortOrderId.toSortOrder()
             val records = recordsDataSource.getRecords(
                 sortOrder = sortOrder,
-                page = 1,
+                page = currentPage,
                 pageSize = DEFAULT_PAGE_SIZE,
                 isBookmarked = _state.value.bookmarksSelected,
             )
@@ -199,7 +235,8 @@ internal class RecordsViewModel @Inject constructor(
                     recordsMap = records.map {
                         it.toRecordListItem(context)
                     }.groupRecordsByDate(context, sortOrder),
-                    sortOrder = sortOrder
+                    sortOrder = sortOrder,
+                    hasMoreData = records.size >= DEFAULT_PAGE_SIZE,
                 )
             }
         }
@@ -475,6 +512,7 @@ internal class RecordsViewModel @Inject constructor(
             RecordsScreenAction.MultiSelectSaveAsDismiss -> multiSelectSaveAsDismiss()
             is RecordsScreenAction.MultiSelectShare -> multiSelectShare(action.selectedRecords)
             RecordsScreenAction.DismissLostRecordsDialog -> dismissLostRecordsDialog()
+            RecordsScreenAction.LoadNextPage -> loadNextPage()
         }
     }
 
@@ -576,11 +614,12 @@ internal class RecordsViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             val deletedCount = recordsDataSource.moveRecordsToRecycle(state.value.selectedRecords.map { it.recordId })
             if (deletedCount > 0) {
+                currentPage = 1
                 val context: Context = getApplication<Application>().applicationContext
                 val sortOrder = state.value.sortOrder
                 val records = recordsDataSource.getRecords(
                     sortOrder = sortOrder,
-                    page = 1,
+                    page = currentPage,
                     pageSize = DEFAULT_PAGE_SIZE,
                     isBookmarked = state.value.bookmarksSelected,
                 )
@@ -600,7 +639,8 @@ internal class RecordsViewModel @Inject constructor(
                         deletedRecordsCount = recordsInRecycleCount,
                         showMoveToRecycleMultipleDialog = false,
                         activeRecord = if (isActiveRecordDeleted) null else _state.value.activeRecord,
-                        isShowLoadingProgress = false
+                        isShowLoadingProgress = false,
+                        hasMoreData = records.size >= DEFAULT_PAGE_SIZE,
                     )
                 }
                 multipleMoveToRecycleSuccessSnack(selectedRecords, deletedCount)
@@ -672,6 +712,7 @@ data class RecordsScreenState(
     val showRecordPlaybackPanel: Boolean = false,
     val deletedRecordsCount: Int = 0,
     val isShowLoadingProgress: Boolean = false,
+    val hasMoreData: Boolean = false,
 
     val showRenameDialog: Boolean = false,
     val showMoveToRecycleDialog: Boolean = false,
@@ -737,6 +778,7 @@ internal sealed class RecordsScreenAction {
     data object MultiSelectMoveToRecycleRequest : RecordsScreenAction()
     data object MultiSelectMoveToRecycleDismiss : RecordsScreenAction()
     data object DismissLostRecordsDialog : RecordsScreenAction()
+    data object LoadNextPage : RecordsScreenAction()
 }
 
 internal fun Record.toRecordListItem(context: Context): RecordListItem {

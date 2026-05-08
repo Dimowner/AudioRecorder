@@ -28,6 +28,7 @@ interface RecordsDataSource {
 
     suspend fun getAllRecords(): List<Record>
     suspend fun getMovedToRecycleRecords(): List<Record>
+    suspend fun getMovedToRecycleRecords(page: Int, pageSize: Int): List<Record>
     suspend fun getMovedToRecycleRecordsCount(): Int
 
     suspend fun getRecords(

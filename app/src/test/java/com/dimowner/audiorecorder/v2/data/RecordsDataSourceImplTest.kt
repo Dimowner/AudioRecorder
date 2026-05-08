@@ -689,6 +689,94 @@ class RecordsDataSourceImplTest {
         assertTrue(result.isEmpty())
     }
 
+    // ==================== getMovedToRecycleRecords (paged) ====================
+
+    @Test
+    fun test_getMovedToRecycleRecords_paged_firstPage_returnsMappedRecords() = runBlocking {
+        val entity1 = testRecordEntity.copy(id = 1, name = "recycled_1", isMovedToRecycle = true)
+        val entity2 = testRecordEntity.copy(id = 2, name = "recycled_2", isMovedToRecycle = true)
+
+        every { recordDao.getMovedToRecycleRecordsByPage(10, 0) } returns listOf(entity1, entity2)
+
+        val result = recordsDataSourceImpl.getMovedToRecycleRecords(page = 1, pageSize = 10)
+
+        assertEquals(2, result.size)
+        assertEquals(1L, result[0].id)
+        assertEquals("recycled_1", result[0].name)
+        assertTrue(result[0].isMovedToRecycle)
+        assertEquals(2L, result[1].id)
+        assertEquals("recycled_2", result[1].name)
+        assertTrue(result[1].isMovedToRecycle)
+
+        verify(exactly = 1) { recordDao.getMovedToRecycleRecordsByPage(10, 0) }
+    }
+
+    @Test
+    fun test_getMovedToRecycleRecords_paged_secondPage_usesCorrectOffset() = runBlocking {
+        val entity = testRecordEntity.copy(id = 11, name = "recycled_11", isMovedToRecycle = true)
+
+        // page=2, pageSize=10 → offset = (2-1)*10 = 10
+        every { recordDao.getMovedToRecycleRecordsByPage(10, 10) } returns listOf(entity)
+
+        val result = recordsDataSourceImpl.getMovedToRecycleRecords(page = 2, pageSize = 10)
+
+        assertEquals(1, result.size)
+        assertEquals(11L, result[0].id)
+
+        verify(exactly = 1) { recordDao.getMovedToRecycleRecordsByPage(10, 10) }
+    }
+
+    @Test
+    fun test_getMovedToRecycleRecords_paged_thirdPage_usesCorrectOffset() = runBlocking {
+        // page=3, pageSize=5 → offset = (3-1)*5 = 10
+        every { recordDao.getMovedToRecycleRecordsByPage(5, 10) } returns emptyList()
+
+        val result = recordsDataSourceImpl.getMovedToRecycleRecords(page = 3, pageSize = 5)
+
+        assertTrue(result.isEmpty())
+        verify(exactly = 1) { recordDao.getMovedToRecycleRecordsByPage(5, 10) }
+    }
+
+    @Test
+    fun test_getMovedToRecycleRecords_paged_emptyList() = runBlocking {
+        every { recordDao.getMovedToRecycleRecordsByPage(10, 0) } returns emptyList()
+
+        val result = recordsDataSourceImpl.getMovedToRecycleRecords(page = 1, pageSize = 10)
+
+        assertTrue(result.isEmpty())
+        verify(exactly = 1) { recordDao.getMovedToRecycleRecordsByPage(10, 0) }
+    }
+
+    @Test
+    fun test_getMovedToRecycleRecords_paged_fullPage_returnsAllItems() = runBlocking {
+        val entities = (1..10).map { i ->
+            testRecordEntity.copy(id = i.toLong(), name = "recycled_$i", isMovedToRecycle = true)
+        }
+
+        every { recordDao.getMovedToRecycleRecordsByPage(10, 0) } returns entities
+
+        val result = recordsDataSourceImpl.getMovedToRecycleRecords(page = 1, pageSize = 10)
+
+        assertEquals(10, result.size)
+        result.forEachIndexed { index, record ->
+            assertEquals((index + 1).toLong(), record.id)
+            assertTrue(record.isMovedToRecycle)
+        }
+    }
+
+    @Test
+    fun test_getMovedToRecycleRecords_paged_pageSizeOne_firstPage() = runBlocking {
+        val entity = testRecordEntity.copy(id = 99, name = "recycled_99", isMovedToRecycle = true)
+        // page=1, pageSize=1 → offset=0
+        every { recordDao.getMovedToRecycleRecordsByPage(1, 0) } returns listOf(entity)
+
+        val result = recordsDataSourceImpl.getMovedToRecycleRecords(page = 1, pageSize = 1)
+
+        assertEquals(1, result.size)
+        assertEquals(99L, result[0].id)
+        verify(exactly = 1) { recordDao.getMovedToRecycleRecordsByPage(1, 0) }
+    }
+
     // ==================== getMovedToRecycleRecordsCount ====================
 
     @Test

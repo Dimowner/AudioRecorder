@@ -25,6 +25,7 @@ import androidx.lifecycle.viewModelScope
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
+import com.dimowner.audiorecorder.v2.app.records.DEFAULT_PAGE_SIZE
 import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.Record
@@ -53,17 +54,46 @@ internal class DeletedRecordsViewModel @Inject constructor(
     private val _event = MutableSharedFlow<DeletedRecordsScreenEvent?>()
     val event: SharedFlow<DeletedRecordsScreenEvent?> = _event
 
+    private var currentPage = 1
+
     init {
-        updateState()
+        loadFirstPage()
     }
 
-    private fun updateState() {
+    private fun loadFirstPage() {
+        currentPage = 1
+        _state.value = _state.value.copy(isShowLoadingProgress = true)
         viewModelScope.launch(ioDispatcher) {
-            val records = recordsDataSource.getMovedToRecycleRecords()
+            val records = recordsDataSource.getMovedToRecycleRecords(
+                page = currentPage,
+                pageSize = DEFAULT_PAGE_SIZE,
+            )
             withContext(mainDispatcher) {
                 val context: Context = getApplication<Application>().applicationContext
                 _state.value = DeletedRecordsScreenState(
-                    records = records.map { it.toDeletedRecordListItem(context) }
+                    records = records.map { it.toDeletedRecordListItem(context) },
+                    hasMoreData = records.size >= DEFAULT_PAGE_SIZE,
+                    isShowLoadingProgress = false,
+                )
+            }
+        }
+    }
+
+    fun loadNextPage() {
+        if (!state.value.hasMoreData || state.value.isShowLoadingProgress) return
+        _state.value = _state.value.copy(isShowLoadingProgress = true)
+        viewModelScope.launch(ioDispatcher) {
+            currentPage++
+            val newRecords = recordsDataSource.getMovedToRecycleRecords(
+                page = currentPage,
+                pageSize = DEFAULT_PAGE_SIZE,
+            )
+            withContext(mainDispatcher) {
+                val context: Context = getApplication<Application>().applicationContext
+                _state.value = _state.value.copy(
+                    records = _state.value.records + newRecords.map { it.toDeletedRecordListItem(context) },
+                    hasMoreData = newRecords.size >= DEFAULT_PAGE_SIZE,
+                    isShowLoadingProgress = false,
                 )
             }
         }
@@ -80,7 +110,7 @@ internal class DeletedRecordsViewModel @Inject constructor(
             } else {
                 //TODO: Show failed to remove records message
                 withContext(mainDispatcher) {
-                    updateState()
+                    loadFirstPage()
                 }
             }
         }
@@ -130,6 +160,7 @@ internal class DeletedRecordsViewModel @Inject constructor(
             is DeletedRecordsScreenAction.RestoreRecord -> restoreRecord(action.recordId)
             is DeletedRecordsScreenAction.DeleteForeverRecord -> deleteForeverRecord(action.recordId)
             DeletedRecordsScreenAction.DeleteAllRecordsFromRecycle -> deleteAllRecordsFromRecycle()
+            DeletedRecordsScreenAction.LoadNextPage -> loadNextPage()
         }
     }
 
@@ -142,6 +173,8 @@ internal class DeletedRecordsViewModel @Inject constructor(
 
 internal data class DeletedRecordsScreenState(
     val records: List<DeletedRecordListItem> = emptyList(),
+    val hasMoreData: Boolean = false,
+    val isShowLoadingProgress: Boolean = false,
 )
 
 internal data class DeletedRecordListItem(
@@ -161,6 +194,7 @@ internal sealed class DeletedRecordsScreenAction {
     data class RestoreRecord(val recordId: Long) : DeletedRecordsScreenAction()
     data class DeleteForeverRecord(val recordId: Long) : DeletedRecordsScreenAction()
     data object DeleteAllRecordsFromRecycle : DeletedRecordsScreenAction()
+    data object LoadNextPage : DeletedRecordsScreenAction()
 }
 
 internal fun Record.toDeletedRecordListItem(context: Context): DeletedRecordListItem {
