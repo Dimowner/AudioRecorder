@@ -6,19 +6,16 @@
  	<string name="settings">Ajustes</string>
  	<string name="setup">Setup</string>
  	<string name="welcome_1">Bienvenido a la aplicación simple y veloz</string>
- 	<string name="title_1">Grabador de Audio</string>
- 	<string name="rate_app">Puntuá la app</string>
+    <string name="rate_app">Puntuá la app</string>
  	<string name="store_records_public">Guardar grabaciones en dir público</string>
  	<string name="record_in_stereo">Grabar en Stereo</string>
  	<string name="keep_screen_on">Mantener pantalla ENCENDIDA al grabar</string>
  	<string name="total_duration">Tiempo de grabación total: %s</string>
  	<string name="total_record_count">Conteo total de grabaciones: %d</string>
  	<string name="available_space">Espacio disponible: %s</string>
- 	<string name="delete_all">Eliminar todas las grabaciones</string>
- 	<string name="delete_all2">Eliminar todo</string>
+    <string name="delete_all2">Eliminar todo</string>
  	<string name="warning">¡Advertencia!</string>
- 	<string name="delete_this_record">¿Eliminar esta grabación?</string>
- 	<string name="move_record_to_trash">¿Mover %s a la basura?</string>
+    <string name="move_record_to_trash">¿Mover %s a la basura?</string>
  	<string name="delete_record_forever">¿Eliminar la grabación %s permanentemente?</string>
 	<string name="start_recording">Start recording</string>
 	<string name="recording_feature_disabled">Recording feature disabled</string>
@@ -28,8 +25,7 @@
  	<string name="failed_to_delete_all_records">Error al intentar eliminar todas las grabaciones</string>
  	<string name="please_select_record_to_share">Por favor
  seleccioná una grabación para compartir</string>
- 	<string name="record_name">Nuevo nombre</string>
- 	<string name="recording">Grabando: %s</string>
+    <string name="recording">Grabando: %s</string>
  	<string name="recording_is_on">Grabación ENCENDIDA</string>
  	<string name="recording_progress">Grabando&#8230;</string>
  	<string name="recording_paused">Pausado</string>
@@ -81,8 +77,7 @@
  	<string name="rec_name">Nombre:</string>
  	<string name="rec_format">Formato:</string>
  	<string name="rec_duration">Duración:</string>
- 	<string name="rec_frequency">Frecuencia:</string>
- 	<string name="rec_size">Tamaño:</string>
+    <string name="rec_size">Tamaño:</string>
  	<string name="rec_created">Creado:</string>
  	<string name="rec_location">Ubicación de archivo:</string>
  	<string name="naming">Nombrado:</string>
@@ -99,10 +94,8 @@
  	<string name="found_in_the_app">Encontrado en la app</string>
  	<string name="not_found_in_the_app">No encontrado en la app</string>
  	<string name="in_trash">En la basura</string>
- 	<string name="app_settings">Configuración de app:</string>
- 	<string name="recording_settings">Configuración de grabaciones</string>
- 	<string name="other_settings">Otro:</string>
- 	<string name="today">Hoy</string>
+    <string name="recording_settings">Configuración de grabaciones</string>
+    <string name="today">Hoy</string>
  	<string name="yesterday">Ayer</string>
  	<string name="btn_save">Guardar</string>
  	<string name="btn_cancel">Cancelar</string>
@@ -111,13 +104,11 @@
  	<string name="btn_no">No</string>
  	<string name="btn_play">Reproducir</string>
  	<string name="btn_deny">Denegar</string>
- 	<string name="btn_allow">Permitir</string>
- 	<string name="btn_details">Detalles</string>
+    <string name="btn_details">Detalles</string>
  	<string name="btn_get_started">Comenzar</string>
  	<string name="btn_apply">Aplicar</string>
  	<string name="btn_reset">Reiniciar</string>
- 	<string name="btn_next">Siguiente</string>
- 	<string name="info_3gp"><b>3gp</b> es un formato contenedor de multimedia desarrollado para servicios de telecomunicación móvil. Usalo si necesitás ahorrar espacio.</string>
+    <string name="info_3gp"><b>3gp</b> es un formato contenedor de multimedia desarrollado para servicios de telecomunicación móvil. Usalo si necesitás ahorrar espacio.</string>
  	<string name="info_m4a">El formato <b>M4a</b>
  codificado con el códec de audio AAC
  tiene buena calidad y ocupa poco espacio. <b>(recomendado)</b></string>

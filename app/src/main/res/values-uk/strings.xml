@@ -5,22 +5,19 @@
 	<string name="settings">Налаштування</string>
 	<string name="setup">Устаноки</string>
 	<string name="welcome_1">Вітаємо в простому та швидкому додатку</string>
-	<string name="title_1">Аудіо Рекордер</string>
-	<string name="rate_app">Оцінити додаток</string>
+    <string name="rate_app">Оцінити додаток</string>
 	<string name="store_records_public">Зберігати записи в публічному каталозі</string>
 	<string name="record_in_stereo">Записувати в Стерео</string>
 	<string name="keep_screen_on">Залишати екран увімкненим під час запису</string>
 	<string name="total_duration">Загальна тривалість записів: %s</string>
 	<string name="total_record_count">Загальна кількість записів: %d</string>
 	<string name="available_space">Доступне місце: %s</string>
-	<string name="delete_all">Видалити всі записи</string>
-	<string name="delete_all2">Видалити все</string>
+    <string name="delete_all2">Видалити все</string>
 	<string name="records_were_removed">Деякі записи не були знайдені в папці з записами. Можливо вони були видалені або переміщені.</string>
 	<string name="title_file_is_not_available">Немає доступу до файлу запису!</string>
 	<string name="details_file_is_not_available">На жаль, додаток більше не має доступу до загальнодоступного сховища Android.\nВи можете знайти файл запису на вашому смартфоні за такою адресою:\n%s</string>
 	<string name="warning">Увага!</string>
-	<string name="delete_this_record">Видалити цей запис?</string>
-	<string name="move_record_to_trash">Перемістити в кошик %s?</string>
+    <string name="move_record_to_trash">Перемістити в кошик %s?</string>
 	<string name="delete_record_forever">Видалити запис %s назавжди?</string>
 	<plurals name="delete_selected_records">
 		<item quantity="one">Перемістити в кошик %d вибраний запис?</item>
@@ -41,8 +38,7 @@
 	<string name="all_records_deleted">Всі записи видалено успішно</string>
 	<string name="failed_to_delete_all_records">Помилка під час видалення всіх записів</string>
 	<string name="please_select_record_to_share">Будь-ласка, виберіть або запишіть аудіо файл для поширення</string>
-	<string name="record_name">Нове ім\'я</string>
-	<string name="recording">Запис: %s</string>
+    <string name="recording">Запис: %s</string>
 	<string name="recording_is_on">Запис увімкнено</string>
 	<string name="recording_progress">Запис&#8230;</string>
 	<string name="recording_paused">Пауза</string>
@@ -129,8 +125,7 @@
 	<string name="rec_name">Назва:</string>
 	<string name="rec_format">Формат:</string>
 	<string name="rec_duration">Тривалість:</string>
-	<string name="rec_frequency">Частота:</string>
-	<string name="rec_size">Розмір:</string>
+    <string name="rec_size">Розмір:</string>
 	<string name="rec_created">Дата створення:</string>
 	<string name="rec_location">Розташування файлу:</string>
 	<string name="naming">Іменування:</string>
@@ -146,11 +141,9 @@
 	<string name="not_found_in_the_app">Не знайдено в додатку</string>
 	<string name="in_trash">В кошику</string>
 
-	<string name="app_settings">Налаштування додатка:</string>
-	<string name="recording_settings">Налаштування запису</string>
-	<string name="other_settings">Інше:</string>
+    <string name="recording_settings">Налаштування запису</string>
 
-	<string name="today">Сьогодні</string>
+    <string name="today">Сьогодні</string>
 	<string name="yesterday">Вчора</string>
 
 	<string name="btn_save">Зберегти</string>
@@ -160,13 +153,11 @@
 	<string name="btn_no">Ні</string>
 	<string name="btn_play">Грати</string>
 	<string name="btn_deny">Заборонити</string>
-	<string name="btn_allow">Дозволити</string>
-	<string name="btn_details">Деталі</string>
+    <string name="btn_details">Деталі</string>
 	<string name="btn_get_started">Почати</string>
 	<string name="btn_apply">Застосувати</string>
 	<string name="btn_reset">Скинути</string>
-	<string name="btn_next">Далі</string>
-	<string name="view">Переглянути</string>
+    <string name="view">Переглянути</string>
 	<string name="view_records">Переглянути записи</string>
 	<string name="move_records_needed">Потрібно перемістити записи</string>
 	<string name="moving_record">Переміщення записів: %s</string>

@@ -5,8 +5,7 @@
 	<string name="settings">Settings</string>
 	<string name="setup">Setup</string>
 	<string name="welcome_1">Welcome to a simple and fast application</string>
-	<string name="title_1">Audio Recorder</string>
-	<string name="rate_app">Rate app</string>
+    <string name="rate_app">Rate app</string>
 	<string name="store_records_public">Store records in a public dir</string>
 	<string name="record_in_stereo">Record in Stereo</string>
 
@@ -47,9 +46,7 @@
 	<string name="msg_recording_renamed">Recording \'%1$s\' renamed to \'%2$s\'</string>
 	<!-- Confirmation for saving a new recording -->
 	<string name="msg_recording_saved_with_name">Recording saved with name: %s</string>
-	<!-- Notification when recording auto-splits due to reaching 60-minute limit -->
-	<string name="msg_recording_auto_split">Recording reached 60-minute limit. Automatically continuing to a new file.</string>
-	<!-- Error message when saving a recording fails -->
+    <!-- Error message when saving a recording fails -->
 	<string name="msg_save_recording_failed">Failed to save recording.</string>
 	<!-- Error message for file operation failure -->
 	<string name="msg_file_operation_failed">File operation failed. Please try again</string>
@@ -77,14 +74,12 @@
 	<string name="total_duration">Total recorded duration: %s</string>
 	<string name="total_record_count">Total records count: %d</string>
 	<string name="available_space">Available space: %s</string>
-	<string name="delete_all">Delete all records</string>
-	<string name="delete_all2">Delete all</string>
+    <string name="delete_all2">Delete all</string>
 	<string name="records_were_removed">Some records files were not found in the records directory. Possibly they were removed or moved.</string>
 	<string name="title_file_is_not_available">No access to the record file!</string>
 	<string name="details_file_is_not_available">Unfortunately, the app no longer has access to the Android public storage.\nYou can find the record file on your smartphone at this location:\n%s</string>
 	<string name="warning">Warning!</string>
-	<string name="delete_this_record">Delete this record?</string>
-	<string name="move_record_to_trash">Move to trash %s?</string>
+    <string name="move_record_to_trash">Move to trash %s?</string>
     <string name="delete_record">Delete the record %s?</string>
     <string name="delete_record_forever">Delete record %s forever?</string>
 	<plurals name="delete_selected_records">
@@ -102,8 +97,7 @@
 	<string name="all_records_deleted">All records deleted successfully</string>
 	<string name="failed_to_delete_all_records">Failed to delete all records</string>
 	<string name="please_select_record_to_share">Please select a record to share</string>
-	<string name="record_name">New name</string>
-	<string name="update_record_name">Update name</string>
+    <string name="update_record_name">Update name</string>
 	<string name="recording">Recording: %s</string>
 	<string name="recording_is_on">Recording is ON</string>
 	<string name="recording_progress">Recording&#8230;</string>
@@ -182,8 +176,7 @@
 	<string name="rec_name">Name:</string>
 	<string name="rec_format">Format:</string>
 	<string name="rec_duration">Duration:</string>
-	<string name="rec_frequency">Frequency:</string>
-	<string name="rec_size">Size:</string>
+    <string name="rec_size">Size:</string>
 	<string name="rec_created">Created:</string>
 	<string name="rec_location">File location:</string>
 	<string name="naming">Naming:</string>
@@ -199,11 +192,9 @@
 	<string name="not_found_in_the_app">Not found in the app</string>
 	<string name="in_trash">In the trash</string>
 
-	<string name="app_settings">App settings:</string>
     <string name="recording_settings">Recording settings</string>
-	<string name="other_settings">Other:</string>
 
-	<string name="today">Today</string>
+    <string name="today">Today</string>
 	<string name="yesterday">Yesterday</string>
 
 	<string name="btn_save">Save</string>
@@ -214,16 +205,13 @@
 	<string name="btn_no">No</string>
 	<string name="btn_play">Play</string>
 	<string name="btn_deny">Deny</string>
-	<string name="btn_allow">Allow</string>
-	<string name="btn_details">Details</string>
+    <string name="btn_details">Details</string>
 	<string name="btn_get_started">Get started</string>
 	<string name="btn_apply">Apply</string>
 	<string name="btn_reset">Reset</string>
 	<string name="btn_recommended">Recommended</string>
-	<string name="btn_next">Next</string>
-	<string name="btn_dismiss">Dismiss</string>
-	<string name="btn_confirm">Confirm</string>
-	<string name="view">View</string>
+    <string name="btn_dismiss">Dismiss</string>
+    <string name="view">View</string>
 	<string name="view_records">View records</string>
 	<string name="move_records_needed">Move records needed</string>
 	<string name="moving_record">Moving record: %s</string>

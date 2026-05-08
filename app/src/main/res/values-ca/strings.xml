@@ -4,22 +4,19 @@
 	<string name="settings">Configuració</string>
 	<string name="setup">Configuració</string>
 	<string name="welcome_1">Us donem la benvinguda a una aplicació senzilla i ràpida</string>
-	<string name="title_1">Gravadora d\'àudio</string>
-	<string name="rate_app">Valoreu l\'aplicació</string>
+    <string name="rate_app">Valoreu l\'aplicació</string>
 	<string name="store_records_public">Emmagatzema les gravacions en un directori públic</string>
 	<string name="record_in_stereo">Grava en estèreo</string>
 	<string name="keep_screen_on">Manté la pantalla encesa mentre es grava</string>
 	<string name="total_duration">Durada total gravada: %s</string>
 	<string name="total_record_count">Nombre total de gravacions: %d</string>
 	<string name="available_space">Espai disponible: %s</string>
-	<string name="delete_all">Esborra totes les gravacions</string>
-	<string name="delete_all2">Esborra-ho tot</string>
+    <string name="delete_all2">Esborra-ho tot</string>
 	<string name="records_were_removed">No s\'han trobat alguns fitxers de gravació al directori de gravacions. Possiblement van ser eliminats o moguts.</string>
 	<string name="title_file_is_not_available">No es pot accedir al fitxer de la gravació.</string>
 	<string name="details_file_is_not_available">Malauradament, l\'aplicació ja no té accés a l\'emmagatzematge públic d\'Android.\nPodeu trobar el fitxer de gravació en aquesta ubicació del telèfon:\n%s</string>
 	<string name="warning">Avís.</string>
-	<string name="delete_this_record">Voleu esborrar aquesta gravació?</string>
-	<string name="move_record_to_trash">Vouleu moure %s a la paperera?</string>
+    <string name="move_record_to_trash">Vouleu moure %s a la paperera?</string>
 	<string name="delete_record_forever">Voleu esborrar la gravació %s per sempre?</string>
 	<plurals name="delete_selected_records">
 		<item quantity="one">Voleu tirar a la paperera %d gravació seleccionada?</item>
@@ -36,8 +33,7 @@
 	<string name="all_records_deleted">S\'han esborrat tots les gravacions correctament</string>
 	<string name="failed_to_delete_all_records">No s\'ha pogut esborrar totes les gravacions</string>
 	<string name="please_select_record_to_share">Seleccioneu una gravació per compartir</string>
-	<string name="record_name">Nom nou</string>
-	<string name="recording">Gravant: %s</string>
+    <string name="recording">Gravant: %s</string>
 	<string name="recording_is_on">S\'està gravant</string>
 	<string name="recording_progress">Gravant&#8230;</string>
 	<string name="recording_paused">En pausa</string>
@@ -114,8 +110,7 @@
 	<string name="rec_name">Nom:</string>
 	<string name="rec_format">Format:</string>
 	<string name="rec_duration">Durada:</string>
-	<string name="rec_frequency">Freqüència:</string>
-	<string name="rec_size">Mida:</string>
+    <string name="rec_size">Mida:</string>
 	<string name="rec_created">Creat:</string>
 	<string name="rec_location">Ubicació del fitxer:</string>
 	<string name="naming">Nomenclatura:</string>
@@ -130,11 +125,9 @@
 	<string name="found_in_the_app">S\'ha trobat a l\'aplicació</string>
 	<string name="not_found_in_the_app">No s\'ha trobat a l\'aplicació</string>
 	<string name="in_trash">A la paperera</string>
-	<string name="app_settings">Configuració de l\'aplicació:</string>
-	<string name="recording_settings">Configuració de gravació</string>
-	<string name="other_settings">Altres:</string>
+    <string name="recording_settings">Configuració de gravació</string>
 
-	<string name="today">Avui</string>
+    <string name="today">Avui</string>
 	<string name="yesterday">Ahir</string>
 
 	<string name="btn_save">Desa</string>
@@ -144,13 +137,11 @@
 	<string name="btn_no">No</string>
 	<string name="btn_play">Reprodueix</string>
 	<string name="btn_deny">Denega</string>
-	<string name="btn_allow">Permet</string>
-	<string name="btn_details">Detalls</string>
+    <string name="btn_details">Detalls</string>
 	<string name="btn_get_started">Comença</string>
 	<string name="btn_apply">Aplica</string>
 	<string name="btn_reset">Restableix</string>
-	<string name="btn_next">Següent</string>
-	<string name="view">Mostra</string>
+    <string name="view">Mostra</string>
 	<string name="view_records">Mostra les gravacions</string>
 	<string name="move_records_needed">Cal moure les gravacions</string>
 	<string name="moving_record">Movent la gravació: %s</string>
