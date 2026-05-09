@@ -303,7 +303,7 @@
 
 	<string name="error_unknown">未知的錯誤</string>
 	<string name="error_cant_create_file">無法建立檔案</string>
-	<string name="error_failed_to_start_recording">開始錄製失敗</string>
+	<string name="error_failed_to_start_recording">啟動錄音失敗</string>
 	<string name="error_invalid_output_file">無法輸出檔案</string>
 	<string name="error_file_exists">已存在相同名稱的檔案</string>
 	<string name="error_failed_to_rename">重新命名錄音失敗</string>
@@ -331,11 +331,11 @@
 	<string name="move">移動</string>
 	<string name="move_all">全部移動</string>
 
-	<string name="button_record">錄製</string>
-	<string name="button_stop">停止</string>
+    <string name="button_record">錄製</string>
+    <string name="button_stop">停止</string>
 	<string name="button_pause">暫停</string>
-	<string name="button_resume">繼續</string>
-	<string name="button_finish">完成</string>
+    <string name="button_resume">復原</string>
+    <string name="button_finish">完成</string>
 	<string name="legacy_app">舊版應用程式</string>
 	<string name="legacy_app_subtitle">切換至舊版應用程式介面</string>
 	<string name="switch_to_legacy">切換至舊版</string>
