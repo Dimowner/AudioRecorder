@@ -64,7 +64,6 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.RecordsDropDownMenu
 import com.dimowner.audiorecorder.v2.app.records.models.RecordDropDownMenuItemId
 import com.dimowner.audiorecorder.v2.app.records.models.SortDropDownMenuItemId
-import timber.log.Timber
 
 @Composable
 fun RecordsTopBar(
@@ -312,7 +311,7 @@ fun MultiSelectTopBar(
     TopAppBar(
         title = {
             Text(
-                text = stringResource(R.string.selected, selectedItemsCount),
+                text = stringResource(R.string.items_selected, selectedItemsCount),
                 color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 22.sp,
                 fontFamily = FontFamily(
@@ -550,7 +549,7 @@ fun MultiSelectMenu(
         }
 
         Text(
-            text = stringResource(R.string.selected, selectedItemsCount),
+            text = stringResource(R.string.items_selected, selectedItemsCount),
             color = MaterialTheme.colorScheme.onSurface,
             fontSize = 22.sp,
             fontFamily = FontFamily(

@@ -7,7 +7,65 @@
     <string name="rate_app">Valoreu l\'aplicació</string>
 	<string name="store_records_public">Emmagatzema les gravacions en un directori públic</string>
 	<string name="record_in_stereo">Grava en estèreo</string>
+
+	<string name="dynamic_theme_colors">Colors de tema dinàmics</string>
+	<string name="dark_theme">Tema fosc</string>
+	<string name="record_name_format">Format del nom de la gravació</string>
+	<string name="version">Versió %s</string>
+
+	<plurals name="years">
+		<item quantity="one">any</item>
+		<item quantity="other">anys</item>
+	</plurals>
+	<plurals name="days">
+		<item quantity="one">dia</item>
+		<item quantity="other">dies</item>
+	</plurals>
+
+	<!-- Confirmation for successful deletion. -->
+	<string name="msg_recording_permanently_deleted">La gravació \'%1$s\' s\'ha eliminat permanentment</string>
+	<!-- Confirmation for sending to trash (if no UNDO is provided) -->
+	<string name="msg_recording_moved_to_trash">La gravació \'%1$s\' s\'ha mogut a la paperera</string>
+	<!-- Confirmation for sending to trash multiple records. -->
+	<string name="msg_few_recordings_moved_to_trash">%1$d de %2$d gravacions mogudes a la paperera</string>
+	<!-- Error message when moving a recording to Trash fails -->
+	<string name="msg_move_to_trash_failed">No s\'ha pogut moure la gravació a la paperera</string>
+	<!-- Error message when moving a multiple recordings to Trash fails -->
+	<string name="msg_multiple_move_to_trash_failed">No s\'han pogut moure les gravacions a la paperera.</string>
+	<!-- Confirmation for canceling a recording session (progress discarded) -->
+	<string name="msg_recording_canceled">La gravació cancel·lada s\'ha mogut a la paperera</string>
+	<!-- Confirmation for successful restoration after UNDO is clicked -->
+	<string name="msg_recording_restored">La gravació \'%1$s\' s\'ha restaurat</string>
+
+	<string name="msg_record_renamed">La gravació s\'ha reanomenat a \'%1$s\'</string>
+
+	<!-- Confirmation for saving a new recording -->
+	<string name="msg_recording_saved_with_name">La gravació s\'ha desat amb el nom: %s</string>
+    <!-- Error message when saving a recording fails -->
+	<string name="msg_save_recording_failed">No s\'ha pogut desar la gravació.</string>
+	<!-- Error message for file operation failure -->
+	<string name="msg_file_operation_failed">L\'operació amb el fitxer ha fallat. Torneu-ho a provar</string>
+	<!-- Error message for empty name during rename/save -->
+	<string name="msg_name_cannot_be_empty">El nom no pot estar buit</string>
+    <!-- Permission Messages -->
+    <string name="msg_permission_microphone_denied">Es necessita el permís del micròfon per gravar àudio. Concediu el permís per utilitzar aquesta funció.</string>
+	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
+	<string name="action_undo">DESFÉS</string>
+	<!-- Generic error message for a common failure -->
+	<string name="msg_operation_failed_generic">L\'operació ha fallat</string>
+
+    <string name="recording_duration">Durada de la gravació</string>
+    <string name="recording_duration_subtitle">Comença automàticament un nou fitxer de gravació quan s\'arribi a aquest límit</string>
+    <string name="duration_picker_hint">Introduïu hores i minuts</string>
+    <string name="error_duration_at_least_one_minute">La durada ha de ser d\'almenys 1 minut</string>
+    <!-- Warnings & Constraints -->
+    <string name="warning_duration_limit_recommended">No es recomanen gravacions de més de 2 hores, ja que podríeu perdre tot el progrés gravat si es produeix un error</string>
+
 	<string name="keep_screen_on">Manté la pantalla encesa mentre es grava</string>
+	<string name="records_author_name">Nom de l\'autor de les gravacions</string>
+	<string name="records_author_name_hint">Nom de l\'autor</string>
+	<!-- Records Author name explanation -->
+	<string name="info_record_author_name">Estableix l\'etiqueta d\'artista/autor incrustada als metadades de cada nou fitxer de gravació. Aquest nom apareixerà als reproductors de música i als gestors de fitxers.</string>
 	<string name="total_duration">Durada total gravada: %s</string>
 	<string name="total_record_count">Nombre total de gravacions: %d</string>
 	<string name="available_space">Espai disponible: %s</string>
@@ -16,7 +74,8 @@
 	<string name="title_file_is_not_available">No es pot accedir al fitxer de la gravació.</string>
 	<string name="details_file_is_not_available">Malauradament, l\'aplicació ja no té accés a l\'emmagatzematge públic d\'Android.\nPodeu trobar el fitxer de gravació en aquesta ubicació del telèfon:\n%s</string>
 	<string name="warning">Avís.</string>
-    <string name="move_record_to_trash">Vouleu moure %s a la paperera?</string>
+    <string name="move_record_to_trash">Voleu moure %s a la paperera?</string>
+    <string name="delete_record">Voleu esborrar la gravació %s?</string>
 	<string name="delete_record_forever">Voleu esborrar la gravació %s per sempre?</string>
 	<plurals name="delete_selected_records">
 		<item quantity="one">Voleu tirar a la paperera %d gravació seleccionada?</item>
@@ -30,9 +89,10 @@
 	<string name="recording_feature_disabled">Funció de gravació desactivada</string>
 	<string name="restore_record">Voleu restaurar la gravació %s?</string>
 	<string name="delete_all_records">Voleu esborrar tots els registres?</string>
-	<string name="all_records_deleted">S\'han esborrat tots les gravacions correctament</string>
+	<string name="all_records_deleted">S\'han esborrat totes les gravacions correctament</string>
 	<string name="failed_to_delete_all_records">No s\'ha pogut esborrar totes les gravacions</string>
 	<string name="please_select_record_to_share">Seleccioneu una gravació per compartir</string>
+    <string name="update_record_name">Actualitza el nom</string>
     <string name="recording">Gravant: %s</string>
 	<string name="recording_is_on">S\'està gravant</string>
 	<string name="recording_progress">Gravant&#8230;</string>
@@ -40,7 +100,7 @@
 	<string name="playback">Reproducció: %s</string>
 	<string name="zero_time">00:00</string>
 	<string name="empty">Buit</string>
-	<string name="selected">%d seleccionat</string>
+	<string name="items_selected"> %d seleccionat</string>
 	<string name="no_records">No hi ha cap gravació</string>
 	<string name="no_bookmarks">No hi ha cap marcador</string>
 	<string name="bookmarks">Marcadors</string>
@@ -67,11 +127,11 @@
 	<string name="save_as">Anomena i desa&#8230;</string>
 	<string name="downloading">Baixant: %s</string>
 	<plurals name="downloading_success_count">
-		<item quantity="one">S\'ha copiat %d gravacions correctament</item>
+		<item quantity="one">S\'ha copiat %d gravació correctament</item>
 		<item quantity="other">S\'han copiat %d gravacions correctament</item>
 	</plurals>
 	<plurals name="move_records_success_count">
-		<item quantity="one">S\'ha mogut %d gravació mogut correctament</item>
+		<item quantity="one">S\'ha mogut %d gravació correctament</item>
 		<item quantity="other">S\'han mogut %d gravacions correctament</item>
 	</plurals>
 	<string name="downloading_success_and_fail_count">S\'han copiat %d gravacions correctament i n\'han fallat %d</string>
@@ -87,6 +147,7 @@
 		<item quantity="other">No s\'han pogut moure %d gravacions</item>
 	</plurals>
 	<string name="record_will_be_copied_into_downloads">Es copiarà la gravació a la carpeta Baixades</string>
+	<string name="record_name_will_be_copied_into_downloads">La gravació \'%s\' es copiarà al directori de Baixades</string>
 	<string name="move_record_failed">No s\'ha pogut moure: %s</string>
 	<string name="downloading_failed">No s\'ha pogut copiar: %s</string>
 	<string name="downloading_failed_file_already_exists">No s\'ha pogut copiar. Ja existeix un fitxer amb el nom %s</string>
@@ -134,6 +195,7 @@
 	<string name="btn_cancel">Cancel·la</string>
 	<string name="btn_yes">Sí</string>
 	<string name="btn_ok">D\'acord</string>
+	<string name="btn_got_it">Entès</string>
 	<string name="btn_no">No</string>
 	<string name="btn_play">Reprodueix</string>
 	<string name="btn_deny">Denega</string>
@@ -141,11 +203,13 @@
 	<string name="btn_get_started">Comença</string>
 	<string name="btn_apply">Aplica</string>
 	<string name="btn_reset">Restableix</string>
+	<string name="btn_recommended">Recomanat</string>
+    <string name="btn_dismiss">Descarta</string>
     <string name="view">Mostra</string>
 	<string name="view_records">Mostra les gravacions</string>
 	<string name="move_records_needed">Cal moure les gravacions</string>
 	<string name="moving_record">Movent la gravació: %s</string>
-	<string name="moving_record_cancel">S\'ha cancel·lat la moguda</string>
+	<string name="moving_record_cancel">S\'ha cancel·lat el trasllat</string>
 	<string name="move_records_info">Algunes de les gravacions encara estan desades a l\'emmagatzematge públic. Aviat l\'emmagatzematge públic ja no estarà disponible per a l\'aplicació. Cal moure aquestes gravacions al directori privat de l\'aplicació.</string>
 	<string name="info_format"><b>M4a</b> està codificat amb el còdec d\'àudio AAC, té bona qualitat i una mida petita. <b>(recomanat)</b>
 		\n<b>Wav</b> és un format de dades d\'àudio sense compressió. Ocupa molt més espai que altres formats. Es necessita en casos específics.
@@ -172,7 +236,7 @@ La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transporta
 <br/><b>8kHz</b> té menys amplada de banda que els sistemes telefònics moderns. No és adequat per a cap tasca important d\'enregistrament.
 ]]></string>
 
-	<string name="info_bitrate"><b>Taxa de bits</b>	és la mida de dades per segon de so. Afecta directament la qualitat de la gravació i la mida del fitxer.
+	<string name="info_bitrate"><b>Taxa de bits</b> és la mida de dades per segon de so. Afecta directament la qualitat de la gravació i la mida del fitxer.
 		\n<b>256 kbps</b> bona qualitat.
 		\n<b>192 kbps</b> qualitat mitjana.
 		\n<b>128 kbps</b> qualitat de gamma mitjana. Taxa de bits comuna per a podcasts. <b>(recomanat)</b>
@@ -193,6 +257,19 @@ La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transporta
 		<b>Estèreo</b> s\'enregistren dos canals separats. Això vol dir que cada altaveu estèreo té un senyal de so diferent. <b>(recomanat)</b>
 		\n<b>Mono</b> s\'enregistra un sol canal de senyal. Es pot reproduir a través de diversos altaveus, però tots reprodueixen la mateixa còpia del senyal.
 	</string>
+
+    <string name="info_channels_html"><![CDATA[
+<b>Estèreo (Doble canal):</b> Enregistra dos canals d\'àudio independents per crear una sensació d\'espai i direcció. <b>(Recomanat)</b>
+<br/><br/><b>Mono (Canal únic):</b> Enregistra un sol canal d\'àudio. El mateix senyal es reprodueix per tots els altaveus.
+]]></string>
+
+    <string name="info_audio_source_html"><![CDATA[
+<b>Per defecte:</b> La configuració recomanada pel fabricant. Normalment es comporta com l\'opció <b>Micròfon</b>, però permet al dispositiu aplicar la seva pròpia optimització de maquinari.
+<br/><br/><b>Micròfon:</b> La configuració estàndard del micròfon. Millor per a gravació general. Equilibra el volum de la veu automàticament mentre capta l\'atmosfera natural dels voltants.
+<br/><br/><b>Comunicació de veu:</b> Dissenyat específicament per a la claredat de la veu humana. Millor per a Bluetooth, ja que activa la cancel·lació de soroll i d\'eco.
+<br/><br/><b>Sense processar:</b> Captura l\'àudio en brut sense cap filtre ni ajust del sistema. Sense eliminació de soroll de fons ni anivellament del volum. Millor per a ús professional o d\'alta fidelitat.
+]]></string>
+
 	<string name="info_3gp"><b>3gp</b> format de contenidor multimèdia desenvolupat per a serveis de telecomunicacions mòbils. Feu-lo servir si necessiteu estalviar espai.</string>
 	<string name="info_m4a"><b>M4a</b> format codificat amb el còdec d\'àudio AAC, té bona qualitat i una mida de fitxer petita. <b>(recomanat)</b></string>
 	<string name="info_wav"><b>Wav</b> format de dades d\'àudio sense compressió. Ocupa molt més espai que altres formats. Només és necessari en casos específics.</string>
@@ -200,11 +277,11 @@ La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transporta
 	<string name="info_mono"><b>Mono</b> s\'enregistra un sol canal de senyal. Es pot reproduir en diversos altaveus, però tots reprodueixen la mateixa còpia del senyal.</string>
 	<string name="info_bitrate_48"><b>48 kbps</b> és generalment acceptable només per a discurs.</string>
 	<string name="info_bitrate_96"><b>96 kbps</b> és generalment utilitzat per a discurs o transmissió de baixa qualitat.</string>
-	<string name="info_bitrate_128"><b>128 kbps</b>	és una taxa de bits de qualitat de rang mitjà. Taxa de bits típica per a podcasts.<b>(recomanat)</b></string>
-	<string name="info_bitrate_192"><b>192 kbps</b>	és una taxa de bits de qualitat mitjana.</string>
-	<string name="info_bitrate_256"><b>256 kbps</b>	és una taxa de bits de bona qualitat.</string>
-	<string name="info_bitrate_288"><b>288 kbps</b>	és una taxa de bits de bona qualitat.</string>
-	<string name="info_sample_rate_8k"><b>8kHz</b> és una freqüència de mostreig amb menys amplada de banda que els sistemes telefònics modernes. No és adequat per a cap tasca seriosa de gravació.</string>
+	<string name="info_bitrate_128"><b>128 kbps</b> és una taxa de bits de qualitat de rang mitjà. Taxa de bits típica per a podcasts. <b>(recomanat)</b></string>
+	<string name="info_bitrate_192"><b>192 kbps</b> és una taxa de bits de qualitat mitjana.</string>
+	<string name="info_bitrate_256"><b>256 kbps</b> és una taxa de bits de bona qualitat.</string>
+	<string name="info_bitrate_288"><b>288 kbps</b> és una taxa de bits de molt bona qualitat.</string>
+	<string name="info_sample_rate_8k"><b>8kHz</b> és una freqüència de mostreig amb menys amplada de banda que els sistemes telefònics moderns. No és adequat per a cap tasca seriosa de gravació.</string>
 	<string name="info_sample_rate_16k"><b>16kHz</b> és millor que 8kHz.</string>
 	<string name="info_sample_rate_22k"><b>22kHz</b> és una freqüència de mostreig comuna per a taxes de bits baixes, com ara 64 kbps.</string>
 	<string name="info_sample_rate_32k"><b>32kHz</b> és una mica millor que 22kHz.</string>
@@ -215,6 +292,7 @@ La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transporta
 	<string name="channels">Nombre de canals:</string>
 	<string name="sample_rate">Freqüència de mostreig:</string>
 	<string name="size_per_min">%s Mb/min mida esperada</string>
+	<string name="value_khz">%d kHz</string>
 	<string name="value_hz">%d Hz</string>
 	<string name="value_kbps">%d kbps</string>
 	<string name="stereo">Estèreo</string>
@@ -223,8 +301,10 @@ La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transporta
 	<string name="feature_not_available_in_android_10">Aquesta funció ja no està disponible en l\'Android 10 o superior.</string>
 	<string name="size">%s Mb</string>
 	<string name="move_records">Mou %d gravacions</string>
+
 	<string name="error_unknown">Error inesperat</string>
 	<string name="error_cant_create_file">No es pot crear el fitxer</string>
+	<string name="error_failed_to_start_recording">No s\'ha pogut iniciar la gravació</string>
 	<string name="error_invalid_output_file">El fitxer de sortida no és vàlid</string>
 	<string name="error_file_exists">Ja existeix un fitxer amb aquest nom.</string>
 	<string name="error_failed_to_rename">No s\'ha pogut canviar el nom de la gravació</string>
@@ -235,21 +315,42 @@ La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transporta
 	<string name="error_permission_denied">Permís denegat</string>
 	<string name="error_process_waveform">No es pot dibuixar la forma d\'ona</string>
 	<string name="error_lost_records">Algunes de les gravacions s\'han esborrat o mogut</string>
+	<string name="broken_record_title">Gravació interrompuda</string>
+	<string name="broken_record_message">La gravació \'%s\' va ser interrompuda (possiblement a causa d\'un reinici del dispositiu) i el fitxer pot estar danyat. Voleu intentar restaurar-la?</string>
+	<string name="btn_restore">Restaura</string>
+	<string name="msg_broken_record_restored">La gravació \'%s\' s\'ha restaurat correctament</string>
+	<string name="error_broken_record_restore_failed">No s\'ha pogut restaurar la gravació. És possible que el fitxer sigui irrecuperable.</string>
 	<string name="error_no_available_space">Espai insuficient.</string>
 	<string name="error_failed_access_to_storage">Error d\'accés a l\'emmagatzematge de fitxers</string>
 	<string name="error_on_recording">Error en la gravació.</string>
 	<string name="error_failed_to_restore">No s\'ha pogut restaurar la gravació.</string>
 	<string name="error_failed_to_delete">No s\'ha pogut esborrar la gravació.</string>
+	<string name="error_recording_already_started">La gravació ja ha començat!</string>
+
 	<string name="move_public_storage_records_message">Cal moure les gravacions de l\'emmagatzematge públic</string>
 	<string name="later">Més tard</string>
 	<string name="move">Mou</string>
 	<string name="move_all">Mou-ho tot</string>
 
+	<string name="button_record">Grava</string>
+	<string name="button_stop">Atura</string>
+	<string name="button_pause">Pausa</string>
+	<string name="button_resume">Reprèn</string>
+	<string name="button_finish">Finalitza</string>
+	<string name="legacy_app">Aplicació antiga</string>
+	<string name="legacy_app_subtitle">Canvia a la interfície antiga de l\'aplicació</string>
+	<string name="switch_to_legacy">Canvia a l\'aplicació antiga</string>
+	<string name="new_audio_recorder_available">Nova gravadora d\'àudio disponible</string>
+	<string name="try_new_app_subtitle">Conserva totes les vostres gravacions — podeu tornar enrere en qualsevol moment</string>
+	<string name="try_new_app">Prova la nova aplicació</string>
+
+	<!-- Shown in the 'About' window of the app. -->
 	<string name="about_body"><![CDATA[
-    	<b>Gravadora d\'àudio 2023</b><br>
+    	<b>Gravadora d\'àudio 2026</b><br>
 		Versió %s
 	]]></string>
 	<!--<a href="http://#/">Lloc de l\'aplicació</a>-->
+
 	<string-array name="theme_colors2">
 		<item>Tema Blau Gris</item>
 		<item>Tema Negre</item>
@@ -261,11 +362,13 @@ La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transporta
 		<item>Tema Vermell</item>
 		<item>Tema Marró</item>
 	</string-array>
-	<string-array name="formats2">
+
+	<string-array name="formats2" translatable="false">
 		<item>M4a</item>
 		<item>Wav</item>
 		<item>3gp</item>
 	</string-array>
+
 	<string-array name="bit_rates2">
 		<!--		<item>24 kbps</item>-->
 		<item>48 kbps</item>
@@ -290,9 +393,36 @@ La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transporta
 		<item>Mono</item>
 	</string-array>
 
-	<string name="app_widget_description">Widget per comenar a gravar</string>
-
+    <!-- Time duration days, hours and minutes. Example: "1d 2h 30m" -->
     <string name="duration_days_hours_minutes">%1$dd %2$dh %3$dmin</string>
+    <!-- Time duration hours and minutes. Examples: "2h 30m", "5h 0m" -->
     <string name="duration_hours_and_minutes">%1$dh %2$dmin</string>
+    <!-- Time duration minutes only. Examples: "45m", or "0m"-->
     <string name="duration_minutes">%1$dmin</string>
+
+    <string name="app_widget_description">Widget per començar a gravar</string>
+
+    <string name="bluetooth_microphone_available">Micròfon Bluetooth disponible</string>
+    <string name="audio_source">Font d\'àudio</string>
+    <string name="audio_source_default">Per defecte</string>
+    <string name="audio_source_mic">Micròfon</string>
+    <string name="audio_source_voice_communication">Comunicació de veu</string>
+    <string name="audio_source_unprocessed">Sense processar</string>
+
+    <!-- Database migration -->
+    <string name="database_update_in_progress">Actualització de la base de dades en curs</string>
+
+    <!-- Audio Playback Notification channel name -->
+    <string name="notification_channel_playback_name">Reproducció d\'àudio</string>
+    <!-- Audio Playback Notification channel description -->
+    <string name="notification_channel_playback_description">Mostra el progrés de reproducció d\'àudio</string>
+    <!-- Audio Recording Notification channel name -->
+    <string name="notification_channel_recording_name">Gravació d\'àudio</string>
+    <!-- Audio Recording Notification channel description -->
+    <string name="notification_channel_recording_description">Mostra el progrés de la gravació d\'àudio</string>
+    <!-- Recording Notification Status Messages -->
+    <string name="status_recording_active">Gravació en curs</string>
+    <string name="status_recording_paused">Gravació en pausa</string>
+    <!-- Navigate back button description -->
+    <string name="navigate_back">Torna enrere</string>
 </resources>

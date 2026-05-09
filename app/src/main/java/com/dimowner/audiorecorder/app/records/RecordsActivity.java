@@ -321,7 +321,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 			@Override
 			public void onSelectDeselect(int selectedCount) {
-				txtSelectedCount.setText(getResources().getString(R.string.selected, selectedCount));
+				txtSelectedCount.setText(getResources().getString(R.string.items_selected, selectedCount));
 			}
 		});
 		recyclerView.setAdapter(adapter);

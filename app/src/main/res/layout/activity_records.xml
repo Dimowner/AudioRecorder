@@ -135,7 +135,7 @@
 				android:paddingEnd="@dimen/spacing_normal"
 				android:paddingRight="@dimen/spacing_normal"
 				android:textColor="@color/text_primary_light"
-				android:text="@string/selected"
+				android:text="@string/items_selected"
 				/>
 
 		<ImageButton

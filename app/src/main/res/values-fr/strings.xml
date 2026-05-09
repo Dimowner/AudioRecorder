@@ -7,56 +7,100 @@
 	<string name="welcome_1">Bienvenue dans une application simple et rapide</string>
     <string name="rate_app">Noter l\'application</string>
 	<string name="store_records_public">Stocker les enregistrements dans un dossier public</string>
-	<string name="record_in_stereo">Enregister en stéréo</string>
+	<string name="record_in_stereo">Enregistrer en stéréo</string>
+
+	<string name="dynamic_theme_colors">Couleurs de thème dynamiques</string>
+	<string name="dark_theme">Thème sombre</string>
+	<string name="record_name_format">Format du nom d\'enregistrement</string>
+	<string name="version">Version %s</string>
+
+	<plurals name="years">
+		<item quantity="one">an</item>
+		<item quantity="other">ans</item>
+	</plurals>
+	<plurals name="days">
+		<item quantity="one">jour</item>
+		<item quantity="other">jours</item>
+	</plurals>
+
+	<!-- Confirmation for successful deletion. -->
+	<string name="msg_recording_permanently_deleted">Enregistrement \'%1$s\' supprimé définitivement</string>
+	<string name="msg_recording_moved_to_trash">Enregistrement \'%1$s\' déplacé dans la corbeille</string>
+	<string name="msg_few_recordings_moved_to_trash">%1$d sur %2$d enregistrements déplacés dans la corbeille</string>
+	<string name="msg_move_to_trash_failed">Échec du déplacement de l\'enregistrement dans la corbeille</string>
+	<string name="msg_multiple_move_to_trash_failed">Échec du déplacement des enregistrements dans la corbeille.</string>
+	<string name="msg_recording_canceled">L\'enregistrement annulé a été déplacé dans la corbeille</string>
+	<string name="msg_recording_restored">Enregistrement \'%1$s\' restauré</string>
+	<string name="msg_record_renamed">Enregistrement renommé en \'%1$s\'</string>
+	<string name="msg_recording_saved_with_name">Enregistrement sauvegardé sous le nom : %s</string>
+	<string name="msg_save_recording_failed">Échec de la sauvegarde de l\'enregistrement.</string>
+	<string name="msg_file_operation_failed">Opération de fichier échouée. Veuillez réessayer</string>
+	<string name="msg_name_cannot_be_empty">Le nom ne peut pas être vide</string>
+	<string name="msg_permission_microphone_denied">La permission du microphone est requise pour enregistrer l\'audio. Veuillez accorder la permission pour utiliser cette fonctionnalité.</string>
+	<string name="action_undo">ANNULER</string>
+	<string name="msg_operation_failed_generic">L\'opération a échoué</string>
+
+	<string name="recording_duration">Durée d\'enregistrement</string>
+	<string name="recording_duration_subtitle">Démarrer automatiquement un nouveau fichier d\'enregistrement lorsque cette limite est atteinte</string>
+	<string name="duration_picker_hint">Saisir les heures et les minutes</string>
+	<string name="error_duration_at_least_one_minute">La durée doit être d\'au moins 1 minute</string>
+	<string name="warning_duration_limit_recommended">Les enregistrements de plus de 2 heures ne sont pas recommandés car vous risquez de perdre toute progression en cas d\'erreur</string>
+
 	<string name="keep_screen_on">Laisser l\'écran allumé pendant l\'enregistrement</string>
-	<string name="total_duration">Temps d\'enregistrement total: %s</string>
-	<string name="total_record_count">Nombre d\'enregistrements total: %d</string>
-	<string name="available_space">Place disponible: %s</string>
+	<string name="records_author_name">Nom de l\'auteur des enregistrements</string>
+	<string name="records_author_name_hint">Nom de l\'auteur</string>
+	<string name="info_record_author_name">Définit le tag artiste/auteur intégré dans les métadonnées de chaque nouveau fichier d\'enregistrement. Ce nom apparaîtra dans les lecteurs de musique et les gestionnaires de fichiers.</string>
+	<string name="total_duration">Temps d\'enregistrement total : %s</string>
+	<string name="total_record_count">Nombre d\'enregistrements total : %d</string>
+	<string name="available_space">Place disponible : %s</string>
     <string name="delete_all2">Tout supprimer</string>
-	<string name="records_were_removed">Un ou plusieurs enregistrements n\'ont pas été trouvé dans le dossier des enregistrements. Ils ont potentiellement été déplacé ou supprimé.</string>
+	<string name="records_were_removed">Un ou plusieurs enregistrements n\'ont pas été trouvés dans le dossier des enregistrements. Ils ont potentiellement été déplacés ou supprimés.</string>
 	<string name="title_file_is_not_available">Le fichier d\'enregistrement n\'est pas accessible !</string>
-	<string name="details_file_is_not_available">Malheureusement, l\'application n\'a plus accès au stockage public d\'Android.\nVous pouvez retrouver le fichier d\'enregistrement dans votre ordiphone à cet endroit: \n%s</string>
-	<string name="warning">Attention!</string>
+	<string name="details_file_is_not_available">Malheureusement, l\'application n\'a plus accès au stockage public d\'Android.\nVous pouvez retrouver le fichier d\'enregistrement dans votre ordiphone à cet endroit :\n%s</string>
+	<string name="warning">Attention !</string>
     <string name="move_record_to_trash">Déplacer %s dans la corbeille ?</string>
-	<string name="delete_record_forever">Supprimer l\'enregistrement %s pour toujours ?</string>
+	<string name="delete_record">Supprimer l\'enregistrement %s ?</string>
+	<string name="delete_record_forever">Supprimer l\'enregistrement %s définitivement ?</string>
 	<plurals name="delete_selected_records">
-		<item quantity="one">Déplacer les %d l\'enregistrement sélectionné à la corbeille ?</item>
-		<item quantity="many">Déplacer les %d enregistrements sélectionnés à la corbeille ?</item>
+		<item quantity="one">Déplacer %d enregistrement sélectionné dans la corbeille ?</item>
+		<item quantity="other">Déplacer %d enregistrements sélectionnés dans la corbeille ?</item>
 	</plurals>
 	<plurals name="download_selected_records">
-		<item quantity="one">Copier les %d l\'enregistrement sélectionné dans le dossier \'Downloads\' ?</item>
-		<item quantity="many">Copier les %d enregistrements sélectionnés dans le dossier \'Downloads\' ?</item>
+		<item quantity="one">Copier %d enregistrement sélectionné dans le dossier \'Downloads\' ?</item>
+		<item quantity="other">Copier %d enregistrements sélectionnés dans le dossier \'Downloads\' ?</item>
 	</plurals>
 	<string name="start_recording">Débuter l\'enregistrement</string>
-	<string name="recording_feature_disabled">Fonctionnalité d\'enregistrement désactivé</string>
+	<string name="recording_feature_disabled">Fonctionnalité d\'enregistrement désactivée</string>
 	<string name="restore_record">Récupérer l\'enregistrement %s ?</string>
-	<string name="delete_all_records">Supprimer tout les enregistrements ?</string>
-	<string name="failed_to_delete_all_records">Échec de la suppression de tout les enregistrements</string>
+	<string name="delete_all_records">Supprimer tous les enregistrements ?</string>
+	<string name="all_records_deleted">Tous les enregistrements ont été supprimés avec succès</string>
+	<string name="failed_to_delete_all_records">Échec de la suppression de tous les enregistrements</string>
 	<string name="please_select_record_to_share">Veuillez sélectionner un enregistrement à partager</string>
-    <string name="recording">Enregistrement: %s</string>
+    <string name="update_record_name">Mettre à jour le nom</string>
+	<string name="recording">Enregistrement : %s</string>
 	<string name="recording_is_on">L\'enregistrement a débuté</string>
 	<string name="recording_progress">Enregistrement&#8230;</string>
 	<string name="recording_paused">En pause</string>
-	<string name="playback">Lecture: %s</string>
+	<string name="playback">Lecture : %s</string>
 	<string name="zero_time">00:00</string>
 	<string name="empty">Vide</string>
-	<string name="selected">%d sélectionné</string>
+	<string name="items_selected">%d sélectionné</string>
 	<string name="no_records">Pas d\'enregistrements</string>
-	<string name="no_bookmarks">Pas de marque pages</string>
-	<string name="bookmarks">Marque pages</string>
-	<string name="share_record">Partager l\'enregistrement: %s</string>
+	<string name="no_bookmarks">Pas de marque-pages</string>
+	<string name="bookmarks">Marque-pages</string>
+	<string name="share_record">Partager l\'enregistrement : %s</string>
 	<plurals name="share_records_count">
-		<item quantity="one">Partager les %d l\'enregistrement</item>
-		<item quantity="many">Partager les %d enregistrements</item>
+		<item quantity="one">Partager %d enregistrement</item>
+		<item quantity="other">Partager %d enregistrements</item>
 	</plurals>
 	<string name="import_progress">Importation du fichier audio&#8230;</string>
 	<string name="btn_import">Importer</string>
 	<string name="processing_canceled">Le processus a été annulé</string>
-	<string name="record_calculation">Calcul de la forme d\'onde</string>
-	<string name="record_processing">Calcul du dessin de la forme d\'onde</string>
+	<string name="record_calculation">Calcul de la forme d\'onde&#8230;</string>
+	<string name="record_processing">Calcul du dessin de la forme d\'onde&#8230;</string>
 	<string name="request">Requête ou commentaire</string>
 	<string name="email_clients_not_found">Aucun client de courriel trouvé</string>
-	<string name="send_email">Envoyer par courriel</string>
+	<string name="send_email">Envoyer par courriel&#8230;</string>
 	<string name="open_record_with">Ouvrir %s avec</string>
 	<string name="delete">Supprimer</string>
 	<string name="restore">Récupérer</string>
@@ -65,37 +109,38 @@
 	<string name="dont_ask_again">Ne pas me redemander</string>
 	<string name="open_with">Ouvrir avec&#8230;</string>
 	<string name="save_as">Enregistrer sous&#8230;</string>
-	<string name="downloading">Téléchargement: %s</string>
+	<string name="downloading">Copie : %s</string>
 	<plurals name="downloading_success_count">
-		<item quantity="one">Les %d l\'enregistrement a bien été copié</item>
-		<item quantity="many">Les %d enregistrements ont bien été copié</item>
+		<item quantity="one">%d enregistrement copié avec succès</item>
+		<item quantity="other">%d enregistrements copiés avec succès</item>
 	</plurals>
 	<plurals name="move_records_success_count">
-		<item quantity="one">Les %d l\'enregistrement a bien été déplacé</item>
-		<item quantity="many">Les %d enregistrements ont bien été déplacé</item>
+		<item quantity="one">%d enregistrement déplacé avec succès</item>
+		<item quantity="other">%d enregistrements déplacés avec succès</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d enregistrements ont bien été copié et %d ont échoué</string>
-	<string name="moving_records_success_and_fail_count">%d enregistrements ont bien été déplacé et %d ont échoué</string>
-	<string name="downloading_success">%s copiés dans le dossier \'Downloads\'</string>
-	<string name="move_record_success">%s déplacés dans le dossier \'Downloads\'</string>
+	<string name="downloading_success_and_fail_count">%d enregistrements copiés avec succès et %d ont échoué</string>
+	<string name="moving_records_success_and_fail_count">%d enregistrements déplacés avec succès et %d ont échoué</string>
+	<string name="downloading_success">%s copié dans le dossier \'Downloads\'</string>
+	<string name="move_record_success">%s déplacé dans le dossier privé de l\'application</string>
 	<plurals name="downloading_failed_count">
-		<item quantity="one">Échec de la copie des %d l\'enregistrement</item>
-		<item quantity="many">Échec de la copie des %d enregistrements</item>
+		<item quantity="one">Échec de la copie de %d enregistrement</item>
+		<item quantity="other">Échec de la copie de %d enregistrements</item>
 	</plurals>
 	<plurals name="move_records_failed_count">
-		<item quantity="one">Échec du déplacement des %d l\'enregistrement</item>
-		<item quantity="many">Échec du déplacement des %d enregistrements</item>
+		<item quantity="one">Échec du déplacement de %d enregistrement</item>
+		<item quantity="other">Échec du déplacement de %d enregistrements</item>
 	</plurals>
 	<string name="record_will_be_copied_into_downloads">L\'enregistrement sera copié dans le dossier \'Downloads\'</string>
-	<string name="move_record_failed">Échec du déplacement: %s</string>
-	<string name="downloading_failed">Échec de la copie: %s</string>
+	<string name="record_name_will_be_copied_into_downloads">L\'enregistrement \'%s\' sera copié dans le dossier \'Downloads\'</string>
+	<string name="move_record_failed">Échec du déplacement : %s</string>
+	<string name="downloading_failed">Échec de la copie : %s</string>
 	<string name="downloading_failed_file_already_exists">Échec de la copie. Un fichier nommé %s existe déjà</string>
-	<string name="downloading_cancel">Annuler la copie</string>
+	<string name="downloading_cancel">Copie annulée</string>
 	<string name="share">Partager</string>
 	<string name="ask_to_rename">Afficher un dialogue pour renommer l\'enregistrement après qu\'il soit terminé</string>
 	<string name="record_moved_into_trash">L\'enregistrement a été déplacé dans la corbeille</string>
-	<string name="selected_records_moved_into_trash">Les enregistrements sélectionnés ont été déplacé dans la corbeille</string>
-	<string name="all_records_deleted_successfully">Tout les enregistrements ont bien été supprimé</string>
+	<string name="selected_records_moved_into_trash">Les enregistrements sélectionnés ont été déplacés dans la corbeille</string>
+	<string name="all_records_deleted_successfully">Tous les enregistrements ont bien été supprimés</string>
 	<string name="record_deleted_successfully">L\'enregistrement a bien été supprimé</string>
 	<string name="record_restored_successfully">L\'enregistrement a bien été récupéré</string>
 	<string name="record_imported_successfully">L\'enregistrement a bien été importé</string>
@@ -104,22 +149,22 @@
 	<string name="by_date_desc">Par date (le plus vieux)</string>
 	<string name="by_name">Par nom (A-Z)</string>
 	<string name="by_name_desc">Par nom (Z-A)</string>
-	<string name="by_duration">Par durée (le pus long)</string>
+	<string name="by_duration">Par durée (le plus long)</string>
 	<string name="by_duration_desc">Par durée (le plus court)</string>
-	<string name="need_write_permission">L\'application nécessite la permission d\'accéder au stockage public. Si non autorisé, les enregistrements seront stocké dans le dossier privé de l\'application</string>
-	<string name="rec_name">Nom:</string>
-	<string name="rec_format">Format:</string>
-	<string name="rec_duration">Durée:</string>
-    <string name="rec_size">Taille:</string>
-	<string name="rec_created">Crée le:</string>
-	<string name="rec_location">Chemin du fichier:</string>
-	<string name="naming">Nommage:</string>
+	<string name="need_write_permission">L\'application nécessite la permission d\'accéder au stockage public. Si non autorisé, les enregistrements seront stockés dans le dossier privé de l\'application</string>
+	<string name="rec_name">Nom :</string>
+	<string name="rec_format">Format :</string>
+	<string name="rec_duration">Durée :</string>
+    <string name="rec_size">Taille :</string>
+	<string name="rec_created">Créé le :</string>
+	<string name="rec_location">Chemin du fichier :</string>
+	<string name="naming">Nommage :</string>
 	<string name="private_dir_warning">Les enregistrements seront stockés dans le dossier privé de l\'application qui n\'est pas accessible par d\'autres applications</string>
 	<string name="public_dir_warning">Les enregistrements seront stockés dans un dossier accessible aux autres applications</string>
 	<string name="lost_records">Enregistrements perdus</string>
 	<string name="trash">Corbeille</string>
 	<string name="trash_info">Les enregistrements dans la corbeille sont définitivement supprimés après 60 jours.</string>
-	<string name="file_browser">Explorateur de fichier</string>
+	<string name="file_browser">Explorateur de fichiers</string>
 	<string name="private_dir">Dossier privé</string>
 	<string name="public_dir">Dossier public</string>
 	<string name="found_in_the_app">Trouvé dans l\'application</string>
@@ -135,6 +180,7 @@
 	<string name="btn_cancel">Annuler</string>
 	<string name="btn_yes">Oui</string>
 	<string name="btn_ok">Ok</string>
+	<string name="btn_got_it">Compris</string>
 	<string name="btn_no">Non</string>
 	<string name="btn_play">Lancer</string>
 	<string name="btn_deny">Refuser</string>
@@ -142,90 +188,105 @@
 	<string name="btn_get_started">Démarrer</string>
 	<string name="btn_apply">Appliquer</string>
 	<string name="btn_reset">Réinitialiser</string>
+	<string name="btn_recommended">Recommandé</string>
+	<string name="btn_dismiss">Fermer</string>
     <string name="view">Voir</string>
 	<string name="view_records">Voir les enregistrements</string>
 	<string name="move_records_needed">Déplacement des enregistrements nécessaire</string>
-	<string name="moving_record">Déplacement des enregistrements: %s</string>
+	<string name="moving_record">Déplacement des enregistrements : %s</string>
 	<string name="moving_record_cancel">Déplacement annulé</string>
-	<string name="move_records_info">Plusieurs de vos enregistrements sont toujours stockés dans le stockage pulic. bientôt, le stockage public ne sera plus disponible pour l\'application. Il est nécessaire de déplacer ces enregistrements vers le dossier privé de l\'application.</string>
-	<string name="info_format"><b>M4a</b>: encodé avec le codec audio AAC, possède une bonne qualité pour une petite taille. <b>(recommandé)</b>
-		\n<b>Wav</b>: format audio non compressé. Prend plus de place que les autres formats. Il est nécessaire pour des cas spécifiques.
-		\n<b>3gp</b>: format multimédia développé pour les communications téléphoniques. Utilisez ceci si vous avez besoin de sauver de l\'espace.
+	<string name="move_records_info">Plusieurs de vos enregistrements sont toujours stockés dans le stockage public. Bientôt, le stockage public ne sera plus disponible pour l\'application. Il est nécessaire de déplacer ces enregistrements vers le dossier privé de l\'application.</string>
+	<string name="info_format"><b>M4a</b> : encodé avec le codec audio AAC, possède une bonne qualité pour une petite taille. <b>(recommandé)</b>
+		\n<b>Wav</b> : format audio non compressé. Prend plus de place que les autres formats. Il est nécessaire pour des cas spécifiques.
+		\n<b>3gp</b> : format multimédia développé pour les communications téléphoniques. Utilisez ceci si vous avez besoin de sauver de l\'espace.
 	</string>
 	<string name="info_format_html"><![CDATA[
-<b>M4a</b>: encodé avec le codec audio AAC, possède une bonne qualité pour une petite taille. <b>(recommandé)</b>
-<br/><br/><b>Wav</b>: format audio non compressé. Prend plus de place que les autres formats. Il est nécessaire pour des cas spécifiques.
-<br/><b>3gp</b>: format multimédia développé pour les communications téléphoniques. Utilisez ceci si vous avez besoin de sauver de l\'espace.
+<b>M4a</b> : encodé avec le codec audio AAC, possède une bonne qualité pour une petite taille. <b>(recommandé)</b>
+<br/><br/><b>Wav</b> : format audio non compressé. Prend plus de place que les autres formats. Il est nécessaire pour des cas spécifiques.
+<br/><b>3gp</b> : format multimédia développé pour les communications téléphoniques. Utilisez ceci si vous avez besoin de sauver de l\'espace.
 ]]></string>
 
-	<string name="info_frequency">Le <b>taux d\'échantillonage</b> est le nombre d\'échantillons audio enregistré par seconde.
-		\n<b>48 kHz</b>: utilisé par les DVD.
-		\n<b>44,1 kHz</b>: utilisé par les CD audio. <b>(recommandé)</b>
-		\n<b>22 kHz</b>: taux d\'échantillonage populaire pour les débits binaires faibles comme le 64 kbps.
-		\n<b>8 kHz</b>: taux d\'échantillonage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Non approprié pour n\'import quelle usage sérieux.
+	<string name="info_frequency">Le <b>taux d\'échantillonnage</b> est le nombre d\'échantillons audio enregistrés par seconde.
+		\n<b>48 kHz</b> : utilisé par les DVD.
+		\n<b>44,1 kHz</b> : utilisé par les CD audio. <b>(recommandé)</b>
+		\n<b>22 kHz</b> : taux d\'échantillonnage populaire pour les débits binaires faibles comme le 64 kbps.
+		\n<b>8 kHz</b> : taux d\'échantillonnage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Non approprié pour n\'importe quelle utilisation sérieuse.
 	</string>
 
 	<string name="info_frequency_html"><![CDATA[
-Le <b>taux d\'échantillonage</b> est le nombre d\'échantillons audio enregistré par seconde.
-<br/><br/><b>48 kHz</b>: utilisé par les DVD.
-<br/><b>44,1 kHz</b>: utilisé par les CD audio. <b>(recommandé)</b>
-<br/><b>22 kHz</b>: taux d\'échantillonage populaire pour les débits binaires faibles comme le 64 kbps.
-<br/><b>8 kHz</b>: taux d\'échantillonage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Non approprié pour n\'import quelle usage sérieux.
+Le <b>taux d\'échantillonnage</b> est le nombre d\'échantillons audio enregistrés par seconde.
+<br/><br/><b>48 kHz</b> : utilisé par les DVD.
+<br/><b>44,1 kHz</b> : utilisé par les CD audio. <b>(recommandé)</b>
+<br/><b>22 kHz</b> : taux d\'échantillonnage populaire pour les débits binaires faibles comme le 64 kbps.
+<br/><b>8 kHz</b> : taux d\'échantillonnage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Non approprié pour n\'importe quelle utilisation sérieuse.
 ]]></string>
 
 	<string name="info_bitrate">Le <b>débit binaire</b> est la taille des données par seconde de son. Cela affecte directement la qualité sonore et la taille de l\'enregistrement.
-		\n<b>256 kbps</b>: bonne qualité.
-		\n<b>192 kbps</b>: qualité moyenne.
-		\n<b>128 kbps</b>: qualité de milieu de gamme. Débit commun pour les podcasts. <b>(Recommandé)</b>
-		\n<b>96 kbps</b>: généralement utilisé pour des discours ou de la diffusion en temps réel de basse qualité.
-		\n<b>48 kbps</b>: généralement uniquement utilisable pour les discours.
+		\n<b>256 kbps</b> : débit de bonne qualité.
+		\n<b>192 kbps</b> : débit de qualité moyenne.
+		\n<b>128 kbps</b> : débit de qualité intermédiaire. Débit commun pour les podcasts. <b>(recommandé)</b>
+		\n<b>96 kbps</b> : généralement utilisé pour des discours ou de la diffusion en temps réel de basse qualité.
+		\n<b>48 kbps</b> : généralement uniquement utilisable pour les discours.
 	</string>
 
 	<string name="info_bitrate_html"><![CDATA[
 Le <b>débit binaire</b> est la taille des données par seconde de son. Cela affecte directement la qualité sonore et la taille de l\'enregistrement.
-<br/><br/><b>256 kbps</b>: bonne qualité.
-<br/><b>192 kbps</b>: qualité moyenne.
-<br/><b>128 kbps</b>: qualité de milieu de gamme. Débit commun pour les podcasts. <b>(Recommandé)</b>
-<br/><b>96 kbps</b>: généralement utilisé pour des discours ou de la diffusion en temps réel de basse qualité.
-<br/><b>48 kbps</b>: généralement uniquement utilisable pour les discours.
+<br/><br/><b>256 kbps</b> : débit de bonne qualité.
+<br/><b>192 kbps</b> : débit de qualité moyenne.
+<br/><b>128 kbps</b> : débit de qualité intermédiaire. Débit commun pour les podcasts. <b>(recommandé)</b>
+<br/><b>96 kbps</b> : généralement utilisé pour des discours ou de la diffusion en temps réel de basse qualité.
+<br/><b>48 kbps</b> : généralement uniquement utilisable pour les discours.
 ]]></string>
 
-	<string name="info_channels"><b>Stéréo</b>: Deux canaux séparés sont enregistrés. Cela signifie que chaque haut-parleur stéréo produit un signal différent. <b>(recommandé)</b>
-		\n<b>Mono</b>: Un seul canal est enregistré. Il peut être écouté sur différents haut-parleurs, mais chaque haut-parleur produira le même signal.
+	<string name="info_channels"><b>Stéréo</b> : deux canaux séparés sont enregistrés. Cela signifie que chaque haut-parleur stéréo produit un signal différent. <b>(recommandé)</b>
+		\n<b>Mono</b> : un seul canal est enregistré. Il peut être écouté sur différents haut-parleurs, mais chaque haut-parleur produira le même signal.
 	</string>
-	<string name="info_3gp"><b>3gp</b>: format multimédia développé pour les communications téléphoniques. Utilisez ceci si vous avez besoin de sauver de l\'espace.</string>
-	<string name="info_m4a"><b>M4a</b>: encodé avec le codec audio AAC, possède une bonne qualité pour une petite taille. <b>(recommandé)</b></string>
-	<string name="info_wav"><b>Wav</b>: format audio non compressé. Prend plus de place que les autres formats. Il est nécessaire pour des cas spécifiques.</string>
-	<string name="info_stereo"><b>Stéréo</b>: Deux canaux séparés sont enregistrés. Cela signifie que chaque haut-parleur stéréo produit un signal différent. <b>(recommandé)</b></string>
-	<string name="info_mono"><b>Mono</b>: Un seul canal est enregistré. Il peut être écouté sur différents haut-parleurs, mais chaque haut-parleur produira le même signal.</string>
-	<string name="info_bitrate_48"><b>48 kbps</b>: généralement uniquement utilisable pour les discours.</string>
-	<string name="info_bitrate_96"><b>96 kbps</b>: généralement utilisé pour des discours ou de la diffusion en temps réel de basse qualité.</string>
-	<string name="info_bitrate_128"><b>128 kbps</b>: qualité de milieu de gamme. Débit commun pour les podcasts. <b>(Recommandé)</b></string>
-	<string name="info_bitrate_192"><b>192 kbps</b>: qualité moyenne.</string>
-	<string name="info_bitrate_256"><b>256 kbps</b>: bonne qualité.</string>
-	<string name="info_bitrate_288"><b>288 kbps</b>: bonne qualité.</string>
-	<string name="info_sample_rate_8k"><b>8 kHz</b>: taux d\'échantillonage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Non approprié pour n\'import quelle usage sérieux.</string>
-	<string name="info_sample_rate_16k"><b>16 kHz</b>: meilleur que 8 kHz.</string>
-	<string name="info_sample_rate_22k"><b>22 kHz</b>: taux d\'échantillonage populaire pour les débits binaires faibles comme le 64 kbps.</string>
-	<string name="info_sample_rate_32k"><b>32 kHz</b>: un peu meilleur que 22 kHz.</string>
-	<string name="info_sample_rate_44k"><b>44,1 kHz</b>: utilisé par les CD audio. <b>(recommandé)</b></string>
-	<string name="info_sample_rate_48k"><b>48 kHz</b>: utilisé par les DVD.</string>
-	<string name="recording_format">Format d\'enregistrement:</string>
-	<string name="bitrate">Débit binaire:</string>
-	<string name="channels">Nombre de canaux:</string>
-	<string name="sample_rate">Taux d\'échantillonage</string>
-	<string name="size_per_min">Taille attendu: %s Mb/min</string>
+	<string name="info_channels_html"><![CDATA[
+<b>Stéréo (double canal) :</b> Enregistre deux canaux audio indépendants pour créer une sensation d\'espace et de direction. <b>(recommandé)</b>
+<br/><br/><b>Mono (canal unique) :</b> Enregistre un seul canal audio. Le même signal est reproduit sur tous les haut-parleurs.
+]]></string>
+
+	<string name="info_audio_source_html"><![CDATA[
+<b>Par défaut :</b> Le réglage recommandé par le fabricant. Il se comporte généralement comme l\'option <b>Microphone</b>, mais permet à l\'appareil d\'appliquer son propre réglage matériel optimisé.
+<br/><br/><b>Microphone :</b> Le réglage standard du microphone. Idéal pour un enregistrement général. Il équilibre automatiquement le volume de la voix tout en capturant l\'atmosphère naturelle de l\'environnement.
+<br/><br/><b>Communication vocale :</b> Spécialement conçu pour la clarté de la voix humaine. Idéal pour le Bluetooth car il active la suppression du bruit et de l\'écho.
+<br/><br/><b>Non traité :</b> Capture l\'audio brut sans aucun filtre ni réglage système. Sans suppression du bruit de fond ni nivellement du volume. Idéal pour une utilisation haute-fidélité ou professionnelle.
+]]></string>
+	<string name="info_3gp"><b>3gp</b> : format multimédia développé pour les communications téléphoniques. Utilisez ceci si vous avez besoin de sauver de l\'espace.</string>
+	<string name="info_m4a"><b>M4a</b> : encodé avec le codec audio AAC, possède une bonne qualité pour une petite taille. <b>(recommandé)</b></string>
+	<string name="info_wav"><b>Wav</b> : format audio non compressé. Prend plus de place que les autres formats. Il est nécessaire pour des cas spécifiques.</string>
+	<string name="info_stereo"><b>Stéréo</b> : deux canaux séparés sont enregistrés. Cela signifie que chaque haut-parleur stéréo produit un signal différent. <b>(recommandé)</b></string>
+	<string name="info_mono"><b>Mono</b> : un seul canal est enregistré. Il peut être écouté sur différents haut-parleurs, mais chaque haut-parleur produira le même signal.</string>
+	<string name="info_bitrate_48"><b>48 kbps</b> : généralement uniquement utilisable pour les discours.</string>
+	<string name="info_bitrate_96"><b>96 kbps</b> : généralement utilisé pour des discours ou de la diffusion en temps réel de basse qualité.</string>
+	<string name="info_bitrate_128"><b>128 kbps</b> : débit de qualité intermédiaire. Débit commun pour les podcasts. <b>(recommandé)</b></string>
+	<string name="info_bitrate_192"><b>192 kbps</b> : débit de qualité moyenne.</string>
+	<string name="info_bitrate_256"><b>256 kbps</b> : débit de bonne qualité.</string>
+	<string name="info_bitrate_288"><b>288 kbps</b> : débit de très bonne qualité.</string>
+	<string name="info_sample_rate_8k"><b>8 kHz</b> : taux d\'échantillonnage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Non approprié pour n\'importe quelle utilisation sérieuse.</string>
+	<string name="info_sample_rate_16k"><b>16 kHz</b> : meilleur que 8 kHz.</string>
+	<string name="info_sample_rate_22k"><b>22 kHz</b> : taux d\'échantillonnage populaire pour les débits binaires faibles comme le 64 kbps.</string>
+	<string name="info_sample_rate_32k"><b>32 kHz</b> : un peu meilleur que 22 kHz.</string>
+	<string name="info_sample_rate_44k"><b>44,1 kHz</b> : utilisé par les CD audio. <b>(recommandé)</b></string>
+	<string name="info_sample_rate_48k"><b>48 kHz</b> : utilisé par les DVD.</string>
+	<string name="recording_format">Format d\'enregistrement :</string>
+	<string name="bitrate">Débit binaire :</string>
+	<string name="channels">Nombre de canaux :</string>
+	<string name="sample_rate">Taux d\'échantillonnage :</string>
+	<string name="size_per_min">Taille attendue : %s Mo/min</string>
 	<string name="value_hz">%d Hz</string>
+	<string name="value_khz">%d kHz</string>
 	<string name="value_kbps">%d kbps</string>
 	<string name="stereo">Stéréo</string>
 	<string name="mono">Mono</string>
-	<string name="records_location">Emplacement des enregistrements:\n%s</string>
-	<string name="feature_not_available_in_android_10">Cette fonctionnalité n\'est plus disponible sur Android 10 ou pus.</string>
-	<string name="size">%s Mb</string>
+	<string name="records_location">Emplacement des enregistrements :\n%s</string>
+	<string name="feature_not_available_in_android_10">Cette fonctionnalité n\'est plus disponible sur Android 10 ou plus.</string>
+	<string name="size">%s Mo</string>
 	<string name="move_records">Déplacer %d enregistrements</string>
 
 	<string name="error_unknown">Erreur inattendue</string>
 	<string name="error_cant_create_file">Impossible de créer le fichier</string>
+	<string name="error_failed_to_start_recording">Échec du démarrage de l\'enregistrement</string>
 	<string name="error_invalid_output_file">Fichier de sortie invalide</string>
 	<string name="error_file_exists">Un fichier avec le même nom existe déjà !</string>
 	<string name="error_failed_to_rename">Échec du renommage du fichier !</string>
@@ -233,23 +294,42 @@ Le <b>débit binaire</b> est la taille des données par seconde de son. Cela aff
 	<string name="error_failed_to_init_player">Échec de l\'initialisation du lecteur</string>
 	<string name="error_player_data_source">Le lecteur ne peut pas lire ce fichier</string>
 	<string name="error_unable_to_read_sound_file">Impossible de lire le fichier sonore</string>
-	<string name="error_permission_denied">Permission refusé</string>
-	<string name="error_process_waveform">Impossible de dessiner les formes d\'ondes</string>
-	<string name="error_lost_records">Certains de vos enregistrements ont été supprimé ou déplacé</string>
+	<string name="error_permission_denied">Permission refusée</string>
+	<string name="error_process_waveform">Impossible de dessiner la forme d\'onde</string>
+	<string name="error_lost_records">Certains de vos enregistrements ont été supprimés ou déplacés</string>
 	<string name="error_no_available_space">Pas d\'espace disponible !</string>
-	<string name="error_failed_access_to_storage">Échec de l\'accès au stocakge de fichier</string>
+	<string name="error_failed_access_to_storage">Échec de l\'accès au stockage de fichiers</string>
 	<string name="error_on_recording">Erreur pendant l\'enregistrement !</string>
 	<string name="error_failed_to_restore">Échec de la récupération de l\'enregistrement !</string>
 	<string name="error_failed_to_delete">Échec de la suppression de l\'enregistrement !</string>
+	<string name="error_recording_already_started">L\'enregistrement a déjà démarré !</string>
+
+	<string name="broken_record_title">Enregistrement interrompu</string>
+	<string name="broken_record_message">L\'enregistrement \'%s\' a été interrompu (peut-être suite à un redémarrage de l\'appareil) et son fichier peut être endommagé. Souhaitez-vous essayer de le restaurer ?</string>
+	<string name="btn_restore">Restaurer</string>
+	<string name="msg_broken_record_restored">L\'enregistrement \'%s\' a été restauré avec succès</string>
+	<string name="error_broken_record_restore_failed">Échec de la restauration de l\'enregistrement. Le fichier est peut-être irrécupérable.</string>
 
 	<string name="move_public_storage_records_message">Déplacement du stockage public des enregistrements nécessaire</string>
 	<string name="later">Plus tard</string>
 	<string name="move">Déplacer</string>
 	<string name="move_all">Tout déplacer</string>
 
+	<string name="button_record">Enregistrer</string>
+	<string name="button_stop">Arrêter</string>
+	<string name="button_pause">Pause</string>
+	<string name="button_resume">Reprendre</string>
+	<string name="button_finish">Terminer</string>
+	<string name="legacy_app">Application héritée</string>
+	<string name="legacy_app_subtitle">Passer à l\'ancienne interface de l\'application</string>
+	<string name="switch_to_legacy">Passer à l\'application héritée</string>
+	<string name="new_audio_recorder_available">Nouveau Magnétophone disponible</string>
+	<string name="try_new_app_subtitle">Conserve tous vos enregistrements — permet de revenir à tout moment</string>
+	<string name="try_new_app">Essayer la nouvelle application</string>
+
 	<!-- Shown in the 'About' window of the app. -->
 	<string name="about_body"><![CDATA[
-		<b>Magnétophone 2023</b><br>
+		<b>Magnétophone 2026</b><br>
 		Version %s
 	]]></string>
 	<!--<a href="http://#/">Application site</a>-->
@@ -264,12 +344,6 @@ Le <b>débit binaire</b> est la taille des données par seconde de son. Cela aff
 		<item>Thème Orange</item>
 		<item>Thème Rouge</item>
 		<item>Thème Marron</item>
-	</string-array>
-
-	<string-array name="formats2">
-		<item>M4a</item>
-		<item>Wav</item>
-		<item>3gp</item>
 	</string-array>
 
 	<string-array name="bit_rates2">
@@ -295,7 +369,31 @@ Le <b>débit binaire</b> est la taille des données par seconde de son. Cela aff
 		<item>Mono</item>
 	</string-array>
 
-	<string name="app_widget_description">Widget dbut d\'enregistrement</string>
+	<string name="app_widget_description">Widget début d\'enregistrement</string>
+
+    <string name="bluetooth_microphone_available">Microphone Bluetooth disponible</string>
+    <string name="audio_source">Source audio</string>
+    <string name="audio_source_default">Par défaut</string>
+    <string name="audio_source_mic">Microphone</string>
+    <string name="audio_source_voice_communication">Communication vocale</string>
+    <string name="audio_source_unprocessed">Non traité</string>
+
+    <!-- Database migration -->
+    <string name="database_update_in_progress">Mise à jour de la base de données en cours</string>
+
+    <!-- Audio Playback Notification channel name -->
+    <string name="notification_channel_playback_name">Lecture audio</string>
+    <!-- Audio Playback Notification channel description -->
+    <string name="notification_channel_playback_description">Affiche la progression de la lecture audio</string>
+    <!-- Audio Recording Notification channel name -->
+    <string name="notification_channel_recording_name">Enregistrement audio</string>
+    <!-- Audio Recording Notification channel description -->
+    <string name="notification_channel_recording_description">Affiche la progression de l\'enregistrement audio</string>
+    <!-- Recording Notification Status Messages -->
+    <string name="status_recording_active">Enregistrement en cours</string>
+    <string name="status_recording_paused">Enregistrement en pause</string>
+    <!-- Navigate back button description -->
+    <string name="navigate_back">Retour</string>
 
     <string name="duration_days_hours_minutes">%1$dj %2$dh %3$dmin</string>
     <string name="duration_hours_and_minutes">%1$dh %2$dmin</string>
