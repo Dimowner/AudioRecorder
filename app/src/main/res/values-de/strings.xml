@@ -116,7 +116,7 @@
 	<string name="btn_import">Importieren</string>
 	<string name="processing_canceled">Verarbeitung abgebrochen</string>
 	<string name="record_calculation">Wellenformberechnung&#8230;</string>
-	<string name="record_processing">Wellenformzeichnungsberechnungen&#8230;</string>
+	<string name="record_processing">Wellenform wird gezeichnet&#8230;</string>
 	<string name="request">Anfrage oder Feedback</string>
 	<string name="email_clients_not_found">Kein E-Mail-Client gefunden</string>
 	<string name="send_email">Per E-Mail senden&#8230;</string>
@@ -312,8 +312,8 @@
 	<string name="error_invalid_output_file">Ungültige Ausgabedatei</string>
 	<string name="error_file_exists">Eine Datei mit diesem Namen existiert bereits!</string>
 	<string name="error_failed_to_rename">Aufnahme konnte nicht umbenannt werden!</string>
-	<string name="error_failed_to_init_recorder">Aufnahme-Gerät konnte nicht initialisiert werden</string>
-	<string name="error_failed_to_init_player">Wiedergabe-Gerät konnte nicht initialisiert werden</string>
+	<string name="error_failed_to_init_recorder">Aufnahmegerät konnte nicht initialisiert werden</string>
+	<string name="error_failed_to_init_player">Wiedergabegerät konnte nicht initialisiert werden</string>
 	<string name="error_player_data_source">Player kann die Datei nicht lesen</string>
 	<string name="error_unable_to_read_sound_file">Audiodatei kann nicht gelesen werden</string>
 	<string name="error_permission_denied">Berechtigung verweigert</string>
@@ -345,7 +345,7 @@
 	<string name="legacy_app_subtitle">Zur alten App-Oberfläche wechseln</string>
 	<string name="switch_to_legacy">Zur Legacy-App wechseln</string>
 	<string name="new_audio_recorder_available">Neuer Audio Recorder verfügbar</string>
-	<string name="try_new_app_subtitle">Behält alle Aufnahmen – jederzeit wechselbar</string>
+	<string name="try_new_app_subtitle">Alle Aufnahmen bleiben erhalten – jederzeit zurückwechselbar</string>
 	<string name="try_new_app">Neue App ausprobieren</string>
 
 	<!-- Shown in the 'About' window of the app. -->

@@ -114,13 +114,13 @@
 	</plurals>
 	<string name="import_progress">正在匯入音訊&#8230;</string>
 	<string name="btn_import">匯入</string>
-	<string name="processing_canceled">已終止作業</string>
+	<string name="processing_canceled">處理已取消</string>
 	<string name="record_calculation">波形演算&#8230;</string>
 	<string name="record_processing">正在建構波形&#8230;</string>
 	<string name="request">建議或回報問題</string>
 	<string name="email_clients_not_found">找不到電子郵件應用程式</string>
 	<string name="send_email">以電子郵件傳送&#8230;</string>
-	<string name="open_record_with">%s 開啟方式</string>
+	<string name="open_record_with">開啟「%s」</string>
 	<string name="delete">刪除</string>
 	<string name="restore">還原</string>
 	<string name="info">資訊</string>
@@ -154,7 +154,7 @@
 	<string name="move_record_failed">移動失敗：%s</string>
 	<string name="downloading_failed">複製失敗：%s</string>
 	<string name="downloading_failed_file_already_exists">複製失敗，已存在檔案名稱「%s」</string>
-	<string name="downloading_cancel">複製作業終止</string>
+	<string name="downloading_cancel">複製已取消</string>
 	<string name="share">分享</string>
 	<string name="ask_to_rename">錄製完成後顯示命名視窗</string>
 	<string name="record_moved_into_trash">已將錄音移至垃圾桶</string>
@@ -178,7 +178,7 @@
     <string name="rec_size">大小：</string>
 	<string name="rec_created">建立：</string>
 	<string name="rec_location">位置：</string>
-	<string name="naming">名稱 </string>
+	<string name="naming">命名：</string>
 	<string name="private_dir_warning">錄音將會儲存至專用資料夾，且無法在其他應用程式中顯示。</string>
 	<string name="public_dir_warning">錄音將會儲存至共用資料夾，且可在其他應用程式中顯示。</string>
 	<string name="lost_records">錄音遺失</string>
@@ -214,7 +214,7 @@
 	<string name="view_records">檢視錄音</string>
 	<string name="move_records_needed">需要移動錄音</string>
 	<string name="moving_record">移動錄音：%s</string>
-	<string name="moving_record_cancel">移動作業終止</string>
+	<string name="moving_record_cancel">移動已取消</string>
 	<string name="move_records_info">您的部分錄音仍存放於共用儲存空間，未來應用程式將無法繼續存取這個位置，請將檔案移至專用資料夾。</string>
 	<string name="info_format"><b>M4a</b> 採用 AAC 音訊編碼，兼具較小體積與較佳品質。<b>(建議)</b>
 		\n\n<b>Wav</b> 未壓縮的音訊，需要比其他格式更多的空間，特殊情況使用。
@@ -227,14 +227,14 @@
 
 	<string name="info_frequency"><b>取樣率</b> 每秒能夠傳遞的音訊取樣個數。
 		\n\n<b>48 kHz</b> DVD 取樣率。
-		\n\n<b>44,1 kHz</b> CD 音訊取樣率。<b>(建議)</b>
+		\n\n<b>44.1 kHz</b> CD 音訊取樣率。<b>(建議)</b>
 		\n\n<b>22 kHz</b> 熱門的低位元取樣率，例如 64 kbps。
 		\n\n<b>8 kHz</b> 用於較小頻寬的現代電話系統，不適合正式的錄音作業。</string>
 
 	<string name="info_frequency_html"><![CDATA[
 <b>取樣率</b> 每秒能夠傳遞的音訊取樣個數。
 <br/><br/><b>48 kHz</b> DVD 取樣率。
-<br/><b>44,1 kHz</b> CD 音訊取樣率。<b>(建議)</b>
+<br/><b>44.1 kHz</b> CD 音訊取樣率。<b>(建議)</b>
 <br/><b>22 kHz</b> 熱門的低位元取樣率，例如 64 kbps。
 <br/><b>8 kHz</b> 用於較小頻寬的現代電話系統，不適合正式的錄音作業。
 ]]></string>
@@ -284,7 +284,7 @@
 	<string name="info_sample_rate_16k"><b>16 kHz</b> 優於 8 kHz。</string>
 	<string name="info_sample_rate_22k"><b>22 kHz</b> 熱門的低位元取樣率，例如 64 kbps。</string>
 	<string name="info_sample_rate_32k"><b>32 kHz</b> 優於 22 kHz。</string>
-	<string name="info_sample_rate_44k"><b>44,1 kHz</b> CD 音訊取樣率。<b>(建議)</b></string>
+	<string name="info_sample_rate_44k"><b>44.1 kHz</b> CD 音訊取樣率。<b>(建議)</b></string>
 	<string name="info_sample_rate_48k"><b>48 kHz</b> DVD 取樣率。</string>
 	<string name="recording_format">錄製格式：</string>
 	<string name="bitrate">位元速率：</string>

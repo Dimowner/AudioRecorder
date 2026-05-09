@@ -10,9 +10,9 @@
 	<string name="record_in_stereo">Stereo olarak kayıt al</string>
 
 	<string name="dynamic_theme_colors">Dinamik tema renkleri</string>
-	<string name="dark_theme">Karanlık tema</string>
+	<string name="dark_theme">Koyu tema</string>
 	<string name="record_name_format">Kayıt adı formatı</string>
-	<string name="version">Versiyon %s</string>
+	<string name="version">Sürüm %s</string>
 
 	<plurals name="years">
 		<item quantity="one">yıl</item>
@@ -97,7 +97,7 @@
     <string name="recording">Kayıt alınıyor: %s</string>
 	<string name="recording_is_on">Kayıt başladı</string>
 	<string name="recording_progress">Kayıt alınıyor&#8230;</string>
-	<string name="recording_paused">Durduruldu</string>
+	<string name="recording_paused">Duraklatıldı</string>
 	<string name="playback">Oynat: %s</string>
 	<string name="zero_time">00:00</string>
 	<string name="empty">Boş</string>
@@ -116,8 +116,8 @@
 	<string name="record_calculation">Dalga biçimi hesaplamaları&#8230;</string>
 	<string name="record_processing">Dalga biçimi çizim hesaplamaları&#8230;</string>
 	<string name="request">İstek ve geri bildirim</string>
-	<string name="email_clients_not_found">Herhangi bir email uygulaması bulunamadı</string>
-	<string name="send_email">Email ile gönder&#8230;</string>
+	<string name="email_clients_not_found">Herhangi bir e-posta uygulaması bulunamadı</string>
+	<string name="send_email">E-posta ile gönder&#8230;</string>
 	<string name="open_record_with">%s kaydını şu uygulamada aç</string>
 	<string name="delete">Sil</string>
 	<string name="restore">Geri Yükle</string>
@@ -164,8 +164,8 @@
 	<string name="cant_import_files">Dosyalar içe aktarılamadı</string>
 	<string name="by_date">Tarihe göre (en yeni)</string>
 	<string name="by_date_desc">Tarihe göre (en eski)</string>
-	<string name="by_name">İsime göre (A-Z)</string>
-	<string name="by_name_desc">İsime göre (Z-A)</string>
+	<string name="by_name">İsme göre (A-Z)</string>
+	<string name="by_name_desc">İsme göre (Z-A)</string>
 	<string name="by_duration">Süreye göre (en uzun)</string>
 	<string name="by_duration_desc">Süreye göre (en kısa)</string>
 	<string name="need_write_permission">Uygulama genel dosya dizinine erişim izni gerektiriyor. Eğer izin onaylanmazsa, kayıtlar uygulamanın kendi dizinine kaydedilecek.</string>

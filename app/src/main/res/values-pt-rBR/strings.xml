@@ -137,8 +137,8 @@
     </plurals>
     <string name="downloading_success_and_fail_count">%d gravações copiadas com sucesso e %d com falha</string>
     <string name="moving_records_success_and_fail_count">%d gravações movidas com sucesso e %d com falha</string>
-    <string name="downloading_success">%s copiado para a pasta \'Downloads\'</string>
-    <string name="move_record_success">%s movido para o diretório privado do app</string>
+    <string name="downloading_success">%s copiada para a pasta \'Downloads\'</string>
+    <string name="move_record_success">%s movida para o diretório privado do app</string>
     <plurals name="downloading_failed_count">
         <item quantity="one">Falha ao copiar %d gravação</item>
         <item quantity="other">Falha ao copiar %d gravações</item>
@@ -284,9 +284,9 @@
     <string name="info_bitrate_256"><b>256 kbps</b> bitrate de boa qualidade.</string>
     <string name="info_bitrate_288"><b>288 kbps</b> bitrate de qualidade muito boa.</string>
     <string name="info_sample_rate_8k"><b>8kHz</b> taxa com largura de banda menor que os sistemas telefônicos modernos. Não adequada para gravações sérias.</string>
-    <string name="info_sample_rate_16k"><b>16kHz</b> melhor que 8kHz.</string>
+    <string name="info_sample_rate_16k"><b>16kHz</b> é melhor que 8kHz.</string>
     <string name="info_sample_rate_22k"><b>22kHz</b> taxa popular para baixo bitrate, como 64 kbps.</string>
-    <string name="info_sample_rate_32k"><b>32kHz</b> um pouco melhor que 22kHz.</string>
+    <string name="info_sample_rate_32k"><b>32kHz</b> é um pouco melhor que 22kHz.</string>
     <string name="info_sample_rate_44k"><b>44,1kHz</b> é a taxa de amostragem de CDs de áudio. <b>(recomendado)</b></string>
     <string name="info_sample_rate_48k"><b>48kHz</b> é a taxa de amostragem usada em DVDs.</string>
     <string name="recording_format">Formato de gravação:</string>

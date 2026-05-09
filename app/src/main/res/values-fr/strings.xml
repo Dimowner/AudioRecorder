@@ -56,7 +56,7 @@
     <string name="delete_all2">Tout supprimer</string>
 	<string name="records_were_removed">Un ou plusieurs enregistrements n\'ont pas été trouvés dans le dossier des enregistrements. Ils ont potentiellement été déplacés ou supprimés.</string>
 	<string name="title_file_is_not_available">Le fichier d\'enregistrement n\'est pas accessible !</string>
-	<string name="details_file_is_not_available">Malheureusement, l\'application n\'a plus accès au stockage public d\'Android.\nVous pouvez retrouver le fichier d\'enregistrement dans votre ordiphone à cet endroit :\n%s</string>
+	<string name="details_file_is_not_available">Malheureusement, l\'application n\'a plus accès au stockage public d\'Android.\nVous pouvez retrouver le fichier d\'enregistrement dans votre smartphone à cet endroit :\n%s</string>
 	<string name="warning">Attention !</string>
     <string name="move_record_to_trash">Déplacer %s dans la corbeille ?</string>
 	<string name="delete_record">Supprimer l\'enregistrement %s ?</string>
@@ -97,7 +97,7 @@
 	<string name="btn_import">Importer</string>
 	<string name="processing_canceled">Le processus a été annulé</string>
 	<string name="record_calculation">Calcul de la forme d\'onde&#8230;</string>
-	<string name="record_processing">Calcul du dessin de la forme d\'onde&#8230;</string>
+	<string name="record_processing">Génération de la forme d\'onde&#8230;</string>
 	<string name="request">Requête ou commentaire</string>
 	<string name="email_clients_not_found">Aucun client de courriel trouvé</string>
 	<string name="send_email">Envoyer par courriel&#8230;</string>
@@ -146,7 +146,7 @@
 	<string name="record_imported_successfully">L\'enregistrement a bien été importé</string>
 	<string name="cant_import_files">Impossible d\'importer le fichier</string>
 	<string name="by_date">Par date (le plus récent)</string>
-	<string name="by_date_desc">Par date (le plus vieux)</string>
+	<string name="by_date_desc">Par date (le plus ancien)</string>
 	<string name="by_name">Par nom (A-Z)</string>
 	<string name="by_name_desc">Par nom (Z-A)</string>
 	<string name="by_duration">Par durée (le plus long)</string>
@@ -168,7 +168,7 @@
 	<string name="private_dir">Dossier privé</string>
 	<string name="public_dir">Dossier public</string>
 	<string name="found_in_the_app">Trouvé dans l\'application</string>
-	<string name="not_found_in_the_app">Pas trouvé dans l\'application</string>
+	<string name="not_found_in_the_app">Introuvable dans l\'application</string>
 	<string name="in_trash">Dans la corbeille</string>
 
     <string name="recording_settings">Paramètres des enregistrements</string>
@@ -210,7 +210,7 @@
 		\n<b>48 kHz</b> : utilisé par les DVD.
 		\n<b>44,1 kHz</b> : utilisé par les CD audio. <b>(recommandé)</b>
 		\n<b>22 kHz</b> : taux d\'échantillonnage populaire pour les débits binaires faibles comme le 64 kbps.
-		\n<b>8 kHz</b> : taux d\'échantillonnage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Non approprié pour n\'importe quelle utilisation sérieuse.
+		\n<b>8 kHz</b> : taux d\'échantillonnage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Inadapté à toute utilisation sérieuse.
 	</string>
 
 	<string name="info_frequency_html"><![CDATA[
@@ -218,7 +218,7 @@ Le <b>taux d\'échantillonnage</b> est le nombre d\'échantillons audio enregist
 <br/><br/><b>48 kHz</b> : utilisé par les DVD.
 <br/><b>44,1 kHz</b> : utilisé par les CD audio. <b>(recommandé)</b>
 <br/><b>22 kHz</b> : taux d\'échantillonnage populaire pour les débits binaires faibles comme le 64 kbps.
-<br/><b>8 kHz</b> : taux d\'échantillonnage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Non approprié pour n\'importe quelle utilisation sérieuse.
+<br/><b>8 kHz</b> : taux d\'échantillonnage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Inadapté à toute utilisation sérieuse.
 ]]></string>
 
 	<string name="info_bitrate">Le <b>débit binaire</b> est la taille des données par seconde de son. Cela affecte directement la qualité sonore et la taille de l\'enregistrement.
@@ -263,7 +263,7 @@ Le <b>débit binaire</b> est la taille des données par seconde de son. Cela aff
 	<string name="info_bitrate_192"><b>192 kbps</b> : débit de qualité moyenne.</string>
 	<string name="info_bitrate_256"><b>256 kbps</b> : débit de bonne qualité.</string>
 	<string name="info_bitrate_288"><b>288 kbps</b> : débit de très bonne qualité.</string>
-	<string name="info_sample_rate_8k"><b>8 kHz</b> : taux d\'échantillonnage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Non approprié pour n\'importe quelle utilisation sérieuse.</string>
+	<string name="info_sample_rate_8k"><b>8 kHz</b> : taux d\'échantillonnage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Inadapté à toute utilisation sérieuse.</string>
 	<string name="info_sample_rate_16k"><b>16 kHz</b> : meilleur que 8 kHz.</string>
 	<string name="info_sample_rate_22k"><b>22 kHz</b> : taux d\'échantillonnage populaire pour les débits binaires faibles comme le 64 kbps.</string>
 	<string name="info_sample_rate_32k"><b>32 kHz</b> : un peu meilleur que 22 kHz.</string>

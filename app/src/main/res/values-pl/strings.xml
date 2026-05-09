@@ -80,7 +80,7 @@
     <string name="delete_all2">Usuń wszystkie</string>
 	<string name="records_were_removed">Niektóre pliki nagrań nie zostały znalezione w katalogu nagrań. Możliwe, że zostały usunięte lub przeniesione.</string>
 	<string name="title_file_is_not_available">Brak dostępu do pliku nagrania!</string>
-	<string name="details_file_is_not_available">Niestety aplikacja nie ma już dostępu do publicznego magazynu systemu Android.\nPlik nagrania można znaleźć na smartfonie w tej lokalizacji:\n%s</string>
+	<string name="details_file_is_not_available">Niestety aplikacja nie ma już dostępu do publicznej pamięci masowej systemu Android.\nPlik nagrania można znaleźć na smartfonie w tej lokalizacji:\n%s</string>
 	<string name="warning">Uwaga!</string>
     <string name="move_record_to_trash">Przenieść %s do kosza?</string>
     <string name="delete_record">Usunąć nagranie %s?</string>
@@ -89,13 +89,13 @@
 		<item quantity="one">Przenieść %d wybrane nagranie do kosza?</item>
 		<item quantity="few">Przenieść %d wybrane nagrania do kosza?</item>
 		<item quantity="many">Przenieść %d wybranych nagrań do kosza?</item>
-		<item quantity="other">Przenieść %d nagranie do kosza?</item>
+		<item quantity="other">Przenieść %d wybrane nagranie do kosza?</item>
 	</plurals>
 	<plurals name="download_selected_records">
 		<item quantity="one">Skopiować %d wybrane nagranie do katalogu \'Pobrane\'?</item>
 		<item quantity="few">Skopiować %d wybrane nagrania do katalogu \'Pobrane\'?</item>
 		<item quantity="many">Skopiować %d wybranych nagrań do katalogu \'Pobrane\'?</item>
-		<item quantity="other">Skopiować %d nagranie do katalogu \'Pobrane\'?</item>
+		<item quantity="other">Skopiować %d wybrane nagranie do katalogu \'Pobrane\'?</item>
 	</plurals>
 	<string name="start_recording">Rozpocznij nagrywanie</string>
 	<string name="recording_feature_disabled">Funkcja nagrywania jest wyłączona</string>
@@ -338,8 +338,8 @@
 	<string name="error_permission_denied">Odmowa uprawnień</string>
 	<string name="error_process_waveform">Nie można narysować przebiegu fali</string>
 	<string name="error_lost_records">Niektóre nagrania zostały usunięte lub przeniesione</string>
-	<string name="broken_record_title">Nagrywanie przerwane</string>
-	<string name="broken_record_message">Nagrywanie \'%s\' zostało przerwane (prawdopodobnie z powodu ponownego uruchomienia urządzenia) i plik może być uszkodzony. Czy chcesz spróbować go przywrócić?</string>
+	<string name="broken_record_title">Nagranie przerwane</string>
+	<string name="broken_record_message">Nagranie \'%s\' zostało przerwane (prawdopodobnie z powodu ponownego uruchomienia urządzenia) i plik może być uszkodzony. Czy chcesz spróbować go przywrócić?</string>
 	<string name="btn_restore">Przywróć</string>
 	<string name="msg_broken_record_restored">Nagranie \'%s\' zostało pomyślnie przywrócone</string>
 	<string name="error_broken_record_restore_failed">Nie udało się przywrócić nagrania. Plik może być nieodwracalnie uszkodzony.</string>

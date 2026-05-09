@@ -36,7 +36,7 @@
 	<!-- Error message when moving a multiple recordings to Trash fails -->
 	<string name="msg_multiple_move_to_trash_failed">Impossibile spostare le registrazioni nel Cestino.</string>
 	<!-- Confirmation for canceling a recording session (progress discarded) -->
-	<string name="msg_recording_canceled">Registrazione annullata spostata nel Cestino</string>
+	<string name="msg_recording_canceled">Registrazione annullata e spostata nel Cestino</string>
 	<!-- Confirmation for successful restoration after UNDO is clicked -->
 	<string name="msg_recording_restored">Registrazione \'%1$s\' ripristinata</string>
 
@@ -77,12 +77,12 @@
 	<string name="title_file_is_not_available">Nessun accesso al file di registrazione!</string>
 	<string name="details_file_is_not_available">Purtroppo l\'app non ha più accesso all\'archivio pubblico di Android.\nPuoi trovare il file di registrazione sul tuo smartphone in questa posizione:\n%s</string>
 	<string name="warning">Attenzione!</string>
-    <string name="move_record_to_trash">Sposta nel cestino %s?</string>
+    <string name="move_record_to_trash">Sposta nel Cestino %s?</string>
     <string name="delete_record">Eliminare la registrazione %s?</string>
     <string name="delete_record_forever">Eliminare definitivamente la registrazione %s?</string>
 	<plurals name="delete_selected_records">
-		<item quantity="one">Sposta nel cestino %d registrazione selezionata?</item>
-		<item quantity="other">Sposta nel cestino %d registrazioni selezionate?</item>
+		<item quantity="one">Sposta nel Cestino %d registrazione selezionata?</item>
+		<item quantity="other">Sposta nel Cestino %d registrazioni selezionate?</item>
 	</plurals>
 	<plurals name="download_selected_records">
 		<item quantity="one">Copiare %d registrazione selezionata nella cartella \'Download\'?</item>
@@ -116,7 +116,7 @@
 	<string name="btn_import">Importa</string>
 	<string name="processing_canceled">Elaborazione annullata</string>
 	<string name="record_calculation">Calcolo forma d\'onda&#8230;</string>
-	<string name="record_processing">Calcolo del disegno della forma d\'onda&#8230;</string>
+	<string name="record_processing">Elaborazione della forma d\'onda&#8230;</string>
 	<string name="request">Richiesta o feedback</string>
 	<string name="email_clients_not_found">Nessun client email trovato</string>
 	<string name="send_email">Invia per email&#8230;</string>
@@ -157,8 +157,8 @@
 	<string name="downloading_cancel">Copia annullata</string>
 	<string name="share">Condividi</string>
 	<string name="ask_to_rename">Mostra la finestra di rinomina al termine della registrazione</string>
-	<string name="record_moved_into_trash">La registrazione è stata spostata nel cestino</string>
-	<string name="selected_records_moved_into_trash">Le registrazioni selezionate sono state spostate nel cestino</string>
+	<string name="record_moved_into_trash">La registrazione è stata spostata nel Cestino</string>
+	<string name="selected_records_moved_into_trash">Le registrazioni selezionate sono state spostate nel Cestino</string>
 	<string name="all_records_deleted_successfully">Tutte le registrazioni eliminate con successo</string>
 	<string name="record_deleted_successfully">La registrazione è stata eliminata con successo</string>
 	<string name="record_restored_successfully">La registrazione è stata ripristinata con successo</string>
@@ -182,13 +182,13 @@
 	<string name="public_dir_warning">Le registrazioni verranno salvate in una cartella comune sul dispositivo, visibile alle altre app</string>
 	<string name="lost_records">Registrazioni perse</string>
 	<string name="trash">Cestino</string>
-	<string name="trash_info">Le registrazioni nel cestino vengono eliminate definitivamente dopo 60 giorni.</string>
+	<string name="trash_info">Le registrazioni nel Cestino vengono eliminate definitivamente dopo 60 giorni.</string>
 	<string name="file_browser">Gestione file</string>
 	<string name="private_dir">Cartella privata</string>
 	<string name="public_dir">Cartella pubblica</string>
 	<string name="found_in_the_app">Trovata nell\'app</string>
 	<string name="not_found_in_the_app">Non trovata nell\'app</string>
-	<string name="in_trash">Nel cestino</string>
+	<string name="in_trash">Nel Cestino</string>
 
     <string name="recording_settings">Impostazioni di registrazione</string>
 
@@ -230,7 +230,7 @@
 		\n<b>48kHz</b> è la frequenza di campionamento utilizzata per i DVD.
 		\n<b>44,1kHz</b> è la frequenza di campionamento dei CD audio. <b>(consigliato)</b>
 		\n<b>22kHz</b> frequenza di campionamento comune per bitrate ridotti come 64 kbps.
-		\n <b>8kHz</b> la frequenza di campionamento ha una larghezza di banda inferiore ai moderni sistemi telefonici. Non adatta a compiti di registrazione seri.
+		\n <b>8kHz</b> ha una larghezza di banda inferiore ai moderni sistemi telefonici. Non adatta a compiti di registrazione seri.
 		</string>
 
 	<string name="info_frequency_html"><![CDATA[
@@ -238,7 +238,7 @@
 <br/><br/><b>48kHz</b> è la frequenza di campionamento utilizzata per i DVD.
 <br/><b>44,1kHz</b> è la frequenza di campionamento dei CD audio. <b>(consigliato)</b>
 <br/><b>22kHz</b> frequenza di campionamento comune per bitrate ridotti come 64 kbps.
-<br/><b>8kHz</b> la frequenza di campionamento ha una larghezza di banda inferiore ai moderni sistemi telefonici. Non adatta a compiti di registrazione seri.
+<br/><b>8kHz</b> ha una larghezza di banda inferiore ai moderni sistemi telefonici. Non adatta a compiti di registrazione seri.
 ]]></string>
 
 	<string name="info_bitrate"><b>Bitrate</b> è la quantità di dati per secondo di audio. Influisce direttamente sulla qualità e sulla dimensione della registrazione.
@@ -285,7 +285,7 @@
 	<string name="info_bitrate_192"><b>192 kbps</b> bitrate di qualità media.</string>
 	<string name="info_bitrate_256"><b>256 kbps</b> bitrate di buona qualità.</string>
 	<string name="info_bitrate_288"><b>288 kbps</b> bitrate di ottima qualità.</string>
-	<string name="info_sample_rate_8k"><b>8kHz</b> la frequenza di campionamento ha una larghezza di banda inferiore ai moderni sistemi telefonici. Non adatta a compiti di registrazione seri.</string>
+	<string name="info_sample_rate_8k"><b>8kHz</b> ha una larghezza di banda inferiore ai moderni sistemi telefonici. Non adatta a compiti di registrazione seri.</string>
 	<string name="info_sample_rate_16k"><b>16kHz</b> è migliore di 8kHz.</string>
 	<string name="info_sample_rate_22k"><b>22kHz</b> frequenza di campionamento comune per bitrate ridotti come 64 kbps.</string>
 	<string name="info_sample_rate_32k"><b>32kHz</b> è leggermente migliore di 22kHz.</string>

@@ -231,7 +231,7 @@
         \n<b>48kHz</b> é a taxa de amostragem utilizada em DVDs.
         \n<b>44,1kHz</b> é a taxa de amostragem dos CDs de áudio. <b>(recomendado)</b>
         \n<b>22kHz</b> taxa de amostragem popular para baixa taxa de bits, como 64 kbps.
-        \n <b>8kHz</b> tem menos largura de banda do que os sistemas telefónicos modernos. Não é adequado para qualquer tarefa de gravação seria.
+        \n <b>8kHz</b> tem menos largura de banda do que os sistemas telefónicos modernos. Não é adequado para qualquer tarefa de gravação séria.
         </string>
 
     <string name="info_frequency_html"><![CDATA[
@@ -239,7 +239,7 @@
 <br/><br/><b>48kHz</b> é a taxa de amostragem utilizada em DVDs.
 <br/><b>44,1kHz</b> é a taxa de amostragem dos CDs de áudio. <b>(recomendado)</b>
 <br/><b>22kHz</b> taxa de amostragem popular para baixa taxa de bits, como 64 kbps.
-<br/><b>8kHz</b> tem menos largura de banda do que os sistemas telefónicos modernos. Não é adequado para qualquer tarefa de gravação seria.
+<br/><b>8kHz</b> tem menos largura de banda do que os sistemas telefónicos modernos. Não é adequado para qualquer tarefa de gravação séria.
 ]]></string>
 
     <string name="info_bitrate"><b>Taxa de bits</b> é o tamanho dos dados por segundo de áudio. Afeta diretamente a qualidade e o tamanho da gravação.
@@ -286,7 +286,7 @@
     <string name="info_bitrate_192"><b>192 kbps</b> qualidade média de taxa de bits.</string>
     <string name="info_bitrate_256"><b>256 kbps</b> boa qualidade de taxa de bits.</string>
     <string name="info_bitrate_288"><b>288 kbps</b> muito boa qualidade de taxa de bits.</string>
-    <string name="info_sample_rate_8k"><b>8kHz</b> tem menos largura de banda do que os sistemas telefónicos modernos. Não é adequado para qualquer tarefa de gravação seria.</string>
+    <string name="info_sample_rate_8k"><b>8kHz</b> tem menos largura de banda do que os sistemas telefónicos modernos. Não é adequado para qualquer tarefa de gravação séria.</string>
     <string name="info_sample_rate_16k"><b>16kHz</b> é melhor do que 8kHz.</string>
     <string name="info_sample_rate_22k"><b>22kHz</b> taxa de amostragem popular para baixa taxa de bits, como 64 kbps.</string>
     <string name="info_sample_rate_32k"><b>32kHz</b> é ligeiramente melhor do que 22kHz.</string>

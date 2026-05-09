@@ -78,19 +78,19 @@
     <string name="delete_record">Voleu esborrar la gravació %s?</string>
 	<string name="delete_record_forever">Voleu esborrar la gravació %s per sempre?</string>
 	<plurals name="delete_selected_records">
-		<item quantity="one">Voleu tirar a la paperera %d gravació seleccionada?</item>
-		<item quantity="other">Voleu moure %d registres seleccionats a la paperera?</item>
+		<item quantity="one">Voleu moure %d gravació seleccionada a la paperera?</item>
+		<item quantity="other">Voleu moure %d gravacions seleccionades a la paperera?</item>
 	</plurals>
 	<plurals name="download_selected_records">
-		<item quantity="one">Voleu copiar %d registre seleccionat al directori de Baixades?</item>
-		<item quantity="other">Voleu copiar %d registres seleccionats al directori de Baixades?</item>
+		<item quantity="one">Voleu copiar %d gravació seleccionada al directori de Baixades?</item>
+		<item quantity="other">Voleu copiar %d gravacions seleccionades al directori de Baixades?</item>
 	</plurals>
 	<string name="start_recording">Comença a gravar</string>
 	<string name="recording_feature_disabled">Funció de gravació desactivada</string>
 	<string name="restore_record">Voleu restaurar la gravació %s?</string>
-	<string name="delete_all_records">Voleu esborrar tots els registres?</string>
+	<string name="delete_all_records">Voleu esborrar totes les gravacions?</string>
 	<string name="all_records_deleted">S\'han esborrat totes les gravacions correctament</string>
-	<string name="failed_to_delete_all_records">No s\'ha pogut esborrar totes les gravacions</string>
+	<string name="failed_to_delete_all_records">No s\'han pogut esborrar totes les gravacions</string>
 	<string name="please_select_record_to_share">Seleccioneu una gravació per compartir</string>
     <string name="update_record_name">Actualitza el nom</string>
     <string name="recording">Gravant: %s</string>
@@ -100,7 +100,7 @@
 	<string name="playback">Reproducció: %s</string>
 	<string name="zero_time">00:00</string>
 	<string name="empty">Buit</string>
-	<string name="items_selected"> %d seleccionat</string>
+	<string name="items_selected"> %d seleccionats</string>
 	<string name="no_records">No hi ha cap gravació</string>
 	<string name="no_bookmarks">No hi ha cap marcador</string>
 	<string name="bookmarks">Marcadors</string>

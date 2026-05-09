@@ -55,7 +55,7 @@
     <string name="title_file_is_not_available">无法访问录音文件！</string>
     <string name="details_file_is_not_available">很遗憾，应用程序不再能够访问 Android 公共存储。\n您可以在以下位置找到录音文件：\n%s</string>
     <string name="warning">警告！</string>
-    <string name="move_record_to_trash">移动到回收站 %s?</string>
+    <string name="move_record_to_trash">将录音 %s 移到回收站?</string>
     <string name="delete_record">删除录音 %s?</string>
     <string name="delete_record_forever">永久删除录音 %s?</string>
     <plurals name="delete_selected_records">
@@ -91,7 +91,7 @@
     <string name="btn_import">导入</string>
     <string name="processing_canceled">处理已取消</string>
     <string name="record_calculation">波形计算中&#8230;</string>
-    <string name="record_processing">波形绘制计算中&#8230;</string>
+    <string name="record_processing">波形绘制中&#8230;</string>
     <string name="request">请求或反馈</string>
     <string name="email_clients_not_found">未找到任何邮件客户端</string>
     <string name="send_email">通过电子邮件发送&#8230;</string>
@@ -113,7 +113,7 @@
     <string name="downloading_success_and_fail_count">%d 个录音复制成功，%d 个复制失败</string>
     <string name="moving_records_success_and_fail_count">%d 个录音移动成功，%d 个移动失败</string>
     <string name="downloading_success">%s 已保存到"下载"目录</string>
-    <string name="move_record_success">%s 已移动到应用的专用目录</string>
+    <string name="move_record_success">%s 已移动到应用的私有目录</string>
     <plurals name="downloading_failed_count">
         <item quantity="other">%d 个录音复制失败</item>
     </plurals>
@@ -169,7 +169,7 @@
     <string name="btn_save">保存</string>
     <string name="btn_cancel">取消</string>
     <string name="btn_yes">是</string>
-    <string name="btn_ok">好</string>
+    <string name="btn_ok">确定</string>
     <string name="btn_got_it">知道了</string>
     <string name="btn_no">否</string>
     <string name="btn_play">播放</string>
@@ -314,7 +314,7 @@
     <!-- Shown in the 'About' window of the app. -->
     <string name="about_body"><![CDATA[
     	<b>Audio Recorder 2026</b><br>
-		Version %s
+		版本 %s
 	]]></string>
     <!--<a href="http://#/">Application site</a>-->
 

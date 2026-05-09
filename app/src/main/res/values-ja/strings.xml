@@ -121,7 +121,7 @@
 	<string name="request">リクエストまたはフィードバック</string>
 	<string name="email_clients_not_found">メールクライアントが見つかりません</string>
 	<string name="send_email">メールで送信&#8230;</string>
-	<string name="open_record_with">%sを次で開く</string>
+	<string name="open_record_with">%sを別のアプリで開く</string>
 	<string name="delete">削除</string>
 	<string name="restore">復元</string>
 	<string name="info">情報</string>
