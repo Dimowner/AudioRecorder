@@ -56,11 +56,12 @@ fun DeletedRecordsListItemWidget(
     onClickItem: () -> Unit,
     onClickRestore: () -> Unit,
     onClickDelete: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val showDeleteDialog = remember { mutableStateOf(false) }
 
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         onClick = onClickItem,
     ) {
         Column {

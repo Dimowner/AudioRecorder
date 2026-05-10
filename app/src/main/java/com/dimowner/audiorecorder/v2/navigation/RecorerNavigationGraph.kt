@@ -103,7 +103,7 @@ fun RecorderNavigationGraph(
                 showRecordInfoScreen = { json ->
                     navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
                 }, uiState = deletedViewModel.state.value,
-                event = deletedViewModel.event.collectAsState(null).value,
+                event = deletedViewModel.event,
                 onAction = { deletedViewModel.onAction(it) }
             )
         }

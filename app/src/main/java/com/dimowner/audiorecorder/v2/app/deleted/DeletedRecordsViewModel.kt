@@ -108,8 +108,8 @@ internal class DeletedRecordsViewModel @Inject constructor(
                     )
                 }
             } else {
-                //TODO: Show failed to remove records message
                 withContext(mainDispatcher) {
+                    emitEvent(DeletedRecordsScreenEvent.ErrorDeleteAllEvent)
                     loadFirstPage()
                 }
             }
@@ -127,14 +127,16 @@ internal class DeletedRecordsViewModel @Inject constructor(
     fun restoreRecord(recordId: Long) {
         viewModelScope.launch(ioDispatcher) {
             if (recordId != -1L && recordsDataSource.restoreRecordFromRecycle(recordId)) {
-                //TODO: Show success message
                 withContext(mainDispatcher) {
                     _state.value = DeletedRecordsScreenState(
                         records = state.value.records.filter { it.recordId != recordId }
                     )
+                    emitEvent(DeletedRecordsScreenEvent.RecordRestoredEvent)
                 }
             } else {
-                //TODO: Show error message
+                withContext(mainDispatcher) {
+                    emitEvent(DeletedRecordsScreenEvent.ErrorRestoreEvent)
+                }
             }
         }
     }
@@ -142,14 +144,16 @@ internal class DeletedRecordsViewModel @Inject constructor(
     fun deleteForeverRecord(recordId: Long) {
         viewModelScope.launch(ioDispatcher) {
             if (recordId != -1L && recordsDataSource.deleteRecordAndFileForever(recordId)) {
-                //TODO: Show success message
                 withContext(mainDispatcher) {
                     _state.value = DeletedRecordsScreenState(
                         records = state.value.records.filter { it.recordId != recordId }
                     )
+                    emitEvent(DeletedRecordsScreenEvent.RecordDeletedForeverEvent)
                 }
             } else {
-                //TODO: Show error message
+                withContext(mainDispatcher) {
+                    emitEvent(DeletedRecordsScreenEvent.ErrorDeleteEvent)
+                }
             }
         }
     }
@@ -187,6 +191,11 @@ internal data class DeletedRecordListItem(
 
 internal sealed class DeletedRecordsScreenEvent {
     data class RecordInformationEvent(val recordInfo: RecordInfoState) : DeletedRecordsScreenEvent()
+    data object RecordRestoredEvent : DeletedRecordsScreenEvent()
+    data object RecordDeletedForeverEvent : DeletedRecordsScreenEvent()
+    data object ErrorRestoreEvent : DeletedRecordsScreenEvent()
+    data object ErrorDeleteEvent : DeletedRecordsScreenEvent()
+    data object ErrorDeleteAllEvent : DeletedRecordsScreenEvent()
 }
 
 internal sealed class DeletedRecordsScreenAction {

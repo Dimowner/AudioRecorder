@@ -426,7 +426,7 @@ internal fun RecordsScreen(
                                 }
                             }
                             //The list of items for that specific date
-                            items(recordsOnDate) { record ->
+                            items(recordsOnDate, key = { it.recordId }) { record ->
                                 RecordListItemView(
                                     name = record.name,
                                     details = record.details,
@@ -499,6 +499,7 @@ internal fun RecordsScreen(
                                             }
                                         }
                                     },
+                                    modifier = Modifier.animateItem(),
                                 )
                             }
                         }

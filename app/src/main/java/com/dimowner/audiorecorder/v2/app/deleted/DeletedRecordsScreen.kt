@@ -39,6 +39,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -55,11 +57,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.flowWithLifecycle
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ConfirmationAlertDialog
 import com.dimowner.audiorecorder.v2.app.ScrollableTitleBar
 import com.dimowner.audiorecorder.v2.app.deleted.widget.DeletedRecordsListItemWidget
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,13 +75,19 @@ internal fun DeletedRecordsScreen(
     onPopBackStack: () -> Unit,
     showRecordInfoScreen: (String) -> Unit,
     uiState: DeletedRecordsScreenState,
-    event: DeletedRecordsScreenEvent?,
+    event: SharedFlow<DeletedRecordsScreenEvent?>,
     onAction: (DeletedRecordsScreenAction) -> Unit,
 ) {
 
     val showDeleteAllDialog = remember { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val listState = rememberLazyListState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val recordRestoredMessage = stringResource(id = R.string.record_restored_successfully)
+    val recordDeletedForeverMessage = stringResource(id = R.string.record_deleted_successfully)
+    val errorRestoreMessage = stringResource(id = R.string.error_failed_to_restore)
+    val errorDeleteMessage = stringResource(id = R.string.error_failed_to_delete)
+    val errorDeleteAllMessage = stringResource(id = R.string.failed_to_delete_all_records)
 
     val shouldLoadMore = remember {
         derivedStateOf {
@@ -90,24 +103,49 @@ internal fun DeletedRecordsScreen(
         }
     }
 
+    val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(key1 = event) {
-        when (event) {
-            is DeletedRecordsScreenEvent.RecordInformationEvent -> {
-                val json = Uri.encode(Gson().toJson(event.recordInfo))
-                Timber.v("ON EVENT: ShareRecord json = $json")
-                showRecordInfoScreen(json)
-            }
+        event.flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
+            .collect { event ->
+                when (event) {
+                    is DeletedRecordsScreenEvent.RecordInformationEvent -> {
+                        val json = Uri.encode(Gson().toJson(event.recordInfo))
+                        Timber.v("ON EVENT: ShareRecord json = $json")
+                        showRecordInfoScreen(json)
+                    }
 
-            else -> {
-                Timber.v("ON EVENT: Unknown")
-                //Do nothing
+                    is DeletedRecordsScreenEvent.RecordRestoredEvent -> {
+                        snackbarHostState.showSnackbar(recordRestoredMessage)
+                    }
+
+                    is DeletedRecordsScreenEvent.RecordDeletedForeverEvent -> {
+                        snackbarHostState.showSnackbar(recordDeletedForeverMessage)
+                    }
+
+                    is DeletedRecordsScreenEvent.ErrorRestoreEvent -> {
+                        snackbarHostState.showSnackbar(errorRestoreMessage)
+                    }
+
+                    is DeletedRecordsScreenEvent.ErrorDeleteEvent -> {
+                        snackbarHostState.showSnackbar(errorDeleteMessage)
+                    }
+
+                    is DeletedRecordsScreenEvent.ErrorDeleteAllEvent -> {
+                        snackbarHostState.showSnackbar(errorDeleteAllMessage)
+                    }
+
+                    else -> {
+                        Timber.v("ON EVENT: Unknown")
+                        //Do nothing
+                    }
+                }
             }
-        }
     }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets.safeDrawing,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             ScrollableTitleBar(
                 title = stringResource(id = R.string.trash),
@@ -192,8 +230,9 @@ internal fun DeletedRecordsScreen(
                                 )
                             }
                         }
-                        items(uiState.records) { record ->
+                        items(uiState.records, key = { it.recordId }) { record ->
                             DeletedRecordsListItemWidget(
+                                modifier = Modifier.animateItem(),
                                 name = record.name,
                                 details = record.details,
                                 duration = record.duration,
@@ -262,7 +301,7 @@ fun DeletedRecordsScreenPreview() {
                     isBookmarked = true
                 )
             )
-        ), null, {})
+        ), MutableSharedFlow(), {})
 }
 
 @Preview(showBackground = true, name = "Empty State")
@@ -272,7 +311,7 @@ fun DeletedRecordsScreenEmptyPreview() {
         onPopBackStack = {},
         showRecordInfoScreen = {},
         uiState = DeletedRecordsScreenState(records = emptyList()),
-        event = null,
+        event = MutableSharedFlow(),
         onAction = {},
     )
 }

@@ -396,10 +396,13 @@ fun RecordListItemView(
     onLongClickItem: () -> Unit,
     onClickBookmark: (Boolean) -> Unit,
     onClickMenu: (RecordDropDownMenuItemId) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val expanded = remember { mutableStateOf(false) }
 
-    Column {
+    Column(
+        modifier = modifier
+    ) {
         Row(
             modifier = Modifier
                 .background(
