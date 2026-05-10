@@ -18,7 +18,10 @@ package com.dimowner.audiorecorder.v2.app.deleted
 
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,12 +29,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -47,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dimowner.audiorecorder.R
@@ -115,72 +121,122 @@ internal fun DeletedRecordsScreen(
         }
     ) { innerPadding ->
         Surface(
-            modifier = Modifier.fillMaxSize().padding(innerPadding)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxWidth(),
+            // Full-screen initial loading state
+            if (uiState.isShowLoadingProgress && uiState.records.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    item(key = "info_header") {
-                        Text(
-                            modifier = Modifier
-                                .padding(16.dp, 8.dp)
-                                .wrapContentSize(),
-                            text = stringResource(id = R.string.trash_info),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(color = MaterialTheme.colorScheme.inverseOnSurface)
-                        )
-                    }
-                    items(uiState.records) { record ->
-                        DeletedRecordsListItemWidget(
-                            name = record.name,
-                            details = record.details,
-                            onClickItem = {
-                                onAction(DeletedRecordsScreenAction.ShowRecordInfo(record.recordId))
-                            },
-                            onClickRestore = {
-                                onAction(DeletedRecordsScreenAction.RestoreRecord(record.recordId))
-                            },
-                            onClickDelete = {
-                                onAction(DeletedRecordsScreenAction.DeleteForeverRecord(record.recordId))
-                            },
-                        )
-                    }
-                    if (uiState.isShowLoadingProgress) {
-                        item(key = "loading_indicator") {
-                            Column(
+                    CircularProgressIndicator()
+                }
+            } else if (!uiState.isShowLoadingProgress && uiState.records.isEmpty()) {
+                // Empty state
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_delete_forever),
+                        contentDescription = null,
+                        modifier = Modifier.size(72.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = stringResource(id = R.string.trash),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(id = R.string.trash_info),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            } else {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        item(key = "info_header") {
+                            Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
+                                    .background(color = MaterialTheme.colorScheme.secondaryContainer)
+                                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
                             ) {
-                                CircularProgressIndicator()
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_delete_forever),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                )
+                                Text(
+                                    modifier = Modifier.wrapContentSize(),
+                                    text = stringResource(id = R.string.trash_info),
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                            }
+                        }
+                        items(uiState.records) { record ->
+                            DeletedRecordsListItemWidget(
+                                name = record.name,
+                                details = record.details,
+                                duration = record.duration,
+                                onClickItem = {
+                                    onAction(DeletedRecordsScreenAction.ShowRecordInfo(record.recordId))
+                                },
+                                onClickRestore = {
+                                    onAction(DeletedRecordsScreenAction.RestoreRecord(record.recordId))
+                                },
+                                onClickDelete = {
+                                    onAction(DeletedRecordsScreenAction.DeleteForeverRecord(record.recordId))
+                                },
+                            )
+                        }
+                        if (uiState.isShowLoadingProgress) {
+                            item(key = "loading_indicator") {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                ) {
+                                    CircularProgressIndicator()
+                                }
                             }
                         }
                     }
                 }
             }
-            if (showDeleteAllDialog.value) {
-                ConfirmationAlertDialog(
-                    onDismissRequest = { showDeleteAllDialog.value = false },
-                    onConfirmation = {
-                        onAction(DeletedRecordsScreenAction.DeleteAllRecordsFromRecycle)
-                        showDeleteAllDialog.value = false
-                    },
-                    dialogTitle = stringResource(id = R.string.warning),
-                    dialogText = stringResource(id = R.string.delete_all_records),
-                    painter = painterResource(id = R.drawable.ic_delete_forever),
-                    positiveButton = stringResource(id = R.string.btn_yes),
-                    negativeButton = stringResource(id = R.string.btn_no)
-                )
-            }
+        }
+        if (showDeleteAllDialog.value) {
+            ConfirmationAlertDialog(
+                onDismissRequest = { showDeleteAllDialog.value = false },
+                onConfirmation = {
+                    onAction(DeletedRecordsScreenAction.DeleteAllRecordsFromRecycle)
+                    showDeleteAllDialog.value = false
+                },
+                dialogTitle = stringResource(id = R.string.warning),
+                dialogText = stringResource(id = R.string.delete_all_records),
+                painter = painterResource(id = R.drawable.ic_delete_forever),
+                positiveButton = stringResource(id = R.string.btn_yes),
+                negativeButton = stringResource(id = R.string.btn_no)
+            )
         }
     }
 }
@@ -207,4 +263,16 @@ fun DeletedRecordsScreenPreview() {
                 )
             )
         ), null, {})
+}
+
+@Preview(showBackground = true, name = "Empty State")
+@Composable
+fun DeletedRecordsScreenEmptyPreview() {
+    DeletedRecordsScreen(
+        onPopBackStack = {},
+        showRecordInfoScreen = {},
+        uiState = DeletedRecordsScreenState(records = emptyList()),
+        event = null,
+        onAction = {},
+    )
 }

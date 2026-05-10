@@ -17,9 +17,10 @@
 package com.dimowner.audiorecorder.v2.app.records
 
 import android.net.Uri
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,12 +28,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -49,13 +52,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -72,7 +73,6 @@ import com.dimowner.audiorecorder.v2.app.home.HomeScreenAction
 import com.dimowner.audiorecorder.v2.app.home.HomeScreenState
 import com.dimowner.audiorecorder.v2.app.lostrecords.LostRecordsDialog
 import com.dimowner.audiorecorder.v2.app.records.models.RecordDropDownMenuItemId
-import com.dimowner.audiorecorder.v2.app.settings.SettingsItem
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
@@ -327,31 +327,34 @@ internal fun RecordsScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.BottomStart,
             ) {
-                if (uiState.isShowLoadingProgress) {
-                    //Show nothing because of progress takes very short period of time
-                } else if (uiState.recordsMap.isEmpty()) {
+                if (uiState.isShowLoadingProgress && uiState.recordsMap.isEmpty()) {
+                    // Full-screen loading indicator on initial load
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                } else if (!uiState.isShowLoadingProgress && uiState.recordsMap.isEmpty()) {
+                    // Empty state
                     Column(
                         modifier = Modifier
-                            .wrapContentSize()
-                            .align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .align(Alignment.Center)
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
                     ) {
-                        Image(
-                            modifier = Modifier.wrapContentSize(),
+                        Icon(
                             painter = painterResource(id = R.drawable.ic_audiotrack_64),
-                            contentDescription = "Image Description",
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                            contentDescription = null,
+                            modifier = Modifier.size(72.dp),
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                         )
+                        Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            modifier = Modifier.wrapContentSize(),
                             text = if (uiState.bookmarksSelected) {
                                 stringResource(R.string.no_bookmarks)
                             } else {
                                 stringResource(R.string.no_records)
                             },
                             color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Normal
+                            style = MaterialTheme.typography.titleLarge,
+                            textAlign = TextAlign.Center,
                         )
                     }
                 }
@@ -364,8 +367,39 @@ internal fun RecordsScreen(
                     ) {
                         if (uiState.showDeletedRecordsButton) {
                             item(key = "trash_button") {
-                                SettingsItem(stringResource(R.string.trash), R.drawable.ic_delete) {
-                                    showDeletedRecordsScreen()
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    onClick = { showDeletedRecordsScreen() },
+                                ) {
+                                    Column {
+                                        HorizontalDivider(
+                                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
+                                        )
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 16.dp, vertical = 14.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                        ) {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.ic_delete),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(24.dp),
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                            Text(
+                                                text = stringResource(R.string.trash),
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                modifier = Modifier.weight(1f),
+                                                fontSize = 18.sp,
+                                            )
+                                        }
+                                        HorizontalDivider(
+                                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -385,7 +419,8 @@ internal fun RecordsScreen(
                                             modifier = Modifier.padding(
                                                 16.dp, 10.dp, 16.dp, 2.dp
                                             ),
-                                            textAlign = TextAlign.Center
+                                            textAlign = TextAlign.Center,
+                                            fontSize = 16.sp,
                                         )
                                     }
                                 }

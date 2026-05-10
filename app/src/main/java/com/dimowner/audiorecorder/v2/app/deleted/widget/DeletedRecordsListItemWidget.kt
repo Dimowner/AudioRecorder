@@ -16,19 +16,19 @@
 
 package com.dimowner.audiorecorder.v2.app.deleted.widget
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -41,8 +41,10 @@ import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ConfirmationAlertDialog
 
@@ -50,111 +52,117 @@ import com.dimowner.audiorecorder.v2.app.ConfirmationAlertDialog
 fun DeletedRecordsListItemWidget(
     name: String,
     details: String,
+    duration: String,
     onClickItem: () -> Unit,
     onClickRestore: () -> Unit,
     onClickDelete: () -> Unit,
 ) {
     val showDeleteDialog = remember { mutableStateOf(false) }
-    val showRestoreDialog = remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .clickable { onClickItem() }
-            .fillMaxWidth()
-            .wrapContentHeight()
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClickItem,
     ) {
-        Column(
-            modifier = Modifier.wrapContentSize(),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(
+        Column {
+            Row(
                 modifier = Modifier
-                    .padding(12.dp, 8.dp, 12.dp, 2.dp)
-                    .wrapContentWidth()
-                    .wrapContentHeight(),
-                text = name,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge,
-            )
-            Text(
-                modifier = Modifier
-                    .padding(12.dp, 2.dp)
-                    .wrapContentWidth()
-                    .wrapContentHeight(),
-                text = details,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyLarge,
-                fontFamily = FontFamily(
-                    Font(
-                        DeviceFontFamilyName("sans-serif"),
-                        weight = FontWeight.Light
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 4.dp, top = 12.dp, bottom = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                // Name + details + duration
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Text(
+                        text = name,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontSize = 18.sp,
                     )
-                ),
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = duration,
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium,
+                        )
+                        Text(
+                            text = details,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontFamily = FontFamily(
+                                Font(
+                                    DeviceFontFamilyName("sans-serif"),
+                                    weight = FontWeight.Light,
+                                )
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+
+                // Action buttons
+                IconButton(
+                    onClick = onClickRestore,
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_restore_from_trash),
+                        contentDescription = stringResource(id = R.string.restore),
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
+                IconButton(
+                    onClick = { showDeleteDialog.value = true },
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_delete_forever),
+                        contentDescription = stringResource(id = R.string.delete),
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
+            }
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
             )
         }
-        Row(
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Button(
-                modifier = Modifier.padding(4.dp).wrapContentSize(),
-                onClick = { showRestoreDialog.value = true }
-            ) {
-                Text(
-                    text = stringResource(id = R.string.restore),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Light,
-                )
-            }
-            Button(
-                modifier = Modifier.padding(4.dp).wrapContentSize(),
-                onClick = { showDeleteDialog.value = true }
-            ) {
-                Text(
-                    text = stringResource(id = R.string.delete),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Light,
-                )
-            }
-        }
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(color = MaterialTheme.colorScheme.inverseOnSurface)
+    }
+
+    if (showDeleteDialog.value) {
+        ConfirmationAlertDialog(
+            onDismissRequest = { showDeleteDialog.value = false },
+            onConfirmation = {
+                onClickDelete()
+                showDeleteDialog.value = false
+            },
+            dialogTitle = stringResource(id = R.string.warning),
+            dialogText = stringResource(id = R.string.delete_record_forever, name),
+            painter = painterResource(id = R.drawable.ic_delete_forever),
+            positiveButton = stringResource(id = R.string.btn_yes),
+            negativeButton = stringResource(id = R.string.btn_no),
         )
-        if (showDeleteDialog.value) {
-            ConfirmationAlertDialog(
-                onDismissRequest = { showDeleteDialog.value = false },
-                onConfirmation = {
-                    onClickDelete()
-                    showDeleteDialog.value = false
-                },
-                dialogTitle = stringResource(id = R.string.warning),
-                dialogText = stringResource(id = R.string.delete_record_forever, name),
-                painter = painterResource(id = R.drawable.ic_delete_forever),
-                positiveButton = stringResource(id = R.string.btn_yes),
-                negativeButton = stringResource(id = R.string.btn_no)
-            )
-        }
-        if (showRestoreDialog.value) {
-            ConfirmationAlertDialog(
-                onDismissRequest = { showRestoreDialog.value = false },
-                onConfirmation = {
-                    onClickRestore()
-                    showRestoreDialog.value = false
-                },
-                dialogTitle = stringResource(id = R.string.warning),
-                dialogText = stringResource(id = R.string.restore_record, name),
-                painter = painterResource(id = R.drawable.ic_restore_from_trash),
-                positiveButton = stringResource(id = R.string.btn_yes),
-                negativeButton = stringResource(id = R.string.btn_no)
-            )
-        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DeletedRecordsListItemWidgetPreview() {
-    DeletedRecordsListItemWidget("Label", "Value", {}, {}, {})
+    DeletedRecordsListItemWidget(
+        name = "Recording_2024-01-15",
+        details = "4.5 MB · mp3 · 128 kbps",
+        duration = "5:21",
+        onClickItem = {},
+        onClickRestore = {},
+        onClickDelete = {},
+    )
 }

@@ -23,21 +23,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +55,7 @@ import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -91,7 +90,7 @@ fun RecordsTopBar(
                 .align(Alignment.CenterVertically),
         ) {
             Icon(
-                imageVector = Icons.Default.ArrowBack,
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = stringResource(R.string.navigate_back),
                 modifier = Modifier.size(24.dp)
             )
@@ -363,6 +362,7 @@ fun MultiSelectTopBar(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_delete),
                     contentDescription = stringResource(id = R.string.delete),
+                    tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier
                         .size(36.dp)
                         .padding(6.dp)
@@ -399,56 +399,74 @@ fun RecordListItemView(
 ) {
     val expanded = remember { mutableStateOf(false) }
 
-    Row(
-        modifier = Modifier
-            .background(color = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f) else Color.Transparent)
-            .combinedClickable(
-                onClick = {
-                    onClickItem()
-                },
-                onLongClick = {
-                    onLongClickItem()
-                }
-            )
-            .fillMaxWidth()
-            .wrapContentHeight()
-    ) {
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(
-                modifier = Modifier
-                    .padding(16.dp, 12.dp, 12.dp, 2.dp)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                text = name,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge,
-                fontSize = 19.sp,
-            )
-            Text(
-                modifier = Modifier
-                    .padding(16.dp, 4.dp, 12.dp, 8.dp)
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                text = details,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Light,
-            )
-        }
-        Column(
+    Column {
+        Row(
             modifier = Modifier
-                .wrapContentSize()
-                .padding(0.dp, 4.dp),
-            horizontalAlignment = Alignment.End
+                .background(
+                    color = if (isSelected) {
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                    } else {
+                        Color.Transparent
+                    }
+                )
+                .combinedClickable(
+                    onClick = { onClickItem() },
+                    onLongClick = { onLongClickItem() }
+                )
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 0.dp, top = 12.dp, bottom = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
+            // Name + duration/details
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    text = name,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 19.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = duration,
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                    )
+                    Text(
+                        text = details,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontFamily = FontFamily(
+                            Font(
+                                DeviceFontFamilyName("sans-serif"),
+                                weight = FontWeight.Light,
+                            )
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                    )
+                }
+            }
+
+            // Bookmark button
             IconButton(
                 onClick = { onClickBookmark(!isBookmarked) },
-                modifier = Modifier
-                    .width(36.dp)
-                    .height(32.dp)
+                modifier = Modifier.size(width = 36.dp, height = 42.dp),
             ) {
                 Icon(
                     painter = if (isBookmarked) {
@@ -457,66 +475,76 @@ fun RecordListItemView(
                         painterResource(id = R.drawable.ic_bookmark_bordered_small)
                     },
                     contentDescription = stringResource(id = R.string.bookmarks),
-                    modifier = Modifier
-                        .padding(6.dp)
-                        .size(36.dp)
-                        .fillMaxHeight()
-                )
-            }
-            Text(
-                modifier = Modifier
-                    .padding(0.dp, 2.dp, 8.dp, 12.dp)
-                    .wrapContentWidth()
-                    .wrapContentHeight(),
-                text = duration,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 14.sp,
-                fontFamily = FontFamily(
-                    Font(
-                        DeviceFontFamilyName("sans-serif"),
-                        weight = FontWeight.Light
-                    )
-                ),
-            )
-        }
-        if (isShowMenuButton) {
-            Box(
-                modifier = Modifier.align(Alignment.CenterVertically),
-            ) {
-                // The DropdownMenu composable
-                RecordsDropDownMenu(
-                    items = remember { getRecordsDroDownMenuItems() },
-                    onItemClick = { itemId ->
-                        onClickMenu(itemId)
+                    tint = if (isBookmarked) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
                     },
-                    expanded = expanded
+                    modifier = Modifier.size(20.dp),
                 )
-                IconButton(
-                    onClick = { expanded.value = !expanded.value },
-                    modifier = Modifier
-                        .width(36.dp)
-                        .height(60.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = stringResource(id = androidx.compose.ui.R.string.dropdown_menu),
-                        modifier = Modifier
-                            .width(30.dp)
-                            .padding(4.dp)
-                            .fillMaxHeight()
-                    )
-                }
             }
-        } else {
-            Spacer(modifier = Modifier.width(36.dp).height(60.dp))
+
+            // More menu button
+            if (isShowMenuButton) {
+                Box(modifier = Modifier.align(Alignment.CenterVertically)) {
+                    RecordsDropDownMenu(
+                        items = remember { getRecordsDroDownMenuItems() },
+                        onItemClick = { itemId -> onClickMenu(itemId) },
+                        expanded = expanded,
+                    )
+                    IconButton(
+                        onClick = { expanded.value = !expanded.value },
+                        modifier = Modifier.size(width = 36.dp, height = 42.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = stringResource(id = androidx.compose.ui.R.string.dropdown_menu),
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                }
+            } else {
+                Spacer(modifier = Modifier.width(40.dp))
+            }
         }
+        HorizontalDivider(
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),
+        )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun RecordListItemPreview() {
-    RecordListItemView("Label", "Value", "Duration", true, true, true,  {}, {}, {}, {})
+    RecordListItemView(
+        name = "Recording_2024-01-15",
+        details = "1.5 MB · mp4 · 192 kbps · 48 kHz",
+        duration = "3:15",
+        isBookmarked = true,
+        isSelected = false,
+        isShowMenuButton = true,
+        onClickItem = {},
+        onLongClickItem = {},
+        onClickBookmark = {},
+        onClickMenu = {},
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RecordListItemSelectedPreview() {
+    RecordListItemView(
+        name = "Recording_2024-01-15",
+        details = "4.5 MB · mp3 · 128 kbps · 32 kHz",
+        duration = "8:15",
+        isBookmarked = false,
+        isSelected = true,
+        isShowMenuButton = false,
+        onClickItem = {},
+        onLongClickItem = {},
+        onClickBookmark = {},
+        onClickMenu = {},
+    )
 }
 
 @Composable
@@ -590,6 +618,7 @@ fun MultiSelectMenu(
             Icon(
                 painter = painterResource(id = R.drawable.ic_delete),
                 contentDescription = stringResource(id = R.string.delete),
+                tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier
                     .size(36.dp)
                     .padding(6.dp)
