@@ -37,6 +37,7 @@ private const val PLAY_PANEL_HEIGHT_DP = 300
 fun TouchPanel(
     showRecordPlaybackPanel: Boolean,
     uiHomeState: HomeScreenState,
+    isBookmarked: Boolean = false,
     onProgressChange: (Float) -> Unit,
     onSeekStart: () -> Unit,
     onSeekProgress: (Long) -> Unit,
@@ -44,6 +45,9 @@ fun TouchPanel(
     onPlayClick: () -> Unit,
     onStopClick: () -> Unit,
     onPauseClick: () -> Unit,
+    onBookmarkClick: () -> Unit = {},
+    onPrevClick: () -> Unit = {},
+    onNextClick: () -> Unit = {},
 ) {
     val density = LocalDensity.current
     // State to keep track of the Card position
@@ -150,6 +154,7 @@ fun TouchPanel(
                     .fillMaxWidth()
                     .wrapContentHeight(),
                 uiState = uiHomeState,
+                isBookmarked = isBookmarked,
                 onProgressChange = onProgressChange,
                 onSeekStart = onSeekStart,
                 onSeekProgress = onSeekProgress,
@@ -157,6 +162,9 @@ fun TouchPanel(
                 onPlayClick = onPlayClick,
                 onStopClick = onStopClick,
                 onPauseClick = onPauseClick,
+                onBookmarkClick = onBookmarkClick,
+                onPrevClick = onPrevClick,
+                onNextClick = onNextClick,
             )
         }
     }

@@ -203,6 +203,8 @@
 	<string name="btn_got_it">了解</string>
 	<string name="btn_no">否</string>
 	<string name="btn_play">播放</string>
+	<string name="btn_previous">上一個</string>
+	<string name="btn_next">下一個</string>
 	<string name="btn_deny">拒絕</string>
     <string name="btn_details">資訊</string>
 	<string name="btn_get_started">開始</string>

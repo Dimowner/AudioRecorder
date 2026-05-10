@@ -183,6 +183,8 @@
 	<string name="btn_got_it">Compris</string>
 	<string name="btn_no">Non</string>
 	<string name="btn_play">Lancer</string>
+	<string name="btn_previous">Précédent</string>
+	<string name="btn_next">Suivant</string>
 	<string name="btn_deny">Refuser</string>
     <string name="btn_details">Détails</string>
 	<string name="btn_get_started">Démarrer</string>

@@ -200,6 +200,8 @@
 	<string name="btn_got_it">Anladım</string>
 	<string name="btn_no">Hayır</string>
 	<string name="btn_play">Oynat</string>
+	<string name="btn_previous">Önceki</string>
+	<string name="btn_next">Sonraki</string>
 	<string name="btn_deny">Reddet</string>
     <string name="btn_details">Detaylar</string>
 	<string name="btn_get_started">Başlayalım</string>

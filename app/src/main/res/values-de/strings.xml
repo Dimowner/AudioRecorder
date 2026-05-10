@@ -202,6 +202,8 @@
 	<string name="btn_got_it">Verstanden</string>
 	<string name="btn_no">Nein</string>
 	<string name="btn_play">Abspielen</string>
+	<string name="btn_previous">Zurück</string>
+	<string name="btn_next">Weiter</string>
 	<string name="btn_deny">Ablehnen</string>
     <string name="btn_details">Details</string>
 	<string name="btn_get_started">Loslegen</string>

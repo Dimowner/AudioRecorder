@@ -203,6 +203,8 @@
 	<string name="btn_got_it">了解しました</string>
 	<string name="btn_no">いいえ</string>
 	<string name="btn_play">再生</string>
+	<string name="btn_previous">前へ</string>
+	<string name="btn_next">次へ</string>
 	<string name="btn_deny">拒否</string>
     <string name="btn_details">詳細</string>
 	<string name="btn_get_started">始める</string>

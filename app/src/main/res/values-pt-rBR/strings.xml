@@ -200,6 +200,8 @@
     <string name="btn_got_it">Entendi</string>
     <string name="btn_no">Não</string>
     <string name="btn_play">Reproduzir</string>
+    <string name="btn_previous">Anterior</string>
+    <string name="btn_next">Próximo</string>
     <string name="btn_deny">Negar</string>
     <string name="btn_details">Detalhes</string>
     <string name="btn_get_started">Começar</string>

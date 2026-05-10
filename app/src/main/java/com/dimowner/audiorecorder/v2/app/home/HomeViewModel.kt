@@ -912,21 +912,19 @@ class HomeViewModel @Inject constructor(
         audioPlayer.seek(mills)
     }
 
-    fun handlePlayClick() {
+    suspend fun handlePlayClick() {
         if (!audioPlayer.isPlaying()) {
-            viewModelScope.launch(ioDispatcher) {
-                val activeRecord = recordsDataSource.getActiveRecord()
-                if (activeRecord != null) {
-                    withContext(mainDispatcher) {
-                        //Start playback in Audio Playback Service
-                        val context: Context = getApplication<Application>().applicationContext
-                        AudioPlaybackService.startServiceForeground(
-                            context = context,
-                            name = activeRecord.name,
-                            path = activeRecord.path,
-                            durationMills = activeRecord.durationMills
-                        )
-                    }
+            val activeRecord = recordsDataSource.getActiveRecord()
+            if (activeRecord != null) {
+                withContext(mainDispatcher) {
+                    //Start playback in Audio Playback Service
+                    val context: Context = getApplication<Application>().applicationContext
+                    AudioPlaybackService.startServiceForeground(
+                        context = context,
+                        name = activeRecord.name,
+                        path = activeRecord.path,
+                        durationMills = activeRecord.durationMills
+                    )
                 }
             }
         } else {
@@ -1031,6 +1029,12 @@ class HomeViewModel @Inject constructor(
     fun onAction(action: HomeScreenAction) {
         when (action) {
             HomeScreenAction.OnStartHomeScreen -> onStart()
+            HomeScreenAction.LoadActiveRecordAndPlay -> {
+                viewModelScope.launch(ioDispatcher) {
+                    updateState()
+                    handlePlayClick()
+                }
+            }
             HomeScreenAction.OnStopHomeScreen -> onStop()
             is HomeScreenAction.ImportAudioFile -> importAudioFile(action.uri)
             HomeScreenAction.ShareActiveRecord -> shareActiveRecord()
@@ -1048,7 +1052,11 @@ class HomeViewModel @Inject constructor(
             is HomeScreenAction.OnSeekEnd -> handleSeekEnd(action.mills)
             is HomeScreenAction.OnProgressBarStateChange -> handleProgressBarStateChange(action.value)
             HomeScreenAction.OnPauseClick -> handlePlaybackPauseClick()
-            HomeScreenAction.OnPlayClick -> handlePlayClick()
+            HomeScreenAction.OnPlayClick -> {
+                viewModelScope.launch(ioDispatcher) {
+                    handlePlayClick()
+                }
+            }
             HomeScreenAction.OnStopClick -> handlePlaybackStopClick()
             //Recording
             HomeScreenAction.OnStartRecordingClick -> {
@@ -1234,6 +1242,7 @@ enum class BottomBarState {
 
 sealed class HomeScreenAction {
     data object OnStartHomeScreen : HomeScreenAction()
+    data object LoadActiveRecordAndPlay : HomeScreenAction()
     data object OnStopHomeScreen : HomeScreenAction()
     data class ImportAudioFile(val uri: Uri) : HomeScreenAction()
     data object ShareActiveRecord : HomeScreenAction()

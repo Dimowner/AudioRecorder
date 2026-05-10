@@ -559,6 +559,7 @@ internal fun RecordsScreen(
                     TouchPanel(
                         showRecordPlaybackPanel = uiState.showRecordPlaybackPanel,
                         uiHomeState = uiHomeState,
+                        isBookmarked = uiState.activeRecord?.isBookmarked ?: false,
                         onProgressChange = {
                             onHomeAction(
                                 HomeScreenAction.OnProgressBarStateChange(
@@ -576,6 +577,17 @@ internal fun RecordsScreen(
                             }
                         },
                         onPauseClick = { onHomeAction(HomeScreenAction.OnPauseClick) },
+                        onBookmarkClick = {
+                            onAction(RecordsScreenAction.BookmarkActiveRecord)
+                        },
+                        onPrevClick = {
+                            onAction(RecordsScreenAction.PlayPreviousRecord)
+                            onHomeAction(HomeScreenAction.LoadActiveRecordAndPlay)
+                        },
+                        onNextClick = {
+                            onAction(RecordsScreenAction.PlayNextRecord)
+                            onHomeAction(HomeScreenAction.LoadActiveRecordAndPlay)
+                        },
                     )
                 }
 //                AnimatedVisibility(

@@ -219,6 +219,45 @@ internal class RecordsViewModel @Inject constructor(
         )
     }
 
+    private fun bookmarkActiveRecord() {
+        val record = _state.value.activeRecord ?: return
+        val newIsBookmarked = !record.isBookmarked
+        viewModelScope.launch(ioDispatcher) {
+            recordsDataSource.getRecord(record.recordId)?.let {
+                recordsDataSource.updateRecord(it.copy(isBookmarked = newIsBookmarked))
+            }
+            withContext(mainDispatcher) {
+                val updatedRecord = record.copy(isBookmarked = newIsBookmarked)
+                _state.value = _state.value.copy(
+                    activeRecord = updatedRecord
+                ).updateRecordInMap(record.recordId) { oldRecord ->
+                    oldRecord.copy(isBookmarked = newIsBookmarked)
+                }
+            }
+        }
+    }
+
+    private fun playNextRecord() {
+        val allRecords = _state.value.recordsMap.values.flatten()
+        val activeRecord = _state.value.activeRecord ?: return
+        val currentIndex = allRecords.indexOfFirst { it.recordId == activeRecord.recordId }
+        val nextRecord = allRecords.getOrNull(currentIndex + 1) ?: return
+        audioPlayer.stop()
+        prefs.activeRecordId = nextRecord.recordId
+        _state.value = _state.value.copy(activeRecord = nextRecord)
+    }
+
+    private fun playPreviousRecord() {
+        val allRecords = _state.value.recordsMap.values.flatten()
+        val activeRecord = _state.value.activeRecord ?: return
+        val currentIndex = allRecords.indexOfFirst { it.recordId == activeRecord.recordId }
+        if (currentIndex <= 0) return
+        val previousRecord = allRecords.getOrNull(currentIndex - 1) ?: return
+        audioPlayer.stop()
+        prefs.activeRecordId = previousRecord.recordId
+        _state.value = _state.value.copy(activeRecord = previousRecord)
+    }
+
     fun updateListWithSortOrder(sortOrderId: SortDropDownMenuItemId) {
         viewModelScope.launch(ioDispatcher) {
             currentPage = 1
@@ -493,6 +532,9 @@ internal class RecordsViewModel @Inject constructor(
             is RecordsScreenAction.UpdateListWithSortOrder -> updateListWithSortOrder(action.sortOrderId)
             is RecordsScreenAction.UpdateListWithBookmarks -> updateListWithBookmarks(action.bookmarksSelected)
             is RecordsScreenAction.BookmarkRecord -> bookmarkRecord(action.recordId, action.addToBookmarks)
+            RecordsScreenAction.BookmarkActiveRecord -> bookmarkActiveRecord()
+            RecordsScreenAction.PlayNextRecord -> playNextRecord()
+            RecordsScreenAction.PlayPreviousRecord -> playPreviousRecord()
             is RecordsScreenAction.OnItemSelect -> onItemSelect(action.record)
             is RecordsScreenAction.ShareRecord -> shareRecord(action.recordId)
             is RecordsScreenAction.ShowRecordInfo -> showRecordInfo(action.recordId)
@@ -752,6 +794,7 @@ internal sealed class RecordsScreenEvent {
         RecordsScreenEvent()
     data class ShowErrorSnack(val message: String) : RecordsScreenEvent()
     data class ShowInfoSnack(val message: String) : RecordsScreenEvent()
+    data object StartPlayback : RecordsScreenEvent()
 }
 
 internal sealed class RecordsScreenAction {
@@ -761,6 +804,9 @@ internal sealed class RecordsScreenAction {
     data class UpdateListWithBookmarks(val bookmarksSelected: Boolean) : RecordsScreenAction()
     data class OnItemSelect(val record: RecordListItem) : RecordsScreenAction()
     data class BookmarkRecord(val recordId: Long, val addToBookmarks: Boolean) : RecordsScreenAction()
+    data object BookmarkActiveRecord : RecordsScreenAction()
+    data object PlayNextRecord : RecordsScreenAction()
+    data object PlayPreviousRecord : RecordsScreenAction()
     data class ShareRecord(val recordId: Long) : RecordsScreenAction()
     data class ShowRecordInfo(val recordId: Long) : RecordsScreenAction()
     data class OnRenameRecordRequest(val record: RecordListItem) : RecordsScreenAction()

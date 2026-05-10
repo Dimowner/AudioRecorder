@@ -202,6 +202,8 @@
 	<string name="btn_got_it">Capito</string>
 	<string name="btn_no">No</string>
 	<string name="btn_play">Riproduci</string>
+	<string name="btn_previous">Precedente</string>
+	<string name="btn_next">Successivo</string>
 	<string name="btn_deny">Nega</string>
     <string name="btn_details">Dettagli</string>
 	<string name="btn_get_started">Inizia</string>

@@ -173,6 +173,8 @@
     <string name="btn_got_it">知道了</string>
     <string name="btn_no">否</string>
     <string name="btn_play">播放</string>
+    <string name="btn_previous">上一个</string>
+    <string name="btn_next">下一个</string>
     <string name="btn_deny">拒绝</string>
     <string name="btn_details">详情</string>
     <string name="btn_get_started">开始</string>

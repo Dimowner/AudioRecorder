@@ -202,6 +202,8 @@
 	<string name="btn_got_it">Got it</string>
 	<string name="btn_no">No</string>
 	<string name="btn_play">Play</string>
+	<string name="btn_previous">Previous</string>
+	<string name="btn_next">Next</string>
 	<string name="btn_deny">Deny</string>
     <string name="btn_details">Details</string>
 	<string name="btn_get_started">Get started</string>

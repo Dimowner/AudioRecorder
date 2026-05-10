@@ -201,6 +201,8 @@
 	<string name="btn_got_it">Зрозуміло</string>
 	<string name="btn_no">Ні</string>
 	<string name="btn_play">Грати</string>
+	<string name="btn_previous">Попередній</string>
+	<string name="btn_next">Наступний</string>
 	<string name="btn_deny">Заборонити</string>
     <string name="btn_details">Деталі</string>
 	<string name="btn_get_started">Почати</string>

@@ -221,6 +221,8 @@
 	<string name="btn_got_it">Rozumiem</string>
 	<string name="btn_no">Nie</string>
 	<string name="btn_play">Odtwórz</string>
+	<string name="btn_previous">Poprzedni</string>
+	<string name="btn_next">Następny</string>
 	<string name="btn_deny">Odmów</string>
     <string name="btn_details">Szczegóły</string>
 	<string name="btn_get_started">Rozpocznij</string>
