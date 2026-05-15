@@ -327,9 +327,6 @@ class HomeViewModel @Inject constructor(
                             keepScreenOn = false,
                         )
                     }
-                    if (recState.isStoppedRecording()) {
-                        handleRecordingStopped(recState.recordId, recState.recordName)
-                    }
                 }
             }
         }
@@ -340,6 +337,13 @@ class HomeViewModel @Inject constructor(
         recordingEventJob = viewModelScope.launch {
             service.event.collect { event ->
                 when (event) {
+                    is AudioRecordingServiceEvent.RecordingStopped -> {
+                        // Primary trigger for post-recording UI update. Using the SharedFlow
+                        // event instead of the StateFlow state ensures delivery even when the
+                        // rapid STOPPED→IDLE StateFlow transition is conflated and the collector
+                        // misses the STOPPED state.
+                        handleRecordingStopped(event.recordId, event.recordName)
+                    }
                     is AudioRecordingServiceEvent.NewRecordingPartStarted -> {
                         handleNewRecordingPartStarted(event.recordId)
                     }

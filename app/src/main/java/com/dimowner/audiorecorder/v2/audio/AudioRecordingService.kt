@@ -485,6 +485,10 @@ class AudioRecordingService : Service() {
                             applicationContext.getString(R.string.msg_recording_saved_with_name, record.name)
                         ))
                         if (isNotMaxDurationHandling) {
+                            emitEvent(AudioRecordingServiceEvent.RecordingStopped(
+                                recordId = recordedRecordId,
+                                recordName = record.name,
+                            ))
                             decodeRecord(
                                 recordId = recordUpdated.id,
                                 path = recordUpdated.path,
@@ -817,4 +821,9 @@ sealed class AudioRecordingServiceEvent {
     data class ShowErrorSnack(val message: String) : AudioRecordingServiceEvent()
     data class ShowInfoSnack(val message: String) : AudioRecordingServiceEvent()
     data class NewRecordingPartStarted(val part: Int, val recordId: Long) : AudioRecordingServiceEvent()
+    /**
+     * Emitted after the recording file has been successfully saved and
+     * [prefs.activeRecordId] has been set to [recordId].
+     */
+    data class RecordingStopped(val recordId: Long, val recordName: String?) : AudioRecordingServiceEvent()
 }
