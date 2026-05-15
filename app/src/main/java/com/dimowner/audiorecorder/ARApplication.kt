@@ -62,6 +62,11 @@ class ARApplication : Application() {
         }
         registerAudioOutputChangeReceiver()
         registerRebootReceiver()
+        runCatching {
+            val fileRepo = injector.provideFileRepository(applicationContext)
+            com.dimowner.audiorecorder.util.RecordingsRetention
+                .sweepIfDue(applicationContext, fileRepo?.recordingDir)
+        }
 
         // feature: pause when phone functions ringing or off-hook
         try {
