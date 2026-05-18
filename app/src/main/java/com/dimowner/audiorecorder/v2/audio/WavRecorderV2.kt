@@ -2,7 +2,6 @@ package com.dimowner.audiorecorder.v2.audio
 
 import android.media.AudioFormat
 import android.media.AudioRecord
-import android.os.SystemClock
 import com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
 import com.dimowner.audiorecorder.audio.sumOfAmplitudes
 import com.dimowner.audiorecorder.IntArrayList
@@ -51,6 +50,7 @@ class WavRecorderV2 @Inject constructor(
     private var timerProgress: Timer? = null
     private val amplitudesBuffer: IntArrayList = IntArrayList()
     @Volatile private var lastNonZeroAmplitude: Int = 0
+    @Volatile private var lastEmittedDurationMills: Long = -1L
 
     private val _event = MutableSharedFlow<RecorderEvent>()
     override fun subscribeRecorderEvents(): Flow<RecorderEvent> {
@@ -77,6 +77,7 @@ class WavRecorderV2 @Inject constructor(
         }
         amplitudesBuffer.clear()
         lastNonZeroAmplitude = 0
+        lastEmittedDurationMills = -1L
         if (!outputFile.exists() || !outputFile.isFile) {
             emitEvent(RecorderEvent.OnError(InvalidOutputFile()))
             return false
@@ -100,6 +101,14 @@ class WavRecorderV2 @Inject constructor(
             emitEvent(RecorderEvent.OnError(RecorderInitException()))
             return false
         }
+
+        // Read in ~20 ms chunks so durationMills advances every ~20 ms and progress events
+        // are emitted at least that often. frameSize ensures alignment; coerceAtMost keeps
+        // the chunk within the AudioRecord internal buffer to avoid read errors.
+        val frameSize = channelCount * (bitsPerSample / 8)
+        val readChunkSize = ((sampleRate * RECORDING_VISUALIZATION_INTERVAL_NEW / 1000) * frameSize)
+            .coerceAtLeast(frameSize)
+            .coerceAtMost(bufferSize)
 
         val recorder = try {
             AudioRecord(audioSource, sampleRate, channelConfig, audioEncoding, bufferSize)
@@ -157,7 +166,6 @@ class WavRecorderV2 @Inject constructor(
             var fos: FileOutputStream? = null
             var totalBytesWritten = 0L
             val bytesPerSecond = sampleRate * channelCount * (bitsPerSample / 8)
-            var lastProgressUpdate = SystemClock.elapsedRealtime()
             var maxDurationReached = false
 
             try {
@@ -167,7 +175,7 @@ class WavRecorderV2 @Inject constructor(
                         delay(RECORDING_VISUALIZATION_INTERVAL_NEW.toLong())
                         continue
                     }
-                    val readResult = recorder.read(buffer, 0, bufferSize)
+                    val readResult = recorder.read(buffer, 0, readChunkSize)
                     if (readResult > 0) {
                         fos.write(buffer, 0, readResult)
                         totalBytesWritten += readResult
@@ -175,14 +183,9 @@ class WavRecorderV2 @Inject constructor(
                         // Calculate duration from bytes written
                         durationMills = (totalBytesWritten * 1000L) / bytesPerSecond
 
-                        // Emit progress at regular intervals
-                        val now = SystemClock.elapsedRealtime()
-                        if (now - lastProgressUpdate >= RECORDING_VISUALIZATION_INTERVAL_NEW) {
-                            lastProgressUpdate = now
-                            // Calculate amplitude from the buffer (RMS of 16-bit samples)
-                            val amplitude = calculateAmplitude(buffer, readResult)
-                            amplitudesBuffer.add(amplitude)
-                        }
+                        // Each read covers ~RECORDING_VISUALIZATION_INTERVAL_NEW ms, so always update amplitude
+                        val amplitude = calculateAmplitude(buffer, readResult)
+                        amplitudesBuffer.add(amplitude)
 
                         // Check max duration
                         if (maxDurationMills > 0 && durationMills >= maxDurationMills) {
@@ -380,13 +383,18 @@ class WavRecorderV2 @Inject constructor(
         // Timer.cancel() doesn't prevent an already-scheduled task from running; skip stale
         // fires so a late progress event can't flip state back to RECORDING after stop.
         if (!_isRecording || _isPaused) return
+        val currentDuration = durationMills
+        // Skip if durationMills hasn't changed since the last emission — this prevents duplicate
+        // events when the timer fires faster than the AudioRecord buffer fills (~40 ms/buffer).
+        if (currentDuration == lastEmittedDurationMills) return
         if (amplitudesBuffer.size() > 0) {
+            lastEmittedDurationMills = currentDuration
             var amp = amplitudesBuffer.get(amplitudesBuffer.size() - 1)
             if (amp == 0) amp = lastNonZeroAmplitude
             else lastNonZeroAmplitude = amp
             amplitudesBuffer.clear()
             amplitudesBuffer.add(amp)
-            emitEvent(RecorderEvent.OnRecordingProgress(durationMills = durationMills, amplitude = amp))
+            emitEvent(RecorderEvent.OnRecordingProgress(durationMills = currentDuration, amplitude = amp))
         }
     }
 }
