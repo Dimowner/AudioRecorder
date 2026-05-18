@@ -282,6 +282,7 @@ class HomeViewModel @Inject constructor(
                             isShowWaveform = true,
                             showPause = false,
                             showStop = false,
+                            time = TimeUtils.formatTimeIntervalHourMinSec2(recState.durationMills),
                             waveformState = _state.value.waveformState.copy(
                                 waveformData = recState.amplitudes,
                                 durationSample = recState.totalSampleCount,
@@ -299,9 +300,6 @@ class HomeViewModel @Inject constructor(
                     val now = System.currentTimeMillis()
                     if (now - lastProgressUpdate >= RECORDING_PROGRESS_UPDATE_INTERVAL) {
                         lastProgressUpdate = now
-                        _state.value = _state.value.copy(
-                            time = TimeUtils.formatTimeIntervalHourMinSec2(recState.durationMills),
-                        )
                         withContext(ioDispatcher) {
                             updateRecordingProgressInfo()
                         }
