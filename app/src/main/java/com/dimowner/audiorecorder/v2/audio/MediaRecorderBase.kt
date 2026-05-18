@@ -20,6 +20,7 @@ import android.media.MediaRecorder
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
 import com.dimowner.audiorecorder.IntArrayList
 import com.dimowner.audiorecorder.exception.AlreadyRecordingException
@@ -129,8 +130,6 @@ abstract class MediaRecorderBase(
             try {
                 recorder.prepare()
                 recorder.start()
-                updateTime = System.currentTimeMillis()
-                _isRecording = true
                 scheduleRecordingTimeUpdate()
                 scheduleRecordingTimeUpdateBuffered()
                 emitEvent(RecorderEvent.OnStartRecording)
@@ -157,7 +156,7 @@ abstract class MediaRecorderBase(
         return try {
             mediaRecorder?.let { recorder ->
                 recorder.resume()
-                updateTime = System.currentTimeMillis()
+                updateTime = SystemClock.elapsedRealtime()
                 scheduleRecordingTimeUpdate()
                 scheduleRecordingTimeUpdateBuffered()
                 emitEvent(RecorderEvent.OnResumeRecording)
@@ -180,7 +179,7 @@ abstract class MediaRecorderBase(
             try {
                 mediaRecorder?.let { recorder ->
                     recorder.pause()
-                    durationMills += System.currentTimeMillis() - updateTime
+                    durationMills += SystemClock.elapsedRealtime() - updateTime
                     pauseRecordingTimer()
                     pauseRecordingTimerBuffered()
                     emitEvent(RecorderEvent.OnPauseRecording)
@@ -260,17 +259,26 @@ abstract class MediaRecorderBase(
      * duration + amplitude progress events.
      */
     private val recordingTimeUpdateRunnable = Runnable {
-        if (isRecording && !isPaused) {
-            val currentRecorder = mediaRecorder
-            if (currentRecorder != null) {
+        val currentRecorder = mediaRecorder
+        if (currentRecorder != null) {
+            if (!isRecording) {
+                //Set that recording is started only after receiving a valid amplitude value,
+                //which indicates that recording has actually started.
+                val amplitude = currentRecorder.maxAmplitude
+                if (amplitude > 0) {
+                    _isRecording = true
+                    updateTime = SystemClock.elapsedRealtime()
+                    amplitudesBuffer.add(amplitude)
+                }
+            } else if (isRecording && !isPaused) {
                 try {
                     val amplitude = currentRecorder.maxAmplitude
                     amplitudesBuffer.add(amplitude)
                 } catch (e: IllegalStateException) {
                     Timber.e(e, "Error reading amplitude or updating progress")
                 }
-                scheduleRecordingTimeUpdate()
             }
+            scheduleRecordingTimeUpdate()
         }
     }
 
@@ -316,14 +324,10 @@ abstract class MediaRecorderBase(
         // Timer.cancel() doesn't prevent an already-scheduled task from running; skip stale
         // fires so a late progress event can't flip state back to RECORDING after stop.
         if (!_isRecording || _isPaused) return
-        val curTime = System.currentTimeMillis()
-        durationMills += curTime - updateTime
-        updateTime = curTime
-        // Snap durationMills to the nearest RECORDING_VISUALIZATION_INTERVAL_NEW boundary
-        // so that the sample count derived in AudioRecordingService stays perfectly aligned
-        // with the reported duration, preventing waveform-vs-timeline drift.
-        durationMills = (durationMills / RECORDING_VISUALIZATION_INTERVAL_NEW) * RECORDING_VISUALIZATION_INTERVAL_NEW
         if (amplitudesBuffer.size() > 0) {
+            val curTime = SystemClock.elapsedRealtime()
+            durationMills += curTime - updateTime
+            updateTime = curTime
             var amp = amplitudesBuffer.get(amplitudesBuffer.size() - 1)
             if (amp == 0) amp = lastNonZeroAmplitude
             else lastNonZeroAmplitude = amp

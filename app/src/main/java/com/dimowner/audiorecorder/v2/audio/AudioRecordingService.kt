@@ -154,6 +154,13 @@ class AudioRecordingService : Service() {
     /** Job for the current recorder-events subscription; cancelled before re-subscribing. */
     private var subscriptionJob: Job? = null
 
+    /**
+     * Timestamp (in ms) of the last available-space check.
+     * Space is checked at most once every [AppConstants.MIN_REMAIN_RECORDING_TIME] / 2 ms
+     * to avoid redundant I/O on every recording progress tick.
+     */
+    private var lastAvailableSpaceCheckTime: Long = 0L
+
     inner class ServiceBinder : Binder() {
         fun getService(): AudioRecordingService = this@AudioRecordingService
     }
@@ -230,6 +237,7 @@ class AudioRecordingService : Service() {
                     is RecorderEvent.OnStartRecording -> {
                         recordingAmplitudes.clear()
                         totalRecordingSampleCount = 0
+                        lastAvailableSpaceCheckTime = 0L
                         recordingFullDataBuffer.reset()
                         _recordingState.value = _recordingState.value.copy(
                             recordingState = RecordingState.STARTED,
@@ -276,18 +284,22 @@ class AudioRecordingService : Service() {
         )
         val state = _recordingState.value
         state.recordingFormat?.let { format ->
-            val space = fileDataSource.getAvailableSpace()
-            val availableTimeSeconds = convertSpaceBytesToTimeInSeconds(
-                spaceBytes = space,
-                recordingFormat = format,
-                sampleRate = state.sampleRate,
-                bitrate = state.bitrate,
-                channels = state.channelCount,
-            )
-            if (availableTimeSeconds < AppConstants.MIN_REMAIN_RECORDING_TIME) {
-                //There is running out space on the device.
-                //Stop recording before it completely run out.
-                audioRecorder.stopRecording()
+            val now = System.currentTimeMillis()
+            if (now - lastAvailableSpaceCheckTime >= AppConstants.MIN_REMAIN_RECORDING_TIME / 2) {
+                lastAvailableSpaceCheckTime = now
+                val space = fileDataSource.getAvailableSpace()
+                val availableTimeSeconds = convertSpaceBytesToTimeInSeconds(
+                    spaceBytes = space,
+                    recordingFormat = format,
+                    sampleRate = state.sampleRate,
+                    bitrate = state.bitrate,
+                    channels = state.channelCount,
+                )
+                if (availableTimeSeconds < AppConstants.MIN_REMAIN_RECORDING_TIME) {
+                    //There is running out space on the device.
+                    //Stop recording before it completely run out.
+                    audioRecorder.stopRecording()
+                }
             }
         }
 

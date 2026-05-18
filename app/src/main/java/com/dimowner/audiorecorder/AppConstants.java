@@ -163,7 +163,7 @@ public class AppConstants {
 
 	/** Time interval for Recording progress visualisation. */
 	public final static int RECORDING_VISUALIZATION_INTERVAL = 13; //mills
-	public final static int RECORDING_VISUALIZATION_INTERVAL_NEW = 10; //mills
+	public final static int RECORDING_VISUALIZATION_INTERVAL_NEW = 15; //mills
 	public final static int PLAYBACK_VISUALIZATION_INTERVAL = (int)(2.1* RECORDING_VISUALIZATION_INTERVAL); //mills
 
 	public final static int RECORD_BYTES_PER_SECOND = RECORD_ENCODING_BITRATE_48000 /8; //bits per sec converted to bytes per sec.

@@ -2,6 +2,7 @@ package com.dimowner.audiorecorder.v2.audio
 
 import android.media.AudioFormat
 import android.media.AudioRecord
+import android.os.SystemClock
 import com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
 import com.dimowner.audiorecorder.audio.sumOfAmplitudes
 import com.dimowner.audiorecorder.IntArrayList
@@ -42,7 +43,6 @@ class WavRecorderV2 @Inject constructor(
     override val isPaused: Boolean
         get() = _isPaused
 
-    private var updateTime: Long = 0
     private var durationMills: Long = 0
     private var sampleRateConfig: Int = 44100
     private var channelCountConfig: Int = 1
@@ -157,7 +157,7 @@ class WavRecorderV2 @Inject constructor(
             var fos: FileOutputStream? = null
             var totalBytesWritten = 0L
             val bytesPerSecond = sampleRate * channelCount * (bitsPerSample / 8)
-            var lastProgressUpdate = System.currentTimeMillis()
+            var lastProgressUpdate = SystemClock.elapsedRealtime()
             var maxDurationReached = false
 
             try {
@@ -176,7 +176,7 @@ class WavRecorderV2 @Inject constructor(
                         durationMills = (totalBytesWritten * 1000L) / bytesPerSecond
 
                         // Emit progress at regular intervals
-                        val now = System.currentTimeMillis()
+                        val now = SystemClock.elapsedRealtime()
                         if (now - lastProgressUpdate >= RECORDING_VISUALIZATION_INTERVAL_NEW) {
                             lastProgressUpdate = now
                             // Calculate amplitude from the buffer (RMS of 16-bit samples)
@@ -369,26 +369,17 @@ class WavRecorderV2 @Inject constructor(
     private fun stopRecordingTimer() {
         timerProgress?.cancel()
         timerProgress?.purge()
-        updateTime = 0
     }
 
     private fun pauseRecordingTimer() {
         timerProgress?.cancel()
         timerProgress?.purge()
-        updateTime = 0
     }
 
     private fun readBufferedProgress() {
         // Timer.cancel() doesn't prevent an already-scheduled task from running; skip stale
         // fires so a late progress event can't flip state back to RECORDING after stop.
         if (!_isRecording || _isPaused) return
-        val curTime = System.currentTimeMillis()
-        durationMills += curTime - updateTime
-        updateTime = curTime
-        // Snap durationMills to the nearest RECORDING_VISUALIZATION_INTERVAL_NEW boundary
-        // so that the sample count derived in AudioRecordingService stays perfectly aligned
-        // with the reported duration, preventing waveform-vs-timeline drift.
-        durationMills = (durationMills / RECORDING_VISUALIZATION_INTERVAL_NEW) * RECORDING_VISUALIZATION_INTERVAL_NEW
         if (amplitudesBuffer.size() > 0) {
             var amp = amplitudesBuffer.get(amplitudesBuffer.size() - 1)
             if (amp == 0) amp = lastNonZeroAmplitude
