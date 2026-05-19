@@ -115,18 +115,43 @@ internal class RecordsViewModel @Inject constructor(
         currentPage = 1
         val context: Context = getApplication<Application>().applicationContext
         val sortOrder = state.value.sortOrder
-        val records = recordsDataSource.getRecords(
-            sortOrder = sortOrder,
-            page = currentPage,
-            pageSize = DEFAULT_PAGE_SIZE,
-            isBookmarked = false,
-        )
+        val activeRecordId = prefs.activeRecordId
+
+        // Load pages until the active record is found or there are no more pages.
+        // Extra pages are only fetched when the playback panel is visible (i.e. a record is
+        // currently playing) AND there is a valid active record ID, because only then are the
+        // playNextRecord/playPreviousRecord buttons available and need the record in-memory.
+        val allLoadedRecords = mutableListOf<Record>()
+        var hasMoreData: Boolean
+        var activeRecordFound = !showPlayPanel || activeRecordId <= 0
+        while (true) {
+            val page = recordsDataSource.getRecords(
+                sortOrder = sortOrder,
+                page = currentPage,
+                pageSize = DEFAULT_PAGE_SIZE,
+                isBookmarked = false,
+            )
+            allLoadedRecords.addAll(page)
+            hasMoreData = page.size >= DEFAULT_PAGE_SIZE
+            if (!activeRecordFound && page.any { it.id == activeRecordId }) {
+                activeRecordFound = true
+            }
+            // Stop when found, or when there are no more pages to load.
+            if (activeRecordFound || !hasMoreData) break
+            currentPage++
+        }
+
         val deletedRecordsCount = recordsDataSource.getMovedToRecycleRecordsCount()
-        val lostRecords = checkForLostRecords(records)
+        val lostRecords = checkForLostRecords(allLoadedRecords)
+
+        val activeRecord: RecordListItem? = if (showPlayPanel && activeRecordId > 0) {
+            allLoadedRecords.find { it.id == activeRecordId }?.toRecordListItem(context)
+        } else null
+
         withContext(mainDispatcher) {
             _state.value = RecordsScreenState(
                 sortOrder = sortOrder,
-                recordsMap = records.map {
+                recordsMap = allLoadedRecords.map {
                     it.toRecordListItem(context)
                 }.groupRecordsByDate(context, sortOrder),
                 showDeletedRecordsButton = deletedRecordsCount > 0,
@@ -136,7 +161,8 @@ internal class RecordsViewModel @Inject constructor(
                 recordedRecordId = prefs.recordedRecordId,
                 showLostRecordsDialog = lostRecords.isNotEmpty(),
                 lostRecords = lostRecords,
-                hasMoreData = records.size >= DEFAULT_PAGE_SIZE,
+                hasMoreData = hasMoreData,
+                activeRecord = activeRecord,
             )
             showLoadingProgress(false)
         }
