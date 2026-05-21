@@ -37,6 +37,7 @@ import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
 import com.dimowner.audiorecorder.v2.audio.AudioRecorderDelegate
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
 import com.dimowner.audiorecorder.v2.data.extensions.checkForLostRecords
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
@@ -60,6 +61,7 @@ internal class RecordsViewModel @Inject constructor(
     private val prefs: PrefsV2,
     private val audioPlayer: PlayerContractNew.Player,
     private val audioRecorderDelegate: AudioRecorderDelegate,
+    private val analyticsTracker: AnalyticsTracker,
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext context: Context,
@@ -143,6 +145,9 @@ internal class RecordsViewModel @Inject constructor(
 
         val deletedRecordsCount = recordsDataSource.getMovedToRecycleRecordsCount()
         val lostRecords = checkForLostRecords(allLoadedRecords)
+        if (lostRecords.isNotEmpty()) {
+            analyticsTracker.trackLostRecordsDetected(count = lostRecords.size)
+        }
 
         val activeRecord: RecordListItem? = if (showPlayPanel && activeRecordId > 0) {
             allLoadedRecords.find { it.id == activeRecordId }?.toRecordListItem(context)

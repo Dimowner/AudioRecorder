@@ -69,6 +69,7 @@ import com.dimowner.audiorecorder.v2.data.extensions.isLostRecord
 import com.dimowner.audiorecorder.v2.data.extensions.copyFile
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.Record
+import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -95,6 +96,7 @@ class HomeViewModel @Inject constructor(
     private val prefs: PrefsV2,
     private val audioPlayer: PlayerContractNew.Player,
     private val audioManagerHelper: AudioManagerHelper,
+    private val analyticsTracker: AnalyticsTracker,
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext context: Context,
@@ -1114,6 +1116,10 @@ class HomeViewModel @Inject constructor(
                 // Show the last broken record for restoration
                 val brokenRecord = brokenRecords.last()
                 Timber.d("Broken record detected: id=${brokenRecord.id}, name=${brokenRecord.name}, path=${brokenRecord.path}")
+                analyticsTracker.trackBrokenRecordDetected(
+                    format = brokenRecord.format,
+                    count = brokenRecords.size,
+                )
                 withContext(mainDispatcher) {
                     _state.value = _state.value.copy(
                         showBrokenRecordDialog = true,
@@ -1132,6 +1138,7 @@ class HomeViewModel @Inject constructor(
             val context: Context = getApplication<Application>().applicationContext
             val success = recordsDataSource.restoreBrokenRecord(brokenRecord.id)
             if (success) {
+                analyticsTracker.trackBrokenRecordRestoreSuccess(format = brokenRecord.format)
                 prefs.activeRecordId = brokenRecord.id
                 updateState()
                 // Trigger waveform decoding for the restored record
@@ -1143,6 +1150,7 @@ class HomeViewModel @Inject constructor(
                     context.getString(R.string.msg_broken_record_restored, brokenRecord.name)
                 )
             } else {
+                analyticsTracker.trackBrokenRecordRestoreFailed(format = brokenRecord.format)
                 withContext(mainDispatcher) {
                     showLoadingProgress(false)
                 }

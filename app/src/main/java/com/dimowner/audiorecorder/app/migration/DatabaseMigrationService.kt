@@ -40,6 +40,7 @@ import com.dimowner.audiorecorder.app.main.MainActivity
 import com.dimowner.audiorecorder.data.Prefs
 import com.dimowner.audiorecorder.data.database.LocalRepository
 import com.dimowner.audiorecorder.util.isUsingNightModeResources
+import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
 import com.dimowner.audiorecorder.v2.data.room.AppDatabase
 import com.dimowner.audiorecorder.v2.data.toRecordEntity
 import com.dimowner.audiorecorder.v2.data.toRecordV2
@@ -81,6 +82,9 @@ class DatabaseMigrationService : Service() {
     @Inject
     lateinit var appDatabase: AppDatabase
 
+    @Inject
+    lateinit var analyticsTracker: AnalyticsTracker
+
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
@@ -116,6 +120,7 @@ class DatabaseMigrationService : Service() {
                 performMigration()
             } catch (e: Exception) {
                 Timber.e(e, "Database migration failed")
+                analyticsTracker.trackDbMigrationFailed(e)
                 prefs.setLastMigrationToRoomFailedTime(System.currentTimeMillis())
                 stopService()
             }
@@ -124,6 +129,9 @@ class DatabaseMigrationService : Service() {
 
     private fun performMigration() {
         Timber.d("Starting database migration from SQLite to Room")
+
+        analyticsTracker.trackDbMigrationStarted()
+        val migrationStartMs = System.currentTimeMillis()
 
         val recordDao = appDatabase.recordDao()
         var totalMigrated = 0
@@ -162,6 +170,11 @@ class DatabaseMigrationService : Service() {
 
         // Mark migration as complete
         prefs.setDatabaseMigratedToRoom(true)
+        val durationMs = System.currentTimeMillis() - migrationStartMs
+        analyticsTracker.trackDbMigrationSuccess(
+            migratedRecordCount = totalMigrated,
+            durationMs = durationMs,
+        )
         Timber.d("Database migration completed successfully. Total records migrated: $totalMigrated")
 
         stopService()

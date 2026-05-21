@@ -34,6 +34,7 @@ import com.dimowner.audiorecorder.v2.app.formatSampleRate
 import com.dimowner.audiorecorder.v2.app.recordingSettingsCombinedText
 import com.dimowner.audiorecorder.v2.app.removeOutdatedTrashRecords
 import com.dimowner.audiorecorder.v2.audio.AudioRecorderDelegate
+import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
@@ -61,6 +62,7 @@ internal class SettingsViewModel @Inject constructor(
     private val fileDataSource: FileDataSource,
     private val audioPlayer: PlayerContractNew.Player,
     private val audioRecorderDelegate: AudioRecorderDelegate,
+    private val analyticsTracker: AnalyticsTracker,
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext context: Context,
@@ -193,6 +195,11 @@ internal class SettingsViewModel @Inject constructor(
     fun handleUseAppV2(value: Boolean) {
         if (prefs.isAppV2 != value) {
             prefs.isAppV2 = value
+            if (value) {
+                analyticsTracker.trackSwitchToAppV2()
+            } else {
+                analyticsTracker.trackSwitchToLegacyApp()
+            }
         }
         audioPlayer.stop()
     }

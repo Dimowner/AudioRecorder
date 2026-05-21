@@ -53,8 +53,11 @@ import com.dimowner.audiorecorder.app.records.RecordsPresenter;
 import com.dimowner.audiorecorder.app.settings.SettingsContract;
 import com.dimowner.audiorecorder.app.settings.SettingsPresenter;
 import com.dimowner.audiorecorder.data.database.TrashDataSource;
+import com.dimowner.audiorecorder.v2.analytics.AnalyticsEntryPoint;
+import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker;
 import com.dimowner.audiorecorder.v2.data.room.AppDatabase;
 import com.dimowner.audiorecorder.v2.data.room.RecordDao;
+import dagger.hilt.android.EntryPointAccessors;
 
 public class Injector {
 
@@ -214,9 +217,21 @@ public class Injector {
 		if (settingsPresenter == null) {
 			settingsPresenter = new SettingsPresenter(provideLocalRepository(context), provideFileRepository(context),
 					provideRecordingTasksQueue(), provideLoadingTasksQueue(), providePrefs(context),
-					provideSettingsMapper(context), provideAppRecorder(context), provideAudioPlayer());
+					provideSettingsMapper(context), provideAppRecorder(context), provideAudioPlayer(),
+					provideAnalyticsTracker(context));
 		}
 		return settingsPresenter;
+	}
+
+	/**
+	 * Provides the app-scoped {@link AnalyticsTracker} singleton managed by Hilt.
+	 * Uses {@link EntryPointAccessors} so that legacy V1 classes (which are not
+	 * Hilt-injected) can still share the same tracker instance as V2.
+	 */
+	public AnalyticsTracker provideAnalyticsTracker(Context context) {
+		return EntryPointAccessors
+				.fromApplication(context.getApplicationContext(), AnalyticsEntryPoint.class)
+				.analyticsTracker();
 	}
 
 	public TrashContract.UserActionsListener provideTrashPresenter(Context context) {
