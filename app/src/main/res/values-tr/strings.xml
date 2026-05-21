@@ -71,6 +71,7 @@
 	<string name="total_record_count">Toplam kayıt: %d</string>
 	<string name="available_space">Mevcut alan: %s</string>
     <string name="delete_all2">Hepsini sil</string>
+    <string name="delete_all3">Çöpü boşalt</string>
 	<string name="records_were_removed">Bazı kayıtlar dizinde bulunamadı, silinmiş veya taşınmış olabilir.</string>
 	<string name="title_file_is_not_available">Kayıtlar dizinine erişim izni yok!</string>
 	<string name="details_file_is_not_available">Maalesef, uygulama artık genel dizine erişemiyor.\nKayıt dosyasını telefonunuzun dosya yöneticisinde şu konumda bulabilirsiniz:\n%s</string>
@@ -90,6 +91,7 @@
 	<string name="recording_feature_disabled">Kayıt özelliği devre dışı</string>
 	<string name="restore_record">%s kaydını geri yükle?</string>
 	<string name="delete_all_records">Bütün kayıtları sil?</string>
+	<string name="delete_all_records2">Çöp kutusu boşaltılsın mı? Tüm kayıtlar kalıcı olarak silinecek.</string>
 	<string name="all_records_deleted">Bütün kayıtlar silindi</string>
 	<string name="failed_to_delete_all_records">Bütün kayıtlar silinirken bir sorun oluştu</string>
 	<string name="please_select_record_to_share">Paylaşmak için bir kayıt seçin</string>

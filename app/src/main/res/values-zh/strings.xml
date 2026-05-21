@@ -51,6 +51,7 @@
     <string name="total_record_count">总录音数量：%d</string>
     <string name="available_space">可用空间：%s</string>
     <string name="delete_all2">删除所有</string>
+    <string name="delete_all3">清空回收站</string>
     <string name="records_were_removed">在录音目录中找不到某些录音文件。可能已被移走或删除。</string>
     <string name="title_file_is_not_available">无法访问录音文件！</string>
     <string name="details_file_is_not_available">很遗憾，应用程序不再能够访问 Android 公共存储。\n您可以在以下位置找到录音文件：\n%s</string>
@@ -68,6 +69,7 @@
     <string name="recording_feature_disabled">录制功能已禁用</string>
     <string name="restore_record">恢复录音 %s?</string>
     <string name="delete_all_records">删除所有录音?</string>
+    <string name="delete_all_records2">清空回收站？所有录音将被永久删除。</string>
     <string name="all_records_deleted">所有录音已成功删除</string>
     <string name="failed_to_delete_all_records">未能删除所有录音</string>
     <string name="please_select_record_to_share">请选择一个要分享的录音</string>

@@ -78,6 +78,7 @@
 	<string name="total_record_count">Łączna liczba nagrań: %d</string>
 	<string name="available_space">Dostępne miejsce: %s</string>
     <string name="delete_all2">Usuń wszystkie</string>
+    <string name="delete_all3">Opróżnij kosz</string>
 	<string name="records_were_removed">Niektóre pliki nagrań nie zostały znalezione w katalogu nagrań. Możliwe, że zostały usunięte lub przeniesione.</string>
 	<string name="title_file_is_not_available">Brak dostępu do pliku nagrania!</string>
 	<string name="details_file_is_not_available">Niestety aplikacja nie ma już dostępu do publicznej pamięci masowej systemu Android.\nPlik nagrania można znaleźć na smartfonie w tej lokalizacji:\n%s</string>
@@ -101,6 +102,7 @@
 	<string name="recording_feature_disabled">Funkcja nagrywania jest wyłączona</string>
 	<string name="restore_record">Przywrócić nagranie %s?</string>
 	<string name="delete_all_records">Usunąć wszystkie nagrania?</string>
+	<string name="delete_all_records2">Opróżnić kosz? Wszystkie nagrania zostaną trwale usunięte.</string>
 	<string name="all_records_deleted">Wszystkie nagrania zostały pomyślnie usunięte</string>
 	<string name="failed_to_delete_all_records">Nie udało się usunąć wszystkich nagrań</string>
 	<string name="please_select_record_to_share">Wybierz nagranie do udostępnienia</string>

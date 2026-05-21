@@ -412,7 +412,6 @@ class HomeViewModel @Inject constructor(
         })
     }
 
-    //TODO: This function call is unsynchronized with service
     private suspend fun handleRecordingStopped(recordedRecordId: Long, recordName: String?) {
         withContext(ioDispatcher) {
             if (recordedRecordId >= 0) {

@@ -71,6 +71,7 @@
 	<string name="total_record_count">數量總計：%d</string>
 	<string name="available_space">可用空間：%s</string>
     <string name="delete_all2">全部刪除</string>
+	<string name="delete_all3">清空垃圾桶</string>
 	<string name="records_were_removed">找不到資料夾內的部分錄音，可能已被移動或刪除。</string>
 	<string name="title_file_is_not_available">無法存取錄音檔案</string>
 	<string name="details_file_is_not_available">很抱歉，應用程式無法繼續存取共用儲存空間。
@@ -92,6 +93,7 @@
 	<string name="recording_feature_disabled">錄製功能已停用</string>
 	<string name="restore_record">復原錄音？\n「%s」</string>
 	<string name="delete_all_records">刪除所有錄音？</string>
+	<string name="delete_all_records2">清空垃圾桶？所有錄音將被永久刪除。</string>
 	<string name="all_records_deleted">已刪除所有錄音</string>
 	<string name="failed_to_delete_all_records">刪除所有錄音失敗</string>
 	<string name="please_select_record_to_share">請選擇要分享的錄音</string>

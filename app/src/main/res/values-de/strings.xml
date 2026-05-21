@@ -73,6 +73,7 @@
 	<string name="total_record_count">Gesamtanzahl der Aufnahmen: %d</string>
 	<string name="available_space">Verfügbarer Speicher: %s</string>
     <string name="delete_all2">Alle löschen</string>
+    <string name="delete_all3">Papierkorb leeren</string>
 	<string name="records_were_removed">Einige Aufnahmedateien wurden im Aufnahmeverzeichnis nicht gefunden. Möglicherweise wurden sie entfernt oder verschoben.</string>
 	<string name="title_file_is_not_available">Kein Zugriff auf die Aufnahmedatei!</string>
 	<string name="details_file_is_not_available">Die App hat leider keinen Zugriff mehr auf den öffentlichen Android-Speicher.\nDie Aufnahmedatei befindet sich auf Ihrem Smartphone unter:\n%s</string>
@@ -92,6 +93,7 @@
 	<string name="recording_feature_disabled">Aufnahmefunktion deaktiviert</string>
 	<string name="restore_record">Aufnahme %s wiederherstellen?</string>
 	<string name="delete_all_records">Alle Aufnahmen löschen?</string>
+	<string name="delete_all_records2">Papierkorb leeren? Alle Aufnahmen werden dauerhaft gelöscht.</string>
 	<string name="all_records_deleted">Alle Aufnahmen erfolgreich gelöscht</string>
 	<string name="failed_to_delete_all_records">Alle Aufnahmen konnten nicht gelöscht werden</string>
 	<string name="please_select_record_to_share">Bitte eine Aufnahme zum Teilen auswählen</string>

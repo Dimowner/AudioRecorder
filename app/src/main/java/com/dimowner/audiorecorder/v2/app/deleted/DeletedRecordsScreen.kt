@@ -150,7 +150,7 @@ internal fun DeletedRecordsScreen(
             ScrollableTitleBar(
                 title = stringResource(id = R.string.trash),
                 onBackPressed = { onPopBackStack() },
-                actionButtonText = stringResource(id = R.string.delete_all2),
+                actionButtonText = stringResource(id = R.string.delete_all3),
                 scrollBehavior = scrollBehavior,
                 onActionClick = if (uiState.records.isNotEmpty()) {
                     { showDeleteAllDialog.value = true }
@@ -271,7 +271,7 @@ internal fun DeletedRecordsScreen(
                     showDeleteAllDialog.value = false
                 },
                 dialogTitle = stringResource(id = R.string.warning),
-                dialogText = stringResource(id = R.string.delete_all_records),
+                dialogText = stringResource(id = R.string.delete_all_records2),
                 painter = painterResource(id = R.drawable.ic_delete_forever),
                 positiveButton = stringResource(id = R.string.btn_yes),
                 negativeButton = stringResource(id = R.string.btn_no)

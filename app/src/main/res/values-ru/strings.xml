@@ -57,6 +57,7 @@
 	<string name="total_record_count">Суммарное количество записей: %d</string>
 	<string name="available_space">Доступное место: %s</string>
     <string name="delete_all2">Удалить все</string>
+    <string name="delete_all3">Очистить корзину</string>
 	<string name="records_were_removed">Некоторые записи не были найдены в папке с записями. Возможно они были удалены или перемещены.</string>
 	<string name="title_file_is_not_available">Нет доступа к файлу записи!</string>
 	<string name="details_file_is_not_available">К сожалению, у приложения больше нет доступа к общедоступному хранилищу Android.\nВы можете найти файл записи на вашем смартфоне по такому адресу:\n%s</string>
@@ -80,6 +81,7 @@
 	<string name="recording_feature_disabled">Функция записи отключена</string>
 	<string name="restore_record">Восстановить запись %s?</string>
 	<string name="delete_all_records">Удалить все записи?</string>
+	<string name="delete_all_records2">Очистить корзину? Все записи будут удалены навсегда.</string>
 	<string name="all_records_deleted">Все записи удалены успешно</string>
 	<string name="failed_to_delete_all_records">Ошибка при удалении всех записей</string>
 	<string name="please_select_record_to_share">Пожалуйста, выберите или запишите аудио файл для распространения</string>

@@ -73,6 +73,7 @@
 	<string name="total_record_count">Numero totale di registrazioni: %d</string>
 	<string name="available_space">Spazio disponibile: %s</string>
     <string name="delete_all2">Elimina tutto</string>
+    <string name="delete_all3">Svuota il cestino</string>
 	<string name="records_were_removed">Alcuni file di registrazione non sono stati trovati nella cartella delle registrazioni. Probabilmente sono stati rimossi o spostati.</string>
 	<string name="title_file_is_not_available">Nessun accesso al file di registrazione!</string>
 	<string name="details_file_is_not_available">Purtroppo l\'app non ha più accesso all\'archivio pubblico di Android.\nPuoi trovare il file di registrazione sul tuo smartphone in questa posizione:\n%s</string>
@@ -92,6 +93,7 @@
 	<string name="recording_feature_disabled">Funzione di registrazione disabilitata</string>
 	<string name="restore_record">Ripristinare la registrazione %s?</string>
 	<string name="delete_all_records">Eliminare tutte le registrazioni?</string>
+	<string name="delete_all_records2">Svuotare il cestino? Tutte le registrazioni verranno eliminate definitivamente.</string>
 	<string name="all_records_deleted">Tutte le registrazioni eliminate con successo</string>
 	<string name="failed_to_delete_all_records">Impossibile eliminare tutte le registrazioni</string>
 	<string name="please_select_record_to_share">Seleziona una registrazione da condividere</string>

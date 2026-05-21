@@ -54,6 +54,7 @@
 	<string name="total_record_count">Nombre d\'enregistrements total : %d</string>
 	<string name="available_space">Place disponible : %s</string>
     <string name="delete_all2">Tout supprimer</string>
+    <string name="delete_all3">Vider la corbeille</string>
 	<string name="records_were_removed">Un ou plusieurs enregistrements n\'ont pas été trouvés dans le dossier des enregistrements. Ils ont potentiellement été déplacés ou supprimés.</string>
 	<string name="title_file_is_not_available">Le fichier d\'enregistrement n\'est pas accessible !</string>
 	<string name="details_file_is_not_available">Malheureusement, l\'application n\'a plus accès au stockage public d\'Android.\nVous pouvez retrouver le fichier d\'enregistrement dans votre smartphone à cet endroit :\n%s</string>
@@ -73,6 +74,7 @@
 	<string name="recording_feature_disabled">Fonctionnalité d\'enregistrement désactivée</string>
 	<string name="restore_record">Récupérer l\'enregistrement %s ?</string>
 	<string name="delete_all_records">Supprimer tous les enregistrements ?</string>
+	<string name="delete_all_records2">Vider la corbeille ? Tous les enregistrements seront définitivement supprimés.</string>
 	<string name="all_records_deleted">Tous les enregistrements ont été supprimés avec succès</string>
 	<string name="failed_to_delete_all_records">Échec de la suppression de tous les enregistrements</string>
 	<string name="please_select_record_to_share">Veuillez sélectionner un enregistrement à partager</string>

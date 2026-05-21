@@ -74,6 +74,7 @@
     <string name="total_record_count">Total de gravações: %d</string>
     <string name="available_space">Espaço disponível: %s</string>
     <string name="delete_all2">Eliminar tudo</string>
+    <string name="delete_all3">Esvaziar reciclagem</string>
     <string name="records_were_removed">Alguns ficheiros de gravação não foram encontrados na pasta de gravações. Possivelmente foram eliminados ou movidos.</string>
     <string name="title_file_is_not_available">Sem acesso ao ficheiro de gravação!</string>
     <string name="details_file_is_not_available">Infelizmente, a aplicação já não tem acesso ao armazenamento público do Android.\nPode encontrar o ficheiro de gravação no seu dispositivo neste local:\n%s</string>
@@ -93,6 +94,7 @@
     <string name="recording_feature_disabled">Funcionalidade de gravação desativada</string>
     <string name="restore_record">Restaurar a gravação %s?</string>
     <string name="delete_all_records">Eliminar todas as gravações?</string>
+    <string name="delete_all_records2">Esvaziar reciclagem? Todas as gravações serão eliminadas permanentemente.</string>
     <string name="all_records_deleted">Todas as gravações foram eliminadas com sucesso</string>
     <string name="failed_to_delete_all_records">Falha ao eliminar todas as gravações</string>
     <string name="please_select_record_to_share">Por favor, selecione uma gravação para partilhar</string>

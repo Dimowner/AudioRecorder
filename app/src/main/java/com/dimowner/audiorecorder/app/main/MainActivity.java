@@ -83,12 +83,6 @@ import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
 
-// TODO: Fix waveform when long record (there is no waveform)
-// TODO: Ability to scroll up from the bottom of the list
-//	TODO: Bluetooth micro support
-//	TODO: Mp3 support
-//	TODO: Add Noise gate
-
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
 	public static final int REQ_CODE_WRITE_EXTERNAL_STORAGE = 404;

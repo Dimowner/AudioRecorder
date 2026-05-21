@@ -74,6 +74,7 @@
 	<string name="total_record_count">録音の合計数：%d</string>
 	<string name="available_space">利用可能な空き容量：%s</string>
     <string name="delete_all2">すべて削除</string>
+	<string name="delete_all3">ゴミ箱を空にする</string>
 	<string name="records_were_removed">録音ディレクトリ内で見つからないファイルがあります。削除または移動された可能性があります。</string>
 	<string name="title_file_is_not_available">録音ファイルにアクセスできません！</string>
 	<string name="details_file_is_not_available">申し訳ありませんが、アプリはAndroidの公開ストレージにアクセスできなくなりました。\n録音ファイルはスマートフォンの次の場所にあります：\n%s</string>
@@ -93,6 +94,7 @@
 	<string name="recording_feature_disabled">録音機能は無効です</string>
 	<string name="restore_record">録音%sを復元しますか？</string>
 	<string name="delete_all_records">すべての録音を削除しますか？</string>
+	<string name="delete_all_records2">ゴミ箱を空にしますか？すべての録音が完全に削除されます。</string>
 	<string name="all_records_deleted">すべての録音を正常に削除しました</string>
 	<string name="failed_to_delete_all_records">すべての録音の削除に失敗しました</string>
 	<string name="please_select_record_to_share">共有する録音を選択してください</string>
