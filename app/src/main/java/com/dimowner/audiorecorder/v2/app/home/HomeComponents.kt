@@ -426,7 +426,7 @@ fun RecordingPausePanel(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Button(
-            modifier = Modifier.size(86.dp, 48.dp),
+            modifier = Modifier.size(94.dp, 48.dp),
             onClick = onDebounceClick(onDeleteRecordingClick),
             contentPadding = PaddingValues(6.dp),
             colors = ButtonDefaults.buttonColors(
@@ -446,10 +446,11 @@ fun RecordingPausePanel(
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.End,
                     text = stringResource(R.string.delete),
-                    fontSize = 13.sp
+                    fontSize = 12.sp,
+                    maxLines = 1,
                 )
                 Icon(
-                    modifier = Modifier.size(32.dp).padding(4.dp),
+                    modifier = Modifier.size(32.dp).padding(2.dp),
                     painter = painterResource(id = R.drawable.ic_delete_forever_36),
                     contentDescription = stringResource(id = R.string.delete),
                 )
@@ -463,7 +464,7 @@ fun RecordingPausePanel(
         )
         Spacer(modifier = Modifier.width(8.dp))
         Button(
-            modifier = Modifier.size(86.dp, 48.dp),
+            modifier = Modifier.size(94.dp, 48.dp),
             onClick = onDebounceClick(onStopRecordingClick),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF48A54B),
@@ -480,7 +481,7 @@ fun RecordingPausePanel(
                 horizontalArrangement = Arrangement.Center,
             ) {
                 Icon(
-                    modifier = Modifier.size(32.dp).padding(4.dp),
+                    modifier = Modifier.size(32.dp).padding(2.dp),
                     painter = painterResource(id = R.drawable.ic_stop),
                     contentDescription = stringResource(R.string.button_stop),
                 )
@@ -488,7 +489,8 @@ fun RecordingPausePanel(
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Start,
                     text = stringResource(R.string.button_stop),
-                    fontSize = 13.sp
+                    fontSize = 12.sp,
+                    maxLines = 1,
                 )
             }
         }

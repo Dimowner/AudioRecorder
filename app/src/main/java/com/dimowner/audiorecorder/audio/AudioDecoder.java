@@ -174,8 +174,17 @@ public class AudioDecoder {
 							}
 						} while (result >= 0 && total < maxresult * 5 && advanced && inputBuffer.capacity() - inputBuffer.limit() > maxresult*3);//3 it is just for insurance. When remove it crash happens. it is ok if replace it by 2 number.
 						decoded += total;
-						if (advanced) {
-							codec.queueInputBuffer(index, 0, total, sampleTime, 0);
+						if (total > 0) {
+							if (advanced) {
+								codec.queueInputBuffer(index, 0, total, sampleTime, 0);
+							} else {
+								// Last chunk: queue the data together with the EOS flag so it
+								// is not discarded. Without this, short files (e.g. <2 s WAV
+								// at 8 kHz) where all audio fits in a single read result in an
+								// empty gains array and a blank waveform.
+								codec.queueInputBuffer(index, 0, total, sampleTime, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+								mInputEOS = true;
+							}
 						} else {
 							codec.queueInputBuffer(index, 0, 0, -1, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
 							mInputEOS = true;
@@ -213,7 +222,7 @@ public class AudioDecoder {
 						while (outputBuffer.remaining() > 0) {
 							oneFrameAmps[frameIndex] = outputBuffer.getShort();
 							frameIndex++;
-							if (frameIndex >= oneFrameAmps.length - 1) {
+							if (frameIndex >= oneFrameAmps.length) {
 								int j;
 								int gain, value;
 								gain = -1;
@@ -227,7 +236,7 @@ public class AudioDecoder {
 										gain = value;
 									}
 								}
-								gains.add((int) Math.sqrt(gain));
+								gains.add((int) Math.sqrt(Math.max(gain, 0)));
 								frameIndex = 0;
 							}
 						}
@@ -237,6 +246,27 @@ public class AudioDecoder {
 					codec.releaseOutputBuffer(index, false);
 
 					if (mOutputEOS) {
+						// Emit the final partial frame (if any samples accumulated but
+						// did not yet fill a complete frame). Without this, recordings
+						// whose total sample count is not a multiple of the frame size
+						// silently drop the trailing samples; for very short files this
+						// can mean ALL samples are lost.
+						if (frameIndex > 0) {
+							int j;
+							int gain = -1, value;
+							for (j = 0; j < frameIndex; j += channelCount) {
+								value = 0;
+								for (int k = 0; k < channelCount && j + k < frameIndex; k++) {
+									value += oneFrameAmps[j + k];
+								}
+								value /= channelCount;
+								if (gain < value) {
+									gain = value;
+								}
+							}
+							gains.add((int) Math.sqrt(Math.max(gain, 0)));
+							frameIndex = 0;
+						}
 						if (decodeListener.isCanceled()) {
 							decodeListener.onProcessingCancel();
 						} else {

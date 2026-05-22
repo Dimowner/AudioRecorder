@@ -278,7 +278,8 @@ class DecodeService : Service() {
 							recordsDataSource.getRecord(recordId)?.let { record ->
 								recordsDataSource.updateRecord(
 									record.copy(
-										amps = data
+										amps = data,
+										isWaveformProcessed = true
 									)
 								)
 							}
