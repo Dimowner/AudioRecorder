@@ -38,8 +38,6 @@ data class SettingsState(
     val recordingSettings: List<RecordingSetting>,
     val sizePerMin: String,
     val recordingSettingsText: String,
-    val rateAppLink: String,
-    val feedbackEmail: String,
     val totalRecordCount: Int,
     val totalRecordDuration: Long,
     val availableSpaceMills: Long,

@@ -86,9 +86,12 @@ internal class SettingsViewModel @Inject constructor(
         decimalFormat = DecimalFormat("#.#", formatSymbols)
     }
 
-    private val _state: MutableState<SettingsState> = mutableStateOf(
-        //TODO: Move default state creation into a function
-        SettingsState(
+    private val _state: MutableState<SettingsState> = mutableStateOf(createDefaultState(context))
+
+    val state: State<SettingsState> = _state
+
+    private fun createDefaultState(context: Context): SettingsState {
+        return SettingsState(
             isDynamicColors = prefs.isDynamicTheme,
             isDarkTheme = prefs.isDarkTheme,
             isAppV2 = prefs.isAppV2,
@@ -137,8 +140,6 @@ internal class SettingsViewModel @Inject constructor(
                 formatBitRate(bitRateStrings, selectedBitRate),
                 formatChannelCount(channelCountsStrings, selectedChannelCount),
             ),
-            rateAppLink = "link",//TODO: Fix hardcoded value
-            feedbackEmail = "email",//TODO: Fix hardcoded value
             totalRecordCount = 0,
             totalRecordDuration = 0,
             availableSpaceMills = 0,
@@ -149,9 +150,7 @@ internal class SettingsViewModel @Inject constructor(
             recordAuthorName = prefs.recordAuthorName,
             isLegacyAppUser = prefs.isLegacyAppUser,
         )
-    )
-
-    val state: State<SettingsState> = _state
+    }
 
     fun initSettings() {
         viewModelScope.launch(ioDispatcher) {

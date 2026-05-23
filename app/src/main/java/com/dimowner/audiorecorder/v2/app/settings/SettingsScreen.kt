@@ -542,8 +542,6 @@ fun SettingsScreenPreview() {
         ),
         sizePerMin = "10",
         recordingSettingsText = "recordingSettingsText",
-        rateAppLink = "rateAppLink",
-        feedbackEmail = "feedbackEmail",
         totalRecordCount = 10,
         totalRecordDuration = 1000500,
         availableSpaceMills = 1010101010,
