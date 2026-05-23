@@ -37,6 +37,9 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.DecodeService
 import com.dimowner.audiorecorder.audio.AudioDecoder
 import com.dimowner.audiorecorder.exception.CantCreateFileException
+import com.dimowner.audiorecorder.exception.ErrorParser
+import com.dimowner.audiorecorder.exception.InvalidOutputFile
+import com.dimowner.audiorecorder.exception.RecorderInitException
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.HomeActivity
 import com.dimowner.audiorecorder.v2.app.getNewRecordName
@@ -270,8 +273,25 @@ class AudioRecordingService : Service() {
                         handleMaxDurationReachedInternal()
                     }
                     is RecorderEvent.OnError -> {
-                        //TODO: handle error???
-                        handleRecordingStopped()
+                        Timber.e(event.exception, "AudioRecordingService: recorder error")
+                        //Send a user-friendly error message to UI based on the type of error
+                        val errorMessage = applicationContext.getString(
+                            ErrorParser.parseException(event.exception)
+                        )
+                        emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(errorMessage))
+
+                        val recordedRecordId = prefs.recordedRecordId
+                        prefs.recordedRecordId = -1
+                        //Recording failed to start. Delete the created record in database and file
+                        // if the error is related to recorder initialization or file creation.
+                        if (event.exception is RecorderInitException
+                            || event.exception is InvalidOutputFile
+                            || event.exception is CantCreateFileException
+                        ) {
+                            recordsDataSource.deleteRecordAndFileForever(recordedRecordId)
+                        }
+
+                        stopForegroundService()
                     }
                 }
             }

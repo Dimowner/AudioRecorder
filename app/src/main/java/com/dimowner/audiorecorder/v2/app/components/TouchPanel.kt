@@ -80,7 +80,6 @@ fun TouchPanel(
                     if (offsetY.floatValue.absoluteValue > playPanelHeight.floatValue * 0.5) {
                         coroutineScope.launch {
                             animatableY.animateTo(
-//                                TODO:Fix constants!!
                                 playPanelHeight.floatValue * 1.5f,
                                 animationSpec = tween(durationMillis = ANIMATION_DURATION)
                             ) {
