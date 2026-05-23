@@ -18,7 +18,6 @@ package com.dimowner.audiorecorder.v2.di
 import android.content.Context
 import com.dimowner.audiorecorder.v2.data.room.AppDatabase
 import com.dimowner.audiorecorder.v2.data.room.RecordDao
-import com.dimowner.audiorecorder.v2.data.room.RecordEditDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -39,10 +38,5 @@ class DatabaseModule {
     @Provides
     fun providePlantDao(appDatabase: AppDatabase): RecordDao {
         return appDatabase.recordDao()
-    }
-
-    @Provides
-    fun provideRecordEditDao(appDatabase: AppDatabase): RecordEditDao {
-        return appDatabase.recordEditDao()
     }
 }

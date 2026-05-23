@@ -22,11 +22,8 @@ import com.dimowner.audiorecorder.v2.audio.BrokenRecordRestorer
 import com.dimowner.audiorecorder.v2.data.extensions.toRecordsSortColumnName
 import com.dimowner.audiorecorder.v2.data.extensions.toSqlSortOrder
 import com.dimowner.audiorecorder.v2.data.model.Record
-import com.dimowner.audiorecorder.v2.data.model.RecordEditOperation
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.data.room.RecordDao
-import com.dimowner.audiorecorder.v2.data.room.RecordEditDao
-import com.dimowner.audiorecorder.v2.data.room.RecordEditEntity
 import com.dimowner.audiorecorder.v2.data.room.RecordEntity
 import timber.log.Timber
 import java.io.File
@@ -38,7 +35,6 @@ import javax.inject.Singleton
 class RecordsDataSourceImpl @Inject internal constructor(
     private val prefs: PrefsV2,
     private val recordDao: RecordDao,
-    private val recordEditDao: RecordEditDao,
     private val fileDataSource: FileDataSource,
     private val brokenRecordRestorer: BrokenRecordRestorer,
 ) : RecordsDataSource {
@@ -116,55 +112,43 @@ class RecordsDataSourceImpl @Inject internal constructor(
     }
 
     override suspend fun renameRecord(record: Record, newName: String): Boolean {
-        //TODO: this function requires improvements
-        try {
-            val transactionId = recordEditDao.insertRecordsEditOperation(
-                createRenameEditOperation(record.id, newName)
-            )
+        return try {
             val renamed = try {
                 fileDataSource.renameFile(record.path, newName)
             } catch (e: Exception) {
                 Timber.e(e)
                 null
             }
-            val result = if (renamed == null) {
-                //The first step has failed. Finish edit operation and return an error.
-                deleteEditRecordOperation(transactionId)
+            if (renamed == null) {
+                // Step 1 failed — nothing to roll back.
                 false
             } else {
                 val isUpdated = try {
-                    //Perform the step 2
-                    recordDao.updateRecord(
+                    val updated = recordDao.updateRecord(
                         record.copy(
                             name = newName,
                             path = renamed.absolutePath
                         ).toRecordEntity()
                     )
-                    deleteEditRecordOperation(transactionId)
+                    if (updated == 0) {
+                        throw Exception("No records updated")
+                    }
                     true
                 } catch (e: Exception) {
                     Timber.e(e)
-                    //The second step has failed. Rollback the first step - rename file back.
-                    val rolledBack = try {
+                    // Step 2 failed — roll back the file rename.
+                    try {
                         fileDataSource.renameFile(renamed.absolutePath, record.name)
-                    } catch (e: Exception) {
-                        Timber.e(e)
-                        null
-                    }
-                    if (rolledBack != null) {
-                        //File name rolled back successfully. Finish edit operation and return an error.
-                        deleteEditRecordOperation(transactionId)
-                    } else {
-                        //Failed to rollback file. Keep edit operation in the database to repeat it later.
+                    } catch (re: Exception) {
+                        Timber.e(re, "Failed to rollback file rename after DB update failure")
                     }
                     false
                 }
                 isUpdated
             }
-            return result
         } catch (e: Exception) {
             Timber.e(e)
-            return false
+            false
         }
     }
 
@@ -183,12 +167,17 @@ class RecordsDataSourceImpl @Inject internal constructor(
     }
 
     private fun deleteRecordAndFileForever(record: RecordEntity): Boolean {
-        try {
-            val transactionId = recordEditDao.insertRecordsEditOperation(
-                createDeleteForeverEditOperation(record.id)
-            )
+        fun deleteFile(): Boolean {
+            return try {
+                fileDataSource.deleteRecordFile(record.path)
+            } catch (e: Exception) {
+                Timber.e(e)
+                false
+            }
+        }
 
-            //The first step - delete record from database
+        return try {
+            // Step 1 — delete record from database.
             val isRecordDeleted = try {
                 recordDao.deleteRecordById(record.id)
                 true
@@ -196,31 +185,20 @@ class RecordsDataSourceImpl @Inject internal constructor(
                 Timber.e(e)
                 false
             }
-            val result = if (isRecordDeleted) {
-                //The second step - delete record file
-                val isFileDeleted = try {
-                    fileDataSource.deleteRecordFile(record.path)
-                } catch (e: Exception) {
-                    Timber.e(e)
-                    false
-                }
-                if (isFileDeleted) {
-                    //The second step has succeed. Finish edit operation and return an success.
-                    deleteEditRecordOperation(transactionId)
-                    true
+            if (isRecordDeleted) {
+                // Step 2 — delete the file from disk.
+                if (!deleteFile()) {
+                    //Retry deleting the file once more.
+                    deleteFile()
                 } else {
-                    //Failed to delete file. Keep edit operation in the database to repeat it later.
-                    false
+                    true
                 }
             } else {
-                //The first step has failed. Finish edit operation and return an error.
-                deleteEditRecordOperation(transactionId)
                 false
             }
-            return result
         } catch (e: Exception) {
             Timber.e(e)
-            return false
+            false
         }
     }
 
@@ -385,53 +363,6 @@ class RecordsDataSourceImpl @Inject internal constructor(
         }
     }
 
-    private fun createRenameEditOperation(recordId: Long, renameName: String): RecordEditEntity {
-        return RecordEditEntity(
-            recordId = recordId,
-            editOperation = RecordEditOperation.Rename,
-            renameName = renameName,
-            created = System.currentTimeMillis(),
-            retryCount = 0,
-        )
-    }
-
-    private fun createMoveToRecycleEditOperation(recordId: Long): RecordEditEntity {
-        return RecordEditEntity(
-            recordId = recordId,
-            editOperation = RecordEditOperation.MoveToRecycle,
-            renameName = null,
-            created = System.currentTimeMillis(),
-            retryCount = 0,
-        )
-    }
-
-    private fun createRestoreFromRecycleEditOperation(recordId: Long): RecordEditEntity {
-        return RecordEditEntity(
-            recordId = recordId,
-            editOperation = RecordEditOperation.RestoreFromRecycle,
-            renameName = null,
-            created = System.currentTimeMillis(),
-            retryCount = 0,
-        )
-    }
-
-    private fun createDeleteForeverEditOperation(recordId: Long): RecordEditEntity {
-        return RecordEditEntity(
-            recordId = recordId,
-            editOperation = RecordEditOperation.DeleteForever,
-            renameName = null,
-            created = System.currentTimeMillis(),
-            retryCount = 0,
-        )
-    }
-
-    private fun deleteEditRecordOperation(id: Long) {
-        try {
-            recordEditDao.deleteRecordEditOperationById(id)
-        } catch (e: Exception) {
-            Timber.e(e)
-        }
-    }
 
     override suspend fun deleteLostRecord(id: Long): Boolean {
         return try {

@@ -16,11 +16,8 @@
 package com.dimowner.audiorecorder.v2.data
 
 import com.dimowner.audiorecorder.v2.audio.BrokenRecordRestorer
-import com.dimowner.audiorecorder.v2.data.model.RecordEditOperation
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.data.room.RecordDao
-import com.dimowner.audiorecorder.v2.data.room.RecordEditDao
-import com.dimowner.audiorecorder.v2.data.room.RecordEditEntity
 import com.dimowner.audiorecorder.v2.data.room.RecordEntity
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -28,7 +25,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import io.mockk.verifyOrder
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertNotNull
@@ -46,9 +42,6 @@ class RecordsDataSourceImplTest {
 
     @MockK
     lateinit var recordDao: RecordDao
-
-    @MockK
-    lateinit var recordEditDao: RecordEditDao
 
     @MockK
     lateinit var fileDataSource: FileDataSource
@@ -84,7 +77,6 @@ class RecordsDataSourceImplTest {
         recordsDataSourceImpl = RecordsDataSourceImpl(
             prefs,
             recordDao,
-            recordEditDao,
             fileDataSource,
             brokenRecordRestorer
         )
@@ -211,12 +203,9 @@ class RecordsDataSourceImplTest {
     fun test_renameRecord_success() = runBlocking {
         val record = testRecordEntity.toRecord()
         val newName = "record_new_name"
-        val transactionId = 303L
         val renamedPath = "path/record_new_name"
         val renamedFile = mockk<File>()
 
-        val recordEditOperation = slot<RecordEditEntity>()
-        every { recordEditDao.insertRecordsEditOperation(capture(recordEditOperation)) } returns transactionId
         every { fileDataSource.renameFile(record.path, newName) } returns renamedFile
         every { renamedFile.absolutePath } returns renamedPath
         every { recordDao.updateRecord(any()) } returns 1
@@ -224,24 +213,11 @@ class RecordsDataSourceImplTest {
         val result = recordsDataSourceImpl.renameRecord(record, newName)
 
         assertTrue(result)
-        assertEquals(record.id, recordEditOperation.captured.recordId)
-        assertEquals(RecordEditOperation.Rename, recordEditOperation.captured.editOperation)
-        assertEquals(newName, recordEditOperation.captured.renameName)
-
-        verifyOrder {
-            //Start transaction
-            recordEditDao.insertRecordsEditOperation(any())
-            //Perform Step 1
-            fileDataSource.renameFile(record.path, newName)
-            //Perform Step 2
+        verify(exactly = 1) { fileDataSource.renameFile(record.path, newName) }
+        verify(exactly = 1) {
             recordDao.updateRecord(
-                record.copy(
-                    name = newName,
-                    path = renamedPath
-                ).toRecordEntity()
+                record.copy(name = newName, path = renamedPath).toRecordEntity()
             )
-            //Finish transaction if success
-            recordEditDao.deleteRecordEditOperationById(transactionId)
         }
     }
 
@@ -249,218 +225,134 @@ class RecordsDataSourceImplTest {
     fun test_renameRecord_step_1_failed() = runBlocking {
         val record = testRecordEntity.toRecord()
         val newName = "record_new_name"
-        val transactionId = 303L
 
-        val recordEditOperation = slot<RecordEditEntity>()
-        every { recordEditDao.insertRecordsEditOperation(capture(recordEditOperation)) } returns transactionId
         every { fileDataSource.renameFile(record.path, newName) } throws Exception("Failed to rename")
 
         val result = recordsDataSourceImpl.renameRecord(record, newName)
 
         assertFalse(result)
-        assertEquals(record.id, recordEditOperation.captured.recordId)
-        assertEquals(RecordEditOperation.Rename, recordEditOperation.captured.editOperation)
-        assertEquals(newName, recordEditOperation.captured.renameName)
+        verify(exactly = 0) { recordDao.updateRecord(any()) }
+    }
 
-        //Verify Step 2 not performed
-        verify(exactly = 0) {
-            recordDao.updateRecord(any())
-        }
-        verifyOrder {
-            //Start transaction
-            recordEditDao.insertRecordsEditOperation(any())
-            //Perform Step 1
-            fileDataSource.renameFile(record.path, newName)
-            //Finish transaction if success
-            recordEditDao.deleteRecordEditOperationById(transactionId)
-        }
+    @Test
+    fun test_renameRecord_step_2_failed_update_returns_0_and_rollback_success() = runBlocking {
+        val record = testRecordEntity.toRecord()
+        val newName = "record_new_name"
+        val renamedPath = "path/record_new_name"
+        val renamedFile = mockk<File>()
+        val rolledBackFile = mockk<File>()
+
+        every { fileDataSource.renameFile(record.path, newName) } returns renamedFile
+        every { renamedFile.absolutePath } returns renamedPath
+        every { rolledBackFile.absolutePath } returns record.path
+        every { recordDao.updateRecord(any()) } returns 0
+        every { fileDataSource.renameFile(renamedPath, record.name) } returns rolledBackFile
+
+        val result = recordsDataSourceImpl.renameRecord(record, newName)
+
+        assertFalse(result)
+        verify(exactly = 1) { fileDataSource.renameFile(record.path, newName) }
+        verify(exactly = 1) { recordDao.updateRecord(record.copy(name = newName, path = renamedPath).toRecordEntity()) }
+        verify(exactly = 1) { fileDataSource.renameFile(renamedPath, record.name) }
     }
 
     @Test
     fun test_renameRecord_step_2_failed_and_rollback_success() = runBlocking {
         val record = testRecordEntity.toRecord()
         val newName = "record_new_name"
-        val transactionId = 303L
         val renamedPath = "path/record_new_name"
         val renamedFile = mockk<File>()
         val rolledBackFile = mockk<File>()
 
-        val recordEditOperation = slot<RecordEditEntity>()
-        every { recordEditDao.insertRecordsEditOperation(capture(recordEditOperation)) } returns transactionId
         every { fileDataSource.renameFile(record.path, newName) } returns renamedFile
         every { renamedFile.absolutePath } returns renamedPath
         every { rolledBackFile.absolutePath } returns record.path
         every { recordDao.updateRecord(any()) } throws Exception("Failed to update record")
-
         every { fileDataSource.renameFile(renamedPath, record.name) } returns rolledBackFile
 
         val result = recordsDataSourceImpl.renameRecord(record, newName)
 
         assertFalse(result)
-        assertEquals(record.id, recordEditOperation.captured.recordId)
-        assertEquals(RecordEditOperation.Rename, recordEditOperation.captured.editOperation)
-        assertEquals(newName, recordEditOperation.captured.renameName)
-
-        verifyOrder {
-            //Start transaction
-            recordEditDao.insertRecordsEditOperation(any())
-            //Perform Step 1
-            fileDataSource.renameFile(record.path, newName)
-            //Perform Step 2
-            recordDao.updateRecord(
-                record.copy(
-                    name = newName,
-                    path = renamedPath
-                ).toRecordEntity()
-            )
-            //Rollback step 1
-            fileDataSource.renameFile(renamedPath, record.name)
-            //Finish transaction if success
-            recordEditDao.deleteRecordEditOperationById(transactionId)
-        }
+        verify(exactly = 1) { fileDataSource.renameFile(record.path, newName) }
+        verify(exactly = 1) { recordDao.updateRecord(record.copy(name = newName, path = renamedPath).toRecordEntity()) }
+        verify(exactly = 1) { fileDataSource.renameFile(renamedPath, record.name) }
     }
 
     @Test
     fun test_renameRecord_step_2_failed_and_rollback_failed() = runBlocking {
         val record = testRecordEntity.toRecord()
         val newName = "record_new_name"
-
-        val transactionId = 303L
         val renamedPath = "path/record_new_name"
         val renamedFile = mockk<File>()
-        val rolledBackFile = mockk<File>()
 
-        val recordEditOperation = slot<RecordEditEntity>()
-        every { recordEditDao.insertRecordsEditOperation(capture(recordEditOperation)) } returns transactionId
         every { fileDataSource.renameFile(record.path, newName) } returns renamedFile
         every { renamedFile.absolutePath } returns renamedPath
-        every { rolledBackFile.absolutePath } returns record.path
         every { recordDao.updateRecord(any()) } throws Exception("Failed to update record")
-
-        every { fileDataSource.renameFile(renamedPath, record.name) } returns null
+        every { fileDataSource.renameFile(renamedPath, record.name) } throws Exception("Failed to rollback")
 
         val result = recordsDataSourceImpl.renameRecord(record, newName)
 
         assertFalse(result)
-        assertEquals(record.id, recordEditOperation.captured.recordId)
-        assertEquals(RecordEditOperation.Rename, recordEditOperation.captured.editOperation)
-        assertEquals(newName, recordEditOperation.captured.renameName)
-
-        //Verify transaction not ended
-        verify(exactly = 0) {
-            recordEditDao.deleteRecordEditOperationById(transactionId)
-        }
-        verifyOrder {
-            //Start transaction
-            recordEditDao.insertRecordsEditOperation(any())
-            //Perform Step 1
-            fileDataSource.renameFile(record.path, newName)
-            //Perform Step 2
-            recordDao.updateRecord(
-                record.copy(
-                    name = newName,
-                    path = renamedPath
-                ).toRecordEntity()
-            )
-            //Rollback step 1
-            fileDataSource.renameFile(renamedPath, record.name)
-        }
+        verify(exactly = 1) { fileDataSource.renameFile(record.path, newName) }
+        verify(exactly = 1) { fileDataSource.renameFile(renamedPath, record.name) }
     }
 
     @Test
     fun test_deleteRecordAndFileForever_success() = runBlocking {
         val recordId = 101L
-        val transactionId = 303L
-
-        val recordEditOperation = slot<RecordEditEntity>()
 
         every { recordDao.getRecordById(recordId) } returns testRecordEntity
-        every { recordEditDao.insertRecordsEditOperation(capture(recordEditOperation)) } returns transactionId
         every { recordDao.deleteRecordById(recordId) } returns Unit
         every { fileDataSource.deleteRecordFile(testRecordEntity.path) } returns true
 
         val result = recordsDataSourceImpl.deleteRecordAndFileForever(recordId)
 
         assertTrue(result)
-        assertEquals(recordId, recordEditOperation.captured.recordId)
-        assertEquals(RecordEditOperation.DeleteForever, recordEditOperation.captured.editOperation)
-        assertNull(recordEditOperation.captured.renameName)
-
-        verifyOrder {
-            //Start transaction
-            recordEditDao.insertRecordsEditOperation(any())
-            //Perform Step 1
-            recordDao.deleteRecordById(recordId)
-            //Perform Step 2
-            fileDataSource.deleteRecordFile(testRecordEntity.path)
-            //Finish transaction if success
-            recordEditDao.deleteRecordEditOperationById(transactionId)
-        }
+        verify(exactly = 1) { recordDao.deleteRecordById(recordId) }
+        verify(exactly = 1) { fileDataSource.deleteRecordFile(testRecordEntity.path) }
     }
 
     @Test
     fun test_deleteRecordAndFileForever_step_1_failed() = runBlocking {
         val recordId = 101L
-        val transactionId = 303L
-
-        val recordEditOperation = slot<RecordEditEntity>()
 
         every { recordDao.getRecordById(recordId) } returns testRecordEntity
-        every { recordEditDao.insertRecordsEditOperation(capture(recordEditOperation)) } returns transactionId
         every { recordDao.deleteRecordById(recordId) } throws Exception("Failed to delete")
 
         val result = recordsDataSourceImpl.deleteRecordAndFileForever(recordId)
 
         assertFalse(result)
-        assertEquals(recordId, recordEditOperation.captured.recordId)
-        assertEquals(RecordEditOperation.DeleteForever, recordEditOperation.captured.editOperation)
-        assertNull(recordEditOperation.captured.renameName)
-
-        //Verify step 2 never performed
-        verify(exactly = 0) {
-            fileDataSource.deleteRecordFile(testRecordEntity.path)
-        }
-        verifyOrder {
-            //Start transaction
-            recordEditDao.insertRecordsEditOperation(any())
-            //Perform Step 1
-            recordDao.deleteRecordById(recordId)
-            //Finish transaction if success
-            recordEditDao.deleteRecordEditOperationById(transactionId)
-        }
+        verify(exactly = 0) { fileDataSource.deleteRecordFile(any()) }
     }
 
     @Test
     fun test_deleteRecordAndFileForever_step_2_failed() = runBlocking {
         val recordId = 101L
-        val transactionId = 303L
-
-        val recordEditOperation = slot<RecordEditEntity>()
 
         every { recordDao.getRecordById(recordId) } returns testRecordEntity
-        every { recordEditDao.insertRecordsEditOperation(capture(recordEditOperation)) } returns transactionId
         every { recordDao.deleteRecordById(recordId) } returns Unit
-        every { fileDataSource.deleteRecordFile(testRecordEntity.path) } returns false
+        every { fileDataSource.deleteRecordFile(testRecordEntity.path) } returns false andThen false
 
         val result = recordsDataSourceImpl.deleteRecordAndFileForever(recordId)
 
         assertFalse(result)
-        assertEquals(recordId, recordEditOperation.captured.recordId)
-        assertEquals(RecordEditOperation.DeleteForever, recordEditOperation.captured.editOperation)
-        assertNull(recordEditOperation.captured.renameName)
+        verify(exactly = 1) { recordDao.deleteRecordById(recordId) }
+        verify(exactly = 2) { fileDataSource.deleteRecordFile(testRecordEntity.path) }
+    }
 
-        //Verify finish transaction never called
-        verify(exactly = 0) {
-            recordEditDao.deleteRecordEditOperationById(transactionId)
-        }
-        verifyOrder {
-            //Start transaction
-            recordEditDao.insertRecordsEditOperation(any())
-            //Perform Step 1
-            recordDao.deleteRecordById(recordId)
-            //Perform Step 2
-            fileDataSource.deleteRecordFile(testRecordEntity.path)
-        }
+    @Test
+    fun test_deleteRecordAndFileForever_step_2_failed_step2_retry_success() = runBlocking {
+        val recordId = 101L
+
+        every { recordDao.getRecordById(recordId) } returns testRecordEntity
+        every { recordDao.deleteRecordById(recordId) } returns Unit
+        every { fileDataSource.deleteRecordFile(testRecordEntity.path) } returns false andThen true
+
+        val result = recordsDataSourceImpl.deleteRecordAndFileForever(recordId)
+
+        assertTrue(result)
+        verify(exactly = 1) { recordDao.deleteRecordById(recordId) }
+        verify(exactly = 2) { fileDataSource.deleteRecordFile(testRecordEntity.path) }
     }
 
     @Test
@@ -926,22 +818,12 @@ class RecordsDataSourceImplTest {
     fun test_clearRecycle_success() = runBlocking {
         val entity1 = testRecordEntity.copy(id = 1, isMovedToRecycle = true)
         val entity2 = testRecordEntity.copy(id = 2, isMovedToRecycle = true)
-        val transactionId1 = 301L
-        val transactionId2 = 302L
 
         every { recordDao.getMovedToRecycleRecords() } returns listOf(entity1, entity2)
-
-        // Setup deleteRecordAndFileForever for entity1
-        every { recordEditDao.insertRecordsEditOperation(match { it.recordId == 1L }) } returns transactionId1
         every { recordDao.deleteRecordById(1L) } returns Unit
         every { fileDataSource.deleteRecordFile(entity1.path) } returns true
-        every { recordEditDao.deleteRecordEditOperationById(transactionId1) } returns Unit
-
-        // Setup deleteRecordAndFileForever for entity2
-        every { recordEditDao.insertRecordsEditOperation(match { it.recordId == 2L }) } returns transactionId2
         every { recordDao.deleteRecordById(2L) } returns Unit
         every { fileDataSource.deleteRecordFile(entity2.path) } returns true
-        every { recordEditDao.deleteRecordEditOperationById(transactionId2) } returns Unit
 
         val result = recordsDataSourceImpl.clearRecycle()
 
@@ -952,19 +834,10 @@ class RecordsDataSourceImplTest {
     fun test_clearRecycle_partialFailure_returnsFalse() = runBlocking {
         val entity1 = testRecordEntity.copy(id = 1, isMovedToRecycle = true)
         val entity2 = testRecordEntity.copy(id = 2, isMovedToRecycle = true)
-        val transactionId1 = 301L
-        val transactionId2 = 302L
 
         every { recordDao.getMovedToRecycleRecords() } returns listOf(entity1, entity2)
-
-        // entity1 deletes successfully
-        every { recordEditDao.insertRecordsEditOperation(match { it.recordId == 1L }) } returns transactionId1
         every { recordDao.deleteRecordById(1L) } returns Unit
         every { fileDataSource.deleteRecordFile(entity1.path) } returns true
-        every { recordEditDao.deleteRecordEditOperationById(transactionId1) } returns Unit
-
-        // entity2 fails to delete file
-        every { recordEditDao.insertRecordsEditOperation(match { it.recordId == 2L }) } returns transactionId2
         every { recordDao.deleteRecordById(2L) } returns Unit
         every { fileDataSource.deleteRecordFile(entity2.path) } returns false
 
@@ -974,23 +847,11 @@ class RecordsDataSourceImplTest {
     }
 
     @Test
-    fun test_clearRecycle_emptyRecycleBin_returnsFalse() = runBlocking {
-        every { recordDao.getMovedToRecycleRecords() } returns emptyList()
-
-        val result = recordsDataSourceImpl.clearRecycle()
-
-        assertFalse(result)
-    }
-
-    @Test
     fun test_clearRecycle_singleRecord_dbDeleteFails() = runBlocking {
         val entity = testRecordEntity.copy(id = 1, isMovedToRecycle = true)
-        val transactionId = 301L
 
         every { recordDao.getMovedToRecycleRecords() } returns listOf(entity)
-        every { recordEditDao.insertRecordsEditOperation(match { it.recordId == 1L }) } returns transactionId
         every { recordDao.deleteRecordById(1L) } throws Exception("DB error")
-        every { recordEditDao.deleteRecordEditOperationById(transactionId) } returns Unit
 
         val result = recordsDataSourceImpl.clearRecycle()
 
@@ -1049,8 +910,7 @@ class RecordsDataSourceImplTest {
 
         val result = recordsDataSourceImpl.deleteRecordAndFileForever(recordId)
 
-
         assertFalse(result)
-        verify(exactly = 0) { recordEditDao.insertRecordsEditOperation(any()) }
+        verify(exactly = 0) { recordDao.deleteRecordById(any()) }
     }
 }

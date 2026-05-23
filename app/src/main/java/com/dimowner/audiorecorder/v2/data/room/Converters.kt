@@ -17,7 +17,6 @@
 package com.dimowner.audiorecorder.v2.data.room
 
 import androidx.room.TypeConverter
-import com.dimowner.audiorecorder.v2.data.model.RecordEditOperation
 
 class Converters {
 
@@ -29,16 +28,9 @@ class Converters {
     @TypeConverter
     fun toIntArray(value: String): IntArray {
         return if (value.isBlank()) {
-            // If the input string is blank, return an empty IntArray.
             intArrayOf()
         } else {
             value.split(",").map { it.toInt() }.toIntArray()
         }
     }
-
-    @TypeConverter
-    fun toRecordEditOperation(value: String) = enumValueOf<RecordEditOperation>(value)
-
-    @TypeConverter
-    fun fromRecordEditOperation(value: RecordEditOperation) = value.name
 }

@@ -709,8 +709,14 @@ class AudioRecordingService : Service() {
                 handleStartRecording(prefs.settingNamingFormat.getNewRecordName(prefs))
             }
         } ?: run {
-            // Failed to get active record, set error state
-            //TODO: need to handle error here.
+            // Failed to get active record after max duration was reached.
+            // The current part was already saved; we can't start the next part, so stop the service.
+            Timber.e("AudioRecordingService: failed to get active record after max duration reached")
+            emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(
+                applicationContext.getString(R.string.error_on_recording)
+            ))
+            resetRecordedRecordPartCounter()
+            stopForegroundService()
         }
     }
 
