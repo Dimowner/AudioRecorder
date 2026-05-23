@@ -178,12 +178,7 @@ class HomeViewModel @Inject constructor(
 
         override fun onServiceDisconnected(name: ComponentName?) {
             Timber.d("HomeViewModel onServiceDisconnected: $name")
-            recordingStateJob?.cancel()
-            recordingStateJob = null
-            recordingEventJob?.cancel()
-            recordingEventJob = null
-            recordingService = null
-            isRecordingServiceBound = false
+            onRecordingServiceDisconnect()
         }
     }
 
@@ -217,8 +212,9 @@ class HomeViewModel @Inject constructor(
         if (isPlaybackServiceBound) {
             val context: Context = getApplication<Application>().applicationContext
             context.unbindService(playbackServiceConnection)
-            isPlaybackServiceBound = false
         }
+        playbackService = null
+        isPlaybackServiceBound = false
     }
 
     private fun bindRecordingService() {
@@ -233,6 +229,16 @@ class HomeViewModel @Inject constructor(
             context.unbindService(recordingServiceConnection)
             isRecordingServiceBound = false
         }
+        onRecordingServiceDisconnect()
+    }
+
+    private fun onRecordingServiceDisconnect() {
+        recordingStateJob?.cancel()
+        recordingStateJob = null
+        recordingEventJob?.cancel()
+        recordingEventJob = null
+        recordingService = null
+        isRecordingServiceBound = false
     }
 
     private fun subscribeRecordingServiceState(service: AudioRecordingService) {
@@ -436,9 +442,8 @@ class HomeViewModel @Inject constructor(
     private fun handleNewRecordingPartStarted(recordId: Long) {
         viewModelScope.launch(ioDispatcher) {
             recordsDataSource.getRecord(recordId)?.let {
-
+                //TODO: show some UI indication that a new recording part has started (e.g. a toast or snackbar).
             }
-//                ?: showInfoMessage() //TODO: show message
         }
     }
 

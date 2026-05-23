@@ -17,7 +17,11 @@
 package com.dimowner.audiorecorder.v2.app.records
 
 import android.app.Application
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.IBinder
 import androidx.annotation.StringRes
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +29,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.DownloadService
+import com.dimowner.audiorecorder.audio.player.AudioPlaybackService
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew.PlayerCallback
 import com.dimowner.audiorecorder.exception.AppException
@@ -50,6 +55,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 
@@ -101,12 +107,61 @@ internal class RecordsViewModel @Inject constructor(
 
     private var currentPage = 1
 
+    private var playbackService: AudioPlaybackService? = null
+    private var isPlaybackServiceBound = false
+
+    private val playbackServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            Timber.d("RecordsViewModel onServiceConnected: $name")
+            val binder = service as? AudioPlaybackService.ServiceBinder
+            playbackService = binder?.getService()
+            isPlaybackServiceBound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            Timber.d("RecordsViewModel onServiceDisconnected: $name")
+            playbackService = null
+            isPlaybackServiceBound = false
+        }
+    }
+
+    init {
+        bindPlaybackService()
+    }
+
+    private fun bindPlaybackService() {
+        val context: Context = getApplication<Application>().applicationContext
+        val intent = Intent(context, AudioPlaybackService::class.java)
+        println("MY_TEST: Binding to PlaybackService with playbackServiceConnection: $playbackServiceConnection")
+        context.bindService(intent, playbackServiceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    private fun unbindPlaybackService() {
+        println("MY_TEST: unbindPlaybackService called. isPlaybackServiceBound: $isPlaybackServiceBound")
+        if (isPlaybackServiceBound) {
+            val context: Context = getApplication<Application>().applicationContext
+            context.unbindService(playbackServiceConnection)
+            isPlaybackServiceBound = false
+        }
+        playbackService = null
+        isPlaybackServiceBound = false
+    }
+
+    override fun onCleared() {
+        println("MY_TEST: onCleared called in RecordsViewModel")
+        super.onCleared()
+        unbindPlaybackService()
+    }
+
     fun onStart(showPlayPanel: Boolean) {
         showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
             initState(showPlayPanel)
         }
         audioPlayer.addPlayerCallback(playerCallback)
+
+        println("MY_TEST: onStart: playbackService: $playbackService")
+
     }
 
     fun onStop() {

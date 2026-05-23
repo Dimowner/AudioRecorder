@@ -402,7 +402,7 @@ fun RecordingProgressPanel(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_stop),
-                contentDescription = "Stop recording", //TODO: Use string resource
+                contentDescription = stringResource(R.string.button_stop)
             )
         }
     }
