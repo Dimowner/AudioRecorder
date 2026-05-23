@@ -57,6 +57,7 @@
 
     <string name="recording_duration">錄製時長</string>
     <string name="recording_duration_subtitle">達到此限制時自動開始新的錄音檔案</string>
+    <string name="new_recording_part_started">已開始新的錄音部分</string>
     <string name="duration_picker_hint">輸入小時和分鐘</string>
     <string name="error_duration_at_least_one_minute">時長至少須為 1 分鐘</string>
     <!-- Warnings & Constraints -->

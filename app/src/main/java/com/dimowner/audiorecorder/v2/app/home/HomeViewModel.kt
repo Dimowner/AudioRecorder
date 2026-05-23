@@ -442,7 +442,7 @@ class HomeViewModel @Inject constructor(
     private fun handleNewRecordingPartStarted(recordId: Long) {
         viewModelScope.launch(ioDispatcher) {
             recordsDataSource.getRecord(recordId)?.let {
-                //TODO: show some UI indication that a new recording part has started (e.g. a toast or snackbar).
+                showInfoMessage(R.string.new_recording_part_started)
             }
         }
     }

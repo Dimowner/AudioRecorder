@@ -60,6 +60,7 @@
 
     <string name="recording_duration">録音時間</string>
     <string name="recording_duration_subtitle">この制限に達すると自動的に新しい録音ファイルを開始します</string>
+    <string name="new_recording_part_started">新しい録音パートが開始されました</string>
     <string name="duration_picker_hint">時間と分を入力してください</string>
     <string name="error_duration_at_least_one_minute">時間は1分以上に設定してください</string>
     <!-- Warnings & Constraints -->

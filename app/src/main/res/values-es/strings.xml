@@ -57,7 +57,8 @@
 	<string name="msg_operation_failed_generic">Operación fallida</string>
 
     <string name="recording_duration">Duración de grabación</string>
-    <string name="recording_duration_subtitle">Iniciar automáticamente un nuevo archivo de grabación al alcanzar este límite</string>
+    <string name="recording_duration_subtitle">Iniciar automticamente un nuevo archivo de grabacin al alcanzar este lmite</string>
+    <string name="new_recording_part_started">Nueva parte de grabación iniciada</string>
     <string name="duration_picker_hint">Ingrese horas y minutos</string>
     <string name="error_duration_at_least_one_minute">La duración debe ser de al menos 1 minuto</string>
     <!-- Warnings & Constraints -->

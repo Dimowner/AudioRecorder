@@ -59,6 +59,7 @@
 
     <string name="recording_duration">Aufnahmedauer</string>
     <string name="recording_duration_subtitle">Automatisch eine neue Aufnahmedatei starten, wenn dieses Limit erreicht wird</string>
+    <string name="new_recording_part_started">Neuer Aufnahmeabschnitt gestartet</string>
     <string name="duration_picker_hint">Stunden und Minuten eingeben</string>
     <string name="error_duration_at_least_one_minute">Die Dauer muss mindestens 1 Minute betragen</string>
     <!-- Warnings & Constraints -->

@@ -39,6 +39,7 @@
 
     <string name="recording_duration">录音时长</string>
     <string name="recording_duration_subtitle">达到此限制时自动开始新的录音文件</string>
+    <string name="new_recording_part_started">已开始新的录音部分</string>
     <string name="duration_picker_hint">输入小时和分钟</string>
     <string name="error_duration_at_least_one_minute">时长至少为 1 分钟</string>
     <string name="warning_duration_limit_recommended">不建议录制超过 2 小时，因为发生错误时可能丢失所有录音进度</string>

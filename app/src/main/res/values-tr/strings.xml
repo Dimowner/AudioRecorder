@@ -56,7 +56,8 @@
 	<string name="msg_operation_failed_generic">İşlem başarısız</string>
 
     <string name="recording_duration">Kayıt süresi</string>
-    <string name="recording_duration_subtitle">Bu süreye ulaşıldığında otomatik olarak yeni bir kayıt dosyası başlat</string>
+    <string name="recording_duration_subtitle">Bu sreye ulaşıldığında otomatik olarak yeni bir kayıt dosyası başlat</string>
+    <string name="new_recording_part_started">Yeni kayıt bölümü başlatıldı</string>
     <string name="duration_picker_hint">Saat ve dakika girin</string>
     <string name="error_duration_at_least_one_minute">Süre en az 1 dakika olmalıdır</string>
     <!-- Warnings & Constraints -->

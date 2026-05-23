@@ -57,6 +57,7 @@
 
     <string name="recording_duration">Duração da gravação</string>
     <string name="recording_duration_subtitle">Iniciar automaticamente um novo arquivo ao atingir esse limite</string>
+    <string name="new_recording_part_started">Nova parte da gravação iniciada</string>
     <string name="duration_picker_hint">Informe horas e minutos</string>
     <string name="error_duration_at_least_one_minute">A duração deve ser de pelo menos 1 minuto</string>
     <!-- Warnings & Constraints -->

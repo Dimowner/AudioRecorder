@@ -64,6 +64,7 @@
 
     <string name="recording_duration">Czas trwania nagrania</string>
     <string name="recording_duration_subtitle">Automatycznie rozpocznij nowy plik nagrania po osiągnięciu tego limitu</string>
+    <string name="new_recording_part_started">Rozpoczęto nową część nagrania</string>
     <string name="duration_picker_hint">Podaj godziny i minuty</string>
     <string name="error_duration_at_least_one_minute">Czas trwania musi wynosić co najmniej 1 minutę</string>
     <!-- Warnings & Constraints -->

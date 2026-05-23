@@ -55,7 +55,8 @@
 	<string name="msg_operation_failed_generic">L\'operació ha fallat</string>
 
     <string name="recording_duration">Durada de la gravació</string>
-    <string name="recording_duration_subtitle">Comença automàticament un nou fitxer de gravació quan s\'arribi a aquest límit</string>
+    <string name="recording_duration_subtitle">Comena automticament un nou fitxer de gravaci quan s\'arribi a aquest lmit</string>
+    <string name="new_recording_part_started">S\'ha iniciat una nova part de la gravació</string>
     <string name="duration_picker_hint">Introduïu hores i minuts</string>
     <string name="error_duration_at_least_one_minute">La durada ha de ser d\'almenys 1 minut</string>
     <!-- Warnings & Constraints -->

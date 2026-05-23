@@ -59,6 +59,7 @@
 
 	<string name="recording_duration">Тривалість запису</string>
 	<string name="recording_duration_subtitle">Автоматично починати новий файл запису після досягнення цього ліміту</string>
+	<string name="new_recording_part_started">Розпочато нову частину запису</string>
 	<string name="duration_picker_hint">Введіть години та хвилини</string>
 	<string name="error_duration_at_least_one_minute">Тривалість повинна бути не менше 1 хвилини</string>
 	<string name="warning_duration_limit_recommended">Записи довші за 2 години не рекомендуються, оскільки при виникненні помилки всі дані запису можуть бути втрачені</string>

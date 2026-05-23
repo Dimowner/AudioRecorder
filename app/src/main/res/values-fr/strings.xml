@@ -41,7 +41,8 @@
 	<string name="msg_operation_failed_generic">L\'opération a échoué</string>
 
 	<string name="recording_duration">Durée d\'enregistrement</string>
-	<string name="recording_duration_subtitle">Démarrer automatiquement un nouveau fichier d\'enregistrement lorsque cette limite est atteinte</string>
+	<string name="recording_duration_subtitle">Dmarrer automatiquement un nouveau fichier d\'enregistrement lorsque cette limite est atteinte</string>
+	<string name="new_recording_part_started">Nouvelle partie d\'enregistrement démarrée</string>
 	<string name="duration_picker_hint">Saisir les heures et les minutes</string>
 	<string name="error_duration_at_least_one_minute">La durée doit être d\'au moins 1 minute</string>
 	<string name="warning_duration_limit_recommended">Les enregistrements de plus de 2 heures ne sont pas recommandés car vous risquez de perdre toute progression en cas d\'erreur</string>
