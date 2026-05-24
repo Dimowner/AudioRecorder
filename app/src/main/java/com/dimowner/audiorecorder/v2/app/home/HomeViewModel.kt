@@ -785,8 +785,13 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             val activeRecord = recordsDataSource.getActiveRecord()
             if (activeRecord != null) {
-                // Check if a file with the new name already exists on disk
                 val currentFile = File(activeRecord.path)
+                // Skip rename if the name hasn't changed
+                if (currentFile.nameWithoutExtension == newName) {
+                    showLoadingProgress(false)
+                    return@launch
+                }
+                // Check if a file with the new name already exists on disk
                 val extension = currentFile.extension
                 val targetFile = File(currentFile.parentFile, "$newName.$extension")
                 if (targetFile.exists() && currentFile.nameWithoutExtension != newName) {
@@ -1162,18 +1167,6 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-
-//    private fun deleteBrokenRecord() {
-//        val brokenRecord = _state.value.brokenRecord ?: return
-//        dismissBrokenRecordDialog()
-//        viewModelScope.launch(ioDispatcher) {
-//            recordsDataSource.deleteRecordAndFileForever(brokenRecord.id)
-//            if (prefs.activeRecordId == brokenRecord.id) {
-//                prefs.activeRecordId = -1
-//            }
-//            updateState()
-//        }
-//    }
 
     private fun dismissBrokenRecordDialog() {
         _state.value = _state.value.copy(

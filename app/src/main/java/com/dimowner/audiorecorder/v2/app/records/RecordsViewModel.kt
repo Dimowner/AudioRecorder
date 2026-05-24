@@ -355,8 +355,16 @@ internal class RecordsViewModel @Inject constructor(
     fun renameRecord(recordId: Long, newName: String) {
         viewModelScope.launch(ioDispatcher) {
             recordsDataSource.getRecord(recordId)?.let { record ->
-                // Check if a file with the new name already exists on disk
                 val currentFile = File(record.path)
+                // Skip rename if the name hasn't changed
+                if (currentFile.nameWithoutExtension == newName) {
+                    _state.value = _state.value.copy(
+                        showRenameDialog = false,
+                        operationSelectedRecord = null
+                    )
+                    return@let
+                }
+                // Check if a file with the new name already exists on disk
                 val extension = currentFile.extension
                 val targetFile = File(currentFile.parentFile, "$newName.$extension")
                 if (targetFile.exists() && currentFile.nameWithoutExtension != newName) {
