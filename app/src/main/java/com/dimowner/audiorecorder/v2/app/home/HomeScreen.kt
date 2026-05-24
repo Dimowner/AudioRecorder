@@ -286,7 +286,8 @@ internal fun HomeScreen(
                             }
                         }
                     },
-                    showMenuButton = uiState.isContextMenuAvailable
+                    showImportButton = !uiState.isRecording(),
+                    showMenuButton = !uiState.isRecording()
                 )
 
                 // Show Bluetooth and Audio Source settings when there are available BT devices.
@@ -490,7 +491,6 @@ fun HomeScreenPreview() {
             time = "1:51",
             recordName = "Test Record Name",
             recordInfo = "1.5 MB, mp4, 192 kbps, 48 kHz",
-            isContextMenuAvailable = true,
             isStopRecordingButtonAvailable = true,
             isShowWaveform = true,
         ), MutableSharedFlow(), {})

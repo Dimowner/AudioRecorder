@@ -188,7 +188,6 @@ fun PlaybackPanelPreview() {
                 time = "1:51",
                 recordName = "Test Record Name",
                 recordInfo = "1.5 MB, mp4, 192 kbps, 48 kHz",
-                isContextMenuAvailable = true,
                 isStopRecordingButtonAvailable = true,
             ),
             isBookmarked = false,

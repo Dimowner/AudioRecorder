@@ -576,7 +576,6 @@ class HomeViewModel @Inject constructor(
                     time = context.getString(R.string.zero_time),
                     recordName = activeRecord.name,
                     recordInfo = activeRecord.toInfoCombinedText(context),
-                    isContextMenuAvailable = true,
                     isShowWaveform = true,
                     isShowLoadingProgress = false,
                     isDeleteRecordingProgressRequested = false,
@@ -1210,7 +1209,6 @@ data class HomeScreenState(
     val isShowRecordProcessing: Boolean = false,
     // Indicates audio file import in progress
     val isShowImportProgress: Boolean = false,
-    val isContextMenuAvailable: Boolean = false,
     val isStopRecordingButtonAvailable: Boolean = false,
     val bottomBarState: BottomBarState = BottomBarState.READY_TO_START_RECORDING,
     val showPause: Boolean = false,

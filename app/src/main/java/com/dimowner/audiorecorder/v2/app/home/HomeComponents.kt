@@ -81,6 +81,7 @@ private const val ANIMATION_DURATION = 300
 fun TopAppBar(
     onImportClick: () -> Unit,
     onHomeMenuItemClick: (HomeDropDownMenuItemId) -> Unit,
+    showImportButton: Boolean = true,
     showMenuButton: Boolean = true
 ) {
     val expanded = remember { mutableStateOf(false) }
@@ -92,17 +93,19 @@ fun TopAppBar(
             .padding(0.dp, 4.dp, 0.dp, 0.dp)
             .background(color = MaterialTheme.colorScheme.surface),
     ) {
-        IconButton(
-            onClick = onImportClick,
-            modifier = Modifier
-                .padding(8.dp)
-                .align(Alignment.CenterStart),
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_import),
-                contentDescription = stringResource(id = R.string.btn_import),
-                modifier = Modifier.size(24.dp)
-            )
+        if (showImportButton) {
+            IconButton(
+                onClick = onImportClick,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .align(Alignment.CenterStart),
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_import),
+                    contentDescription = stringResource(id = R.string.btn_import),
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
         Text(
             modifier = Modifier
