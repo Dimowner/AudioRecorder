@@ -449,7 +449,7 @@ class RecordsDataSourceImplTest {
         val captured = updatedRecordSlot.captured
         assertEquals(recordId, captured.id)
         assertFalse(captured.isMovedToRecycle)
-        assertEquals(-1L, captured.removed)
+        assertEquals(Long.MAX_VALUE, captured.removed)
 
         verify(exactly = 1) { recordDao.getRecordById(recordId) }
         verify(exactly = 1) { recordDao.updateRecord(any()) }
@@ -508,7 +508,7 @@ class RecordsDataSourceImplTest {
         val captured = updatedRecordSlot.captured
         // Restored fields
         assertFalse(captured.isMovedToRecycle)
-        assertEquals(-1L, captured.removed)
+        assertEquals(Long.MAX_VALUE, captured.removed)
         // Preserved fields
         assertEquals(recordId, captured.id)
         assertEquals("my_recording", captured.name)

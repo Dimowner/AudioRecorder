@@ -78,12 +78,6 @@ import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-private const val ANIMATION_DURATION = 500
-private const val MAX_MOVE = 250
-
-
-//TODO: Add simple waveform to each record item
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun RecordsScreen(
@@ -97,80 +91,8 @@ internal fun RecordsScreen(
     uiHomeState: HomeScreenState,
     onHomeAction: (HomeScreenAction) -> Unit,
 ) {
-//    val density = LocalDensity.current
-//    // State to keep track of the Card position
-//    val offsetY = remember { mutableFloatStateOf(0f) }
-//    val maxMove = with(density) { MAX_MOVE.dp.toPx() }
-//    val k = (maxMove / (Math.PI / 2f)).toFloat()
-//    val startY = with(density) { 12.dp.toPx() }
-//
-//    val animatableY = remember { Animatable(startY) }
-//
     // Get a CoroutineScope tied to the Composable
     val coroutineScope = rememberCoroutineScope()
-//
-//    // Define a threshold for Y coordinate movement
-//    val playPanelHeight = remember { mutableFloatStateOf(with(density) { 300.dp.toPx() }) }
-//
-//    // Modifier to make the text draggable
-//    val modifier = Modifier
-//        .offset { IntOffset(0, animatableY.value.roundToInt()) }
-//        .pointerInput(Unit) {
-//            detectDragGestures(
-//                onDragStart = {
-//                    offsetY.floatValue = startY
-//                },
-//                onDragEnd = {
-//                    // Animate back to start position
-//                    if (offsetY.floatValue.absoluteValue > playPanelHeight.floatValue * 0.5) {
-//                        coroutineScope.launch {
-//                            animatableY.animateTo(
-////                                TODO:Fix constants!!
-//                                playPanelHeight.floatValue * 1.5f,
-//                                animationSpec = tween(durationMillis = ANIMATION_DURATION)
-//                            )
-//                            offsetY.floatValue = startY
-//                            onHomeAction(HomeScreenAction.OnStopClick)
-//                        }
-//                    } else {
-//                        coroutineScope.launch {
-//                            animatableY.animateTo(
-//                                startY,
-//                                animationSpec = tween(durationMillis = ANIMATION_DURATION)
-//                            )
-//                        }
-//                    }
-//                },
-//                onDragCancel = {
-//                    if (offsetY.floatValue.absoluteValue > playPanelHeight.floatValue * 0.5) {
-//                        coroutineScope.launch {
-//                            animatableY.animateTo(
-//                                playPanelHeight.floatValue * 1.5f,
-//                                animationSpec = tween(durationMillis = ANIMATION_DURATION)
-//                            )
-//                            offsetY.floatValue = startY
-//                            onHomeAction(HomeScreenAction.OnStopClick)
-//                        }
-//                    } else {
-//                        // Animate back to start position
-//                        coroutineScope.launch {
-//                            animatableY.animateTo(
-//                                startY,
-//                                animationSpec = tween(durationMillis = ANIMATION_DURATION)
-//                            )
-//                        }
-//                    }
-//                },
-//                onDrag = { change, dragAmount ->
-//                    change.consume()
-//                    offsetY.floatValue += change.position.y
-//                    offsetY.floatValue = k * atan(offsetY.floatValue / k)
-//                    coroutineScope.launch {
-//                        animatableY.snapTo(offsetY.floatValue)
-//                    }
-//                }
-//            )
-//        }
 
     val context = LocalContext.current
 
@@ -626,43 +548,6 @@ internal fun RecordsScreen(
                         },
                     )
                 }
-//                AnimatedVisibility(
-//                    visible = uiState.showRecordPlaybackPanel,
-//                    enter = slideInVertically(initialOffsetY = { it }),
-//                    exit = slideOutVertically(targetOffsetY = { it })
-//                ) {
-//                    Card(
-//                        modifier = modifier
-//                            .wrapContentSize()
-//                            .onSizeChanged {
-//                                playPanelHeight.floatValue = it.height.toFloat()
-//                            },
-//                    ) {
-//                        RecordPlaybackPanel(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .wrapContentHeight(),
-//                            uiState = uiHomeState,
-//                            onProgressChange = {
-//                                onHomeAction(
-//                                    HomeScreenAction.OnProgressBarStateChange(
-//                                        it
-//                                    )
-//                                )
-//                            },
-//                            onSeekStart = { onHomeAction(HomeScreenAction.OnSeekStart) },
-//                            onSeekProgress = { onHomeAction(HomeScreenAction.OnSeekProgress(it)) },
-//                            onSeekEnd = { onHomeAction(HomeScreenAction.OnSeekEnd(it)) },
-//                            onPlayClick = { onHomeAction(HomeScreenAction.OnPlayClick) },
-//                            onStopClick = {
-//                                coroutineScope.launch {
-//                                    onHomeAction(HomeScreenAction.OnStopClick)
-//                                }
-//                            },
-//                            onPauseClick = { onHomeAction(HomeScreenAction.OnPauseClick) },
-//                        )
-//                    }
-//                }
             }
         }
     }

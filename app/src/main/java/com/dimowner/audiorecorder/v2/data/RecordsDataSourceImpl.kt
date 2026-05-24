@@ -217,136 +217,13 @@ class RecordsDataSourceImpl @Inject internal constructor(
         return recordDao.updateRecords(recordsToRecycle)
     }
 
-//    @Deprecated("Too complex logic. We don't need to mark record file as deleted")
-//    internal fun moveRecordToRecycle(recordToRecycle: RecordEntity): Boolean {
-//        try {
-//            //Save edit operation. Start transaction
-//            val transactionId = recordEditDao.insertRecordsEditOperation(
-//                createMoveToRecycleEditOperation(recordToRecycle.id)
-//            )
-//            //The first step. Mark record file as deleted.
-//            val path = try {
-//                fileDataSource.markAsRecordDeleted(recordToRecycle.path)
-//            } catch (e: Exception) {
-//                Timber.e(e)
-//                null
-//            }
-//            val result = if (path != null) {
-//                //The second step. Update record in the database
-//                val isUpdated = try {
-//                    recordDao.updateRecord(
-//                        recordToRecycle.copy(
-//                            path = path,
-//                            isMovedToRecycle = true,
-//                            removed = System.currentTimeMillis(),
-//                        )
-//                    )
-//                    true
-//                } catch (e: Exception) {
-//                    Timber.e(e)
-//                    false
-//                }
-//                if (isUpdated) {
-//                    //The second step has succeed. Finish edit operation and return an success.
-//                    deleteEditRecordOperation(transactionId)
-//                    true
-//                } else {
-//                    //The second step has failed. Rollback the first step.
-//                    val unmarkPath = try {
-//                        fileDataSource.unmarkRecordAsDeleted(path)
-//                    } catch (e: Exception) {
-//                        Timber.e(e)
-//                        null
-//                    }
-//                    if (unmarkPath != null) {
-//                        //File rolled back successfully. Finish edit operation and return an error.
-//                        deleteEditRecordOperation(transactionId)
-//                    } else {
-//                        //Failed to rollback file. Keep edit operation in the database to repeat it later.
-//                    }
-//                    false
-//                }
-//            } else {
-//                //The first step has failed. Finish edit operation and return an error.
-//                //Rollback not needed.
-//                deleteEditRecordOperation(transactionId)
-//                false
-//            }
-//            return result
-//        } catch (e: Exception) {
-//            Timber.e(e)
-//            return false
-//        }
-//    }
-
     override suspend fun restoreRecordFromRecycle(id: Long): Boolean {
         return recordDao.getRecordById(id)?.let { recordToRestore ->
             return@let recordDao.updateRecord(
-                recordToRestore.copy(isMovedToRecycle = false, removed = -1)
+                recordToRestore.copy(isMovedToRecycle = false, removed = Long.MAX_VALUE)
             ) == 1
         } ?: false
     }
-
-//    @Deprecated("Too complex logic. We don't need to mark record file as deleted")
-//    private fun restoreRecordFromRecycle(recordToRestore: RecordEntity): Boolean {
-//        try {
-//            //Save edit operation. Start transaction
-//            val transactionId = recordEditDao.insertRecordsEditOperation(
-//                createRestoreFromRecycleEditOperation(recordToRestore.id)
-//            )
-//            //The first step. Unmark record file as deleted.
-//            val path = try {
-//                fileDataSource.unmarkRecordAsDeleted(recordToRestore.path)
-//            } catch (e: Exception) {
-//                Timber.e(e)
-//                null
-//            }
-//            val result = if (path != null) {
-//                //The second step. Update record in the database
-//                val isUpdated = try {
-//                    recordDao.updateRecord(
-//                        recordToRestore.copy(
-//                            path = path,
-//                            isMovedToRecycle = false
-//                        )
-//                    )
-//                    true
-//                } catch (e: Exception) {
-//                    Timber.e(e)
-//                    false
-//                }
-//                if (isUpdated) {
-//                    //The second step has succeed. Finish edit operation and return an success.
-//                    deleteEditRecordOperation(transactionId)
-//                    true
-//                } else {
-//                    //The second step has failed. Rollback the first step.
-//                    val unmarkPath = try {
-//                        fileDataSource.markAsRecordDeleted(path)
-//                    } catch (e: Exception) {
-//                        Timber.e(e)
-//                        null
-//                    }
-//                    if (unmarkPath != null) {
-//                        //File rolled back successfully. Finish edit operation and return an error.
-//                        deleteEditRecordOperation(transactionId)
-//                    } else {
-//                        //Failed to rollback file. Keep edit operation in the database to repeat it later.
-//                    }
-//                    false
-//                }
-//            } else {
-//                //The first step has failed. Finish edit operation and return an error.
-//                //Rollback not needed.
-//                deleteEditRecordOperation(transactionId)
-//                false
-//            }
-//            return result
-//        } catch (e: Exception) {
-//            Timber.e(e)
-//            return false
-//        }
-//    }
 
     override suspend fun clearRecycle(): Boolean {
         val records = recordDao.getMovedToRecycleRecords()

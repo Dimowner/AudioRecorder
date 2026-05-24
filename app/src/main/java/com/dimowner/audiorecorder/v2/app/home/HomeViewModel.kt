@@ -686,7 +686,7 @@ class HomeViewModel @Inject constructor(
                             durationMills = if (info.duration >= 0) info.duration / 1000 else 0,
                             created = newFile.lastModified(),
                             added = System.currentTimeMillis(),
-                            removed = -1,
+                            removed = Long.MAX_VALUE,
                             path = newFile.absolutePath,
                             format = info.format,
                             size = info.size,

@@ -396,7 +396,7 @@ class AudioRecordingService : Service() {
                     durationMills = 0,
                     created = recordFile.lastModified(),
                     added = System.currentTimeMillis(),
-                    removed = -1,
+                    removed = Long.MAX_VALUE,
                     path = recordFile.absolutePath,
                     format = format.value,
                     size = 0,
