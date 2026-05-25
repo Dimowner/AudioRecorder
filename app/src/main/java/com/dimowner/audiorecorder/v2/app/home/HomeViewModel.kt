@@ -670,12 +670,9 @@ class HomeViewModel @Inject constructor(
                 }
             } else {
                 withContext(mainDispatcher) {
-                    //isShowProgress = false is default value. So it cancels progress
                     _state.value = HomeScreenState(
                         bottomBarState = bottomBarState,
-                        waveformState = _state.value.waveformState.copy(
-                            isRecording = false
-                        )
+                        waveformState = WaveformState()
                     )
                 }
             }

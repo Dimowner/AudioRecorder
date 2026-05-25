@@ -161,7 +161,8 @@ internal class RecordsViewModel @Inject constructor(
                 }.groupRecordsByDate(context, sortOrder),
                 showDeletedRecordsButton = deletedRecordsCount > 0,
                 deletedRecordsCount = deletedRecordsCount,
-                showRecordPlaybackPanel = showPlayPanel,
+                // Only show the playback panel when there is a real active record to display.
+                showRecordPlaybackPanel = showPlayPanel && activeRecord != null,
                 isRecording = audioRecorderDelegate.provideAudioRecorder().isRecording,
                 recordedRecordId = prefs.recordedRecordId,
                 showLostRecordsDialog = lostRecords.isNotEmpty(),
@@ -243,10 +244,15 @@ internal class RecordsViewModel @Inject constructor(
 
     fun onItemSelect(record: RecordListItem) {
         multiSelectCancel()
+        // Capture panel visibility before stop() synchronously triggers onStopPlay()
+        // which would set showRecordPlaybackPanel = false. We restore it afterwards so
+        // AnimatedVisibility never sees the brief false→true flicker.
+        val wasShowingPanel = _state.value.showRecordPlaybackPanel
         audioPlayer.stop()
         prefs.activeRecordId = record.recordId
         _state.value = _state.value.copy(
-            activeRecord = record
+            activeRecord = record,
+            showRecordPlaybackPanel = wasShowingPanel,
         )
     }
 
@@ -273,9 +279,15 @@ internal class RecordsViewModel @Inject constructor(
         val activeRecord = _state.value.activeRecord ?: return
         val currentIndex = allRecords.indexOfFirst { it.recordId == activeRecord.recordId }
         val nextRecord = allRecords.getOrNull(currentIndex + 1) ?: return
+        // Capture panel visibility before stop() synchronously triggers onStopPlay()
+        // which would set showRecordPlaybackPanel = false, causing an animation glitch.
+        val wasShowingPanel = _state.value.showRecordPlaybackPanel
         audioPlayer.stop()
         prefs.activeRecordId = nextRecord.recordId
-        _state.value = _state.value.copy(activeRecord = nextRecord)
+        _state.value = _state.value.copy(
+            activeRecord = nextRecord,
+            showRecordPlaybackPanel = wasShowingPanel,
+        )
     }
 
     private fun playPreviousRecord() {
@@ -284,9 +296,15 @@ internal class RecordsViewModel @Inject constructor(
         val currentIndex = allRecords.indexOfFirst { it.recordId == activeRecord.recordId }
         if (currentIndex <= 0) return
         val previousRecord = allRecords.getOrNull(currentIndex - 1) ?: return
+        // Capture panel visibility before stop() synchronously triggers onStopPlay()
+        // which would set showRecordPlaybackPanel = false, causing an animation glitch.
+        val wasShowingPanel = _state.value.showRecordPlaybackPanel
         audioPlayer.stop()
         prefs.activeRecordId = previousRecord.recordId
-        _state.value = _state.value.copy(activeRecord = previousRecord)
+        _state.value = _state.value.copy(
+            activeRecord = previousRecord,
+            showRecordPlaybackPanel = wasShowingPanel,
+        )
     }
 
     fun updateListWithSortOrder(sortOrderId: SortDropDownMenuItemId) {

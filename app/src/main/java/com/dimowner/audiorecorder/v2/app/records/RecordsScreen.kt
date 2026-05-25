@@ -627,3 +627,54 @@ fun RecordsScreenLoadingPreview() {
         onHomeAction = {}
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+fun RecordsScreenWithPlaybackPanelPreview() {
+    RecordsScreen({}, {}, {}, {},
+        RecordsScreenState(
+            recordsMap = mapOf(
+                Pair("Today", listOf(
+                    RecordListItem(
+                        recordId = 1,
+                        name = "Test record 1",
+                        details = "1.5 MB, mp4, 192 kbps, 48 kHz",
+                        duration = "3:15",
+                        added = 100000000,
+                        isBookmarked = true
+                    ),
+                    RecordListItem(
+                        recordId = 2,
+                        name = "Test record 2",
+                        details = "4.5 MB, mp3, 128 kbps, 32 kHz",
+                        duration = "8:15",
+                        added = 0,
+                        isBookmarked = false
+                    )
+                ))
+            ),
+            showDeletedRecordsButton = true,
+            showRecordPlaybackPanel = true,
+            activeRecord = RecordListItem(
+                recordId = 1,
+                name = "Test record 1",
+                details = "1.5 MB, mp4, 192 kbps, 48 kHz",
+                duration = "3:15",
+                added = 100000000,
+                isBookmarked = true
+            ),
+        ),
+        null, {},
+        uiHomeState = HomeScreenState(
+            waveformState = getTestWaveformData(),
+            startTime = "00:00",
+            endTime = "3:15",
+            time = "1:30",
+            recordName = "Test record 1",
+            recordInfo = "1.5 MB, mp4, 192 kbps, 48 kHz",
+            isStopRecordingButtonAvailable = false,
+            showPause = true,
+        ),
+        onHomeAction = {}
+    )
+}
