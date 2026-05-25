@@ -3,6 +3,24 @@ package com.dimowner.audiorecorder.v2.app
 import com.dimowner.audiorecorder.AppConstantsV2
 import com.dimowner.audiorecorder.v2.app.components.WaveformState
 
+fun getTestRecordingWaveformData(durationMills: Long = 15000L): WaveformState {
+    val slidingWindow = TEST_WAVEFORM_DATA.takeLast(80).toIntArray()
+    val totalSamples = TEST_WAVEFORM_DATA.size
+    return WaveformState(
+        widthScale = calculateScale(
+            mills = durationMills,
+            defaultWidthScale = AppConstantsV2.DEFAULT_WIDTH_SCALE
+        ),
+        durationMills = durationMills,
+        progressMills = durationMills,
+        waveformData = slidingWindow,
+        durationSample = totalSamples,
+        gridStepMills = AppConstantsV2.RECORDING_GRID_STEP,
+        isRecording = true,
+        waveformDataOffset = totalSamples - slidingWindow.size,
+    )
+}
+
 fun getTestWaveformData(progress: Long = 30000L): WaveformState {
     return WaveformState(
         widthScale = calculateScale(

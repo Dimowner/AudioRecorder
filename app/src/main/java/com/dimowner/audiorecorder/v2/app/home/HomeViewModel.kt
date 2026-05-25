@@ -247,7 +247,34 @@ class HomeViewModel @Inject constructor(
             val context: Context = getApplication<Application>().applicationContext
             var lastProgressUpdate = 0L
             service.recordingState.collect { recState ->
-                if (recState.isRecording()) {
+                if (recState.isPaused()) {
+                    // Restore live waveform data from the service so the UI reflects the
+                    // actual recording position when re-binding after a paused recording.
+                    val pausedWaveformState = if (recState.durationMills > 0) {
+                        _state.value.waveformState.copy(
+                            waveformData = recState.amplitudes,
+                            durationSample = recState.totalSampleCount,
+                            durationMills = recState.durationMills,
+                            progressMills = recState.durationMills,
+                            widthScale = recState.widthScale,
+                            gridStepMills = RECORDING_GRID_STEP,
+                            isRecording = true,
+                            waveformDataOffset = recState.waveformDataOffset,
+                        )
+                    } else {
+                        _state.value.waveformState.copy(isRecording = true)
+                    }
+                    _state.value = state.value.copy(
+                        bottomBarState = BottomBarState.PAUSED,
+                        recordName = context.getString(R.string.recording_paused),
+                        keepScreenOn = false,
+                        time = if (recState.durationMills > 0)
+                            TimeUtils.formatTimeIntervalHourMinSec2(recState.durationMills)
+                        else _state.value.time,
+                        isShowWaveform = recState.durationMills > 0 || _state.value.isShowWaveform,
+                        waveformState = pausedWaveformState,
+                    )
+                } else if (recState.isRecording()) {
                     when (recState.recordingState) {
                         RecordingState.STARTED -> {
                             // Recording just started – initialise UI
@@ -312,12 +339,6 @@ class HomeViewModel @Inject constructor(
                             updateRecordingProgressInfo()
                         }
                     }
-                } else if (recState.isPaused()) {
-                    _state.value = state.value.copy(
-                        bottomBarState = BottomBarState.PAUSED,
-                        recordName = context.getString(R.string.recording_paused),
-                        keepScreenOn = false,
-                    )
                 } else {
                     // Covers STOPPED and IDLE (e.g. after stopForegroundService resets state,
                     // or when STOPPED is skipped because the recorded record couldn't be loaded).
@@ -507,15 +528,15 @@ class HomeViewModel @Inject constructor(
             if (!state.value.isRecording()) {
                 checkForBrokenRecords()
             }
-            //Update playback progress if playback service is running
+            //Update playback progress if playback service is running and paused.
             playbackService?.let { service ->
                 withContext(mainDispatcher) {
-                    val currentPosition = service.getCurrentProgress()
-                    handleSeekProgress(currentPosition)
-                    if (service.isPlaying()) {
+                    if (service.isPaused()) {
+                        val currentPosition = service.getCurrentProgress()
+                        handleSeekProgress(currentPosition)
                         _state.value = _state.value.copy(
-                            showPause = true,
-                            showStop = false
+                            showPause = false,
+                            showStop = true
                         )
                     }
                 }
@@ -573,7 +594,6 @@ class HomeViewModel @Inject constructor(
                     ),
                     startTime = context.getString(R.string.zero_time),
                     endTime = TimeUtils.formatTimeIntervalHourMinSec2(activeRecord.durationMills),
-                    time = context.getString(R.string.zero_time),
                     recordName = activeRecord.name,
                     recordInfo = activeRecord.toInfoCombinedText(context),
                     isShowWaveform = true,
@@ -584,6 +604,17 @@ class HomeViewModel @Inject constructor(
                 )
             }
         } else {
+            // If the recording service hasn't connected yet (binding is async) but we know
+            // a recording session is in progress (recordedRecordId >= 0), skip resetting the UI
+            // here. subscribeRecordingServiceState will push the correct PAUSED/RECORDING state
+            // as soon as the service connection is established.
+            if (recordingService == null && prefs.recordedRecordId >= 0) {
+                Timber.d("updateState: recording service not yet bound but recording in progress (recordedRecordId=${prefs.recordedRecordId}), deferring state update")
+                withContext(mainDispatcher) {
+                    _state.value = _state.value.copy(isShowLoadingProgress = false)
+                }
+                return
+            }
             val recState = recordingService?.recordingState?.value
             val isServiceRecording = recState?.isRecording() == true
             val bottomBarState = recState.toBottomBarState()

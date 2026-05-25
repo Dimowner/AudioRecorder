@@ -73,6 +73,7 @@ import com.dimowner.audiorecorder.v2.app.components.BluetoothMicSelector
 import com.dimowner.audiorecorder.v2.app.components.KeepScreenOn
 import com.dimowner.audiorecorder.v2.app.components.WaveformComposeView
 import com.dimowner.audiorecorder.v2.app.components.WaveformState
+import com.dimowner.audiorecorder.v2.app.getTestRecordingWaveformData
 import com.dimowner.audiorecorder.v2.app.getTestWaveformData
 import com.dimowner.audiorecorder.v2.app.lostrecords.LostRecordsDialog
 import com.dimowner.audiorecorder.v2.data.model.Record
@@ -372,7 +373,7 @@ internal fun HomeScreen(
                     uiState.startTime,
                     uiState.endTime,
                     uiState.progress,
-                    uiState.isShowWaveform,
+                    !uiState.isRecording() && uiState.isShowWaveform,
                     !uiState.isRecording() && uiState.isShowWaveform,
                     onRenameClick = { showRenameDialog.value = true },
                     onProgressChange = { onAction(HomeScreenAction.OnProgressBarStateChange(it)) }
@@ -493,6 +494,8 @@ fun HomeScreenPreview() {
             recordInfo = "1.5 MB, mp4, 192 kbps, 48 kHz",
             isStopRecordingButtonAvailable = true,
             isShowWaveform = true,
+            showPause = true,
+            showStop = true,
         ), MutableSharedFlow(), {})
 }
 
@@ -556,3 +559,44 @@ fun HomeScreenImportProgressPreview() {
         MutableSharedFlow(), {},
     )
 }
+
+@Preview
+@Composable
+fun HomeScreenRecordingProgressWithWaveformPreview() {
+    HomeScreen(
+        {}, {}, {}, {},
+        uiState = HomeScreenState(
+            bottomBarState = BottomBarState.RECORDING,
+            waveformState = getTestRecordingWaveformData(durationMills = 15000L),
+            isShowLoadingProgress = false,
+            isShowWaveform = true,
+            time = TimeUtils.formatTimeIntervalHourMinSec2(15000L),
+            recordName = "Recording...",
+            recordInfo = "m4a, 128 kbps, 44.1 kHz",
+            showPause = false,
+            showStop = false,
+        ),
+        MutableSharedFlow(), {},
+    )
+}
+
+@Preview
+@Composable
+fun HomeScreenRecordingPausedPreview() {
+    HomeScreen(
+        {}, {}, {}, {},
+        uiState = HomeScreenState(
+            bottomBarState = BottomBarState.PAUSED,
+            waveformState = getTestRecordingWaveformData(durationMills = 32000L),
+            isShowLoadingProgress = false,
+            isShowWaveform = true,
+            time = TimeUtils.formatTimeIntervalHourMinSec2(32000L),
+            recordName = "Recording paused",
+            recordInfo = "m4a, 128 kbps, 44.1 kHz",
+            showPause = false,
+            showStop = false,
+        ),
+        MutableSharedFlow(), {},
+    )
+}
+

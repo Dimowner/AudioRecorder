@@ -784,7 +784,7 @@ data class RecordingServiceState(
         return this.recordingState == RecordingState.STARTED
                 || this.recordingState == RecordingState.PROGRESS
                 || this.recordingState == RecordingState.RESUMED
-//                || this.recordingState == RecordingState.PAUSED
+                || this.recordingState == RecordingState.PAUSED
     }
 
     fun isPaused(): Boolean {
