@@ -626,11 +626,11 @@ class AudioRecordingService : Service() {
         val statusText: String
 
         if (state.isPaused()) {
-            pauseResumeIcon = R.drawable.ic_play
+            pauseResumeIcon = R.drawable.ic_recording_light
             pauseResumeText = getString(R.string.button_resume)
             statusText = getString(R.string.status_recording_paused)
         } else {
-            pauseResumeIcon = R.drawable.ic_pause
+            pauseResumeIcon = R.drawable.ic_pause_light
             pauseResumeText = getString(R.string.button_pause)
             statusText = getString(R.string.status_recording_active)
         }
@@ -784,6 +784,7 @@ data class RecordingServiceState(
         return this.recordingState == RecordingState.STARTED
                 || this.recordingState == RecordingState.PROGRESS
                 || this.recordingState == RecordingState.RESUMED
+//                || this.recordingState == RecordingState.PAUSED
     }
 
     fun isPaused(): Boolean {

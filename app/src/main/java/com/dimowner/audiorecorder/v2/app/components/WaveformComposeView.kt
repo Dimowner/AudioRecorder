@@ -106,7 +106,7 @@ fun WaveformComposeView(
             val samplePerPx = state.durationSample / durationPx
             val textHeight = with(density) { 14.sp.toPx() }
             val waveformShiftPx = updateShift(
-                viewState.value, it,
+                durationPx, it,
                 -(state.progressMills * pxPerMill).toInt()+it.width/2
             )
 
@@ -130,7 +130,7 @@ fun WaveformComposeView(
                     },
                     onDrag = { change, dragAmount ->
                         val shift = updateShift(
-                            viewState.value, size,
+                            viewState.value.durationPx, size,
                             (viewState.value.waveformShiftPx + dragAmount.x).toInt()
                         )
                         val half = size.width / 2
@@ -289,14 +289,14 @@ private fun drawWaveform(
 }
 
 private fun updateShift(
-    viewState: WaveformViewState,
+    durationPx: Float,
     size: IntSize,
     px: Int
 ): Float {
     var shift = px.toFloat()
     val half = size.width/2
-    if (shift <= -viewState.durationPx+half) {
-        shift = -viewState.durationPx+half
+    if (shift <= -durationPx+half) {
+        shift = -durationPx+half
     }
     if (shift > half) {
         shift = half.toFloat()

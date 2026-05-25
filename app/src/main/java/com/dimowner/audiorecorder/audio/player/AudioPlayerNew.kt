@@ -97,7 +97,7 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 		pauseTimeMills = mills
 		prevPosMills = 0
 		try {
-			if (playerState == PlayerState.PLAYING) {
+			if (playerState == PlayerState.PLAYING || playerState == PlayerState.PAUSED) {
 				mediaPlayer.seekTo(mills.toInt())
 				onSeek(mills)
 			}

@@ -110,7 +110,9 @@ class AudioPlaybackService : Service() {
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
         Timber.d("AudioPlaybackService onTaskRemoved: stopping playback")
-        audioPlayer.stop()
+        if (audioPlayer.isPlaying() || audioPlayer.isPaused()) {
+            audioPlayer.stop()
+        }
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
@@ -118,7 +120,9 @@ class AudioPlaybackService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         stopNotificationUpdates()
-        audioPlayer.stop()
+        if (audioPlayer.isPlaying() || audioPlayer.isPaused()) {
+            audioPlayer.stop()
+        }
         notificationManager = null
     }
 
@@ -353,15 +357,15 @@ class AudioPlaybackService : Service() {
 
         when {
             isPlaying -> {
-                playPauseIcon = R.drawable.ic_pause
+                playPauseIcon = R.drawable.ic_pause_light
                 playPauseText = getString(R.string.button_pause)
             }
             isPaused -> {
-                playPauseIcon = R.drawable.ic_play
+                playPauseIcon = R.drawable.ic_play_light
                 playPauseText = getString(R.string.button_resume)
             }
             else -> {
-                playPauseIcon = R.drawable.ic_play
+                playPauseIcon = R.drawable.ic_play_light
                 playPauseText = getString(R.string.btn_play)
             }
         }
