@@ -1145,7 +1145,11 @@ class HomeViewModel @Inject constructor(
     private suspend fun checkForBrokenRecords() {
         // Recording was in progress but the app restarted - recording was interrupted
         withContext(ioDispatcher) {
-            val currentRecordingId = prefs.recordedRecordId
+            // Only exclude the current recording ID when the service is actually alive and
+            // recording/paused. If the service was killed (e.g. app force-stopped), the
+            // recordedRecordId pref is stale and must not suppress broken-record detection.
+            val isServiceActivelyRecording = recordingService?.recordingState?.value?.isRecording() == true
+            val currentRecordingId = if (isServiceActivelyRecording) prefs.recordedRecordId else -1L
             val brokenRecords = recordsDataSource.getBrokenRecords()
                 .filter { it.id != currentRecordingId }
             if (brokenRecords.isNotEmpty()) {
