@@ -119,8 +119,7 @@
 	<string name="import_progress">オーディオファイルをインポート中&#8230;</string>
 	<string name="btn_import">インポート</string>
 	<string name="processing_canceled">処理がキャンセルされました</string>
-	<string name="record_calculation">波形を計算中&#8230;</string>
-	<string name="record_processing">波形の描画を計算中&#8230;</string>
+	<string name="record_processing">音声を処理中&#8230;</string>
 	<string name="request">リクエストまたはフィードバック</string>
 	<string name="email_clients_not_found">メールクライアントが見つかりません</string>
 	<string name="send_email">メールで送信&#8230;</string>

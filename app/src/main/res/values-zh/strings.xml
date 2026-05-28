@@ -93,8 +93,7 @@
     <string name="import_progress">音频文件导入中&#8230;</string>
     <string name="btn_import">导入</string>
     <string name="processing_canceled">处理已取消</string>
-    <string name="record_calculation">波形计算中&#8230;</string>
-    <string name="record_processing">波形绘制中&#8230;</string>
+    <string name="record_processing">正在处理音频&#8230;</string>
     <string name="request">请求或反馈</string>
     <string name="email_clients_not_found">未找到任何邮件客户端</string>
     <string name="send_email">通过电子邮件发送&#8230;</string>

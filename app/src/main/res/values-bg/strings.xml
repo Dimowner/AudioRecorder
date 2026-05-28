@@ -100,8 +100,7 @@
 	<string name="import_progress">Импортиране на аудио файл&#8230;</string>
 	<string name="btn_import">Импортиране</string>
 	<string name="processing_canceled">Обработката е прекратена</string>
-	<string name="record_calculation">Изчисление на формата на вълната&#8230;</string>
-	<string name="record_processing">Зареждане&#8230;</string>
+	<string name="record_processing">Обработка на аудио&#8230;</string>
 	<string name="request">Обратна връзка</string>
 	<string name="email_clients_not_found">Не е намерено приложение за имейл</string>
 	<string name="send_email">Изпращане по имейл&#8230;</string>

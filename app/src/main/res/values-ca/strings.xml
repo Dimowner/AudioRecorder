@@ -115,8 +115,7 @@
 	<string name="import_progress">S\'està important el fitxer d\'àudio&#8230;</string>
 	<string name="btn_import">Importa</string>
 	<string name="processing_canceled">S\'ha cancel·lat el procés</string>
-	<string name="record_calculation">Càlcul de la forma d\'ona&#8230;</string>
-	<string name="record_processing">Càlcul del dibuix de forma d\'ona&#8230;</string>
+	<string name="record_processing">Processant àudio&#8230;</string>
 	<string name="request">Sol·licituds o comentaris</string>
 	<string name="email_clients_not_found">No s\'ha trobat cap client de correu electrònic</string>
 	<string name="send_email">Envia per correu electrònic&#8230;</string>

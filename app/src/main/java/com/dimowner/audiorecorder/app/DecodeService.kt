@@ -312,7 +312,7 @@ class DecodeService : Service() {
 
 		remoteViewsSmall = RemoteViews(packageName, R.layout.layout_progress_notification)
 		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_close, getCancelDecodePendingIntent(applicationContext))
-		remoteViewsSmall.setTextViewText(R.id.txt_name, resources.getString(R.string.record_calculation))
+		remoteViewsSmall.setTextViewText(R.id.txt_name, resources.getString(R.string.record_processing))
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
 			remoteViewsSmall.setInt(
 				R.id.container,
@@ -340,7 +340,7 @@ class DecodeService : Service() {
 
 		remoteViewsBig = RemoteViews(packageName, R.layout.layout_progress_notification)
 		remoteViewsBig.setOnClickPendingIntent(R.id.btn_close, getCancelDecodePendingIntent(applicationContext))
-		remoteViewsBig.setTextViewText(R.id.txt_name, resources.getString(R.string.record_calculation))
+		remoteViewsBig.setTextViewText(R.id.txt_name, resources.getString(R.string.record_processing))
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
 			remoteViewsBig.setInt(
 				R.id.container,

@@ -117,8 +117,7 @@
 	<string name="import_progress">Importar archivo de audio&#8230;</string>
 	<string name="btn_import">Importar</string>
 	<string name="processing_canceled">Procesamiento cancelado</string>
-	<string name="record_calculation">Cálculos del waveform&#8230;</string>
-	<string name="record_processing">Cálculos de dibujo del waveform&#8230;</string>
+	<string name="record_processing">Procesando audio&#8230;</string>
 	<string name="request">Pedido o feedback</string>
 	<string name="email_clients_not_found">No se encontró cliente de email</string>
 	<string name="send_email">Enviar por email&#8230;</string>

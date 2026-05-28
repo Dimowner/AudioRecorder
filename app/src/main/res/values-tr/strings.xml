@@ -116,8 +116,7 @@
 	<string name="import_progress">Ses dosyası içe aktarılıyor&#8230;</string>
 	<string name="btn_import">İçe aktar</string>
 	<string name="processing_canceled">İşlem iptal edildi</string>
-	<string name="record_calculation">Dalga biçimi hesaplamaları&#8230;</string>
-	<string name="record_processing">Dalga biçimi çizim hesaplamaları&#8230;</string>
+	<string name="record_processing">Ses işleniyor&#8230;</string>
 	<string name="request">İstek ve geri bildirim</string>
 	<string name="email_clients_not_found">Herhangi bir e-posta uygulaması bulunamadı</string>
 	<string name="send_email">E-posta ile gönder&#8230;</string>

@@ -118,8 +118,7 @@
 	<string name="import_progress">Audiodatei wird importiert&#8230;</string>
 	<string name="btn_import">Importieren</string>
 	<string name="processing_canceled">Verarbeitung abgebrochen</string>
-	<string name="record_calculation">Wellenformberechnung&#8230;</string>
-	<string name="record_processing">Wellenform wird gezeichnet&#8230;</string>
+	<string name="record_processing">Audio wird verarbeitet&#8230;</string>
 	<string name="request">Anfrage oder Feedback</string>
 	<string name="email_clients_not_found">Kein E-Mail-Client gefunden</string>
 	<string name="send_email">Per E-Mail senden&#8230;</string>

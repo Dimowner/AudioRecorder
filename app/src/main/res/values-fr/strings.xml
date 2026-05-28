@@ -99,8 +99,7 @@
 	<string name="import_progress">Importation du fichier audio&#8230;</string>
 	<string name="btn_import">Importer</string>
 	<string name="processing_canceled">Le processus a été annulé</string>
-	<string name="record_calculation">Calcul de la forme d\'onde&#8230;</string>
-	<string name="record_processing">Génération de la forme d\'onde&#8230;</string>
+	<string name="record_processing">Traitement audio&#8230;</string>
 	<string name="request">Requête ou commentaire</string>
 	<string name="email_clients_not_found">Aucun client de courriel trouvé</string>
 	<string name="send_email">Envoyer par courriel&#8230;</string>

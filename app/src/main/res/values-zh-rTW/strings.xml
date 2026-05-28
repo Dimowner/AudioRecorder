@@ -118,8 +118,7 @@
 	<string name="import_progress">正在匯入音訊&#8230;</string>
 	<string name="btn_import">匯入</string>
 	<string name="processing_canceled">處理已取消</string>
-	<string name="record_calculation">波形演算&#8230;</string>
-	<string name="record_processing">正在建構波形&#8230;</string>
+	<string name="record_processing">正在處理音訊&#8230;</string>
 	<string name="request">建議或回報問題</string>
 	<string name="email_clients_not_found">找不到電子郵件應用程式</string>
 	<string name="send_email">以電子郵件傳送&#8230;</string>
