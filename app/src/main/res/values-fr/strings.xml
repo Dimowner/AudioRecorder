@@ -403,4 +403,5 @@ Le <b>débit binaire</b> est la taille des données par seconde de son. Cela aff
     <string name="duration_days_hours_minutes">%1$dj %2$dh %3$dmin</string>
     <string name="duration_hours_and_minutes">%1$dh %2$dmin</string>
     <string name="duration_minutes">%1$dmin</string>
+    <string name="dropdown_menu">Menu</string>
 </resources>

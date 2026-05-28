@@ -430,4 +430,5 @@ La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transporta
     <string name="status_recording_paused">Gravació en pausa</string>
     <!-- Navigate back button description -->
     <string name="navigate_back">Torna enrere</string>
+    <string name="dropdown_menu">Menú</string>
 </resources>

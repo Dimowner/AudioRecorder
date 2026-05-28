@@ -425,4 +425,5 @@
     <string name="status_recording_paused">Запись на паузе</string>
     <!-- Navigate back button description -->
     <string name="navigate_back">Назад</string>
+    <string name="dropdown_menu">Меню</string>
 </resources>

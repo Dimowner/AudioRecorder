@@ -433,5 +433,6 @@
     <string name="status_recording_paused">録音が一時停止中です</string>
     <!-- Navigate back button description -->
     <string name="navigate_back">前の画面に戻る</string>
+    <string name="dropdown_menu">メニュー</string>
 </resources>
 

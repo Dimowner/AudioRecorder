@@ -422,4 +422,5 @@
     <string name="status_recording_paused">錄製已暫停</string>
     <!-- Navigate back button description -->
     <string name="navigate_back">返回</string>
+    <string name="dropdown_menu">選單</string>
 </resources>

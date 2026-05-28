@@ -388,4 +388,5 @@
     <string name="status_recording_paused">录音已暂停</string>
     <!-- Navigate back button description -->
     <string name="navigate_back">返回</string>
+    <string name="dropdown_menu">菜单</string>
 </resources>

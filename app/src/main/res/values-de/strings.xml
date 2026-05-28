@@ -431,6 +431,7 @@
     <string name="status_recording_active">Aufnahme läuft</string>
     <string name="status_recording_paused">Aufnahme pausiert</string>
     <!-- Navigate back button description -->
-    <string name="navigate_back">Zurück navigieren</string>
+    <string name="navigate_back">Zurck navigieren</string>
+    <string name="dropdown_menu">Menü</string>
 </resources>
 

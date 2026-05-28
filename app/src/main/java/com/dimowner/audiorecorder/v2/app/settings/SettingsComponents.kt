@@ -301,11 +301,13 @@ fun ResetRecordingSettingsPanel(
                     text = sizePerMin,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Light,
+                    lineHeight = 16.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = recordingSettingsText,
                     fontSize = 14.sp,
+                    lineHeight = 16.sp,
                     fontWeight = FontWeight.Light,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 2.dp),

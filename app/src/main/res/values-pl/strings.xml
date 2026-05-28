@@ -451,5 +451,6 @@
     <string name="status_recording_paused">Nagrywanie wstrzymane</string>
     <!-- Navigate back button description -->
     <string name="navigate_back">Przejdź wstecz</string>
+    <string name="dropdown_menu">Menu</string>
 </resources>
 

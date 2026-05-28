@@ -434,4 +434,6 @@
     <string name="status_recording_paused">Recording paused</string>
     <!-- Navigate back button description -->
     <string name="navigate_back">Navigate back</string>
+    <!-- Dropdown menu button description -->
+    <string name="dropdown_menu">Menu</string>
 </resources>

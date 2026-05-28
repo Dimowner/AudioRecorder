@@ -430,5 +430,6 @@
     <string name="status_recording_paused">Gravação pausada</string>
     <!-- Navigate back button description -->
     <string name="navigate_back">Voltar</string>
+    <string name="dropdown_menu">Menu</string>
 </resources>
 

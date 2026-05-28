@@ -432,5 +432,6 @@
     <string name="status_recording_paused">Grabación en pausa</string>
     <!-- Navigate back button description -->
     <string name="navigate_back">Volver</string>
+    <string name="dropdown_menu">Menú</string>
 </resources>
 

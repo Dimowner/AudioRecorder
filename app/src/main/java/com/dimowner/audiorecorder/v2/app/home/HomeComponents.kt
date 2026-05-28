@@ -140,7 +140,7 @@ fun TopAppBar(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_more_vert),
-                        contentDescription = stringResource(id = androidx.compose.ui.R.string.dropdown_menu),
+                        contentDescription = stringResource(id = R.string.dropdown_menu),
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -549,13 +549,13 @@ fun TimePanel(
             textAlign = TextAlign.Center,
             text = recordDuration,
             color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.titleLarge,
             fontSize = 60.sp,
             fontWeight = FontWeight.Bold
         )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 4.dp)
                 .wrapContentSize()
                 .clip(RoundedCornerShape(8.dp))
                 .clickable(enabled = isRenameAvailable) { onRenameClick() }
@@ -567,8 +567,9 @@ fun TimePanel(
                 textAlign = TextAlign.Center,
                 text = recordName,
                 color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleLarge,
                 fontSize = 22.sp,
-                fontWeight = FontWeight.Normal,
+                lineHeight = 24.sp,
                 overflow = TextOverflow.Ellipsis
             )
             if (isRenameAvailable) {
@@ -589,8 +590,8 @@ fun TimePanel(
                 textAlign = TextAlign.Start,
                 text = timeStart,
                 color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Normal
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
@@ -598,8 +599,8 @@ fun TimePanel(
                     .wrapContentSize(),
                 textAlign = TextAlign.Center,
                 text = recordInfo,
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Light
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -610,6 +611,7 @@ fun TimePanel(
                 textAlign = TextAlign.Start,
                 text = timeEnd,
                 color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Normal
             )
