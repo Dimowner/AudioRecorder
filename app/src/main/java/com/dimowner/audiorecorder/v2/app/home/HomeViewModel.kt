@@ -173,6 +173,16 @@ class HomeViewModel @Inject constructor(
             recordingService?.let { svc ->
                 subscribeRecordingServiceState(svc)
                 subscribeRecordingServiceEvents(svc)
+                // If the service connected while idle but prefs still hold a recording ID,
+                // a previous recording was interrupted (e.g. force-kill) — the broken-record
+                // check in onStart() was skipped because the service wasn't bound yet.
+                // Run it now that we can confirm recording is not actually in progress.
+                val svcState = svc.recordingState.value
+                if (!svcState.isRecording() && prefs.recordedRecordId >= 0) {
+                    viewModelScope.launch(ioDispatcher) {
+                        checkForBrokenRecords()
+                    }
+                }
             }
         }
 
@@ -525,7 +535,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             updateState(false)
             // Check for broken records after a potentially interrupted recording
-            if (!state.value.isRecording()) {
+            if (!state.value.isRecording() && prefs.recordedRecordId >= 0) {
                 checkForBrokenRecords()
             }
             //Update playback progress if playback service is running and paused.
@@ -1149,7 +1159,15 @@ class HomeViewModel @Inject constructor(
             // recording/paused. If the service was killed (e.g. app force-stopped), the
             // recordedRecordId pref is stale and must not suppress broken-record detection.
             val isServiceActivelyRecording = recordingService?.recordingState?.value?.isRecording() == true
-            val currentRecordingId = if (isServiceActivelyRecording) prefs.recordedRecordId else -1L
+            // Also exclude the current recording ID when the service is not yet bound.
+            // This prevents a false-positive broken-record dialog when recording was started
+            // from a widget and the app opens while the recording is still in progress —
+            // the service binding is async so recordingService may be null even though
+            // the service is alive and actively recording.
+            // See onServiceConnected: when binding completes as idle it re-runs this check,
+            // so genuinely interrupted recordings (force-kill) are still detected.
+            val isServiceNotYetBound = recordingService == null && prefs.recordedRecordId >= 0
+            val currentRecordingId = if (isServiceActivelyRecording || isServiceNotYetBound) prefs.recordedRecordId else -1L
             val brokenRecords = recordsDataSource.getBrokenRecords()
                 .filter { it.id != currentRecordingId }
             if (brokenRecords.isNotEmpty()) {
