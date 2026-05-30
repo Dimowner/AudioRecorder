@@ -300,6 +300,18 @@ class DatabaseMigrationService : Service() {
         stopSelf()
     }
 
+    /**
+     * Called by the system on API 35+ when a [android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC]
+     * foreground service has been running for the maximum allowed duration (6 hours).
+     * Stop the service gracefully so it doesn't get force-killed.
+     */
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    override fun onTimeout(startId: Int, fgsType: Int) {
+        super.onTimeout(startId, fgsType)
+        Timber.w("DatabaseMigrationService: onTimeout — stopping foreground service after system-imposed limit")
+        stopService()
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationChannel(channelId: String, channelName: String) {
         val channel = notificationManager.getNotificationChannel(channelId)

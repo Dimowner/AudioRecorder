@@ -50,6 +50,7 @@
             android:name=".app.main.MainActivity"
             android:launchMode="singleTask"
             android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -63,37 +64,48 @@
         </activity>
         <activity
             android:name=".app.records.RecordsActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:screenOrientation="portrait" />
 
         <activity
             android:name=".v2.app.HomeActivity"
-            android:launchMode="singleTask" />
+            android:launchMode="singleTask"
+            android:exported="false" />
         <activity
             android:name=".app.settings.SettingsActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:screenOrientation="portrait" />
         <activity
             android:name=".app.info.ActivityInformation"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:screenOrientation="portrait" />
         <activity
             android:name=".app.lostrecords.LostRecordsActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:screenOrientation="portrait" />
         <activity
             android:name=".app.browser.FileBrowserActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:screenOrientation="portrait" />
         <activity
             android:name=".app.trash.TrashActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:screenOrientation="portrait" />
         <activity
             android:name=".app.welcome.WelcomeActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:screenOrientation="portrait" />
         <activity
             android:name=".app.setup.SetupActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:screenOrientation="portrait" />
         <activity
             android:name=".app.moverecords.MoveRecordsActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:screenOrientation="portrait" />
         <activity
             android:name=".app.TransparentRecordingActivity"
+            android:exported="false"
             android:theme="@style/Theme.Transparent" />
 
         <service
@@ -131,12 +143,12 @@
             android:exported="false"
             android:foregroundServiceType="microphone" />
 
-        <receiver android:name=".WidgetReceiver" />
-        <receiver android:name=".app.RecordingService$StopRecordingReceiver" />
-        <receiver android:name=".app.PlaybackService$StopPlaybackReceiver" />
-        <receiver android:name=".app.DownloadService$StopDownloadReceiver" />
-        <receiver android:name=".app.DecodeService$StopDecodeReceiver" />
-        <receiver android:name=".app.moverecords.MoveRecordsService$StopMoveRecordsReceiver" />
+        <receiver android:name=".WidgetReceiver" android:exported="true" />
+        <receiver android:name=".app.RecordingService$StopRecordingReceiver" android:exported="false" />
+        <receiver android:name=".app.PlaybackService$StopPlaybackReceiver" android:exported="false" />
+        <receiver android:name=".app.DownloadService$StopDownloadReceiver" android:exported="false" />
+        <receiver android:name=".app.DecodeService$StopDecodeReceiver" android:exported="false" />
+        <receiver android:name=".app.moverecords.MoveRecordsService$StopMoveRecordsReceiver" android:exported="false" />
 
         <provider
             android:name=".AppFileProvider"

@@ -33,6 +33,7 @@ import android.provider.DocumentsContract
 import android.view.ViewPropertyAnimator
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
+import android.window.OnBackInvokedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -66,6 +67,8 @@ class MoveRecordsActivity : Activity() {
 	var scope = CoroutineScope(Dispatchers.Main)
 
 	private lateinit var binding: ActivityMoveRecordsBinding
+
+	private var backInvokedCallback: OnBackInvokedCallback? = null
 
 	private val connection: ServiceConnection = object : ServiceConnection {
 		override fun onServiceConnected(className: ComponentName, service: IBinder) {
@@ -101,6 +104,14 @@ class MoveRecordsActivity : Activity() {
 		setContentView(view)
 
 		AndroidUtils.applyWindowInsets(this)
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			backInvokedCallback = OnBackInvokedCallback {
+				clear()
+				finish()
+			}
+			onBackInvokedDispatcher.registerOnBackInvokedCallback(0, backInvokedCallback!!)
+		}
 
 		viewModel = ARApplication.injector.provideMoveRecordsViewModel(applicationContext)
 
@@ -365,17 +376,9 @@ class MoveRecordsActivity : Activity() {
 
 	override fun onDestroy() {
 		super.onDestroy()
-		clear()
-	}
-
-	// 230716 should be uopgraded for Android 13…
-	// in AndroidManifest.xml, Application tag, add property android:enableOnBackInvokedCallback="true"
-	// make Activity AppCompatActivity
-	// in onCreate: onBackPressedDispatcher.addCallback(this,onBackPressedCallback)
-	// write the callback
-	// does not seem to work right yet, unless Activity 1.6+ is used
-	override fun onBackPressed() {
-		super.onBackPressed()
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			backInvokedCallback?.let { onBackInvokedDispatcher.unregisterOnBackInvokedCallback(it) }
+		}
 		clear()
 	}
 

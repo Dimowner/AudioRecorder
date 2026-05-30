@@ -14,14 +14,14 @@ jacoco {
 
 android {
     namespace = "com.dimowner.audiorecorder"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.dimowner.audiorecorder"
         minSdk = 26
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 37
+        versionCode = 936
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -275,12 +275,9 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.documentfile)
     implementation(libs.hilt.android)
-    implementation(libs.exoplayer.core)
-    implementation(libs.exoplayer.ui)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.gson)
     implementation(libs.jaudiotagger)
-//    implementation(libs.mp4parser)
     implementation(libs.mp4parser.muxer)
 
     // Compose
