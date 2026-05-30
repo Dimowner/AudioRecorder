@@ -70,14 +70,24 @@ public class LocalRepositoryImpl implements LocalRepository {
 
 	private OnRecordsLostListener onLostRecordsListener;
 
-	private LocalRepositoryImpl(RecordsDataSource dataSource, TrashDataSource trashDataSource, FileRepository fileRepository, Prefs prefs) {
+	private LocalRepositoryImpl(
+			RecordsDataSource dataSource,
+			TrashDataSource trashDataSource,
+			FileRepository fileRepository,
+			Prefs prefs
+	) {
 		this.dataSource = dataSource;
 		this.trashDataSource = trashDataSource;
 		this.fileRepository = fileRepository;
 		this.prefs = prefs;
 	}
 
-	public static LocalRepositoryImpl getInstance(RecordsDataSource source, TrashDataSource trashSource, FileRepository fileRepository, Prefs prefs) {
+	public static LocalRepositoryImpl getInstance(
+			RecordsDataSource source,
+			TrashDataSource trashSource,
+			FileRepository fileRepository,
+			Prefs prefs
+	) {
 		if (instance == null) {
 			synchronized (LocalRepositoryImpl.class) {
 				if (instance == null) {

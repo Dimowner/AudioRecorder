@@ -44,6 +44,8 @@ import com.dimowner.audiorecorder.data.FileRepositoryImpl;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.PrefsImpl;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
+import com.dimowner.audiorecorder.data.database.LocalRepositoryDelegate;
+import com.dimowner.audiorecorder.data.database.LocalRepositoryImpl;
 import com.dimowner.audiorecorder.data.database.LocalRepositoryRoomImpl;
 import com.dimowner.audiorecorder.data.database.RecordsDataSource;
 import com.dimowner.audiorecorder.app.main.MainContract;
@@ -100,12 +102,29 @@ public class Injector {
 		return FileRepositoryImpl.getInstance(context, providePrefs(context));
 	}
 
-	public LocalRepository provideLocalRepository(Context context) {
+	public LocalRepositoryRoomImpl provideLocalRepositoryRoomImpl(Context context) {
 		return LocalRepositoryRoomImpl.getInstance(
 				provideRecordDao(context),
 				provideFileRepository(context),
 				providePrefs(context),
 				provideLoadingTasksQueue()
+		);
+	}
+
+	private LocalRepositoryImpl provideLocalRepositoryImpl(Context context) {
+		return LocalRepositoryImpl.getInstance(
+				provideRecordsDataSource(context),
+				provideTrashDataSource(context),
+				provideFileRepository(context),
+				providePrefs(context)
+		);
+	}
+
+	public LocalRepository provideLocalRepository(Context context) {
+		return LocalRepositoryDelegate.getInstance(
+				providePrefs(context),
+				provideLocalRepositoryImpl(context),
+				provideLocalRepositoryRoomImpl(context)
 		);
 	}
 

@@ -141,6 +141,7 @@ class DatabaseMigrationService : Service() {
         while (true) {
             val records = localRepository.getRecords(page, AppConstants.SORT_DATE_DESC)
             if (records.isNullOrEmpty()) {
+                Timber.d("No more records to migrate, ending pagination")
                 break
             }
 
@@ -163,19 +164,23 @@ class DatabaseMigrationService : Service() {
             }
 
             recordDao.insertRecords(trashEntities)
-            totalMigrated += trashEntities.size
-
             Timber.d("Migrated ${trashEntities.size} trash records")
         }
 
-        // Mark migration as complete
-        prefs.setDatabaseMigratedToRoom(true)
-        val durationMs = System.currentTimeMillis() - migrationStartMs
-        analyticsTracker.trackDbMigrationSuccess(
-            migratedRecordCount = totalMigrated,
-            durationMs = durationMs,
-        )
-        Timber.d("Database migration completed successfully. Total records migrated: $totalMigrated")
+        val totalRecordsCount = localRepository.getRecordsDurations().size
+
+        if (totalMigrated == totalRecordsCount) {
+            // Mark migration as complete
+            prefs.setDatabaseMigratedToRoom(true)
+            val durationMs = System.currentTimeMillis() - migrationStartMs
+            analyticsTracker.trackDbMigrationSuccess(
+                migratedRecordCount = totalMigrated,
+                durationMs = durationMs,
+            )
+            Timber.d("Database migration completed successfully. Record count to migrate: $totalRecordsCount, Total records migrated: $totalMigrated")
+        } else {
+            Timber.d("Database migration failed: expected to migrate $totalRecordsCount records but only migrated $totalMigrated")
+        }
 
         stopService()
     }
