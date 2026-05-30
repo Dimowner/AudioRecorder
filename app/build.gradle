@@ -1,7 +1,5 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
-apply plugin: 'kotlin-kapt'
 //apply plugin: 'com.google.firebase.crashlytics'
 //apply plugin: 'com.google.gms.google-services'
 
@@ -44,7 +42,7 @@ android {
 		release {
 			minifyEnabled true
 			shrinkResources true
-			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 //			firebaseCrashlytics {
 //				mappingFileUploadEnabled true
 //			}
@@ -80,14 +78,16 @@ android {
 }
 
 // Remove not needed buildVariants.
-android.variantFilter { variant ->
-	if (variant.buildType.name == 'release'
-			&& variant.getFlavors().get(0).name == 'debugConfig') {
-		variant.setIgnore(true)
-	}
-	if (variant.buildType.name == 'debug'
-			&& variant.getFlavors().get(0).name == 'releaseConfig') {
-		variant.setIgnore(true)
+androidComponents {
+	beforeVariants(selector().all()) { variantBuilder ->
+		if (variantBuilder.buildType == 'release'
+				&& variantBuilder.flavorName == 'debugConfig') {
+			variantBuilder.enable = false
+		}
+		if (variantBuilder.buildType == 'debug'
+				&& variantBuilder.flavorName == 'releaseConfig') {
+			variantBuilder.enable = false
+		}
 	}
 }
 
