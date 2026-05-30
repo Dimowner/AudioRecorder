@@ -67,6 +67,7 @@
 
     <string name="keep_screen_on">Tieni lo schermo acceso durante la registrazione</string>
     <string name="records_author_name">Nome autore delle registrazioni</string>
+    <string name="record_author">Autore della registrazione</string>
     <string name="records_author_name_hint">Nome autore</string>
 	<!-- Records Author name explanation -->
 	<string name="info_record_author_name">Imposta il tag artista/autore incorporato nei metadati di ogni nuovo file di registrazione. Questo nome apparirà nei lettori musicali e nei gestori di file.</string>

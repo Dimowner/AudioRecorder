@@ -72,6 +72,7 @@
 
     <string name="keep_screen_on">Utrzymuj ekran włączony podczas nagrywania</string>
     <string name="records_author_name">Imię i nazwisko autora nagrań</string>
+    <string name="record_author">Autor nagrania</string>
     <string name="records_author_name_hint">Imię i nazwisko autora</string>
 	<!-- Records Author name explanation -->
 	<string name="info_record_author_name">Ustawia znacznik artysty/autora osadzony w metadanych każdego nowego pliku nagrania. Ta nazwa będzie wyświetlana w odtwarzaczach muzyki i menedżerach plików.</string>

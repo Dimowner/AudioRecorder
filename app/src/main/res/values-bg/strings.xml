@@ -50,6 +50,7 @@
 
 	<string name="keep_screen_on">Екранът да е винаги включен при запис</string>
 	<string name="records_author_name">Автор на записите</string>
+	<string name="record_author">Автор на записа</string>
 	<string name="records_author_name_hint">Автор</string>
 	<string name="info_record_author_name">Задава тага изпълнител/автор, вграден в метаданните на всеки нов запис. Това название ще се показва в музикални плейъри и файлови мениджъри.</string>
 	<string name="total_duration">Обща продължителност: %s</string>

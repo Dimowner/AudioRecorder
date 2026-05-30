@@ -65,6 +65,7 @@
 
 	<string name="keep_screen_on">Kayıttayken ekranı uyanık tut</string>
 	<string name="records_author_name">Kayıt sahibi adı</string>
+	<string name="record_author">Kayıt yazarı</string>
 	<string name="records_author_name_hint">Yazar adı</string>
 	<!-- Records Author name explanation -->
 	<string name="info_record_author_name">Her yeni kayıt dosyasının meta verilerine gömülü sanatçı/yazar etiketini ayarlar. Bu ad müzik oynatıcılarında ve dosya yöneticilerinde görünecektir.</string>

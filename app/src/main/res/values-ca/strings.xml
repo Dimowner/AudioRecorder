@@ -64,6 +64,7 @@
 
 	<string name="keep_screen_on">Manté la pantalla encesa mentre es grava</string>
 	<string name="records_author_name">Nom de l\'autor de les gravacions</string>
+	<string name="record_author">Autor de la gravació</string>
 	<string name="records_author_name_hint">Nom de l\'autor</string>
 	<!-- Records Author name explanation -->
 	<string name="info_record_author_name">Estableix l\'etiqueta d\'artista/autor incrustada als metadades de cada nou fitxer de gravació. Aquest nom apareixerà als reproductors de música i als gestors de fitxers.</string>

@@ -68,6 +68,7 @@
 
     <string name="keep_screen_on">録音中は画面をオンに保つ</string>
     <string name="records_author_name">録音の作成者名</string>
+    <string name="record_author">録音の作成者</string>
     <string name="records_author_name_hint">作成者名</string>
 	<!-- Records Author name explanation -->
 	<string name="info_record_author_name">新しい録音ファイルのメタデータに埋め込まれるアーティスト／作成者タグを設定します。この名前はミュージックプレーヤーやファイルマネージャーに表示されます。</string>

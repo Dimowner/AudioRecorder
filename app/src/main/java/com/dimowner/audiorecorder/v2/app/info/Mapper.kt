@@ -31,5 +31,6 @@ fun Record.toRecordInfoState(): RecordInfoState {
         channelCount = this.channelCount,
         bitrate = this.bitrate,
         amps = adjustWaveformHeights(this.amps),
+        authorName = "", //Will be loaded separately.
     )
 }

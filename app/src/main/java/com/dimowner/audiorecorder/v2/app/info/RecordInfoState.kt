@@ -33,6 +33,7 @@ data class RecordInfoState(
     val channelCount: Int,
     val bitrate: Int,
     val amps: @RawValue IntArray,
+    val authorName: String = "",
 ) : Parcelable {
 
     val nameWithExtension: String
@@ -51,6 +52,7 @@ data class RecordInfoState(
         if (sampleRate != other.sampleRate) return false
         if (channelCount != other.channelCount) return false
         if (bitrate != other.bitrate) return false
+        if (authorName != other.authorName) return false
         return amps.contentEquals(other.amps)
     }
 
@@ -64,6 +66,7 @@ data class RecordInfoState(
         result = 31 * result + sampleRate
         result = 31 * result + channelCount
         result = 31 * result + bitrate
+        result = 31 * result + authorName.hashCode()
         result = 31 * result + amps.contentHashCode()
         return result
     }

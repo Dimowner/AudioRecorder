@@ -66,6 +66,7 @@
 
 	<string name="keep_screen_on">Mantener pantalla ENCENDIDA al grabar</string>
 	<string name="records_author_name">Nombre del autor de grabaciones</string>
+	<string name="record_author">Autor de grabación</string>
 	<string name="records_author_name_hint">Nombre del autor</string>
 	<!-- Records Author name explanation -->
 	<string name="info_record_author_name">Establece la etiqueta de artista/autor incrustada en los metadatos de cada nuevo archivo de grabación. Este nombre aparecerá en reproductores de música y administradores de archivos.</string>

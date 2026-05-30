@@ -67,6 +67,7 @@
 
     <string name="keep_screen_on">Keep screen ON while recording</string>
     <string name="records_author_name">Records author name</string>
+    <string name="record_author">Record author</string>
     <string name="records_author_name_hint">Author name</string>
 	<!-- Records Author name explanation -->
 	<string name="info_record_author_name">Sets the artist/author tag embedded in the metadata of each new recording file. This name will appear in music players and file managers.</string>

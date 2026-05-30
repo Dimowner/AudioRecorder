@@ -49,6 +49,7 @@
 
 	<string name="keep_screen_on">Laisser l\'écran allumé pendant l\'enregistrement</string>
 	<string name="records_author_name">Nom de l\'auteur des enregistrements</string>
+	<string name="record_author">Auteur de l\'enregistrement</string>
 	<string name="records_author_name_hint">Nom de l\'auteur</string>
 	<string name="info_record_author_name">Définit le tag artiste/auteur intégré dans les métadonnées de chaque nouveau fichier d\'enregistrement. Ce nom apparaîtra dans les lecteurs de musique et les gestionnaires de fichiers.</string>
 	<string name="total_duration">Temps d\'enregistrement total : %s</string>

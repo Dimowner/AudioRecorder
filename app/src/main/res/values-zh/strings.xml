@@ -46,6 +46,7 @@
 
     <string name="keep_screen_on">录制时保持屏幕开启</string>
     <string name="records_author_name">录音作者名称</string>
+    <string name="record_author">录音作者</string>
     <string name="records_author_name_hint">作者名称</string>
     <string name="info_record_author_name">设置嵌入在每个新录音文件元数据中的艺术家/作者标签。此名称将显示在音乐播放器和文件管理器中。</string>
     <string name="total_duration">总录音时长：%s</string>

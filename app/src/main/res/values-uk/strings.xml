@@ -29,6 +29,7 @@
 
 	<string name="keep_screen_on">Залишати екран увімкненим під час запису</string>
 	<string name="records_author_name">Ім\'я автора записів</string>
+	<string name="record_author">Автор запису</string>
 	<string name="records_author_name_hint">Ім\'я автора</string>
 	<string name="info_record_author_name">Встановлює тег виконавця/автора, вбудований у метадані кожного нового файлу запису. Це ім\'я відображатиметься в медіаплеєрах і файлових менеджерах.</string>
 	<string name="total_duration">Загальна тривалість записів: %s</string>

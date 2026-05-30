@@ -24,6 +24,7 @@ import com.dimowner.audiorecorder.v2.app.home.HomeViewModel
 import com.dimowner.audiorecorder.v2.app.info.AssetParamType
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoScreen
+import com.dimowner.audiorecorder.v2.app.info.RecordInfoViewModel
 import com.dimowner.audiorecorder.v2.app.lostrecords.LostRecordsScreen
 import com.dimowner.audiorecorder.v2.app.lostrecords.LostRecordsViewModel
 import com.dimowner.audiorecorder.v2.app.records.RecordsScreen
@@ -175,9 +176,15 @@ fun RecorderNavigationGraph(
             } else {
                 it.arguments?.getParcelable(Routes.RECORD_INFO)
             }
+            val recordInfoViewModel: RecordInfoViewModel = hiltViewModel()
+            LaunchedEffect(recordInfo?.location) {
+                recordInfo?.location?.let { path -> recordInfoViewModel.loadAuthorName(path) }
+            }
             RecordInfoScreen(onPopBackStack = {
                 navController.popBackStack()
-            }, recordInfo)
+            }, recordInfo?.copy(
+                authorName = recordInfoViewModel.authorName.value ?: ""
+            ))
         }
     }
 }

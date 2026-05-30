@@ -67,6 +67,7 @@
 
     <string name="keep_screen_on">Bildschirm während der Aufnahme eingeschaltet lassen</string>
     <string name="records_author_name">Autorenname der Aufnahmen</string>
+    <string name="record_author">Aufnahme-Autor</string>
     <string name="records_author_name_hint">Autorenname</string>
 	<!-- Records Author name explanation -->
 	<string name="info_record_author_name">Legt den Künstler-/Autoren-Tag in den Metadaten jeder neuen Aufnahmedatei fest. Dieser Name wird in Musik-Playern und Dateimanagern angezeigt.</string>

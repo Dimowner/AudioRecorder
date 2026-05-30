@@ -65,6 +65,7 @@
 
 	<string name="keep_screen_on">錄製期間保持螢幕開啟</string>
 	<string name="records_author_name">錄音作者名稱</string>
+	<string name="record_author">錄音作者</string>
 	<string name="records_author_name_hint">作者名稱</string>
 	<!-- Records Author name explanation -->
 	<string name="info_record_author_name">設定嵌入每則新錄音檔案中繼資料的創作者／作者標籤，此名稱將顯示在音樂播放器和檔案管理員中。</string>

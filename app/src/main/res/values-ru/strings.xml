@@ -52,6 +52,7 @@
 
 	<string name="keep_screen_on">Оставлять экран включенным во время записи</string>
 	<string name="records_author_name">Имя автора записей</string>
+	<string name="record_author">Автор записи</string>
 	<string name="records_author_name_hint">Имя автора</string>
 	<string name="info_record_author_name">Задаёт тег исполнителя/автора, встроенный в метаданные каждого нового файла записи. Это имя будет отображаться в музыкальных плеерах и файловых менеджерах.</string>
 	<string name="total_duration">Суммарная длительность записей: %s</string>

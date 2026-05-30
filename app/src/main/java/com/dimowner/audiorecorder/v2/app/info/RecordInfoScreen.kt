@@ -47,7 +47,18 @@ import com.dimowner.audiorecorder.v2.app.info.widget.WaveformStaticWidget
 @Composable
 fun RecordInfoScreen(
     onPopBackStack: () -> Unit,
-    recordInfo: RecordInfoState?
+    recordInfo: RecordInfoState?,
+) {
+    RecordInfoScreenContent(
+        onPopBackStack = onPopBackStack,
+        recordInfo = recordInfo,
+    )
+}
+
+@Composable
+internal fun RecordInfoScreenContent(
+    onPopBackStack: () -> Unit,
+    recordInfo: RecordInfoState?,
 ) {
     val context = LocalContext.current
 
@@ -55,7 +66,9 @@ fun RecordInfoScreen(
         contentWindowInsets = WindowInsets.safeDrawing,
     ) { innerPadding ->
         Surface(
-            modifier = Modifier.fillMaxSize().padding(innerPadding)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 TitleBar(
@@ -77,6 +90,12 @@ fun RecordInfoScreen(
                         }
                         InfoItem(stringResource(R.string.rec_name), recordInfo.name)
                         InfoItem(stringResource(R.string.rec_format), recordInfo.format)
+                        if (recordInfo.authorName.isNotBlank()) {
+                            InfoItem(
+                                stringResource(R.string.record_author),
+                                recordInfo.authorName
+                            )
+                        }
                         if (recordInfo.bitrate > 0) {
                             InfoItem(
                                 stringResource(R.string.bitrate),
@@ -114,7 +133,9 @@ fun RecordInfoScreen(
                         )
                     } else {
                         Text(
-                            modifier = Modifier.fillMaxSize().align(Alignment.CenterHorizontally),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .align(Alignment.CenterHorizontally),
                             text = stringResource(id = R.string.error_unknown),
                             textAlign = TextAlign.Center
                         )
@@ -129,16 +150,40 @@ fun RecordInfoScreen(
 @Preview
 @Composable
 fun RecordInfoScreenPreview() {
-    RecordInfoScreen({}, RecordInfoState(
-        name = "name666",
-        format = "format777",
-        duration = 150000000,
-        size = 1500000,
-        location = "location888",
-        created = System.currentTimeMillis(),
-        sampleRate = 44000,
-        channelCount = 1,
-        bitrate = 240000,
-        amps = TEST_WAVEFORM_DATA,
-    ))
+    RecordInfoScreenContent(
+        onPopBackStack = {},
+        recordInfo = RecordInfoState(
+            name = "name666",
+            format = "format777",
+            duration = 150000000,
+            size = 1500000,
+            location = "location888",
+            created = System.currentTimeMillis(),
+            sampleRate = 44000,
+            channelCount = 1,
+            bitrate = 240000,
+            amps = TEST_WAVEFORM_DATA,
+            authorName = "John Doe",
+        ),
+    )
+}
+
+@Preview
+@Composable
+fun RecordInfoScreenLoadingPreview() {
+    RecordInfoScreenContent(
+        onPopBackStack = {},
+        recordInfo = RecordInfoState(
+            name = "name666",
+            format = "format777",
+            duration = 150000000,
+            size = 1500000,
+            location = "location888",
+            created = System.currentTimeMillis(),
+            sampleRate = 44000,
+            channelCount = 1,
+            bitrate = 240000,
+            amps = TEST_WAVEFORM_DATA,
+        ),
+    )
 }
