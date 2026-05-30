@@ -279,6 +279,7 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.jaudiotagger)
     implementation(libs.mp4parser.muxer)
+    implementation(libs.androidx.media)
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))

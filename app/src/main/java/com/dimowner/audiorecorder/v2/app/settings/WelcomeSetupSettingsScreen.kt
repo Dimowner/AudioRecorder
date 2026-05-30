@@ -140,7 +140,7 @@ internal fun WelcomeSetupSettingsScreen(
                         currentAuthorName = uiState.recordAuthorName,
                         onAction = onAction,
                     )
-                    val infoFormat = stringResource(R.string.info_format)
+                    val infoFormat = htmlStringResource(R.string.info_format_html)
                     SettingSelector(
                         name = stringResource(id = R.string.recording_format),
                         chips = uiState.recordingSettings.map { it.recordingFormat },
@@ -148,13 +148,14 @@ internal fun WelcomeSetupSettingsScreen(
                             onAction(SettingsScreenAction.SelectRecordingFormat(it.value))
                         },
                         onClickInfo = {
-                            infoText.value = infoFormat
+                            infoText.value = ""
+                            infoTextAnnotated.value = infoFormat
                             openInfoDialog.value = true
                         }
                     )
                     val selectedFormat =
                         uiState.recordingSettings.firstOrNull { it.recordingFormat.isSelected }
-                    val infoFrequency = stringResource(R.string.info_frequency)
+                    val infoFrequency = htmlStringResource(R.string.info_frequency_html)
                     SettingSelector(
                         name = stringResource(id = R.string.sample_rate),
                         chips = selectedFormat?.sampleRates ?: emptyList(),
@@ -162,7 +163,8 @@ internal fun WelcomeSetupSettingsScreen(
                             onAction(SettingsScreenAction.SelectSampleRate(it.value))
                         },
                         onClickInfo = {
-                            infoText.value = infoFrequency
+                            infoText.value = ""
+                            infoTextAnnotated.value = infoFrequency
                             openInfoDialog.value = true
                         }
                     )
@@ -170,7 +172,7 @@ internal fun WelcomeSetupSettingsScreen(
                         isExpandedBitRatePanel.value = !selectedFormat?.bitRates.isNullOrEmpty()
                     }
                     AnimatedVisibility(visible = isExpandedBitRatePanel.value) {
-                        val infoBitrate = stringResource(R.string.info_bitrate)
+                        val infoBitrate = htmlStringResource(R.string.info_bitrate_html)
                         SettingSelector(
                             name = stringResource(id = R.string.bitrate),
                             chips = selectedFormat?.bitRates ?: emptyList(),
@@ -178,12 +180,13 @@ internal fun WelcomeSetupSettingsScreen(
                                 onAction(SettingsScreenAction.SelectBitrate(it.value))
                             },
                             onClickInfo = {
-                                infoText.value = infoBitrate
+                                infoText.value = ""
+                                infoTextAnnotated.value = infoBitrate
                                 openInfoDialog.value = true
                             }
                         )
                     }
-                    val infoChannels = stringResource(R.string.info_channels)
+                    val infoChannels = htmlStringResource(R.string.info_channels_html)
                     SettingSelector(
                         name = stringResource(id = R.string.channels),
                         chips = selectedFormat?.channelCounts ?: emptyList(),
@@ -191,8 +194,8 @@ internal fun WelcomeSetupSettingsScreen(
                             onAction(SettingsScreenAction.SelectChannelCount(it.value))
                         },
                         onClickInfo = {
-                            infoText.value = infoChannels
-                            infoTextAnnotated.value = null
+                            infoText.value = ""
+                            infoTextAnnotated.value = infoChannels
                             openInfoDialog.value = true
                         }
                     )
