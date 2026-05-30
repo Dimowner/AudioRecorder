@@ -179,7 +179,9 @@ class DatabaseMigrationService : Service() {
             )
             Timber.d("Database migration completed successfully. Record count to migrate: $totalRecordsCount, Total records migrated: $totalMigrated")
         } else {
-            Timber.d("Database migration failed: expected to migrate $totalRecordsCount records but only migrated $totalMigrated")
+            val message = "Database migration failed: expected to migrate $totalRecordsCount records but only migrated $totalMigrated"
+            Timber.d(message)
+            analyticsTracker.trackDbMigrationFailed(Exception("message"))
         }
 
         stopService()
