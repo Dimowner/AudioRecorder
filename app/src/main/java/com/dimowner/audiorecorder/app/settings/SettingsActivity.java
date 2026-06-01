@@ -36,6 +36,7 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.window.OnBackInvokedCallback;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
@@ -48,6 +49,7 @@ import com.dimowner.audiorecorder.app.widget.SettingView;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.RippleUtils;
+import com.dimowner.audiorecorder.v2.app.HomeActivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -70,6 +72,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private TextView btnView;
 	private View migratePublicStoragePanel;
 	private View panelPublicDir;
+	private LinearLayout pnlTry;
 
 	private Switch swPublicDir;
 	private Switch swKeepScreenOn;
@@ -83,7 +86,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private SettingView channelsSetting;
 	private Button btnReset;
 
-	private SettingsContract.UserActionsListener presenter;
+    private SettingsContract.UserActionsListener presenter;
 	private ColorMap colorMap;
 	private ColorMap.OnThemeColorChangeListener onThemeColorChangeListener;
 	private final CompoundButton.OnCheckedChangeListener publicDirListener = new CompoundButton.OnCheckedChangeListener() {
@@ -107,6 +110,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private String[] recChannels;
 	private String[] recChannelsKeys;
 
+	private OnBackInvokedCallback backInvokedCallback;
+
 	public static Intent getStartIntent(Context context) {
 		Intent intent = new Intent(context, SettingsActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -120,6 +125,16 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
 
+		AndroidUtils.applyWindowInsets(this);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			backInvokedCallback = () -> {
+                ARApplication.getInjector().releaseSettingsPresenter();
+                finish();
+            };
+			getOnBackInvokedDispatcher().registerOnBackInvokedCallback(0, backInvokedCallback);
+		}
+
 		btnView = findViewById(R.id.btnView);
 
 		btnView.setBackground(RippleUtils.createRippleShape(
@@ -130,6 +145,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		btnView.setOnClickListener(this);
 		btnReset = findViewById(R.id.btnReset);
 		btnReset.setOnClickListener(this);
+		pnlTry = findViewById(R.id.tryPanel);
+        Button btnTryNewApp = findViewById(R.id.btnTryNewApp);
+		btnTryNewApp.setOnClickListener(this);
 		txtSizePerMin = findViewById(R.id.txt_size_per_min);
 		txtInformation = findViewById(R.id.txt_information);
 		txtLocation = findViewById(R.id.txt_records_location);
@@ -222,6 +240,26 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 						getResources().getDimension(R.dimen.spacing_normal)
 				)
 		);
+		pnlTry.setBackground(
+				RippleUtils.createShape(
+						ContextCompat.getColor(getApplicationContext(),R.color.white_transparent_88),
+						getResources().getDimension(R.dimen.spacing_normal)
+				)
+		);
+		btnTryNewApp.setBackground(
+				RippleUtils.createShape(
+						ContextCompat.getColor(getApplicationContext(), colorMap.getPrimaryColorRes()),
+						getResources().getDimension(R.dimen.spacing_normal)
+				)
+		);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			btnTryNewApp.setForeground(
+					RippleUtils.createRippleMaskShape(
+							ContextCompat.getColor(getApplicationContext(), R.color.white_transparent_80),
+							getResources().getDimension(R.dimen.spacing_normal)
+					)
+			);
+		}
 
 		btnReset.setBackground(
 				RippleUtils.createShape(
@@ -309,6 +347,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 			swPublicDir.setChecked(false);
 			swPublicDir.setEnabled(false);
 		}
+		boolean migrated = ARApplication.getInjector().providePrefs(getApplicationContext()).isDatabaseMigratedToRoom();
+		pnlTry.setVisibility(migrated ? View.VISIBLE : View.GONE);
 	}
 
 	@Override
@@ -323,6 +363,9 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	protected void onDestroy() {
 		super.onDestroy();
 		colorMap.removeOnThemeColorChangeListener(onThemeColorChangeListener);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(backInvokedCallback);
+		}
 	}
 
 	@SuppressLint("UnsafeOptInUsageWarning")
@@ -345,9 +388,18 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		} else if (id == R.id.btnReset) {
 			presenter.resetSettings();
 			presenter.loadSettings();
+		} else if (id == R.id.btnTryNewApp) {
+			presenter.switchAppV2(getApplicationContext());
 		} else if (id == R.id.btnRequest) {
 			requestFeature();
 		}
+	}
+
+	public void showAppV2() {
+		Intent intent = new Intent(this, HomeActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		startActivity(intent);
+		finish();
 	}
 
 	@Override

@@ -49,12 +49,24 @@ import com.dimowner.audiorecorder.audio.AudioWaveformVisualization
 import com.dimowner.audiorecorder.data.database.LocalRepository
 import com.dimowner.audiorecorder.data.database.Record
 import com.dimowner.audiorecorder.util.isUsingNightModeResources
+import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
+import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * Created on 02.02.2021.
  * @author Dimowner
  */
+@AndroidEntryPoint
 class DecodeService : Service() {
 
 	companion object {
@@ -64,17 +76,42 @@ class DecodeService : Service() {
 		const val ACTION_STOP_DECODING_SERVICE = "ACTION_STOP_DECODING_SERVICE"
 		const val ACTION_CANCEL_DECODE = "ACTION_CANCEL_DECODE"
 		const val EXTRAS_KEY_DECODE_INFO = "key_decode_info"
+		const val EXTRAS_KEY_DECODE_RECORD_DURATION = "key_decode_decode_record_duration"
+		const val EXTRAS_KEY_DECODE_RECORD_PATH = "key_decode_decode_record_path"
 		private const val NOTIF_ID = 104
 
-		fun startNotification(context: Context, recId: Int) {
+		fun startNotification(context: Context, recordId: Long) {
 			val intent = Intent(context, DecodeService::class.java)
 			intent.action = ACTION_START_DECODING_SERVICE
-			intent.putExtra(EXTRAS_KEY_DECODE_INFO, recId)
+			intent.putExtra(EXTRAS_KEY_DECODE_INFO, recordId)
+			context.startService(intent)
+		}
+
+		fun startNotificationV2(context: Context, recordId: Long, path: String, durationMills: Long) {
+			val intent = Intent(context, DecodeService::class.java)
+			intent.action = ACTION_START_DECODING_SERVICE
+			intent.putExtra(EXTRAS_KEY_DECODE_INFO, recordId)
+			intent.putExtra(EXTRAS_KEY_DECODE_RECORD_PATH, path)
+			intent.putExtra(EXTRAS_KEY_DECODE_RECORD_DURATION, durationMills)
 			context.startService(intent)
 		}
 	}
 
-	private var decodeListener: DecodeServiceListener? = null
+    @Inject
+    lateinit var recordsDataSource: RecordsDataSource
+
+    @Inject
+    @IoDispatcher
+    lateinit var ioDispatcher: CoroutineDispatcher
+
+	@Inject
+	@MainDispatcher
+	lateinit var mainDispatcher: CoroutineDispatcher
+
+    private val serviceJob = SupervisorJob()
+    private val serviceScope by lazy { CoroutineScope(ioDispatcher + serviceJob) }
+
+    private var decodeListener: DecodeServiceListener? = null
 	private val binder = LocalBinder()
 
 	lateinit var notificationManager: NotificationManagerCompat
@@ -106,10 +143,19 @@ class DecodeService : Service() {
 			val action = intent.action
 			if (action != null && action.isNotEmpty()) {
 				when (action) {
-					ACTION_START_DECODING_SERVICE -> if (intent.hasExtra(EXTRAS_KEY_DECODE_INFO)) {
-						val id = intent.getIntExtra(EXTRAS_KEY_DECODE_INFO, -1)
-						if (id >= 0) {
-							startDecode(id)
+					ACTION_START_DECODING_SERVICE -> {
+						if (intent.hasExtra(EXTRAS_KEY_DECODE_RECORD_PATH)) {
+							val recordId = intent.getLongExtra(EXTRAS_KEY_DECODE_INFO, -1)
+							val path = intent.getStringExtra(EXTRAS_KEY_DECODE_RECORD_PATH)
+							val duration = intent.getLongExtra(EXTRAS_KEY_DECODE_RECORD_DURATION, 0)
+							path?.let {
+								startDecodeV2(recordId, path, duration)
+							}
+						} else if (intent.hasExtra(EXTRAS_KEY_DECODE_INFO)) {
+							val id = intent.getLongExtra(EXTRAS_KEY_DECODE_INFO, -1)
+							if (id >= 0) {
+								startDecode(id)
+							}
 						}
 					}
 					ACTION_STOP_DECODING_SERVICE -> stopService()
@@ -123,12 +169,17 @@ class DecodeService : Service() {
 		return super.onStartCommand(intent, flags, startId)
 	}
 
-	private fun startDecode(id: Int) {
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceJob.cancel()
+    }
+
+	private fun startDecode(id: Long) {
 		isCancel = false
 		startNotification()
 		processingTasks.postRunnable {
 			var prevTime: Long = 0
-			val rec = localRepository.getRecord(id)
+			val rec = localRepository.getRecord(id.toInt())
 			if (rec != null && rec.duration / 1000 < DECODE_DURATION) {
 				waveformVisualization.decodeRecordWaveform(rec.path, object : AudioDecodingListener {
 					override fun isCanceled(): Boolean {
@@ -149,13 +200,13 @@ class DecodeService : Service() {
 
 					override fun onProcessingCancel() {
 						Toast.makeText(applicationContext, R.string.processing_canceled, Toast.LENGTH_LONG).show()
-						decodeListener?.onFinishProcessing()
+						decodeListener?.onFinishProcessing(id,intArrayOf())
 						stopService()
 					}
 
 					override fun onFinishProcessing(data: IntArray, duration: Long) {
 						recordingsTasks.postRunnable {
-							val rec1 = localRepository.getRecord(id)
+							val rec1 = localRepository.getRecord(id.toInt())
 							if (rec1 != null) {
 								val decodedRecord = Record(
 										rec1.id,
@@ -175,14 +226,73 @@ class DecodeService : Service() {
 										data)
 								localRepository.updateRecord(decodedRecord)
 							}
-							decodeListener?.onFinishProcessing()
+							decodeListener?.onFinishProcessing(id, data)
 							stopService()
 						}
 					}
 
 					override fun onError(exception: Exception) {
 						Timber.e(exception)
-						decodeListener?.onFinishProcessing()
+						decodeListener?.onFinishProcessing(id,intArrayOf())
+						stopService()
+					}
+				})
+			} else {
+				stopService()
+			}
+		}
+	}
+
+	private fun startDecodeV2(recordId: Long, path: String, durationMills: Long) {
+		isCancel = false
+		startNotification()
+		processingTasks.postRunnable {
+			var prevTime: Long = 0
+			if (durationMills < DECODE_DURATION) {
+				waveformVisualization.decodeRecordWaveform(path, object : AudioDecodingListener {
+					override fun isCanceled(): Boolean {
+						return isCancel
+					}
+
+					override fun onStartProcessing(duration: Long, channelsCount: Int, sampleRate: Int) {
+						decodeListener?.onStartProcessing()
+					}
+
+					override fun onProcessingProgress(percent: Int) {
+						val curTime = System.currentTimeMillis()
+						if (percent == 100 || curTime > prevTime + 200) {
+							updateNotification(percent)
+							prevTime = curTime
+						}
+					}
+
+					override fun onProcessingCancel() {
+						Toast.makeText(applicationContext, R.string.processing_canceled, Toast.LENGTH_LONG).show()
+						decodeListener?.onFinishProcessing(recordId, intArrayOf())
+						stopService()
+					}
+
+					override fun onFinishProcessing(data: IntArray, duration: Long) {
+						serviceScope.launch(ioDispatcher) {
+							if (recordId < 0) return@launch
+							recordsDataSource.getRecord(recordId)?.let { record ->
+								recordsDataSource.updateRecord(
+									record.copy(
+										amps = data,
+										isWaveformProcessed = true
+									)
+								)
+							}
+							withContext(mainDispatcher) {
+								decodeListener?.onFinishProcessing(recordId, data)
+								stopService()
+							}
+						}
+					}
+
+					override fun onError(exception: Exception) {
+						Timber.e(exception)
+						decodeListener?.onFinishProcessing(recordId, intArrayOf())
 						stopService()
 					}
 				})
@@ -202,7 +312,7 @@ class DecodeService : Service() {
 
 		remoteViewsSmall = RemoteViews(packageName, R.layout.layout_progress_notification)
 		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_close, getCancelDecodePendingIntent(applicationContext))
-		remoteViewsSmall.setTextViewText(R.id.txt_name, resources.getString(R.string.record_calculation))
+		remoteViewsSmall.setTextViewText(R.id.txt_name, resources.getString(R.string.record_processing))
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
 			remoteViewsSmall.setInt(
 				R.id.container,
@@ -230,7 +340,7 @@ class DecodeService : Service() {
 
 		remoteViewsBig = RemoteViews(packageName, R.layout.layout_progress_notification)
 		remoteViewsBig.setOnClickPendingIntent(R.id.btn_close, getCancelDecodePendingIntent(applicationContext))
-		remoteViewsBig.setTextViewText(R.id.txt_name, resources.getString(R.string.record_calculation))
+		remoteViewsBig.setTextViewText(R.id.txt_name, resources.getString(R.string.record_processing))
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
 			remoteViewsBig.setInt(
 				R.id.container,
@@ -299,6 +409,18 @@ class DecodeService : Service() {
 		stopSelf()
 	}
 
+	/**
+	 * Called by the system on API 35+ when a [android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC]
+	 * foreground service has been running for the maximum allowed duration (6 hours).
+	 * Stop the service gracefully so it doesn't get force-killed.
+	 */
+	@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+	override fun onTimeout(startId: Int, fgsType: Int) {
+		super.onTimeout(startId, fgsType)
+		Timber.w("DecodeService: onTimeout — stopping foreground service after system-imposed limit")
+		stopService()
+	}
+
 	@SuppressLint("WrongConstant")
 	private fun getCancelDecodePendingIntent(context: Context): PendingIntent {
 		val intent = Intent(context, StopDecodeReceiver::class.java)
@@ -347,5 +469,5 @@ class DecodeService : Service() {
 
 interface DecodeServiceListener {
 	fun onStartProcessing()
-	fun onFinishProcessing()
+	fun onFinishProcessing(recordId: Long, decodedData: IntArray)
 }

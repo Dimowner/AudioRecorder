@@ -78,7 +78,7 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 	public void deleteRecords(final List<RecordItem> list) {
 		recordingsTasks.postRunnable(() -> {
 			for (RecordItem rec : list) {
-				localRepository.deleteRecord(rec.getId());
+				localRepository.deleteRecordForever(rec.getId());
 //				fileRepository.deleteRecordFile(rec.getPath());
 				if (prefs.getActiveRecord() == rec.getId()) {
 					prefs.setActiveRecord(-1);
@@ -102,7 +102,7 @@ public class LostRecordsPresenter implements LostRecordsContract.UserActionsList
 	@Override
 	public void deleteRecord(final RecordItem rec) {
 		recordingsTasks.postRunnable(() -> {
-			localRepository.deleteRecord(rec.getId());
+			localRepository.deleteRecordForever(rec.getId());
 //				fileRepository.deleteRecordFile(rec.getPath());
 			if (prefs.getActiveRecord() == rec.getId()) {
 				prefs.setActiveRecord(-1);

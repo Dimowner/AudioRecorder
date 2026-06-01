@@ -16,24 +16,24 @@
 
 package com.dimowner.audiorecorder.audio.recorder;
 
+import androidx.annotation.NonNull;
 import com.dimowner.audiorecorder.exception.AppException;
-
 import java.io.File;
 
 public interface RecorderContract {
 
 	interface RecorderCallback {
-		void onStartRecord(File output);
+		void onStartRecord(@NonNull File output);
 		void onPauseRecord();
 		void onResumeRecord();
 		void onRecordProgress(long mills, int amp);
-		void onStopRecord(File output);
-		void onError(AppException throwable);
+		void onStopRecord(@NonNull File output);
+		void onError(@NonNull AppException throwable);
 	}
 
 	interface Recorder {
-		void setRecorderCallback(RecorderCallback callback);
-		void startRecording(String outputFile, int channelCount, int sampleRate, int bitrate);
+		void setRecorderCallback(@NonNull RecorderCallback callback);
+		void startRecording(@NonNull String outputFile, int channelCount, int sampleRate, int bitrate);
 		void resumeRecording();
 		void pauseRecording();
 		void stopRecording();

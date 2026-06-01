@@ -28,6 +28,7 @@ public abstract class AppException extends Exception {
 	public static final int NO_SPACE_AVAILABLE = 8;
 	public static final int RECORDING_ERROR = 9;
 	public static final int FAILED_TO_RESTORE = 10;
+	public static final int ALREADY_RECORDING = 11;
 
 	public abstract int getType();
 }

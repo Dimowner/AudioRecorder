@@ -64,7 +64,7 @@ class WaveformViewNew @JvmOverloads constructor(
 	private var viewHeightPx = 0
 
 	private var originalData: IntArray = IntArray(0)
-	private var waveformData: IntArray = IntArray(0)
+	private var waveformData: FloatArray = FloatArray(0)
 	lateinit var drawLinesArray: FloatArray
 
 	private var showTimeline: Boolean = true
@@ -452,9 +452,9 @@ class WaveformViewNew @JvmOverloads constructor(
 			heights[i] = value * value
 		}
 		val halfHeight = viewHeightPx / 2 - textIndent.toInt() - 1
-		waveformData = IntArray(numFrames)
+		waveformData = FloatArray(numFrames)
 		for (i in 0 until numFrames) {
-			waveformData[i] = (heights[i] * halfHeight).toInt()
+			waveformData[i] = (heights[i] * halfHeight)
 		}
 	}
 

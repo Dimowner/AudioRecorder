@@ -35,6 +35,20 @@ public class AppConstants {
 
 	public static final int PENDING_INTENT_FLAGS;
 
+	public static final String PREF_NAME = "com.dimowner.audiorecorder.data.PrefsImpl";
+	public static final String PREF_KEY_IS_APP_V2 = "pref_is_app_v2";
+	public static final String PREF_KEY_IS_LEGACY_APP_USER = "is_legacy_app_user";
+	public static final String PREF_KEY_IS_FIRST_RUN = "is_first_run";
+	public static final String PREF_KEY_RECORD_COUNTER = "record_counter";
+	public static final String PREF_KEY_KEEP_SCREEN_ON = "keep_screen_on";
+	public static final String PREF_KEY_ACTIVE_RECORD = "active_record";
+	//Recording prefs.
+	public static final String PREF_KEY_SETTING_RECORDING_FORMAT = "setting_recording_format";
+	public static final String PREF_KEY_SETTING_BITRATE = "setting_bitrate";
+	public static final String PREF_KEY_SETTING_SAMPLE_RATE = "setting_sample_rate";
+	public static final String PREF_KEY_SETTING_NAMING_FORMAT = "setting_naming_format";
+	public static final String PREF_KEY_SETTING_CHANNEL_COUNT = "setting_channel_count";
+
 	public static final String REQUESTS_RECEIVER = "dmitriy.ponomarenko.ua@gmail.com";
 
 	public static final String APPLICATION_NAME = "AudioRecorder";
@@ -55,6 +69,7 @@ public class AppConstants {
 	public static final String THEME_BLUE_GREY = "blue_gray";
 
 	public static final String[] SUPPORTED_EXT = new String[]{"mp3", "wav", "3gpp", "3gp", "amr", "aac", "m4a", "mp4", "ogg", "flac"};
+	//.mkv, .aiff .aif .aifc ??
 
 	public static final String FORMAT_M4A = "m4a";
 	public static final String FORMAT_WAV = "wav";
@@ -149,6 +164,7 @@ public class AppConstants {
 
 	/** Time interval for Recording progress visualisation. */
 	public final static int RECORDING_VISUALIZATION_INTERVAL = 13; //mills
+	public final static int RECORDING_VISUALIZATION_INTERVAL_NEW = 20; //mills
 	public final static int PLAYBACK_VISUALIZATION_INTERVAL = (int)(2.1* RECORDING_VISUALIZATION_INTERVAL); //mills
 
 	public final static int RECORD_BYTES_PER_SECOND = RECORD_ENCODING_BITRATE_48000 /8; //bits per sec converted to bytes per sec.

@@ -155,7 +155,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 	public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder viewHolder, final int pos) {
 		if (viewHolder.getItemViewType() == ListItem.ITEM_TYPE_NORMAL) {
 			final ItemViewHolder holder = (ItemViewHolder) viewHolder;
-			final int p = holder.getAbsoluteAdapterPosition();
+			final int p = holder.getAdapterPosition();
 			final ListItem item = data.get(p);
 			holder.name.setText(item.getName());
 			holder.description.setText(item.getDurationStr());
@@ -196,7 +196,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			UniversalViewHolder holder = (UniversalViewHolder) viewHolder;
 			((TextView)holder.view).setText(
 					TimeUtils.formatDateSmartLocale(
-							data.get(viewHolder.getAbsoluteAdapterPosition()).getAdded(),
+							data.get(viewHolder.getAdapterPosition()).getAdded(),
 							holder.view.getContext()
 					)
 			);
@@ -626,13 +626,13 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 			super(itemView);
 			view = itemView;
 			view.setOnClickListener(v -> {
-				int pos = getAbsoluteAdapterPosition();
+				int pos = getAdapterPosition();
 				if (pos != RecyclerView.NO_POSITION && onItemClickListener != null) {
 					onItemClickListener.onItemClick(pos);
 				}
 			});
 			view.setOnLongClickListener(v -> {
-				int pos = getAbsoluteAdapterPosition();
+				int pos = getAdapterPosition();
 				if (pos != RecyclerView.NO_POSITION && longClickListener != null) {
 					longClickListener.onItemLongClick(pos);
 				}

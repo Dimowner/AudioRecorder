@@ -33,6 +33,9 @@ import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.net.Uri;
 import androidx.core.content.FileProvider;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -620,6 +623,23 @@ public class AndroidUtils {
 			versionName = "N/A";
 		}
 		return versionName;
+	}
+
+	public static void applyWindowInsets(Activity activity) {
+		View rootView = activity.getWindow().getDecorView();
+		ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
+			Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+			// Apply insets as padding
+			v.setPadding(
+					systemBarsInsets.left,
+					systemBarsInsets.top,
+					systemBarsInsets.right,
+					systemBarsInsets.bottom
+			);
+			// Return CONSUMED to stop the insets from passing to child views
+			return WindowInsetsCompat.CONSUMED;
+		});
+		ViewCompat.requestApplyInsets(rootView); // Request the insets be applied
 	}
 
 	public interface OnSetNameClickListener {

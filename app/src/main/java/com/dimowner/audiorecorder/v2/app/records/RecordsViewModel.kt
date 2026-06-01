@@ -1,0 +1,902 @@
+/*
+* Copyright 2024 Dmytro Ponomarenko
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+package com.dimowner.audiorecorder.v2.app.records
+
+import android.app.Application
+import android.content.Context
+import androidx.annotation.StringRes
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.dimowner.audiorecorder.R
+import com.dimowner.audiorecorder.app.DownloadService
+import com.dimowner.audiorecorder.audio.player.PlayerContractNew
+import com.dimowner.audiorecorder.audio.player.PlayerContractNew.PlayerCallback
+import com.dimowner.audiorecorder.exception.AppException
+import com.dimowner.audiorecorder.util.AndroidUtils
+import com.dimowner.audiorecorder.util.TimeUtils
+import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
+import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
+import com.dimowner.audiorecorder.v2.app.records.models.SortDropDownMenuItemId
+import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
+import com.dimowner.audiorecorder.v2.audio.AudioRecorderDelegate
+import com.dimowner.audiorecorder.v2.data.PrefsV2
+import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
+import com.dimowner.audiorecorder.v2.data.extensions.checkForLostRecords
+import com.dimowner.audiorecorder.v2.data.model.Record
+import com.dimowner.audiorecorder.v2.data.model.SortOrder
+import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
+import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import javax.inject.Inject
+
+const val DEFAULT_PAGE_SIZE = 50
+
+@HiltViewModel
+internal class RecordsViewModel @Inject constructor(
+    private val recordsDataSource: RecordsDataSource,
+    private val prefs: PrefsV2,
+    private val audioPlayer: PlayerContractNew.Player,
+    private val audioRecorderDelegate: AudioRecorderDelegate,
+    private val analyticsTracker: AnalyticsTracker,
+    @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @ApplicationContext context: Context,
+) : AndroidViewModel(context as Application) {
+
+    private val _state = mutableStateOf(RecordsScreenState())
+    val state: State<RecordsScreenState> = _state
+
+    private val _event = MutableSharedFlow<RecordsScreenEvent?>()
+    val event: SharedFlow<RecordsScreenEvent?> = _event
+
+    private val playerCallback: PlayerCallback = object : PlayerCallback {
+        override fun onStartPlay() {
+            _state.value = _state.value.copy(
+                showRecordPlaybackPanel = true,
+            )
+        }
+        override fun onPlayProgress(mills: Long) {
+            //Do nothing
+        }
+        override fun onPausePlay() {
+            //Do nothing
+        }
+        override fun onSeek(mills: Long) {
+            //Do nothing
+        }
+        override fun onStopPlay() {
+            _state.value = _state.value.copy(
+                showRecordPlaybackPanel = false,
+                activeRecord = null,
+            )
+        }
+        override fun onError(throwable: AppException) {
+            //Do nothing
+        }
+    }
+
+    private var currentPage = 1
+
+    fun onStart(showPlayPanel: Boolean) {
+        showLoadingProgress(true)
+        viewModelScope.launch(ioDispatcher) {
+            initState(showPlayPanel)
+        }
+        audioPlayer.addPlayerCallback(playerCallback)
+    }
+
+    fun onStop() {
+        audioPlayer.removePlayerCallback(playerCallback)
+    }
+
+    private suspend fun initState(showPlayPanel: Boolean) {
+        currentPage = 1
+        val context: Context = getApplication<Application>().applicationContext
+        val sortOrder = state.value.sortOrder
+        val activeRecordId = prefs.activeRecordId
+
+        // Load pages until the active record is found or there are no more pages.
+        // Extra pages are only fetched when the playback panel is visible (i.e. a record is
+        // currently playing) AND there is a valid active record ID, because only then are the
+        // playNextRecord/playPreviousRecord buttons available and need the record in-memory.
+        val allLoadedRecords = mutableListOf<Record>()
+        var hasMoreData: Boolean
+        var activeRecordFound = !showPlayPanel || activeRecordId <= 0
+        while (true) {
+            val page = recordsDataSource.getRecords(
+                sortOrder = sortOrder,
+                page = currentPage,
+                pageSize = DEFAULT_PAGE_SIZE,
+                isBookmarked = false,
+            )
+            allLoadedRecords.addAll(page)
+            hasMoreData = page.size >= DEFAULT_PAGE_SIZE
+            if (!activeRecordFound && page.any { it.id == activeRecordId }) {
+                activeRecordFound = true
+            }
+            // Stop when found, or when there are no more pages to load.
+            if (activeRecordFound || !hasMoreData) break
+            currentPage++
+        }
+
+        val deletedRecordsCount = recordsDataSource.getMovedToRecycleRecordsCount()
+        val lostRecords = checkForLostRecords(allLoadedRecords)
+        if (lostRecords.isNotEmpty()) {
+            analyticsTracker.trackLostRecordsDetected(count = lostRecords.size)
+        }
+
+        val activeRecord: RecordListItem? = if (showPlayPanel && activeRecordId > 0) {
+            allLoadedRecords.find { it.id == activeRecordId }?.toRecordListItem(context)
+        } else null
+
+        withContext(mainDispatcher) {
+            _state.value = RecordsScreenState(
+                sortOrder = sortOrder,
+                recordsMap = allLoadedRecords.map {
+                    it.toRecordListItem(context)
+                }.groupRecordsByDate(context, sortOrder),
+                showDeletedRecordsButton = deletedRecordsCount > 0,
+                deletedRecordsCount = deletedRecordsCount,
+                // Only show the playback panel when there is a real active record to display.
+                showRecordPlaybackPanel = showPlayPanel && activeRecord != null,
+                isRecording = audioRecorderDelegate.provideAudioRecorder().isRecording,
+                recordedRecordId = prefs.recordedRecordId,
+                showLostRecordsDialog = lostRecords.isNotEmpty(),
+                lostRecords = lostRecords,
+                hasMoreData = hasMoreData,
+                activeRecord = activeRecord,
+            )
+            showLoadingProgress(false)
+        }
+    }
+
+    fun loadNextPage() {
+        if (!state.value.hasMoreData || state.value.isShowLoadingProgress) return
+        showLoadingProgress(true)
+        viewModelScope.launch(ioDispatcher) {
+            currentPage++
+            val context: Context = getApplication<Application>().applicationContext
+            val sortOrder = state.value.sortOrder
+            val newRecords = recordsDataSource.getRecords(
+                sortOrder = sortOrder,
+                page = currentPage,
+                pageSize = DEFAULT_PAGE_SIZE,
+                isBookmarked = state.value.bookmarksSelected,
+            )
+            withContext(mainDispatcher) {
+                val newRecordsMap = newRecords.map { it.toRecordListItem(context) }
+                    .groupRecordsByDate(context, sortOrder)
+                val merged = state.value.recordsMap.toMutableMap()
+                newRecordsMap.forEach { (key, list) ->
+                    merged[key] = (merged[key] ?: emptyList()) + list
+                }
+                _state.value = _state.value.copy(
+                    recordsMap = merged,
+                    hasMoreData = newRecords.size >= DEFAULT_PAGE_SIZE,
+                    isShowLoadingProgress = false,
+                )
+            }
+        }
+    }
+
+    fun updateListWithBookmarks(bookmarksSelected: Boolean) {
+        viewModelScope.launch(ioDispatcher) {
+            currentPage = 1
+            val sortOrder = state.value.sortOrder
+            val records = recordsDataSource.getRecords(
+                sortOrder = sortOrder,
+                page = currentPage,
+                pageSize = DEFAULT_PAGE_SIZE,
+                isBookmarked = bookmarksSelected,
+            )
+            val context = getApplication<Application>().applicationContext
+            withContext(mainDispatcher) {
+                _state.value = _state.value.copy(
+                    recordsMap = records.map {
+                        it.toRecordListItem(context)
+                    }.groupRecordsByDate(context, sortOrder),
+                    bookmarksSelected = bookmarksSelected,
+                    hasMoreData = records.size >= DEFAULT_PAGE_SIZE,
+                )
+            }
+        }
+    }
+
+    fun bookmarkRecord(recordId: Long, addToBookmarks: Boolean) {
+        viewModelScope.launch(ioDispatcher) {
+            recordsDataSource.getRecord(recordId)?.let {
+                recordsDataSource.updateRecord(it.copy(isBookmarked = addToBookmarks))
+            }
+            val updated = recordsDataSource.getRecord(recordId)
+            if (updated != null) {
+                withContext(mainDispatcher) {
+                    _state.value = _state.value.updateRecordInMap(recordId) { oldRecord ->
+                        oldRecord.copy(isBookmarked = addToBookmarks)
+                    }
+                }
+            }
+        }
+    }
+
+    fun onItemSelect(record: RecordListItem) {
+        multiSelectCancel()
+        // Capture panel visibility before stop() synchronously triggers onStopPlay()
+        // which would set showRecordPlaybackPanel = false. We restore it afterwards so
+        // AnimatedVisibility never sees the brief false→true flicker.
+        val wasShowingPanel = _state.value.showRecordPlaybackPanel
+        audioPlayer.stop()
+        prefs.activeRecordId = record.recordId
+        _state.value = _state.value.copy(
+            activeRecord = record,
+            showRecordPlaybackPanel = wasShowingPanel,
+        )
+    }
+
+    private fun bookmarkActiveRecord() {
+        val record = _state.value.activeRecord ?: return
+        val newIsBookmarked = !record.isBookmarked
+        viewModelScope.launch(ioDispatcher) {
+            recordsDataSource.getRecord(record.recordId)?.let {
+                recordsDataSource.updateRecord(it.copy(isBookmarked = newIsBookmarked))
+            }
+            withContext(mainDispatcher) {
+                val updatedRecord = record.copy(isBookmarked = newIsBookmarked)
+                _state.value = _state.value.copy(
+                    activeRecord = updatedRecord
+                ).updateRecordInMap(record.recordId) { oldRecord ->
+                    oldRecord.copy(isBookmarked = newIsBookmarked)
+                }
+            }
+        }
+    }
+
+    private fun playNextRecord() {
+        val allRecords = _state.value.recordsMap.values.flatten()
+        val activeRecord = _state.value.activeRecord ?: return
+        val currentIndex = allRecords.indexOfFirst { it.recordId == activeRecord.recordId }
+        val nextRecord = allRecords.getOrNull(currentIndex + 1) ?: return
+        // Capture panel visibility before stop() synchronously triggers onStopPlay()
+        // which would set showRecordPlaybackPanel = false, causing an animation glitch.
+        val wasShowingPanel = _state.value.showRecordPlaybackPanel
+        audioPlayer.stop()
+        prefs.activeRecordId = nextRecord.recordId
+        _state.value = _state.value.copy(
+            activeRecord = nextRecord,
+            showRecordPlaybackPanel = wasShowingPanel,
+        )
+    }
+
+    private fun playPreviousRecord() {
+        val allRecords = _state.value.recordsMap.values.flatten()
+        val activeRecord = _state.value.activeRecord ?: return
+        val currentIndex = allRecords.indexOfFirst { it.recordId == activeRecord.recordId }
+        if (currentIndex <= 0) return
+        val previousRecord = allRecords.getOrNull(currentIndex - 1) ?: return
+        // Capture panel visibility before stop() synchronously triggers onStopPlay()
+        // which would set showRecordPlaybackPanel = false, causing an animation glitch.
+        val wasShowingPanel = _state.value.showRecordPlaybackPanel
+        audioPlayer.stop()
+        prefs.activeRecordId = previousRecord.recordId
+        _state.value = _state.value.copy(
+            activeRecord = previousRecord,
+            showRecordPlaybackPanel = wasShowingPanel,
+        )
+    }
+
+    fun updateListWithSortOrder(sortOrderId: SortDropDownMenuItemId) {
+        viewModelScope.launch(ioDispatcher) {
+            currentPage = 1
+            val sortOrder = sortOrderId.toSortOrder()
+            val records = recordsDataSource.getRecords(
+                sortOrder = sortOrder,
+                page = currentPage,
+                pageSize = DEFAULT_PAGE_SIZE,
+                isBookmarked = _state.value.bookmarksSelected,
+            )
+            val context = getApplication<Application>().applicationContext
+            withContext(mainDispatcher) {
+                _state.value = _state.value.copy(
+                    recordsMap = records.map {
+                        it.toRecordListItem(context)
+                    }.groupRecordsByDate(context, sortOrder),
+                    sortOrder = sortOrder,
+                    hasMoreData = records.size >= DEFAULT_PAGE_SIZE,
+                )
+            }
+        }
+    }
+
+    fun shareRecord(recordId: Long) {
+        multiSelectCancel()
+        viewModelScope.launch(ioDispatcher) {
+            val record = recordsDataSource.getRecord(recordId)
+            if (record != null) {
+                withContext(mainDispatcher) {
+                    AndroidUtils.shareAudioFile(
+                        getApplication<Application>().applicationContext,
+                        record.path,
+                        record.name,
+                        record.format
+                    )
+                }
+            }
+        }
+    }
+
+    fun showRecordInfo(recordId: Long) {
+        multiSelectCancel()
+        viewModelScope.launch(ioDispatcher) {
+            recordsDataSource.getRecord(recordId)?.toRecordInfoState()?.let {
+                emitEvent(RecordsScreenEvent.RecordInformationEvent(it))
+            }
+        }
+    }
+
+    fun onRenameRecordRequest(record: RecordListItem) {
+        multiSelectCancel()
+        _state.value = _state.value.copy(
+            showRenameDialog = true,
+            operationSelectedRecord = record
+        )
+    }
+
+    fun onRenameRecordDismiss() {
+        _state.value = _state.value.copy(
+            showRenameDialog = false,
+        )
+    }
+
+    fun renameRecord(recordId: Long, newName: String) {
+        viewModelScope.launch(ioDispatcher) {
+            recordsDataSource.getRecord(recordId)?.let { record ->
+                val currentFile = File(record.path)
+                // Skip rename if the name hasn't changed
+                if (currentFile.nameWithoutExtension == newName) {
+                    _state.value = _state.value.copy(
+                        showRenameDialog = false,
+                        operationSelectedRecord = null
+                    )
+                    return@let
+                }
+                // Check if a file with the new name already exists on disk
+                val extension = currentFile.extension
+                val targetFile = File(currentFile.parentFile, "$newName.$extension")
+                if (targetFile.exists() && currentFile.nameWithoutExtension != newName) {
+                    val context: Context = getApplication<Application>().applicationContext
+                    emitEvent(
+                        RecordsScreenEvent.ShowErrorSnack(
+                            context.getString(R.string.error_file_exists)
+                        )
+                    )
+                    _state.value = _state.value.copy(
+                        showRenameDialog = false,
+                        operationSelectedRecord = null
+                    )
+                } else if (recordsDataSource.renameRecord(record, newName)) {
+                    val context: Context = getApplication<Application>().applicationContext
+                    emitEvent(
+                        RecordsScreenEvent.ShowInfoSnack(
+                            context.getString(R.string.msg_record_renamed, newName)
+                        )
+                    )
+                    _state.value = _state.value.copy(
+                        showRenameDialog = false,
+                        operationSelectedRecord = null,
+                        recordsMap = _state.value.recordsMap.mapRecordInMap(recordId) { oldRecord ->
+                            if (recordId == record.id) {
+                                oldRecord.copy(name = newName)
+                            } else {
+                                oldRecord
+                            }
+                        }
+                    )
+                } else {
+                    _state.value = _state.value.copy(
+                        showRenameDialog = false,
+                        operationSelectedRecord = null
+                    )
+                }
+            }
+        }
+    }
+
+    fun openRecordWithAnotherApp(recordId: Long) {
+        multiSelectCancel()
+        audioPlayer.stop()
+        viewModelScope.launch(ioDispatcher) {
+            val record = recordsDataSource.getRecord(recordId)
+            if (record != null) {
+                withContext(mainDispatcher) {
+                    AndroidUtils.openAudioFile(
+                        getApplication<Application>().applicationContext,
+                        record.path,
+                        record.name
+                    )
+                }
+            }
+        }
+    }
+
+    fun onSaveAsRequest(record: RecordListItem) {
+        multiSelectCancel()
+        _state.value = _state.value.copy(
+            showSaveAsDialog = true,
+            operationSelectedRecord = record
+        )
+    }
+
+    fun onSaveAsDismiss() {
+        _state.value = _state.value.copy(
+            showSaveAsDialog = false,
+        )
+    }
+
+    fun saveRecordAs(recordId: Long) {
+        multiSelectCancel()
+        viewModelScope.launch(ioDispatcher) {
+            recordsDataSource.getRecord(recordId)?.let {
+                DownloadService.startNotification(
+                    getApplication<Application>().applicationContext,
+                    it.path
+                )
+            }
+            _state.value = _state.value.copy(
+                showSaveAsDialog = false,
+                operationSelectedRecord = null
+            )
+        }
+    }
+
+    fun onMoveToRecycleRecordRequest(record: RecordListItem) {
+        multiSelectCancel()
+        _state.value = _state.value.copy(
+            showMoveToRecycleDialog = true,
+            operationSelectedRecord = record
+        )
+    }
+
+    fun onMoveToRecycleRecordDismiss() {
+        _state.value = _state.value.copy(
+            showMoveToRecycleDialog = false,
+        )
+    }
+
+    private fun moveRecordToRecycle(recordId: Long) {
+        val activeRecordId = prefs.activeRecordId
+        if (audioPlayer.isPlaying() && recordId == activeRecordId) {
+            audioPlayer.stop()
+        }
+        showLoadingProgress(true)
+        viewModelScope.launch(ioDispatcher) {
+            val record = recordsDataSource.getRecord(recordId)
+            if (record != null && recordsDataSource.moveRecordToRecycle(recordId)) {
+                if (recordId == activeRecordId) {
+                    prefs.activeRecordId = -1
+                }
+                withContext(mainDispatcher) {
+                    _state.value = _state.value.copy(
+                        recordsMap = _state.value.recordsMap.removeRecordFromMap(recordId),
+                        showMoveToRecycleDialog = false,
+                        showDeletedRecordsButton = true,
+                        operationSelectedRecord = null,
+                        activeRecord = if (recordId == activeRecordId) null else _state.value.activeRecord,
+                        isShowLoadingProgress = false
+                    )
+                }
+                emitEvent(
+                    RecordsScreenEvent.RecordMovedToRecycleSnack(
+                        recordId,
+                        record.name
+                    )
+                )
+            } else {
+                val context: Context = getApplication<Application>().applicationContext
+                emitEvent(
+                    RecordsScreenEvent.ShowErrorSnack(
+                        context.getString(R.string.msg_move_to_trash_failed)
+                    )
+                )
+
+                withContext(mainDispatcher) {
+                    showLoadingProgress(false)
+                }
+            }
+        }
+    }
+
+    fun handleRestoreRecordFromRecycle(recordId: Long) {
+        showLoadingProgress(true)
+        viewModelScope.launch(ioDispatcher) {
+            if (recordsDataSource.restoreRecordFromRecycle(recordId)) {
+                prefs.activeRecordId = recordId
+                val record = recordsDataSource.getRecord(recordId)
+                showInfoMessage(R.string.msg_recording_restored, record?.name ?: "")
+
+                //Update list state. Put removed record back into the list.
+                if (record != null) {
+                    withContext(mainDispatcher) {
+                        val context: Context = getApplication<Application>().applicationContext
+                        _state.value = _state.value.copy(
+                            recordsMap = _state.value.recordsMap.addRecordToMap(
+                                context,
+                                record.toRecordListItem(context),
+                                state.value.sortOrder
+                            ),
+                        )
+                    }
+                }
+            } else {
+                showInfoMessage(R.string.msg_operation_failed_generic)
+
+                withContext(mainDispatcher) {
+                    showLoadingProgress(false)
+                }
+            }
+        }
+    }
+
+    private fun showLoadingProgress(value: Boolean) {
+        _state.value = _state.value.copy(isShowLoadingProgress = value)
+    }
+
+    private fun showInfoMessage(@StringRes resId: Int) {
+        val context: Context = getApplication<Application>().applicationContext
+        emitEvent(
+            RecordsScreenEvent.ShowInfoSnack(
+                context.getString(resId)
+            )
+        )
+    }
+
+    private fun showInfoMessage(@StringRes resId: Int, vararg formatArgs: Any) {
+        val context: Context = getApplication<Application>().applicationContext
+        emitEvent(
+            RecordsScreenEvent.ShowInfoSnack(
+                context.getString(resId, *formatArgs)
+            )
+        )
+    }
+
+    @SuppressWarnings("CyclomaticComplexMethod")
+    fun onAction(action: RecordsScreenAction) {
+        when (action) {
+            is RecordsScreenAction.OnStartRecordsScreen -> onStart(action.showPlayPanel)
+            is RecordsScreenAction.OnStopRecordsScreen -> onStop()
+            is RecordsScreenAction.UpdateListWithSortOrder -> updateListWithSortOrder(action.sortOrderId)
+            is RecordsScreenAction.UpdateListWithBookmarks -> updateListWithBookmarks(action.bookmarksSelected)
+            is RecordsScreenAction.BookmarkRecord -> bookmarkRecord(action.recordId, action.addToBookmarks)
+            RecordsScreenAction.BookmarkActiveRecord -> bookmarkActiveRecord()
+            RecordsScreenAction.PlayNextRecord -> playNextRecord()
+            RecordsScreenAction.PlayPreviousRecord -> playPreviousRecord()
+            is RecordsScreenAction.OnItemSelect -> onItemSelect(action.record)
+            is RecordsScreenAction.ShareRecord -> shareRecord(action.recordId)
+            is RecordsScreenAction.ShowRecordInfo -> showRecordInfo(action.recordId)
+            is RecordsScreenAction.OnRenameRecordRequest -> onRenameRecordRequest(action.record)
+            is RecordsScreenAction.OpenRecordWithAnotherApp -> openRecordWithAnotherApp(action.recordId)
+            is RecordsScreenAction.OnSaveAsRequest -> onSaveAsRequest(action.record)
+            is RecordsScreenAction.OnMoveToRecycleRecordRequest -> onMoveToRecycleRecordRequest(action.record)
+            is RecordsScreenAction.MoveRecordToRecycle -> moveRecordToRecycle(action.recordId)
+            RecordsScreenAction.OnMoveToRecycleRecordDismiss -> onMoveToRecycleRecordDismiss()
+            is RecordsScreenAction.RestoreRecordFromRecycle -> handleRestoreRecordFromRecycle(action.recordId)
+            is RecordsScreenAction.SaveRecordAs -> saveRecordAs(action.recordId)
+            RecordsScreenAction.OnSaveAsDismiss -> onSaveAsDismiss()
+            is RecordsScreenAction.RenameRecord -> renameRecord(action.recordId, action.newName)
+            RecordsScreenAction.OnRenameRecordDismiss -> onRenameRecordDismiss()
+            is RecordsScreenAction.MultiSelectAddItem -> multiSelectAdd(action.selectedRecord)
+            RecordsScreenAction.MultiSelectCancel -> multiSelectCancel()
+            is RecordsScreenAction.MultiSelectMoveToRecycle -> multiSelectMoveToRecycle()
+            is RecordsScreenAction.MultiSelectMoveToRecycleRequest ->
+                multiSelectMoveToRecycleRequest()
+            RecordsScreenAction.MultiSelectMoveToRecycleDismiss -> multiSelectMoveToRecycleDismiss()
+            is RecordsScreenAction.MultiSelectSaveAs -> multiSelectSaveAs()
+            is RecordsScreenAction.MultiSelectSaveAsRequest -> multiSelectSaveAsRequest()
+            RecordsScreenAction.MultiSelectSaveAsDismiss -> multiSelectSaveAsDismiss()
+            is RecordsScreenAction.MultiSelectShare -> multiSelectShare(action.selectedRecords)
+            RecordsScreenAction.DismissLostRecordsDialog -> dismissLostRecordsDialog()
+            RecordsScreenAction.LoadNextPage -> loadNextPage()
+        }
+    }
+
+    private fun multiSelectAdd(selected: RecordListItem) {
+        audioPlayer.stop()
+        val records = _state.value.selectedRecords.toMutableList()
+        if (records.contains(selected)) {
+           records.remove(selected)
+        } else {
+            records.add(selected)
+        }
+        _state.value = _state.value.copy(
+            selectedRecords = records,
+        )
+    }
+
+    private fun multiSelectCancel() {
+        _state.value = _state.value.copy(
+            selectedRecords = emptyList(),
+        )
+    }
+
+    private fun multiSelectShare(selectedRecords: List<RecordListItem>) {
+        viewModelScope.launch(ioDispatcher) {
+            val recordList = recordsDataSource.getRecords(selectedRecords.map { it.recordId })
+            if (recordList.isNotEmpty()) {
+                withContext(mainDispatcher) {
+                    AndroidUtils.shareAudioFiles(
+                        getApplication<Application>().applicationContext,
+                        recordList.map { it.path }
+                    )
+                    multiSelectCancel()
+                }
+            } else {
+                val context: Context = getApplication<Application>().applicationContext
+                emitEvent(
+                    RecordsScreenEvent.ShowErrorSnack(
+                        context.getString(R.string.error_unknown)
+                    )
+                )
+            }
+        }
+    }
+
+    private fun multiSelectSaveAsRequest() {
+        _state.value = _state.value.copy(
+            showSaveAsMultipleDialog = true,
+        )
+    }
+
+    private fun multiSelectSaveAs() {
+        viewModelScope.launch(ioDispatcher) {
+            val recordList = recordsDataSource.getRecords(state.value.selectedRecords.map { it.recordId })
+            if (recordList.isNotEmpty()) {
+                withContext(mainDispatcher) {
+                    //Download record file with Service
+                    DownloadService.startNotification(
+                        getApplication<Application>().applicationContext,
+                        recordList
+                            .map { it.path }
+                            .toCollection(ArrayList())
+                    )
+                    multiSelectCancel()
+                    _state.value = _state.value.copy(
+                        showSaveAsMultipleDialog = false,
+                    )
+                }
+            } else {
+                val context: Context = getApplication<Application>().applicationContext
+                emitEvent(
+                    RecordsScreenEvent.ShowErrorSnack(
+                        context.getString(R.string.error_unknown)
+                    )
+                )
+            }
+        }
+    }
+
+    private fun multiSelectMoveToRecycleRequest() {
+        _state.value = _state.value.copy(
+            showMoveToRecycleMultipleDialog = true,
+        )
+    }
+
+    private fun multiSelectMoveToRecycleDismiss() {
+        _state.value = _state.value.copy(
+            showMoveToRecycleMultipleDialog = false,
+        )
+    }
+
+    private fun multiSelectSaveAsDismiss() {
+        _state.value = _state.value.copy(
+            showSaveAsMultipleDialog = false,
+        )
+    }
+
+    private fun multiSelectMoveToRecycle() {
+        showLoadingProgress(true)
+        viewModelScope.launch(ioDispatcher) {
+            val deletedCount = recordsDataSource.moveRecordsToRecycle(state.value.selectedRecords.map { it.recordId })
+            if (deletedCount > 0) {
+                currentPage = 1
+                val context: Context = getApplication<Application>().applicationContext
+                val sortOrder = state.value.sortOrder
+                val records = recordsDataSource.getRecords(
+                    sortOrder = sortOrder,
+                    page = currentPage,
+                    pageSize = DEFAULT_PAGE_SIZE,
+                    isBookmarked = state.value.bookmarksSelected,
+                )
+                val recordsInRecycleCount = recordsDataSource.getMovedToRecycleRecordsCount()
+                val selectedRecords = state.value.selectedRecords
+                val isActiveRecordDeleted = selectedRecords.map { it.recordId }.contains(prefs.activeRecordId)
+                if (isActiveRecordDeleted) {
+                    prefs.activeRecordId = -1
+                }
+                withContext(mainDispatcher) {
+                    multiSelectCancel()
+                    _state.value = _state.value.copy(
+                        recordsMap = records.map {
+                            it.toRecordListItem(context)
+                        }.groupRecordsByDate(context, sortOrder),
+                        showDeletedRecordsButton = recordsInRecycleCount > 0,
+                        deletedRecordsCount = recordsInRecycleCount,
+                        showMoveToRecycleMultipleDialog = false,
+                        activeRecord = if (isActiveRecordDeleted) null else _state.value.activeRecord,
+                        isShowLoadingProgress = false,
+                        hasMoreData = records.size >= DEFAULT_PAGE_SIZE,
+                    )
+                }
+                multipleMoveToRecycleSuccessSnack(selectedRecords, deletedCount)
+            } else {
+                multipleMoveToRecycleFailSnack()
+                withContext(mainDispatcher) {
+                    showLoadingProgress(false)
+                }
+            }
+        }
+    }
+
+    private fun multipleMoveToRecycleSuccessSnack(selectedRecords: List<RecordListItem>, deletedRecordsCount: Int) {
+        if (selectedRecords.size == 1) {
+            val record = selectedRecords.first()
+            emitEvent(
+                RecordsScreenEvent.RecordMovedToRecycleSnack(
+                    record.recordId,
+                    record.name
+                )
+            )
+        } else {
+            emitEvent(
+                RecordsScreenEvent.FewRecordsMovedToRecycleSnack(
+                    deletedRecordsCount,
+                    selectedRecords.size
+                )
+            )
+        }
+    }
+
+    private fun multipleMoveToRecycleFailSnack() {
+        val context: Context = getApplication<Application>().applicationContext
+        if (state.value.selectedRecords.size > 1) {
+            emitEvent(
+                RecordsScreenEvent.ShowErrorSnack(
+                    context.getString(R.string.msg_multiple_move_to_trash_failed)
+                )
+            )
+        } else {
+            emitEvent(
+                RecordsScreenEvent.ShowErrorSnack(
+                    context.getString(R.string.msg_move_to_trash_failed)
+                )
+            )
+        }
+    }
+
+    private fun emitEvent(event: RecordsScreenEvent) {
+        viewModelScope.launch {
+            _event.emit(event)
+        }
+    }
+
+    fun dismissLostRecordsDialog() {
+        _state.value = _state.value.copy(
+            showLostRecordsDialog = false,
+            lostRecords = emptyList()
+        )
+    }
+}
+
+data class RecordsScreenState(
+    val recordsMap: Map<String, List<RecordListItem>> = emptyMap(),
+    val selectedRecords: List<RecordListItem> = emptyList(),
+    val sortOrder: SortOrder = SortOrder.DateDesc,
+    val bookmarksSelected: Boolean = false,
+    val showDeletedRecordsButton: Boolean = false,
+    val showRecordPlaybackPanel: Boolean = false,
+    val deletedRecordsCount: Int = 0,
+    val isShowLoadingProgress: Boolean = false,
+    val hasMoreData: Boolean = false,
+
+    val showRenameDialog: Boolean = false,
+    val showMoveToRecycleDialog: Boolean = false,
+    val showMoveToRecycleMultipleDialog: Boolean = false,
+    val showSaveAsDialog: Boolean = false,
+    val showSaveAsMultipleDialog: Boolean = false,
+    //Lost records
+    val showLostRecordsDialog: Boolean = false,
+    val lostRecords: List<Record> = emptyList(),
+    //A record for which some operation requested (rename, save as, delete)
+    val operationSelectedRecord: RecordListItem? = null,
+    val activeRecord: RecordListItem? = null,
+    val isRecording: Boolean = false,
+    val recordedRecordId: Long = -1,
+)
+
+data class RecordListItem(
+    val recordId: Long,
+    val name: String,
+    val details: String,
+    val duration: String,
+    val added: Long,
+    val isBookmarked: Boolean
+)
+
+internal sealed class RecordsScreenEvent {
+    data class RecordInformationEvent(val recordInfo: RecordInfoState) : RecordsScreenEvent()
+    data class RecordMovedToRecycleSnack(val recordId: Long, val recordName: String) :
+        RecordsScreenEvent()
+    data class FewRecordsMovedToRecycleSnack(val movedCount: Int, val expectedCount: Int) :
+        RecordsScreenEvent()
+    data class ShowErrorSnack(val message: String) : RecordsScreenEvent()
+    data class ShowInfoSnack(val message: String) : RecordsScreenEvent()
+    data object StartPlayback : RecordsScreenEvent()
+}
+
+internal sealed class RecordsScreenAction {
+    data class OnStartRecordsScreen(val showPlayPanel: Boolean) : RecordsScreenAction()
+    data object OnStopRecordsScreen : RecordsScreenAction()
+    data class UpdateListWithSortOrder(val sortOrderId: SortDropDownMenuItemId) : RecordsScreenAction()
+    data class UpdateListWithBookmarks(val bookmarksSelected: Boolean) : RecordsScreenAction()
+    data class OnItemSelect(val record: RecordListItem) : RecordsScreenAction()
+    data class BookmarkRecord(val recordId: Long, val addToBookmarks: Boolean) : RecordsScreenAction()
+    data object BookmarkActiveRecord : RecordsScreenAction()
+    data object PlayNextRecord : RecordsScreenAction()
+    data object PlayPreviousRecord : RecordsScreenAction()
+    data class ShareRecord(val recordId: Long) : RecordsScreenAction()
+    data class ShowRecordInfo(val recordId: Long) : RecordsScreenAction()
+    data class OnRenameRecordRequest(val record: RecordListItem) : RecordsScreenAction()
+    data class OpenRecordWithAnotherApp(val recordId: Long) : RecordsScreenAction()
+    data class OnSaveAsRequest(val record: RecordListItem) : RecordsScreenAction()
+    data class OnMoveToRecycleRecordRequest(val record: RecordListItem) : RecordsScreenAction()
+    data class MoveRecordToRecycle(val recordId: Long) : RecordsScreenAction()
+    data class RestoreRecordFromRecycle(val recordId: Long) : RecordsScreenAction()
+    data object OnMoveToRecycleRecordDismiss : RecordsScreenAction()
+    data class SaveRecordAs(val recordId: Long) : RecordsScreenAction()
+    data object OnSaveAsDismiss : RecordsScreenAction()
+    data class RenameRecord(val recordId: Long, val newName: String) : RecordsScreenAction()
+    data object OnRenameRecordDismiss : RecordsScreenAction()
+    data class MultiSelectAddItem(val selectedRecord: RecordListItem) : RecordsScreenAction()
+    data object MultiSelectCancel : RecordsScreenAction()
+    data class MultiSelectShare(val selectedRecords: List<RecordListItem>) : RecordsScreenAction()
+    data object MultiSelectSaveAs : RecordsScreenAction()
+    data object MultiSelectSaveAsRequest : RecordsScreenAction()
+    data object MultiSelectSaveAsDismiss : RecordsScreenAction()
+    data object MultiSelectMoveToRecycle : RecordsScreenAction()
+    data object MultiSelectMoveToRecycleRequest : RecordsScreenAction()
+    data object MultiSelectMoveToRecycleDismiss : RecordsScreenAction()
+    data object DismissLostRecordsDialog : RecordsScreenAction()
+    data object LoadNextPage : RecordsScreenAction()
+}
+
+internal fun Record.toRecordListItem(context: Context): RecordListItem {
+    return RecordListItem(
+        recordId = this.id,
+        name = this.name,
+        details = this.toInfoCombinedText(context),
+        duration =  TimeUtils.formatTimeIntervalHourMinSec2(this.durationMills),
+        added = this.added,
+        isBookmarked = this.isBookmarked
+    )
+}

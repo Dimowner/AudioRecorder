@@ -106,6 +106,12 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	@Override
 	public void bindView(final MainContract.View v) {
 		this.view = v;
+		if (prefs.isFirstRun()) {
+			prefs.setAppV2(true);
+		}
+		if (prefs.isAppV2()) {
+			view.showAppV2();
+		}
 		if (showImportProgress) {
 			view.showImportStart();
 		} else {
@@ -124,7 +130,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 
 				long prevTime = 0;
 				@Override
-				public void onRecordingStarted(final File file) {
+				public void onRecordingStarted(@NonNull final File file) {
 					if (view != null) {
 						view.showRecordingStart();
 						view.keepScreenOn(prefs.isKeepScreenOn());
@@ -153,7 +159,7 @@ public class MainPresenter implements MainContract.UserActionsListener {
 				}
 
 				@Override
-				public void onRecordingStopped(final File file, final Record rec) {
+				public void onRecordingStopped(@NonNull final File file, @NonNull final Record rec) {
 					if (view != null) {
 						if (prefs.isAskToRenameAfterStopRecording()) {
 							view.askRecordingNewName(rec.getId(), file, true);
@@ -713,6 +719,11 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	}
 
 	@Override
+	public boolean isRecording() {
+		return appRecorder.isRecording();
+	}
+
+	@Override
 	public void deleteActiveRecord() {
 		audioPlayer.stop();
 		recordingsTasks.postRunnable(() -> {
@@ -909,12 +920,15 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		Cursor cursor = context.getContentResolver().query(uri, null, null, null, null, null);
 		try {
 			if (cursor != null && cursor.moveToFirst()) {
-				String name = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-//				TODO: find a better way to extract file extension.
-				if (!name.contains(".")) {
-					return name + ".m4a";
-				}
-				return name;
+                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (nameIndex >= 0) {
+                    String name = cursor.getString(nameIndex);
+//				    TODO: find a better way to extract file extension.
+                    if (!name.contains(".")) {
+                        return name + ".m4a";
+                    }
+                    return name;
+                }
 			}
 		} finally {
 			if (cursor != null) {
@@ -923,4 +937,47 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		}
 		return null;
 	}
+
+    private String extractFileNameNew(Context context, Uri uri) {
+        String result = null;
+        if (uri.getScheme() != null && uri.getScheme().equals("content")) {
+            try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (nameIndex >= 0) {
+                        result = cursor.getString(nameIndex);
+                    }
+                }
+            } catch (Exception e) {
+                Timber.e(e, "Failed to extract file name from URI");
+            }
+        }
+
+        // Ensure file has an extension
+        if (result != null && !hasFileExtension(result)) {
+            String extension = getExtensionFromMimeType(context, uri);
+            result = result + "." + extension;
+        }
+
+        return result;
+    }
+
+    private boolean hasFileExtension(String fileName) {
+        int dotIndex = fileName.lastIndexOf('.');
+        // Check if dot exists and is not the first/last character
+        return dotIndex > 0 && dotIndex < fileName.length() - 1;
+    }
+
+    private String getExtensionFromMimeType(Context context, Uri uri) {
+        String mimeType = context.getContentResolver().getType(uri);
+        if (mimeType != null) {
+            String extension = android.webkit.MimeTypeMap.getSingleton()
+                    .getExtensionFromMimeType(mimeType);
+            if (extension != null) {
+                return extension;
+            }
+        }
+        return "m4a"; // Default fallback
+    }
+
 }

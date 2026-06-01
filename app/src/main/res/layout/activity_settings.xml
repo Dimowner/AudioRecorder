@@ -87,6 +87,74 @@
 					android:text="@string/view" />
 		</LinearLayout>
 
+		<LinearLayout
+			android:id="@+id/tryPanel"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="@dimen/spacing_small"
+			android:layout_marginEnd="@dimen/spacing_small"
+			android:layout_marginTop="@dimen/spacing_small"
+			android:visibility="gone"
+			android:orientation="vertical"
+			tools:visibility="visible">
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:paddingTop="12dp"
+				android:paddingBottom="4dp"
+				android:paddingStart="4dp"
+				android:paddingEnd="4dp"
+				android:gravity="center_vertical"
+				android:orientation="horizontal">
+
+				<ImageView
+					android:layout_width="28dp"
+					android:layout_height="28dp"
+					android:layout_marginStart="12dp"
+					android:layout_marginEnd="12dp"
+					android:src="@drawable/ic_mobile_arrow_down"
+					android:contentDescription="@null"/>
+
+				<LinearLayout
+					android:layout_width="0dp"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:layout_marginEnd="@dimen/spacing_small"
+					android:orientation="vertical">
+
+					<TextView
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:text="@string/new_audio_recorder_available"
+						android:fontFamily="sans-serif-medium"
+						android:textSize="@dimen/text_xmedium"
+						android:textColor="@color/text_primary_light"/>
+
+					<TextView
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:text="@string/try_new_app_subtitle"
+						android:fontFamily="sans-serif-light"
+						android:textSize="@dimen/text_normal"
+						android:paddingTop="2dp"
+						android:textColor="@color/text_secondary_light"/>
+				</LinearLayout>
+			</LinearLayout>
+
+			<Button
+				android:id="@+id/btnTryNewApp"
+				android:layout_width="match_parent"
+				android:layout_height="40dp"
+				android:layout_marginStart="12dp"
+				android:layout_marginEnd="12dp"
+				android:layout_marginTop="4dp"
+				android:layout_marginBottom="12dp"
+				android:textColor="@color/text_primary_light"
+				android:textSize="@dimen/text_normal"
+				android:text="@string/try_new_app"/>
+		</LinearLayout>
+
 		<TextView
 				android:id="@+id/btnTrash"
 				style="@style/Text.NormalLabel"

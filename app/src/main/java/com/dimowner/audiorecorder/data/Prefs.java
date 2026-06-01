@@ -21,8 +21,23 @@ public interface Prefs {
 	boolean isFirstRun();
 	void firstRunExecuted();
 
+	@Deprecated //Public storage is not used anymore
 	boolean isStoreDirPublic();
+	@Deprecated //Public storage is not used anymore
 	void setStoreDirPublic(boolean b);
+
+    /**
+     * Flag indicates if Local database helper migrated from SQLiteHelper to Room.
+     */
+    boolean isDatabaseMigratedToRoom();
+    void setDatabaseMigratedToRoom(boolean b);
+
+    /**
+     * Timestamp (ms) of the last failed migration attempt to Room.
+     * Returns 0 if no failure has been recorded.
+     */
+    long getLastMigrationToRoomFailedTime();
+    void setLastMigrationToRoomFailedTime(long time);
 
 	//This is needed for scoped storage support
 	boolean isShowDirectorySetting();
@@ -53,6 +68,16 @@ public interface Prefs {
 
 	boolean isMigratedDb3();
 	void migrateDb3Finished();
+
+	boolean isAppV2();
+	void setAppV2(boolean value);
+
+	/**
+	 * Flag indicates that the user previously used the legacy V1 app and intentionally switched to V2.
+	 * Used to show the "Switch to Legacy App" option in V2 settings.
+	 */
+	boolean isLegacyAppUser();
+	void setLegacyAppUser(boolean value);
 
 	void setSettingThemeColor(String colorKey);
 	String getSettingThemeColor();

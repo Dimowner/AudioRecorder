@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -67,20 +68,20 @@ import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.AnimationUtil;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
+import com.dimowner.audiorecorder.v2.app.HomeActivity;
+import com.dimowner.audiorecorder.v2.audio.AudioRecordingService;
 
 import java.io.File;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.WindowCompat;
+
+import dagger.hilt.android.EntryPointAccessors;
+
 import timber.log.Timber;
 
 public class MainActivity extends Activity implements MainContract.View, View.OnClickListener {
-
-// TODO: Fix waveform when long record (there is no waveform)
-// TODO: Ability to scroll up from the bottom of the list
-//	TODO: Bluetooth micro support
-//	TODO: Mp3 support
-//	TODO: Add Noise gate
 
 	public static final int REQ_CODE_REC_AUDIO_AND_WRITE_EXTERNAL = 101;
 	public static final int REQ_CODE_RECORD_AUDIO = 303;
@@ -128,7 +129,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				}
 
 				@Override
-				public void onFinishProcessing() {
+				public void onFinishProcessing(long recordId, @NonNull int[] decodedData) {
 					runOnUiThread(() -> {
 						hideRecordProcessing();
 						presenter.loadActiveRecord();
@@ -160,6 +161,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		AndroidUtils.applyWindowInsets(this);
+
+		Window window = getWindow();
+		WindowCompat.getInsetsController(window, window.getDecorView()).setAppearanceLightStatusBars(false);
 
 		waveformView = findViewById(R.id.record);
 		recordingWaveformView = findViewById(R.id.recording_view);
@@ -257,10 +263,16 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 
 		//Check start recording shortcut
 		if ("android.intent.action.ACTION_RUN".equals(getIntent().getAction())) {
-			if (checkRecordPermission2()) {
-				if (checkStoragePermission2()) {
-					//Start or stop recording
-					startRecordingService();
+			if (ARApplication.getInjector().providePrefs(getApplicationContext()).isAppV2()) {
+				if (checkRecordPermission2()) {
+					startRecordingServiceV2();
+				}
+			} else {
+				if (checkRecordPermission2()) {
+					if (checkStoragePermission2()) {
+						//Start or stop recording
+						startRecordingService();
+					}
 				}
 			}
 		}
@@ -276,7 +288,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			presenter.storeInPrivateDir(getApplicationContext());
 //			presenter.checkPublicStorageRecords();
 		}
-		presenter.checkFirstRun();
+//		presenter.checkFirstRun();
 		presenter.setAudioRecorder(ARApplication.getInjector().provideAudioRecorder(getApplicationContext()));
 		presenter.updateRecordingDir(getApplicationContext());
 		presenter.loadActiveRecord();
@@ -309,8 +321,11 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			if (checkRecordPermission2()) {
 				if (checkStoragePermission2()) {
 					//Start or stop recording
-					startRecordingService();
-					presenter.pauseUnpauseRecording(getApplicationContext());
+					if (presenter.isRecording()) {
+						presenter.pauseUnpauseRecording(getApplicationContext());
+					} else {
+						startRecordingService();
+					}
 				}
 			}
 		} else if (id == R.id.btn_record_stop) {
@@ -517,6 +532,10 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		}
 	}
 
+	private void startRecordingServiceV2() {
+		AudioRecordingService.Companion.startServiceForeground(getApplicationContext());
+	}
+
 	@Override
 	public void startPlaybackService(final String name) {
 		PlaybackService.startServiceForeground(getApplicationContext(), name);
@@ -625,7 +644,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				MainActivity.this,
 				R.drawable.ic_delete_forever_dark,
 				getString(R.string.warning),
-				getString(R.string.delete_record, name),
+				getString(R.string.move_record_to_trash, name),
 				v -> presenter.deleteActiveRecord()
 		);
 	}
@@ -692,6 +711,14 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void showRecordFileNotAvailable(String path) {
 		AndroidUtils.showRecordFileNotAvailable(this, path);
+	}
+
+	@Override
+	public void showAppV2() {
+		Intent intent = new Intent(this, HomeActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		startActivity(intent);
+		finish();
 	}
 
 	@Override
@@ -874,7 +901,9 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 			startRecordingService();
 		} else if (requestCode == REQ_CODE_RECORD_AUDIO && grantResults.length > 0
 				&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-			if (checkStoragePermission2()) {
+			if (ARApplication.getInjector().providePrefs(getApplicationContext()).isAppV2()) {
+				startRecordingServiceV2();
+			} else if (checkStoragePermission2()) {
 				startRecordingService();
 			}
 		} else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.length > 0

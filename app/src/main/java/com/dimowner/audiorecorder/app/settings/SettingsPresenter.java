@@ -17,11 +17,12 @@
 package com.dimowner.audiorecorder.app.settings;
 
 import android.content.Context;
-
+import androidx.annotation.NonNull;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
 import com.dimowner.audiorecorder.app.AppRecorder;
 import com.dimowner.audiorecorder.app.AppRecorderCallback;
+import com.dimowner.audiorecorder.audio.player.PlayerContractNew;
 import com.dimowner.audiorecorder.data.FileRepository;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
@@ -30,6 +31,7 @@ import com.dimowner.audiorecorder.exception.AppException;
 import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
+import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -50,11 +52,15 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	private final Prefs prefs;
 	private final SettingsMapper settingsMapper;
 	private final AppRecorder appRecorder;
+	private final PlayerContractNew.Player audioPlayer;
+	private final AnalyticsTracker analyticsTracker;
 	private AppRecorderCallback appRecorderCallback;
 
 	public SettingsPresenter(final LocalRepository localRepository, final FileRepository fileRepository,
 									 final BackgroundQueue recordingsTasks, final BackgroundQueue loadingTasks,
-									 final Prefs prefs,  final SettingsMapper settingsMapper,  final AppRecorder appRecorder) {
+									 final Prefs prefs,  final SettingsMapper settingsMapper,  final AppRecorder appRecorder,
+							         final PlayerContractNew.Player audioPlayer,
+							         final AnalyticsTracker analyticsTracker) {
 		this.localRepository = localRepository;
 		this.fileRepository = fileRepository;
 		this.recordingsTasks = recordingsTasks;
@@ -62,6 +68,8 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		this.prefs = prefs;
 		this.settingsMapper = settingsMapper;
 		this.appRecorder = appRecorder;
+		this.audioPlayer = audioPlayer;
+		this.analyticsTracker = analyticsTracker;
 
 		DecimalFormatSymbols formatSymbols = new DecimalFormatSymbols(Locale.getDefault());
 		formatSymbols.setDecimalSeparator('.');
@@ -133,6 +141,24 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		} else {
 			view.hideRecordsLocation();
 		}
+	}
+
+	@Override
+	public void switchAppV2(Context context) {
+		if (view != null) {
+			confirmSwitchAppV2(context);
+			view.showAppV2();
+		}
+	}
+
+	@Override
+	public void confirmSwitchAppV2(Context context) {
+		prefs.setAppV2(true);
+		prefs.setLegacyAppUser(true);
+		analyticsTracker.trackSwitchToAppV2();
+
+		audioPlayer.stop();
+		appRecorder.stopRecording();
 	}
 
 	@Override
@@ -220,10 +246,10 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 		if (appRecorder.isRecording()) {
 			view.disableAudioSettings();
 			appRecorderCallback = new AppRecorderCallback() {
-				@Override public void onRecordingStarted(File file) { }
+				@Override public void onRecordingStarted(@NonNull File file) { }
 				@Override public void onRecordingPaused() { }
 				@Override public void onRecordingResumed() { }
-				@Override public void onRecordingStopped(File file, Record record) {
+				@Override public void onRecordingStopped(@NonNull File file, @NonNull Record record) {
 						view.enableAudioSettings();
 				}
 				@Override public void onRecordingProgress(long mills, int amp) { }

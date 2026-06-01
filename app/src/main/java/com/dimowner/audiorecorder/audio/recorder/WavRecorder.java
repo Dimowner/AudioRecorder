@@ -21,6 +21,7 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import com.dimowner.audiorecorder.AppConstants;
+import com.dimowner.audiorecorder.audio.AudioUtilsKt;
 import com.dimowner.audiorecorder.exception.InvalidOutputFile;
 import com.dimowner.audiorecorder.exception.RecorderInitException;
 import com.dimowner.audiorecorder.exception.RecordingException;
@@ -30,11 +31,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicBoolean;
 import timber.log.Timber;
 import static com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 
 public class WavRecorder implements RecorderContract.Recorder {
@@ -78,13 +78,13 @@ public class WavRecorder implements RecorderContract.Recorder {
 	private WavRecorder() { }
 
 	@Override
-	public void setRecorderCallback(RecorderContract.RecorderCallback callback) {
+	public void setRecorderCallback(@NonNull RecorderContract.RecorderCallback callback) {
 		recorderCallback = callback;
 	}
 
 	@Override
 	@RequiresPermission(value = "android.permission.RECORD_AUDIO")
-	public void startRecording(String outputFile, int channelCount, int sampleRate, int bitrate) {
+	public void startRecording(@NonNull String outputFile, int channelCount, int sampleRate, int bitrate) {
 		this.sampleRate = sampleRate;
 //		this.framesPerVisInterval = (int)((VISUALIZATION_INTERVAL/1000f)/(1f/sampleRate));
 		this.channelCount = channelCount;
@@ -210,25 +210,14 @@ public class WavRecorder implements RecorderContract.Recorder {
 		}
 		if (null != fos) {
 			writeEmptyHeader(fos);
-			int chunksCount = 0;
-			ByteBuffer shortBuffer = ByteBuffer.allocate(2);
-			shortBuffer.order(ByteOrder.LITTLE_ENDIAN);
-			//TODO: Disable loop while pause.
 			while (isRecording.get()) {
 				if (!isPaused.get()) {
-					chunksCount += recorder.read(data, 0, bufferSize);
-					if (AudioRecord.ERROR_INVALID_OPERATION != chunksCount) {
-						long sum = 0;
-						for (int i = 0; i < bufferSize; i+=2) {
-							//TODO: find a better way to covert bytes into shorts.
-							shortBuffer.put(data[i]);
-							shortBuffer.put(data[i+1]);
-							sum += Math.abs(shortBuffer.getShort(0));
-							shortBuffer.clear();
-						}
-						lastVal = (int)(sum/(bufferSize/16));
+					int bytesRead = recorder.read(data, 0, bufferSize);
+					if (bytesRead > 0) {
+						long sum = AudioUtilsKt.sumOfAmplitudes(data, bytesRead);
+						lastVal = (int)(sum/(bytesRead/16 + 1));
 						try {
-							fos.write(data);
+							fos.write(data, 0, bytesRead);
 						} catch (IOException e) {
 							Timber.e(e);
 							AndroidUtils.runOnUIThread(() -> {
@@ -236,6 +225,13 @@ public class WavRecorder implements RecorderContract.Recorder {
 								stopRecording();
 							});
 						}
+					}
+				} else {
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+						break;
 					}
 				}
 			}

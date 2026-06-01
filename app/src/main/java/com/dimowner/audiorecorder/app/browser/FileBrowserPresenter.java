@@ -18,7 +18,7 @@ package com.dimowner.audiorecorder.app.browser;
 
 import android.content.Context;
 import android.os.Build;
-
+import androidx.annotation.NonNull;
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.BackgroundQueue;
@@ -86,7 +86,7 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 			appRecorderCallback = new AppRecorderCallback() {
 
 				@Override
-				public void onRecordingStarted(final File file) {
+				public void onRecordingStarted(@NonNull final File file) {
 				}
 
 				@Override
@@ -98,7 +98,7 @@ public class FileBrowserPresenter implements FileBrowserContract.UserActionsList
 				}
 
 				@Override
-				public void onRecordingStopped(final File file, final Record rec) {
+				public void onRecordingStopped(@NonNull final File file, @NonNull final Record rec) {
 				}
 
 				@Override

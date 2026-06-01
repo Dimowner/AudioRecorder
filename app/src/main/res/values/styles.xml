@@ -16,7 +16,7 @@
 
 <resources>
 
-	<style name="AppTheme" parent="@android:style/Theme.Material">
+    <style name="AppTheme" parent="@android:style/Theme.Material">
 		<item name="android:colorPrimary">@color/md_blue_gray_700</item>
 		<item name="android:colorPrimaryDark">@color/md_blue_gray_700</item>
 		<item name="android:colorAccent">@color/md_yellow_A700</item>
@@ -85,14 +85,7 @@
 	</style>
 
 
-	<style name="Button">
-		<item name="android:textColor">@color/md_yellow_800F</item>
-		<item name="android:textSize">@dimen/text_large</item>
-	</style>
-
-	<style name="Widget" parent="@android:style/Widget" />
-
-	<style name="Widget.RaisedButton" parent="@android:style/Widget.Material.Button">
+    <style name="Widget.RaisedButton" parent="@android:style/Widget.Material.Button">
 		<item name="android:textStyle">bold</item>
 		<item name="android:textColor">#414141</item>
 		<item name="android:background">@drawable/raised_button_background</item>
@@ -147,11 +140,7 @@
 		<item name="android:background">@drawable/app_widget_background</item>
 	</style>
 
-	<style name="Widget.AudioRecorder.AppWidget.InnerView" parent="android:Widget">
-		<item name="android:background">@drawable/app_widget_inner_view_background</item>
-	</style>
-
-	<style name="Theme.Transparent" parent="android:Theme">
+    <style name="Theme.Transparent" parent="android:Theme">
 		<item name="android:windowIsTranslucent">true</item>
 		<item name="android:windowBackground">@android:color/transparent</item>
 		<item name="android:windowContentOverlay">@null</item>

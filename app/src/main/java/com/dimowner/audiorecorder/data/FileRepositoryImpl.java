@@ -35,7 +35,7 @@ public class FileRepositoryImpl implements FileRepository {
 
 	private volatile static FileRepositoryImpl instance;
 
-	private FileRepositoryImpl(Context context, Prefs prefs) {
+	FileRepositoryImpl(Context context, Prefs prefs) {
 		updateRecordingDir(context, prefs);
 		this.prefs = prefs;
 	}
@@ -51,6 +51,9 @@ public class FileRepositoryImpl implements FileRepository {
 		return instance;
 	}
 
+	// - Increment record counter
+	// - Generate new file name with new record counter value
+	// - Create a new record file with a new name.
 	@Override
 	public File provideRecordFile() throws CantCreateFileException {
 		prefs.incrementRecordCounter();

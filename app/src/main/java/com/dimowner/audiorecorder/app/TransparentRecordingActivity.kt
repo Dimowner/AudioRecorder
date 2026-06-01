@@ -30,6 +30,7 @@ import com.dimowner.audiorecorder.data.Prefs
 import com.dimowner.audiorecorder.exception.CantCreateFileException
 import com.dimowner.audiorecorder.exception.ErrorParser
 import com.dimowner.audiorecorder.util.AndroidUtils
+import com.dimowner.audiorecorder.v2.audio.AudioRecordingService
 
 const val REQ_CODE_RECORD_AUDIO = 303
 const val REQ_CODE_WRITE_EXTERNAL_STORAGE = 404
@@ -45,7 +46,7 @@ class TransparentRecordingActivity : Activity() {
         fileRepository = ARApplication.injector.provideFileRepository(applicationContext)
 
         if (checkRecordPermission2()) {
-            if (checkStoragePermission2()) {
+            if (prefs.isAppV2 || checkStoragePermission2()) {
                 startRecordingService()
                 finish()
             }
@@ -53,6 +54,18 @@ class TransparentRecordingActivity : Activity() {
     }
 
     private fun startRecordingService() {
+        if (prefs.isAppV2) {
+            startRecordingServiceV2()
+        } else {
+            startLegacyRecordingService()
+        }
+    }
+
+    private fun startRecordingServiceV2() {
+        AudioRecordingService.startServiceForeground(applicationContext)
+    }
+
+    private fun startLegacyRecordingService() {
         try {
             val startIntent = Intent(applicationContext, RecordingService::class.java)
             val path = fileRepository.provideRecordFile().absolutePath
@@ -72,7 +85,7 @@ class TransparentRecordingActivity : Activity() {
         if (requestCode == REQ_CODE_RECORD_AUDIO && grantResults.isNotEmpty()
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED
         ) {
-            if (checkStoragePermission2()) {
+            if (prefs.isAppV2 || checkStoragePermission2()) {
                 startRecordingService()
             }
         } else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.isNotEmpty()

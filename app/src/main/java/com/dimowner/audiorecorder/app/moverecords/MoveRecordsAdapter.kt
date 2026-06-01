@@ -62,7 +62,7 @@ class MoveRecordsAdapter : ListAdapter<MoveRecordsItem, RecyclerView.ViewHolder>
 	override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 		if (holder is MoveRecordsItemViewHolder) {
 			holder.bind(getItem(position))
-			if (holder.absoluteAdapterPosition == activeItem) {
+			if (holder.adapterPosition == activeItem) {
 				holder.binding.container.setBackgroundResource(R.color.selected_item_color)
 			} else {
 				holder.binding.container.setBackgroundResource(android.R.color.transparent)
@@ -145,8 +145,8 @@ class MoveRecordsAdapter : ListAdapter<MoveRecordsItem, RecyclerView.ViewHolder>
 	): RecyclerView.ViewHolder(binding.root) {
 
 		init {
-			binding.container.setOnClickListener { itemClickListener?.invoke(bindingAdapterPosition) }
-			binding.btnMove.setOnClickListener { moveRecordsClickListener?.invoke(bindingAdapterPosition) }
+			binding.container.setOnClickListener { itemClickListener?.invoke(adapterPosition) }
+			binding.btnMove.setOnClickListener { moveRecordsClickListener?.invoke(adapterPosition) }
 			binding.btnMove.background = RippleUtils.createRippleShape(
 				ContextCompat.getColor(binding.btnMove.context, R.color.white_transparent_80),
 				ContextCompat.getColor(binding.btnMove.context, R.color.white_transparent_50),

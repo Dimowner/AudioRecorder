@@ -70,14 +70,24 @@ public class LocalRepositoryImpl implements LocalRepository {
 
 	private OnRecordsLostListener onLostRecordsListener;
 
-	private LocalRepositoryImpl(RecordsDataSource dataSource, TrashDataSource trashDataSource, FileRepository fileRepository, Prefs prefs) {
+	private LocalRepositoryImpl(
+			RecordsDataSource dataSource,
+			TrashDataSource trashDataSource,
+			FileRepository fileRepository,
+			Prefs prefs
+	) {
 		this.dataSource = dataSource;
 		this.trashDataSource = trashDataSource;
 		this.fileRepository = fileRepository;
 		this.prefs = prefs;
 	}
 
-	public static LocalRepositoryImpl getInstance(RecordsDataSource source, TrashDataSource trashSource, FileRepository fileRepository, Prefs prefs) {
+	public static LocalRepositoryImpl getInstance(
+			RecordsDataSource source,
+			TrashDataSource trashSource,
+			FileRepository fileRepository,
+			Prefs prefs
+	) {
 		if (instance == null) {
 			synchronized (LocalRepositoryImpl.class) {
 				if (instance == null) {
@@ -283,26 +293,6 @@ public class LocalRepositoryImpl implements LocalRepository {
 		List<Record> list = dataSource.getRecords(page, orderStr);
 		checkForLostRecords(list);
 		return list;
-	}
-
-	@Override
-	public Record getLastRecord() {
-		if (!dataSource.isOpen()) {
-			dataSource.open();
-		}
-		Cursor c = dataSource.queryLocal("SELECT * FROM " + SQLiteHelper.TABLE_RECORDS +
-				" ORDER BY " + SQLiteHelper.COLUMN_ID + " DESC LIMIT 1");
-		if (c != null && c.moveToFirst()) {
-			Record r = dataSource.recordToItem(c);
-			if (!isFileExists(r.getPath())) {
-				List<Record> l = new ArrayList<>(1);
-				l.add(r);
-				checkForLostRecords(l);
-			}
-			return r;
-		} else {
-			return null;
-		}
 	}
 
 	private boolean isFileExists(String path) {
@@ -531,8 +521,8 @@ public class LocalRepositoryImpl implements LocalRepository {
 		List<Record> list = trashDataSource.getAll();
 		for (int i = 0; i < list.size(); i++) {
 			if (list.get(i).getRemoved() + AppConstants.RECORD_IN_TRASH_MAX_DURATION < curTime) {
-				fileRepository.deleteRecordFile(list.get(i).getPath());
 				trashDataSource.deleteItem(list.get(i).getId());
+				fileRepository.deleteRecordFile(list.get(i).getPath());
 			}
 		}
 	}

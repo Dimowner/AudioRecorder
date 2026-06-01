@@ -44,7 +44,9 @@ import com.dimowner.audiorecorder.data.FileRepositoryImpl;
 import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.PrefsImpl;
 import com.dimowner.audiorecorder.data.database.LocalRepository;
+import com.dimowner.audiorecorder.data.database.LocalRepositoryDelegate;
 import com.dimowner.audiorecorder.data.database.LocalRepositoryImpl;
+import com.dimowner.audiorecorder.data.database.LocalRepositoryRoomImpl;
 import com.dimowner.audiorecorder.data.database.RecordsDataSource;
 import com.dimowner.audiorecorder.app.main.MainContract;
 import com.dimowner.audiorecorder.app.main.MainPresenter;
@@ -53,6 +55,11 @@ import com.dimowner.audiorecorder.app.records.RecordsPresenter;
 import com.dimowner.audiorecorder.app.settings.SettingsContract;
 import com.dimowner.audiorecorder.app.settings.SettingsPresenter;
 import com.dimowner.audiorecorder.data.database.TrashDataSource;
+import com.dimowner.audiorecorder.v2.analytics.AnalyticsEntryPoint;
+import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker;
+import com.dimowner.audiorecorder.v2.data.room.AppDatabase;
+import com.dimowner.audiorecorder.v2.data.room.RecordDao;
+import dagger.hilt.android.EntryPointAccessors;
 
 public class Injector {
 
@@ -87,12 +94,38 @@ public class Injector {
 		return TrashDataSource.getInstance(context);
 	}
 
+	public RecordDao provideRecordDao(Context context) {
+		return AppDatabase.Companion.getDatabase(context).recordDao();
+	}
+
 	public FileRepository provideFileRepository(Context context) {
 		return FileRepositoryImpl.getInstance(context, providePrefs(context));
 	}
 
+	public LocalRepositoryRoomImpl provideLocalRepositoryRoomImpl(Context context) {
+		return LocalRepositoryRoomImpl.getInstance(
+				provideRecordDao(context),
+				provideFileRepository(context),
+				providePrefs(context),
+				provideLoadingTasksQueue()
+		);
+	}
+
+	private LocalRepositoryImpl provideLocalRepositoryImpl(Context context) {
+		return LocalRepositoryImpl.getInstance(
+				provideRecordsDataSource(context),
+				provideTrashDataSource(context),
+				provideFileRepository(context),
+				providePrefs(context)
+		);
+	}
+
 	public LocalRepository provideLocalRepository(Context context) {
-		return LocalRepositoryImpl.getInstance(provideRecordsDataSource(context), provideTrashDataSource(context), provideFileRepository(context), providePrefs(context));
+		return LocalRepositoryDelegate.getInstance(
+				providePrefs(context),
+				provideLocalRepositoryImpl(context),
+				provideLocalRepositoryRoomImpl(context)
+		);
 	}
 
 	public AppRecorder provideAppRecorder(Context context) {
@@ -162,11 +195,11 @@ public class Injector {
 		switch (providePrefs(context).getSettingRecordingFormat()) {
 			default:
 			case AppConstants.FORMAT_M4A:
-				return AudioRecorder.getInstance();
+				return AudioRecorder.getInstance(context);
 			case AppConstants.FORMAT_WAV:
 				return WavRecorder.getInstance();
 			case AppConstants.FORMAT_3GP:
-				return ThreeGpRecorder.getInstance();
+				return ThreeGpRecorder.getInstance(context);
 		}
 	}
 
@@ -203,9 +236,21 @@ public class Injector {
 		if (settingsPresenter == null) {
 			settingsPresenter = new SettingsPresenter(provideLocalRepository(context), provideFileRepository(context),
 					provideRecordingTasksQueue(), provideLoadingTasksQueue(), providePrefs(context),
-					provideSettingsMapper(context), provideAppRecorder(context));
+					provideSettingsMapper(context), provideAppRecorder(context), provideAudioPlayer(),
+					provideAnalyticsTracker(context));
 		}
 		return settingsPresenter;
+	}
+
+	/**
+	 * Provides the app-scoped {@link AnalyticsTracker} singleton managed by Hilt.
+	 * Uses {@link EntryPointAccessors} so that legacy V1 classes (which are not
+	 * Hilt-injected) can still share the same tracker instance as V2.
+	 */
+	public AnalyticsTracker provideAnalyticsTracker(Context context) {
+		return EntryPointAccessors
+				.fromApplication(context.getApplicationContext(), AnalyticsEntryPoint.class)
+				.analyticsTracker();
 	}
 
 	public TrashContract.UserActionsListener provideTrashPresenter(Context context) {

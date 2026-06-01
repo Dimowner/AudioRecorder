@@ -63,6 +63,8 @@ public class TrashActivity extends Activity implements TrashContract.View {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_trash);
 
+		AndroidUtils.applyWindowInsets(this);
+
 		ImageButton btnBack = findViewById(R.id.btn_back);
 		btnBack.setOnClickListener(v -> {
 			ARApplication.getInjector().releaseTrashPresenter();

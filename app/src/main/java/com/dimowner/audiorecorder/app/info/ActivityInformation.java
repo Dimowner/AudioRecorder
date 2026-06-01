@@ -27,6 +27,7 @@ import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
 import com.dimowner.audiorecorder.ColorMap;
 import com.dimowner.audiorecorder.R;
+import com.dimowner.audiorecorder.util.AndroidUtils;
 import com.dimowner.audiorecorder.util.TimeUtils;
 
 public class ActivityInformation extends Activity {
@@ -45,6 +46,8 @@ public class ActivityInformation extends Activity {
 		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_info);
+
+		AndroidUtils.applyWindowInsets(this);
 
 		Bundle extras = getIntent().getExtras();
 		TextView txtName = findViewById(R.id.txt_name);

@@ -19,6 +19,7 @@ package com.dimowner.audiorecorder.app.lostrecords;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,6 +28,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.window.OnBackInvokedCallback;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.Mapper;
@@ -52,6 +54,8 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 
 	private LostRecordsAdapter adapter;
 
+	private OnBackInvokedCallback backInvokedCallback;
+
 	public static Intent getStartIntent(Context context, ArrayList<RecordItem> data) {
 		Intent intent = new Intent(context, LostRecordsActivity.class);
 		intent.putParcelableArrayListExtra(EXTRAS_RECORDS_LIST, data);
@@ -63,6 +67,16 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 		setTheme(ARApplication.getInjector().provideColorMap(getApplicationContext()).getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_lost_records);
+
+		AndroidUtils.applyWindowInsets(this);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			backInvokedCallback = () -> {
+				ARApplication.getInjector().releaseLostRecordsPresenter();
+				finish();
+			};
+			getOnBackInvokedDispatcher().registerOnBackInvokedCallback(0, backInvokedCallback);
+		}
 
 		ImageButton btnBack = findViewById(R.id.btn_back);
 		btnBack.setOnClickListener(v -> {
@@ -122,6 +136,14 @@ public class LostRecordsActivity extends Activity implements LostRecordsContract
 		super.onStop();
 		if (presenter != null) {
 			presenter.unbindView();
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(backInvokedCallback);
 		}
 	}
 

@@ -16,29 +16,36 @@
 
 package com.dimowner.audiorecorder.data;
 
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_ACTIVE_RECORD;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_APP_V2;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_FIRST_RUN;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_LEGACY_APP_USER;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_KEEP_SCREEN_ON;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_RECORD_COUNTER;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_SETTING_BITRATE;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_SETTING_CHANNEL_COUNT;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_SETTING_NAMING_FORMAT;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_SETTING_RECORDING_FORMAT;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_SETTING_SAMPLE_RATE;
+import static com.dimowner.audiorecorder.AppConstants.PREF_NAME;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 
 import com.dimowner.audiorecorder.AppConstants;
+import com.dimowner.audiorecorder.v2.DefaultValues;
 
 /**
  * App preferences implementation
  */
 public class PrefsImpl implements Prefs {
 
-	private static final String PREF_NAME = "com.dimowner.audiorecorder.data.PrefsImpl";
-
-	private static final String PREF_KEY_IS_FIRST_RUN = "is_first_run";
 	private static final String PREF_KEY_IS_MIGRATED = "is_migrated";
 	private static final String PREF_KEY_IS_MIGRATED_DB3 = "is_migrated_db3";
 	private static final String PREF_KEY_IS_STORE_DIR_PUBLIC = "is_store_dir_public";
 	private static final String PREF_KEY_IS_SHOW_DIRECTORY_SETTING = "is_show_directory_setting";
 	private static final String PREF_KEY_IS_ASK_TO_RENAME_AFTER_STOP_RECORDING = "is_ask_rename_after_stop_recording";
-	private static final String PREF_KEY_ACTIVE_RECORD = "active_record";
-	private static final String PREF_KEY_RECORD_COUNTER = "record_counter";
 	private static final String PREF_KEY_THEME_COLORMAP_POSITION = "theme_color";
-	private static final String PREF_KEY_KEEP_SCREEN_ON = "keep_screen_on";
 	private static final String PREF_KEY_FORMAT = "pref_format";
 	private static final String PREF_KEY_BITRATE = "pref_bitrate";
 	private static final String PREF_KEY_SAMPLE_RATE = "pref_sample_rate";
@@ -46,16 +53,12 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_NAMING_FORMAT = "pref_naming_format";
 	private static final String PREF_KEY_LAST_PUBLIC_STORAGE_MIGRATION_ASKED = "pref_last_public_storage_migration_asked";
 	private static final String PREF_KEY_IS_PUBLIC_STORAGE_MIGRATED = "pref_is_public_storage_migrated";
+    private static final String PREF_KEY_IS_DATABASE_MIGRATED_TO_ROOM = "pref_key_is_database_migrated_to_room";
+    private static final String PREF_KEY_LAST_MIGRATION_TO_ROOM_FAILED_TIME = "pref_key_last_migration_to_room_failed_time";
 
 	//Recording prefs.
 	private static final String PREF_KEY_RECORD_CHANNEL_COUNT = "record_channel_count";
-
 	private static final String PREF_KEY_SETTING_THEME_COLOR = "setting_theme_color";
-	private static final String PREF_KEY_SETTING_RECORDING_FORMAT = "setting_recording_format";
-	private static final String PREF_KEY_SETTING_BITRATE = "setting_bitrate";
-	private static final String PREF_KEY_SETTING_SAMPLE_RATE = "setting_sample_rate";
-	private static final String PREF_KEY_SETTING_NAMING_FORMAT = "setting_naming_format";
-	private static final String PREF_KEY_SETTING_CHANNEL_COUNT = "setting_channel_count";
 
 	private final SharedPreferences sharedPreferences;
 
@@ -107,7 +110,32 @@ public class PrefsImpl implements Prefs {
 		editor.apply();
 	}
 
-	@Override
+    @Override
+    public boolean isDatabaseMigratedToRoom() {
+        return sharedPreferences.contains(PREF_KEY_IS_DATABASE_MIGRATED_TO_ROOM)
+                && sharedPreferences.getBoolean(PREF_KEY_IS_DATABASE_MIGRATED_TO_ROOM, false);
+    }
+
+    @Override
+    public void setDatabaseMigratedToRoom(boolean b) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(PREF_KEY_IS_DATABASE_MIGRATED_TO_ROOM, b);
+        editor.apply();
+    }
+
+    @Override
+    public long getLastMigrationToRoomFailedTime() {
+        return sharedPreferences.getLong(PREF_KEY_LAST_MIGRATION_TO_ROOM_FAILED_TIME, 0);
+    }
+
+    @Override
+    public void setLastMigrationToRoomFailedTime(long time) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putLong(PREF_KEY_LAST_MIGRATION_TO_ROOM_FAILED_TIME, time);
+        editor.apply();
+    }
+
+    @Override
 	public boolean isShowDirectorySetting() {
 		return sharedPreferences.getBoolean(PREF_KEY_IS_SHOW_DIRECTORY_SETTING, true);
 	}
@@ -320,6 +348,30 @@ public class PrefsImpl implements Prefs {
 	public void migrateDb3Finished() {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putBoolean(PREF_KEY_IS_MIGRATED_DB3, true);
+		editor.apply();
+	}
+
+	@Override
+	public boolean isAppV2() {
+		return sharedPreferences.getBoolean(PREF_KEY_IS_APP_V2, DefaultValues.IS_APP_V2);
+	}
+
+	@Override
+	public void setAppV2(boolean value) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putBoolean(PREF_KEY_IS_APP_V2, value);
+		editor.apply();
+	}
+
+	@Override
+	public boolean isLegacyAppUser() {
+		return sharedPreferences.getBoolean(PREF_KEY_IS_LEGACY_APP_USER, DefaultValues.IS_LEGACY_APP_USER);
+	}
+
+	@Override
+	public void setLegacyAppUser(boolean value) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putBoolean(PREF_KEY_IS_LEGACY_APP_USER, value);
 		editor.apply();
 	}
 

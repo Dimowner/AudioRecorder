@@ -281,8 +281,25 @@ public class DownloadService extends Service {
 	}
 
 	public void stopService() {
-		stopForeground(true);
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S_V2) {
+			stopForeground(STOP_FOREGROUND_REMOVE);
+		} else {
+            stopForeground(true);
+		}
 		stopSelf();
+	}
+
+	/**
+	 * Called by the system on API 35+ when a {@link android.content.pm.ServiceInfo#FOREGROUND_SERVICE_TYPE_DATA_SYNC}
+	 * foreground service has been running for the maximum allowed duration (6 hours).
+	 * Stop the service gracefully so it doesn't get force-killed.
+	 */
+	@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+	@Override
+	public void onTimeout(int startId, int fgsType) {
+		super.onTimeout(startId, fgsType);
+		timber.log.Timber.w("DownloadService: onTimeout — stopping foreground service after system-imposed limit");
+		stopService();
 	}
 
 	@SuppressLint("WrongConstant")
@@ -305,7 +322,7 @@ public class DownloadService extends Service {
 
 			notificationManager.createNotificationChannel(chan);
 		} else {
-			Timber.v("Channel already exists: %s", CHANNEL_ID);
+			Timber.v("DownloadService: Channel already exists: %s", CHANNEL_ID);
 		}
 	}
 

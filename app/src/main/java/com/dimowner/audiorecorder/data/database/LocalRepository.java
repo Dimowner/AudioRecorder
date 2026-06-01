@@ -47,8 +47,6 @@ public interface LocalRepository {
 
 	boolean deleteAllRecords();
 
-	Record getLastRecord();
-
 	Record insertRecord(Record record);
 
 	boolean updateRecord(Record record);

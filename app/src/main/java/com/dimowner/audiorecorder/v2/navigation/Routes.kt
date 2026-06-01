@@ -1,0 +1,16 @@
+package com.dimowner.audiorecorder.v2.navigation
+
+object Routes {
+
+    const val HOME_SCREEN = "HOME_SCREEN"
+    const val RECORDS_SCREEN = "RECORDS_SCREEN"
+    const val SETTINGS_SCREEN = "SETTINGS_SCREEN"
+    const val RECORD_INFO_SCREEN = "RECORD_INFO_SCREEN"
+    const val DELETED_RECORDS_SCREEN = "DELETED_RECORDS_SCREEN"
+    const val LOST_RECORDS_SCREEN = "LOST_RECORDS_SCREEN"
+    const val WELCOME_SCREEN = "WELCOME_SCREEN"
+    const val WELCOME_SETUP_SETTINGS_SCREEN = "WELCOME_SETUP_SETTINGS_SCREEN"
+
+    const val RECORD_INFO = "RECORD_INFO"
+    const val LOST_RECORD_IDS = "lost_record_ids"
+}

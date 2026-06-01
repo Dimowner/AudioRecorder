@@ -38,6 +38,7 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.window.OnBackInvokedCallback;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
@@ -103,6 +104,8 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 	final private List<String> downloadRecords = new ArrayList<>();
 
+	private OnBackInvokedCallback backInvokedCallback;
+
 	public static Intent getStartIntent(Context context) {
 		Intent intent = new Intent(context, RecordsActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -116,6 +119,16 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_records);
+
+		AndroidUtils.applyWindowInsets(this);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			backInvokedCallback = () -> {
+				ARApplication.getInjector().releaseRecordsPresenter();
+				finish();
+			};
+			getOnBackInvokedDispatcher().registerOnBackInvokedCallback(0, backInvokedCallback);
+		}
 
 		toolbar = findViewById(R.id.toolbar);
 //		AndroidUtils.setTranslucent(this, true);
@@ -289,7 +302,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 						RecordsActivity.this,
 						R.drawable.ic_delete_forever_dark,
 						getString(R.string.warning),
-						getString(R.string.delete_record, item.getName()),
+						getString(R.string.move_record_to_trash, item.getName()),
 						v -> presenter.deleteRecord(item.getId(), item.getPath())
 				);
 			}
@@ -308,7 +321,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 
 			@Override
 			public void onSelectDeselect(int selectedCount) {
-				txtSelectedCount.setText(getResources().getString(R.string.selected, selectedCount));
+				txtSelectedCount.setText(getResources().getString(R.string.items_selected, selectedCount));
 			}
 		});
 		recyclerView.setAdapter(adapter);
@@ -483,7 +496,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 					RecordsActivity.this,
 					R.drawable.ic_delete_forever_dark,
 					getString(R.string.warning),
-					getString(R.string.delete_record, presenter.getRecordName()),
+					getString(R.string.move_record_to_trash, presenter.getRecordName()),
 					v -> presenter.deleteActiveRecord()
 			);
 		} else if (id == R.id.btn_check_bookmark) {
@@ -623,6 +636,14 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		super.onStop();
 		if (presenter != null) {
 			presenter.unbindView();
+		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(backInvokedCallback);
 		}
 	}
 

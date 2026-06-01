@@ -19,6 +19,7 @@ package com.dimowner.audiorecorder.app.setup;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -26,6 +27,7 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.window.OnBackInvokedCallback;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
@@ -56,6 +58,8 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 	private ColorMap colorMap;
 	private ColorMap.OnThemeColorChangeListener onThemeColorChangeListener;
 
+	private OnBackInvokedCallback backInvokedCallback;
+
 	public static Intent getStartIntent(Context context) {
 		Intent intent = new Intent(context, SetupActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -68,6 +72,16 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 		setTheme(colorMap.getAppThemeResource());
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_setup);
+
+		AndroidUtils.applyWindowInsets(this);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			backInvokedCallback = () -> {
+				ARApplication.getInjector().releaseSetupPresenter();
+				finish();
+			};
+			getOnBackInvokedDispatcher().registerOnBackInvokedCallback(0, backInvokedCallback);
+		}
 
 //		getWindow().setFlags(
 //				WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
@@ -238,6 +252,9 @@ public class SetupActivity extends Activity implements SetupContract.View, View.
 	protected void onDestroy() {
 		super.onDestroy();
 		colorMap.removeOnThemeColorChangeListener(onThemeColorChangeListener);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(backInvokedCallback);
+		}
 	}
 
 	@Override

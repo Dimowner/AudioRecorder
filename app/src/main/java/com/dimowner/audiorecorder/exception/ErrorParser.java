@@ -43,6 +43,8 @@ public class ErrorParser {
 			return R.string.error_failed_to_restore;
 		} else if (e.getType() == AppException.READ_PERMISSION_DENIED) {
 			return R.string.error_permission_denied;
+		} else if (e.getType() == AppException.ALREADY_RECORDING) {
+			return R.string.error_recording_already_started;
 		}
 		return R.string.error_unknown;
 	}

@@ -50,6 +50,8 @@ public class WelcomeActivity extends Activity implements WelcomeContract.View {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_welcome);
 
+		AndroidUtils.applyWindowInsets(this);
+
 		actionButton = findViewById(R.id.btn_action);
 		actionButton.setOnClickListener(v -> {
 			startActivity(SetupActivity.getStartIntent(getApplicationContext()));

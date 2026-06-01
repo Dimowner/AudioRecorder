@@ -1,0 +1,311 @@
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.compose.compiler)
+    id("kotlin-parcelize")
+    id("jacoco")
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+android {
+    namespace = "com.dimowner.audiorecorder"
+    compileSdk = 37
+
+    defaultConfig {
+        applicationId = "com.dimowner.audiorecorder"
+        minSdk = 26
+        targetSdk = 37
+        versionCode = 936
+        versionName = "2.0.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    buildFeatures {
+        viewBinding = true
+    }
+
+    signingConfigs {
+        create("dev") {
+            storeFile = file("key/debug/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+//			firebaseCrashlytics {
+//				mappingFileUploadEnabled true
+//			}
+        }
+        getByName("debug") {
+            isMinifyEnabled = false
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
+        }
+    }
+
+    flavorDimensions += listOf("default")
+    productFlavors {
+        create("debugConfig") {
+            dimension = "default"
+            applicationId = "com.dimowner.audiorecorder.debug"
+            signingConfig = signingConfigs.getByName("dev")
+        }
+        create("releaseConfig") {
+            dimension = "default"
+            signingConfig = signingConfigs.getByName("dev")
+            applicationId = "com.dimowner.audiorecorder"
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
+    }
+    packaging {
+        resources.excludes.addAll(
+            listOf(
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md",
+                "META-INF/DEPENDENCIES",
+                "META-INF/INDEX.LIST",
+            )
+        )
+    }
+    testOptions {
+        unitTests {
+            // Required for Robolectric to access Android resources
+            isIncludeAndroidResources = true
+            all {
+                it.ignoreFailures = true
+            }
+        }
+    }
+}
+
+// ── JaCoCo coverage report & verification ──────────────────────────────────────
+
+val jacocoExcludes = listOf(
+    // ── Generated / DI ──
+    "**/R.class",
+    "**/R$*.class",
+    "**/BuildConfig.class",
+    "**/*_Factory.class",
+    "**/*_MembersInjector.class",
+    "**/*_Impl.class",
+    "**/*_Impl$*.class",
+    "**/Hilt_*.class",
+    "**/*Module_*.class",
+    "**/*_HiltModules*.class",
+    "**/*Directions*.class",
+    "**/*Args*.class",
+    "**/databinding/**",
+    "**/di/**",
+
+    // ── UI: Activities, Fragments, Adapters ──
+    "**/*Activity.class",
+    "**/*Activity$*.class",
+    "**/*Fragment.class",
+    "**/*Fragment$*.class",
+    "**/*Adapter.class",
+    "**/*Adapter$*.class",
+
+    // ── UI: custom Views & widgets (legacy) ──
+    "**/app/widget/**",
+
+    // ── UI: legacy v1 app screens (Activities, Presenters, Contracts, Views) ──
+    "**/app/main/**",
+    "**/app/browser/**",
+    "**/app/info/**",
+    "**/app/lostrecords/**",
+    "**/app/records/**",
+    "**/app/settings/**",
+    "**/app/setup/**",
+    "**/app/trash/**",
+    "**/app/welcome/**",
+    "**/app/moverecords/**",
+    "**/app/UiExtensions*",
+
+    // ── UI: Compose screens, components, theme, navigation ──
+    "**/v2/app/*Screen*.class",
+    "**/v2/app/*Screen*$*.class",
+    "**/v2/app/**/*Screen*.class",
+    "**/v2/app/**/*Screen*$*.class",
+    "**/v2/app/**/*Components*.class",
+    "**/v2/app/**/*Components*$*.class",
+    "**/v2/app/**/*Widget*.class",
+    "**/v2/app/**/*Widget*$*.class",
+    "**/v2/app/**/*Dialog*.class",
+    "**/v2/app/**/*Dialog*$*.class",
+    "**/v2/app/components/**",
+    "**/v2/app/ComposePlaygroundScreen*",
+    "**/v2/app/ComposePreviewData*",
+    "**/v2/app/AppComponents*",
+    "**/v2/app/AppExtensions*",
+    "**/v2/theme/**",
+    "**/v2/navigation/**",
+
+    // ── Compose compiler-generated ──
+    "**/*ComposableSingletons*.class",
+    "**/*ComposableSingletons*$*.class",
+)
+
+val jacocoClassDirectories = files(
+    fileTree("${layout.buildDirectory.get().asFile}/tmp/kotlin-classes/debugConfigDebug") {
+        exclude(jacocoExcludes)
+    },
+    fileTree("${layout.buildDirectory.get().asFile}/intermediates/javac/debugConfigDebug") {
+        exclude(jacocoExcludes)
+    },
+)
+
+val jacocoSourceDirectories = files("src/main/java")
+
+val jacocoUnitTestData = fileTree(layout.buildDirectory) {
+    include("outputs/unit_test_code_coverage/debugConfigDebugUnitTest/**/*.exec")
+}
+
+val jacocoFullExecutionData = fileTree(layout.buildDirectory) {
+    include("outputs/unit_test_code_coverage/debugConfigDebugUnitTest/**/*.exec")
+    include("outputs/code_coverage/debugConfigDebugAndroidTest/connected/**/*.ec")
+}
+
+// Unit-test-only report (fast, no device needed)
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugConfigDebugUnitTest")
+
+    reports {
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/html"))
+        xml.required.set(true)
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/jacocoTestReport.xml"))
+    }
+
+    classDirectories.setFrom(jacocoClassDirectories)
+    sourceDirectories.setFrom(jacocoSourceDirectories)
+    executionData.setFrom(jacocoUnitTestData)
+}
+
+// Combined unit + androidTest report (requires a connected device/emulator)
+tasks.register<JacocoReport>("jacocoFullReport") {
+    dependsOn("testDebugConfigDebugUnitTest")
+    dependsOn("connectedDebugConfigDebugAndroidTest")
+
+    reports {
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/htmlFull"))
+        xml.required.set(true)
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/jacocoFullReport.xml"))
+    }
+
+    classDirectories.setFrom(jacocoClassDirectories)
+    sourceDirectories.setFrom(jacocoSourceDirectories)
+    executionData.setFrom(jacocoFullExecutionData)
+}
+
+tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
+    dependsOn("jacocoFullReport")
+
+    classDirectories.setFrom(jacocoClassDirectories)
+    sourceDirectories.setFrom(jacocoSourceDirectories)
+    executionData.setFrom(jacocoFullExecutionData)
+
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "0.05".toBigDecimal()
+            }
+        }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
+// junit:junit:4.12 leaks into the main runtime classpath as a transitive dependency
+// (e.g. via exoplayer-core). AGP's consistent-resolution then enforces {strictly 4.12}
+// on the androidTest classpath, conflicting with the 4.13.2 required by assertThrows.
+// Forcing 4.13.2 everywhere aligns both classpaths and removes the conflict.
+configurations.all {
+    resolutionStrategy {
+        force("junit:junit:4.13.2")
+    }
+}
+
+composeCompiler {
+    reportsDestination = layout.buildDirectory.dir("compose_compiler")
+    stabilityConfigurationFile = rootProject.layout.projectDirectory.file("stability_config.conf")
+}
+
+dependencies {
+    ksp(libs.androidx.room.compiler)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.timber)
+    implementation(libs.androidx.viewpager2)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.documentfile)
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.gson)
+    implementation(libs.jaudiotagger)
+    implementation(libs.mp4parser.muxer)
+    implementation(libs.androidx.media)
+
+    // Compose
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui.viewbinding)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.runtime.livedata)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.compose.ui.tooling)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.hilt.navigation.compose)
+    implementation(libs.androidx.compose.material.icons.extended)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.androidx.junit.ktx)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.robolectric)
+    androidTestImplementation(libs.mockk)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.junit)
+}

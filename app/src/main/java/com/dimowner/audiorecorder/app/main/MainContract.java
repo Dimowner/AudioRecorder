@@ -84,6 +84,8 @@ public interface MainContract {
 		void showMigratePublicStorageWarning();
 
 		void showRecordFileNotAvailable(String path);
+
+		void showAppV2();
 	}
 
 	interface UserActionsListener extends Contract.UserActionsListener<MainContract.View> {
@@ -128,8 +130,9 @@ public interface MainContract {
 
 		void onDeleteClick();
 
-		//TODO: Remove this getters
+		//TODO: Remove these getters
 		boolean isStorePublic();
+		boolean isRecording();
 
 		void deleteActiveRecord();
 

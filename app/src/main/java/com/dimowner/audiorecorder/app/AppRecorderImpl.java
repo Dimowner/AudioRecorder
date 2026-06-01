@@ -35,11 +35,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import timber.log.Timber;
-
 import static com.dimowner.audiorecorder.AppConstants.PLAYBACK_VISUALIZATION_INTERVAL;
-
+import androidx.annotation.NonNull;
 public class AppRecorderImpl implements AppRecorder {
 
 	private RecorderContract.Recorder audioRecorder;
@@ -89,7 +87,7 @@ public class AppRecorderImpl implements AppRecorder {
 		recorderCallback = new RecorderContract.RecorderCallback() {
 
 			@Override
-			public void onStartRecord(File output) {
+			public void onStartRecord(@NonNull File output) {
 				durationMills = 0;
 				scheduleRecordingTimeUpdate();
 				onRecordingStarted(output);
@@ -113,7 +111,7 @@ public class AppRecorderImpl implements AppRecorder {
 			}
 
 			@Override
-			public void onStopRecord(final File output) {
+			public void onStopRecord(@NonNull final File output) {
 				stopRecordingTimer();
 				recordingsTasks.postRunnable(() -> {
 					RecordInfo info = AudioDecoder.readRecordInfo(output);
@@ -164,7 +162,7 @@ public class AppRecorderImpl implements AppRecorder {
 			}
 
 			@Override
-			public void onError(AppException e) {
+			public void onError(@NonNull AppException e) {
 				Timber.e(e);
 				onRecordingError(e);
 			}

@@ -2,177 +2,436 @@
 <!--Created by The Translator <https://play.google.com/store/apps/details?id=com.sunilpaulmathew.translator>-->
 
 	<string name="app_name">Grabador de Audio</string>
- 	<string name="records">Grabaciones</string>
- 	<string name="settings">Ajustes</string>
- 	<string name="setup">Setup</string>
- 	<string name="welcome_1">Bienvenido a la aplicación simple y veloz</string>
- 	<string name="title_1">Grabador de Audio</string>
- 	<string name="rate_app">Puntuá la app</string>
- 	<string name="store_records_public">Guardar grabaciones en dir público</string>
- 	<string name="record_in_stereo">Grabar en Stereo</string>
- 	<string name="keep_screen_on">Mantener pantalla ENCENDIDA al grabar</string>
- 	<string name="total_duration">Tiempo de grabación total: %s</string>
- 	<string name="total_record_count">Conteo total de grabaciones: %d</string>
- 	<string name="available_space">Espacio disponible: %s</string>
- 	<string name="delete_all">Eliminar todas las grabaciones</string>
- 	<string name="delete_all2">Eliminar todo</string>
- 	<string name="warning">¡Advertencia!</string>
- 	<string name="delete_this_record">¿Eliminar esta grabación?</string>
- 	<string name="delete_record">¿Mover %s a la basura?</string>
- 	<string name="delete_record_forever">¿Eliminar la grabación %s permanentemente?</string>
-	<string name="start_recording">Start recording</string>
-	<string name="recording_feature_disabled">Recording feature disabled</string>
- 	<string name="restore_record">¿Restaurar la grabación %s?</string>
- 	<string name="delete_all_records">¿Eliminar todas las grabaciones?</string>
- 	<string name="all_records_deleted">Todas las grabaciones han sido exitosamente eliminadas</string>
- 	<string name="failed_to_delete_all_records">Error al intentar eliminar todas las grabaciones</string>
- 	<string name="please_select_record_to_share">Por favor
- seleccioná una grabación para compartir</string>
- 	<string name="record_name">Nuevo nombre</string>
- 	<string name="recording">Grabando: %s</string>
- 	<string name="recording_is_on">Grabación ENCENDIDA</string>
- 	<string name="recording_progress">Grabando&#8230;</string>
- 	<string name="recording_paused">Pausado</string>
- 	<string name="playback">Reproducción: %s</string>
- 	<string name="zero_time">00:00</string>
- 	<string name="empty">Vacío</string>
- 	<string name="selected"> %d seleccionado</string>
- 	<string name="no_records">No hay grabaciones</string>
- 	<string name="no_bookmarks">No hay audios marcados</string>
- 	<string name="bookmarks">Marcadores</string>
- 	<string name="share_record">Compartir grabación: %s</string>
- 	<string name="import_progress">Importar archivo de audio&#8230;</string>
- 	<string name="btn_import">Importar</string>
- 	<string name="processing_canceled">Procesamiento cancelado</string>
- 	<string name="record_calculation">Cálculos del waveform&#8230;</string>
- 	<string name="record_processing">Cálculos de dibujo del waveform&#8230;</string>
- 	<string name="request">Pedido o feedback</string>
- 	<string name="email_clients_not_found">No se encontró cliente de Email</string>
- 	<string name="send_email">Enviar por email&#8230;</string>
- 	<string name="open_record_with">Abrir %s con</string>
- 	<string name="delete">Eliminar</string>
- 	<string name="restore">Restaurar</string>
- 	<string name="info">Información</string>
- 	<string name="rename">Renombrar</string>
- 	<string name="dont_ask_again">No preguntar nuevamente</string>
- 	<string name="open_with">Abrir con&#8230;</string>
- 	<string name="downloading">Descargando: %s</string>
- 	<string name="downloading_success_and_fail_count">%d grabaciones descargadas exitosamente y %d fallaron al descargar</string>
- 	<string name="downloading_success">%s descargado al directorio de Descargas</string>
- 	<string name="downloading_failed">Falló al descargar: %s</string>
- 	<string name="downloading_cancel">Descarga cancelada</string>
- 	<string name="share">Compartir</string>
- 	<string name="ask_to_rename">Mostrar diálogo de renombrar al completar la grabación</string>
- 	<string name="record_moved_into_trash">Grabación movida a la basura</string>
- 	<string name="selected_records_moved_into_trash">Grabaciones seleccionadas movidas a la basura</string>
- 	<string name="all_records_deleted_successfully">Todas las grabaciones han sido exitosamente eliminadas</string>
- 	<string name="record_deleted_successfully">La grabación se importó exitosamente</string>
- 	<string name="record_restored_successfully">La grabación se restauró exitosamente</string>
- 	<string name="record_imported_successfully">La grabación se importó exitosamente</string>
- 	<string name="cant_import_files">No se pueden importar los archivos</string>
- 	<string name="by_date">Por fecha (más nuevo)</string>
- 	<string name="by_date_desc">Por fecha (más viejo)</string>
- 	<string name="by_name">Por nombre (A-Z)</string>
- 	<string name="by_name_desc">Por nombre (Z-A)</string>
- 	<string name="by_duration">Por duración (más largo)</string>
- 	<string name="by_duration_desc">Por duración (más corto)</string>
- 	<string name="need_write_permission">Esta app requiere permiso para acceder al almacenamiento público. Si no se concede
- las grabaciones se guardarán en el directorio privado de la app.</string>
- 	<string name="rec_name">Nombre:</string>
- 	<string name="rec_format">Formato:</string>
- 	<string name="rec_duration">Duración:</string>
- 	<string name="rec_frequency">Frecuencia:</string>
- 	<string name="rec_size">Tamaño:</string>
- 	<string name="rec_created">Creado:</string>
- 	<string name="rec_location">Ubicación de archivo:</string>
- 	<string name="naming">Nombrado:</string>
- 	<string name="private_dir_warning">Las grabaciones se guardarán en el directorio privado de la app
- que no es visible para otras apps</string>
- 	<string name="public_dir_warning">Las grabaciones se guardarán en un directorio común de tu dispositivo
- que es visible para otras apps</string>
- 	<string name="lost_records">Grabaciones perdidas</string>
- 	<string name="trash">Basura</string>
- 	<string name="trash_info">Las grabaciones movidas a la basura se eliminarán automática y permanentemente pasados 60 días</string>
- 	<string name="file_browser">Gestor de archivos</string>
- 	<string name="private_dir">Directorio privado</string>
- 	<string name="public_dir">Directorio público</string>
- 	<string name="found_in_the_app">Encontrado en la app</string>
- 	<string name="not_found_in_the_app">No encontrado en la app</string>
- 	<string name="in_trash">En la basura</string>
- 	<string name="app_settings">Configuración de app:</string>
- 	<string name="recording_settings">Configuración de grabaciones:</string>
- 	<string name="other_settings">Otro:</string>
- 	<string name="today">Hoy</string>
- 	<string name="yesterday">Ayer</string>
- 	<string name="btn_save">Guardar</string>
- 	<string name="btn_cancel">Cancelar</string>
- 	<string name="btn_yes">Sí</string>
- 	<string name="btn_ok">Ok</string>
- 	<string name="btn_no">No</string>
- 	<string name="btn_play">Reproducir</string>
- 	<string name="btn_deny">Denegar</string>
- 	<string name="btn_allow">Permitir</string>
- 	<string name="btn_details">Detalles</string>
- 	<string name="btn_get_started">Comenzar</string>
- 	<string name="btn_apply">Aplicar</string>
- 	<string name="btn_reset">Reiniciar</string>
- 	<string name="btn_next">Siguiente</string>
- 	<string name="info_3gp"><b>3gp</b> es un formato contenedor de multimedia desarrollado para servicios de telecomunicación móvil. Usalo si necesitás ahorrar espacio.</string>
- 	<string name="info_m4a">El formato <b>M4a</b>
- codificado con el códec de audio AAC
- tiene buena calidad y ocupa poco espacio. <b>(recomendado)</b></string>
- 	<string name="info_wav"><b>Wav</b> es un formato de datos de audio sin comprimir. Toma mucho más espacio que otros formatos. Se necesita en casos particulares.</string>
- 	<string name="info_stereo"><b>Stereo</b>: Se graban dos canales separados. Esto significa que cada parlante estéreo tiene una señal de sonido distinta. <b>(recomendado)</b></string>
- 	<string name="info_mono"><b>Mono</b>: Un canal de señal se grabará. Puede ser reproducido con varios parlantes
- pero todos estarían reproduciendo una copia de la misma señal.</string>
- 	<string name="info_bitrate_48"><b>48 kbps</b>: Generalmente aceptable sólo para voces.</string>
- 	<string name="info_bitrate_96"><b>96 kbps</b>: Generalmente usado para voces o streaming en baja calidad.</string>
- 	<string name="info_bitrate_128"><b>128 kbps</b>: Calidad de tasa de bits de rango medio. Común para podcasts. <b>(recomendado)</b></string>
- 	<string name="info_bitrate_192"><b>192 kbps</b>: Tasa de bits de calidad media.</string>
- 	<string name="info_bitrate_256"><b>256 kbps</b> Tasa de bits de buena calidad.</string>
-	<string name="info_bitrate_288"><b>288 kbps</b> Tasa de bits de buena calidad.</string>
- 	<string name="info_sample_rate_8k">La frecuencia de <b>8kHz</b> tiene menor ancho de banda que un sistema telefónico moderno. No apto para tareas de grabación serias.</string>
- 	<string name="info_sample_rate_16k"><b>16kHz</b> es mejor que 8kHz.</string>
- 	<string name="info_sample_rate_22k"><b>22kHz</b> es una frecuencia popular para tasas de bits bajas
- como 64 kbps.</string>
- 	<string name="info_sample_rate_32k"><b>32kHz</b> es un poco mejor que 22kHz.</string>
- 	<string name="info_sample_rate_44k"><b>44
-1kHz</b> es la frecuencia de los CDs de Audio. <b>(recomendado)</b></string>
- 	<string name="info_sample_rate_48k"><b>48kHz</b> es la frecuencia usada para DVDs.</string>
- 	<string name="recording_format">Formato de grabación:</string>
- 	<string name="bitrate">Tasa de bits:</string>
- 	<string name="channels">Conteo de canal:</string>
- 	<string name="sample_rate">Frecuencia de muestreo:</string>
- 	<string name="size_per_min">Tamaño estimado de %s Mb/min</string>
- 	<string name="value_hz">%d Hz</string>
- 	<string name="value_kbps">%d kbps</string>
- 	<string name="stereo">Stereo</string>
- 	<string name="mono">Mono</string>
- 	<string name="records_location">Ubicación de grabaciones:\n%s</string>
- 	<string name="feature_not_available_in_android_10">Esta característica ya no está disponible de Android 10 hacia arriba.</string>
- 	<string name="size">%s Mb</string>
- 	<string name="error_unknown">Error inesperado</string>
- 	<string name="error_cant_create_file">No se puede crear el archivo</string>
- 	<string name="error_invalid_output_file">Archivo de salida inválido</string>
- 	<string name="error_file_exists">¡Ya existe un archivo con este nombre!</string>
- 	<string name="error_failed_to_rename">¡Error al renombrar grabación!</string>
- 	<string name="error_failed_to_init_recorder">Error al iniciar el Grabador</string>
- 	<string name="error_failed_to_init_player">Error al iniciar el Reproductor</string>
- 	<string name="error_player_data_source">El Reproductor no puede leer el archivo</string>
- 	<string name="error_unable_to_read_sound_file">Incapaz de leer el archivo de sonido</string>
- 	<string name="error_permission_denied">Permiso denegado</string>
- 	<string name="error_process_waveform">No se puede dibujar la onda de audio</string>
- 	<string name="error_lost_records">Algunos de tus grabaciones fueron movidas o eliminadas</string>
- 	<string name="error_no_available_space">¡No hay espacio disponible!</string>
- 	<string name="error_failed_access_to_storage">Error al acceder al almacenamiento de archivos</string>
- 	<string name="error_on_recording">¡Error de grabación!</string>
- 	<string name="error_failed_to_restore">¡No se pudo restaurar la grabación!</string>
- 	<string name="error_failed_to_delete">¡No se pudo borrar la grabación!</string>
+	<string name="records">Grabaciones</string>
+	<string name="settings">Ajustes</string>
+	<string name="setup">Configuración</string>
+	<string name="welcome_1">Bienvenido a la aplicación simple y veloz</string>
+    <string name="rate_app">Puntúa la app</string>
+	<string name="store_records_public">Guardar grabaciones en directorio público</string>
+	<string name="record_in_stereo">Grabar en estéreo</string>
+
+	<string name="dynamic_theme_colors">Colores de tema dinámico</string>
+	<string name="dark_theme">Tema oscuro</string>
+	<string name="record_name_format">Formato de nombre de grabación</string>
+	<string name="version">Versión %s</string>
+
+	<plurals name="years">
+		<item quantity="one">año</item>
+		<item quantity="other">años</item>
+	</plurals>
+	<plurals name="days">
+		<item quantity="one">día</item>
+		<item quantity="other">días</item>
+	</plurals>
+
+	<!-- Confirmation for successful deletion. -->
+	<string name="msg_recording_permanently_deleted">Grabación \'%1$s\' eliminada permanentemente</string>
+	<!-- Confirmation for sending to trash (if no UNDO is provided) -->
+	<string name="msg_recording_moved_to_trash">Grabación \'%1$s\' movida a la Papelera</string>
+	<!-- Confirmation for sending to trash multiple records. -->
+	<string name="msg_few_recordings_moved_to_trash">%1$d de %2$d grabaciones movidas a la Papelera</string>
+	<!-- Error message when moving a recording to Trash fails -->
+	<string name="msg_move_to_trash_failed">Error al mover la grabación a la Papelera</string>
+	<!-- Error message when moving a multiple recordings to Trash fails -->
+	<string name="msg_multiple_move_to_trash_failed">Error al mover las grabaciones a la Papelera.</string>
+	<!-- Confirmation for canceling a recording session (progress discarded) -->
+	<string name="msg_recording_canceled">Grabación cancelada y movida a la Papelera</string>
+	<!-- Confirmation for successful restoration after UNDO is clicked -->
+	<string name="msg_recording_restored">Grabación \'%1$s\' restaurada</string>
+
+	<string name="msg_record_renamed">Grabación renombrada a \'%1$s\'</string>
+
+	<!-- Confirmation for saving a new recording -->
+	<string name="msg_recording_saved_with_name">Grabación guardada con nombre: %s</string>
+    <!-- Error message when saving a recording fails -->
+	<string name="msg_save_recording_failed">Error al guardar la grabación.</string>
+	<!-- Error message for file operation failure -->
+	<string name="msg_file_operation_failed">Error en la operación del archivo. Por favor intente nuevamente.</string>
+	<!-- Error message for empty name during rename/save -->
+	<string name="msg_name_cannot_be_empty">El nombre no puede estar vacío</string>
+    <!-- Permission Messages -->
+    <string name="msg_permission_microphone_denied">Se requiere el permiso de micrófono para grabar audio. Por favor conceda el permiso para usar esta función.</string>
+	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
+	<string name="action_undo">DESHACER</string>
+	<!-- Generic error message for a common failure -->
+	<string name="msg_operation_failed_generic">Operación fallida</string>
+
+    <string name="recording_duration">Duración de grabación</string>
+    <string name="recording_duration_subtitle">Iniciar automticamente un nuevo archivo de grabacin al alcanzar este lmite</string>
+    <string name="new_recording_part_started">Nueva parte de grabación iniciada</string>
+    <string name="duration_picker_hint">Ingrese horas y minutos</string>
+    <string name="error_duration_at_least_one_minute">La duración debe ser de al menos 1 minuto</string>
+    <!-- Warnings & Constraints -->
+    <string name="warning_duration_limit_recommended">No se recomiendan grabaciones de más de 2 horas ya que podría perder todo el progreso grabado si ocurre un error</string>
+
+	<string name="keep_screen_on">Mantener pantalla ENCENDIDA al grabar</string>
+	<string name="records_author_name">Nombre del autor de grabaciones</string>
+	<string name="record_author">Autor de grabación</string>
+	<string name="records_author_name_hint">Nombre del autor</string>
+	<!-- Records Author name explanation -->
+	<string name="info_record_author_name">Establece la etiqueta de artista/autor incrustada en los metadatos de cada nuevo archivo de grabación. Este nombre aparecerá en reproductores de música y administradores de archivos.</string>
+	<string name="total_duration">Tiempo de grabación total: %s</string>
+	<string name="total_record_count">Total de grabaciones: %d</string>
+	<string name="available_space">Espacio disponible: %s</string>
+    <string name="delete_all2">Eliminar todo</string>
+    <string name="delete_all3">Vaciar papelera</string>
+	<string name="records_were_removed">Algunos archivos de grabación no se encontraron en el directorio de grabaciones. Posiblemente fueron eliminados o movidos.</string>
+	<string name="title_file_is_not_available">¡Sin acceso al archivo de grabación!</string>
+	<string name="details_file_is_not_available">Lamentablemente la app ya no tiene acceso al almacenamiento público de Android.\nPuede encontrar el archivo de grabación en su smartphone en esta ubicación:\n%s</string>
+	<string name="warning">¡Advertencia!</string>
+    <string name="move_record_to_trash">¿Mover %s a la Papelera?</string>
+    <string name="delete_record">¿Eliminar la grabación %s?</string>
+    <string name="delete_record_forever">¿Eliminar la grabación %s permanentemente?</string>
+	<plurals name="delete_selected_records">
+		<item quantity="one">¿Mover a la papelera %d grabación seleccionada?</item>
+		<item quantity="other">¿Mover a la papelera %d grabaciones seleccionadas?</item>
+	</plurals>
+	<plurals name="download_selected_records">
+		<item quantity="one">¿Copiar %d grabación seleccionada al directorio \'Descargas\'?</item>
+		<item quantity="other">¿Copiar %d grabaciones seleccionadas al directorio \'Descargas\'?</item>
+	</plurals>
+	<string name="start_recording">Iniciar grabación</string>
+	<string name="recording_feature_disabled">Función de grabación desactivada</string>
+	<string name="restore_record">¿Restaurar la grabación %s?</string>
+	<string name="delete_all_records">¿Eliminar todas las grabaciones?</string>
+	<string name="delete_all_records2">¿Vaciar papelera? Todas las grabaciones se eliminarán permanentemente.</string>
+	<string name="all_records_deleted">Todas las grabaciones han sido exitosamente eliminadas</string>
+	<string name="failed_to_delete_all_records">Error al intentar eliminar todas las grabaciones</string>
+	<string name="please_select_record_to_share">Por favor seleccione una grabación para compartir</string>
+    <string name="update_record_name">Actualizar nombre</string>
+	<string name="recording">Grabando: %s</string>
+	<string name="recording_is_on">Grabación ENCENDIDA</string>
+	<string name="recording_progress">Grabando&#8230;</string>
+	<string name="recording_paused">Pausado</string>
+	<string name="playback">Reproducción: %s</string>
+	<string name="zero_time">00:00</string>
+	<string name="empty">Vacío</string>
+	<string name="items_selected"> %d seleccionados</string>
+	<string name="no_records">No hay grabaciones</string>
+	<string name="no_bookmarks">No hay audios marcados</string>
+	<string name="bookmarks">Marcadores</string>
+	<string name="share_record">Compartir grabación: %s</string>
+	<plurals name="share_records_count">
+		<item quantity="one">Compartir %d grabación</item>
+		<item quantity="other">Compartir %d grabaciones</item>
+	</plurals>
+	<string name="import_progress">Importar archivo de audio&#8230;</string>
+	<string name="btn_import">Importar</string>
+	<string name="processing_canceled">Procesamiento cancelado</string>
+	<string name="record_processing">Procesando audio&#8230;</string>
+	<string name="request">Pedido o feedback</string>
+	<string name="email_clients_not_found">No se encontró cliente de email</string>
+	<string name="send_email">Enviar por email&#8230;</string>
+	<string name="open_record_with">Abrir %s con</string>
+	<string name="delete">Eliminar</string>
+	<string name="restore">Restaurar</string>
+	<string name="info">Información</string>
+	<string name="rename">Renombrar</string>
+	<string name="dont_ask_again">No preguntar nuevamente</string>
+	<string name="open_with">Abrir con&#8230;</string>
+	<string name="save_as">Guardar como&#8230;</string>
+	<string name="downloading">Descargando: %s</string>
+	<plurals name="downloading_success_count">
+		<item quantity="one">%d grabación copiada exitosamente</item>
+		<item quantity="other">%d grabaciones copiadas exitosamente</item>
+	</plurals>
+	<plurals name="move_records_success_count">
+		<item quantity="one">%d grabación movida exitosamente</item>
+		<item quantity="other">%d grabaciones movidas exitosamente</item>
+	</plurals>
+	<string name="downloading_success_and_fail_count">%d grabaciones copiadas exitosamente y %d fallaron al copiar</string>
+	<string name="moving_records_success_and_fail_count">%d grabaciones movidas exitosamente y %d fallaron al mover</string>
+	<string name="downloading_success">%s copiada al directorio de \'Descargas\'</string>
+	<string name="move_record_success">%s movida al directorio privado de la app</string>
+	<plurals name="downloading_failed_count">
+		<item quantity="one">Error al copiar %d grabación</item>
+		<item quantity="other">Error al copiar %d grabaciones</item>
+	</plurals>
+	<plurals name="move_records_failed_count">
+		<item quantity="one">Error al mover %d grabación</item>
+		<item quantity="other">Error al mover %d grabaciones</item>
+	</plurals>
+	<string name="record_will_be_copied_into_downloads">La grabación se copiará al directorio de \'Descargas\'</string>
+	<string name="record_name_will_be_copied_into_downloads">La grabación \'%s\' se copiará al directorio de \'Descargas\'</string>
+	<string name="move_record_failed">Error al mover: %s</string>
+	<string name="downloading_failed">Error al copiar: %s</string>
+	<string name="downloading_failed_file_already_exists">Error al copiar. Ya existe un archivo con el nombre %s</string>
+	<string name="downloading_cancel">Copia cancelada</string>
+	<string name="share">Compartir</string>
+	<string name="ask_to_rename">Mostrar diálogo de renombrar al completar la grabación</string>
+	<string name="record_moved_into_trash">Grabación movida a la Papelera</string>
+	<string name="selected_records_moved_into_trash">Grabaciones seleccionadas movidas a la Papelera</string>
+	<string name="all_records_deleted_successfully">Todas las grabaciones han sido exitosamente eliminadas</string>
+	<string name="record_deleted_successfully">La grabación se eliminó exitosamente</string>
+	<string name="record_restored_successfully">La grabación se restauró exitosamente</string>
+	<string name="record_imported_successfully">La grabación se importó exitosamente</string>
+	<string name="cant_import_files">No se pueden importar los archivos</string>
+	<string name="by_date">Por fecha (más nuevo)</string>
+	<string name="by_date_desc">Por fecha (más antiguo)</string>
+	<string name="by_name">Por nombre (A-Z)</string>
+	<string name="by_name_desc">Por nombre (Z-A)</string>
+	<string name="by_duration">Por duración (más largo)</string>
+	<string name="by_duration_desc">Por duración (más corto)</string>
+	<string name="need_write_permission">Esta app requiere permiso para acceder al almacenamiento público. Si no se concede, las grabaciones se guardarán en el directorio privado de la app.</string>
+	<string name="rec_name">Nombre:</string>
+	<string name="rec_format">Formato:</string>
+	<string name="rec_duration">Duración:</string>
+    <string name="rec_size">Tamaño:</string>
+	<string name="rec_created">Creado:</string>
+	<string name="rec_location">Ubicación de archivo:</string>
+	<string name="naming">Nombrado:</string>
+	<string name="private_dir_warning">Las grabaciones se guardarán en el directorio privado de la app que no es visible para otras apps</string>
+	<string name="public_dir_warning">Las grabaciones se guardarán en un directorio común de tu dispositivo que es visible para otras apps</string>
+	<string name="lost_records">Grabaciones perdidas</string>
+	<string name="trash">Papelera</string>
+	<string name="trash_info">Las grabaciones en la papelera se eliminarán permanentemente tras 60 días.</string>
+	<string name="file_browser">Gestor de archivos</string>
+	<string name="private_dir">Directorio privado</string>
+	<string name="public_dir">Directorio público</string>
+	<string name="found_in_the_app">Encontrado en la app</string>
+	<string name="not_found_in_the_app">No encontrado en la app</string>
+	<string name="in_trash">En la Papelera</string>
+
+    <string name="recording_settings">Configuración de grabaciones</string>
+
+    <string name="today">Hoy</string>
+	<string name="yesterday">Ayer</string>
+
+	<string name="btn_save">Guardar</string>
+	<string name="btn_cancel">Cancelar</string>
+	<string name="btn_yes">Sí</string>
+	<string name="btn_ok">Ok</string>
+	<string name="btn_got_it">Entendido</string>
+	<string name="btn_no">No</string>
+	<string name="btn_play">Reproducir</string>
+	<string name="btn_previous">Anterior</string>
+	<string name="btn_next">Siguiente</string>
+	<string name="btn_deny">Denegar</string>
+    <string name="btn_details">Detalles</string>
+	<string name="btn_get_started">Comenzar</string>
+	<string name="btn_apply">Aplicar</string>
+	<string name="btn_reset">Reiniciar</string>
+	<string name="btn_recommended">Recomendado</string>
+    <string name="btn_dismiss">Descartar</string>
+    <string name="view">Ver</string>
+	<string name="view_records">Ver grabaciones</string>
+	<string name="move_records_needed">Se necesita mover grabaciones</string>
+	<string name="moving_record">Moviendo grabación: %s</string>
+	<string name="moving_record_cancel">Movimiento cancelado</string>
+	<string name="move_records_info">Algunas de sus grabaciones aún están almacenadas en el almacenamiento público. Pronto el almacenamiento público no estará disponible para la app. Necesitamos mover esas grabaciones al directorio privado de la app.</string>
+	<string name="info_format"><b>M4a</b> es un formato codificado con el códec de audio AAC que tiene buena calidad y ocupa poco espacio. <b>(recomendado)</b>
+		\n<b>Wav</b> es un formato de datos de audio sin comprimir. Toma mucho más espacio que otros formatos. Se necesita en casos particulares.
+		\n<b>3gp</b> es un formato contenedor de multimedia desarrollado para servicios de telecomunicación móvil. Úsalo si necesitas ahorrar espacio.
+		</string>
+
+	<string name="info_format_html"><![CDATA[
+<b>M4a</b> es un formato codificado con el códec de audio AAC que tiene buena calidad y ocupa poco espacio. <b>(recomendado)</b>
+<br/><br/><b>Wav</b> es un formato de datos de audio sin comprimir. Toma mucho más espacio que otros formatos. Se necesita en casos particulares.
+<br/><b>3gp</b> es un formato contenedor de multimedia desarrollado para servicios de telecomunicación móvil. Úsalo si necesitas ahorrar espacio.
+]]></string>
+
+	<string name="info_frequency">La <b>frecuencia de muestreo</b> es el número de muestras de audio por segundo.
+		\n<b>48kHz</b> es la frecuencia usada para DVDs.
+		\n<b>44,1kHz</b> es la frecuencia de los CDs de Audio. <b>(recomendado)</b>
+		\n<b>22kHz</b> frecuencia popular para tasas de bits bajas como 64 kbps.
+		\n <b>8kHz</b> tiene menor ancho de banda que un sistema telefónico moderno. No apto para tareas de grabación serias.
+		</string>
+
+	<string name="info_frequency_html"><![CDATA[
+<b>Frecuencia de muestreo</b> es el número de muestras de audio por segundo.
+<br/><br/><b>48kHz</b> es la frecuencia usada para DVDs.
+<br/><b>44,1kHz</b> es la frecuencia de los CDs de Audio. <b>(recomendado)</b>
+<br/><b>22kHz</b> frecuencia popular para tasas de bits bajas como 64 kbps.
+<br/><b>8kHz</b> tiene menor ancho de banda que un sistema telefónico moderno. No apto para tareas de grabación serias.
+]]></string>
+
+	<string name="info_bitrate">La <b>tasa de bits</b> es el tamaño de datos por segundo de sonido. Afecta directamente la calidad y el tamaño de la grabación.
+		\n<b>256 kbps</b> tasa de bits de buena calidad.
+		\n<b>192 kbps</b> tasa de bits de calidad media.
+		\n<b>128 kbps</b> calidad de tasa de bits de rango medio. Común para podcasts. <b>(recomendado)</b>
+		\n<b>96 kbps</b> generalmente usado para voces o streaming en baja calidad.
+		\n<b>48 kbps</b> generalmente aceptable sólo para voces.
+		</string>
+
+    <string name="info_bitrate_html"><![CDATA[
+<b>Tasa de bits</b> es el tamaño de datos por segundo de sonido. Afecta directamente la calidad y el tamaño de la grabación.
+<br/><br/><b>256 kbps</b> tasa de bits de buena calidad.
+<br/><b>192 kbps</b> tasa de bits de calidad media.
+<br/><b>128 kbps</b> calidad de tasa de bits de rango medio. Común para podcasts. <b>(recomendado)</b>
+<br/><b>96 kbps</b> generalmente usado para voces o streaming en baja calidad.
+<br/><b>48 kbps</b> generalmente aceptable sólo para voces.
+]]></string>
+
+	<string name="info_channels">
+		<b>Estéreo</b>: Se graban dos canales separados. Esto significa que cada parlante estéreo tiene una señal de sonido distinta. <b>(recomendado)</b>
+		\n<b>Mono</b>: Un canal de señal se grabará. Puede ser reproducido con varios parlantes pero todos estarían reproduciendo una copia de la misma señal.
+		</string>
+
+    <string name="info_channels_html"><![CDATA[
+<b>Estéreo (Doble canal):</b> Graba dos canales de audio independientes para crear sensación de espacio y dirección. <b>(Recomendado)</b>
+<br/><br/><b>Mono (Canal único):</b> Graba un único canal de audio. La misma señal se reproduce en todos los parlantes.
+]]></string>
+
+    <string name="info_audio_source_html"><![CDATA[
+<b>Predeterminado:</b> La configuración recomendada del fabricante. Generalmente se comporta como la opción <b>Micrófono</b>, pero permite que el dispositivo aplique su propia optimización de hardware.
+<br/><br/><b>Micrófono:</b> La configuración estándar del micrófono. Ideal para grabaciones generales. Balancea automáticamente el volumen de voz mientras captura el ambiente natural del entorno.
+<br/><br/><b>Comunicación de voz:</b> Diseñado específicamente para la claridad de la voz humana. Ideal para Bluetooth, ya que activa la cancelación de ruido y eco.
+<br/><br/><b>Sin procesar:</b> Captura audio sin procesar sin ningún filtro o ajuste del sistema. Sin eliminación de ruido de fondo ni nivelación de volumen. Ideal para uso profesional o de alta fidelidad.
+]]></string>
+	<string name="info_3gp"><b>3gp</b> es un formato contenedor de multimedia desarrollado para servicios de telecomunicación móvil. Úsalo si necesitas ahorrar espacio.</string>
+	<string name="info_m4a">El formato <b>M4a</b> codificado con el códec de audio AAC tiene buena calidad y ocupa poco espacio. <b>(recomendado)</b></string>
+	<string name="info_wav"><b>Wav</b> es un formato de datos de audio sin comprimir. Toma mucho más espacio que otros formatos. Se necesita en casos particulares.</string>
+	<string name="info_stereo"><b>Estéreo</b>: Se graban dos canales separados. Esto significa que cada parlante estéreo tiene una señal de sonido distinta. <b>(recomendado)</b></string>
+	<string name="info_mono"><b>Mono</b>: Un canal de señal se grabará. Puede ser reproducido con varios parlantes pero todos estarían reproduciendo una copia de la misma señal.</string>
+	<string name="info_bitrate_48"><b>48 kbps</b>: Generalmente aceptable sólo para voces.</string>
+	<string name="info_bitrate_96"><b>96 kbps</b>: Generalmente usado para voces o streaming en baja calidad.</string>
+	<string name="info_bitrate_128"><b>128 kbps</b>: Calidad de tasa de bits de rango medio. Común para podcasts. <b>(recomendado)</b></string>
+	<string name="info_bitrate_192"><b>192 kbps</b>: Tasa de bits de calidad media.</string>
+	<string name="info_bitrate_256"><b>256 kbps</b> Tasa de bits de buena calidad.</string>
+	<string name="info_bitrate_288"><b>288 kbps</b> Tasa de bits de muy buena calidad.</string>
+	<string name="info_sample_rate_8k">La frecuencia de <b>8kHz</b> tiene menor ancho de banda que un sistema telefónico moderno. No apto para tareas de grabación serias.</string>
+	<string name="info_sample_rate_16k"><b>16kHz</b> es mejor que 8kHz.</string>
+	<string name="info_sample_rate_22k"><b>22kHz</b> es una frecuencia popular para tasas de bits bajas como 64 kbps.</string>
+	<string name="info_sample_rate_32k"><b>32kHz</b> es un poco mejor que 22kHz.</string>
+	<string name="info_sample_rate_44k"><b>44.1kHz</b> es la frecuencia de los CDs de Audio. <b>(recomendado)</b></string>
+	<string name="info_sample_rate_48k"><b>48kHz</b> es la frecuencia usada para DVDs.</string>
+	<string name="recording_format">Formato de grabación:</string>
+	<string name="bitrate">Tasa de bits:</string>
+	<string name="channels">Canales:</string>
+	<string name="sample_rate">Frecuencia de muestreo:</string>
+	<string name="size_per_min">Tamaño estimado de %s Mb/min</string>
+	<string name="value_khz">%d kHz</string>
+	<string name="value_hz">%d Hz</string>
+	<string name="value_kbps">%d kbps</string>
+	<string name="stereo">Estéreo</string>
+	<string name="mono">Mono</string>
+	<string name="records_location">Ubicación de grabaciones:\n%s</string>
+	<string name="feature_not_available_in_android_10">Esta característica ya no está disponible de Android 10 hacia arriba.</string>
+	<string name="size">%s Mb</string>
+	<string name="move_records">Mover %d grabaciones</string>
+
+	<string name="error_unknown">Error inesperado</string>
+	<string name="error_cant_create_file">No se puede crear el archivo</string>
+	<string name="error_failed_to_start_recording">Error al iniciar la grabación</string>
+	<string name="error_invalid_output_file">Archivo de salida inválido</string>
+	<string name="error_file_exists">¡Ya existe un archivo con este nombre!</string>
+	<string name="error_failed_to_rename">¡Error al renombrar grabación!</string>
+	<string name="error_failed_to_init_recorder">Error al iniciar el Grabador</string>
+	<string name="error_failed_to_init_player">Error al iniciar el Reproductor</string>
+	<string name="error_player_data_source">El Reproductor no puede leer el archivo</string>
+	<string name="error_unable_to_read_sound_file">Incapaz de leer el archivo de sonido</string>
+	<string name="error_permission_denied">Permiso denegado</string>
+	<string name="error_process_waveform">No se puede dibujar la onda de audio</string>
+	<string name="error_lost_records">Algunas de tus grabaciones fueron movidas o eliminadas</string>
+	<string name="broken_record_title">Grabación interrumpida</string>
+	<string name="broken_record_message">La grabación \'%s\' fue interrumpida (posiblemente debido a un reinicio del dispositivo) y su archivo puede estar dañado. ¿Desea intentar restaurarla?</string>
+	<string name="btn_restore">Restaurar</string>
+	<string name="msg_broken_record_restored">Grabación \'%s\' restaurada exitosamente</string>
+	<string name="error_broken_record_restore_failed">Error al restaurar la grabación. El archivo puede ser irrecuperable.</string>
+	<string name="error_no_available_space">¡No hay espacio disponible!</string>
+	<string name="error_failed_access_to_storage">Error al acceder al almacenamiento de archivos</string>
+	<string name="error_on_recording">¡Error de grabación!</string>
+	<string name="error_failed_to_restore">¡No se pudo restaurar la grabación!</string>
+	<string name="error_failed_to_delete">¡No se pudo borrar la grabación!</string>
+	<string name="error_recording_already_started">¡La grabación ya fue iniciada!</string>
+
+	<string name="move_public_storage_records_message">Se necesita mover las grabaciones del almacenamiento público</string>
+	<string name="later">Más tarde</string>
+	<string name="move">Mover</string>
+	<string name="move_all">Mover todo</string>
+
+	<string name="button_record">Grabar</string>
+	<string name="button_stop">Detener</string>
+	<string name="button_pause">Pausar</string>
+	<string name="button_resume">Reanudar</string>
+	<string name="button_finish">Finalizar</string>
+	<string name="legacy_app">App Heredada</string>
+	<string name="legacy_app_subtitle">Cambiar a la interfaz de la app antigua</string>
+	<string name="switch_to_legacy">Cambiar a App Heredada</string>
+	<string name="new_audio_recorder_available">Nuevo Grabador de Audio disponible</string>
+	<string name="try_new_app_subtitle">Conserva todas tus grabaciones — permite volver en cualquier momento</string>
+	<string name="try_new_app">Probar nueva app</string>
 
 	<!-- Shown in the 'About' window of the app. -->
 	<string name="about_body"><![CDATA[
-    	<b>Audio Recorder 2023</b><br>
+    	<b>Audio Recorder 2026</b><br>
 		Version %s
 	]]></string>
 	<!--<a href="http://#/">Application site</a>-->
+
+	<string-array name="theme_colors2">
+		<item>Tema Azul Gris</item>
+		<item>Tema Negro</item>
+		<item>Tema Verde Azulado</item>
+		<item>Tema Azul</item>
+		<item>Tema Morado</item>
+		<item>Tema Rosa</item>
+		<item>Tema Naranja</item>
+		<item>Tema Rojo</item>
+		<item>Tema Marrón</item>
+	</string-array>
+
+	<string-array name="formats2" translatable="false">
+		<item>M4a</item>
+		<item>Wav</item>
+		<item>3gp</item>
+	</string-array>
+
+	<string-array name="bit_rates2" translatable="false">
+		<item>48 kbps</item>
+		<item>96 kbps</item>
+		<item>128 kbps</item>
+		<item>192 kbps</item>
+		<item>256 kbps</item>
+		<item>288 kbps</item>
+	</string-array>
+
+	<string-array name="sample_rates2" translatable="false">
+		<item>8kHz</item>
+		<item>16kHz</item>
+		<item>22kHz</item>
+		<item>32kHz</item>
+		<item>44.1kHz</item>
+		<item>48kHz</item>
+	</string-array>
+
+	<string-array name="channels">
+		<item>Estéreo</item>
+		<item>Mono</item>
+	</string-array>
+
+    <!-- Time duration days, hours and minutes. Example: "1d 2h 30m" -->
+    <string name="duration_days_hours_minutes">%1$dd %2$dh %3$dmin</string>
+    <!-- Time duration hours and minutes. Examples: "2h 30m", "5h 0m" -->
+    <string name="duration_hours_and_minutes">%1$dh %2$dmin</string>
+    <!-- Time duration minutes only. Examples: "45m", or "0m"-->
+    <string name="duration_minutes">%1$dmin</string>
+
+    <string name="app_widget_description">Widget de inicio de grabación</string>
+
+    <string name="bluetooth_microphone_available">Micrófono Bluetooth disponible</string>
+    <string name="audio_source">Fuente de audio</string>
+    <string name="audio_source_default">Predeterminado</string>
+    <string name="audio_source_mic">Micrófono</string>
+    <string name="audio_source_voice_communication">Comunicación de voz</string>
+    <string name="audio_source_unprocessed">Sin procesar</string>
+
+    <!-- Database migration -->
+    <string name="database_update_in_progress">Actualización de base de datos en progreso</string>
+
+    <!-- Audio Playback Notification channel name -->
+    <string name="notification_channel_playback_name">Reproducción de audio</string>
+    <!-- Audio Playback Notification channel description -->
+    <string name="notification_channel_playback_description">Muestra el progreso de reproducción de audio</string>
+    <!-- Audio Recording Notification channel name -->
+    <string name="notification_channel_recording_name">Grabación de audio</string>
+    <!-- Audio Recording Notification channel description -->
+    <string name="notification_channel_recording_description">Muestra el progreso de grabación de audio</string>
+    <!-- Recording Notification Status Messages -->
+    <string name="status_recording_active">Grabación en progreso</string>
+    <string name="status_recording_paused">Grabación en pausa</string>
+    <!-- Navigate back button description -->
+    <string name="navigate_back">Volver</string>
+    <string name="dropdown_menu">Menú</string>
 </resources>
+
