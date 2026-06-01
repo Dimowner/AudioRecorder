@@ -33,7 +33,6 @@ import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.dimowner.audiorecorder.app.migration.DatabaseMigrationService
-import com.dimowner.audiorecorder.audio.player.AudioPlayerNew
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.v2.audio.AudioRecorderDelegate
@@ -41,8 +40,6 @@ import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 import javax.inject.Inject
-
-//import com.google.firebase.FirebaseApp;
 
 @HiltAndroidApp
 class ARApplication : Application() {
@@ -60,6 +57,9 @@ class ARApplication : Application() {
         if (BuildConfig.DEBUG) {
             //Timber initialization
             Timber.plant(DebugTree())
+            // Firebase is not configured for the debug flavor — skip initialization.
+        } else {
+            Timber.plant(CrashlyticsTree())
         }
         super.onCreate()
         PACKAGE_NAME = applicationContext.packageName
