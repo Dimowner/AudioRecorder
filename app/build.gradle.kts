@@ -20,7 +20,7 @@ android {
         applicationId = "com.dimowner.audiorecorder"
         minSdk = 26
         targetSdk = 37
-        versionCode = 936
+        versionCode = 940
         versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
