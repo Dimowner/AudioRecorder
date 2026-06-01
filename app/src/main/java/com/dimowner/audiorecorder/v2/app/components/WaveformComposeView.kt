@@ -85,8 +85,7 @@ fun WaveformComposeView(
                     color = ContextCompat.getColor(context, R.color.md_yellow_A700)
                 },
                 textPaint = Paint().apply {
-                    style = Paint.Style.STROKE
-                    strokeWidth = AndroidUtils.dpToPx(1f)
+                    style = Paint.Style.FILL
                     isAntiAlias = true
                     textAlign = Paint.Align.CENTER
                     color = textColor
