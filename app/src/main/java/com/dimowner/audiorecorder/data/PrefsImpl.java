@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.data;
 
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_ACTIVE_RECORD;
 import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_APP_V2;
 import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_FIRST_RUN;
 import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_LEGACY_APP_USER;
@@ -44,7 +45,6 @@ public class PrefsImpl implements Prefs {
 	private static final String PREF_KEY_IS_STORE_DIR_PUBLIC = "is_store_dir_public";
 	private static final String PREF_KEY_IS_SHOW_DIRECTORY_SETTING = "is_show_directory_setting";
 	private static final String PREF_KEY_IS_ASK_TO_RENAME_AFTER_STOP_RECORDING = "is_ask_rename_after_stop_recording";
-	private static final String PREF_KEY_ACTIVE_RECORD = "active_record";
 	private static final String PREF_KEY_THEME_COLORMAP_POSITION = "theme_color";
 	private static final String PREF_KEY_FORMAT = "pref_format";
 	private static final String PREF_KEY_BITRATE = "pref_bitrate";

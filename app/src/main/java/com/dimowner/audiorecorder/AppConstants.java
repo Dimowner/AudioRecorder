@@ -41,6 +41,7 @@ public class AppConstants {
 	public static final String PREF_KEY_IS_FIRST_RUN = "is_first_run";
 	public static final String PREF_KEY_RECORD_COUNTER = "record_counter";
 	public static final String PREF_KEY_KEEP_SCREEN_ON = "keep_screen_on";
+	public static final String PREF_KEY_ACTIVE_RECORD = "active_record";
 	//Recording prefs.
 	public static final String PREF_KEY_SETTING_RECORDING_FORMAT = "setting_recording_format";
 	public static final String PREF_KEY_SETTING_BITRATE = "setting_bitrate";

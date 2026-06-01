@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 import androidx.core.content.edit
+import com.dimowner.audiorecorder.AppConstants.PREF_KEY_ACTIVE_RECORD
 import com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_FIRST_RUN
 import com.dimowner.audiorecorder.AppConstants.PREF_KEY_KEEP_SCREEN_ON
 import com.dimowner.audiorecorder.AppConstants.PREF_KEY_RECORD_COUNTER
@@ -93,10 +94,10 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         }
 
     override var activeRecordId: Long
-        get() = sharedPreferences.getLong(PREF_KEY_ACTIVE_RECORD_ID, -1)
+        get() = sharedPreferences.getLong(PREF_KEY_ACTIVE_RECORD, -1)
         set(value) {
             sharedPreferences.edit {
-                putLong(PREF_KEY_ACTIVE_RECORD_ID, value)
+                putLong(PREF_KEY_ACTIVE_RECORD, value)
             }
         }
 
@@ -304,7 +305,6 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
     companion object {
         private const val PREF_KEY_ASK_TO_RENAME_AFTER_RECORDING_STOPPED =
             "ask_to_rename_after_recording_stopped"
-        private const val PREF_KEY_ACTIVE_RECORD_ID = "active_record_id"
         private const val PREF_KEY_RECORDED_RECORD_ID = "recorded_record_id"
         private const val PREF_KEY_RECORDED_RECORD_PART_COUNTER = "recorded_record_part_counter"
         private const val PREF_KEY_RECORDED_RECORD_BASE_NAME = "recorded_record_base_name"
