@@ -32,8 +32,6 @@ import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import com.dimowner.audiorecorder.app.migration.DatabaseMigrationService
-import com.dimowner.audiorecorder.audio.player.AudioPlayerNew
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.v2.audio.AudioRecorderDelegate
@@ -74,25 +72,6 @@ class ARApplication : Application() {
             prefs.migrateSettings()
         }
 
-        // Trigger database migration from SQLite to Room automatically.
-        // This ensures Room DB is populated before the user ever switches to V2,
-        // replacing the old on-demand trigger that fired only on "Try new app" click.
-        if (!prefs.isDatabaseMigratedToRoom) {
-            if (prefs.isFirstRun) {
-                // Fresh install: no SQLite data to migrate — mark as done immediately.
-                prefs.setDatabaseMigratedToRoom(true)
-            } else {
-                // Existing user: run the background migration service,
-                // but retry no more than once per week if a previous attempt failed.
-                val lastFailedTime = prefs.getLastMigrationToRoomFailedTime()
-                val oneWeekMs = 7L * 24 * 60 * 60 * 1000
-                if (lastFailedTime == 0L || System.currentTimeMillis() - lastFailedTime >= oneWeekMs) {
-                    DatabaseMigrationService.startService(this)
-                } else {
-                    Timber.d("Skipping database migration retry — last failure was less than a week ago")
-                }
-            }
-        }
 
         registerAudioOutputChangeReceiver()
         registerRebootReceiver()

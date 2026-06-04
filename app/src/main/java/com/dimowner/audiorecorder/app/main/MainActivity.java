@@ -54,6 +54,7 @@ import com.dimowner.audiorecorder.app.RecordingService;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.moverecords.MoveRecordsActivity;
+import com.dimowner.audiorecorder.app.migration.DatabaseMigrationService;
 import com.dimowner.audiorecorder.app.records.RecordsActivity;
 import com.dimowner.audiorecorder.app.settings.SettingsActivity;
 import com.dimowner.audiorecorder.app.welcome.WelcomeActivity;
@@ -61,6 +62,7 @@ import com.dimowner.audiorecorder.app.widget.RecordingWaveformView;
 import com.dimowner.audiorecorder.app.widget.WaveformViewNew;
 import com.dimowner.audiorecorder.audio.AudioDecoder;
 import com.dimowner.audiorecorder.data.FileRepository;
+import com.dimowner.audiorecorder.data.Prefs;
 import com.dimowner.audiorecorder.data.database.Record;
 import com.dimowner.audiorecorder.exception.CantCreateFileException;
 import com.dimowner.audiorecorder.exception.ErrorParser;
@@ -282,6 +284,28 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	protected void onStart() {
 		super.onStart();
+
+		// Trigger database migration from SQLite to Room while the app is in the foreground,
+		// so background service start restrictions (Android 8+) are never hit.
+		Prefs prefs = ARApplication.getInjector().providePrefs(getApplicationContext());
+		if (!prefs.isDatabaseMigratedToRoom()) {
+			if (prefs.isFirstRun()) {
+				// Fresh install: no SQLite data to migrate — mark as done immediately.
+				Timber.d("Skipping database migration. First App run.");
+				prefs.setDatabaseMigratedToRoom(true);
+			} else {
+				// Existing user: run the migration service, but retry no more than once per week.
+				long lastFailedTime = prefs.getLastMigrationToRoomFailedTime();
+				prefs.setLastMigrationToRoomFailedTime(System.currentTimeMillis());
+				long oneWeekMs = 7L * 24 * 60 * 60 * 1000;
+				if (lastFailedTime == 0L || System.currentTimeMillis() - lastFailedTime >= oneWeekMs) {
+					DatabaseMigrationService.Companion.startService(this);
+				} else {
+					Timber.d("Skipping database migration retry — last failure was less than a week ago");
+				}
+			}
+		}
+
 		presenter.bindView(this);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 			//This is needed for scoped storage support

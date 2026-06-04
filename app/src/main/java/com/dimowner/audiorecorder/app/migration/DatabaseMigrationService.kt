@@ -24,6 +24,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import androidx.core.content.ContextCompat
 import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
@@ -66,7 +67,7 @@ class DatabaseMigrationService : Service() {
         fun startService(context: Context) {
             val intent = Intent(context, DatabaseMigrationService::class.java)
             intent.action = ACTION_START_MIGRATION
-            context.startService(intent)
+            ContextCompat.startForegroundService(context, intent)
         }
     }
 
