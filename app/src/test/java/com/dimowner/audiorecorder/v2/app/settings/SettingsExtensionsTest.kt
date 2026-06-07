@@ -22,7 +22,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(application = TestARApplication::class)
+@Config(application = TestARApplication::class, sdk = [36])
 class SettingsExtensionsTest {
 
     // -------------------------------------------------------------------------
