@@ -18,18 +18,28 @@ package com.dimowner.audiorecorder.v2.app.info
 
 import android.text.format.Formatter
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -48,10 +58,14 @@ import com.dimowner.audiorecorder.v2.app.info.widget.WaveformStaticWidget
 fun RecordInfoScreen(
     onPopBackStack: () -> Unit,
     recordInfo: RecordInfoState?,
+    onSaveDescription: (description: String) -> Unit = {},
+    isSaving: Boolean = false,
 ) {
     RecordInfoScreenContent(
         onPopBackStack = onPopBackStack,
         recordInfo = recordInfo,
+        onSaveDescription = onSaveDescription,
+        isSaving = isSaving,
     )
 }
 
@@ -59,6 +73,8 @@ fun RecordInfoScreen(
 internal fun RecordInfoScreenContent(
     onPopBackStack: () -> Unit,
     recordInfo: RecordInfoState?,
+    onSaveDescription: (description: String) -> Unit = {},
+    isSaving: Boolean = false,
 ) {
     val context = LocalContext.current
 
@@ -131,6 +147,13 @@ internal fun RecordInfoScreenContent(
                             stringResource(R.string.rec_created),
                             TimeUtils.formatDateTimeLocale(recordInfo.created)
                         )
+
+                        // Description section
+                        DescriptionEditor(
+                            initialDescription = recordInfo.description,
+                            isSaving = isSaving,
+                            onSave = onSaveDescription,
+                        )
                     } else {
                         Text(
                             modifier = Modifier
@@ -147,12 +170,52 @@ internal fun RecordInfoScreenContent(
     }
 }
 
+@Composable
+private fun DescriptionEditor(
+    initialDescription: String,
+    isSaving: Boolean,
+    onSave: (String) -> Unit,
+) {
+    var text by rememberSaveable(initialDescription) { mutableStateOf(initialDescription) }
+
+    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Text(
+            text = stringResource(R.string.rec_description),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(modifier = Modifier.size(4.dp))
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text(stringResource(R.string.rec_description_hint)) },
+            minLines = 3,
+            maxLines = 6,
+        )
+        Spacer(modifier = Modifier.size(8.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Button(
+                onClick = { onSave(text) },
+                enabled = !isSaving,
+            ) {
+                Text(stringResource(R.string.btn_save))
+            }
+            if (isSaving) {
+                Spacer(modifier = Modifier.size(12.dp))
+                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
 fun RecordInfoScreenPreview() {
     RecordInfoScreenContent(
         onPopBackStack = {},
         recordInfo = RecordInfoState(
+            id = 1L,
             name = "name666",
             format = "format777",
             duration = 150000000,
@@ -164,6 +227,7 @@ fun RecordInfoScreenPreview() {
             bitrate = 240000,
             amps = TEST_WAVEFORM_DATA,
             authorName = "John Doe",
+            description = "A sample description for this recording.",
         ),
     )
 }
@@ -174,6 +238,7 @@ fun RecordInfoScreenLoadingPreview() {
     RecordInfoScreenContent(
         onPopBackStack = {},
         recordInfo = RecordInfoState(
+            id = 2L,
             name = "name666",
             format = "format777",
             duration = 150000000,

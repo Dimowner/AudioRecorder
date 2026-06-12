@@ -38,6 +38,7 @@ fun RecordEntity.toRecord(): Record {
         isWaveformProcessed = isWaveformProcessed,
         isMovedToRecycle = isMovedToRecycle,
         amps = amps,
+        description = description,
     )
 }
 
@@ -59,6 +60,7 @@ fun Record.toRecordEntity(): RecordEntity {
         isWaveformProcessed = this.isWaveformProcessed,
         isMovedToRecycle = this.isMovedToRecycle,
         amps = this.amps,
+        description = this.description,
     )
 }
 
@@ -87,5 +89,6 @@ fun OldRecord.toRecordV2(isMovedToRecycle: Boolean): Record {
         isWaveformProcessed = this.isWaveformProcessed,
         isMovedToRecycle = isMovedToRecycle,
         amps = this.amps ?: IntArray(0),
+        description = "",
     )
 }

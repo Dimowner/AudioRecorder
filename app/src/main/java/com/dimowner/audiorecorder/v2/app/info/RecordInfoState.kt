@@ -23,6 +23,7 @@ import kotlinx.parcelize.RawValue
 
 @Parcelize
 data class RecordInfoState(
+    val id: Long,
     val name: String,
     val format: String,
     val duration: Long,
@@ -34,6 +35,7 @@ data class RecordInfoState(
     val bitrate: Int,
     val amps: @RawValue IntArray,
     val authorName: String = "",
+    val description: String = "",
 ) : Parcelable {
 
     val nameWithExtension: String
@@ -43,6 +45,7 @@ data class RecordInfoState(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as RecordInfoState
+        if (id != other.id) return false
         if (name != other.name) return false
         if (format != other.format) return false
         if (duration != other.duration) return false
@@ -53,11 +56,13 @@ data class RecordInfoState(
         if (channelCount != other.channelCount) return false
         if (bitrate != other.bitrate) return false
         if (authorName != other.authorName) return false
+        if (description != other.description) return false
         return amps.contentEquals(other.amps)
     }
 
     override fun hashCode(): Int {
-        var result = name.hashCode()
+        var result = id.hashCode()
+        result = 31 * result + name.hashCode()
         result = 31 * result + format.hashCode()
         result = 31 * result + duration.hashCode()
         result = 31 * result + size.hashCode()
@@ -67,6 +72,7 @@ data class RecordInfoState(
         result = 31 * result + channelCount
         result = 31 * result + bitrate
         result = 31 * result + authorName.hashCode()
+        result = 31 * result + description.hashCode()
         result = 31 * result + amps.contentHashCode()
         return result
     }

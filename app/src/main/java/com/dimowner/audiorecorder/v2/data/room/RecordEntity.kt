@@ -40,6 +40,7 @@ data class RecordEntity(
     @ColumnInfo(name = "isWaveformProcessed") val isWaveformProcessed: Boolean,
     @ColumnInfo(name = "isMovedToRecycle") val isMovedToRecycle: Boolean,
     @ColumnInfo(name = "amps") val amps: IntArray,
+    @ColumnInfo(name = "description", defaultValue = "") val description: String = "",
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -63,7 +64,8 @@ data class RecordEntity(
         if (isBookmarked != other.isBookmarked) return false
         if (isWaveformProcessed != other.isWaveformProcessed) return false
         if (isMovedToRecycle != other.isMovedToRecycle) return false
-        return amps.contentEquals(other.amps)
+        if (!amps.contentEquals(other.amps)) return false
+        return description == other.description
     }
 
     override fun hashCode(): Int {
@@ -83,6 +85,7 @@ data class RecordEntity(
         result = 31 * result + isWaveformProcessed.hashCode()
         result = 31 * result + isMovedToRecycle.hashCode()
         result = 31 * result + amps.contentHashCode()
+        result = 31 * result + description.hashCode()
         return result
     }
 }
