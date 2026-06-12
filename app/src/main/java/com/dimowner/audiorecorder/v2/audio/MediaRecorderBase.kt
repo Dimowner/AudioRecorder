@@ -137,10 +137,22 @@ abstract class MediaRecorderBase(
                 true
             } catch (e: IOException) {
                 Timber.e(e, "prepare() failed")
+                mediaRecorder?.release()
+                mediaRecorder = null
                 emitEvent(RecorderEvent.OnError(RecorderInitException()))
                 false
             } catch (e: IllegalStateException) {
                 Timber.e(e, "start() failed due to illegal state")
+                mediaRecorder?.release()
+                mediaRecorder = null
+                emitEvent(RecorderEvent.OnError(RecorderInitException()))
+                false
+            } catch (e: RuntimeException) {
+                // MediaRecorder.start() throws a plain RuntimeException (not a subclass) when
+                // the hardware source is unavailable or the codec rejects the configuration.
+                Timber.e(e, "start() failed")
+                mediaRecorder?.release()
+                mediaRecorder = null
                 emitEvent(RecorderEvent.OnError(RecorderInitException()))
                 false
             }
