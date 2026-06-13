@@ -27,7 +27,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
 import com.dimowner.audiorecorder.v2.app.ScrollableTitleBar
+import com.dimowner.audiorecorder.v2.app.components.MAX_CONTENT_WIDTH_WIDE
 import com.dimowner.audiorecorder.v2.app.lostrecords.widget.LostRecordsListItemWidget
 import com.google.gson.Gson
 import timber.log.Timber
@@ -101,7 +104,14 @@ internal fun LostRecordsScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    // Keep list content readable on large screens instead of stretching edge-to-edge.
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+                    .widthIn(max = MAX_CONTENT_WIDTH_WIDE)
+                    .fillMaxSize()
+            ) {
                 if (uiState.records.isEmpty()) {
                     Box(
                         modifier = Modifier

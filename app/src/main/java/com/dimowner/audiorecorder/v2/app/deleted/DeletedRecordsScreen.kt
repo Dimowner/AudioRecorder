@@ -30,7 +30,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -63,6 +65,7 @@ import androidx.lifecycle.flowWithLifecycle
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ConfirmationAlertDialog
 import com.dimowner.audiorecorder.v2.app.ScrollableTitleBar
+import com.dimowner.audiorecorder.v2.app.components.MAX_CONTENT_WIDTH_WIDE
 import com.dimowner.audiorecorder.v2.app.deleted.widget.DeletedRecordsListItemWidget
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -202,7 +205,14 @@ internal fun DeletedRecordsScreen(
                     )
                 }
             } else {
-                Column(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        // Keep list content readable on large screens instead of stretching edge-to-edge.
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                        .widthIn(max = MAX_CONTENT_WIDTH_WIDE)
+                        .fillMaxSize()
+                ) {
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.fillMaxWidth(),

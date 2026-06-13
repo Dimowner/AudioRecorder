@@ -30,6 +30,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
@@ -63,6 +65,7 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.ScrollableTitleBar
 import com.dimowner.audiorecorder.v2.app.components.AudioSourceSelector
+import com.dimowner.audiorecorder.v2.app.components.MAX_CONTENT_WIDTH_NARROW
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
@@ -138,6 +141,10 @@ internal fun SettingsScreen(
         ) {
             Column(
                 modifier = Modifier
+                    .fillMaxSize()
+                    // Keep settings content readable on large screens instead of stretching edge-to-edge.
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+                    .widthIn(max = MAX_CONTENT_WIDTH_NARROW)
                     .fillMaxSize()
                     .padding(3.dp, 0.dp)
                     .verticalScroll(rememberScrollState())

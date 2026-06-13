@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -52,6 +54,7 @@ import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.InfoItem
 import com.dimowner.audiorecorder.v2.app.TEST_WAVEFORM_DATA
 import com.dimowner.audiorecorder.v2.app.TitleBar
+import com.dimowner.audiorecorder.v2.app.components.MAX_CONTENT_WIDTH_NARROW
 import com.dimowner.audiorecorder.v2.app.info.widget.WaveformStaticWidget
 
 @Composable
@@ -86,7 +89,14 @@ internal fun RecordInfoScreenContent(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    // Keep info content readable on large screens instead of stretching edge-to-edge.
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+                    .widthIn(max = MAX_CONTENT_WIDTH_NARROW)
+                    .fillMaxSize()
+            ) {
                 TitleBar(
                     stringResource(id = R.string.info),
                     onBackPressed = { onPopBackStack() }
