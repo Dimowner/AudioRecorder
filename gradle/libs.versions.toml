@@ -1,5 +1,8 @@
 [versions]
 androidGradlePlugin = "9.2.1"
+firebaseBom = "34.14.0"
+googleServices = "4.4.4"
+firebaseCrashlyticsGradle = "3.0.7"
 # @keep
 compose-compiler = "1.5.8"
 composeBom = "2026.05.01"
@@ -89,6 +92,9 @@ mp4parser-muxer = { module = "org.mp4parser:muxer", version.ref = "mp4parser" }
 androidx-media = { module = "androidx.media:media", version.ref = "media" }
 #androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 #androidx-fragment = { group = "androidx.fragment:fragment-ktx:", version.ref = "fragment" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
@@ -97,3 +103,5 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsGradle" }
