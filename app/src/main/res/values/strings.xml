@@ -173,6 +173,10 @@
 	<string name="by_name_desc">By name (Z-A)</string>
 	<string name="by_duration">By duration (longest)</string>
 	<string name="by_duration_desc">By duration (shortest)</string>
+	<string name="filter">Filter</string>
+	<string name="filter_clear">Clear</string>
+	<string name="filter_dismiss">Dismiss filter</string>
+	<string name="filter_no_options">No records to filter</string>
 	<string name="need_write_permission">The app requires permission to access to the public storage. If not allowed, records will be stored in the app’s private directory</string>
 	<string name="rec_name">Name:</string>
 	<string name="rec_format">Format:</string>
@@ -180,6 +184,9 @@
     <string name="rec_size">Size:</string>
 	<string name="rec_created">Created:</string>
 	<string name="rec_location">File location:</string>
+	<string name="rec_description">Description</string>
+	<string name="rec_description_hint">Add a description for this recording…</string>
+	<string name="msg_saved_successfully">Saved successfully</string>
 	<string name="naming">Naming:</string>
 	<string name="private_dir_warning">Records will be stored in the app\'s private directory which is not visible for other apps</string>
 	<string name="public_dir_warning">Records will be stored in a common directory on your device which is visible for other apps</string>

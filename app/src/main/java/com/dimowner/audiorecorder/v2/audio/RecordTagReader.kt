@@ -37,3 +37,22 @@ fun File.readAuthorName(): String {
         ""
     }
 }
+
+/**
+ * Reads the COMMENT metadata tag from an audio file.
+ *
+ * @receiver The audio file to read tags from.
+ * @return The comment/description stored in the file's tag, or an empty string if not present or
+ *         unreadable.
+ */
+fun File.readDescription(): String {
+    return try {
+        val audioFile = AudioFileIO.read(this)
+        val tag = audioFile.tag ?: return ""
+        tag.getFirst(FieldKey.COMMENT) ?: ""
+    } catch (e: Exception) {
+        Timber.w(e, "Failed to read comment tag from file: $name")
+        ""
+    }
+}
+

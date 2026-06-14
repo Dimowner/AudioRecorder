@@ -18,6 +18,8 @@ package com.dimowner.audiorecorder.v2.data
 
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.dimowner.audiorecorder.audio.AudioDecoder
+import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilter
+import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilterOptions
 import com.dimowner.audiorecorder.v2.audio.BrokenRecordRestorer
 import com.dimowner.audiorecorder.v2.data.extensions.toRecordsSortColumnName
 import com.dimowner.audiorecorder.v2.data.extensions.toSqlSortOrder
@@ -85,18 +87,50 @@ class RecordsDataSourceImpl @Inject internal constructor(
         page: Int,
         pageSize: Int,
         sortOrder: SortOrder,
-        isBookmarked: Boolean
+        isBookmarked: Boolean,
+        filter: RecordsFilter
     ): List<Record> {
+        val args = mutableListOf<Any>()
         val sb = StringBuilder()
         sb.append("SELECT * FROM records")
         sb.append(" WHERE isMovedToRecycle = 0")
         if (isBookmarked) {
             sb.append(" AND isBookmarked = 1")
         }
+        appendInClause(sb, args, "format", filter.formats)
+        appendInClause(sb, args, "sampleRate", filter.sampleRates)
+        appendInClause(sb, args, "channelCount", filter.channelCounts)
+        appendInClause(sb, args, "bitrate", filter.bitrates)
         sb.append(" ORDER BY ${sortOrder.toRecordsSortColumnName()} ${sortOrder.toSqlSortOrder()}")
         sb.append(" LIMIT $pageSize")
         sb.append(" OFFSET " + ((page - 1) * pageSize))
-        return recordDao.getRecordsRewQuery(SimpleSQLiteQuery(sb.toString())).map { it.toRecord() }
+        return recordDao.getRecordsRewQuery(SimpleSQLiteQuery(sb.toString(), args.toTypedArray()))
+            .map { it.toRecord() }
+    }
+
+    /**
+     * Appends an `AND column IN (?, ?, ...)` clause for the given [values], adding the bound
+     * arguments to [args]. Empty value sets are ignored so the column is not filtered.
+     */
+    private fun appendInClause(
+        sb: StringBuilder,
+        args: MutableList<Any>,
+        column: String,
+        values: Collection<Any>
+    ) {
+        if (values.isEmpty()) return
+        val placeholders = values.joinToString(separator = ", ") { "?" }
+        sb.append(" AND $column IN ($placeholders)")
+        args.addAll(values)
+    }
+
+    override suspend fun getFilterOptions(): RecordsFilterOptions {
+        return RecordsFilterOptions(
+            formats = recordDao.getDistinctFormats(),
+            sampleRates = recordDao.getDistinctSampleRates(),
+            channelCounts = recordDao.getDistinctChannelCounts(),
+            bitrates = recordDao.getDistinctBitrates(),
+        )
     }
 
     override suspend fun insertRecord(record: Record): Long {

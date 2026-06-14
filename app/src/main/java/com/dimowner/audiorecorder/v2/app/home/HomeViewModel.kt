@@ -62,6 +62,7 @@ import com.dimowner.audiorecorder.v2.audio.AudioRecordingService
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingServiceEvent
 import com.dimowner.audiorecorder.v2.audio.RecordingServiceState
 import com.dimowner.audiorecorder.v2.audio.RecordingState
+import com.dimowner.audiorecorder.v2.audio.readDescription
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
@@ -714,6 +715,7 @@ class HomeViewModel @Inject constructor(
                     val newFile: File = fileDataSource.createRecordFile(name)
                     if (fileDescriptor != null && copyFile(fileDescriptor, newFile)) {
                         val info = AudioDecoder.readRecordInfo(newFile)
+                        val importedDescription = newFile.readDescription()
 
                         //Do 2 step import: 1) Import record with empty waveform.
                         //2) Process and update waveform in background.
@@ -734,6 +736,7 @@ class HomeViewModel @Inject constructor(
                             isWaveformProcessed = false,
                             isMovedToRecycle = false,
                             amps = IntArray(ARApplication.longWaveformSampleCount),
+                            description = importedDescription,
                         )
                         val id = recordsDataSource.insertRecord(record)
                         withContext(mainDispatcher) {

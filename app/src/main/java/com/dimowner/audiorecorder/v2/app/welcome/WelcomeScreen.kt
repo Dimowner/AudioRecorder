@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.v2.app.welcome
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -24,6 +25,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -52,7 +55,13 @@ fun WelcomeScreen(
         Surface(
             modifier = Modifier.fillMaxSize().padding(innerPadding)
         ) {
-            Column(modifier = Modifier.wrapContentSize()) {
+            // Scrollable so the content survives small landscape windows.
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.Center,
+            ) {
                 Icon(
                     modifier = Modifier
                         .padding(16.dp)

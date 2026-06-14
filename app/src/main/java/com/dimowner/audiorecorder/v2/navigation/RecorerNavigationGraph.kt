@@ -1,6 +1,7 @@
 package com.dimowner.audiorecorder.v2.navigation
 
 import android.os.Build
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -10,6 +11,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavType
@@ -34,6 +36,7 @@ import com.dimowner.audiorecorder.v2.app.settings.SettingsScreenAction
 import com.dimowner.audiorecorder.v2.app.settings.SettingsViewModel
 import com.dimowner.audiorecorder.v2.app.settings.WelcomeSetupSettingsScreen
 import com.dimowner.audiorecorder.v2.app.welcome.WelcomeScreen
+import com.dimowner.audiorecorder.R
 import kotlinx.coroutines.CoroutineScope
 
 private const val ANIMATION_DURATION = 120
@@ -180,11 +183,48 @@ fun RecorderNavigationGraph(
             LaunchedEffect(recordInfo?.location) {
                 recordInfo?.location?.let { path -> recordInfoViewModel.loadAuthorName(path) }
             }
-            RecordInfoScreen(onPopBackStack = {
-                navController.popBackStack()
-            }, recordInfo?.copy(
-                authorName = recordInfoViewModel.authorName.value ?: ""
-            ))
+//            RecordInfoScreen(onPopBackStack = {
+//                navController.popBackStack()
+//            }, recordInfo?.copy(
+//                authorName = recordInfoViewModel.authorName.value ?: ""
+//            ))
+            LaunchedEffect(recordInfo?.id) {
+                if (recordInfo != null) {
+                    recordInfoViewModel.loadDescription(
+                        recordId = recordInfo.id,
+                        filePath = recordInfo.location,
+                        fallback = recordInfo.description
+                    )
+                }
+            }
+            val resolvedAuthorName = recordInfoViewModel.authorName.value ?: ""
+            val resolvedDescription = recordInfoViewModel.description.value ?: recordInfo?.description ?: ""
+            val context = LocalContext.current
+
+            RecordInfoScreen(
+                onPopBackStack = { navController.popBackStack() },
+                recordInfo = recordInfo?.copy(
+                    authorName = resolvedAuthorName,
+                    description = resolvedDescription
+                ),
+                isSaving = recordInfoViewModel.isSaving.value,
+                onSaveDescription = { description ->
+                    if (recordInfo != null) {
+                        recordInfoViewModel.saveDescription(
+                            recordId = recordInfo.id,
+                            filePath = recordInfo.location,
+                            description = description,
+                            onDone = { success ->
+                                if (success) {
+                                    Toast.makeText(context, R.string.msg_saved_successfully, Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, R.string.error_unknown, Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        )
+                    }
+                },
+            )
         }
     }
 }

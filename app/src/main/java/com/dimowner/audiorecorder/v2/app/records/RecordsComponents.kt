@@ -34,6 +34,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -178,7 +180,9 @@ fun ScrollableRecordsTopBar(
     title: String,
     subTitle: String,
     bookmarksSelected: Boolean,
+    filterActiveCount: Int,
     onBackPressed: () -> Unit,
+    onFilterClick: () -> Unit,
     onSortItemClick: (SortDropDownMenuItemId) -> Unit,
     onBookmarksClick: (Boolean) -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
@@ -235,6 +239,25 @@ fun ScrollableRecordsTopBar(
             }
         },
         actions = {
+            BadgedBox(
+                badge = {
+                    if (filterActiveCount > 0) {
+                        Badge { Text(text = filterActiveCount.toString()) }
+                    }
+                }
+            ) {
+                IconButton(
+                    onClick = onFilterClick,
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_filter),
+                        contentDescription = stringResource(id = R.string.filter),
+                        modifier = Modifier
+                            .size(36.dp)
+                            .padding(6.dp)
+                    )
+                }
+            }
             Box {
                 RecordsDropDownMenu(
                     items = remember { getSortDroDownMenuItems() },
@@ -291,10 +314,12 @@ fun ScrollableRecordsTopBarPreview() {
         "Title bar",
         "By date",
         false,
-        {},
-        {},
-        {},
-        TopAppBarDefaults.enterAlwaysScrollBehavior()
+        filterActiveCount = 2,
+        onBackPressed = {},
+        onFilterClick = {},
+        onSortItemClick = {},
+        onBookmarksClick = {},
+        scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     )
 }
 

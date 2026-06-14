@@ -16,6 +16,8 @@
 
 package com.dimowner.audiorecorder.v2.data
 
+import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilter
+import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilterOptions
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 
@@ -36,7 +38,14 @@ interface RecordsDataSource {
         pageSize: Int,
         sortOrder: SortOrder = SortOrder.DateDesc,
         isBookmarked: Boolean = false,
+        filter: RecordsFilter = RecordsFilter(),
     ): List<Record>
+
+    /**
+     * Returns the distinct filter values (formats, sample rates, channel counts, bitrates)
+     * available among the records currently in the list (excluding the recycle bin).
+     */
+    suspend fun getFilterOptions(): RecordsFilterOptions
 
     suspend fun insertRecord(record: Record): Long
 

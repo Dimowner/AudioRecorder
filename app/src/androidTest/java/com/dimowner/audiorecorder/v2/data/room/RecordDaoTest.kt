@@ -533,4 +533,101 @@ class RecordDaoTest {
         assertEquals(1, records3.size)
         assertEquals(bookmarkedRecord?.copy(id = 101L), records3[0])
     }
+
+    // ==================== distinct filter options ====================
+
+    /**
+     * Builds a record with auto-generated id and the given filter-relevant fields, defaulting
+     * everything else to harmless values. Used by the distinct-filter-option tests.
+     */
+    private fun makeRecord(
+        format: String = "mp3",
+        sampleRate: Int = 44100,
+        channelCount: Int = 2,
+        bitrate: Int = 128,
+        isMovedToRecycle: Boolean = false,
+    ) = RecordEntity(
+        0L,
+        "Record",
+        1000L,
+        123456789L,
+        123456789L,
+        0L,
+        "path/to/record",
+        format,
+        1024,
+        sampleRate,
+        channelCount,
+        bitrate,
+        false,
+        false,
+        isMovedToRecycle,
+        IntArray(10),
+    )
+
+    @Test
+    fun test_getDistinctFormats() {
+        // Base demo data only contains the "mp3" format
+        assertEquals(listOf("mp3"), recordDao.getDistinctFormats())
+
+        recordDao.insertRecord(makeRecord(format = "wav"))
+        recordDao.insertRecord(makeRecord(format = "m4a"))
+        recordDao.insertRecord(makeRecord(format = "wav")) // duplicate, collapsed by DISTINCT
+        recordDao.insertRecord(makeRecord(format = "")) // excluded: empty format
+        recordDao.insertRecord(makeRecord(format = "flac", isMovedToRecycle = true)) // excluded: recycled
+
+        // Sorted ascending and without duplicates, empty or recycled values
+        assertEquals(listOf("m4a", "mp3", "wav"), recordDao.getDistinctFormats())
+    }
+
+    @Test
+    fun test_getDistinctSampleRates() {
+        // Base demo data only contains the 44100 sample rate
+        assertEquals(listOf(44100), recordDao.getDistinctSampleRates())
+
+        recordDao.insertRecord(makeRecord(sampleRate = 8000))
+        recordDao.insertRecord(makeRecord(sampleRate = 16000))
+        recordDao.insertRecord(makeRecord(sampleRate = 16000)) // duplicate, collapsed by DISTINCT
+        recordDao.insertRecord(makeRecord(sampleRate = 0)) // excluded: zero
+        recordDao.insertRecord(makeRecord(sampleRate = 48000, isMovedToRecycle = true)) // excluded: recycled
+
+        assertEquals(listOf(8000, 16000, 44100), recordDao.getDistinctSampleRates())
+    }
+
+    @Test
+    fun test_getDistinctChannelCounts() {
+        // Base demo data only contains channel count 2
+        assertEquals(listOf(2), recordDao.getDistinctChannelCounts())
+
+        recordDao.insertRecord(makeRecord(channelCount = 1))
+        recordDao.insertRecord(makeRecord(channelCount = 1)) // duplicate, collapsed by DISTINCT
+        recordDao.insertRecord(makeRecord(channelCount = 0)) // excluded: zero
+        recordDao.insertRecord(makeRecord(channelCount = 6, isMovedToRecycle = true)) // excluded: recycled
+
+        assertEquals(listOf(1, 2), recordDao.getDistinctChannelCounts())
+    }
+
+    @Test
+    fun test_getDistinctBitrates() {
+        // Base demo data only contains bitrate 128
+        assertEquals(listOf(128), recordDao.getDistinctBitrates())
+
+        recordDao.insertRecord(makeRecord(bitrate = 64))
+        recordDao.insertRecord(makeRecord(bitrate = 192))
+        recordDao.insertRecord(makeRecord(bitrate = 192)) // duplicate, collapsed by DISTINCT
+        recordDao.insertRecord(makeRecord(bitrate = 0)) // excluded: zero
+        recordDao.insertRecord(makeRecord(bitrate = 320, isMovedToRecycle = true)) // excluded: recycled
+
+        assertEquals(listOf(64, 128, 192), recordDao.getDistinctBitrates())
+    }
+
+    @Test
+    fun test_distinctOptions_emptyWhenNoRecords() {
+        recordDao.deleteAllRecords()
+
+        assertEquals(0, recordDao.getDistinctFormats().size)
+        assertEquals(0, recordDao.getDistinctSampleRates().size)
+        assertEquals(0, recordDao.getDistinctChannelCounts().size)
+        assertEquals(0, recordDao.getDistinctBitrates().size)
+    }
 }

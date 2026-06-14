@@ -29,6 +29,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -67,6 +71,7 @@ import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
 import com.dimowner.audiorecorder.v2.app.RenameAlertDialog
 import com.dimowner.audiorecorder.v2.app.SaveAsDialog
+import com.dimowner.audiorecorder.v2.app.components.MAX_CONTENT_WIDTH_WIDE
 import com.dimowner.audiorecorder.v2.app.components.TouchPanel
 import com.dimowner.audiorecorder.v2.app.getTestWaveformData
 import com.dimowner.audiorecorder.v2.app.home.HomeScreenAction
@@ -199,6 +204,7 @@ internal fun RecordsScreen(
         }
     }
 
+    Box(modifier = Modifier.fillMaxSize()) {
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets.safeDrawing,
@@ -209,7 +215,11 @@ internal fun RecordsScreen(
                     stringResource(id = R.string.records),
                     uiState.sortOrder.toText(context),
                     bookmarksSelected = uiState.bookmarksSelected,
+                    filterActiveCount = uiState.filter.activeCount,
                     onBackPressed = { onPopBackStack() },
+                    onFilterClick = {
+                        onAction(RecordsScreenAction.ToggleFilterPanel)
+                    },
                     onSortItemClick = { order ->
                         onAction(RecordsScreenAction.UpdateListWithSortOrder(order))
                     },
@@ -246,7 +256,12 @@ internal fun RecordsScreen(
                 .padding(innerPadding)
         ) {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    // Keep list content readable on large screens instead of stretching edge-to-edge.
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+                    .widthIn(max = MAX_CONTENT_WIDTH_WIDE)
+                    .fillMaxSize(),
                 contentAlignment = Alignment.BottomStart,
             ) {
                 if (uiState.isShowLoadingProgress && uiState.recordsMap.isEmpty()) {
@@ -549,6 +564,33 @@ internal fun RecordsScreen(
                     )
                 }
             }
+        }
+    }
+
+        // Filter panel overlay. Rendered above the Scaffold (and its top bar) so the panel,
+        // styled and dragged like the playback TouchPanel, slides down from the top edge and
+        // overlays both the top bar and the list. Padded by the status bar so it sits below it.
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .widthIn(max = MAX_CONTENT_WIDTH_WIDE)
+                .fillMaxWidth()
+        ) {
+            RecordsFilterTouchPanel(
+                visible = uiState.showFilterPanel && uiState.selectedRecords.isEmpty(),
+                filter = uiState.filter,
+                filterOptions = uiState.filterOptions,
+                onFilterChange = { newFilter ->
+                    onAction(RecordsScreenAction.UpdateFilter(newFilter))
+                },
+                onClear = {
+                    onAction(RecordsScreenAction.ClearFilter)
+                },
+                onDismiss = {
+                    onAction(RecordsScreenAction.ToggleFilterPanel)
+                },
+            )
         }
     }
 }
