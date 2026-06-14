@@ -586,7 +586,7 @@ fun TimePanel(
             Text(
                 modifier = Modifier
                     .wrapContentSize()
-                    .padding(4.dp, 0.dp),
+                    .padding(start = 12.dp),
                 textAlign = TextAlign.Start,
                 text = timeStart,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -607,7 +607,7 @@ fun TimePanel(
             Text(
                 modifier = Modifier
                     .wrapContentSize()
-                    .padding(4.dp, 0.dp),
+                    .padding(end = 12.dp),
                 textAlign = TextAlign.Start,
                 text = timeEnd,
                 color = MaterialTheme.colorScheme.onSurface,
