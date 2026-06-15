@@ -57,6 +57,7 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.EditDescriptionDialog
 import com.dimowner.audiorecorder.v2.app.InfoItem
+import com.dimowner.audiorecorder.v2.app.isDescriptionFileWriteSupported
 import com.dimowner.audiorecorder.v2.app.TEST_WAVEFORM_DATA
 import com.dimowner.audiorecorder.v2.app.TitleBar
 import com.dimowner.audiorecorder.v2.app.components.MAX_CONTENT_WIDTH_NARROW
@@ -66,11 +67,13 @@ import com.dimowner.audiorecorder.v2.app.info.widget.WaveformStaticWidget
 fun RecordInfoScreen(
     onPopBackStack: () -> Unit,
     recordInfo: RecordInfoState?,
-    onSaveDescription: (description: String) -> Unit = {},
+    saveDescriptionToFile: Boolean = true,
+    onSaveDescription: (description: String, writeToFile: Boolean) -> Unit = { _, _ -> },
 ) {
     RecordInfoScreenContent(
         onPopBackStack = onPopBackStack,
         recordInfo = recordInfo,
+        saveDescriptionToFile = saveDescriptionToFile,
         onSaveDescription = onSaveDescription,
     )
 }
@@ -79,7 +82,8 @@ fun RecordInfoScreen(
 internal fun RecordInfoScreenContent(
     onPopBackStack: () -> Unit,
     recordInfo: RecordInfoState?,
-    onSaveDescription: (description: String) -> Unit = {},
+    saveDescriptionToFile: Boolean = true,
+    onSaveDescription: (description: String, writeToFile: Boolean) -> Unit = { _, _ -> },
 ) {
     val context = LocalContext.current
 
@@ -121,6 +125,8 @@ internal fun RecordInfoScreenContent(
                         // Description section
                         DescriptionEditor(
                             description = recordInfo.description,
+                            initialWriteToFile = saveDescriptionToFile,
+                            isWriteToFileSupported = isDescriptionFileWriteSupported(recordInfo.format),
                             onSave = onSaveDescription,
                         )
 
@@ -191,7 +197,9 @@ internal fun RecordInfoScreenContent(
 @Composable
 private fun DescriptionEditor(
     description: String,
-    onSave: (String) -> Unit,
+    initialWriteToFile: Boolean,
+    isWriteToFileSupported: Boolean,
+    onSave: (description: String, writeToFile: Boolean) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -241,9 +249,11 @@ private fun DescriptionEditor(
     if (showDialog) {
         EditDescriptionDialog(
             initialDescription = description,
-            onAcceptClick = {
+            initialWriteToFile = initialWriteToFile,
+            isWriteToFileSupported = isWriteToFileSupported,
+            onAcceptClick = { newDescription, writeToFile ->
                 showDialog = false
-                onSave(it)
+                onSave(newDescription, writeToFile)
             },
             onDismissClick = { showDialog = false },
         )

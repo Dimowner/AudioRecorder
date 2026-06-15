@@ -187,6 +187,7 @@
 	<string name="rec_description">Description</string>
 	<string name="rec_description_hint">Add a description for this recording…</string>
 	<string name="add_description">Add description</string>
+	<string name="save_description_to_file">Also save to audio file</string>
 	<string name="msg_saved_successfully">Saved successfully</string>
 	<string name="naming">Naming:</string>
 	<string name="private_dir_warning">Records will be stored in the app\'s private directory which is not visible for other apps</string>

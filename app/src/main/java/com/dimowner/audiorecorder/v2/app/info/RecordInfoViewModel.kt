@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dimowner.audiorecorder.v2.audio.readAuthorName
 import com.dimowner.audiorecorder.v2.audio.readDescription
+import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,7 +42,12 @@ import javax.inject.Inject
 class RecordInfoViewModel @Inject constructor(
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val recordsDataSource: RecordsDataSource,
+    private val prefs: PrefsV2,
 ) : ViewModel() {
+
+    /** Last chosen state of the "Also save to audio file" checkbox in the description dialog. */
+    val saveDescriptionToFile: Boolean
+        get() = prefs.saveDescriptionToFile
 
     /**
      * Null means the author name is still loading.
@@ -103,25 +109,31 @@ class RecordInfoViewModel @Inject constructor(
     }
 
     /**
-     * Saves the description to the Room database and writes it as the COMMENT tag
-     * in the audio file metadata.
+     * Saves the description to the Room database and, when [writeToFile] is true,
+     * also writes it as the COMMENT tag in the audio file metadata.
      *
      * @param recordId  The database id of the record to update.
-     * @param filePath  Absolute path to the audio file.
      * @param description The new description text.
+     * @param writeToFile When true, also embed the description in the audio file.
+     * @param writeToFileSupported Whether the record's format supports embedding the
+     * description (false for 3GP). The checkbox choice is only remembered when supported.
      * @param onDone    Called on the main thread when the save completes (success or failure).
      */
     fun saveDescription(
         recordId: Long,
-        filePath: String,
         description: String,
+        writeToFile: Boolean,
+        writeToFileSupported: Boolean = true,
         onDone: (success: Boolean) -> Unit = {},
     ) {
         if (_isSaving.value) return
         _isSaving.value = true
+        if (writeToFileSupported) {
+            prefs.saveDescriptionToFile = writeToFile
+        }
         viewModelScope.launch {
             val success = withContext(ioDispatcher) {
-                recordsDataSource.updateRecordDescription(recordId, description)
+                recordsDataSource.updateRecordDescription(recordId, description, writeToFile)
             }
             if (success) {
                 _description.value = description

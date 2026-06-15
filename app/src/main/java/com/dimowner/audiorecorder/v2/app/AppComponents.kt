@@ -543,14 +543,26 @@ fun RenameAlertDialogPreview() {
  * Lightweight dialog for adding or editing a record's description (note) directly
  * from the records list, without navigating to the info screen. An empty value is
  * allowed and clears the note.
+ *
+ * The "save to audio file" checkbox controls whether the description is also embedded
+ * as a COMMENT tag in the audio file. When unchecked, it is saved to the database only.
+ * [onAcceptClick] receives the entered text and the checkbox state.
+ *
+ * When [isWriteToFileSupported] is false (e.g. 3GP files, which can't store comment
+ * metadata) the checkbox is forced off and disabled, and the saved flag is always false.
  */
 @Composable
 fun EditDescriptionDialog(
     initialDescription: String,
-    onAcceptClick: (String) -> Unit,
+    onAcceptClick: (description: String, writeToFile: Boolean) -> Unit,
     onDismissClick: () -> Unit,
+    initialWriteToFile: Boolean,
+    isWriteToFileSupported: Boolean,
 ) {
     val currentValue = remember { mutableStateOf(initialDescription) }
+    val writeToFile = remember { mutableStateOf(initialWriteToFile) }
+    // 3GP and similar containers can't store a comment tag, so file-write is forced off.
+    val effectiveWriteToFile = isWriteToFileSupported && writeToFile.value
     // If the description arrives after first composition (async state update),
     // populate the field as long as the user hasn't started typing yet.
     LaunchedEffect(initialDescription) {
@@ -585,12 +597,40 @@ fun EditDescriptionDialog(
                     minLines = 3,
                     maxLines = 6,
                 )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (isWriteToFileSupported) {
+                                Modifier.clickable { writeToFile.value = !writeToFile.value }
+                            } else {
+                                Modifier
+                            }
+                        ),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(
+                        checked = effectiveWriteToFile,
+                        onCheckedChange = { writeToFile.value = it },
+                        enabled = isWriteToFileSupported,
+                    )
+                    Text(
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        text = stringResource(id = R.string.save_description_to_file),
+                        fontSize = 16.sp,
+                        color = if (isWriteToFileSupported) {
+                            Color.Unspecified
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        },
+                    )
+                }
             }
         },
         onDismissRequest = { onDismissClick() },
         confirmButton = {
             TextButton(
-                onClick = { onAcceptClick(currentValue.value) }
+                onClick = { onAcceptClick(currentValue.value, effectiveWriteToFile) }
             ) {
                 Text(stringResource(id = R.string.btn_save))
             }
@@ -608,7 +648,10 @@ fun EditDescriptionDialog(
 @Preview(showBackground = true)
 @Composable
 fun EditDescriptionDialogPreview() {
-    EditDescriptionDialog("Meeting notes for Q3 planning.", {}, {})
+    EditDescriptionDialog(
+        "Meeting notes for Q3 planning.",
+        { _, _ -> }, {}, true, true
+    )
 }
 
 @Composable

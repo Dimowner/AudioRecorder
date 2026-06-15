@@ -70,6 +70,7 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
 import com.dimowner.audiorecorder.v2.app.EditDescriptionDialog
+import com.dimowner.audiorecorder.v2.app.isDescriptionFileWriteSupported
 import com.dimowner.audiorecorder.v2.app.RenameAlertDialog
 import com.dimowner.audiorecorder.v2.app.SaveAsDialog
 import com.dimowner.audiorecorder.v2.app.components.MAX_CONTENT_WIDTH_WIDE
@@ -513,9 +514,13 @@ internal fun RecordsScreen(
                         uiState.operationSelectedRecord?.let { record ->
                             EditDescriptionDialog(
                                 initialDescription = record.description,
-                                onAcceptClick = {
+                                initialWriteToFile = uiState.saveDescriptionToFile,
+                                isWriteToFileSupported = isDescriptionFileWriteSupported(record.format),
+                                onAcceptClick = { description, writeToFile ->
                                     onAction(
-                                        RecordsScreenAction.SaveRecordDescription(record.recordId, it)
+                                        RecordsScreenAction.SaveRecordDescription(
+                                            record.recordId, description, writeToFile
+                                        )
                                     )
                                 },
                                 onDismissClick = {

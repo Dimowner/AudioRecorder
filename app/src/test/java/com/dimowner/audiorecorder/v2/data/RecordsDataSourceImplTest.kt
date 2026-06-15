@@ -152,14 +152,14 @@ class RecordsDataSourceImplTest {
     }
 
     @Test
-    fun test_updateRecordDescription_success() = runBlocking {
+    fun test_updateRecordDescription_db_only_does_not_touch_file() = runBlocking {
         val id = 101L
         val description = "A note for this record"
 
         every { recordDao.getRecordById(id) } returns testRecordEntity
         every { recordDao.updateRecord(any()) } returns 1
 
-        val result = recordsDataSourceImpl.updateRecordDescription(id, description)
+        val result = recordsDataSourceImpl.updateRecordDescription(id, description, writeToFile = false)
 
         assertTrue(result)
         verify(exactly = 1) {
@@ -175,7 +175,7 @@ class RecordsDataSourceImplTest {
 
         every { recordDao.getRecordById(id) } returns null
 
-        val result = recordsDataSourceImpl.updateRecordDescription(id, "note")
+        val result = recordsDataSourceImpl.updateRecordDescription(id, "note", writeToFile = true)
 
         assertFalse(result)
         verify(exactly = 0) { recordDao.updateRecord(any()) }

@@ -187,12 +187,18 @@ class RecordsDataSourceImpl @Inject internal constructor(
         }
     }
 
-    override suspend fun updateRecordDescription(recordId: Long, description: String): Boolean {
+    override suspend fun updateRecordDescription(
+        recordId: Long,
+        description: String,
+        writeToFile: Boolean,
+    ): Boolean {
         return try {
             val record = getRecord(recordId)
             if (record != null) {
                 val updated = updateRecord(record.copy(description = description))
-                File(record.path).writeCommentTag(description)
+                if (writeToFile) {
+                    File(record.path).writeCommentTag(description)
+                }
                 updated
             } else {
                 Timber.w("updateRecordDescription: record %s not found", recordId)
