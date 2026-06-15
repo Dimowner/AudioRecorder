@@ -22,7 +22,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dimowner.audiorecorder.v2.audio.readAuthorName
 import com.dimowner.audiorecorder.v2.audio.readDescription
-import com.dimowner.audiorecorder.v2.audio.writeCommentTag
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -122,21 +121,7 @@ class RecordInfoViewModel @Inject constructor(
         _isSaving.value = true
         viewModelScope.launch {
             val success = withContext(ioDispatcher) {
-                try {
-                    val record = recordsDataSource.getRecord(recordId)
-                    if (record != null) {
-                        recordsDataSource.updateRecord(record.copy(description = description))
-                        val file = File(filePath)
-                        file.writeCommentTag(description)
-                        true
-                    } else {
-                        Timber.w("saveDescription: record $recordId not found")
-                        false
-                    }
-                } catch (e: Exception) {
-                    Timber.e(e, "saveDescription failed for record $recordId")
-                    false
-                }
+                recordsDataSource.updateRecordDescription(recordId, description)
             }
             if (success) {
                 _description.value = description

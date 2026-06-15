@@ -539,6 +539,78 @@ fun RenameAlertDialogPreview() {
     RenameAlertDialog("Record-14", {}, {}, {}, true)
 }
 
+/**
+ * Lightweight dialog for adding or editing a record's description (note) directly
+ * from the records list, without navigating to the info screen. An empty value is
+ * allowed and clears the note.
+ */
+@Composable
+fun EditDescriptionDialog(
+    initialDescription: String,
+    onAcceptClick: (String) -> Unit,
+    onDismissClick: () -> Unit,
+) {
+    val currentValue = remember { mutableStateOf(initialDescription) }
+    // If the description arrives after first composition (async state update),
+    // populate the field as long as the user hasn't started typing yet.
+    LaunchedEffect(initialDescription) {
+        if (currentValue.value != initialDescription) {
+            currentValue.value = initialDescription
+        }
+    }
+    AlertDialog(
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier.padding(0.dp, 0.dp, 16.dp, 0.dp),
+                    painter = painterResource(id = R.drawable.ic_description),
+                    contentDescription = stringResource(id = R.string.rec_description)
+                )
+                Text(text = stringResource(id = R.string.rec_description))
+            }
+        },
+        text = {
+            Column {
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = currentValue.value,
+                    onValueChange = {
+                        currentValue.value = it
+                    },
+                    placeholder = {
+                        Text(text = stringResource(id = R.string.rec_description_hint))
+                    },
+                    minLines = 3,
+                    maxLines = 6,
+                )
+            }
+        },
+        onDismissRequest = { onDismissClick() },
+        confirmButton = {
+            TextButton(
+                onClick = { onAcceptClick(currentValue.value) }
+            ) {
+                Text(stringResource(id = R.string.btn_save))
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = { onDismissClick() }
+            ) {
+                Text(stringResource(id = R.string.btn_cancel))
+            }
+        }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EditDescriptionDialogPreview() {
+    EditDescriptionDialog("Meeting notes for Q3 planning.", {}, {})
+}
+
 @Composable
 fun DropDownMenuItem(
     text: String,

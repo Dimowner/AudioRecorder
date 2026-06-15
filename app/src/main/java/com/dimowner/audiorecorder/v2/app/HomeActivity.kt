@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.v2.app
 
 import android.Manifest
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -41,6 +42,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import javax.inject.Inject
 
+// Smallest screen width (in dp) that qualifies as a tablet/large screen per Material guidelines.
+// Devices below this threshold are treated as phones and locked to portrait orientation.
+private const val TABLET_MIN_SMALLEST_WIDTH_DP = 600
+
 @AndroidEntryPoint
 class HomeActivity: ComponentActivity() {
 
@@ -54,6 +59,9 @@ class HomeActivity: ComponentActivity() {
     ) { /* Permission result handled — no action needed */ }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (resources.configuration.smallestScreenWidthDp < TABLET_MIN_SMALLEST_WIDTH_DP) {
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         installSplashScreen()

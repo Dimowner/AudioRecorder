@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.v2.app.info
 
 import android.text.format.Formatter
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,31 +27,35 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.TimeUtils
+import com.dimowner.audiorecorder.v2.app.EditDescriptionDialog
 import com.dimowner.audiorecorder.v2.app.InfoItem
 import com.dimowner.audiorecorder.v2.app.TEST_WAVEFORM_DATA
 import com.dimowner.audiorecorder.v2.app.TitleBar
@@ -62,13 +67,11 @@ fun RecordInfoScreen(
     onPopBackStack: () -> Unit,
     recordInfo: RecordInfoState?,
     onSaveDescription: (description: String) -> Unit = {},
-    isSaving: Boolean = false,
 ) {
     RecordInfoScreenContent(
         onPopBackStack = onPopBackStack,
         recordInfo = recordInfo,
         onSaveDescription = onSaveDescription,
-        isSaving = isSaving,
     )
 }
 
@@ -77,7 +80,6 @@ internal fun RecordInfoScreenContent(
     onPopBackStack: () -> Unit,
     recordInfo: RecordInfoState?,
     onSaveDescription: (description: String) -> Unit = {},
-    isSaving: Boolean = false,
 ) {
     val context = LocalContext.current
 
@@ -115,6 +117,13 @@ internal fun RecordInfoScreenContent(
                             )
                         }
                         InfoItem(stringResource(R.string.rec_name), recordInfo.name)
+
+                        // Description section
+                        DescriptionEditor(
+                            description = recordInfo.description,
+                            onSave = onSaveDescription,
+                        )
+
                         InfoItem(stringResource(R.string.rec_format), recordInfo.format)
                         if (recordInfo.authorName.isNotBlank()) {
                             InfoItem(
@@ -158,12 +167,6 @@ internal fun RecordInfoScreenContent(
                             TimeUtils.formatDateTimeLocale(recordInfo.created)
                         )
 
-                        // Description section
-                        DescriptionEditor(
-                            initialDescription = recordInfo.description,
-                            isSaving = isSaving,
-                            onSave = onSaveDescription,
-                        )
                     } else {
                         Text(
                             modifier = Modifier
@@ -180,42 +183,70 @@ internal fun RecordInfoScreenContent(
     }
 }
 
+/**
+ * Read-only description row with an edit affordance. Tapping the row (or the edit
+ * icon) opens [EditDescriptionDialog] to update the note. When the description is
+ * empty a muted placeholder is shown instead.
+ */
 @Composable
 private fun DescriptionEditor(
-    initialDescription: String,
-    isSaving: Boolean,
+    description: String,
     onSave: (String) -> Unit,
 ) {
-    var text by rememberSaveable(initialDescription) { mutableStateOf(initialDescription) }
+    var showDialog by remember { mutableStateOf(false) }
 
-    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Text(
-            text = stringResource(R.string.rec_description),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(modifier = Modifier.size(4.dp))
-        OutlinedTextField(
-            value = text,
-            onValueChange = { text = it },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(stringResource(R.string.rec_description_hint)) },
-            minLines = 3,
-            maxLines = 6,
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Button(
-                onClick = { onSave(text) },
-                enabled = !isSaving,
-            ) {
-                Text(stringResource(R.string.btn_save))
-            }
-            if (isSaving) {
-                Spacer(modifier = Modifier.size(12.dp))
-                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-            }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { showDialog = true }
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .clickable(onClick = { showDialog = true }),
+                text = stringResource(R.string.rec_description),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Light,
+                fontSize = 18.sp,
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Icon(
+                modifier = Modifier.size(16.dp),
+                painter = painterResource(id = R.drawable.ic_pencil),
+                contentDescription = stringResource(R.string.rec_description),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp, 2.dp, 16.dp, 8.dp),
+            text = description.ifBlank { stringResource(R.string.rec_description_hint) },
+            color = if (description.isBlank()) {
+                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            },
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Normal,
+        )
+    }
+
+    if (showDialog) {
+        EditDescriptionDialog(
+            initialDescription = description,
+            onAcceptClick = {
+                showDialog = false
+                onSave(it)
+            },
+            onDismissClick = { showDialog = false },
+        )
     }
 }
 

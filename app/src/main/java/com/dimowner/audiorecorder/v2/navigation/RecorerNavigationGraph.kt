@@ -207,7 +207,6 @@ fun RecorderNavigationGraph(
                     authorName = resolvedAuthorName,
                     description = resolvedDescription
                 ),
-                isSaving = recordInfoViewModel.isSaving.value,
                 onSaveDescription = { description ->
                     if (recordInfo != null) {
                         recordInfoViewModel.saveDescription(

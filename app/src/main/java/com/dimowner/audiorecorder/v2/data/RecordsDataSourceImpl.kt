@@ -21,6 +21,7 @@ import com.dimowner.audiorecorder.audio.AudioDecoder
 import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilter
 import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilterOptions
 import com.dimowner.audiorecorder.v2.audio.BrokenRecordRestorer
+import com.dimowner.audiorecorder.v2.audio.writeCommentTag
 import com.dimowner.audiorecorder.v2.data.extensions.toRecordsSortColumnName
 import com.dimowner.audiorecorder.v2.data.extensions.toSqlSortOrder
 import com.dimowner.audiorecorder.v2.data.model.Record
@@ -182,6 +183,23 @@ class RecordsDataSourceImpl @Inject internal constructor(
             }
         } catch (e: Exception) {
             Timber.e(e)
+            false
+        }
+    }
+
+    override suspend fun updateRecordDescription(recordId: Long, description: String): Boolean {
+        return try {
+            val record = getRecord(recordId)
+            if (record != null) {
+                val updated = updateRecord(record.copy(description = description))
+                File(record.path).writeCommentTag(description)
+                updated
+            } else {
+                Timber.w("updateRecordDescription: record %s not found", recordId)
+                false
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "updateRecordDescription failed for record %s", recordId)
             false
         }
     }

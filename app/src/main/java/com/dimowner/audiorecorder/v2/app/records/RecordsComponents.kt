@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.v2.app.records
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -56,6 +57,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -414,6 +416,7 @@ fun RecordListItemView(
     name: String,
     details: String,
     duration: String,
+    description: String,
     isBookmarked: Boolean,
     isSelected: Boolean,
     isShowMenuButton: Boolean,
@@ -421,6 +424,7 @@ fun RecordListItemView(
     onLongClickItem: () -> Unit,
     onClickBookmark: (Boolean) -> Unit,
     onClickMenu: (RecordDropDownMenuItemId) -> Unit,
+    onClickDescription: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val expanded = remember { mutableStateOf(false) }
@@ -470,12 +474,14 @@ fun RecordListItemView(
                         text = duration,
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.bodySmall,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
                     )
                     Text(
                         text = details,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodySmall,
+                        fontSize = 13.sp,
                         fontFamily = FontFamily(
                             Font(
                                 DeviceFontFamilyName("sans-serif"),
@@ -487,6 +493,36 @@ fun RecordListItemView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .wrapContentHeight(),
+                    )
+                }
+                // Optional description/note line. Tapping it opens the edit dialog.
+                // When empty, an "Add description" placeholder is shown instead.
+                Spacer(modifier = Modifier.height(2.dp))
+                if (description.isNotBlank()) {
+                    Text(
+                        text = description,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 13.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(onClick = onClickDescription)
+                            .padding(vertical = 2.dp),
+                    )
+                } else {
+                    Text(
+                        text = stringResource(id = R.string.add_description),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 13.sp,
+                        fontStyle = FontStyle.Italic,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .clickable(onClick = onClickDescription)
+                            .padding(vertical = 2.dp),
                     )
                 }
             }
@@ -548,6 +584,7 @@ fun RecordListItemPreview() {
         name = "Recording_2024-01-15",
         details = "1.5 MB · mp4 · 192 kbps · 48 kHz",
         duration = "3:15",
+        description = "Meeting notes: discuss Q3 roadmap and budget planning for the next sprint.",
         isBookmarked = true,
         isSelected = false,
         isShowMenuButton = true,
@@ -555,6 +592,7 @@ fun RecordListItemPreview() {
         onLongClickItem = {},
         onClickBookmark = {},
         onClickMenu = {},
+        onClickDescription = {},
     )
 }
 
@@ -565,6 +603,7 @@ fun RecordListItemSelectedPreview() {
         name = "Recording_2024-01-15",
         details = "4.5 MB · mp3 · 128 kbps · 32 kHz",
         duration = "8:15",
+        description = "",
         isBookmarked = false,
         isSelected = true,
         isShowMenuButton = false,
@@ -572,6 +611,7 @@ fun RecordListItemSelectedPreview() {
         onLongClickItem = {},
         onClickBookmark = {},
         onClickMenu = {},
+        onClickDescription = {},
     )
 }
 

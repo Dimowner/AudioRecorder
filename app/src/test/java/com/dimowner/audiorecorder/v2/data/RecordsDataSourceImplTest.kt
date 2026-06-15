@@ -152,6 +152,36 @@ class RecordsDataSourceImplTest {
     }
 
     @Test
+    fun test_updateRecordDescription_success() = runBlocking {
+        val id = 101L
+        val description = "A note for this record"
+
+        every { recordDao.getRecordById(id) } returns testRecordEntity
+        every { recordDao.updateRecord(any()) } returns 1
+
+        val result = recordsDataSourceImpl.updateRecordDescription(id, description)
+
+        assertTrue(result)
+        verify(exactly = 1) {
+            recordDao.updateRecord(
+                testRecordEntity.toRecord().copy(description = description).toRecordEntity()
+            )
+        }
+    }
+
+    @Test
+    fun test_updateRecordDescription_record_not_found() = runBlocking {
+        val id = 101L
+
+        every { recordDao.getRecordById(id) } returns null
+
+        val result = recordsDataSourceImpl.updateRecordDescription(id, "note")
+
+        assertFalse(result)
+        verify(exactly = 0) { recordDao.updateRecord(any()) }
+    }
+
+    @Test
     fun test_updateRecords() = runBlocking {
         val id1 = 101L
         val id2 = 201L

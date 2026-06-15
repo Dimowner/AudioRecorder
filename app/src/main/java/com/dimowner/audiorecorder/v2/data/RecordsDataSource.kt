@@ -55,6 +55,16 @@ interface RecordsDataSource {
 
     suspend fun renameRecord(record: Record, newName: String): Boolean
 
+    /**
+     * Persists a record's description to the database and writes it as the
+     * COMMENT tag in the audio file metadata.
+     *
+     * @param recordId The database id of the record to update.
+     * @param description The new description text (may be blank to clear the note).
+     * @return true if the database update succeeded.
+     */
+    suspend fun updateRecordDescription(recordId: Long, description: String): Boolean
+
     suspend fun getRecordsCount(): Int
 
     suspend fun getRecordTotalDuration(): Long
