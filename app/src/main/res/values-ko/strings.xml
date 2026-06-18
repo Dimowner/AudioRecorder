@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">오디오 레코더</string>
+
+	<string name="records">녹음</string>
+	<string name="settings">설정</string>
+	<string name="setup">설정</string>
+	<string name="welcome_1">간단하고 빠른 애플리케이션에 오신 것을 환영합니다</string>
+    <string name="rate_app">앱 평가하기</string>
+	<string name="store_records_public">공개 디렉토리에 녹음 저장</string>
+	<string name="record_in_stereo">스테레오로 녹음</string>
+
+	<string name="dynamic_theme_colors">다이나믹 테마 색상</string>
+	<string name="dark_theme">다크 테마</string>
+	<string name="record_name_format">녹음 이름 형식</string>
+	<string name="version">버전 %s</string>
+
+	<plurals name="years">
+		<item quantity="other">년</item>
+	</plurals>
+	<plurals name="days">
+		<item quantity="other">일</item>
+	</plurals>
+
+	<!-- Confirmation for successful deletion. -->
+	<string name="msg_recording_permanently_deleted">녹음 \'%1$s\'이(가) 영구 삭제되었습니다</string>
+	<!-- Confirmation for sending to trash (if no UNDO is provided) -->
+	<string name="msg_recording_moved_to_trash">녹음 \'%1$s\'이(가) 휴지통으로 이동되었습니다</string>
+	<!-- Confirmation for sending to trash multiple records.
+		Param #1: How many items actually moved.
+	 	Param #2: Expected item count to be moved. -->
+	<string name="msg_few_recordings_moved_to_trash">%2$d개 중 %1$d개의 녹음이 휴지통으로 이동되었습니다</string>
+	<!-- Error message when moving a recording to Trash fails -->
+	<string name="msg_move_to_trash_failed">녹음을 휴지통으로 이동하지 못했습니다</string>
+	<!-- Error message when moving a multiple recordings to Trash fails -->
+	<string name="msg_multiple_move_to_trash_failed">녹음들을 휴지통으로 이동하지 못했습니다.</string>
+	<!-- Confirmation for canceling a recording session (progress discarded) -->
+	<string name="msg_recording_canceled">취소된 녹음이 휴지통으로 이동되었습니다</string>
+	<!-- Confirmation for successful restoration after UNDO is clicked -->
+	<string name="msg_recording_restored">녹음 \'%1$s\'이(가) 복원되었습니다</string>
+
+	<string name="msg_record_renamed">녹음 이름이 \'%1$s\'(으)로 변경되었습니다</string>
+
+	<!-- Confirmation for saving a new recording -->
+	<string name="msg_recording_saved_with_name">녹음이 다음 이름으로 저장되었습니다: %s</string>
+    <!-- Error message when saving a recording fails -->
+	<string name="msg_save_recording_failed">녹음 저장에 실패했습니다.</string>
+	<!-- Error message for file operation failure -->
+	<string name="msg_file_operation_failed">파일 작업에 실패했습니다. 다시 시도해 주세요</string>
+	<!-- Error message for empty name during rename/save -->
+	<string name="msg_name_cannot_be_empty">이름을 입력해 주세요</string>
+    <!-- Permission Messages -->
+    <string name="msg_permission_microphone_denied">오디오를 녹음하려면 마이크 권한이 필요합니다. 이 기능을 사용하려면 권한을 허용해 주세요.</string>
+	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
+	<string name="action_undo">실행 취소</string>
+	<!-- Generic error message for a common failure -->
+	<string name="msg_operation_failed_generic">작업에 실패했습니다</string>
+
+    <string name="recording_duration">녹음 시간</string>
+    <string name="recording_duration_subtitle">이 제한에 도달하면 자동으로 새 녹음 파일을 시작합니다</string>
+    <string name="new_recording_part_started">새 녹음 파트가 시작되었습니다</string>
+    <string name="duration_picker_hint">시간과 분을 입력하세요</string>
+    <string name="error_duration_at_least_one_minute">시간은 최소 1분 이상으로 설정해 주세요</string>
+    <!-- Warnings & Constraints -->
+    <string name="warning_duration_limit_recommended">2시간을 초과하는 녹음은 오류 발생 시 모든 진행 상황이 손실될 수 있으므로 권장하지 않습니다</string>
+
+    <string name="keep_screen_on">녹음 중 화면 켜두기</string>
+    <string name="records_author_name">녹음 작성자 이름</string>
+    <string name="record_author">녹음 작성자</string>
+    <string name="records_author_name_hint">작성자 이름</string>
+	<!-- Records Author name explanation -->
+	<string name="info_record_author_name">각 새 녹음 파일의 메타데이터에 포함될 아티스트/작성자 태그를 설정합니다. 이 이름은 음악 플레이어와 파일 관리자에 표시됩니다.</string>
+	<string name="total_duration">총 녹음 시간: %s</string>
+	<string name="total_record_count">총 녹음 수: %d</string>
+	<string name="available_space">사용 가능한 공간: %s</string>
+    <string name="delete_all2">모두 삭제</string>
+	<string name="delete_all3">휴지통 비우기</string>
+	<string name="records_were_removed">녹음 디렉토리에서 일부 파일을 찾을 수 없습니다. 삭제되거나 이동되었을 수 있습니다.</string>
+	<string name="title_file_is_not_available">녹음 파일에 접근할 수 없습니다!</string>
+	<string name="details_file_is_not_available">죄송합니다. 앱이 더 이상 Android 공개 저장소에 접근할 수 없습니다.\n스마트폰의 다음 위치에서 녹음 파일을 찾을 수 있습니다:\n%s</string>
+	<string name="warning">경고!</string>
+    <string name="move_record_to_trash">%s을(를) 휴지통으로 이동하시겠습니까?</string>
+    <string name="delete_record">녹음 %s을(를) 삭제하시겠습니까?</string>
+    <string name="delete_record_forever">녹음 %s을(를) 영구 삭제하시겠습니까?</string>
+	<plurals name="delete_selected_records">
+		<item quantity="other">선택한 %d개의 녹음을 휴지통으로 이동하시겠습니까?</item>
+	</plurals>
+	<plurals name="download_selected_records">
+		<item quantity="other">선택한 %d개의 녹음을 \'다운로드\' 디렉토리에 복사하시겠습니까?</item>
+	</plurals>
+	<string name="start_recording">녹음 시작</string>
+	<string name="recording_feature_disabled">녹음 기능이 비활성화되어 있습니다</string>
+	<string name="restore_record">녹음 %s을(를) 복원하시겠습니까?</string>
+	<string name="delete_all_records">모든 녹음을 삭제하시겠습니까?</string>
+	<string name="delete_all_records2">휴지통을 비우시겠습니까? 모든 녹음이 영구적으로 삭제됩니다.</string>
+	<string name="all_records_deleted">모든 녹음이 성공적으로 삭제되었습니다</string>
+	<string name="failed_to_delete_all_records">모든 녹음 삭제에 실패했습니다</string>
+	<string name="please_select_record_to_share">공유할 녹음을 선택해 주세요</string>
+    <string name="update_record_name">이름 업데이트</string>
+	<string name="recording">녹음 중: %s</string>
+	<string name="recording_is_on">녹음 중입니다</string>
+	<string name="recording_progress">녹음 중&#8230;</string>
+	<string name="recording_paused">일시 정지됨</string>
+	<string name="playback">재생 중: %s</string>
+	<string name="zero_time">00:00</string>
+	<string name="empty">비어 있음</string>
+	<string name="items_selected"> %d개 선택됨</string>
+	<string name="no_records">녹음이 없습니다</string>
+	<string name="no_bookmarks">북마크가 없습니다</string>
+	<string name="bookmarks">북마크</string>
+	<string name="share_record">녹음 공유: %s</string>
+	<plurals name="share_records_count">
+		<item quantity="other">%d개의 녹음 공유</item>
+	</plurals>
+	<string name="import_progress">오디오 파일 가져오는 중&#8230;</string>
+	<string name="btn_import">가져오기</string>
+	<string name="processing_canceled">처리가 취소되었습니다</string>
+	<string name="record_processing">오디오 처리 중&#8230;</string>
+	<string name="request">요청 또는 피드백</string>
+	<string name="email_clients_not_found">이메일 클라이언트를 찾을 수 없습니다</string>
+	<string name="send_email">이메일로 보내기&#8230;</string>
+	<string name="open_record_with">다른 앱으로 %s 열기</string>
+	<string name="delete">삭제</string>
+	<string name="restore">복원</string>
+	<string name="info">정보</string>
+	<string name="rename">이름 바꾸기</string>
+	<string name="dont_ask_again">다시 묻지 않기</string>
+	<string name="open_with">다른 앱으로 열기&#8230;</string>
+	<string name="save_as">다른 이름으로 저장&#8230;</string>
+	<string name="downloading">다운로드 중: %s</string>
+	<plurals name="downloading_success_count">
+		<item quantity="other">%d개의 녹음이 성공적으로 복사되었습니다</item>
+	</plurals>
+	<plurals name="move_records_success_count">
+		<item quantity="other">%d개의 녹음이 성공적으로 이동되었습니다</item>
+	</plurals>
+	<string name="downloading_success_and_fail_count">%1$d개의 녹음이 성공적으로 복사되었고 %2$d개는 복사에 실패했습니다</string>
+	<string name="moving_records_success_and_fail_count">%1$d개의 녹음이 성공적으로 이동되었고 %2$d개는 이동에 실패했습니다</string>
+	<string name="downloading_success">%s이(가) \'다운로드\' 디렉토리에 복사되었습니다</string>
+	<string name="move_record_success">%s이(가) 앱의 개인 디렉토리로 이동되었습니다</string>
+	<plurals name="downloading_failed_count">
+		<item quantity="other">%d개의 녹음 복사에 실패했습니다</item>
+	</plurals>
+	<plurals name="move_records_failed_count">
+		<item quantity="other">%d개의 녹음 이동에 실패했습니다</item>
+	</plurals>
+	<string name="record_will_be_copied_into_downloads">녹음이 \'다운로드\' 디렉토리에 복사됩니다</string>
+	<string name="record_name_will_be_copied_into_downloads">녹음 \'%s\'이(가) \'다운로드\' 디렉토리에 복사됩니다</string>
+	<string name="move_record_failed">이동에 실패했습니다: %s</string>
+	<string name="downloading_failed">복사에 실패했습니다: %s</string>
+	<string name="downloading_failed_file_already_exists">복사에 실패했습니다. %s(이)라는 이름의 파일이 이미 존재합니다</string>
+	<string name="downloading_cancel">복사가 취소되었습니다</string>
+	<string name="share">공유</string>
+	<string name="ask_to_rename">녹음 완료 후 이름 변경 대화상자 표시</string>
+	<string name="record_moved_into_trash">녹음이 휴지통으로 이동되었습니다</string>
+	<string name="selected_records_moved_into_trash">선택한 녹음이 휴지통으로 이동되었습니다</string>
+	<string name="all_records_deleted_successfully">모든 녹음이 성공적으로 삭제되었습니다</string>
+	<string name="record_deleted_successfully">녹음이 성공적으로 삭제되었습니다</string>
+	<string name="record_restored_successfully">녹음이 성공적으로 복원되었습니다</string>
+	<string name="record_imported_successfully">녹음이 성공적으로 가져와졌습니다</string>
+	<string name="cant_import_files">파일을 가져올 수 없습니다</string>
+	<string name="by_date">날짜순 (최신순)</string>
+	<string name="by_date_desc">날짜순 (오래된순)</string>
+	<string name="by_name">이름순 (A-Z)</string>
+	<string name="by_name_desc">이름순 (Z-A)</string>
+	<string name="by_duration">시간순 (긴순)</string>
+    <string name="by_duration_desc">시간순 (짧은순)</string>
+    <string name="filter">필터</string>
+	<string name="filter_clear">지우기</string>
+	<string name="filter_dismiss">필터 닫기</string>
+	<string name="filter_no_options">필터링할 녹음이 없습니다</string>
+	<string name="need_write_permission">앱이 공개 저장소에 접근하려면 권한이 필요합니다. 허용하지 않으면 녹음은 앱의 개인 디렉토리에 저장됩니다</string>
+	<string name="rec_name">이름:</string>
+	<string name="rec_format">형식:</string>
+	<string name="rec_duration">시간:</string>
+    <string name="rec_size">크기:</string>
+	<string name="rec_created">생성일:</string>
+	<string name="rec_location">파일 위치:</string>
+	<string name="rec_description">설명</string>
+	<string name="rec_description_hint">이 녹음에 설명을 추가하세요</string>
+	<string name="add_description">설명 추가</string>
+	<string name="save_description_to_file">오디오 파일에도 저장</string>
+	<string name="msg_saved_successfully">성공적으로 저장되었습니다</string>
+	<string name="naming">이름 지정:</string>
+	<string name="private_dir_warning">녹음은 다른 앱에서 볼 수 없는 앱의 개인 디렉토리에 저장됩니다</string>
+	<string name="public_dir_warning">녹음은 다른 앱에서도 볼 수 있는 장치의 공유 디렉토리에 저장됩니다</string>
+	<string name="lost_records">분실된 녹음</string>
+	<string name="trash">휴지통</string>
+	<string name="trash_info">휴지통의 녹음은 60일 후에 영구 삭제됩니다.</string>
+	<string name="file_browser">파일 브라우저</string>
+	<string name="private_dir">개인 디렉토리</string>
+	<string name="public_dir">공개 디렉토리</string>
+	<string name="found_in_the_app">앱에서 찾음</string>
+	<string name="not_found_in_the_app">앱에서 찾을 수 없음</string>
+	<string name="in_trash">휴지통에 있음</string>
+
+    <string name="recording_settings">녹음 설정</string>
+
+    <string name="today">오늘</string>
+	<string name="yesterday">어제</string>
+
+	<string name="btn_save">저장</string>
+	<string name="btn_cancel">취소</string>
+	<string name="btn_yes">예</string>
+	<string name="btn_ok">확인</string>
+	<string name="btn_got_it">알겠습니다</string>
+	<string name="btn_no">아니요</string>
+	<string name="btn_play">재생</string>
+	<string name="btn_previous">이전</string>
+	<string name="btn_next">다음</string>
+	<string name="btn_deny">거부</string>
+    <string name="btn_details">세부 정보</string>
+	<string name="btn_get_started">시작하기</string>
+	<string name="btn_apply">적용</string>
+	<string name="btn_reset">초기화</string>
+	<string name="btn_recommended">추천</string>
+    <string name="btn_dismiss">닫기</string>
+    <string name="view">보기</string>
+	<string name="view_records">녹음 보기</string>
+	<string name="move_records_needed">녹음 이동이 필요합니다</string>
+	<string name="moving_record">녹음 이동 중: %s</string>
+	<string name="moving_record_cancel">이동이 취소되었습니다</string>
+	<string name="move_records_info">일부 녹음이 아직 공개 저장소에 저장되어 있습니다. 곧 공개 저장소를 앱에서 사용할 수 없게 됩니다. 해당 녹음을 앱의 개인 디렉토리로 이동해야 합니다.</string>
+	<string name="info_format"><b>M4a</b> 형식은 AAC 오디오 코덱으로 인코딩되어 음질이 좋고 파일 크기가 작습니다. <b>(추천)</b>
+		\n<b>Wav</b>는 비압축 오디오 데이터 형식입니다. 다른 형식보다 훨씬 많은 공간을 차지합니다. 특별한 경우에 필요할 때 사용하세요.
+		\n<b>3gp</b>는 모바일 통신 서비스를 위해 개발된 멀티미디어 컨테이너 형식입니다. 공간을 절약해야 할 때 사용하세요.
+		</string>
+
+	<string name="info_format_html"><![CDATA[
+<b>M4a</b> 형식은 AAC 오디오 코덱으로 인코딩되어 음질이 좋고 파일 크기가 작습니다. <b>(추천)</b>
+<br/><br/><b>Wav</b>는 비압축 오디오 데이터 형식입니다. 다른 형식보다 훨씬 많은 공간을 차지합니다. 특별한 경우에 필요할 때 사용하세요.
+<br/><b>3gp</b>는 모바일 통신 서비스를 위해 개발된 멀티미디어 컨테이너 형식입니다. 공간을 절약해야 할 때 사용하세요.
+]]></string>
+
+	<string name="info_frequency"><b>샘플 레이트</b>는 초당 처리되는 오디오 샘플의 수입니다.
+		\n<b>48kHz</b>는 DVD에 사용되는 샘플 레이트입니다.
+		\n<b>44.1kHz</b>는 오디오 CD의 샘플링 레이트입니다. <b>(추천)</b>
+		\n<b>22kHz</b>는 64kbps와 같은 낮은 비트레이트에 일반적인 샘플 레이트입니다.
+		\n<b>8kHz</b>는 현대 전화 시스템보다 대역폭이 낮아 본격적인 녹음 작업에 적합하지 않습니다.
+		</string>
+
+	<string name="info_frequency_html"><![CDATA[
+<b>샘플 레이트</b>는 초당 처리되는 오디오 샘플의 수입니다.
+<br/><br/><b>48kHz</b>는 DVD에 사용되는 샘플 레이트입니다.
+<br/><b>44.1kHz</b>는 오디오 CD의 샘플링 레이트입니다. <b>(추천)</b>
+<br/><b>22kHz</b>는 64kbps와 같은 낮은 비트레이트에 일반적인 샘플 레이트입니다.
+<br/><b>8kHz</b>는 현대 전화 시스템보다 대역폭이 낮아 본격적인 녹음 작업에 적합하지 않습니다.
+]]></string>
+
+	<string name="info_bitrate"><b>비트레이트</b>는 초당 사운드 데이터의 크기입니다. 녹음 품질과 파일 크기에 직접적인 영향을 미칩니다.
+		\n<b>256 kbps</b> 높은 품질의 비트레이트입니다.
+		\n<b>192 kbps</b> 중간 품질의 비트레이트입니다.
+		\n<b>128 kbps</b> 중간 비트레이트 품질입니다. 팟캐스트에 일반적인 비트레이트입니다. <b>(추천)</b>
+		\n<b>96 kbps</b> 주로 음성이나 저품질 스트리밍에 사용됩니다.
+		\n<b>48 kbps</b> 음성에만 허용 가능한 품질입니다.
+		</string>
+
+    <string name="info_bitrate_html"><![CDATA[
+<b>비트레이트</b>는 초당 사운드 데이터의 크기입니다. 녹음 품질과 파일 크기에 직접적인 영향을 미칩니다.
+<br/><br/><b>256 kbps</b> 높은 품질의 비트레이트입니다.
+<br/><b>192 kbps</b> 중간 품질의 비트레이트입니다.
+<br/><b>128 kbps</b> 중간 비트레이트 품질입니다. 팟캐스트에 일반적인 비트레이트입니다. <b>(추천)</b>
+<br/><b>96 kbps</b> 주로 음성이나 저품질 스트리밍에 사용됩니다.
+<br/><b>48 kbps</b> 음성에만 허용 가능한 품질입니다.
+]]></string>
+
+	<string name="info_channels">
+		<b>스테레오</b>는 두 개의 독립적인 채널로 녹음합니다. 각 스테레오 스피커는 다른 음성 신호를 출력합니다. <b>(추천)</b>
+		\n<b>모노</b>는 하나의 신호 채널로 녹음합니다. 여러 스피커로 재생할 수 있지만 모든 스피커는 동일한 신호를 출력합니다.
+		</string>
+
+    <string name="info_channels_html"><![CDATA[
+<b>스테레오 (듀얼 채널):</b> 두 개의 독립적인 오디오 채널을 녹음하여 공간감과 방향감을 만들어냅니다. <b>(추천)</b>
+<br/><br/><b>모노 (싱글 채널):</b> 단일 오디오 채널을 녹음합니다. 모든 스피커에서 동일한 신호가 재생됩니다.
+]]></string>
+
+    <string name="info_audio_source_html"><![CDATA[
+<b>기본값:</b> 제조사 권장 설정입니다. 일반적으로 <b>마이크</b> 옵션과 동일하게 동작하지만 장치 고유의 최적화된 하드웨어 튜닝이 적용됩니다.
+<br/><br/><b>마이크:</b> 표준 마이크 설정입니다. 일반적인 녹음에 가장 적합합니다. 음성 볼륨을 자동으로 조절하면서 주변 환경의 자연스러운 분위기를 포착합니다.
+<br/><br/><b>음성 통신:</b> 사람의 목소리 명료성을 위해 특별히 설계되었습니다. 노이즈 및 에코 제거 기능이 활성화되므로 블루투스에 가장 적합합니다.
+<br/><br/><b>미처리:</b> 시스템 필터나 조정 없이 원시 오디오를 녹음합니다. 배경 소음 제거나 볼륨 균일화가 없습니다. 고음질 또는 전문적인 용도에 가장 적합합니다.
+]]></string>
+	<string name="info_3gp"><b>3gp</b>는 모바일 통신 서비스를 위해 개발된 멀티미디어 컨테이너 형식입니다. 공간을 절약해야 할 때 사용하세요.</string>
+	<string name="info_m4a"><b>M4a</b> 형식은 AAC 오디오 코덱으로 인코딩되어 음질이 좋고 파일 크기가 작습니다. <b>(추천)</b></string>
+	<string name="info_wav"><b>Wav</b>는 비압축 오디오 데이터 형식입니다. 다른 형식보다 훨씬 많은 공간을 차지합니다. 특별한 경우에 필요할 때 사용하세요.</string>
+	<string name="info_stereo"><b>스테레오</b>는 두 개의 독립적인 채널로 녹음합니다. 각 스테레오 스피커는 다른 음성 신호를 출력합니다. <b>(추천)</b></string>
+	<string name="info_mono"><b>모노</b>는 하나의 신호 채널로 녹음합니다. 여러 스피커로 재생할 수 있지만 모든 스피커는 동일한 신호를 출력합니다.</string>
+	<string name="info_bitrate_48"><b>48 kbps</b> 음성에만 허용 가능한 품질입니다.</string>
+	<string name="info_bitrate_96"><b>96 kbps</b> 주로 음성이나 저품질 스트리밍에 사용됩니다.</string>
+	<string name="info_bitrate_128"><b>128 kbps</b> 중간 비트레이트 품질입니다. 팟캐스트에 일반적인 비트레이트입니다. <b>(추천)</b></string>
+	<string name="info_bitrate_192"><b>192 kbps</b> 중간 품질의 비트레이트입니다.</string>
+	<string name="info_bitrate_256"><b>256 kbps</b> 높은 품질의 비트레이트입니다.</string>
+	<string name="info_bitrate_288"><b>288 kbps</b> 매우 높은 품질의 비트레이트입니다.</string>
+	<string name="info_sample_rate_8k"><b>8kHz</b>는 현대 전화 시스템보다 대역폭이 낮아 본격적인 녹음 작업에 적합하지 않습니다.</string>
+	<string name="info_sample_rate_16k"><b>16kHz</b>는 8kHz보다 낫습니다.</string>
+	<string name="info_sample_rate_22k"><b>22kHz</b>는 64kbps와 같은 낮은 비트레이트에 일반적인 샘플 레이트입니다.</string>
+	<string name="info_sample_rate_32k"><b>32kHz</b>는 22kHz보다 약간 낫습니다.</string>
+	<string name="info_sample_rate_44k"><b>44.1kHz</b>는 오디오 CD의 샘플링 레이트입니다. <b>(추천)</b></string>
+	<string name="info_sample_rate_48k"><b>48kHz</b>는 DVD에 사용되는 샘플 레이트입니다.</string>
+	<string name="recording_format">녹음 형식:</string>
+	<string name="bitrate">비트레이트:</string>
+	<string name="channels">채널 수:</string>
+	<string name="sample_rate">샘플 레이트:</string>
+	<string name="size_per_min">예상 크기: %s MB/분</string>
+	<string name="value_khz">%d kHz</string>
+	<string name="value_hz">%d Hz</string>
+	<string name="value_kbps">%d kbps</string>
+	<string name="stereo">스테레오</string>
+	<string name="mono">모노</string>
+	<string name="records_location">녹음 위치:\n%s</string>
+	<string name="feature_not_available_in_android_10">이 기능은 Android 10 이상에서는 사용할 수 없습니다.</string>
+	<string name="size">%s MB</string>
+	<string name="move_records">%d개의 녹음 이동</string>
+
+	<string name="error_unknown">예상치 못한 오류가 발생했습니다</string>
+	<string name="error_cant_create_file">파일을 만들 수 없습니다</string>
+	<string name="error_failed_to_start_recording">녹음 시작에 실패했습니다</string>
+	<string name="error_invalid_output_file">잘못된 출력 파일입니다</string>
+	<string name="error_file_exists">이 이름의 파일이 이미 존재합니다!</string>
+	<string name="error_failed_to_rename">녹음 이름 변경에 실패했습니다!</string>
+	<string name="error_failed_to_init_recorder">레코더 초기화에 실패했습니다</string>
+	<string name="error_failed_to_init_player">플레이어 초기화에 실패했습니다</string>
+	<string name="error_player_data_source">플레이어가 파일을 읽을 수 없습니다</string>
+	<string name="error_unable_to_read_sound_file">사운드 파일을 읽을 수 없습니다</string>
+	<string name="error_permission_denied">권한이 거부되었습니다</string>
+	<string name="error_process_waveform">파형을 그릴 수 없습니다</string>
+	<string name="error_lost_records">일부 녹음이 삭제되거나 이동되었습니다</string>
+	<string name="broken_record_title">녹음이 중단되었습니다</string>
+	<string name="broken_record_message">녹음 \'%s\'이(가) 중단되었습니다 (기기 재시작으로 인한 것일 수 있습니다). 파일이 손상되었을 수 있습니다. 복원을 시도하시겠습니까?</string>
+	<string name="btn_restore">복원</string>
+	<string name="msg_broken_record_restored">녹음 \'%s\'이(가) 성공적으로 복원되었습니다</string>
+	<string name="error_broken_record_restore_failed">녹음 복원에 실패했습니다. 파일을 복구할 수 없을 수 있습니다.</string>
+	<string name="error_no_available_space">사용 가능한 공간이 없습니다!</string>
+	<string name="error_failed_access_to_storage">파일 저장소 접근에 실패했습니다</string>
+	<string name="error_on_recording">녹음 오류가 발생했습니다!</string>
+	<string name="error_failed_to_restore">녹음 복원에 실패했습니다!</string>
+	<string name="error_failed_to_delete">녹음 삭제에 실패했습니다!</string>
+	<string name="error_recording_already_started">녹음이 이미 시작되었습니다!</string>
+
+	<string name="move_public_storage_records_message">공개 저장소 녹음 이동이 필요합니다</string>
+	<string name="later">나중에</string>
+	<string name="move">이동</string>
+	<string name="move_all">모두 이동</string>
+
+	<string name="button_record">녹음</string>
+	<string name="button_stop">중지</string>
+	<string name="button_pause">일시 정지</string>
+	<string name="button_resume">재개</string>
+	<string name="button_finish">완료</string>
+	<string name="legacy_app">이전 버전</string>
+	<string name="legacy_app_subtitle">이전 앱 인터페이스로 전환</string>
+	<string name="switch_to_legacy">이전 버전으로 전환</string>
+	<string name="new_audio_recorder_available">새로운 오디오 레코더를 사용할 수 있습니다</string>
+	<string name="try_new_app_subtitle">모든 녹음을 유지하며 언제든지 전환할 수 있습니다</string>
+	<string name="try_new_app">새 앱 사용해보기</string>
+
+	<!-- Shown in the 'About' window of the app. -->
+	<string name="about_body"><![CDATA[
+    	<b>오디오 레코더 2026</b><br>
+		버전 %s
+	]]></string>
+
+	<string-array name="theme_colors2">
+		<item>테마: 블루그레이</item>
+		<item>테마: 블랙</item>
+		<item>테마: 틸</item>
+		<item>테마: 블루</item>
+		<item>테마: 퍼플</item>
+		<item>테마: 핑크</item>
+		<item>테마: 오렌지</item>
+		<item>테마: 레드</item>
+		<item>테마: 브라운</item>
+	</string-array>
+
+	<string-array name="formats2" translatable="false">
+		<item>M4a</item>
+		<item>Wav</item>
+		<item>3gp</item>
+	</string-array>
+
+	<string-array name="bit_rates2">
+		<item>48 kbps</item>
+		<item>96 kbps</item>
+		<item>128 kbps</item>
+		<item>192 kbps</item>
+		<item>256 kbps</item>
+		<item>288 kbps</item>
+	</string-array>
+
+	<string-array name="sample_rates2">
+		<item>8kHz</item>
+		<item>16kHz</item>
+		<item>22kHz</item>
+		<item>32kHz</item>
+		<item>44.1kHz</item>
+		<item>48kHz</item>
+	</string-array>
+
+	<string-array name="channels">
+		<item>스테레오</item>
+		<item>모노</item>
+	</string-array>
+
+    <!-- Time duration days, hours and minutes. Example: "1d 2h 30m" -->
+    <string name="duration_days_hours_minutes">%1$d일 %2$d시간 %3$d분</string>
+    <!-- Time duration hours and minutes. Examples: "2h 30m", "5h 0m" -->
+    <string name="duration_hours_and_minutes">%1$d시간 %2$d분</string>
+    <!-- Time duration minutes only. Examples: "45m", or "0m"-->
+    <string name="duration_minutes">%1$d분</string>
+
+    <string name="app_widget_description">녹음 시작 위젯</string>
+
+    <string name="bluetooth_microphone_available">블루투스 마이크를 사용할 수 있습니다</string>
+    <string name="audio_source">오디오 소스</string>
+    <string name="audio_source_default">기본값</string>
+    <string name="audio_source_mic">마이크</string>
+    <string name="audio_source_voice_communication">음성 통신</string>
+    <string name="audio_source_unprocessed">미처리</string>
+
+    <!-- Database migration -->
+    <string name="database_update_in_progress">데이터베이스 업데이트 중입니다</string>
+
+    <!-- Audio Playback Notification channel name -->
+    <string name="notification_channel_playback_name">오디오 재생</string>
+    <!-- Audio Playback Notification channel description -->
+    <string name="notification_channel_playback_description">오디오 재생 진행 상황을 표시합니다</string>
+    <!-- Audio Recording Notification channel name -->
+    <string name="notification_channel_recording_name">오디오 녹음</string>
+    <!-- Audio Recording Notification channel description -->
+    <string name="notification_channel_recording_description">오디오 녹음 진행 상황을 표시합니다</string>
+    <!-- Recording Notification Status Messages -->
+    <string name="status_recording_active">녹음 중입니다</string>
+    <string name="status_recording_paused">녹음이 일시 정지되었습니다</string>
+    <!-- Navigate back button description -->
+    <string name="navigate_back">뒤로 가기</string>
+    <!-- Dropdown menu button description -->
+    <string name="dropdown_menu">메뉴</string>
+</resources>
