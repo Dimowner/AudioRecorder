@@ -144,6 +144,10 @@
     <string name="by_name_desc">按名称（Z-A）</string>
     <string name="by_duration">按时长（最长）</string>
     <string name="by_duration_desc">按时长（最短）</string>
+    <string name="filter">筛选</string>
+    <string name="filter_clear">清除</string>
+    <string name="filter_dismiss">关闭筛选</string>
+    <string name="filter_no_options">没有可筛选的录音</string>
     <string name="need_write_permission">该应用需要访问公共存储的权限。如果不允许，录音将存储在应用的私有目录中</string>
     <string name="rec_name">名称：</string>
     <string name="rec_format">格式：</string>
@@ -151,6 +155,11 @@
     <string name="rec_size">大小：</string>
     <string name="rec_created">创建时间：</string>
     <string name="rec_location">文件位置：</string>
+    <string name="rec_description">描述</string>
+    <string name="rec_description_hint">为此录音添加描述</string>
+    <string name="add_description">添加描述</string>
+    <string name="save_description_to_file">同时也保存到音频文件</string>
+    <string name="msg_saved_successfully">保存成功</string>
     <string name="naming">命名方式：</string>
     <string name="private_dir_warning">录音将存储在应用的私有目录中，其他应用无法访问</string>
     <string name="public_dir_warning">录音将存储在设备的公共目录中，其他应用可以访问</string>

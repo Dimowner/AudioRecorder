@@ -153,7 +153,11 @@
 	<string name="by_name">Par nom (A-Z)</string>
 	<string name="by_name_desc">Par nom (Z-A)</string>
 	<string name="by_duration">Par durée (le plus long)</string>
-	<string name="by_duration_desc">Par durée (le plus court)</string>
+    <string name="by_duration_desc">Par durée (le plus court)</string>
+    <string name="filter">Filtrer</string>
+	<string name="filter_clear">Effacer</string>
+	<string name="filter_dismiss">Fermer le filtre</string>
+	<string name="filter_no_options">Aucun enregistrement à filtrer</string>
 	<string name="need_write_permission">L\'application nécessite la permission d\'accéder au stockage public. Si non autorisé, les enregistrements seront stockés dans le dossier privé de l\'application</string>
 	<string name="rec_name">Nom :</string>
 	<string name="rec_format">Format :</string>
@@ -161,6 +165,11 @@
     <string name="rec_size">Taille :</string>
 	<string name="rec_created">Créé le :</string>
 	<string name="rec_location">Chemin du fichier :</string>
+	<string name="rec_description">Description</string>
+	<string name="rec_description_hint">Ajouter une description pour cet enregistrement</string>
+	<string name="add_description">Ajouter une description</string>
+	<string name="save_description_to_file">Enregistrer également dans le fichier audio</string>
+	<string name="msg_saved_successfully">Enregistré avec succès</string>
 	<string name="naming">Nommage :</string>
 	<string name="private_dir_warning">Les enregistrements seront stockés dans le dossier privé de l\'application qui n\'est pas accessible par d\'autres applications</string>
 	<string name="public_dir_warning">Les enregistrements seront stockés dans un dossier accessible aux autres applications</string>

@@ -170,7 +170,11 @@
 	<string name="by_name">İsme göre (A-Z)</string>
 	<string name="by_name_desc">İsme göre (Z-A)</string>
 	<string name="by_duration">Süreye göre (en uzun)</string>
-	<string name="by_duration_desc">Süreye göre (en kısa)</string>
+    <string name="by_duration_desc">Süreye göre (en kısa)</string>
+    <string name="filter">Filtre</string>
+	<string name="filter_clear">Temizle</string>
+	<string name="filter_dismiss">Filtreyi kapat</string>
+	<string name="filter_no_options">Filtrelenecek kayıt yok</string>
 	<string name="need_write_permission">Uygulama genel dosya dizinine erişim izni gerektiriyor. Eğer izin onaylanmazsa, kayıtlar uygulamanın kendi dizinine kaydedilecek.</string>
 	<string name="rec_name">İsim:</string>
 	<string name="rec_format">Format:</string>
@@ -178,6 +182,11 @@
     <string name="rec_size">Boyut:</string>
 	<string name="rec_created">Kayıt tarihi:</string>
 	<string name="rec_location">Dosya konumu:</string>
+	<string name="rec_description">Açıklama</string>
+	<string name="rec_description_hint">Bu kayıt için bir açıklama ekleyin</string>
+	<string name="add_description">Açıklama ekle</string>
+	<string name="save_description_to_file">Ses dosyasına da kaydet</string>
+	<string name="msg_saved_successfully">Başarıyla kaydedildi</string>
 	<string name="naming">İsimlendirme:</string>
 	<string name="private_dir_warning">Kayıtlar diğer uygulamalar tarafından görülemeyen uygulamanın kendi dizininde saklanır</string>
 	<string name="public_dir_warning">Kayıtlar diğer uygulamalar tarafından görülebilen cihazınızdaki ortak dizinde saklanır</string>

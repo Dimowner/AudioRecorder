@@ -586,12 +586,6 @@ fun EditDescriptionDialog(
         },
         text = {
             Column {
-                Text(
-                    text = stringResource(id = R.string.rec_description_explanation),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 8.dp),
-                )
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = currentValue.value,

@@ -171,7 +171,11 @@
 	<string name="by_name">Por nombre (A-Z)</string>
 	<string name="by_name_desc">Por nombre (Z-A)</string>
 	<string name="by_duration">Por duración (más largo)</string>
-	<string name="by_duration_desc">Por duración (más corto)</string>
+    <string name="by_duration_desc">Por duración (más corto)</string>
+    <string name="filter">Filtro</string>
+	<string name="filter_clear">Borrar</string>
+	<string name="filter_dismiss">Ocultar filtro</string>
+	<string name="filter_no_options">No hay grabaciones para filtrar</string>
 	<string name="need_write_permission">Esta app requiere permiso para acceder al almacenamiento público. Si no se concede, las grabaciones se guardarán en el directorio privado de la app.</string>
 	<string name="rec_name">Nombre:</string>
 	<string name="rec_format">Formato:</string>
@@ -179,6 +183,11 @@
     <string name="rec_size">Tamaño:</string>
 	<string name="rec_created">Creado:</string>
 	<string name="rec_location">Ubicación de archivo:</string>
+	<string name="rec_description">Descripción</string>
+	<string name="rec_description_hint">Añadir una descripción para esta grabación</string>
+	<string name="add_description">Añadir descripción</string>
+	<string name="save_description_to_file">También guardar en el archivo de audio</string>
+	<string name="msg_saved_successfully">Guardado correctamente</string>
 	<string name="naming">Nombrado:</string>
 	<string name="private_dir_warning">Las grabaciones se guardarán en el directorio privado de la app que no es visible para otras apps</string>
 	<string name="public_dir_warning">Las grabaciones se guardarán en un directorio común de tu dispositivo que es visible para otras apps</string>
@@ -434,4 +443,3 @@
     <string name="navigate_back">Volver</string>
     <string name="dropdown_menu">Menú</string>
 </resources>
-

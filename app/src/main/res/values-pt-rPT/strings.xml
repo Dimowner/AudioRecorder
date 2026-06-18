@@ -174,6 +174,10 @@
     <string name="by_name_desc">Por nome (Z-A)</string>
     <string name="by_duration">Por duração (mais longa)</string>
     <string name="by_duration_desc">Por duração (mais curta)</string>
+    <string name="filter">Filtro</string>
+    <string name="filter_clear">Limpar</string>
+    <string name="filter_dismiss">Fechar filtro</string>
+    <string name="filter_no_options">Nenhum registo para filtrar</string>
     <string name="need_write_permission">A aplicação necessita de permissão para aceder ao armazenamento público. Se não for concedida, as gravações serão guardadas na pasta privada da aplicação</string>
     <string name="rec_name">Nome:</string>
     <string name="rec_format">Formato:</string>
@@ -181,6 +185,11 @@
     <string name="rec_size">Tamanho:</string>
     <string name="rec_created">Criado:</string>
     <string name="rec_location">Localização do ficheiro:</string>
+    <string name="rec_description">Descrição</string>
+    <string name="rec_description_hint">Adicionar uma descrição para esta gravação</string>
+    <string name="add_description">Adicionar descrição</string>
+    <string name="save_description_to_file">Também guardar no ficheiro de áudio</string>
+    <string name="msg_saved_successfully">Guardado com sucesso</string>
     <string name="naming">Nomenclatura:</string>
     <string name="private_dir_warning">As gravações serão guardadas na pasta privada da aplicação, que não é visível para outras aplicações</string>
     <string name="public_dir_warning">As gravações serão guardadas numa pasta comum no seu dispositivo, visível para outras aplicações</string>
@@ -435,4 +444,3 @@
     <string name="navigate_back">Navegar para trás</string>
     <string name="dropdown_menu">Menu</string>
 </resources>
-

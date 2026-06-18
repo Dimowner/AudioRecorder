@@ -185,8 +185,7 @@
 	<string name="rec_created">Created:</string>
 	<string name="rec_location">File location:</string>
 	<string name="rec_description">Description</string>
-	<string name="rec_description_hint">Add a description for this recording…</string>
-	<string name="rec_description_explanation">Add a short note to help you remember what this recording is about.</string>
+	<string name="rec_description_hint">Add a description for this recording</string>
 	<string name="add_description">Add description</string>
 	<string name="save_description_to_file">Also save to audio file</string>
 	<string name="msg_saved_successfully">Saved successfully</string>

@@ -154,7 +154,11 @@
 	<string name="by_name">По название (А-Я)</string>
 	<string name="by_name_desc">По название (Я-А)</string>
 	<string name="by_duration">По продължителност (най-дълги)</string>
-	<string name="by_duration_desc">По продължителност (най-кратки)</string>
+    <string name="by_duration_desc">По продължителност (най-кратки)</string>
+    <string name="filter">Филтър</string>
+	<string name="filter_clear">Изчисти</string>
+	<string name="filter_dismiss">Затвори филтъра</string>
+	<string name="filter_no_options">Няма записи за филтриране</string>
 	<string name="need_write_permission">Приложението изисква разрешение за достъп до публичното хранилище. Ако не е разрешено, записите ще бъдат съхранени в частната директория на приложението</string>
 	<string name="rec_name">Име:</string>
 	<string name="rec_format">Формат:</string>
@@ -162,6 +166,11 @@
 	<string name="rec_size">Размер:</string>
 	<string name="rec_created">Създаден:</string>
 	<string name="rec_location">Местоположение на файла:</string>
+	<string name="rec_description">Описание</string>
+	<string name="rec_description_hint">Добавете описание за този запис</string>
+	<string name="add_description">Добави описание</string>
+	<string name="save_description_to_file">Също така запазете в аудио файл</string>
+	<string name="msg_saved_successfully">Успешно запазено</string>
 	<string name="naming">Именуване:</string>
 	<string name="private_dir_warning">Записите ще бъдат съхранени в частната директория на приложението, която не е видима за другите приложения</string>
 	<string name="public_dir_warning">Записите ще бъдат съхранени в общата директория на устройството, която е видима за другите приложения</string>
