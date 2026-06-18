@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.v2.data
 
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.dimowner.audiorecorder.AppConstantsV2.RECORD_DESCRIPTION_MAX_LENGTH
 import com.dimowner.audiorecorder.audio.AudioDecoder
 import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilter
 import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilterOptions
@@ -195,9 +196,10 @@ class RecordsDataSourceImpl @Inject internal constructor(
         return try {
             val record = getRecord(recordId)
             if (record != null) {
-                val updated = updateRecord(record.copy(description = description))
+                val truncated = description.take(RECORD_DESCRIPTION_MAX_LENGTH)
+                val updated = updateRecord(record.copy(description = truncated))
                 if (writeToFile) {
-                    File(record.path).writeCommentTag(description)
+                    File(record.path).writeCommentTag(truncated)
                 }
                 updated
             } else {

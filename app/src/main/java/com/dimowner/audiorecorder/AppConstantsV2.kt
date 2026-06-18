@@ -8,4 +8,6 @@ object AppConstantsV2 {
     const val DEFAULT_WIDTH_SCALE = 1.5F //Const val describes how many screens a record will take.
 
     const val DEFAULT_MAX_RECORDING_DURATION_MS = 120 * 60 * 1000 //120 minutes
+
+    const val RECORD_DESCRIPTION_MAX_LENGTH = 500
 }

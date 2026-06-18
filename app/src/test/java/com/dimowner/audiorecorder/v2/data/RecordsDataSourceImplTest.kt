@@ -182,6 +182,42 @@ class RecordsDataSourceImplTest {
     }
 
     @Test
+    fun test_updateRecordDescription_truncates_description_over_400_chars() = runBlocking {
+        val id = 101L
+        val longDescription = "A".repeat(600)
+
+        every { recordDao.getRecordById(id) } returns testRecordEntity
+        every { recordDao.updateRecord(any()) } returns 1
+
+        val result = recordsDataSourceImpl.updateRecordDescription(id, longDescription, writeToFile = false)
+
+        assertTrue(result)
+        verify(exactly = 1) {
+            recordDao.updateRecord(
+                testRecordEntity.toRecord().copy(description = "A".repeat(500)).toRecordEntity()
+            )
+        }
+    }
+
+    @Test
+    fun test_updateRecordDescription_keeps_description_at_exactly_500_chars() = runBlocking {
+        val id = 101L
+        val description500 = "B".repeat(500)
+
+        every { recordDao.getRecordById(id) } returns testRecordEntity
+        every { recordDao.updateRecord(any()) } returns 1
+
+        val result = recordsDataSourceImpl.updateRecordDescription(id, description500, writeToFile = false)
+
+        assertTrue(result)
+        verify(exactly = 1) {
+            recordDao.updateRecord(
+                testRecordEntity.toRecord().copy(description = description500).toRecordEntity()
+            )
+        }
+    }
+
+    @Test
     fun test_updateRecords() = runBlocking {
         val id1 = 101L
         val id2 = 201L

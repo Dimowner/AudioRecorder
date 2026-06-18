@@ -80,6 +80,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dimowner.audiorecorder.AppConstantsV2.RECORD_DESCRIPTION_MAX_LENGTH
 import com.dimowner.audiorecorder.R
 
 @Composable
@@ -585,17 +586,30 @@ fun EditDescriptionDialog(
         },
         text = {
             Column {
+                Text(
+                    text = stringResource(id = R.string.rec_description_explanation),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = currentValue.value,
                     onValueChange = {
-                        currentValue.value = it
+                        if (it.length <= RECORD_DESCRIPTION_MAX_LENGTH) currentValue.value = it
                     },
                     placeholder = {
                         Text(text = stringResource(id = R.string.rec_description_hint))
                     },
                     minLines = 3,
-                    maxLines = 6,
+                    maxLines = 9,
+                    supportingText = {
+                        Text(
+                            text = "${currentValue.value.length}/$RECORD_DESCRIPTION_MAX_LENGTH",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.End,
+                        )
+                    },
                 )
                 Row(
                     modifier = Modifier
