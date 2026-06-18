@@ -380,7 +380,11 @@ class HomeViewModel @Inject constructor(
                         // event instead of the StateFlow state ensures delivery even when the
                         // rapid STOPPED→IDLE StateFlow transition is conflated and the collector
                         // misses the STOPPED state.
-                        handleRecordingStopped(event.recordId, event.recordName)
+                        handleRecordingStopped(
+                            event.recordId,
+                            event.recordName,
+                            event.startedFromFloatingOverlay,
+                        )
                     }
                     is AudioRecordingServiceEvent.NewRecordingPartStarted -> {
                         handleNewRecordingPartStarted(event.recordId)
@@ -450,12 +454,16 @@ class HomeViewModel @Inject constructor(
         })
     }
 
-    private suspend fun handleRecordingStopped(recordedRecordId: Long, recordName: String?) {
+    private suspend fun handleRecordingStopped(
+        recordedRecordId: Long,
+        recordName: String?,
+        startedFromFloatingOverlay: Boolean,
+    ) {
         withContext(ioDispatcher) {
             if (recordedRecordId >= 0) {
                 if (_state.value.isDeleteRecordingProgressRequested) {
                     moveRecordToRecycle(recordedRecordId, false)
-                } else if (prefs.askToRenameAfterRecordingStopped) {
+                } else if (prefs.askToRenameAfterRecordingStopped && !startedFromFloatingOverlay) {
                     updateState()
                     withContext(mainDispatcher) {
                         _state.value = _state.value.copy(

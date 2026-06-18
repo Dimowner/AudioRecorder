@@ -43,6 +43,12 @@ interface PrefsV2 {
 
     var isKeepScreenOn: Boolean
 
+    var isFloatingRecorderOverlayEnabled: Boolean
+    var floatingRecorderOverlayX: Int
+    var floatingRecorderOverlayY: Int
+    var floatingRecorderRenameOverlayX: Int
+    var floatingRecorderRenameOverlayY: Int
+
     var recordsSortOrder: SortOrder
 
     var isDynamicTheme: Boolean

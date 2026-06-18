@@ -64,6 +64,15 @@
     <string name="warning_duration_limit_recommended">2 saatten uzun kayıtlar önerilmez, bir hata oluşursa tüm kaydınızı kaybedebilirsiniz</string>
 
 	<string name="keep_screen_on">Kayıttayken ekranı uyanık tut</string>
+	<string name="floating_recorder_button">Kayan kayıt düğmesi</string>
+	<string name="floating_recorder_overlay_permission_title">Kayan kayıt düğmesine izin ver</string>
+	<string name="floating_recorder_overlay_permission_message">Audio Recorder\'ın kayan kayıt düğmesini navigasyon veya okuma uygulamalarının üzerinde gösterebilmesi için Android Diğer uygulamaların üzerinde göster iznini gerektirir.</string>
+	<string name="open_overlay_settings">Üstte gösterme ayarlarını aç</string>
+	<string name="keep_default_name">Varsayılan adı koru</string>
+	<string name="floating_recorder_notification_title">Kayan kayıt düğmesi etkin</string>
+	<string name="floating_recorder_notification_text">Kaydı başlatmak veya durdurmak için kayan düğmeye dokunun.</string>
+	<string name="notification_channel_floating_recorder_name">Kayan kayıt</string>
+	<string name="notification_channel_floating_recorder_description">Kayan kayıt düğmesini diğer uygulamaların üzerinde kullanılabilir tutar.</string>
 	<string name="records_author_name">Kayıt sahibi adı</string>
 	<string name="record_author">Kayıt yazarı</string>
 	<string name="records_author_name_hint">Yazar adı</string>

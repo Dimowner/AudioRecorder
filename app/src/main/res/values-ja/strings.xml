@@ -67,6 +67,15 @@
     <string name="warning_duration_limit_recommended">2時間を超える録音はエラー発生時にすべての進捗が失われる可能性があるため、推奨されません</string>
 
     <string name="keep_screen_on">録音中は画面をオンに保つ</string>
+    <string name="floating_recorder_button">フローティング録音ボタン</string>
+    <string name="floating_recorder_overlay_permission_title">フローティング録音ボタンを許可</string>
+    <string name="floating_recorder_overlay_permission_message">Audio Recorder がナビゲーションアプリや読書アプリの上にフローティング録音ボタンを表示するには、Android の「他のアプリの上に表示」権限が必要です。</string>
+    <string name="open_overlay_settings">オーバーレイ設定を開く</string>
+    <string name="keep_default_name">既定の名前を保持</string>
+    <string name="floating_recorder_notification_title">フローティング録音ボタンが有効です</string>
+    <string name="floating_recorder_notification_text">フローティングボタンをタップして録音を開始または停止します。</string>
+    <string name="notification_channel_floating_recorder_name">フローティング録音</string>
+    <string name="notification_channel_floating_recorder_description">他のアプリの上でフローティング録音ボタンを使用できるようにします。</string>
     <string name="records_author_name">録音の作成者名</string>
     <string name="record_author">録音の作成者</string>
     <string name="records_author_name_hint">作成者名</string>
@@ -435,4 +444,3 @@
     <string name="navigate_back">前の画面に戻る</string>
     <string name="dropdown_menu">メニュー</string>
 </resources>
-

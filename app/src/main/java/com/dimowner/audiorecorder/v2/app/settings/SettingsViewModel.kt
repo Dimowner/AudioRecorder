@@ -96,6 +96,7 @@ internal class SettingsViewModel @Inject constructor(
             isDarkTheme = prefs.isDarkTheme,
             isAppV2 = prefs.isAppV2,
             isKeepScreenOn = prefs.isKeepScreenOn,
+            isFloatingRecorderOverlayEnabled = prefs.isFloatingRecorderOverlayEnabled,
             isShowRenameDialog = prefs.askToRenameAfterRecordingStopped,
             isRecordingSettingEditable = true,
             selectedNameFormat = prefs.settingNamingFormat.toNameFormatItem(),
@@ -220,6 +221,11 @@ internal class SettingsViewModel @Inject constructor(
     fun setKeepScreenOn(value: Boolean) {
         prefs.isKeepScreenOn = value
         _state.value = _state.value.copy(isKeepScreenOn = value)
+    }
+
+    fun setFloatingRecorderOverlayEnabled(value: Boolean) {
+        prefs.isFloatingRecorderOverlayEnabled = value
+        _state.value = _state.value.copy(isFloatingRecorderOverlayEnabled = value)
     }
 
     fun setShowRenamingDialog(value: Boolean) {
@@ -411,6 +417,9 @@ internal class SettingsViewModel @Inject constructor(
             is SettingsScreenAction.SetDynamicTheme -> setDynamicTheme(action.value)
             is SettingsScreenAction.SetDarkTheme -> setDarkTheme(action.value)
             is SettingsScreenAction.SetKeepScreenOn -> setKeepScreenOn(action.value)
+            is SettingsScreenAction.SetFloatingRecorderOverlayEnabled -> {
+                setFloatingRecorderOverlayEnabled(action.value)
+            }
             is SettingsScreenAction.SetShowRenamingDialog -> setShowRenamingDialog(action.value)
             is SettingsScreenAction.SetNameFormat -> setNameFormat(action.value)
             SettingsScreenAction.ResetRecordingSettings -> resetRecordingSettings()
@@ -478,6 +487,7 @@ internal sealed class SettingsScreenAction {
     data class SetDynamicTheme(val value: Boolean) : SettingsScreenAction()
     data class SetDarkTheme(val value: Boolean) : SettingsScreenAction()
     data class SetKeepScreenOn(val value: Boolean) : SettingsScreenAction()
+    data class SetFloatingRecorderOverlayEnabled(val value: Boolean) : SettingsScreenAction()
     data class SetShowRenamingDialog(val value: Boolean) : SettingsScreenAction()
     data class SetNameFormat(val value: NameFormatItem) : SettingsScreenAction()
     data object ResetRecordingSettings : SettingsScreenAction()

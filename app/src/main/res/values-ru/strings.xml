@@ -51,6 +51,15 @@
 	<string name="warning_duration_limit_recommended">Записи длиннее 2 часов не рекомендуются, так как при ошибке вы можете потерять всё записанное</string>
 
 	<string name="keep_screen_on">Оставлять экран включенным во время записи</string>
+	<string name="floating_recorder_button">Плавающая кнопка записи</string>
+	<string name="floating_recorder_overlay_permission_title">Разрешите плавающую кнопку записи</string>
+	<string name="floating_recorder_overlay_permission_message">Android требует разрешение Показывать поверх других приложений, чтобы Audio Recorder мог отображать плавающую кнопку записи поверх приложений навигации или чтения.</string>
+	<string name="open_overlay_settings">Открыть настройки наложения</string>
+	<string name="keep_default_name">Оставить имя по умолчанию</string>
+	<string name="floating_recorder_notification_title">Плавающая кнопка записи активна</string>
+	<string name="floating_recorder_notification_text">Нажмите плавающую кнопку, чтобы начать или остановить запись.</string>
+	<string name="notification_channel_floating_recorder_name">Плавающая запись</string>
+	<string name="notification_channel_floating_recorder_description">Оставляет плавающую кнопку записи доступной поверх других приложений.</string>
 	<string name="records_author_name">Имя автора записей</string>
 	<string name="record_author">Автор записи</string>
 	<string name="records_author_name_hint">Имя автора</string>

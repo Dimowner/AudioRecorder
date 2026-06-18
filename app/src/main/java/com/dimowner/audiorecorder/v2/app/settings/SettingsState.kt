@@ -31,6 +31,7 @@ data class SettingsState(
     val isDarkTheme: Boolean,
     val isAppV2: Boolean,
     val isKeepScreenOn: Boolean,
+    val isFloatingRecorderOverlayEnabled: Boolean,
     val isShowRenameDialog: Boolean,
     val isRecordingSettingEditable: Boolean,
     val nameFormats: List<NameFormatItem>,

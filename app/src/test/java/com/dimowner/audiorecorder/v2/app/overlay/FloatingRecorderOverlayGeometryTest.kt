@@ -1,0 +1,109 @@
+package com.dimowner.audiorecorder.v2.app.overlay
+
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
+class FloatingRecorderOverlayGeometryTest {
+
+    @Test
+    fun `clampOverlayPosition uses default when saved position is unset`() {
+        val position = clampOverlayPosition(
+            savedX = -1,
+            savedY = -1,
+            screenWidth = 1080,
+            screenHeight = 1920,
+            overlayWidth = 96,
+            overlayHeight = 96,
+        )
+
+        assertEquals(960, position.x)
+        assertEquals(912, position.y)
+    }
+
+    @Test
+    fun `clampOverlayPosition keeps saved position inside visible bounds`() {
+        val position = clampOverlayPosition(
+            savedX = 200,
+            savedY = 300,
+            screenWidth = 1080,
+            screenHeight = 1920,
+            overlayWidth = 96,
+            overlayHeight = 96,
+        )
+
+        assertEquals(200, position.x)
+        assertEquals(300, position.y)
+    }
+
+    @Test
+    fun `clampOverlayPosition clamps saved position outside visible bounds`() {
+        val position = clampOverlayPosition(
+            savedX = 5000,
+            savedY = -50,
+            screenWidth = 1080,
+            screenHeight = 1920,
+            overlayWidth = 96,
+            overlayHeight = 96,
+        )
+
+        assertEquals(984, position.x)
+        assertEquals(0, position.y)
+    }
+
+    @Test
+    fun `calculateBoundedOverlayWidth caps panel width on large screens`() {
+        val width = calculateBoundedOverlayWidth(
+            screenWidth = 1080,
+            horizontalMargin = 32,
+            minimumWidth = 240,
+            maximumWidth = 360,
+        )
+
+        assertEquals(360, width)
+    }
+
+    @Test
+    fun `calculateBoundedOverlayWidth preserves side margins when possible`() {
+        val width = calculateBoundedOverlayWidth(
+            screenWidth = 320,
+            horizontalMargin = 32,
+            minimumWidth = 240,
+            maximumWidth = 360,
+        )
+
+        assertEquals(288, width)
+    }
+
+    @Test
+    fun `calculateBoundedOverlayWidth uses full width when screen is narrower than minimum`() {
+        val width = calculateBoundedOverlayWidth(
+            screenWidth = 200,
+            horizontalMargin = 32,
+            minimumWidth = 240,
+            maximumWidth = 360,
+        )
+
+        assertEquals(200, width)
+    }
+
+    @Test
+    fun `calculateSaveFeedbackColor starts with vivid red`() {
+        val color = calculateSaveFeedbackColor(progress = 0f, idleColor = 0xFF444444.toInt())
+
+        assertEquals(0xFFFF0000.toInt(), color)
+    }
+
+    @Test
+    fun `calculateSaveFeedbackColor produces desaturated rainbow color mid animation`() {
+        val color = calculateSaveFeedbackColor(progress = 0.5f, idleColor = 0xFF444444.toInt())
+
+        assertEquals(0xFF80FFFF.toInt(), color)
+    }
+
+    @Test
+    fun `calculateSaveFeedbackColor ends at idle color`() {
+        val color = calculateSaveFeedbackColor(progress = 1f, idleColor = 0xFF444444.toInt())
+
+        assertEquals(0xFF444444.toInt(), color)
+    }
+}

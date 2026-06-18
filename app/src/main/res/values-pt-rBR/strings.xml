@@ -64,6 +64,15 @@
     <string name="warning_duration_limit_recommended">Gravações com mais de 2 horas não são recomendadas, pois você pode perder todo o progresso em caso de erro</string>
 
     <string name="keep_screen_on">Manter a tela ligada durante a gravação</string>
+    <string name="floating_recorder_button">Botão flutuante de gravação</string>
+    <string name="floating_recorder_overlay_permission_title">Permitir botão flutuante de gravação</string>
+    <string name="floating_recorder_overlay_permission_message">O Android exige a permissão Exibir sobre outros apps para que o Audio Recorder possa mostrar o botão flutuante de gravação sobre apps de navegação ou leitura.</string>
+    <string name="open_overlay_settings">Abrir configurações de sobreposição</string>
+    <string name="keep_default_name">Manter nome padrão</string>
+    <string name="floating_recorder_notification_title">O botão flutuante de gravação está ativo</string>
+    <string name="floating_recorder_notification_text">Toque no botão flutuante para iniciar ou parar a gravação.</string>
+    <string name="notification_channel_floating_recorder_name">Gravador flutuante</string>
+    <string name="notification_channel_floating_recorder_description">Mantém o botão flutuante de gravação disponível sobre outros apps.</string>
     <string name="records_author_name">Nome do autor das gravações</string>
     <string name="record_author">Autor da gravação</string>
     <string name="records_author_name_hint">Nome do autor</string>
@@ -432,4 +441,3 @@
     <string name="navigate_back">Voltar</string>
     <string name="dropdown_menu">Menu</string>
 </resources>
-

@@ -66,6 +66,15 @@
     <string name="warning_duration_limit_recommended">Aufnahmen länger als 2 Stunden werden nicht empfohlen, da bei einem Fehler der gesamte Fortschritt verloren gehen kann</string>
 
     <string name="keep_screen_on">Bildschirm während der Aufnahme eingeschaltet lassen</string>
+    <string name="floating_recorder_button">Schwebende Aufnahmetaste</string>
+    <string name="floating_recorder_overlay_permission_title">Schwebende Aufnahmetaste erlauben</string>
+    <string name="floating_recorder_overlay_permission_message">Android benötigt die Berechtigung Über anderen Apps einblenden, damit Audio Recorder die schwebende Aufnahmetaste über Navigations- oder Lese-Apps anzeigen kann.</string>
+    <string name="open_overlay_settings">Overlay-Einstellungen öffnen</string>
+    <string name="keep_default_name">Standardnamen behalten</string>
+    <string name="floating_recorder_notification_title">Schwebende Aufnahmetaste ist aktiv</string>
+    <string name="floating_recorder_notification_text">Tippen Sie auf die schwebende Taste, um die Aufnahme zu starten oder zu stoppen.</string>
+    <string name="notification_channel_floating_recorder_name">Schwebende Aufnahme</string>
+    <string name="notification_channel_floating_recorder_description">Hält die schwebende Aufnahmetaste über anderen Apps verfügbar.</string>
     <string name="records_author_name">Autorenname der Aufnahmen</string>
     <string name="record_author">Aufnahme-Autor</string>
     <string name="records_author_name_hint">Autorenname</string>
@@ -434,4 +443,3 @@
     <string name="navigate_back">Zurck navigieren</string>
     <string name="dropdown_menu">Menü</string>
 </resources>
-
