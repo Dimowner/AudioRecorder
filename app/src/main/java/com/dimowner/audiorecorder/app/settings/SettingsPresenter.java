@@ -185,6 +185,34 @@ public class SettingsPresenter implements SettingsContract.UserActionsListener {
 	}
 
 	@Override
+	public void deleteRecordsOlderThan(final long cutoffMillis) {
+		recordingsTasks.postRunnable(() -> {
+			final List<Record> all = localRepository.getAllRecords();
+			int moved = 0;
+			for (int i = 0; i < all.size(); i++) {
+				final Record record = all.get(i);
+				if (record == null) continue;
+				final long stamp = record.getAdded() > 0 ? record.getAdded() : record.getCreated();
+				if (stamp > 0 && stamp < cutoffMillis) {
+					if (localRepository.deleteRecord(record.getId())) {
+						moved++;
+					}
+				}
+			}
+			final int total = moved;
+			AndroidUtils.runOnUIThread(() -> {
+				if (view != null) {
+					if (total == 0) {
+						view.showNoOldRecordsFound();
+					} else {
+						view.showOldRecordsMovedToTrash(total);
+					}
+				}
+			});
+		});
+	}
+
+	@Override
 	public void deleteAllRecords() {
 		recordingsTasks.postRunnable(() -> {
 //				List<Record> records  = localRepository.getAllRecords();

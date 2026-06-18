@@ -50,6 +50,10 @@ public class SettingsContract {
 
 		void showFailDeleteAllRecords();
 
+		void showOldRecordsMovedToTrash(int count);
+
+		void showNoOldRecordsFound();
+
 		void showTotalRecordsDuration(String duration);
 		void showRecordsCount(int count);
 		void showAvailableSpace(String space);
@@ -97,6 +101,8 @@ public class SettingsContract {
 		void setSettingRecordingFormat(String formatKey);
 
 		void deleteAllRecords();
+
+		void deleteRecordsOlderThan(long cutoffMillis);
 
 		void resetSettings();
 

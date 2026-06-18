@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.app.settings;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -50,7 +51,10 @@ import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.RippleUtils;
 
 import java.io.File;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import androidx.core.content.ContextCompat;
@@ -82,6 +86,7 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	private SettingView bitrateSetting;
 	private SettingView channelsSetting;
 	private Button btnReset;
+	private TextView btnDeleteOldRecordings;
 
 	private SettingsContract.UserActionsListener presenter;
 	private ColorMap colorMap;
@@ -130,6 +135,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		btnView.setOnClickListener(this);
 		btnReset = findViewById(R.id.btnReset);
 		btnReset.setOnClickListener(this);
+		btnDeleteOldRecordings = findViewById(R.id.btnDeleteOldRecordings);
+		btnDeleteOldRecordings.setOnClickListener(this);
 		txtSizePerMin = findViewById(R.id.txt_size_per_min);
 		txtInformation = findViewById(R.id.txt_information);
 		txtLocation = findViewById(R.id.txt_records_location);
@@ -345,6 +352,8 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		} else if (id == R.id.btnReset) {
 			presenter.resetSettings();
 			presenter.loadSettings();
+		} else if (id == R.id.btnDeleteOldRecordings) {
+			showDeleteOldRecordingsPicker();
 		} else if (id == R.id.btnRequest) {
 			requestFeature();
 		}
@@ -382,6 +391,39 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 		} catch (android.content.ActivityNotFoundException ex) {
 			showError(R.string.email_clients_not_found);
 		}
+	}
+
+	private void showDeleteOldRecordingsPicker() {
+		final Calendar initial = Calendar.getInstance();
+		initial.add(Calendar.MONTH, -3);
+		final DatePickerDialog picker = new DatePickerDialog(
+				this,
+				(view, year, month, dayOfMonth) -> {
+					final Calendar cutoff = Calendar.getInstance();
+					cutoff.set(year, month, dayOfMonth, 0, 0, 0);
+					cutoff.set(Calendar.MILLISECOND, 0);
+					confirmDeleteOldRecordings(cutoff.getTimeInMillis());
+				},
+				initial.get(Calendar.YEAR),
+				initial.get(Calendar.MONTH),
+				initial.get(Calendar.DAY_OF_MONTH)
+		);
+		picker.getDatePicker().setMaxDate(System.currentTimeMillis());
+		picker.setTitle(R.string.delete_old_recordings_picker_title);
+		picker.show();
+	}
+
+	private void confirmDeleteOldRecordings(final long cutoffMillis) {
+		final String formatted = DateFormat.getDateInstance(DateFormat.MEDIUM)
+				.format(new Date(cutoffMillis));
+		final String message = getString(R.string.delete_old_recordings_confirm, formatted);
+		AndroidUtils.showDialogYesNo(
+				this,
+				R.drawable.ic_delete_forever,
+				getString(R.string.delete_old_recordings),
+				message,
+				v -> presenter.deleteRecordsOlderThan(cutoffMillis)
+		);
 	}
 
 	private Intent rateIntentForUrl(String url) {
@@ -463,6 +505,17 @@ public class SettingsActivity extends Activity implements SettingsContract.View,
 	@Override
 	public void showFailDeleteAllRecords() {
 		Toast.makeText(getApplicationContext(), R.string.failed_to_delete_all_records, Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void showOldRecordsMovedToTrash(int count) {
+		final String msg = getResources().getQuantityString(R.plurals.old_records_moved_to_trash, count, count);
+		Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+	}
+
+	@Override
+	public void showNoOldRecordsFound() {
+		Toast.makeText(getApplicationContext(), R.string.no_old_records_found, Toast.LENGTH_LONG).show();
 	}
 
 	@Override

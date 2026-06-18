@@ -26,6 +26,14 @@
 		<item quantity="one">Move to trash %d selected record?</item>
 		<item quantity="other">Move to trash %d selected records?</item>
 	</plurals>
+	<plurals name="old_records_moved_to_trash">
+		<item quantity="one">Moved %d record to Trash</item>
+		<item quantity="other">Moved %d records to Trash</item>
+	</plurals>
+	<string name="delete_old_recordings">Delete old recordings…</string>
+	<string name="delete_old_recordings_picker_title">Delete recordings older than:</string>
+	<string name="delete_old_recordings_confirm">Move all recordings older than %1$s to Trash?</string>
+	<string name="no_old_records_found">No recordings older than that date were found</string>
 	<plurals name="download_selected_records">
 		<item quantity="one">Copy %d selected record to the \'Downloads\' directory?</item>
 		<item quantity="other">Copy %d selected records to the \'Downloads\' directory?</item>

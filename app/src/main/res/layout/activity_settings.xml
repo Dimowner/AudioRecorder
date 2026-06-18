@@ -368,6 +368,21 @@
 				/>
 
 		<TextView
+				android:id="@+id/btnDeleteOldRecordings"
+				style="@style/Text.NormalLabel"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/delete_old_recordings"
+				android:drawableStart="@drawable/ic_delete_forever"
+				android:background="?android:selectableItemBackground"
+				android:paddingStart="@dimen/spacing_normal"
+				android:paddingEnd="@dimen/spacing_normal"
+				android:paddingTop="@dimen/spacing_medium"
+				android:paddingBottom="@dimen/spacing_medium"
+				android:drawablePadding="@dimen/spacing_normal"
+				/>
+
+		<TextView
 				android:id="@+id/txt_records_count"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
