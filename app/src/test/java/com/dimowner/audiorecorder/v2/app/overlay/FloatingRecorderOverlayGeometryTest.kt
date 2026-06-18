@@ -106,4 +106,20 @@ class FloatingRecorderOverlayGeometryTest {
 
         assertEquals(0xFF444444.toInt(), color)
     }
+
+    @Test
+    fun `renameOverlayStyle uses dark background and white text in dark theme`() {
+        val style = renameOverlayStyle(isDarkTheme = true)
+
+        assertEquals(0xEC202020.toInt(), style.panelColor)
+        assertEquals(0xFFFFFFFF.toInt(), style.textColor)
+    }
+
+    @Test
+    fun `renameOverlayStyle uses white background and black text in light theme`() {
+        val style = renameOverlayStyle(isDarkTheme = false)
+
+        assertEquals(0xFFFFFFFF.toInt(), style.panelColor)
+        assertEquals(0xFF000000.toInt(), style.textColor)
+    }
 }

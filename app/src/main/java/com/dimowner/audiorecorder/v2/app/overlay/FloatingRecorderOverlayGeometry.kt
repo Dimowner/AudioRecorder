@@ -5,6 +5,8 @@ import kotlin.math.roundToInt
 
 internal data class OverlayPosition(val x: Int, val y: Int)
 
+internal data class RenameOverlayStyle(val panelColor: Int, val textColor: Int)
+
 internal fun clampOverlayPosition(
     savedX: Int,
     savedY: Int,
@@ -51,6 +53,14 @@ internal fun calculateSaveFeedbackColor(progress: Float, idleColor: Int): Int {
     // an almost-white red hue. That makes the completion state deterministic and calm.
     val settleProgress = ((clampedProgress - 0.85f) / 0.15f).coerceIn(0f, 1f)
     return blendArgb(from = rainbowColor, to = idleColor, ratio = settleProgress)
+}
+
+internal fun renameOverlayStyle(isDarkTheme: Boolean): RenameOverlayStyle {
+    return if (isDarkTheme) {
+        RenameOverlayStyle(panelColor = 0xEC202020.toInt(), textColor = 0xFFFFFFFF.toInt())
+    } else {
+        RenameOverlayStyle(panelColor = 0xFFFFFFFF.toInt(), textColor = 0xFF000000.toInt())
+    }
 }
 
 private fun hsvToOpaqueColor(hue: Float, saturation: Float, value: Float): Int {

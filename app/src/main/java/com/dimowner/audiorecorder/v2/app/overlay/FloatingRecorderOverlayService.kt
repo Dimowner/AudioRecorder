@@ -13,8 +13,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.ServiceInfo
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.PixelFormat
+import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.IBinder
@@ -382,11 +384,15 @@ class FloatingRecorderOverlayService : Service() {
             // A measured-height clamp runs immediately after attachment and on every drag end.
             overlayHeight = dp(RENAME_PANEL_ESTIMATED_HEIGHT_DP),
         )
+        val style = renameOverlayStyle(isDarkTheme = prefs.isDarkTheme)
 
         val input = EditText(this).apply {
             setText(record.name)
             selectAll()
             setSingleLine(true)
+            setTextColor(style.textColor)
+            typeface = Typeface.DEFAULT_BOLD
+            backgroundTintList = ColorStateList.valueOf(style.textColor)
         }
         val error = TextView(this).apply {
             setTextColor(RECORDING_ICON_COLOR)
@@ -396,10 +402,10 @@ class FloatingRecorderOverlayService : Service() {
         val panel = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(12), dp(16), dp(12))
-            background = roundedDrawable(Color.argb(236, 32, 32, 32), dp(16).toFloat())
+            background = roundedDrawable(style.panelColor, dp(16).toFloat())
             addView(TextView(this@FloatingRecorderOverlayService).apply {
                 text = getString(R.string.update_record_name)
-                setTextColor(Color.WHITE)
+                setTextColor(style.textColor)
                 textSize = 18f
                 setPadding(0, 0, 0, dp(8))
             })
