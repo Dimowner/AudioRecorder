@@ -11,6 +11,13 @@ internal data class OverlaySizeBounds(val minSize: Int, val maxSize: Int)
 
 internal data class RenameOverlayStyle(val panelColor: Int, val textColor: Int)
 
+internal data class RenameResetState(
+    val text: String,
+    val selectionStart: Int,
+    val selectionEnd: Int,
+    val showInlineMessage: Boolean,
+)
+
 internal fun applyRenameSpeechTranscription(
     currentName: String,
     transcript: String,
@@ -30,6 +37,16 @@ internal fun applyRenameSpeechTranscription(
         RenameSpeechMode.Replace -> normalizedTranscript
     }
     return combined.take(maxVisibleNameCharacters.coerceAtLeast(0))
+}
+
+internal fun buildRenameResetState(originalName: String): RenameResetState {
+    val cursorPosition = originalName.length
+    return RenameResetState(
+        text = originalName,
+        selectionStart = cursorPosition,
+        selectionEnd = cursorPosition,
+        showInlineMessage = false,
+    )
 }
 
 internal fun calculateOverlaySizeBounds(

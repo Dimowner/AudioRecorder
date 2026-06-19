@@ -85,6 +85,16 @@ class FloatingRecorderOverlayGeometryTest {
     }
 
     @Test
+    fun `buildRenameResetState restores original name and moves cursor to end`() {
+        val result = buildRenameResetState(originalName = "Original recording")
+
+        assertEquals("Original recording", result.text)
+        assertEquals("Original recording".length, result.selectionStart)
+        assertEquals("Original recording".length, result.selectionEnd)
+        assertFalse(result.showInlineMessage)
+    }
+
+    @Test
     fun `calculateOverlaySizeBounds uses default size as minimum and half smaller screen as maximum`() {
         val bounds = calculateOverlaySizeBounds(defaultSize = 56, screenWidth = 1080, screenHeight = 1920)
 

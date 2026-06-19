@@ -39,6 +39,7 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.v2.app.HomeActivity
@@ -541,14 +542,14 @@ class FloatingRecorderOverlayService : Service() {
                 bottomMargin = dp(6)
             })
             addView(LinearLayout(this@FloatingRecorderOverlayService).apply {
+                orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.END
-                addView(Button(this@FloatingRecorderOverlayService).apply {
-                    text = getString(R.string.keep_default_name)
-                    setOnClickListener { removeRenameOverlay() }
-                })
-                addView(Button(this@FloatingRecorderOverlayService).apply {
-                    text = getString(R.string.btn_save)
-                    setOnClickListener { saveRename(record, input.text.toString(), error) }
+                addView(createRenameResetButton(record, input, error))
+                addView(createRenameSaveButton(record, input, error), LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                ).apply {
+                    leftMargin = dp(10)
                 })
             })
         }
@@ -578,6 +579,49 @@ class FloatingRecorderOverlayService : Service() {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT)
         }
+    }
+
+    private fun createRenameResetButton(record: Record, input: EditText, error: TextView): Button {
+        return Button(this).apply {
+            text = getString(R.string.reset_record_name)
+            isAllCaps = false
+            minWidth = dp(RENAME_RESET_BUTTON_MIN_WIDTH_DP)
+            minimumHeight = dp(RENAME_RESET_BUTTON_MIN_HEIGHT_DP)
+            textSize = 14f
+            setPadding(dp(12), 0, dp(12), 0)
+            setOnClickListener { resetRenameInput(record.name, input, error) }
+        }
+    }
+
+    private fun createRenameSaveButton(record: Record, input: EditText, error: TextView): Button {
+        val checkIcon = ContextCompat.getDrawable(this, R.drawable.ic_check_circle)?.mutate()?.let { icon ->
+            DrawableCompat.wrap(icon).apply {
+                DrawableCompat.setTint(this, Color.WHITE)
+            }
+        }
+
+        return Button(this).apply {
+            text = getString(R.string.btn_save)
+            isAllCaps = false
+            typeface = Typeface.DEFAULT_BOLD
+            textSize = 16f
+            minWidth = dp(RENAME_SAVE_BUTTON_MIN_WIDTH_DP)
+            minimumHeight = dp(RENAME_SAVE_BUTTON_MIN_HEIGHT_DP)
+            setTextColor(Color.WHITE)
+            setPadding(dp(18), 0, dp(20), 0)
+            background = roundedDrawable(SAVE_BUTTON_COLOR, dp(24).toFloat())
+            compoundDrawablePadding = dp(8)
+            setCompoundDrawablesWithIntrinsicBounds(checkIcon, null, null, null)
+            setOnClickListener { saveRename(record, input.text.toString(), error) }
+        }
+    }
+
+    private fun resetRenameInput(originalName: String, input: EditText, error: TextView) {
+        val resetState = buildRenameResetState(originalName)
+        input.setText(resetState.text)
+        input.setSelection(resetState.selectionStart, resetState.selectionEnd)
+        error.visibility = if (resetState.showInlineMessage) View.VISIBLE else View.GONE
+        input.requestFocus()
     }
 
     private fun createRenameSpeechButton(input: EditText, error: TextView): LinearLayout {
@@ -930,8 +974,13 @@ class FloatingRecorderOverlayService : Service() {
         private const val RENAME_PANEL_MIN_WIDTH_DP = 240
         private const val RENAME_PANEL_MAX_WIDTH_DP = 360
         private const val RENAME_SPEECH_BUTTON_MIN_HEIGHT_DP = 72
+        private const val RENAME_RESET_BUTTON_MIN_WIDTH_DP = 72
+        private const val RENAME_RESET_BUTTON_MIN_HEIGHT_DP = 40
+        private const val RENAME_SAVE_BUTTON_MIN_WIDTH_DP = 132
+        private const val RENAME_SAVE_BUTTON_MIN_HEIGHT_DP = 52
         private val IDLE_ICON_COLOR = Color.DKGRAY
         private val RECORDING_ICON_COLOR = Color.RED
+        private val SAVE_BUTTON_COLOR = Color.rgb(34, 139, 34)
 
         fun startService(context: Context) {
             val intent = Intent(context, FloatingRecorderOverlayService::class.java)

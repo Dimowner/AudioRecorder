@@ -77,6 +77,7 @@
     <string name="floating_recorder_overlay_permission_message">Android requires Display over other apps permission before Audio Recorder can show the floating recorder button above navigation or reading apps.</string>
     <string name="open_overlay_settings">Open overlay settings</string>
     <string name="keep_default_name">Keep default</string>
+    <string name="reset_record_name">Reset</string>
     <string name="floating_recorder_notification_title">Floating recorder button is active</string>
     <string name="floating_recorder_notification_text">Tap the floating button to start or stop recording.</string>
     <string name="notification_channel_floating_recorder_name">Floating recorder</string>
