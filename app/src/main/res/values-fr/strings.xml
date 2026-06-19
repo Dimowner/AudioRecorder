@@ -81,6 +81,7 @@
 	<string name="failed_to_delete_all_records">Échec de la suppression de tous les enregistrements</string>
 	<string name="please_select_record_to_share">Veuillez sélectionner un enregistrement à partager</string>
     <string name="update_record_name">Mettre à jour le nom</string>
+    <string name="update_name_and_description">Mettre à jour le nom et la description</string>
 	<string name="recording">Enregistrement : %s</string>
 	<string name="recording_is_on">L\'enregistrement a débuté</string>
 	<string name="recording_progress">Enregistrement&#8230;</string>

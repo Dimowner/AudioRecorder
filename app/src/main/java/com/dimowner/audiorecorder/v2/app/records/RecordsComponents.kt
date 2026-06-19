@@ -511,19 +511,6 @@ fun RecordListItemView(
                             .clickable(onClick = onClickDescription)
                             .padding(vertical = 2.dp),
                     )
-                } else {
-                    Text(
-                        text = stringResource(id = R.string.add_description),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                        style = MaterialTheme.typography.bodySmall,
-                        fontSize = 13.sp,
-                        fontStyle = FontStyle.Italic,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .clickable(onClick = onClickDescription)
-                            .padding(vertical = 2.dp),
-                    )
                 }
             }
 

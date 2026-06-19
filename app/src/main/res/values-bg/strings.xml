@@ -82,6 +82,7 @@
 	<string name="failed_to_delete_all_records">Възникна грешка, записите не са изтрити</string>
 	<string name="please_select_record_to_share">Изберете запис, за да го споделите</string>
 	<string name="update_record_name">Промяна на названието</string>
+	<string name="update_name_and_description">Обновяване на име и описание</string>
 	<string name="recording">Запис: %s</string>
 	<string name="recording_is_on">Записване</string>
 	<string name="recording_progress">Записване&#8230;</string>

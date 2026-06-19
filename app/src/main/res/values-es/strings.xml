@@ -99,6 +99,7 @@
 	<string name="failed_to_delete_all_records">Error al intentar eliminar todas las grabaciones</string>
 	<string name="please_select_record_to_share">Por favor seleccione una grabación para compartir</string>
     <string name="update_record_name">Actualizar nombre</string>
+    <string name="update_name_and_description">Actualizar nombre y descripción</string>
 	<string name="recording">Grabando: %s</string>
 	<string name="recording_is_on">Grabación ENCENDIDA</string>
 	<string name="recording_progress">Grabando&#8230;</string>

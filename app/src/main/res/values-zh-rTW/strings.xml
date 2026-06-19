@@ -100,6 +100,7 @@
 	<string name="failed_to_delete_all_records">刪除所有錄音失敗</string>
 	<string name="please_select_record_to_share">請選擇要分享的錄音</string>
     <string name="update_record_name">更新名稱</string>
+    <string name="update_name_and_description">更新名稱和描述</string>
 	<string name="recording">錄音：%s</string>
 	<string name="recording_is_on">已啟動錄音</string>
 	<string name="recording_progress">正在錄製&#8230;</string>

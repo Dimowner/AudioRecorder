@@ -98,6 +98,7 @@
 	<string name="failed_to_delete_all_records">Bütün kayıtlar silinirken bir sorun oluştu</string>
 	<string name="please_select_record_to_share">Paylaşmak için bir kayıt seçin</string>
     <string name="update_record_name">İsmi güncelle</string>
+    <string name="update_name_and_description">Adı ve açıklamayı güncelle</string>
     <string name="recording">Kayıt alınıyor: %s</string>
 	<string name="recording_is_on">Kayıt başladı</string>
 	<string name="recording_progress">Kayıt alınıyor&#8230;</string>

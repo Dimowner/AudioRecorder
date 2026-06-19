@@ -89,6 +89,7 @@
 	<string name="failed_to_delete_all_records">Помилка під час видалення всіх записів</string>
 	<string name="please_select_record_to_share">Будь-ласка, виберіть або запишіть аудіо файл для поширення</string>
     <string name="update_record_name">Оновити назву</string>
+    <string name="update_name_and_description">Оновити ім\'я та опис</string>
 	<string name="recording">Запис: %s</string>
 	<string name="recording_is_on">Запис увімкнено</string>
 	<string name="recording_progress">Запис&#8230;</string>

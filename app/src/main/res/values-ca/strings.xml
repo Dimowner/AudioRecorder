@@ -97,6 +97,7 @@
 	<string name="failed_to_delete_all_records">No s\'han pogut esborrar totes les gravacions</string>
 	<string name="please_select_record_to_share">Seleccioneu una gravació per compartir</string>
     <string name="update_record_name">Actualitza el nom</string>
+    <string name="update_name_and_description">Actualitza el nom i la descripció</string>
     <string name="recording">Gravant: %s</string>
 	<string name="recording_is_on">S\'està gravant</string>
 	<string name="recording_progress">Gravant&#8230;</string>

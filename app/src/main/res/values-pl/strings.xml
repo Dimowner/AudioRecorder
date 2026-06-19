@@ -109,6 +109,7 @@
 	<string name="failed_to_delete_all_records">Nie udało się usunąć wszystkich nagrań</string>
 	<string name="please_select_record_to_share">Wybierz nagranie do udostępnienia</string>
     <string name="update_record_name">Zaktualizuj nazwę</string>
+    <string name="update_name_and_description">Zaktualizuj nazwę i opis</string>
 	<string name="recording">Nagrywanie: %s</string>
 	<string name="recording_is_on">Nagrywanie jest włączone</string>
 	<string name="recording_progress">Nagrywanie&#8230;</string>

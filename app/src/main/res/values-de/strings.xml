@@ -100,6 +100,7 @@
 	<string name="failed_to_delete_all_records">Alle Aufnahmen konnten nicht gelöscht werden</string>
 	<string name="please_select_record_to_share">Bitte eine Aufnahme zum Teilen auswählen</string>
     <string name="update_record_name">Namen aktualisieren</string>
+    <string name="update_name_and_description">Name und Beschreibung aktualisieren</string>
 	<string name="recording">Aufnahme: %s</string>
 	<string name="recording_is_on">Aufnahme läuft</string>
 	<string name="recording_progress">Aufnahme läuft&#8230;</string>

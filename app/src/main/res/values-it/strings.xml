@@ -100,6 +100,7 @@
 	<string name="failed_to_delete_all_records">Impossibile eliminare tutte le registrazioni</string>
 	<string name="please_select_record_to_share">Seleziona una registrazione da condividere</string>
     <string name="update_record_name">Aggiorna nome</string>
+    <string name="update_name_and_description">Aggiorna nome e descrizione</string>
 	<string name="recording">Registrazione: %s</string>
 	<string name="recording_is_on">Registrazione ATTIVA</string>
 	<string name="recording_progress">Registrazione&#8230;</string>

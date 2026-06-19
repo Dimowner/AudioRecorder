@@ -75,6 +75,8 @@ import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
 import com.dimowner.audiorecorder.v2.app.RenameAlertDialog
 import com.dimowner.audiorecorder.v2.app.SaveAsDialog
+import com.dimowner.audiorecorder.v2.app.UpdateNameAndDescriptionDialog
+import com.dimowner.audiorecorder.v2.app.isDescriptionFileWriteSupported
 import com.dimowner.audiorecorder.v2.app.components.BluetoothMicSelector
 import com.dimowner.audiorecorder.v2.app.components.KeepScreenOn
 import com.dimowner.audiorecorder.v2.app.components.MAX_CONTENT_WIDTH_NARROW
@@ -516,10 +518,12 @@ internal fun HomeScreen(
                     )
                 }
                 if (uiState.showRenameAfterRecordingDialog) {
-                    RenameAlertDialog(
+                    UpdateNameAndDescriptionDialog(
                         recordName = uiState.recordName,
-                        onAcceptClick = { newName ->
-                            onAction(HomeScreenAction.RenameActiveRecord(newName))
+                        recordDescription = uiState.recordDescription,
+                        isWriteToFileSupported = isDescriptionFileWriteSupported(uiState.recordFormat),
+                        onAcceptClick = { newName, newDescription, writeToFile ->
+                            onAction(HomeScreenAction.UpdateActiveRecordNameAndDescription(newName, newDescription, writeToFile))
                         },
                         onDismissClick = {
                             //Do nothing, onDontAskAgain triggers, it will dismiss the dialog

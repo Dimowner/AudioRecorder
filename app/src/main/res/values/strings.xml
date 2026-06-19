@@ -100,6 +100,7 @@
 	<string name="failed_to_delete_all_records">Failed to delete all records</string>
 	<string name="please_select_record_to_share">Please select a record to share</string>
     <string name="update_record_name">Update name</string>
+    <string name="update_name_and_description">Update name and description</string>
 	<string name="recording">Recording: %s</string>
 	<string name="recording_is_on">Recording is ON</string>
 	<string name="recording_progress">Recording&#8230;</string>

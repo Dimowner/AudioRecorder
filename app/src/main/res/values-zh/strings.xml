@@ -76,6 +76,7 @@
     <string name="failed_to_delete_all_records">未能删除所有录音</string>
     <string name="please_select_record_to_share">请选择一个要分享的录音</string>
     <string name="update_record_name">更新名称</string>
+    <string name="update_name_and_description">更新名称和描述</string>
     <string name="recording">录音：%s</string>
     <string name="recording_is_on">录音中</string>
     <string name="recording_progress">录制中&#8230;</string>

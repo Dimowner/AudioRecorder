@@ -98,6 +98,7 @@
     <string name="failed_to_delete_all_records">Falha ao excluir todas as gravações</string>
     <string name="please_select_record_to_share">Selecione uma gravação para compartilhar</string>
     <string name="update_record_name">Atualizar nome</string>
+    <string name="update_name_and_description">Atualizar nome e descrição</string>
     <string name="recording">Gravando: %s</string>
     <string name="recording_is_on">Gravação ativada</string>
     <string name="recording_progress">Gravando&#8230;</string>

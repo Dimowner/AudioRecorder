@@ -457,9 +457,12 @@ class HomeViewModel @Inject constructor(
                     moveRecordToRecycle(recordedRecordId, false)
                 } else if (prefs.askToRenameAfterRecordingStopped) {
                     updateState()
+                    val record = recordsDataSource.getRecord(recordedRecordId)
                     withContext(mainDispatcher) {
                         _state.value = _state.value.copy(
                             recordName = recordName ?: _state.value.recordName,
+                            recordDescription = record?.description ?: "",
+                            recordFormat = record?.format ?: "",
                             showRenameAfterRecordingDialog = true,
                             keepScreenOn = false,
                         )
@@ -823,36 +826,51 @@ class HomeViewModel @Inject constructor(
     fun renameActiveRecord(newName: String) {
         showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
+            performRenameActiveRecord(newName)
+        }
+    }
+
+    private suspend fun performRenameActiveRecord(newName: String) {
+        val activeRecord = recordsDataSource.getActiveRecord()
+        if (activeRecord != null) {
+            val currentFile = File(activeRecord.path)
+            // Skip rename if the name hasn't changed
+            if (currentFile.nameWithoutExtension == newName) {
+                showLoadingProgress(false)
+                return
+            }
+            // Check if a file with the new name already exists on disk
+            val extension = currentFile.extension
+            val targetFile = File(currentFile.parentFile, "$newName.$extension")
+            if (targetFile.exists() && currentFile.nameWithoutExtension != newName) {
+                val context: Context = getApplication<Application>().applicationContext
+                emitEvent(
+                    HomeScreenEvent.ShowErrorSnack(
+                        context.getString(R.string.error_file_exists)
+                    )
+                )
+                showLoadingProgress(false)
+                return
+            } else {
+                recordsDataSource.renameRecord(activeRecord, newName)
+                val context: Context = getApplication<Application>().applicationContext
+                emitEvent(
+                    HomeScreenEvent.ShowInfoSnack(
+                        context.getString(R.string.msg_record_renamed, newName)
+                    )
+                )
+            }
+            updateState(false)
+        }
+    }
+
+    private fun updateActiveRecordNameAndDescription(newName: String, newDescription: String, writeToFile: Boolean) {
+        showLoadingProgress(true)
+        viewModelScope.launch(ioDispatcher) {
             val activeRecord = recordsDataSource.getActiveRecord()
+            performRenameActiveRecord(newName)
             if (activeRecord != null) {
-                val currentFile = File(activeRecord.path)
-                // Skip rename if the name hasn't changed
-                if (currentFile.nameWithoutExtension == newName) {
-                    showLoadingProgress(false)
-                    return@launch
-                }
-                // Check if a file with the new name already exists on disk
-                val extension = currentFile.extension
-                val targetFile = File(currentFile.parentFile, "$newName.$extension")
-                if (targetFile.exists() && currentFile.nameWithoutExtension != newName) {
-                    val context: Context = getApplication<Application>().applicationContext
-                    emitEvent(
-                        HomeScreenEvent.ShowErrorSnack(
-                            context.getString(R.string.error_file_exists)
-                        )
-                    )
-                    showLoadingProgress(false)
-                    return@launch
-                } else {
-                    recordsDataSource.renameRecord(activeRecord, newName)
-                    val context: Context = getApplication<Application>().applicationContext
-                    emitEvent(
-                        HomeScreenEvent.ShowInfoSnack(
-                            context.getString(R.string.msg_record_renamed, newName)
-                        )
-                    )
-                }
-                updateState(false)
+                recordsDataSource.updateRecordDescription(activeRecord.id, newDescription, writeToFile)
             }
         }
     }
@@ -1100,6 +1118,9 @@ class HomeViewModel @Inject constructor(
                     renameActiveRecord(action.newName)
                 }
             }
+            is HomeScreenAction.UpdateActiveRecordNameAndDescription -> {
+                updateActiveRecordNameAndDescription(action.newName, action.newDescription, action.writeToFile)
+            }
             HomeScreenAction.OnSeekStart -> handleSeekStart()
             is HomeScreenAction.OnSeekProgress -> handleSeekProgress(action.mills)
             is HomeScreenAction.OnSeekEnd -> handleSeekEnd(action.mills)
@@ -1254,6 +1275,8 @@ data class HomeScreenState(
     //Progress is value between 0 - 1f
     val progress: Float = 0f,
     val recordName: String = "",
+    val recordDescription: String = "",
+    val recordFormat: String = "",
     val recordInfo: String = "",
     val isShowWaveform: Boolean = false,
     // Indicates loading progress
@@ -1310,6 +1333,7 @@ sealed class HomeScreenAction {
     data class RestoreRecordFromRecycle(val recordId: Long) : HomeScreenAction()
     data object SaveActiveRecordAs : HomeScreenAction()
     data class RenameActiveRecord(val newName: String) : HomeScreenAction()
+    data class UpdateActiveRecordNameAndDescription(val newName: String, val newDescription: String, val writeToFile: Boolean) : HomeScreenAction()
     data object OnSeekStart : HomeScreenAction()
     data object OnPlayClick : HomeScreenAction()
     data object OnPauseClick : HomeScreenAction()

@@ -97,6 +97,7 @@
 	<string name="failed_to_delete_all_records">모든 녹음 삭제에 실패했습니다</string>
 	<string name="please_select_record_to_share">공유할 녹음을 선택해 주세요</string>
     <string name="update_record_name">이름 업데이트</string>
+    <string name="update_name_and_description">이름 및 설명 업데이트</string>
 	<string name="recording">녹음 중: %s</string>
 	<string name="recording_is_on">녹음 중입니다</string>
 	<string name="recording_progress">녹음 중&#8230;</string>
