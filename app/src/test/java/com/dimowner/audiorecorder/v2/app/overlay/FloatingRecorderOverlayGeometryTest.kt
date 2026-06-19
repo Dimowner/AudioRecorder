@@ -1,10 +1,22 @@
 package com.dimowner.audiorecorder.v2.app.overlay
 
+import android.speech.RecognizerIntent
 import com.dimowner.audiorecorder.v2.data.model.RenameSpeechMode
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Test
 
 class FloatingRecorderOverlayGeometryTest {
+
+    @Test
+    fun `renameSpeechRecognitionConfig uses activity recognizer action`() {
+        val config = renameSpeechRecognitionConfig()
+
+        assertEquals(RecognizerIntent.ACTION_RECOGNIZE_SPEECH, config.action)
+        assertEquals(RecognizerIntent.LANGUAGE_MODEL_FREE_FORM, config.languageModel)
+        assertEquals(1, config.maxResults)
+        assertFalse(config.partialResults)
+    }
 
     @Test
     fun `applyRenameSpeechTranscription appends transcript with one separating space`() {

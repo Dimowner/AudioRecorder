@@ -1,6 +1,5 @@
 package com.dimowner.audiorecorder.v2.app.overlay
 
-import android.Manifest
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
@@ -13,7 +12,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -22,10 +20,10 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.os.IBinder
-import android.speech.RecognitionListener
-import android.speech.RecognizerIntent
-import android.speech.SpeechRecognizer
+import android.os.Looper
+import android.os.ResultReceiver
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -81,8 +79,7 @@ class FloatingRecorderOverlayService : Service() {
     private var iconView: FrameLayout? = null
     private var iconParams: WindowManager.LayoutParams? = null
     private var renameView: View? = null
-    private var renameSpeechRecognizer: SpeechRecognizer? = null
-    private var renameSpeechListening = false
+    private var renameSpeechPending = false
     private var saveFeedbackAnimator: AnimatorSet? = null
     private var recordingService: AudioRecordingService? = null
     private var isRecordingServiceBound = false
@@ -610,7 +607,7 @@ class FloatingRecorderOverlayService : Service() {
                 LinearLayout.LayoutParams.WRAP_CONTENT,
             ))
             setOnClickListener {
-                startRenameSpeechRecognition(input = input, error = error, micButton = this, modeLabel = modeLabel)
+                startRenameSpeechRecognition(input = input, error = error, micButton = this)
             }
             setOnLongClickListener {
                 showRenameSpeechModePopup(anchor = this, modeLabel = modeLabel)
@@ -637,72 +634,34 @@ class FloatingRecorderOverlayService : Service() {
         input: EditText,
         error: TextView,
         micButton: View,
-        modeLabel: TextView,
     ) {
-        if (renameSpeechListening) return
-        if (!SpeechRecognizer.isRecognitionAvailable(this)) {
+        if (renameSpeechPending) return
+        if (buildRenameSpeechRecognitionIntent().resolveActivity(packageManager) == null) {
             showRenameInlineMessage(error, R.string.rename_speech_no_recognizer)
             return
         }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            showRenameInlineMessage(error, R.string.rename_speech_no_microphone_permission)
-            return
-        }
 
-        destroyRenameSpeechRecognizer()
-        val recognizer = SpeechRecognizer.createSpeechRecognizer(this)
-        renameSpeechRecognizer = recognizer
-        renameSpeechListening = true
+        renameSpeechPending = true
         micButton.isEnabled = false
         showRenameInlineMessage(error, R.string.rename_speech_listening)
 
-        recognizer.setRecognitionListener(object : RecognitionListener {
-            override fun onReadyForSpeech(params: Bundle?) = Unit
-            override fun onBeginningOfSpeech() = Unit
-            override fun onRmsChanged(rmsdB: Float) = Unit
-            override fun onBufferReceived(buffer: ByteArray?) = Unit
-            override fun onEndOfSpeech() = Unit
-            override fun onPartialResults(partialResults: Bundle?) = Unit
-            override fun onEvent(eventType: Int, params: Bundle?) = Unit
-
-            override fun onError(errorCode: Int) {
-                val message = if (errorCode == SpeechRecognizer.ERROR_NO_MATCH || errorCode == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
-                    R.string.rename_speech_no_match
-                } else {
-                    R.string.rename_speech_error
-                }
-                showRenameInlineMessage(error, message)
-                finishRenameSpeechRecognition(micButton)
-            }
-
-            override fun onResults(results: Bundle?) {
-                val transcript = results
-                    ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                    ?.firstOrNull { it.isNotBlank() }
-                if (transcript == null) {
-                    showRenameInlineMessage(error, R.string.rename_speech_no_match)
-                } else {
-                    val updated = applyRenameSpeechTranscription(
-                        currentName = input.text.toString(),
-                        transcript = transcript,
-                        mode = prefs.floatingRecorderRenameSpeechMode,
-                    )
-                    input.setText(updated)
-                    input.setSelection(updated.length)
-                    error.visibility = View.GONE
+        val receiver = object : ResultReceiver(Handler(Looper.getMainLooper())) {
+            override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
+                when (resultCode) {
+                    RENAME_SPEECH_RESULT_OK -> applyRenameSpeechResult(input, error, resultData)
+                    RENAME_SPEECH_RESULT_NO_MATCH -> showRenameInlineMessage(error, R.string.rename_speech_no_match)
+                    else -> showRenameInlineMessage(error, R.string.rename_speech_error)
                 }
                 finishRenameSpeechRecognition(micButton)
             }
-        })
-
-        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false)
-            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
-            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
         }
 
-        runCatching { recognizer.startListening(intent) }
+        val intent = Intent(this, FloatingRenameSpeechRecognitionActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            putExtra(EXTRA_RENAME_SPEECH_RESULT_RECEIVER, receiver)
+        }
+
+        runCatching { startActivity(intent) }
             .onFailure {
                 Timber.e(it, "Failed to start floating rename speech recognition")
                 showRenameInlineMessage(error, R.string.rename_speech_error)
@@ -710,19 +669,26 @@ class FloatingRecorderOverlayService : Service() {
             }
     }
 
-    private fun finishRenameSpeechRecognition(micButton: View) {
-        renameSpeechListening = false
-        micButton.isEnabled = true
-        destroyRenameSpeechRecognizer()
+    private fun applyRenameSpeechResult(input: EditText, error: TextView, resultData: Bundle?) {
+        val transcript = resultData?.getString(EXTRA_RENAME_SPEECH_TEXT)
+        if (transcript.isNullOrBlank()) {
+            showRenameInlineMessage(error, R.string.rename_speech_no_match)
+            return
+        }
+
+        val updated = applyRenameSpeechTranscription(
+            currentName = input.text.toString(),
+            transcript = transcript,
+            mode = prefs.floatingRecorderRenameSpeechMode,
+        )
+        input.setText(updated)
+        input.setSelection(updated.length)
+        error.visibility = View.GONE
     }
 
-    private fun destroyRenameSpeechRecognizer() {
-        renameSpeechRecognizer?.let { recognizer ->
-            runCatching { recognizer.cancel() }
-            runCatching { recognizer.destroy() }
-        }
-        renameSpeechRecognizer = null
-        renameSpeechListening = false
+    private fun finishRenameSpeechRecognition(micButton: View) {
+        renameSpeechPending = false
+        micButton.isEnabled = true
     }
 
     private fun showRenameInlineMessage(error: TextView, messageRes: Int) {
@@ -848,7 +814,7 @@ class FloatingRecorderOverlayService : Service() {
     }
 
     private fun removeRenameOverlay() {
-        destroyRenameSpeechRecognizer()
+        renameSpeechPending = false
         renameView?.let { view ->
             runCatching { windowManager.removeView(view) }
         }

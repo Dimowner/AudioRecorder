@@ -54,7 +54,6 @@
     <string name="rename_speech_mode_replace">Replace</string>
     <string name="rename_speech_listening">Listening...</string>
     <string name="rename_speech_no_recognizer">Speech recognition is not available on this device.</string>
-    <string name="rename_speech_no_microphone_permission">Microphone permission is required for speech input.</string>
     <string name="rename_speech_no_match">No speech recognized.</string>
     <string name="rename_speech_error">Speech recognition failed.</string>
     <!-- Permission Messages -->

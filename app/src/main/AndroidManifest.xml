@@ -3,7 +3,7 @@
 
     <queries>
         <intent>
-            <action android:name="android.speech.RecognitionService" />
+            <action android:name="android.speech.action.RECOGNIZE_SPEECH" />
         </intent>
     </queries>
 
@@ -79,6 +79,12 @@
             android:name=".v2.app.HomeActivity"
             android:launchMode="singleTask"
             android:exported="false" />
+        <activity
+            android:name=".v2.app.overlay.FloatingRenameSpeechRecognitionActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Transparent" />
         <activity
             android:name=".app.settings.SettingsActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
