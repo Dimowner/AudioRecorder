@@ -1,9 +1,76 @@
 package com.dimowner.audiorecorder.v2.app.overlay
 
+import com.dimowner.audiorecorder.v2.data.model.RenameSpeechMode
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class FloatingRecorderOverlayGeometryTest {
+
+    @Test
+    fun `applyRenameSpeechTranscription appends transcript with one separating space`() {
+        val result = applyRenameSpeechTranscription(
+            currentName = "Drive note",
+            transcript = "  fuel   stop  ",
+            mode = RenameSpeechMode.Append,
+        )
+
+        assertEquals("Drive note fuel stop", result)
+    }
+
+    @Test
+    fun `applyRenameSpeechTranscription appends to blank current name without leading space`() {
+        val result = applyRenameSpeechTranscription(
+            currentName = "",
+            transcript = "parking level two",
+            mode = RenameSpeechMode.Append,
+        )
+
+        assertEquals("parking level two", result)
+    }
+
+    @Test
+    fun `applyRenameSpeechTranscription replaces current name`() {
+        val result = applyRenameSpeechTranscription(
+            currentName = "Old name",
+            transcript = "new voice title",
+            mode = RenameSpeechMode.Replace,
+        )
+
+        assertEquals("new voice title", result)
+    }
+
+    @Test
+    fun `applyRenameSpeechTranscription keeps current name when transcript is blank`() {
+        val result = applyRenameSpeechTranscription(
+            currentName = "Existing",
+            transcript = "   ",
+            mode = RenameSpeechMode.Replace,
+        )
+
+        assertEquals("Existing", result)
+    }
+
+    @Test
+    fun `applyRenameSpeechTranscription removes filename hostile characters`() {
+        val result = applyRenameSpeechTranscription(
+            currentName = "Existing",
+            transcript = "road / bridge \\ tunnel\u0000",
+            mode = RenameSpeechMode.Replace,
+        )
+
+        assertEquals("road bridge tunnel", result)
+    }
+
+    @Test
+    fun `applyRenameSpeechTranscription caps visible name to 251 characters`() {
+        val result = applyRenameSpeechTranscription(
+            currentName = "",
+            transcript = "a".repeat(300),
+            mode = RenameSpeechMode.Replace,
+        )
+
+        assertEquals(251, result.length)
+    }
 
     @Test
     fun `calculateOverlaySizeBounds uses default size as minimum and half smaller screen as maximum`() {

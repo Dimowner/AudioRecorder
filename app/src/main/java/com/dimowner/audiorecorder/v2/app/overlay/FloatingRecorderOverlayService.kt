@@ -1,5 +1,6 @@
 package com.dimowner.audiorecorder.v2.app.overlay
 
+import android.Manifest
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
@@ -12,6 +13,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -19,7 +21,11 @@ import android.graphics.PixelFormat
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
+import android.os.Bundle
 import android.os.IBinder
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -29,7 +35,9 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -41,6 +49,7 @@ import com.dimowner.audiorecorder.v2.audio.AudioRecordingServiceEvent
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.Record
+import com.dimowner.audiorecorder.v2.data.model.RenameSpeechMode
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
@@ -72,6 +81,8 @@ class FloatingRecorderOverlayService : Service() {
     private var iconView: FrameLayout? = null
     private var iconParams: WindowManager.LayoutParams? = null
     private var renameView: View? = null
+    private var renameSpeechRecognizer: SpeechRecognizer? = null
+    private var renameSpeechListening = false
     private var saveFeedbackAnimator: AnimatorSet? = null
     private var recordingService: AudioRecordingService? = null
     private var isRecordingServiceBound = false
@@ -511,6 +522,7 @@ class FloatingRecorderOverlayService : Service() {
             setTextColor(RECORDING_ICON_COLOR)
             visibility = View.GONE
         }
+        val speechButton = createRenameSpeechButton(input, error)
 
         val panel = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -524,6 +536,13 @@ class FloatingRecorderOverlayService : Service() {
             })
             addView(input, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             addView(error, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            addView(speechButton, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ).apply {
+                topMargin = dp(10)
+                bottomMargin = dp(6)
+            })
             addView(LinearLayout(this@FloatingRecorderOverlayService).apply {
                 gravity = Gravity.END
                 addView(Button(this@FloatingRecorderOverlayService).apply {
@@ -561,6 +580,160 @@ class FloatingRecorderOverlayService : Service() {
         input.post {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT)
+        }
+    }
+
+    private fun createRenameSpeechButton(input: EditText, error: TextView): LinearLayout {
+        val modeLabel = TextView(this).apply {
+            setTextColor(Color.WHITE)
+            textSize = 12f
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
+            text = renameSpeechModeText(prefs.floatingRecorderRenameSpeechMode)
+        }
+
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            minimumHeight = dp(RENAME_SPEECH_BUTTON_MIN_HEIGHT_DP)
+            isClickable = true
+            isFocusable = true
+            setPadding(dp(12), dp(10), dp(12), dp(8))
+            background = roundedDrawable(IDLE_ICON_COLOR, dp(18).toFloat())
+            addView(ImageView(this@FloatingRecorderOverlayService).apply {
+                setImageResource(R.drawable.ic_mic)
+                imageTintList = ColorStateList.valueOf(Color.WHITE)
+                contentDescription = getString(R.string.rename_speech_listening)
+            }, LinearLayout.LayoutParams(dp(32), dp(32)))
+            addView(modeLabel, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ))
+            setOnClickListener {
+                startRenameSpeechRecognition(input = input, error = error, micButton = this, modeLabel = modeLabel)
+            }
+            setOnLongClickListener {
+                showRenameSpeechModePopup(anchor = this, modeLabel = modeLabel)
+                true
+            }
+        }
+    }
+
+    private fun showRenameSpeechModePopup(anchor: View, modeLabel: TextView) {
+        PopupMenu(this, anchor).apply {
+            menu.add(0, RenameSpeechMode.Append.persistedValue, 0, getString(R.string.rename_speech_mode_append))
+            menu.add(0, RenameSpeechMode.Replace.persistedValue, 1, getString(R.string.rename_speech_mode_replace))
+            setOnMenuItemClickListener { item ->
+                val mode = RenameSpeechMode.fromPersistedValue(item.itemId)
+                prefs.floatingRecorderRenameSpeechMode = mode
+                modeLabel.text = renameSpeechModeText(mode)
+                true
+            }
+            show()
+        }
+    }
+
+    private fun startRenameSpeechRecognition(
+        input: EditText,
+        error: TextView,
+        micButton: View,
+        modeLabel: TextView,
+    ) {
+        if (renameSpeechListening) return
+        if (!SpeechRecognizer.isRecognitionAvailable(this)) {
+            showRenameInlineMessage(error, R.string.rename_speech_no_recognizer)
+            return
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            showRenameInlineMessage(error, R.string.rename_speech_no_microphone_permission)
+            return
+        }
+
+        destroyRenameSpeechRecognizer()
+        val recognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        renameSpeechRecognizer = recognizer
+        renameSpeechListening = true
+        micButton.isEnabled = false
+        showRenameInlineMessage(error, R.string.rename_speech_listening)
+
+        recognizer.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) = Unit
+            override fun onBeginningOfSpeech() = Unit
+            override fun onRmsChanged(rmsdB: Float) = Unit
+            override fun onBufferReceived(buffer: ByteArray?) = Unit
+            override fun onEndOfSpeech() = Unit
+            override fun onPartialResults(partialResults: Bundle?) = Unit
+            override fun onEvent(eventType: Int, params: Bundle?) = Unit
+
+            override fun onError(errorCode: Int) {
+                val message = if (errorCode == SpeechRecognizer.ERROR_NO_MATCH || errorCode == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
+                    R.string.rename_speech_no_match
+                } else {
+                    R.string.rename_speech_error
+                }
+                showRenameInlineMessage(error, message)
+                finishRenameSpeechRecognition(micButton)
+            }
+
+            override fun onResults(results: Bundle?) {
+                val transcript = results
+                    ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                    ?.firstOrNull { it.isNotBlank() }
+                if (transcript == null) {
+                    showRenameInlineMessage(error, R.string.rename_speech_no_match)
+                } else {
+                    val updated = applyRenameSpeechTranscription(
+                        currentName = input.text.toString(),
+                        transcript = transcript,
+                        mode = prefs.floatingRecorderRenameSpeechMode,
+                    )
+                    input.setText(updated)
+                    input.setSelection(updated.length)
+                    error.visibility = View.GONE
+                }
+                finishRenameSpeechRecognition(micButton)
+            }
+        })
+
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false)
+            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
+        }
+
+        runCatching { recognizer.startListening(intent) }
+            .onFailure {
+                Timber.e(it, "Failed to start floating rename speech recognition")
+                showRenameInlineMessage(error, R.string.rename_speech_error)
+                finishRenameSpeechRecognition(micButton)
+            }
+    }
+
+    private fun finishRenameSpeechRecognition(micButton: View) {
+        renameSpeechListening = false
+        micButton.isEnabled = true
+        destroyRenameSpeechRecognizer()
+    }
+
+    private fun destroyRenameSpeechRecognizer() {
+        renameSpeechRecognizer?.let { recognizer ->
+            runCatching { recognizer.cancel() }
+            runCatching { recognizer.destroy() }
+        }
+        renameSpeechRecognizer = null
+        renameSpeechListening = false
+    }
+
+    private fun showRenameInlineMessage(error: TextView, messageRes: Int) {
+        error.text = getString(messageRes)
+        error.visibility = View.VISIBLE
+    }
+
+    private fun renameSpeechModeText(mode: RenameSpeechMode): String {
+        return when (mode) {
+            RenameSpeechMode.Append -> getString(R.string.rename_speech_mode_append)
+            RenameSpeechMode.Replace -> getString(R.string.rename_speech_mode_replace)
         }
     }
 
@@ -675,6 +848,7 @@ class FloatingRecorderOverlayService : Service() {
     }
 
     private fun removeRenameOverlay() {
+        destroyRenameSpeechRecognizer()
         renameView?.let { view ->
             runCatching { windowManager.removeView(view) }
         }
@@ -789,6 +963,7 @@ class FloatingRecorderOverlayService : Service() {
         private const val RENAME_PANEL_ESTIMATED_HEIGHT_DP = 220
         private const val RENAME_PANEL_MIN_WIDTH_DP = 240
         private const val RENAME_PANEL_MAX_WIDTH_DP = 360
+        private const val RENAME_SPEECH_BUTTON_MIN_HEIGHT_DP = 72
         private val IDLE_ICON_COLOR = Color.DKGRAY
         private val RECORDING_ICON_COLOR = Color.RED
 

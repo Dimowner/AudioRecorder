@@ -27,6 +27,7 @@ import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
+import com.dimowner.audiorecorder.v2.data.model.RenameSpeechMode
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.data.model.convertToBitRate
@@ -187,6 +188,16 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         set(value) {
             sharedPreferences.edit {
                 putInt(PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_Y, value)
+            }
+        }
+
+    override var floatingRecorderRenameSpeechMode: RenameSpeechMode
+        get() = RenameSpeechMode.fromPersistedValue(
+            sharedPreferences.getInt(PREF_KEY_FLOATING_RECORDER_RENAME_SPEECH_MODE, RenameSpeechMode.Append.persistedValue)
+        )
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_FLOATING_RECORDER_RENAME_SPEECH_MODE, value.persistedValue)
             }
         }
 
@@ -371,5 +382,7 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             "pref_key_floating_recorder_rename_overlay_x"
         private const val PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_Y =
             "pref_key_floating_recorder_rename_overlay_y"
+        private const val PREF_KEY_FLOATING_RECORDER_RENAME_SPEECH_MODE =
+            "pref_key_floating_recorder_rename_speech_mode"
     }
 }

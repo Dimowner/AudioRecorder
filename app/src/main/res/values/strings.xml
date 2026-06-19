@@ -50,6 +50,13 @@
 	<string name="msg_file_operation_failed">File operation failed. Please try again</string>
 	<!-- Error message for empty name during rename/save -->
 	<string name="msg_name_cannot_be_empty">Name cannot be empty</string>
+    <string name="rename_speech_mode_append">Append</string>
+    <string name="rename_speech_mode_replace">Replace</string>
+    <string name="rename_speech_listening">Listening...</string>
+    <string name="rename_speech_no_recognizer">Speech recognition is not available on this device.</string>
+    <string name="rename_speech_no_microphone_permission">Microphone permission is required for speech input.</string>
+    <string name="rename_speech_no_match">No speech recognized.</string>
+    <string name="rename_speech_error">Speech recognition failed.</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">Microphone permission is required to record audio. Please grant the permission to use this feature.</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->

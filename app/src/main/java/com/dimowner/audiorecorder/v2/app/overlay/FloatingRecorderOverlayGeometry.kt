@@ -1,5 +1,6 @@
 package com.dimowner.audiorecorder.v2.app.overlay
 
+import com.dimowner.audiorecorder.v2.data.model.RenameSpeechMode
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -9,6 +10,27 @@ internal data class OverlayPosition(val x: Int, val y: Int)
 internal data class OverlaySizeBounds(val minSize: Int, val maxSize: Int)
 
 internal data class RenameOverlayStyle(val panelColor: Int, val textColor: Int)
+
+internal fun applyRenameSpeechTranscription(
+    currentName: String,
+    transcript: String,
+    mode: RenameSpeechMode,
+    maxVisibleNameCharacters: Int = 251,
+): String {
+    val normalizedTranscript = transcript
+        .filterNot { it == '/' || it == '\\' || Character.isISOControl(it) }
+        .trim()
+        .replace(Regex("\\s+"), " ")
+    if (normalizedTranscript.isBlank()) return currentName
+
+    val combined = when (mode) {
+        RenameSpeechMode.Append -> listOf(currentName.trimEnd(), normalizedTranscript)
+            .filter { it.isNotBlank() }
+            .joinToString(" ")
+        RenameSpeechMode.Replace -> normalizedTranscript
+    }
+    return combined.take(maxVisibleNameCharacters.coerceAtLeast(0))
+}
 
 internal fun calculateOverlaySizeBounds(
     defaultSize: Int,
