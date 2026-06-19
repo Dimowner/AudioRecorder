@@ -1,11 +1,56 @@
 package com.dimowner.audiorecorder.v2.app.overlay
 
 import kotlin.math.abs
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 internal data class OverlayPosition(val x: Int, val y: Int)
 
+internal data class OverlaySizeBounds(val minSize: Int, val maxSize: Int)
+
 internal data class RenameOverlayStyle(val panelColor: Int, val textColor: Int)
+
+internal fun calculateOverlaySizeBounds(
+    defaultSize: Int,
+    screenWidth: Int,
+    screenHeight: Int,
+): OverlaySizeBounds {
+    val minSize = defaultSize.coerceAtLeast(1)
+    val halfSmallerScreen = min(screenWidth, screenHeight) / 2
+
+    return OverlaySizeBounds(
+        minSize = minSize,
+        // Keep the range valid even on very small or transiently unmeasured displays.
+        maxSize = halfSmallerScreen.coerceAtLeast(minSize),
+    )
+}
+
+internal fun clampOverlaySize(
+    savedSize: Int,
+    defaultSize: Int,
+    screenWidth: Int,
+    screenHeight: Int,
+): Int {
+    val bounds = calculateOverlaySizeBounds(
+        defaultSize = defaultSize,
+        screenWidth = screenWidth,
+        screenHeight = screenHeight,
+    )
+    val requestedSize = if (savedSize == -1) defaultSize else savedSize
+    return requestedSize.coerceIn(bounds.minSize, bounds.maxSize)
+}
+
+internal fun calculateRecordDiscSize(
+    overlaySize: Int,
+    defaultOverlaySize: Int,
+    defaultDiscSize: Int,
+): Int {
+    if (defaultOverlaySize <= 0) return defaultDiscSize.coerceAtLeast(1)
+
+    return (overlaySize * (defaultDiscSize.toFloat() / defaultOverlaySize.toFloat()))
+        .roundToInt()
+        .coerceAtLeast(1)
+}
 
 internal fun clampOverlayPosition(
     savedX: Int,

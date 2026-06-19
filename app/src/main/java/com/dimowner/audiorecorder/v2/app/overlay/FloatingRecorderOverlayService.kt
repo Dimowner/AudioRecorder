@@ -53,6 +53,8 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.abs
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 @AndroidEntryPoint
 class FloatingRecorderOverlayService : Service() {
@@ -179,8 +181,14 @@ class FloatingRecorderOverlayService : Service() {
     private fun addIconOverlay() {
         if (iconView != null) return
 
-        val size = dp(56)
+        val defaultSize = dp(DEFAULT_ICON_SIZE_DP)
         val displayMetrics = resources.displayMetrics
+        val size = clampOverlaySize(
+            savedSize = prefs.floatingRecorderOverlaySize,
+            defaultSize = defaultSize,
+            screenWidth = displayMetrics.widthPixels,
+            screenHeight = displayMetrics.heightPixels,
+        )
         val position = clampOverlayPosition(
             savedX = prefs.floatingRecorderOverlayX,
             savedY = prefs.floatingRecorderOverlayY,
@@ -195,7 +203,7 @@ class FloatingRecorderOverlayService : Service() {
             elevation = dp(8).toFloat()
             addView(View(this@FloatingRecorderOverlayService).apply {
                 background = recordDiscDrawable()
-            }, FrameLayout.LayoutParams(dp(30), dp(30), Gravity.CENTER))
+            }, FrameLayout.LayoutParams(recordDiscSize(size), recordDiscSize(size), Gravity.CENTER))
         }
 
         val params = WindowManager.LayoutParams(
@@ -236,6 +244,10 @@ class FloatingRecorderOverlayService : Service() {
         private var startY = 0
         private var downTime = 0L
         private var dragging = false
+        private var pinching = false
+        private var suppressTap = false
+        private var initialPinchDistance = 0f
+        private var initialPinchSize = 0
 
         override fun onTouch(view: View, event: MotionEvent): Boolean {
             when (event.actionMasked) {
@@ -246,9 +258,23 @@ class FloatingRecorderOverlayService : Service() {
                     startY = params.y
                     downTime = event.eventTime
                     dragging = false
+                    pinching = false
+                    suppressTap = false
+                    return true
+                }
+                MotionEvent.ACTION_POINTER_DOWN -> {
+                    if (event.pointerCount >= 2) {
+                        beginPinch(event)
+                    }
                     return true
                 }
                 MotionEvent.ACTION_MOVE -> {
+                    if (pinching || event.pointerCount >= 2) {
+                        if (!pinching) beginPinch(event)
+                        updatePinch(view, event)
+                        return true
+                    }
+
                     val deltaX = event.rawX - downRawX
                     val deltaY = event.rawY - downRawY
                     val movedEnough = abs(deltaX) > touchSlop || abs(deltaY) > touchSlop
@@ -261,25 +287,92 @@ class FloatingRecorderOverlayService : Service() {
                     }
                     return true
                 }
+                MotionEvent.ACTION_POINTER_UP -> {
+                    if (pinching) finishPinch(view)
+                    return true
+                }
                 MotionEvent.ACTION_UP -> {
-                    if (dragging) {
+                    if (pinching) {
+                        finishPinch(view)
+                    } else if (dragging) {
                         persistIconPosition(params)
-                    } else {
+                    } else if (!suppressTap) {
                         handleIconTap()
                     }
                     return true
                 }
                 MotionEvent.ACTION_CANCEL -> {
-                    if (dragging) persistIconPosition(params)
+                    if (pinching) {
+                        finishPinch(view)
+                    } else if (dragging) {
+                        persistIconPosition(params)
+                    }
                     return true
                 }
             }
             return false
         }
+
+        private fun beginPinch(event: MotionEvent) {
+            val distance = pointerDistance(event)
+            if (distance <= 0f) return
+
+            // Once a second finger joins, the gesture is resize-only. This prevents an
+            // accidental start/stop tap or long-press drag after the pinch ends.
+            pinching = true
+            suppressTap = true
+            dragging = false
+            initialPinchDistance = distance
+            initialPinchSize = params.width.takeIf { it > 0 } ?: dp(DEFAULT_ICON_SIZE_DP)
+        }
+
+        private fun updatePinch(view: View, event: MotionEvent) {
+            if (event.pointerCount < 2 || initialPinchDistance <= 0f) return
+
+            val scale = pointerDistance(event) / initialPinchDistance
+            val metrics = resources.displayMetrics
+            val size = clampOverlaySize(
+                savedSize = (initialPinchSize * scale).roundToInt(),
+                defaultSize = dp(DEFAULT_ICON_SIZE_DP),
+                screenWidth = metrics.widthPixels,
+                screenHeight = metrics.heightPixels,
+            )
+            params.width = size
+            params.height = size
+            updateRecordDiscLayout(view as FrameLayout, size)
+
+            val clamped = clampOverlayPosition(
+                savedX = params.x,
+                savedY = params.y,
+                screenWidth = metrics.widthPixels,
+                screenHeight = metrics.heightPixels,
+                overlayWidth = size,
+                overlayHeight = size,
+            )
+            params.x = clamped.x
+            params.y = clamped.y
+            windowManager.updateViewLayout(view, params)
+        }
+
+        private fun finishPinch(view: View) {
+            if (!pinching) return
+
+            pinching = false
+            persistIconPosition(params)
+            updateRecordDiscLayout(view as FrameLayout, params.width.takeIf { it > 0 } ?: dp(DEFAULT_ICON_SIZE_DP))
+        }
+
+        private fun pointerDistance(event: MotionEvent): Float {
+            if (event.pointerCount < 2) return 0f
+
+            val deltaX = event.getX(0) - event.getX(1)
+            val deltaY = event.getY(0) - event.getY(1)
+            return sqrt(deltaX * deltaX + deltaY * deltaY)
+        }
     }
 
     private fun persistIconPosition(params: WindowManager.LayoutParams) {
-        val size = dp(56)
+        val size = params.width.takeIf { it > 0 } ?: dp(DEFAULT_ICON_SIZE_DP)
         val metrics = resources.displayMetrics
         val clamped = clampOverlayPosition(
             savedX = params.x,
@@ -294,6 +387,26 @@ class FloatingRecorderOverlayService : Service() {
         iconView?.let { windowManager.updateViewLayout(it, params) }
         prefs.floatingRecorderOverlayX = clamped.x
         prefs.floatingRecorderOverlayY = clamped.y
+        prefs.floatingRecorderOverlaySize = size
+    }
+
+    private fun updateRecordDiscLayout(view: FrameLayout, overlaySize: Int) {
+        val disc = view.getChildAt(0) ?: return
+        val size = recordDiscSize(overlaySize)
+        val currentParams = disc.layoutParams as? FrameLayout.LayoutParams
+        disc.layoutParams = (currentParams ?: FrameLayout.LayoutParams(size, size, Gravity.CENTER)).apply {
+            width = size
+            height = size
+            gravity = Gravity.CENTER
+        }
+    }
+
+    private fun recordDiscSize(overlaySize: Int): Int {
+        return calculateRecordDiscSize(
+            overlaySize = overlaySize,
+            defaultOverlaySize = dp(DEFAULT_ICON_SIZE_DP),
+            defaultDiscSize = dp(DEFAULT_RECORD_DISC_SIZE_DP),
+        )
     }
 
     private fun handleIconTap() {
@@ -671,6 +784,8 @@ class FloatingRecorderOverlayService : Service() {
         private const val ACTION_STOP = "com.dimowner.audiorecorder.ACTION_STOP_FLOATING_RECORDER_OVERLAY"
         private const val SCALE_FEEDBACK_DURATION_MS = 160L
         private const val SAVE_FEEDBACK_DURATION_MS = 3000L
+        private const val DEFAULT_ICON_SIZE_DP = 56
+        private const val DEFAULT_RECORD_DISC_SIZE_DP = 30
         private const val RENAME_PANEL_ESTIMATED_HEIGHT_DP = 220
         private const val RENAME_PANEL_MIN_WIDTH_DP = 240
         private const val RENAME_PANEL_MAX_WIDTH_DP = 360

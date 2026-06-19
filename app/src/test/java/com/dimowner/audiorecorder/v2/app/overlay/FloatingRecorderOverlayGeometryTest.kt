@@ -6,6 +6,33 @@ import org.junit.Test
 class FloatingRecorderOverlayGeometryTest {
 
     @Test
+    fun `calculateOverlaySizeBounds uses default size as minimum and half smaller screen as maximum`() {
+        val bounds = calculateOverlaySizeBounds(defaultSize = 56, screenWidth = 1080, screenHeight = 1920)
+
+        assertEquals(56, bounds.minSize)
+        assertEquals(540, bounds.maxSize)
+    }
+
+    @Test
+    fun `clampOverlaySize uses default size when saved size is unset`() {
+        val size = clampOverlaySize(savedSize = -1, defaultSize = 56, screenWidth = 1080, screenHeight = 1920)
+
+        assertEquals(56, size)
+    }
+
+    @Test
+    fun `clampOverlaySize clamps size to current screen bounds`() {
+        assertEquals(56, clampOverlaySize(savedSize = 12, defaultSize = 56, screenWidth = 1080, screenHeight = 1920))
+        assertEquals(540, clampOverlaySize(savedSize = 1000, defaultSize = 56, screenWidth = 1080, screenHeight = 1920))
+    }
+
+    @Test
+    fun `calculateRecordDiscSize scales with overlay size`() {
+        assertEquals(30, calculateRecordDiscSize(overlaySize = 56, defaultOverlaySize = 56, defaultDiscSize = 30))
+        assertEquals(60, calculateRecordDiscSize(overlaySize = 112, defaultOverlaySize = 56, defaultDiscSize = 30))
+    }
+
+    @Test
     fun `clampOverlayPosition uses default when saved position is unset`() {
         val position = clampOverlayPosition(
             savedX = -1,

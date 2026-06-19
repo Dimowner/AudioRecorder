@@ -46,6 +46,7 @@ interface PrefsV2 {
     var isFloatingRecorderOverlayEnabled: Boolean
     var floatingRecorderOverlayX: Int
     var floatingRecorderOverlayY: Int
+    var floatingRecorderOverlaySize: Int
     var floatingRecorderRenameOverlayX: Int
     var floatingRecorderRenameOverlayY: Int
 

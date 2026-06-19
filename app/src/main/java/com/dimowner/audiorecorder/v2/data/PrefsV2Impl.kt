@@ -166,6 +166,14 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             }
         }
 
+    override var floatingRecorderOverlaySize: Int
+        get() = sharedPreferences.getInt(PREF_KEY_FLOATING_RECORDER_OVERLAY_SIZE, -1)
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_FLOATING_RECORDER_OVERLAY_SIZE, value)
+            }
+        }
+
     override var floatingRecorderRenameOverlayX: Int
         get() = sharedPreferences.getInt(PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_X, -1)
         set(value) {
@@ -358,6 +366,7 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             "pref_key_floating_recorder_overlay_enabled"
         private const val PREF_KEY_FLOATING_RECORDER_OVERLAY_X = "pref_key_floating_recorder_overlay_x"
         private const val PREF_KEY_FLOATING_RECORDER_OVERLAY_Y = "pref_key_floating_recorder_overlay_y"
+        private const val PREF_KEY_FLOATING_RECORDER_OVERLAY_SIZE = "pref_key_floating_recorder_overlay_size"
         private const val PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_X =
             "pref_key_floating_recorder_rename_overlay_x"
         private const val PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_Y =

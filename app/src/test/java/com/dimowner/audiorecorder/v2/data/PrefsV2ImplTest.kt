@@ -51,6 +51,11 @@ class PrefsV2ImplTest {
     }
 
     @Test
+    fun `floating recorder overlay size defaults to unset`() {
+        assertEquals(-1, prefs.floatingRecorderOverlaySize)
+    }
+
+    @Test
     fun `floating recorder rename overlay position defaults to unset`() {
         assertEquals(-1, prefs.floatingRecorderRenameOverlayX)
         assertEquals(-1, prefs.floatingRecorderRenameOverlayY)
@@ -65,6 +70,15 @@ class PrefsV2ImplTest {
 
         assertEquals(42, reloadedPrefs.floatingRecorderOverlayX)
         assertEquals(84, reloadedPrefs.floatingRecorderOverlayY)
+    }
+
+    @Test
+    fun `floating recorder overlay size persists`() {
+        prefs.floatingRecorderOverlaySize = 112
+
+        val reloadedPrefs = PrefsV2Impl(context)
+
+        assertEquals(112, reloadedPrefs.floatingRecorderOverlaySize)
     }
 
     @Test
