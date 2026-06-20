@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.compose.compiler)
@@ -256,12 +255,13 @@ kotlin {
 configurations.all {
     resolutionStrategy {
         force("junit:junit:4.13.2")
+        force("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.0")
     }
 }
 
 composeCompiler {
     reportsDestination = layout.buildDirectory.dir("compose_compiler")
-    stabilityConfigurationFile = rootProject.layout.projectDirectory.file("stability_config.conf")
+    stabilityConfigurationFiles.add(rootProject.layout.projectDirectory.file("stability_config.conf"))
 }
 
 dependencies {
