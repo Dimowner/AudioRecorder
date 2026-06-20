@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
     id("kotlin-parcelize")
     id("jacoco")
 }
@@ -47,9 +49,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-//			firebaseCrashlytics {
-//				mappingFileUploadEnabled true
-//			}
         }
         getByName("debug") {
             isMinifyEnabled = false
@@ -280,6 +279,11 @@ dependencies {
     implementation(libs.jaudiotagger)
     implementation(libs.mp4parser.muxer)
     implementation(libs.androidx.media)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.analytics)
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))
