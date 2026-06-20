@@ -188,6 +188,7 @@
 	<string name="rec_description">Beschreibung</string>
 	<string name="rec_description_hint">Beschreibung für diese Aufnahme hinzufügen</string>
 	<string name="add_description">Beschreibung hinzufügen</string>
+	<string name="write_description_into_file">Beschreibung in die Audiodatei schreiben</string>
 	<string name="save_description_to_file">Auch in Audiodatei speichern</string>
 	<string name="msg_saved_successfully">Erfolgreich gespeichert</string>
 	<string name="naming">Benennung:</string>

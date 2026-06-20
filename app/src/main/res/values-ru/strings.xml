@@ -186,6 +186,7 @@
 	<string name="rec_description">Описание</string>
 	<string name="rec_description_hint">Добавить описание к этой записи</string>
 	<string name="add_description">Добавить описание</string>
+	<string name="write_description_into_file">Записать описание в аудиофайл</string>
 	<string name="save_description_to_file">Также сохранить в аудиофайл</string>
 	<string name="msg_saved_successfully">Успешно сохранено</string>
 	<string name="naming">Именование:</string>

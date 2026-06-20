@@ -507,7 +507,7 @@ fun RecordListItemView(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .wrapContentWidth()
                             .clickable(onClick = onClickDescription)
                             .padding(vertical = 2.dp),
                     )

@@ -57,6 +57,7 @@ import com.dimowner.audiorecorder.v2.app.calculateScale
 import com.dimowner.audiorecorder.v2.app.components.WaveformState
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
+import com.dimowner.audiorecorder.v2.app.isDescriptionFileWriteSupported
 import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingService
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingServiceEvent
@@ -297,6 +298,7 @@ class HomeViewModel @Inject constructor(
                                 startTime = "",
                                 endTime = "",
                                 recordName = context.getString(R.string.recording_progress),
+                                recordDescription = "",
                                 keepScreenOn = prefs.isKeepScreenOn,
                             )
                             withContext(ioDispatcher) {
@@ -609,6 +611,7 @@ class HomeViewModel @Inject constructor(
                     startTime = context.getString(R.string.zero_time),
                     endTime = TimeUtils.formatTimeIntervalHourMinSec2(activeRecord.durationMills),
                     recordName = activeRecord.name,
+                    recordDescription = activeRecord.description ?: "",
                     recordInfo = activeRecord.toInfoCombinedText(context),
                     isShowWaveform = true,
                     isShowLoadingProgress = false,
@@ -871,6 +874,41 @@ class HomeViewModel @Inject constructor(
             performRenameActiveRecord(newName)
             if (activeRecord != null) {
                 recordsDataSource.updateRecordDescription(activeRecord.id, newDescription, writeToFile)
+            }
+        }
+    }
+
+    fun showDescriptionDialog() {
+        _state.value = _state.value.copy(
+            showDescriptionDialog = true,
+            saveDescriptionToFile = prefs.saveDescriptionToFile,
+        )
+    }
+
+    fun dismissDescriptionDialog() {
+        _state.value = _state.value.copy(showDescriptionDialog = false)
+    }
+
+    fun saveActiveRecordDescription(description: String, writeToFile: Boolean) {
+        val isFileWriteSupported = isDescriptionFileWriteSupported(_state.value.recordFormat)
+        if (isFileWriteSupported) {
+            prefs.saveDescriptionToFile = writeToFile
+        }
+
+        viewModelScope.launch(ioDispatcher) {
+            val activeRecord = recordsDataSource.getActiveRecord()
+            if (activeRecord != null) {
+                recordsDataSource.updateRecordDescription(activeRecord.id, description, writeToFile)
+                withContext(mainDispatcher) {
+                    _state.value = _state.value.copy(
+                        showDescriptionDialog = false,
+                        recordDescription = description,
+                    )
+                }
+            } else {
+                withContext(mainDispatcher) {
+                    _state.value = _state.value.copy(showDescriptionDialog = false)
+                }
             }
         }
     }
@@ -1155,6 +1193,9 @@ class HomeViewModel @Inject constructor(
             }
             HomeScreenAction.RestoreBrokenRecord -> restoreBrokenRecord()
             HomeScreenAction.DismissBrokenRecordDialog -> dismissBrokenRecordDialog()
+            HomeScreenAction.ShowDescriptionDialog -> showDescriptionDialog()
+            is HomeScreenAction.SaveActiveRecordDescription -> saveActiveRecordDescription(action.description, action.writeToFile)
+            HomeScreenAction.DismissDescriptionDialog -> dismissDescriptionDialog()
         }
     }
 
@@ -1306,6 +1347,9 @@ data class HomeScreenState(
     val keepScreenOn: Boolean = false,
     // Show rename dialog after recording stopped
     val showRenameAfterRecordingDialog: Boolean = false,
+    // Show description edit dialog
+    val showDescriptionDialog: Boolean = false,
+    val saveDescriptionToFile: Boolean = true,
     // Broken record detection and restoration
     val showBrokenRecordDialog: Boolean = false,
     val brokenRecord: Record? = null,
@@ -1352,6 +1396,9 @@ sealed class HomeScreenAction {
     data class DismissRenameAfterRecordingDialog(val dontAskAgain: Boolean) : HomeScreenAction()
     data object RestoreBrokenRecord : HomeScreenAction()
     data object DismissBrokenRecordDialog : HomeScreenAction()
+    data object ShowDescriptionDialog : HomeScreenAction()
+    data class SaveActiveRecordDescription(val description: String, val writeToFile: Boolean) : HomeScreenAction()
+    data object DismissDescriptionDialog : HomeScreenAction()
 }
 
 sealed class HomeScreenEvent {

@@ -606,7 +606,7 @@ fun UpdateNameAndDescriptionDialog(
                     },
                     label = { Text(text = stringResource(id = R.string.rec_description)) },
                     placeholder = { Text(text = stringResource(id = R.string.rec_description_hint)) },
-                    minLines = 3,
+                    minLines = 2,
                     maxLines = 5,
                     supportingText = {
                         Text(
@@ -638,7 +638,7 @@ fun UpdateNameAndDescriptionDialog(
                     )
                     Text(
                         modifier = Modifier.align(Alignment.CenterVertically),
-                        text = stringResource(id = R.string.save_description_to_file),
+                        text = stringResource(id = R.string.write_description_into_file),
                         fontSize = 16.sp,
                         color = if (isWriteToFileSupported) {
                             Color.Unspecified
@@ -793,7 +793,7 @@ fun EditDescriptionDialog(
                     )
                     Text(
                         modifier = Modifier.align(Alignment.CenterVertically),
-                        text = stringResource(id = R.string.save_description_to_file),
+                        text = stringResource(id = R.string.write_description_into_file),
                         fontSize = 16.sp,
                         color = if (isWriteToFileSupported) {
                             Color.Unspecified

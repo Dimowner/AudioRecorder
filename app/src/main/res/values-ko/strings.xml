@@ -180,6 +180,7 @@
 	<string name="rec_description">설명</string>
 	<string name="rec_description_hint">이 녹음에 설명을 추가하세요</string>
 	<string name="add_description">설명 추가</string>
+	<string name="write_description_into_file">오디오 파일에 설명 쓰기</string>
 	<string name="save_description_to_file">오디오 파일에도 저장</string>
 	<string name="msg_saved_successfully">성공적으로 저장되었습니다</string>
 	<string name="naming">이름 지정:</string>

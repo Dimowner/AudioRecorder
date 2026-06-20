@@ -31,6 +31,9 @@ fun getHomeDroDownMenuItems(): List<DropDownMenuItem<HomeDropDownMenuItemId>> {
             HomeDropDownMenuItemId.RENAME -> DropDownMenuItem(
                 id = it, textResId = R.string.rename, imageResId = R.drawable.ic_pencil
             )
+            HomeDropDownMenuItemId.DESCRIPTION -> DropDownMenuItem(
+                id = it, textResId = R.string.add_description, imageResId = R.drawable.ic_description
+            )
             HomeDropDownMenuItemId.OPEN_WITH -> DropDownMenuItem(
                 id = it, textResId = R.string.open_with, imageResId = R.drawable.ic_open_with
             )

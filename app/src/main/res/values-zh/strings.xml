@@ -159,6 +159,7 @@
     <string name="rec_description">描述</string>
     <string name="rec_description_hint">为此录音添加描述</string>
     <string name="add_description">添加描述</string>
+    <string name="write_description_into_file">将描述写入音频文件</string>
     <string name="save_description_to_file">同时也保存到音频文件</string>
     <string name="msg_saved_successfully">保存成功</string>
     <string name="naming">命名方式：</string>

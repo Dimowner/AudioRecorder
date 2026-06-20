@@ -189,6 +189,7 @@
 	<string name="rec_description">説明</string>
 	<string name="rec_description_hint">この録音に説明を追加</string>
 	<string name="add_description">説明を追加</string>
+	<string name="write_description_into_file">オーディオファイルに説明を書き込む</string>
 	<string name="save_description_to_file">オーディオファイルにも保存</string>
 	<string name="msg_saved_successfully">正常に保存されました</string>
 	<string name="naming">命名：</string>

@@ -73,6 +73,7 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
+import com.dimowner.audiorecorder.v2.app.EditDescriptionDialog
 import com.dimowner.audiorecorder.v2.app.RenameAlertDialog
 import com.dimowner.audiorecorder.v2.app.SaveAsDialog
 import com.dimowner.audiorecorder.v2.app.UpdateNameAndDescriptionDialog
@@ -254,6 +255,10 @@ internal fun HomeScreen(
                         showRenameDialog.value = true
                     }
 
+                    HomeDropDownMenuItemId.DESCRIPTION -> {
+                        onAction(HomeScreenAction.ShowDescriptionDialog)
+                    }
+
                     HomeDropDownMenuItemId.OPEN_WITH -> {
                         onAction(HomeScreenAction.OpenActiveRecordWithAnotherApp)
                     }
@@ -346,6 +351,7 @@ internal fun HomeScreen(
     val timePanel: @Composable () -> Unit = {
         TimePanel(
             uiState.recordName,
+            uiState.recordDescription,
             uiState.recordInfo,
             uiState.time,
             uiState.startTime,
@@ -354,6 +360,7 @@ internal fun HomeScreen(
             !uiState.isRecording() && uiState.isShowWaveform,
             !uiState.isRecording() && uiState.isShowWaveform,
             onRenameClick = { showRenameDialog.value = true },
+            onDescriptionClick = { onAction(HomeScreenAction.ShowDescriptionDialog) },
             onProgressChange = { onAction(HomeScreenAction.OnProgressBarStateChange(it)) }
         )
     }
@@ -501,6 +508,18 @@ internal fun HomeScreen(
                             onAction(HomeScreenAction.RenameActiveRecord(it))
                         }, onDismissClick = {
                             showRenameDialog.value = false
+                        }
+                    )
+                } else if (uiState.showDescriptionDialog) {
+                    EditDescriptionDialog(
+                        initialDescription = uiState.recordDescription,
+                        initialWriteToFile = uiState.saveDescriptionToFile,
+                        isWriteToFileSupported = isDescriptionFileWriteSupported(uiState.recordFormat),
+                        onAcceptClick = { description, writeToFile ->
+                            onAction(HomeScreenAction.SaveActiveRecordDescription(description, writeToFile))
+                        },
+                        onDismissClick = {
+                            onAction(HomeScreenAction.DismissDescriptionDialog)
                         }
                     )
                 }

@@ -185,6 +185,7 @@
 	<string name="rec_description">Descripció</string>
 	<string name="rec_description_hint">Afegiu una descripció per a aquesta gravació</string>
 	<string name="add_description">Afegir descripció</string>
+	<string name="write_description_into_file">Escriu la descripció al fitxer d\'àudio</string>
 	<string name="save_description_to_file">També desa al fitxer d\'àudio</string>
 	<string name="msg_saved_successfully">S\'ha desat correctament</string>
 	<string name="naming">Nomenclatura:</string>
