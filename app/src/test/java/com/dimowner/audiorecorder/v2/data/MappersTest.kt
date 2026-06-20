@@ -91,7 +91,7 @@ class MappersTest {
             id, name, duration, created, added, removed,
             path, format, size, sampleRate, channelCount,
             bitrate, isBookmarked, isWaveformProcessed,
-            isMovedToRecycle, amps
+            isMovedToRecycle, amps, "",
         )
         val result = record.toRecordEntity()
         assertEquals(id, result.id)

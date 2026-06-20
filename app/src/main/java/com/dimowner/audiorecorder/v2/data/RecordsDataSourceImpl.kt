@@ -17,8 +17,12 @@
 package com.dimowner.audiorecorder.v2.data
 
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.dimowner.audiorecorder.AppConstantsV2.RECORD_DESCRIPTION_MAX_LENGTH
 import com.dimowner.audiorecorder.audio.AudioDecoder
+import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilter
+import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilterOptions
 import com.dimowner.audiorecorder.v2.audio.BrokenRecordRestorer
+import com.dimowner.audiorecorder.v2.audio.writeCommentTag
 import com.dimowner.audiorecorder.v2.data.extensions.toRecordsSortColumnName
 import com.dimowner.audiorecorder.v2.data.extensions.toSqlSortOrder
 import com.dimowner.audiorecorder.v2.data.model.Record
@@ -85,18 +89,50 @@ class RecordsDataSourceImpl @Inject internal constructor(
         page: Int,
         pageSize: Int,
         sortOrder: SortOrder,
-        isBookmarked: Boolean
+        isBookmarked: Boolean,
+        filter: RecordsFilter
     ): List<Record> {
+        val args = mutableListOf<Any>()
         val sb = StringBuilder()
         sb.append("SELECT * FROM records")
         sb.append(" WHERE isMovedToRecycle = 0")
         if (isBookmarked) {
             sb.append(" AND isBookmarked = 1")
         }
+        appendInClause(sb, args, "format", filter.formats)
+        appendInClause(sb, args, "sampleRate", filter.sampleRates)
+        appendInClause(sb, args, "channelCount", filter.channelCounts)
+        appendInClause(sb, args, "bitrate", filter.bitrates)
         sb.append(" ORDER BY ${sortOrder.toRecordsSortColumnName()} ${sortOrder.toSqlSortOrder()}")
         sb.append(" LIMIT $pageSize")
         sb.append(" OFFSET " + ((page - 1) * pageSize))
-        return recordDao.getRecordsRewQuery(SimpleSQLiteQuery(sb.toString())).map { it.toRecord() }
+        return recordDao.getRecordsRewQuery(SimpleSQLiteQuery(sb.toString(), args.toTypedArray()))
+            .map { it.toRecord() }
+    }
+
+    /**
+     * Appends an `AND column IN (?, ?, ...)` clause for the given [values], adding the bound
+     * arguments to [args]. Empty value sets are ignored so the column is not filtered.
+     */
+    private fun appendInClause(
+        sb: StringBuilder,
+        args: MutableList<Any>,
+        column: String,
+        values: Collection<Any>
+    ) {
+        if (values.isEmpty()) return
+        val placeholders = values.joinToString(separator = ", ") { "?" }
+        sb.append(" AND $column IN ($placeholders)")
+        args.addAll(values)
+    }
+
+    override suspend fun getFilterOptions(): RecordsFilterOptions {
+        return RecordsFilterOptions(
+            formats = recordDao.getDistinctFormats(),
+            sampleRates = recordDao.getDistinctSampleRates(),
+            channelCounts = recordDao.getDistinctChannelCounts(),
+            bitrates = recordDao.getDistinctBitrates(),
+        )
     }
 
     override suspend fun insertRecord(record: Record): Long {
@@ -148,6 +184,34 @@ class RecordsDataSourceImpl @Inject internal constructor(
             }
         } catch (e: Exception) {
             Timber.e(e)
+            false
+        }
+    }
+
+    override suspend fun updateRecordDescription(
+        recordId: Long,
+        description: String,
+        writeToFile: Boolean,
+    ): Boolean {
+        return try {
+            val record = getRecord(recordId)
+            if (record != null) {
+                val truncated = description.take(RECORD_DESCRIPTION_MAX_LENGTH)
+                val updated = updateRecord(record.copy(description = truncated))
+                if (updated) {
+                    if (writeToFile) {
+                        File(record.path).writeCommentTag(truncated)
+                    } else {
+                        File(record.path).writeCommentTag("")
+                    }
+                }
+                updated
+            } else {
+                Timber.w("updateRecordDescription: record %s not found", recordId)
+                false
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "updateRecordDescription failed for record %s", recordId)
             false
         }
     }

@@ -43,7 +43,7 @@ import org.robolectric.annotation.Config
 import kotlin.intArrayOf
 
 @RunWith(AndroidJUnit4::class)
-@Config(application = TestARApplication::class)
+@Config(application = TestARApplication::class, sdk = [36])
 class AudioManagerHelperTest {
 
     @MockK(relaxed = true)

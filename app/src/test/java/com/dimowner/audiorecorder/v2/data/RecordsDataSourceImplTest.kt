@@ -15,15 +15,21 @@
 */
 package com.dimowner.audiorecorder.v2.data
 
+import androidx.sqlite.db.SupportSQLiteQuery
+import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilter
 import com.dimowner.audiorecorder.v2.audio.BrokenRecordRestorer
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.data.room.RecordDao
 import com.dimowner.audiorecorder.v2.data.room.RecordEntity
 import io.mockk.MockKAnnotations
+import io.mockk.Runs
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.slot
+import io.mockk.unmockkStatic
 import io.mockk.verify
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
@@ -31,11 +37,20 @@ import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
+import org.jaudiotagger.audio.AudioFile
+import org.jaudiotagger.audio.AudioFileIO
+import org.jaudiotagger.tag.FieldKey
+import org.jaudiotagger.tag.Tag
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import java.io.File
 
 class RecordsDataSourceImplTest {
+
+    @get:Rule
+    val tempFolder = TemporaryFolder()
 
     @MockK
     lateinit var prefs: PrefsV2
@@ -147,6 +162,102 @@ class RecordsDataSourceImplTest {
 
         val isUpdated = recordsDataSourceImpl.updateRecord(record)
         assertTrue(isUpdated)
+    }
+
+    @Test
+    fun test_updateRecordDescription_db_only_updates_db_when_write_to_file_false() = runBlocking {
+        val id = 101L
+        val description = "A note for this record"
+
+        every { recordDao.getRecordById(id) } returns testRecordEntity
+        every { recordDao.updateRecord(any()) } returns 1
+
+        val result = recordsDataSourceImpl.updateRecordDescription(id, description, writeToFile = false)
+
+        assertTrue(result)
+        verify(exactly = 1) {
+            recordDao.updateRecord(
+                testRecordEntity.toRecord().copy(description = description).toRecordEntity()
+            )
+        }
+    }
+
+    @Test
+    fun test_updateRecordDescription_removes_comment_tag_from_file_when_write_to_file_false() = runBlocking {
+        val id = 101L
+        val testFile = tempFolder.newFile("test.mp3")
+        val entityWithRealPath = testRecordEntity.copy(path = testFile.absolutePath)
+        val audioFileMock = mockk<AudioFile>(relaxed = true)
+        val tagMock = mockk<Tag>(relaxed = true)
+
+        mockkStatic(AudioFileIO::class)
+        try {
+            every { AudioFileIO.read(testFile) } returns audioFileMock
+            every { audioFileMock.tagOrCreateAndSetDefault } returns tagMock
+            every { AudioFileIO.write(audioFileMock) } just Runs
+
+            every { recordDao.getRecordById(id) } returns entityWithRealPath
+            every { recordDao.updateRecord(any()) } returns 1
+
+            recordsDataSourceImpl.updateRecordDescription(
+                id,
+                "some description",
+                writeToFile = false
+            )
+
+            verify { tagMock.deleteField(FieldKey.COMMENT) }
+            verify(exactly = 0) { tagMock.setField(FieldKey.COMMENT, any()) }
+        } finally {
+            unmockkStatic(AudioFileIO::class)
+        }
+    }
+
+    @Test
+    fun test_updateRecordDescription_record_not_found() = runBlocking {
+        val id = 101L
+
+        every { recordDao.getRecordById(id) } returns null
+
+        val result = recordsDataSourceImpl.updateRecordDescription(id, "note", writeToFile = true)
+
+        assertFalse(result)
+        verify(exactly = 0) { recordDao.updateRecord(any()) }
+    }
+
+    @Test
+    fun test_updateRecordDescription_truncates_description_over_500_chars() = runBlocking {
+        val id = 101L
+        val longDescription = "A".repeat(600)
+
+        every { recordDao.getRecordById(id) } returns testRecordEntity
+        every { recordDao.updateRecord(any()) } returns 1
+
+        val result = recordsDataSourceImpl.updateRecordDescription(id, longDescription, writeToFile = false)
+
+        assertTrue(result)
+        verify(exactly = 1) {
+            recordDao.updateRecord(
+                testRecordEntity.toRecord().copy(description = "A".repeat(500)).toRecordEntity()
+            )
+        }
+    }
+
+    @Test
+    fun test_updateRecordDescription_keeps_description_at_exactly_500_chars() = runBlocking {
+        val id = 101L
+        val description500 = "B".repeat(500)
+
+        every { recordDao.getRecordById(id) } returns testRecordEntity
+        every { recordDao.updateRecord(any()) } returns 1
+
+        val result = recordsDataSourceImpl.updateRecordDescription(id, description500, writeToFile = false)
+
+        assertTrue(result)
+        verify(exactly = 1) {
+            recordDao.updateRecord(
+                testRecordEntity.toRecord().copy(description = description500).toRecordEntity()
+            )
+        }
     }
 
     @Test
@@ -756,6 +867,117 @@ class RecordsDataSourceImplTest {
         )
 
         assertEquals(1, result.size)
+    }
+
+    @Test
+    fun test_getRecords_paged_noFilter_buildsQueryWithoutInClause() = runBlocking {
+        val querySlot = slot<SupportSQLiteQuery>()
+        every { recordDao.getRecordsRewQuery(capture(querySlot)) } returns listOf(testRecordEntity)
+
+        recordsDataSourceImpl.getRecords(page = 1, pageSize = 10)
+
+        val sql = querySlot.captured.sql
+        assertTrue(sql.contains("WHERE isMovedToRecycle = 0"))
+        assertFalse(sql.contains(" IN ("))
+        assertEquals(0, querySlot.captured.argCount)
+    }
+
+    @Test
+    fun test_getRecords_paged_withFilter_buildsInClausesAndBindsArgs() = runBlocking {
+        val querySlot = slot<SupportSQLiteQuery>()
+        every { recordDao.getRecordsRewQuery(capture(querySlot)) } returns listOf(testRecordEntity)
+
+        val filter = RecordsFilter(
+            formats = setOf("mp3", "wav"),
+            sampleRates = setOf(44100),
+            channelCounts = setOf(1, 2),
+            bitrates = setOf(128),
+        )
+
+        val result = recordsDataSourceImpl.getRecords(
+            page = 1,
+            pageSize = 10,
+            filter = filter
+        )
+
+        assertEquals(1, result.size)
+
+        val sql = querySlot.captured.sql
+        assertTrue(sql.contains("format IN (?, ?)"))
+        assertTrue(sql.contains("sampleRate IN (?)"))
+        assertTrue(sql.contains("channelCount IN (?, ?)"))
+        assertTrue(sql.contains("bitrate IN (?)"))
+        // 2 formats + 1 sampleRate + 2 channelCounts + 1 bitrate = 6 bound args
+        assertEquals(6, querySlot.captured.argCount)
+    }
+
+    @Test
+    fun test_getRecords_paged_emptyFilter_addsNoInClause() = runBlocking {
+        val querySlot = slot<SupportSQLiteQuery>()
+        every { recordDao.getRecordsRewQuery(capture(querySlot)) } returns emptyList()
+
+        recordsDataSourceImpl.getRecords(
+            page = 1,
+            pageSize = 10,
+            filter = RecordsFilter()
+        )
+
+        val sql = querySlot.captured.sql
+        assertFalse(sql.contains(" IN ("))
+        assertEquals(0, querySlot.captured.argCount)
+    }
+
+    @Test
+    fun test_getRecords_paged_partialFilter_onlyFiltersProvidedDimensions() = runBlocking {
+        val querySlot = slot<SupportSQLiteQuery>()
+        every { recordDao.getRecordsRewQuery(capture(querySlot)) } returns listOf(testRecordEntity)
+
+        recordsDataSourceImpl.getRecords(
+            page = 1,
+            pageSize = 10,
+            filter = RecordsFilter(formats = setOf("m4a"))
+        )
+
+        val sql = querySlot.captured.sql
+        assertTrue(sql.contains("format IN (?)"))
+        assertFalse(sql.contains("sampleRate IN"))
+        assertFalse(sql.contains("channelCount IN"))
+        assertFalse(sql.contains("bitrate IN"))
+        assertEquals(1, querySlot.captured.argCount)
+    }
+
+    // ==================== getFilterOptions ====================
+
+    @Test
+    fun test_getFilterOptions_mapsDaoValues() = runBlocking {
+        every { recordDao.getDistinctFormats() } returns listOf("m4a", "mp3", "wav")
+        every { recordDao.getDistinctSampleRates() } returns listOf(8000, 16000, 44100)
+        every { recordDao.getDistinctChannelCounts() } returns listOf(1, 2)
+        every { recordDao.getDistinctBitrates() } returns listOf(64, 128, 192)
+
+        val result = recordsDataSourceImpl.getFilterOptions()
+
+        assertEquals(listOf("m4a", "mp3", "wav"), result.formats)
+        assertEquals(listOf(8000, 16000, 44100), result.sampleRates)
+        assertEquals(listOf(1, 2), result.channelCounts)
+        assertEquals(listOf(64, 128, 192), result.bitrates)
+        assertFalse(result.isEmpty)
+    }
+
+    @Test
+    fun test_getFilterOptions_emptyWhenNoRecords() = runBlocking {
+        every { recordDao.getDistinctFormats() } returns emptyList()
+        every { recordDao.getDistinctSampleRates() } returns emptyList()
+        every { recordDao.getDistinctChannelCounts() } returns emptyList()
+        every { recordDao.getDistinctBitrates() } returns emptyList()
+
+        val result = recordsDataSourceImpl.getFilterOptions()
+
+        assertTrue(result.formats.isEmpty())
+        assertTrue(result.sampleRates.isEmpty())
+        assertTrue(result.channelCounts.isEmpty())
+        assertTrue(result.bitrates.isEmpty())
+        assertTrue(result.isEmpty)
     }
 
     // ==================== insertRecord ====================

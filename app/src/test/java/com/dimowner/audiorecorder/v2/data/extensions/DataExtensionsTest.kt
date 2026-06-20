@@ -32,7 +32,8 @@ class DataExtensionsTest {
             isBookmarked = false,
             isWaveformProcessed = false,
             isMovedToRecycle = false,
-            amps = intArrayOf()
+            amps = intArrayOf(),
+            description = ""
         )
     }
 

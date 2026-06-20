@@ -116,6 +116,18 @@ interface RecordDao {
     @RawQuery
     fun getRecordsRewQuery(query: SupportSQLiteQuery): List<RecordEntity>
 
+    @Query("SELECT DISTINCT format FROM records WHERE isMovedToRecycle = 0 AND format != '' ORDER BY format ASC")
+    fun getDistinctFormats(): List<String>
+
+    @Query("SELECT DISTINCT sampleRate FROM records WHERE isMovedToRecycle = 0 AND sampleRate > 0 ORDER BY sampleRate ASC")
+    fun getDistinctSampleRates(): List<Int>
+
+    @Query("SELECT DISTINCT channelCount FROM records WHERE isMovedToRecycle = 0 AND channelCount > 0 ORDER BY channelCount ASC")
+    fun getDistinctChannelCounts(): List<Int>
+
+    @Query("SELECT DISTINCT bitrate FROM records WHERE isMovedToRecycle = 0 AND bitrate > 0 ORDER BY bitrate ASC")
+    fun getDistinctBitrates(): List<Int>
+
     /**
      * Returns records that appear to be broken due to an interrupted recording.
      * A broken record has duration=0 (meaning handleRecordingStopped never ran)

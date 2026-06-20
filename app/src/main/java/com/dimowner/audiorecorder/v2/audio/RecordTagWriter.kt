@@ -22,20 +22,20 @@ import timber.log.Timber
 import java.io.File
 
 /**
- * Writes metadata tags to the recorded audio file.
- * Sets the artist/author tag to the given authorName and the title tag to the record name.
+ * Writes ARTIST and TITLE metadata tags to the recorded audio file.
  *
  * @receiver The recorded audio file to tag.
  * @param recordName The name of the record to set as the title tag.
  * @param authorName The author/artist name to set as the artist tag. Defaults to "Audio Recorder".
  */
-fun File.writeTags(recordName: String, authorName: String = DefaultValues.DEFAULT_RECORD_AUTHOR_NAME) {
+fun File.writeTags(
+    recordName: String,
+    authorName: String = DefaultValues.DEFAULT_RECORD_AUTHOR_NAME,
+) {
     try {
         val audioFile = AudioFileIO.read(this)
         val tag = audioFile.tagOrCreateAndSetDefault
-        if (authorName.isNotBlank()) {
-            tag.setField(FieldKey.ARTIST, authorName)
-        }
+        tag.setField(FieldKey.ARTIST, authorName)
         tag.setField(FieldKey.TITLE, recordName)
         AudioFileIO.write(audioFile)
         Timber.d("Tags written successfully for file: ${name}, title: $recordName, artist: $authorName")
@@ -43,3 +43,28 @@ fun File.writeTags(recordName: String, authorName: String = DefaultValues.DEFAUL
         Timber.e(e, "Failed to write tags for file: ${name}")
     }
 }
+
+/**
+ * Writes or removes the COMMENT metadata tag on an audio file.
+ * When [description] is empty the COMMENT field is deleted from the file;
+ * otherwise it is set to [description].
+ *
+ * @receiver The audio file to tag.
+ * @param description The description text to store as the COMMENT tag, or empty to remove it.
+ */
+fun File.writeCommentTag(description: String) {
+    try {
+        val audioFile = AudioFileIO.read(this)
+        val tag = audioFile.tagOrCreateAndSetDefault
+        if (description.isBlank()) {
+            tag.deleteField(FieldKey.COMMENT)
+        } else {
+            tag.setField(FieldKey.COMMENT, description)
+        }
+        AudioFileIO.write(audioFile)
+        Timber.d("Comment tag written successfully for file: $name")
+    } catch (e: Exception) {
+        Timber.e(e, "Failed to write comment tag for file: $name")
+    }
+}
+

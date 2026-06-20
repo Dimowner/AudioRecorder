@@ -98,6 +98,7 @@
     <string name="failed_to_delete_all_records">Falha ao excluir todas as gravações</string>
     <string name="please_select_record_to_share">Selecione uma gravação para compartilhar</string>
     <string name="update_record_name">Atualizar nome</string>
+    <string name="update_name_and_description">Atualizar nome e descrição</string>
     <string name="recording">Gravando: %s</string>
     <string name="recording_is_on">Gravação ativada</string>
     <string name="recording_progress">Gravando&#8230;</string>
@@ -171,6 +172,10 @@
     <string name="by_name_desc">Por nome (Z-A)</string>
     <string name="by_duration">Por duração (mais longa)</string>
     <string name="by_duration_desc">Por duração (mais curta)</string>
+    <string name="filter">Filtro</string>
+    <string name="filter_clear">Limpar</string>
+    <string name="filter_dismiss">Fechar filtro</string>
+    <string name="filter_no_options">Nenhum registro para filtrar</string>
     <string name="need_write_permission">O app precisa de permissão para acessar o armazenamento público. Caso não seja concedida, as gravações serão salvas no diretório privado do app</string>
     <string name="rec_name">Nome:</string>
     <string name="rec_format">Formato:</string>
@@ -178,6 +183,13 @@
     <string name="rec_size">Tamanho:</string>
     <string name="rec_created">Criado em:</string>
     <string name="rec_location">Local do arquivo:</string>
+    <string name="rec_description">Descrição</string>
+    <string name="rec_description_hint">Adicionar uma descrição para esta gravação</string>
+    <string name="edit_description">Editar descrição</string>
+    <string name="add_description">Adicionar descrição</string>
+    <string name="write_description_into_file">Escrever descrição no arquivo de áudio</string>
+    <string name="save_description_to_file">Também salvar no arquivo de áudio</string>
+    <string name="msg_saved_successfully">Salvo com sucesso</string>
     <string name="naming">Nome:</string>
     <string name="private_dir_warning">As gravações serão armazenadas no diretório privado do app, não visível para outros apps</string>
     <string name="public_dir_warning">As gravações serão armazenadas em uma pasta comum do dispositivo, visível para outros apps</string>
@@ -432,4 +444,3 @@
     <string name="navigate_back">Voltar</string>
     <string name="dropdown_menu">Menu</string>
 </resources>
-

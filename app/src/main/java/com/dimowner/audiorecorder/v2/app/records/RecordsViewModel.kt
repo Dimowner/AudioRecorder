@@ -32,6 +32,9 @@ import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
+import com.dimowner.audiorecorder.v2.app.isDescriptionFileWriteSupported
+import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilter
+import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilterOptions
 import com.dimowner.audiorecorder.v2.app.records.models.SortDropDownMenuItemId
 import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
 import com.dimowner.audiorecorder.v2.audio.AudioRecorderDelegate
@@ -117,6 +120,7 @@ internal class RecordsViewModel @Inject constructor(
         currentPage = 1
         val context: Context = getApplication<Application>().applicationContext
         val sortOrder = state.value.sortOrder
+        val filter = state.value.filter
         val activeRecordId = prefs.activeRecordId
 
         // Load pages until the active record is found or there are no more pages.
@@ -132,6 +136,7 @@ internal class RecordsViewModel @Inject constructor(
                 page = currentPage,
                 pageSize = DEFAULT_PAGE_SIZE,
                 isBookmarked = false,
+                filter = filter,
             )
             allLoadedRecords.addAll(page)
             hasMoreData = page.size >= DEFAULT_PAGE_SIZE
@@ -144,6 +149,7 @@ internal class RecordsViewModel @Inject constructor(
         }
 
         val deletedRecordsCount = recordsDataSource.getMovedToRecycleRecordsCount()
+        val filterOptions = recordsDataSource.getFilterOptions()
         val lostRecords = checkForLostRecords(allLoadedRecords)
         if (lostRecords.isNotEmpty()) {
             analyticsTracker.trackLostRecordsDetected(count = lostRecords.size)
@@ -156,6 +162,8 @@ internal class RecordsViewModel @Inject constructor(
         withContext(mainDispatcher) {
             _state.value = RecordsScreenState(
                 sortOrder = sortOrder,
+                filter = filter,
+                filterOptions = filterOptions,
                 recordsMap = allLoadedRecords.map {
                     it.toRecordListItem(context)
                 }.groupRecordsByDate(context, sortOrder),
@@ -186,6 +194,7 @@ internal class RecordsViewModel @Inject constructor(
                 page = currentPage,
                 pageSize = DEFAULT_PAGE_SIZE,
                 isBookmarked = state.value.bookmarksSelected,
+                filter = state.value.filter,
             )
             withContext(mainDispatcher) {
                 val newRecordsMap = newRecords.map { it.toRecordListItem(context) }
@@ -212,6 +221,7 @@ internal class RecordsViewModel @Inject constructor(
                 page = currentPage,
                 pageSize = DEFAULT_PAGE_SIZE,
                 isBookmarked = bookmarksSelected,
+                filter = state.value.filter,
             )
             val context = getApplication<Application>().applicationContext
             withContext(mainDispatcher) {
@@ -316,6 +326,7 @@ internal class RecordsViewModel @Inject constructor(
                 page = currentPage,
                 pageSize = DEFAULT_PAGE_SIZE,
                 isBookmarked = _state.value.bookmarksSelected,
+                filter = _state.value.filter,
             )
             val context = getApplication<Application>().applicationContext
             withContext(mainDispatcher) {
@@ -324,6 +335,48 @@ internal class RecordsViewModel @Inject constructor(
                         it.toRecordListItem(context)
                     }.groupRecordsByDate(context, sortOrder),
                     sortOrder = sortOrder,
+                    hasMoreData = records.size >= DEFAULT_PAGE_SIZE,
+                )
+            }
+        }
+    }
+
+    private fun toggleFilterPanel() {
+        _state.value = _state.value.copy(showFilterPanel = !_state.value.showFilterPanel)
+    }
+
+    private fun updateFilter(filter: RecordsFilter) {
+        _state.value = _state.value.copy(filter = filter)
+        reloadRecordsWithCurrentFilter()
+    }
+
+    private fun clearFilter() {
+        if (_state.value.filter.isEmpty) return
+        _state.value = _state.value.copy(filter = RecordsFilter())
+        reloadRecordsWithCurrentFilter()
+    }
+
+    /**
+     * Reloads the first page of records honoring the currently active sort order, bookmarks
+     * selection and filter. Used whenever the filter selection changes.
+     */
+    private fun reloadRecordsWithCurrentFilter() {
+        viewModelScope.launch(ioDispatcher) {
+            currentPage = 1
+            val sortOrder = _state.value.sortOrder
+            val records = recordsDataSource.getRecords(
+                sortOrder = sortOrder,
+                page = currentPage,
+                pageSize = DEFAULT_PAGE_SIZE,
+                isBookmarked = _state.value.bookmarksSelected,
+                filter = _state.value.filter,
+            )
+            val context = getApplication<Application>().applicationContext
+            withContext(mainDispatcher) {
+                _state.value = _state.value.copy(
+                    recordsMap = records.map {
+                        it.toRecordListItem(context)
+                    }.groupRecordsByDate(context, sortOrder),
                     hasMoreData = records.size >= DEFAULT_PAGE_SIZE,
                 )
             }
@@ -420,6 +473,49 @@ internal class RecordsViewModel @Inject constructor(
                         operationSelectedRecord = null
                     )
                 }
+            }
+        }
+    }
+
+    fun onEditDescriptionRequest(record: RecordListItem) {
+        multiSelectCancel()
+        _state.value = _state.value.copy(
+            showEditDescriptionDialog = true,
+            saveDescriptionToFile = prefs.saveDescriptionToFile,
+            operationSelectedRecord = record
+        )
+    }
+
+    fun onEditDescriptionDismiss() {
+        _state.value = _state.value.copy(
+            showEditDescriptionDialog = false,
+            operationSelectedRecord = null
+        )
+    }
+
+    fun saveRecordDescription(recordId: Long, description: String, writeToFile: Boolean) {
+        // Only remember the checkbox choice for formats that actually support file-write,
+        // so a forced-off 3GP save doesn't clobber the default for other formats.
+        val isFileWriteSupported = _state.value.operationSelectedRecord
+            ?.let { isDescriptionFileWriteSupported(it.format) } ?: true
+        if (isFileWriteSupported) {
+            prefs.saveDescriptionToFile = writeToFile
+        }
+        viewModelScope.launch(ioDispatcher) {
+            val success = recordsDataSource.updateRecordDescription(recordId, description, writeToFile)
+            _state.value = if (success) {
+                _state.value.copy(
+                    showEditDescriptionDialog = false,
+                    operationSelectedRecord = null,
+                    recordsMap = _state.value.recordsMap.mapRecordInMap(recordId) { oldRecord ->
+                        oldRecord.copy(description = description)
+                    }
+                )
+            } else {
+                _state.value.copy(
+                    showEditDescriptionDialog = false,
+                    operationSelectedRecord = null
+                )
             }
         }
     }
@@ -588,6 +684,9 @@ internal class RecordsViewModel @Inject constructor(
             is RecordsScreenAction.OnStopRecordsScreen -> onStop()
             is RecordsScreenAction.UpdateListWithSortOrder -> updateListWithSortOrder(action.sortOrderId)
             is RecordsScreenAction.UpdateListWithBookmarks -> updateListWithBookmarks(action.bookmarksSelected)
+            RecordsScreenAction.ToggleFilterPanel -> toggleFilterPanel()
+            is RecordsScreenAction.UpdateFilter -> updateFilter(action.filter)
+            RecordsScreenAction.ClearFilter -> clearFilter()
             is RecordsScreenAction.BookmarkRecord -> bookmarkRecord(action.recordId, action.addToBookmarks)
             RecordsScreenAction.BookmarkActiveRecord -> bookmarkActiveRecord()
             RecordsScreenAction.PlayNextRecord -> playNextRecord()
@@ -606,6 +705,9 @@ internal class RecordsViewModel @Inject constructor(
             RecordsScreenAction.OnSaveAsDismiss -> onSaveAsDismiss()
             is RecordsScreenAction.RenameRecord -> renameRecord(action.recordId, action.newName)
             RecordsScreenAction.OnRenameRecordDismiss -> onRenameRecordDismiss()
+            is RecordsScreenAction.OnEditDescriptionRequest -> onEditDescriptionRequest(action.record)
+            is RecordsScreenAction.SaveRecordDescription -> saveRecordDescription(action.recordId, action.description, action.writeToFile)
+            RecordsScreenAction.OnEditDescriptionDismiss -> onEditDescriptionDismiss()
             is RecordsScreenAction.MultiSelectAddItem -> multiSelectAdd(action.selectedRecord)
             RecordsScreenAction.MultiSelectCancel -> multiSelectCancel()
             is RecordsScreenAction.MultiSelectMoveToRecycle -> multiSelectMoveToRecycle()
@@ -727,6 +829,7 @@ internal class RecordsViewModel @Inject constructor(
                     page = currentPage,
                     pageSize = DEFAULT_PAGE_SIZE,
                     isBookmarked = state.value.bookmarksSelected,
+                    filter = state.value.filter,
                 )
                 val recordsInRecycleCount = recordsDataSource.getMovedToRecycleRecordsCount()
                 val selectedRecords = state.value.selectedRecords
@@ -819,7 +922,13 @@ data class RecordsScreenState(
     val isShowLoadingProgress: Boolean = false,
     val hasMoreData: Boolean = false,
 
+    val filter: RecordsFilter = RecordsFilter(),
+    val filterOptions: RecordsFilterOptions = RecordsFilterOptions(),
+    val showFilterPanel: Boolean = false,
+
     val showRenameDialog: Boolean = false,
+    val showEditDescriptionDialog: Boolean = false,
+    val saveDescriptionToFile: Boolean = true,
     val showMoveToRecycleDialog: Boolean = false,
     val showMoveToRecycleMultipleDialog: Boolean = false,
     val showSaveAsDialog: Boolean = false,
@@ -840,7 +949,9 @@ data class RecordListItem(
     val details: String,
     val duration: String,
     val added: Long,
-    val isBookmarked: Boolean
+    val isBookmarked: Boolean,
+    val description: String = "",
+    val format: String = ""
 )
 
 internal sealed class RecordsScreenEvent {
@@ -859,6 +970,9 @@ internal sealed class RecordsScreenAction {
     data object OnStopRecordsScreen : RecordsScreenAction()
     data class UpdateListWithSortOrder(val sortOrderId: SortDropDownMenuItemId) : RecordsScreenAction()
     data class UpdateListWithBookmarks(val bookmarksSelected: Boolean) : RecordsScreenAction()
+    data object ToggleFilterPanel : RecordsScreenAction()
+    data class UpdateFilter(val filter: RecordsFilter) : RecordsScreenAction()
+    data object ClearFilter : RecordsScreenAction()
     data class OnItemSelect(val record: RecordListItem) : RecordsScreenAction()
     data class BookmarkRecord(val recordId: Long, val addToBookmarks: Boolean) : RecordsScreenAction()
     data object BookmarkActiveRecord : RecordsScreenAction()
@@ -877,6 +991,13 @@ internal sealed class RecordsScreenAction {
     data object OnSaveAsDismiss : RecordsScreenAction()
     data class RenameRecord(val recordId: Long, val newName: String) : RecordsScreenAction()
     data object OnRenameRecordDismiss : RecordsScreenAction()
+    data class OnEditDescriptionRequest(val record: RecordListItem) : RecordsScreenAction()
+    data class SaveRecordDescription(
+        val recordId: Long,
+        val description: String,
+        val writeToFile: Boolean,
+    ) : RecordsScreenAction()
+    data object OnEditDescriptionDismiss : RecordsScreenAction()
     data class MultiSelectAddItem(val selectedRecord: RecordListItem) : RecordsScreenAction()
     data object MultiSelectCancel : RecordsScreenAction()
     data class MultiSelectShare(val selectedRecords: List<RecordListItem>) : RecordsScreenAction()
@@ -897,6 +1018,8 @@ internal fun Record.toRecordListItem(context: Context): RecordListItem {
         details = this.toInfoCombinedText(context),
         duration =  TimeUtils.formatTimeIntervalHourMinSec2(this.durationMills),
         added = this.added,
-        isBookmarked = this.isBookmarked
+        isBookmarked = this.isBookmarked,
+        description = this.description,
+        format = this.format
     )
 }

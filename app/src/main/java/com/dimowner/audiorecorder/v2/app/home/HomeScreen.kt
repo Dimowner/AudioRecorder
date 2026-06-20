@@ -23,10 +23,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,8 +37,11 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -58,6 +63,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -67,12 +73,17 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
+import com.dimowner.audiorecorder.v2.app.EditDescriptionDialog
 import com.dimowner.audiorecorder.v2.app.RenameAlertDialog
 import com.dimowner.audiorecorder.v2.app.SaveAsDialog
+import com.dimowner.audiorecorder.v2.app.UpdateNameAndDescriptionDialog
+import com.dimowner.audiorecorder.v2.app.isDescriptionFileWriteSupported
 import com.dimowner.audiorecorder.v2.app.components.BluetoothMicSelector
 import com.dimowner.audiorecorder.v2.app.components.KeepScreenOn
+import com.dimowner.audiorecorder.v2.app.components.MAX_CONTENT_WIDTH_NARROW
 import com.dimowner.audiorecorder.v2.app.components.WaveformComposeView
 import com.dimowner.audiorecorder.v2.app.components.WaveformState
+import com.dimowner.audiorecorder.v2.app.components.rememberWindowLayout
 import com.dimowner.audiorecorder.v2.app.getTestRecordingWaveformData
 import com.dimowner.audiorecorder.v2.app.getTestWaveformData
 import com.dimowner.audiorecorder.v2.app.lostrecords.LostRecordsDialog
@@ -222,28 +233,173 @@ internal fun HomeScreen(
             }
     }
     KeepScreenOn(enabled = uiState.keepScreenOn)
+
+    val windowLayout = rememberWindowLayout()
+
+    val topBar: @Composable () -> Unit = {
+        TopAppBar(
+            onImportClick = {
+                launcher.launch("audio/*")
+            },
+            onHomeMenuItemClick = {
+                when (it) {
+                    HomeDropDownMenuItemId.SHARE -> {
+                        onAction(HomeScreenAction.ShareActiveRecord)
+                    }
+
+                    HomeDropDownMenuItemId.INFORMATION -> {
+                        onAction(HomeScreenAction.ShowActiveRecordInfo)
+                    }
+
+                    HomeDropDownMenuItemId.RENAME -> {
+                        showRenameDialog.value = true
+                    }
+
+                    HomeDropDownMenuItemId.DESCRIPTION -> {
+                        onAction(HomeScreenAction.ShowDescriptionDialog)
+                    }
+
+                    HomeDropDownMenuItemId.OPEN_WITH -> {
+                        onAction(HomeScreenAction.OpenActiveRecordWithAnotherApp)
+                    }
+
+                    HomeDropDownMenuItemId.SAVE_AS -> {
+                        showSaveAsDialog.value = true
+                    }
+
+                    HomeDropDownMenuItemId.DELETE -> {
+                        showDeleteDialog.value = true
+                    }
+                }
+            },
+            showImportButton = !uiState.isRecording(),
+            showMenuButton = !uiState.isRecording()
+        )
+    }
+    val statusPanels: @Composable () -> Unit = {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            // Show Bluetooth and Audio Source settings when there are available BT devices.
+            if (!uiState.isShowLoadingProgress
+                && uiState.connectedBluetoothDevices.isNotEmpty()
+            ) {
+                BluetoothMicSelector(
+                    connectedDevices = uiState.connectedBluetoothDevices,
+                    selectedDevice = uiState.selectedBluetoothDevice,
+                    isEnabled = uiState.isBluetoothMicEnabled,
+                    onDeviceSelected = { device ->
+                        onAction(HomeScreenAction.SelectBluetoothDevice(device))
+                    },
+                    onToggleEnabled = { enabled ->
+                        onAction(HomeScreenAction.SetBluetoothMicEnabled(enabled))
+                    }
+                )
+            }
+            if (uiState.isShowImportProgress) {
+                Spacer(modifier = Modifier.width(24.dp))
+                ProgressPanel(text = stringResource(R.string.import_progress))
+            }
+            if (uiState.isShowRecordProcessing) {
+                Spacer(modifier = Modifier.width(24.dp))
+                ProgressPanel(text = stringResource(R.string.record_processing))
+            }
+        }
+    }
+    val waveformPanel: @Composable (waveformHeight: Dp) -> Unit = { waveformHeight ->
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            if (uiState.isShowLoadingProgress) {
+                //Show nothing because of progress takes very short period of time
+            } else if (uiState.isShowWaveform) {
+                WaveformComposeView(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(waveformHeight),
+                    state = uiState.waveformState,
+                    showTimeline = true,
+                    onSeekStart = {
+                        onAction(HomeScreenAction.OnSeekStart)
+                    },
+                    onSeekProgress = { mills ->
+                        onAction(HomeScreenAction.OnSeekProgress(mills))
+                    },
+                    onSeekEnd = { mills ->
+                        onAction(HomeScreenAction.OnSeekEnd(mills))
+                    }
+                )
+                if (!uiState.isRecording()) {
+                    PlayPanel(
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .fillMaxWidth()
+                            .padding(8.dp, 8.dp),
+                        showPause = uiState.showPause,
+                        showStop = uiState.showStop,
+                        onPlayClick = { onAction(HomeScreenAction.OnPlayClick) },
+                        onStopClick = { onAction(HomeScreenAction.OnStopClick) },
+                        onPauseClick = { onAction(HomeScreenAction.OnPauseClick) }
+                    )
+                }
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.waveform),
+                    contentDescription = stringResource(R.string.app_name),
+                    modifier = Modifier.wrapContentSize(),
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                )
+            }
+        }
+    }
+    val timePanel: @Composable () -> Unit = {
+        TimePanel(
+            uiState.recordName,
+            uiState.recordDescription,
+            uiState.recordInfo,
+            uiState.time,
+            uiState.startTime,
+            uiState.endTime,
+            uiState.progress,
+            !uiState.isRecording() && uiState.isShowWaveform,
+            !uiState.isRecording() && uiState.isShowWaveform,
+            onRenameClick = { showRenameDialog.value = true },
+            onDescriptionClick = { onAction(HomeScreenAction.ShowDescriptionDialog) },
+            onProgressChange = { onAction(HomeScreenAction.OnProgressBarStateChange(it)) }
+        )
+    }
+    val bottomBar: @Composable () -> Unit = {
+        BottomBar(
+            onSettingsClick = { showSettingsScreen() },
+            onRecordsListClick = { showRecordsScreen() },
+            onStartRecordingClick = handleRecordButtonClick,
+            onPauseRecordingClick = { onAction(HomeScreenAction.OnPauseRecordingClick) },
+            onResumeRecordingClick = { onAction(HomeScreenAction.OnResumeRecordingClick) },
+            onStopRecordingClick = { onAction(HomeScreenAction.OnStopRecordingClick) },
+            onDeleteRecordingClick = { onAction(HomeScreenAction.OnDeleteRecordingProgressClick) },
+            bottomBarState = uiState.bottomBarState
+        )
+    }
+
     Scaffold(
         contentWindowInsets = WindowInsets.safeDrawing,
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         },
         bottomBar = {
-            Column(modifier = Modifier.navigationBarsPadding()) {
-                BottomBar(
-                    onSettingsClick = { showSettingsScreen() },
-                    onRecordsListClick = { showRecordsScreen() },
-                    onStartRecordingClick = handleRecordButtonClick,
-                    onPauseRecordingClick = { onAction(HomeScreenAction.OnPauseRecordingClick) },
-                    onResumeRecordingClick = { onAction(HomeScreenAction.OnResumeRecordingClick) },
-                    onStopRecordingClick = { onAction(HomeScreenAction.OnStopRecordingClick) },
-                    onDeleteRecordingClick = { onAction(HomeScreenAction.OnDeleteRecordingProgressClick) },
-                    bottomBarState = uiState.bottomBarState
-                )
-                Spacer(
+            // In horizontal layout the recording controls live in the right pane instead.
+            if (!windowLayout.useHorizontalLayout) {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(12.dp)
-                )
+                        .navigationBarsPadding(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(modifier = Modifier.widthIn(max = MAX_CONTENT_WIDTH_NARROW)) {
+                        bottomBar()
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(12.dp)
+                        )
+                    }
+                }
             }
         },
     ) { innerPadding ->
@@ -252,132 +408,77 @@ internal fun HomeScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                TopAppBar(
-                    onImportClick = {
-                        launcher.launch("audio/*")
-                    },
-                    onHomeMenuItemClick = {
-                        when (it) {
-                            HomeDropDownMenuItemId.SHARE -> {
-                                onAction(HomeScreenAction.ShareActiveRecord)
-                            }
-
-                            HomeDropDownMenuItemId.INFORMATION -> {
-                                onAction(HomeScreenAction.ShowActiveRecordInfo)
-                            }
-
-                            HomeDropDownMenuItemId.RENAME -> {
-                                showRenameDialog.value = true
-                            }
-
-                            HomeDropDownMenuItemId.OPEN_WITH -> {
-                                onAction(HomeScreenAction.OpenActiveRecordWithAnotherApp)
-                            }
-
-                            HomeDropDownMenuItemId.SAVE_AS -> {
-                                showSaveAsDialog.value = true
-                            }
-
-                            HomeDropDownMenuItemId.DELETE -> {
-                                showDeleteDialog.value = true
-                            }
-                        }
-                    },
-                    showImportButton = !uiState.isRecording(),
-                    showMenuButton = !uiState.isRecording()
-                )
-
-                // Show Bluetooth and Audio Source settings when there are available BT devices.
-                if (!uiState.isShowLoadingProgress
-                    && uiState.connectedBluetoothDevices.isNotEmpty()
+            if (windowLayout.useHorizontalLayout) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    BluetoothMicSelector(
-                        connectedDevices = uiState.connectedBluetoothDevices,
-                        selectedDevice = uiState.selectedBluetoothDevice,
-                        isEnabled = uiState.isBluetoothMicEnabled,
-                        onDeviceSelected = { device ->
-                            onAction(HomeScreenAction.SelectBluetoothDevice(device))
-                        },
-                        onToggleEnabled = { enabled ->
-                            onAction(HomeScreenAction.SetBluetoothMicEnabled(enabled))
-                        }
-                    )
-                }
-                if (uiState.isShowImportProgress) {
-                    Spacer(modifier = Modifier.width(24.dp))
-                    ProgressPanel(text = stringResource(R.string.import_progress))
-                }
-                if (uiState.isShowRecordProcessing) {
-                    Spacer(modifier = Modifier.width(24.dp))
-                    ProgressPanel(text = stringResource(R.string.record_processing))
-                }
-                Spacer(
-                    modifier = Modifier
-                        .weight(1f)
-                        .wrapContentHeight()
-                )
-                if (uiState.isShowLoadingProgress) {
-                    //Show nothing because of progress takes very short period of time
-                } else if (uiState.isShowWaveform) {
-                    WaveformComposeView(
+                    topBar()
+                    statusPanels()
+                    Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        state = uiState.waveformState,
-                        showTimeline = true,
-                        onSeekStart = {
-                            onAction(HomeScreenAction.OnSeekStart)
-                        },
-                        onSeekProgress = { mills ->
-                            onAction(HomeScreenAction.OnSeekProgress(mills))
-                        },
-                        onSeekEnd = { mills ->
-                            onAction(HomeScreenAction.OnSeekEnd(mills))
-                        }
-                    )
-                    if (!uiState.isRecording()) {
-                        PlayPanel(
+                            .weight(1f)
+                            .widthIn(max = MAX_CONTENT_WIDTH_NARROW * 2)
+                    ) {
+                        Column(
                             modifier = Modifier
-                                .wrapContentHeight()
-                                .fillMaxWidth()
-                                .padding(8.dp, 8.dp),
-                            showPause = uiState.showPause,
-                            showStop = uiState.showStop,
-                            onPlayClick = { onAction(HomeScreenAction.OnPlayClick) },
-                            onStopClick = { onAction(HomeScreenAction.OnStopClick) },
-                            onPauseClick = { onAction(HomeScreenAction.OnPauseClick) }
-                        )
+                                .weight(1f)
+                                .fillMaxHeight(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            waveformPanel(if (windowLayout.isCompactHeight) 160.dp else 200.dp)
+                        }
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            timePanel()
+                            Spacer(modifier = Modifier.height(16.dp))
+                            bottomBar()
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
                     }
-                } else {
-                    Image(
-                        painter = painterResource(id = R.drawable.waveform),
-                        contentDescription = stringResource(R.string.app_name),
-                        modifier = Modifier.wrapContentSize(),
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-                    )
                 }
-                Spacer(
-                    modifier = Modifier
-                        .weight(1f)
-                        .wrapContentHeight()
-                )
-
-                TimePanel(
-                    uiState.recordName,
-                    uiState.recordInfo,
-                    uiState.time,
-                    uiState.startTime,
-                    uiState.endTime,
-                    uiState.progress,
-                    !uiState.isRecording() && uiState.isShowWaveform,
-                    !uiState.isRecording() && uiState.isShowWaveform,
-                    onRenameClick = { showRenameDialog.value = true },
-                    onProgressChange = { onAction(HomeScreenAction.OnProgressBarStateChange(it)) }
-                )
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    topBar()
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        // Keep these panels readable on large screens...
+                        Box(modifier = Modifier.widthIn(max = MAX_CONTENT_WIDTH_NARROW)) {
+                            statusPanels()
+                        }
+                        Spacer(
+                            modifier = Modifier
+                                .weight(1f)
+                                .wrapContentHeight()
+                        )
+                        // ...but let the waveform span the full screen width.
+                        waveformPanel(200.dp)
+                        Spacer(
+                            modifier = Modifier
+                                .weight(1f)
+                                .wrapContentHeight()
+                        )
+                        Box(modifier = Modifier.widthIn(max = MAX_CONTENT_WIDTH_NARROW)) {
+                            timePanel()
+                        }
+                    }
+                }
+            }
+            Column {
                 if (showDeleteDialog.value) {
                     DeleteDialog(
                         dialogText = stringResource(id = R.string.move_record_to_trash, uiState.recordName),
@@ -409,6 +510,18 @@ internal fun HomeScreen(
                             showRenameDialog.value = false
                         }
                     )
+                } else if (uiState.showDescriptionDialog) {
+                    EditDescriptionDialog(
+                        initialDescription = uiState.recordDescription,
+                        initialWriteToFile = uiState.saveDescriptionToFile,
+                        isWriteToFileSupported = isDescriptionFileWriteSupported(uiState.recordFormat),
+                        onAcceptClick = { description, writeToFile ->
+                            onAction(HomeScreenAction.SaveActiveRecordDescription(description, writeToFile))
+                        },
+                        onDismissClick = {
+                            onAction(HomeScreenAction.DismissDescriptionDialog)
+                        }
+                    )
                 }
                 if (uiState.showLostRecordsDialog) {
                     LostRecordsDialog(
@@ -424,10 +537,12 @@ internal fun HomeScreen(
                     )
                 }
                 if (uiState.showRenameAfterRecordingDialog) {
-                    RenameAlertDialog(
+                    UpdateNameAndDescriptionDialog(
                         recordName = uiState.recordName,
-                        onAcceptClick = { newName ->
-                            onAction(HomeScreenAction.RenameActiveRecord(newName))
+                        recordDescription = uiState.recordDescription,
+                        isWriteToFileSupported = isDescriptionFileWriteSupported(uiState.recordFormat),
+                        onAcceptClick = { newName, newDescription, writeToFile ->
+                            onAction(HomeScreenAction.UpdateActiveRecordNameAndDescription(newName, newDescription, writeToFile))
                         },
                         onDismissClick = {
                             //Do nothing, onDontAskAgain triggers, it will dismiss the dialog
@@ -483,6 +598,63 @@ private fun ProgressPanel(
 @Preview
 @Composable
 fun HomeScreenPreview() {
+    HomeScreen(
+        {}, {}, {}, {}, uiState = HomeScreenState(
+            waveformState = getTestWaveformData(),
+            progress = 0.4f,
+            startTime = "00:00",
+            endTime = "3:42",
+            time = "1:51",
+            recordName = "Test Record Name",
+            recordInfo = "1.5 MB, mp4, 192 kbps, 48 kHz",
+            isStopRecordingButtonAvailable = true,
+            isShowWaveform = true,
+            showPause = true,
+            showStop = true,
+        ), MutableSharedFlow(), {})
+}
+
+@Preview(widthDp = 800, heightDp = 390)
+@Composable
+fun HomeScreenLandscapePreview() {
+    HomeScreen(
+        {}, {}, {}, {}, uiState = HomeScreenState(
+            waveformState = getTestWaveformData(),
+            progress = 0.4f,
+            startTime = "00:00",
+            endTime = "3:42",
+            time = "1:51",
+            recordName = "Test Record Name",
+            recordInfo = "1.5 MB, mp4, 192 kbps, 48 kHz",
+            isStopRecordingButtonAvailable = true,
+            isShowWaveform = true,
+            showPause = true,
+            showStop = true,
+        ), MutableSharedFlow(), {})
+}
+
+@Preview(widthDp = 1280, heightDp = 800)
+@Composable
+fun HomeScreenTabletLandscapePreview() {
+    HomeScreen(
+        {}, {}, {}, {}, uiState = HomeScreenState(
+            waveformState = getTestWaveformData(),
+            progress = 0.4f,
+            startTime = "00:00",
+            endTime = "3:42",
+            time = "1:51",
+            recordName = "Test Record Name",
+            recordInfo = "1.5 MB, mp4, 192 kbps, 48 kHz",
+            isStopRecordingButtonAvailable = true,
+            isShowWaveform = true,
+            showPause = true,
+            showStop = true,
+        ), MutableSharedFlow(), {})
+}
+
+@Preview(widthDp = 800, heightDp = 1280)
+@Composable
+fun HomeScreenTabletPortraitPreview() {
     HomeScreen(
         {}, {}, {}, {}, uiState = HomeScreenState(
             waveformState = getTestWaveformData(),

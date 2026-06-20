@@ -527,6 +527,7 @@ fun BottomBarPausedPreview() {
 @Composable
 fun TimePanel(
     recordName: String,
+    recordDescription: String,
     recordInfo: String,
     recordDuration: String,
     timeStart: String,
@@ -535,6 +536,7 @@ fun TimePanel(
     isSliderEnabled: Boolean,
     isRenameAvailable: Boolean,
     onRenameClick: () -> Unit,
+    onDescriptionClick: () -> Unit,
     onProgressChange: (Float) -> Unit
 ) {
     Column(
@@ -582,11 +584,26 @@ fun TimePanel(
                 )
             }
         }
+        if (recordDescription.isNotEmpty() && isRenameAvailable) {
+            Text(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable { onDescriptionClick() }
+                    .padding(horizontal = 16.dp, vertical = 2.dp),
+                textAlign = TextAlign.Center,
+                text = recordDescription,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
         Row {
             Text(
                 modifier = Modifier
                     .wrapContentSize()
-                    .padding(4.dp, 0.dp),
+                    .padding(start = 12.dp),
                 textAlign = TextAlign.Start,
                 text = timeStart,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -607,7 +624,7 @@ fun TimePanel(
             Text(
                 modifier = Modifier
                     .wrapContentSize()
-                    .padding(4.dp, 0.dp),
+                    .padding(end = 12.dp),
                 textAlign = TextAlign.Start,
                 text = timeEnd,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -628,17 +645,18 @@ fun TimePanel(
 @Composable
 fun TimePanelPreview() {
     TimePanel(
-        "Record-14",
-        "1.2Mb, M4a, " +
-                "44.1kHz",
-        "02:23",
-        "00:00",
-        "05:32",
-        0.3f,
+        recordName = "Record-14",
+        recordDescription = "Some description text",
+        recordInfo = "1.2Mb, M4a, 44.1kHz",
+        recordDuration = "02:23",
+        timeStart = "00:00",
+        timeEnd = "05:32",
+        progress = 0.3f,
         isSliderEnabled = true,
         isRenameAvailable = true,
         onRenameClick = {},
-        onProgressChange = { prgress ->},
+        onDescriptionClick = {},
+        onProgressChange = {},
     )
 }
 
@@ -646,16 +664,17 @@ fun TimePanelPreview() {
 @Composable
 fun TimePanelRecordingProgressPreview() {
     TimePanel(
-        "Recording...",
-        "1.2Mb, M4a, " +
-                "44.1kHz",
-        "02:23",
-        "",
-        "",
-        0.0f,
+        recordName = "Recording...",
+        recordDescription = "",
+        recordInfo = "1.2Mb, M4a, 44.1kHz",
+        recordDuration = "02:23",
+        timeStart = "",
+        timeEnd = "",
+        progress = 0.0f,
         isSliderEnabled = false,
         isRenameAvailable = true,
         onRenameClick = {},
-        onProgressChange = { prgress ->},
+        onDescriptionClick = {},
+        onProgressChange = {},
     )
 }

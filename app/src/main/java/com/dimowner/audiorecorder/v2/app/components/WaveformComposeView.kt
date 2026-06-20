@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -97,6 +98,10 @@ fun WaveformComposeView(
     }
 
     Canvas(modifier = modifier
+        // Clip drawing to the view bounds: the grid lines and timeline text are intentionally
+        // drawn slightly past the right/left edges, which is invisible when the waveform spans
+        // the full screen width but overlaps neighbouring panes in landscape/two-pane layouts.
+        .clipToBounds()
         .onSizeChanged {
             val durationPx = it.width * state.widthScale
             val millsPerPx = state.durationMills / durationPx

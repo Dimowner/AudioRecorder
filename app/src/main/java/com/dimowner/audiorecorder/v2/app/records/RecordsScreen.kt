@@ -29,6 +29,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -65,8 +69,11 @@ import androidx.lifecycle.Lifecycle
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
+import com.dimowner.audiorecorder.v2.app.EditDescriptionDialog
+import com.dimowner.audiorecorder.v2.app.isDescriptionFileWriteSupported
 import com.dimowner.audiorecorder.v2.app.RenameAlertDialog
 import com.dimowner.audiorecorder.v2.app.SaveAsDialog
+import com.dimowner.audiorecorder.v2.app.components.MAX_CONTENT_WIDTH_WIDE
 import com.dimowner.audiorecorder.v2.app.components.TouchPanel
 import com.dimowner.audiorecorder.v2.app.getTestWaveformData
 import com.dimowner.audiorecorder.v2.app.home.HomeScreenAction
@@ -199,6 +206,7 @@ internal fun RecordsScreen(
         }
     }
 
+    Box(modifier = Modifier.fillMaxSize()) {
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets.safeDrawing,
@@ -209,7 +217,11 @@ internal fun RecordsScreen(
                     stringResource(id = R.string.records),
                     uiState.sortOrder.toText(context),
                     bookmarksSelected = uiState.bookmarksSelected,
+                    filterActiveCount = uiState.filter.activeCount,
                     onBackPressed = { onPopBackStack() },
+                    onFilterClick = {
+                        onAction(RecordsScreenAction.ToggleFilterPanel)
+                    },
                     onSortItemClick = { order ->
                         onAction(RecordsScreenAction.UpdateListWithSortOrder(order))
                     },
@@ -246,7 +258,12 @@ internal fun RecordsScreen(
                 .padding(innerPadding)
         ) {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    // Keep list content readable on large screens instead of stretching edge-to-edge.
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+                    .widthIn(max = MAX_CONTENT_WIDTH_WIDE)
+                    .fillMaxSize(),
                 contentAlignment = Alignment.BottomStart,
             ) {
                 if (uiState.isShowLoadingProgress && uiState.recordsMap.isEmpty()) {
@@ -339,7 +356,7 @@ internal fun RecordsScreen(
                                             style = MaterialTheme.typography.titleMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             modifier = Modifier.padding(
-                                                16.dp, 10.dp, 16.dp, 2.dp
+                                                16.dp, 6.dp, 16.dp, 0.dp
                                             ),
                                             textAlign = TextAlign.Center,
                                             fontSize = 16.sp,
@@ -353,6 +370,7 @@ internal fun RecordsScreen(
                                     name = record.name,
                                     details = record.details,
                                     duration = record.duration,
+                                    description = record.description,
                                     isBookmarked = record.isBookmarked,
                                     isSelected = record.recordId == uiState.activeRecord?.recordId
                                             || uiState.selectedRecords.contains(record),
@@ -400,6 +418,14 @@ internal fun RecordsScreen(
                                                 )
                                             }
 
+                                            RecordDropDownMenuItemId.DESCRIPTION -> {
+                                                onAction(
+                                                    RecordsScreenAction.OnEditDescriptionRequest(
+                                                        record
+                                                    )
+                                                )
+                                            }
+
                                             RecordDropDownMenuItemId.OPEN_WITH -> {
                                                 onAction(
                                                     RecordsScreenAction.OpenRecordWithAnotherApp(
@@ -419,6 +445,13 @@ internal fun RecordsScreen(
                                                     )
                                                 )
                                             }
+                                        }
+                                    },
+                                    onClickDescription = {
+                                        if (!uiState.isRecording) {
+                                            onAction(
+                                                RecordsScreenAction.OnEditDescriptionRequest(record)
+                                            )
                                         }
                                     },
                                     modifier = Modifier.animateItem(),
@@ -476,6 +509,24 @@ internal fun RecordsScreen(
                             }, onDismissClick = {
                                 onAction(RecordsScreenAction.OnRenameRecordDismiss)
                             })
+                        }
+                    } else if (uiState.showEditDescriptionDialog) {
+                        uiState.operationSelectedRecord?.let { record ->
+                            EditDescriptionDialog(
+                                initialDescription = record.description,
+                                initialWriteToFile = uiState.saveDescriptionToFile,
+                                isWriteToFileSupported = isDescriptionFileWriteSupported(record.format),
+                                onAcceptClick = { description, writeToFile ->
+                                    onAction(
+                                        RecordsScreenAction.SaveRecordDescription(
+                                            record.recordId, description, writeToFile
+                                        )
+                                    )
+                                },
+                                onDismissClick = {
+                                    onAction(RecordsScreenAction.OnEditDescriptionDismiss)
+                                }
+                            )
                         }
                     } else if (uiState.showMoveToRecycleMultipleDialog) {
                         val count = uiState.selectedRecords.size
@@ -549,6 +600,33 @@ internal fun RecordsScreen(
                     )
                 }
             }
+        }
+    }
+
+        // Filter panel overlay. Rendered above the Scaffold (and its top bar) so the panel,
+        // styled and dragged like the playback TouchPanel, slides down from the top edge and
+        // overlays both the top bar and the list. Padded by the status bar so it sits below it.
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .widthIn(max = MAX_CONTENT_WIDTH_WIDE)
+                .fillMaxWidth()
+        ) {
+            RecordsFilterTouchPanel(
+                visible = uiState.showFilterPanel && uiState.selectedRecords.isEmpty(),
+                filter = uiState.filter,
+                filterOptions = uiState.filterOptions,
+                onFilterChange = { newFilter ->
+                    onAction(RecordsScreenAction.UpdateFilter(newFilter))
+                },
+                onClear = {
+                    onAction(RecordsScreenAction.ClearFilter)
+                },
+                onDismiss = {
+                    onAction(RecordsScreenAction.ToggleFilterPanel)
+                },
+            )
         }
     }
 }

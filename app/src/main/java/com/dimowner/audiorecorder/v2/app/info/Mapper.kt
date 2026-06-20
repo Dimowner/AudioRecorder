@@ -21,6 +21,7 @@ import com.dimowner.audiorecorder.v2.data.model.Record
 
 fun Record.toRecordInfoState(): RecordInfoState {
     return RecordInfoState(
+        id = this.id,
         name = this.name,
         format = this.format,
         duration = this.durationMills,
@@ -32,5 +33,6 @@ fun Record.toRecordInfoState(): RecordInfoState {
         bitrate = this.bitrate,
         amps = adjustWaveformHeights(this.amps),
         authorName = "", //Will be loaded separately.
+        description = this.description,
     )
 }

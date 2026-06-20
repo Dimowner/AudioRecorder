@@ -16,6 +16,8 @@
 
 package com.dimowner.audiorecorder.v2.data
 
+import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilter
+import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilterOptions
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 
@@ -36,7 +38,14 @@ interface RecordsDataSource {
         pageSize: Int,
         sortOrder: SortOrder = SortOrder.DateDesc,
         isBookmarked: Boolean = false,
+        filter: RecordsFilter = RecordsFilter(),
     ): List<Record>
+
+    /**
+     * Returns the distinct filter values (formats, sample rates, channel counts, bitrates)
+     * available among the records currently in the list (excluding the recycle bin).
+     */
+    suspend fun getFilterOptions(): RecordsFilterOptions
 
     suspend fun insertRecord(record: Record): Long
 
@@ -45,6 +54,23 @@ interface RecordsDataSource {
     suspend fun updateRecords(records: List<Record>): Int
 
     suspend fun renameRecord(record: Record, newName: String): Boolean
+
+    /**
+     * Persists a record's description to the database and, when [writeToFile] is true,
+     * also writes it as the COMMENT tag in the audio file metadata.
+     *
+     * @param recordId The database id of the record to update.
+     * @param description The new description text (may be blank to clear the note).
+     * @param writeToFile When true, embed the description as a COMMENT tag in the audio file.
+     * When false, the COMMENT tag is removed from the audio file and the description is saved
+     * to the database only.
+     * @return true if the database update succeeded.
+     */
+    suspend fun updateRecordDescription(
+        recordId: Long,
+        description: String,
+        writeToFile: Boolean,
+    ): Boolean
 
     suspend fun getRecordsCount(): Int
 
