@@ -95,6 +95,15 @@ class FloatingRecorderOverlayGeometryTest {
     }
 
     @Test
+    fun `renameKeyboardPolicy keeps keyboard hidden until user edits manually`() {
+        val policy = renameKeyboardPolicy()
+
+        assertFalse(policy.focusInputOnOpen)
+        assertFalse(policy.showKeyboardOnOpen)
+        assertFalse(policy.focusInputAfterReset)
+    }
+
+    @Test
     fun `calculateOverlaySizeBounds uses default size as minimum and half smaller screen as maximum`() {
         val bounds = calculateOverlaySizeBounds(defaultSize = 56, screenWidth = 1080, screenHeight = 1920)
 

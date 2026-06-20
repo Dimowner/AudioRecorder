@@ -18,6 +18,12 @@ internal data class RenameResetState(
     val showInlineMessage: Boolean,
 )
 
+internal data class RenameKeyboardPolicy(
+    val focusInputOnOpen: Boolean,
+    val showKeyboardOnOpen: Boolean,
+    val focusInputAfterReset: Boolean,
+)
+
 internal fun applyRenameSpeechTranscription(
     currentName: String,
     transcript: String,
@@ -46,6 +52,16 @@ internal fun buildRenameResetState(originalName: String): RenameResetState {
         selectionStart = cursorPosition,
         selectionEnd = cursorPosition,
         showInlineMessage = false,
+    )
+}
+
+internal fun renameKeyboardPolicy(): RenameKeyboardPolicy {
+    return RenameKeyboardPolicy(
+        // The floating overlay is optimized for GPS/driving use: open quietly and let the
+        // dedicated speech button handle hands-light renaming without covering the host app.
+        focusInputOnOpen = false,
+        showKeyboardOnOpen = false,
+        focusInputAfterReset = false,
     )
 }
 

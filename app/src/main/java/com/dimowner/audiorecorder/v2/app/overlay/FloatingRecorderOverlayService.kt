@@ -29,7 +29,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.WindowManager
-import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
@@ -507,6 +506,7 @@ class FloatingRecorderOverlayService : Service() {
             overlayHeight = dp(RENAME_PANEL_ESTIMATED_HEIGHT_DP),
         )
         val style = renameOverlayStyle(isDarkTheme = prefs.isDarkTheme)
+        val keyboardPolicy = renameKeyboardPolicy()
 
         val input = EditText(this).apply {
             setText(record.name)
@@ -574,10 +574,8 @@ class FloatingRecorderOverlayService : Service() {
         renameView = panel
         windowManager.addView(panel, params)
         panel.post { clampAndPersistRenamePosition(panel, params, persist = false) }
-        input.requestFocus()
-        input.post {
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT)
+        if (keyboardPolicy.focusInputOnOpen) {
+            input.requestFocus()
         }
     }
 
@@ -621,7 +619,9 @@ class FloatingRecorderOverlayService : Service() {
         input.setText(resetState.text)
         input.setSelection(resetState.selectionStart, resetState.selectionEnd)
         error.visibility = if (resetState.showInlineMessage) View.VISIBLE else View.GONE
-        input.requestFocus()
+        if (renameKeyboardPolicy().focusInputAfterReset) {
+            input.requestFocus()
+        }
     }
 
     private fun createRenameSpeechButton(input: EditText, error: TextView): LinearLayout {
