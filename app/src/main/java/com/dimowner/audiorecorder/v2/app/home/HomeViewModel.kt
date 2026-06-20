@@ -611,7 +611,7 @@ class HomeViewModel @Inject constructor(
                     startTime = context.getString(R.string.zero_time),
                     endTime = TimeUtils.formatTimeIntervalHourMinSec2(activeRecord.durationMills),
                     recordName = activeRecord.name,
-                    recordDescription = activeRecord.description ?: "",
+                    recordDescription = activeRecord.description,
                     recordInfo = activeRecord.toInfoCombinedText(context),
                     isShowWaveform = true,
                     isShowLoadingProgress = false,
@@ -832,6 +832,7 @@ class HomeViewModel @Inject constructor(
             val activeRecord = recordsDataSource.getActiveRecord()
             if (activeRecord != null) {
                 performRenameActiveRecord(newName, activeRecord)
+                updateState(false)
             }
         }
     }
@@ -864,16 +865,20 @@ class HomeViewModel @Inject constructor(
                 )
             )
         }
-        updateState(false)
     }
 
-    private fun updateActiveRecordNameAndDescription(newName: String, newDescription: String, writeToFile: Boolean) {
+    private fun updateActiveRecordNameAndDescription(
+        newName: String,
+        newDescription: String,
+        writeToFile: Boolean
+    ) {
         showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
             val activeRecord = recordsDataSource.getActiveRecord()
             if (activeRecord != null) {
                 performRenameActiveRecord(newName, activeRecord)
                 recordsDataSource.updateRecordDescription(activeRecord.id, newDescription, writeToFile)
+                updateState(false)
             }
         }
     }
