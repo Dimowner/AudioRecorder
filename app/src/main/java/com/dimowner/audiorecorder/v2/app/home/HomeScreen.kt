@@ -73,8 +73,11 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
+import com.dimowner.audiorecorder.v2.app.EditDescriptionDialog
 import com.dimowner.audiorecorder.v2.app.RenameAlertDialog
 import com.dimowner.audiorecorder.v2.app.SaveAsDialog
+import com.dimowner.audiorecorder.v2.app.UpdateNameAndDescriptionDialog
+import com.dimowner.audiorecorder.v2.app.isDescriptionFileWriteSupported
 import com.dimowner.audiorecorder.v2.app.components.BluetoothMicSelector
 import com.dimowner.audiorecorder.v2.app.components.KeepScreenOn
 import com.dimowner.audiorecorder.v2.app.components.MAX_CONTENT_WIDTH_NARROW
@@ -252,6 +255,10 @@ internal fun HomeScreen(
                         showRenameDialog.value = true
                     }
 
+                    HomeDropDownMenuItemId.DESCRIPTION -> {
+                        onAction(HomeScreenAction.ShowDescriptionDialog)
+                    }
+
                     HomeDropDownMenuItemId.OPEN_WITH -> {
                         onAction(HomeScreenAction.OpenActiveRecordWithAnotherApp)
                     }
@@ -344,6 +351,7 @@ internal fun HomeScreen(
     val timePanel: @Composable () -> Unit = {
         TimePanel(
             uiState.recordName,
+            uiState.recordDescription,
             uiState.recordInfo,
             uiState.time,
             uiState.startTime,
@@ -352,6 +360,7 @@ internal fun HomeScreen(
             !uiState.isRecording() && uiState.isShowWaveform,
             !uiState.isRecording() && uiState.isShowWaveform,
             onRenameClick = { showRenameDialog.value = true },
+            onDescriptionClick = { onAction(HomeScreenAction.ShowDescriptionDialog) },
             onProgressChange = { onAction(HomeScreenAction.OnProgressBarStateChange(it)) }
         )
     }
@@ -501,6 +510,18 @@ internal fun HomeScreen(
                             showRenameDialog.value = false
                         }
                     )
+                } else if (uiState.showDescriptionDialog) {
+                    EditDescriptionDialog(
+                        initialDescription = uiState.recordDescription,
+                        initialWriteToFile = uiState.saveDescriptionToFile,
+                        isWriteToFileSupported = isDescriptionFileWriteSupported(uiState.recordFormat),
+                        onAcceptClick = { description, writeToFile ->
+                            onAction(HomeScreenAction.SaveActiveRecordDescription(description, writeToFile))
+                        },
+                        onDismissClick = {
+                            onAction(HomeScreenAction.DismissDescriptionDialog)
+                        }
+                    )
                 }
                 if (uiState.showLostRecordsDialog) {
                     LostRecordsDialog(
@@ -516,10 +537,12 @@ internal fun HomeScreen(
                     )
                 }
                 if (uiState.showRenameAfterRecordingDialog) {
-                    RenameAlertDialog(
+                    UpdateNameAndDescriptionDialog(
                         recordName = uiState.recordName,
-                        onAcceptClick = { newName ->
-                            onAction(HomeScreenAction.RenameActiveRecord(newName))
+                        recordDescription = uiState.recordDescription,
+                        isWriteToFileSupported = isDescriptionFileWriteSupported(uiState.recordFormat),
+                        onAcceptClick = { newName, newDescription, writeToFile ->
+                            onAction(HomeScreenAction.UpdateActiveRecordNameAndDescription(newName, newDescription, writeToFile))
                         },
                         onDismissClick = {
                             //Do nothing, onDontAskAgain triggers, it will dismiss the dialog

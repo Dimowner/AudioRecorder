@@ -283,4 +283,28 @@ class PrefsV2ImplTest {
         prefs.isLegacyAppUser = false
         assertFalse(prefs.isLegacyAppUser)
     }
+
+    // -------------------------------------------------------------------------
+    // saveDescriptionToFile
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun test_saveDescriptionToFile_default_value_is_true() {
+        assertEquals(DefaultValues.IS_SAVE_DESCRIPTION_TO_FILE, prefs.saveDescriptionToFile)
+        assertTrue(prefs.saveDescriptionToFile)
+    }
+
+    @Test
+    fun test_saveDescriptionToFile_stores_false_correctly() {
+        prefs.saveDescriptionToFile = false
+        assertFalse(prefs.saveDescriptionToFile)
+    }
+
+    @Test
+    fun test_saveDescriptionToFile_stores_true_correctly_after_being_set_to_false() {
+        prefs.saveDescriptionToFile = false
+        assertFalse(prefs.saveDescriptionToFile)
+        prefs.saveDescriptionToFile = true
+        assertTrue(prefs.saveDescriptionToFile)
+    }
 }

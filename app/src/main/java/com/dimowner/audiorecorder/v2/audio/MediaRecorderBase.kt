@@ -137,10 +137,22 @@ abstract class MediaRecorderBase(
                 true
             } catch (e: IOException) {
                 Timber.e(e, "prepare() failed")
+                mediaRecorder?.release()
+                mediaRecorder = null
                 emitEvent(RecorderEvent.OnError(RecorderInitException()))
                 false
             } catch (e: IllegalStateException) {
                 Timber.e(e, "start() failed due to illegal state")
+                mediaRecorder?.release()
+                mediaRecorder = null
+                emitEvent(RecorderEvent.OnError(RecorderInitException()))
+                false
+            } catch (e: RuntimeException) {
+                // MediaRecorder.start() throws a plain RuntimeException (not a subclass) when
+                // the hardware source is unavailable or the codec rejects the configuration.
+                Timber.e(e, "start() failed")
+                mediaRecorder?.release()
+                mediaRecorder = null
                 emitEvent(RecorderEvent.OnError(RecorderInitException()))
                 false
             }
@@ -235,7 +247,7 @@ abstract class MediaRecorderBase(
         recordFile = null
         _isRecording = false
         _isPaused = false
-        amplitudesBuffer.clear()
+        synchronized(amplitudesBuffer) { amplitudesBuffer.clear() }
         return isStopSucceed
     }
 
@@ -268,12 +280,12 @@ abstract class MediaRecorderBase(
                 if (amplitude > 0) {
                     _isRecording = true
                     updateTime = SystemClock.elapsedRealtime()
-                    amplitudesBuffer.add(amplitude)
+                    synchronized(amplitudesBuffer) { amplitudesBuffer.add(amplitude) }
                 }
             } else if (isRecording && !isPaused) {
                 try {
                     val amplitude = currentRecorder.maxAmplitude
-                    amplitudesBuffer.add(amplitude)
+                    synchronized(amplitudesBuffer) { amplitudesBuffer.add(amplitude) }
                 } catch (e: IllegalStateException) {
                     Timber.e(e, "Error reading amplitude or updating progress")
                 }
@@ -324,15 +336,18 @@ abstract class MediaRecorderBase(
         // Timer.cancel() doesn't prevent an already-scheduled task from running; skip stale
         // fires so a late progress event can't flip state back to RECORDING after stop.
         if (!_isRecording || _isPaused) return
-        if (amplitudesBuffer.size() > 0) {
-            val curTime = SystemClock.elapsedRealtime()
-            durationMills += curTime - updateTime
-            updateTime = curTime
-            var amp = amplitudesBuffer.get(amplitudesBuffer.size() - 1)
-            if (amp == 0) amp = lastNonZeroAmplitude
-            else lastNonZeroAmplitude = amp
-            amplitudesBuffer.clear()
-            emitEvent(RecorderEvent.OnRecordingProgress(durationMills = durationMills, amplitude = amp))
+        synchronized(amplitudesBuffer) {
+            val bufferSize = amplitudesBuffer.size()
+            if (bufferSize > 0) {
+                val curTime = SystemClock.elapsedRealtime()
+                durationMills += curTime - updateTime
+                updateTime = curTime
+                var amp = amplitudesBuffer.get(bufferSize - 1)
+                if (amp == 0) amp = lastNonZeroAmplitude
+                else lastNonZeroAmplitude = amp
+                amplitudesBuffer.clear()
+                emitEvent(RecorderEvent.OnRecordingProgress(durationMills = durationMills, amplitude = amp))
+            }
         }
     }
 }

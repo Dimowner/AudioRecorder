@@ -100,6 +100,7 @@
 	<string name="failed_to_delete_all_records">Impossibile eliminare tutte le registrazioni</string>
 	<string name="please_select_record_to_share">Seleziona una registrazione da condividere</string>
     <string name="update_record_name">Aggiorna nome</string>
+    <string name="update_name_and_description">Aggiorna nome e descrizione</string>
 	<string name="recording">Registrazione: %s</string>
 	<string name="recording_is_on">Registrazione ATTIVA</string>
 	<string name="recording_progress">Registrazione&#8230;</string>
@@ -172,7 +173,11 @@
 	<string name="by_name">Per nome (A-Z)</string>
 	<string name="by_name_desc">Per nome (Z-A)</string>
 	<string name="by_duration">Per durata (più lunga)</string>
-	<string name="by_duration_desc">Per durata (più breve)</string>
+    <string name="by_duration_desc">Per durata (più breve)</string>
+    <string name="filter">Filtro</string>
+	<string name="filter_clear">Cancella</string>
+	<string name="filter_dismiss">Chiudi filtro</string>
+	<string name="filter_no_options">Nessuna registrazione da filtrare</string>
 	<string name="need_write_permission">L\'app richiede il permesso di accesso all\'archivio pubblico. Se non concesso, le registrazioni verranno salvate nella cartella privata dell\'app</string>
 	<string name="rec_name">Nome:</string>
 	<string name="rec_format">Formato:</string>
@@ -180,6 +185,13 @@
     <string name="rec_size">Dimensione:</string>
 	<string name="rec_created">Creato:</string>
 	<string name="rec_location">Posizione file:</string>
+	<string name="rec_description">Descrizione</string>
+	<string name="rec_description_hint">Aggiungi una descrizione per questa registrazione</string>
+	<string name="edit_description">Modifica descrizione</string>
+	<string name="add_description">Aggiungi descrizione</string>
+	<string name="write_description_into_file">Scrivi la descrizione nel file audio</string>
+	<string name="save_description_to_file">Salva anche nel file audio</string>
+	<string name="msg_saved_successfully">Salvato con successo</string>
 	<string name="naming">Denominazione:</string>
 	<string name="private_dir_warning">Le registrazioni verranno salvate nella cartella privata dell\'app, non visibile alle altre app</string>
 	<string name="public_dir_warning">Le registrazioni verranno salvate in una cartella comune sul dispositivo, visibile alle altre app</string>
@@ -434,4 +446,3 @@
     <string name="navigate_back">Torna indietro</string>
     <string name="dropdown_menu">Menu</string>
 </resources>
-

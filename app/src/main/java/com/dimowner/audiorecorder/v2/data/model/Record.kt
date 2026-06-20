@@ -35,7 +35,7 @@ data class Record(
     val isMovedToRecycle: Boolean,
     val amps: IntArray,
     /** Optional user-provided description stored as COMMENT tag in the audio file metadata. */
-    val description: String = "",
+    val description: String,
 ) {
 
     @SuppressWarnings("CyclomaticComplexMethod")

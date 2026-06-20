@@ -93,6 +93,16 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             }
         }
 
+    override var saveDescriptionToFile: Boolean
+        get() = sharedPreferences.getBoolean(
+            PREF_KEY_SAVE_DESCRIPTION_TO_FILE, DefaultValues.IS_SAVE_DESCRIPTION_TO_FILE
+        )
+        set(value) {
+            sharedPreferences.edit {
+                putBoolean(PREF_KEY_SAVE_DESCRIPTION_TO_FILE, value)
+            }
+        }
+
     override var activeRecordId: Long
         get() = sharedPreferences.getLong(PREF_KEY_ACTIVE_RECORD, -1)
         set(value) {
@@ -314,5 +324,6 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         private const val PREF_KEY_MAX_RECORDING_DURATION_MILLS = "pref_key_max_recording_duration_mills"
         private const val PREF_KEY_SETTING_AUDIO_SOURCE = "pref_key_setting_audio_source"
         private const val PREF_KEY_RECORD_AUTHOR_NAME = "pref_key_record_author_name"
+        private const val PREF_KEY_SAVE_DESCRIPTION_TO_FILE = "pref_key_save_description_to_file"
     }
 }

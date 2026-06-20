@@ -109,6 +109,7 @@
 	<string name="failed_to_delete_all_records">Nie udało się usunąć wszystkich nagrań</string>
 	<string name="please_select_record_to_share">Wybierz nagranie do udostępnienia</string>
     <string name="update_record_name">Zaktualizuj nazwę</string>
+    <string name="update_name_and_description">Zaktualizuj nazwę i opis</string>
 	<string name="recording">Nagrywanie: %s</string>
 	<string name="recording_is_on">Nagrywanie jest włączone</string>
 	<string name="recording_progress">Nagrywanie&#8230;</string>
@@ -191,7 +192,11 @@
 	<string name="by_name">Wg nazwy (A-Z)</string>
 	<string name="by_name_desc">Wg nazwy (Z-A)</string>
 	<string name="by_duration">Wg czasu (najdłuższe)</string>
-	<string name="by_duration_desc">Wg czasu (najkrótsze)</string>
+    <string name="by_duration_desc">Wg czasu (najkrótsze)</string>
+    <string name="filter">Filtr</string>
+	<string name="filter_clear">Wyczyść</string>
+	<string name="filter_dismiss">Zamknij filtr</string>
+	<string name="filter_no_options">Brak nagrań do filtrowania</string>
 	<string name="need_write_permission">Aplikacja wymaga uprawnień dostępu do pamięci publicznej. Jeśli nie zostaną przyznane, nagrania będą przechowywane w prywatnym katalogu aplikacji</string>
 	<string name="rec_name">Nazwa:</string>
 	<string name="rec_format">Format:</string>
@@ -199,6 +204,13 @@
     <string name="rec_size">Rozmiar:</string>
 	<string name="rec_created">Utworzono:</string>
 	<string name="rec_location">Lokalizacja pliku:</string>
+	<string name="rec_description">Opis</string>
+	<string name="rec_description_hint">Dodaj opis do tego nagrania</string>
+	<string name="edit_description">Edytuj opis</string>
+	<string name="add_description">Dodaj opis</string>
+	<string name="write_description_into_file">Zapisz opis w pliku audio</string>
+	<string name="save_description_to_file">Zapisz również w pliku audio</string>
+	<string name="msg_saved_successfully">Zapisano pomyślnie</string>
 	<string name="naming">Nazewnictwo:</string>
 	<string name="private_dir_warning">Nagrania będą przechowywane w prywatnym katalogu aplikacji, który nie jest widoczny dla innych aplikacji</string>
 	<string name="public_dir_warning">Nagrania będą przechowywane we wspólnym katalogu na urządzeniu, który jest widoczny dla innych aplikacji</string>
@@ -453,4 +465,3 @@
     <string name="navigate_back">Przejdź wstecz</string>
     <string name="dropdown_menu">Menu</string>
 </resources>
-
