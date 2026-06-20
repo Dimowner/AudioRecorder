@@ -198,10 +198,12 @@ class RecordsDataSourceImpl @Inject internal constructor(
             if (record != null) {
                 val truncated = description.take(RECORD_DESCRIPTION_MAX_LENGTH)
                 val updated = updateRecord(record.copy(description = truncated))
-                if (writeToFile) {
-                    File(record.path).writeCommentTag(truncated)
-                } else {
-                    File(record.path).writeCommentTag("")
+                if (updated) {
+                    if (writeToFile) {
+                        File(record.path).writeCommentTag(truncated)
+                    } else {
+                        File(record.path).writeCommentTag("")
+                    }
                 }
                 updated
             } else {

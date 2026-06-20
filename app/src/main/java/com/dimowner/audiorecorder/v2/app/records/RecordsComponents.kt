@@ -496,7 +496,7 @@ fun RecordListItemView(
                     )
                 }
                 // Optional description/note line. Tapping it opens the edit dialog.
-                // When empty, an "Add description" placeholder is shown instead.
+                // View is hidden when description is empty.
                 Spacer(modifier = Modifier.height(2.dp))
                 if (description.isNotBlank()) {
                     Text(

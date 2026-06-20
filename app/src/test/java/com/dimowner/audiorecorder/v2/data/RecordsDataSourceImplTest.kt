@@ -191,19 +191,25 @@ class RecordsDataSourceImplTest {
         val tagMock = mockk<Tag>(relaxed = true)
 
         mockkStatic(AudioFileIO::class)
-        every { AudioFileIO.read(testFile) } returns audioFileMock
-        every { audioFileMock.tagOrCreateAndSetDefault } returns tagMock
-        every { AudioFileIO.write(audioFileMock) } just Runs
+        try {
+            every { AudioFileIO.read(testFile) } returns audioFileMock
+            every { audioFileMock.tagOrCreateAndSetDefault } returns tagMock
+            every { AudioFileIO.write(audioFileMock) } just Runs
 
-        every { recordDao.getRecordById(id) } returns entityWithRealPath
-        every { recordDao.updateRecord(any()) } returns 1
+            every { recordDao.getRecordById(id) } returns entityWithRealPath
+            every { recordDao.updateRecord(any()) } returns 1
 
-        recordsDataSourceImpl.updateRecordDescription(id, "some description", writeToFile = false)
+            recordsDataSourceImpl.updateRecordDescription(
+                id,
+                "some description",
+                writeToFile = false
+            )
 
-        verify { tagMock.deleteField(FieldKey.COMMENT) }
-        verify(exactly = 0) { tagMock.setField(FieldKey.COMMENT, any()) }
-
-        unmockkStatic(AudioFileIO::class)
+            verify { tagMock.deleteField(FieldKey.COMMENT) }
+            verify(exactly = 0) { tagMock.setField(FieldKey.COMMENT, any()) }
+        } finally {
+            unmockkStatic(AudioFileIO::class)
+        }
     }
 
     @Test
@@ -219,7 +225,7 @@ class RecordsDataSourceImplTest {
     }
 
     @Test
-    fun test_updateRecordDescription_truncates_description_over_400_chars() = runBlocking {
+    fun test_updateRecordDescription_truncates_description_over_500_chars() = runBlocking {
         val id = 101L
         val longDescription = "A".repeat(600)
 

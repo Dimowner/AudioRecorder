@@ -56,7 +56,7 @@ fun File.writeCommentTag(description: String) {
     try {
         val audioFile = AudioFileIO.read(this)
         val tag = audioFile.tagOrCreateAndSetDefault
-        if (description.isEmpty()) {
+        if (description.isBlank()) {
             tag.deleteField(FieldKey.COMMENT)
         } else {
             tag.setField(FieldKey.COMMENT, description)
