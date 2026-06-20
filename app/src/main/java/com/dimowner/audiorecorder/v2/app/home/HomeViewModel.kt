@@ -829,50 +829,50 @@ class HomeViewModel @Inject constructor(
     fun renameActiveRecord(newName: String) {
         showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
-            performRenameActiveRecord(newName)
+            val activeRecord = recordsDataSource.getActiveRecord()
+            if (activeRecord != null) {
+                performRenameActiveRecord(newName, activeRecord)
+            }
         }
     }
 
-    private suspend fun performRenameActiveRecord(newName: String) {
-        val activeRecord = recordsDataSource.getActiveRecord()
-        if (activeRecord != null) {
-            val currentFile = File(activeRecord.path)
-            // Skip rename if the name hasn't changed
-            if (currentFile.nameWithoutExtension == newName) {
-                showLoadingProgress(false)
-                return
-            }
-            // Check if a file with the new name already exists on disk
-            val extension = currentFile.extension
-            val targetFile = File(currentFile.parentFile, "$newName.$extension")
-            if (targetFile.exists() && currentFile.nameWithoutExtension != newName) {
-                val context: Context = getApplication<Application>().applicationContext
-                emitEvent(
-                    HomeScreenEvent.ShowErrorSnack(
-                        context.getString(R.string.error_file_exists)
-                    )
-                )
-                showLoadingProgress(false)
-                return
-            } else {
-                recordsDataSource.renameRecord(activeRecord, newName)
-                val context: Context = getApplication<Application>().applicationContext
-                emitEvent(
-                    HomeScreenEvent.ShowInfoSnack(
-                        context.getString(R.string.msg_record_renamed, newName)
-                    )
-                )
-            }
-            updateState(false)
+    private suspend fun performRenameActiveRecord(newName: String, activeRecord: Record) {
+        val currentFile = File(activeRecord.path)
+        // Skip rename if the name hasn't changed
+        if (currentFile.nameWithoutExtension == newName) {
+            showLoadingProgress(false)
+            return
         }
+        // Check if a file with the new name already exists on disk
+        val extension = currentFile.extension
+        val targetFile = File(currentFile.parentFile, "$newName.$extension")
+        if (targetFile.exists() && currentFile.nameWithoutExtension != newName) {
+            val context: Context = getApplication<Application>().applicationContext
+            emitEvent(
+                HomeScreenEvent.ShowErrorSnack(
+                    context.getString(R.string.error_file_exists)
+                )
+            )
+            showLoadingProgress(false)
+            return
+        } else {
+            recordsDataSource.renameRecord(activeRecord, newName)
+            val context: Context = getApplication<Application>().applicationContext
+            emitEvent(
+                HomeScreenEvent.ShowInfoSnack(
+                    context.getString(R.string.msg_record_renamed, newName)
+                )
+            )
+        }
+        updateState(false)
     }
 
     private fun updateActiveRecordNameAndDescription(newName: String, newDescription: String, writeToFile: Boolean) {
         showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
             val activeRecord = recordsDataSource.getActiveRecord()
-            performRenameActiveRecord(newName)
             if (activeRecord != null) {
+                performRenameActiveRecord(newName, activeRecord)
                 recordsDataSource.updateRecordDescription(activeRecord.id, newDescription, writeToFile)
             }
         }
