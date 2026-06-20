@@ -38,7 +38,7 @@ fun getRecordsDroDownMenuItems(): List<DropDownMenuItem<RecordDropDownMenuItemId
                 id = it, textResId = R.string.rename, imageResId = R.drawable.ic_pencil
             )
             RecordDropDownMenuItemId.DESCRIPTION -> DropDownMenuItem(
-                id = it, textResId = R.string.add_description, imageResId = R.drawable.ic_description
+                id = it, textResId = R.string.edit_description, imageResId = R.drawable.ic_description
             )
             RecordDropDownMenuItemId.OPEN_WITH -> DropDownMenuItem(
                 id = it, textResId = R.string.open_with, imageResId = R.drawable.ic_open_with

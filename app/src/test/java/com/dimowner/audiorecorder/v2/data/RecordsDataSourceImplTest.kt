@@ -22,10 +22,14 @@ import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.data.room.RecordDao
 import com.dimowner.audiorecorder.v2.data.room.RecordEntity
 import io.mockk.MockKAnnotations
+import io.mockk.Runs
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.slot
+import io.mockk.unmockkStatic
 import io.mockk.verify
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
@@ -33,11 +37,20 @@ import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
+import org.jaudiotagger.audio.AudioFile
+import org.jaudiotagger.audio.AudioFileIO
+import org.jaudiotagger.tag.FieldKey
+import org.jaudiotagger.tag.Tag
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import java.io.File
 
 class RecordsDataSourceImplTest {
+
+    @get:Rule
+    val tempFolder = TemporaryFolder()
 
     @MockK
     lateinit var prefs: PrefsV2
@@ -152,7 +165,7 @@ class RecordsDataSourceImplTest {
     }
 
     @Test
-    fun test_updateRecordDescription_db_only_does_not_touch_file() = runBlocking {
+    fun test_updateRecordDescription_db_only_updates_db_when_write_to_file_false() = runBlocking {
         val id = 101L
         val description = "A note for this record"
 
@@ -167,6 +180,30 @@ class RecordsDataSourceImplTest {
                 testRecordEntity.toRecord().copy(description = description).toRecordEntity()
             )
         }
+    }
+
+    @Test
+    fun test_updateRecordDescription_removes_comment_tag_from_file_when_write_to_file_false() = runBlocking {
+        val id = 101L
+        val testFile = tempFolder.newFile("test.mp3")
+        val entityWithRealPath = testRecordEntity.copy(path = testFile.absolutePath)
+        val audioFileMock = mockk<AudioFile>(relaxed = true)
+        val tagMock = mockk<Tag>(relaxed = true)
+
+        mockkStatic(AudioFileIO::class)
+        every { AudioFileIO.read(testFile) } returns audioFileMock
+        every { audioFileMock.tagOrCreateAndSetDefault } returns tagMock
+        every { AudioFileIO.write(audioFileMock) } just Runs
+
+        every { recordDao.getRecordById(id) } returns entityWithRealPath
+        every { recordDao.updateRecord(any()) } returns 1
+
+        recordsDataSourceImpl.updateRecordDescription(id, "some description", writeToFile = false)
+
+        verify { tagMock.deleteField(FieldKey.COMMENT) }
+        verify(exactly = 0) { tagMock.setField(FieldKey.COMMENT, any()) }
+
+        unmockkStatic(AudioFileIO::class)
     }
 
     @Test

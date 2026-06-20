@@ -188,6 +188,7 @@
 	<string name="rec_location">位置：</string>
 	<string name="rec_description">描述</string>
 	<string name="rec_description_hint">為此錄音新增描述</string>
+	<string name="edit_description">編輯描述</string>
 	<string name="add_description">新增描述</string>
 	<string name="write_description_into_file">將描述寫入音訊檔</string>
 	<string name="save_description_to_file">同時儲存到音訊檔</string>

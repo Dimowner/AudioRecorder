@@ -158,6 +158,7 @@
     <string name="rec_location">文件位置：</string>
     <string name="rec_description">描述</string>
     <string name="rec_description_hint">为此录音添加描述</string>
+    <string name="edit_description">编辑描述</string>
     <string name="add_description">添加描述</string>
     <string name="write_description_into_file">将描述写入音频文件</string>
     <string name="save_description_to_file">同时也保存到音频文件</string>

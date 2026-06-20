@@ -187,6 +187,7 @@
 	<string name="rec_location">Dateispeicherort:</string>
 	<string name="rec_description">Beschreibung</string>
 	<string name="rec_description_hint">Beschreibung für diese Aufnahme hinzufügen</string>
+	<string name="edit_description">Beschreibung bearbeiten</string>
 	<string name="add_description">Beschreibung hinzufügen</string>
 	<string name="write_description_into_file">Beschreibung in die Audiodatei schreiben</string>
 	<string name="save_description_to_file">Auch in Audiodatei speichern</string>

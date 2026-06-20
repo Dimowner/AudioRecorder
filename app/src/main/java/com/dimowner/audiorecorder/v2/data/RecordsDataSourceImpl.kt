@@ -200,6 +200,8 @@ class RecordsDataSourceImpl @Inject internal constructor(
                 val updated = updateRecord(record.copy(description = truncated))
                 if (writeToFile) {
                     File(record.path).writeCommentTag(truncated)
+                } else {
+                    File(record.path).writeCommentTag("")
                 }
                 updated
             } else {

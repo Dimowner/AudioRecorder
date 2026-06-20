@@ -61,8 +61,9 @@ interface RecordsDataSource {
      *
      * @param recordId The database id of the record to update.
      * @param description The new description text (may be blank to clear the note).
-     * @param writeToFile When true, also embed the description as a COMMENT tag in the
-     * audio file. When false, the description is saved to the database only.
+     * @param writeToFile When true, embed the description as a COMMENT tag in the audio file.
+     * When false, the COMMENT tag is removed from the audio file and the description is saved
+     * to the database only.
      * @return true if the database update succeeded.
      */
     suspend fun updateRecordDescription(

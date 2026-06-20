@@ -187,6 +187,7 @@
 	<string name="rec_location">File location:</string>
 	<string name="rec_description">Description</string>
 	<string name="rec_description_hint">Add a description for this recording</string>
+	<string name="edit_description">Edit description</string>
 	<string name="add_description">Add description</string>
 	<string name="write_description_into_file">Write description into the audio file</string>
 	<string name="save_description_to_file">Also save to audio file</string>

@@ -169,6 +169,7 @@
 	<string name="rec_location">Местоположение на файла:</string>
 	<string name="rec_description">Описание</string>
 	<string name="rec_description_hint">Добавете описание за този запис</string>
+	<string name="edit_description">Редактиране на описанието</string>
 	<string name="add_description">Добави описание</string>
 	<string name="write_description_into_file">Запишете описанието в аудио файла</string>
 	<string name="save_description_to_file">Също така запазете в аудио файл</string>

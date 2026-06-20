@@ -185,6 +185,7 @@
 	<string name="rec_location">Dosya konumu:</string>
 	<string name="rec_description">Açıklama</string>
 	<string name="rec_description_hint">Bu kayıt için bir açıklama ekleyin</string>
+	<string name="edit_description">Açıklamayı düzenle</string>
 	<string name="add_description">Açıklama ekle</string>
 	<string name="write_description_into_file">Açıklamayı ses dosyasına yaz</string>
 	<string name="save_description_to_file">Ses dosyasına da kaydet</string>
