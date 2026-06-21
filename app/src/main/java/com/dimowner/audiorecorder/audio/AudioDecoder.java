@@ -106,10 +106,15 @@ public class AudioDecoder {
 		if (i == numTracks || format == null) {
 			throw new IOException("No audio track found in " + mInputFile.toString());
 		}
-		channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
-		sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
-
-		duration = format.getLong(MediaFormat.KEY_DURATION);
+		if (format.containsKey(MediaFormat.KEY_CHANNEL_COUNT)) {
+			channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+		}
+		if (format.containsKey(MediaFormat.KEY_SAMPLE_RATE)) {
+			sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+		}
+		if (format.containsKey(MediaFormat.KEY_DURATION)) {
+			duration = format.getLong(MediaFormat.KEY_DURATION);
+		}
 
 		//TODO: Make waveform independent from dpPerSec!!!
 		dpPerSec = ARApplication.getDpPerSecond((float) duration/1000000f);
@@ -328,32 +333,52 @@ public class AudioDecoder {
 			}
 			int channelCount;
 			try {
-				channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+				if (format.containsKey(MediaFormat.KEY_CHANNEL_COUNT)) {
+					channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+				} else {
+					channelCount = 0;
+				}
 			} catch (Exception e) {
 				Timber.e(e);
 				channelCount = 0;
 			}
 			int sampleRate;
 			try {
-				sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+				if (format.containsKey(MediaFormat.KEY_SAMPLE_RATE)) {
+					sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+				} else {
+					sampleRate = 0;
+				}
 			} catch (Exception e) {
 				Timber.e(e);
 				sampleRate = 0;
 			}
-			int bitrate;
-			try {
-				bitrate = format.getInteger(MediaFormat.KEY_BIT_RATE);
-			} catch (Exception e) {
-				Timber.e(e);
-				bitrate = 0;
-			}
 
 			long duration;
 			try {
-				duration = format.getLong(MediaFormat.KEY_DURATION);
+				if (format.containsKey(MediaFormat.KEY_DURATION)) {
+					duration = format.getLong(MediaFormat.KEY_DURATION);
+				} else {
+					duration = 0;
+				}
 			} catch (Exception e) {
 				Timber.e(e);
 				duration = 0;
+			}
+
+			int bitrate;
+			try {
+				if (format.containsKey(MediaFormat.KEY_BIT_RATE)) {
+					bitrate = format.getInteger(MediaFormat.KEY_BIT_RATE);
+				} else if (duration > 0) {
+					int estimated = (int) (inputFile.length() * 8000000L / duration);
+					bitrate = snapToStandardBitrate(estimated);
+				} else {
+					bitrate = 0;
+				}
+			} catch (Exception e) {
+				Timber.e(e);
+				bitrate = 0;
 			}
 
 			String mimeType;
@@ -421,7 +446,11 @@ public class AudioDecoder {
 
 			String mimeType;
 			try {
-				mimeType= format.getString(MediaFormat.KEY_MIME);
+				if (format.containsKey(MediaFormat.KEY_MIME)) {
+					mimeType = format.getString(MediaFormat.KEY_MIME);
+				} else {
+					mimeType = "";
+				}
 			} catch (Exception e) {
 				Timber.e(e);
 				mimeType = "";
@@ -431,6 +460,24 @@ public class AudioDecoder {
 			Timber.e(e);
 		}
 		return "audio/*";
+	}
+
+	private static int snapToStandardBitrate(int estimatedBitrate) {
+		int[] standardBitrates = {12000, 24000, 48000, 96000, 128000, 192000, 256000, 288000};
+		int closest = standardBitrates[0];
+		int minDiff = Math.abs(estimatedBitrate - closest);
+		for (int standard : standardBitrates) {
+			int diff = Math.abs(estimatedBitrate - standard);
+			if (diff < minDiff) {
+				minDiff = diff;
+				closest = standard;
+			}
+		}
+		// If the estimated logic is off by more than 20% from the closest standard, keep the estimate just in case
+		if (minDiff > closest * 0.2f) {
+			return estimatedBitrate;
+		}
+		return closest;
 	}
 
 	private static String readFileFormat(File file, String mime) {
