@@ -171,6 +171,9 @@ class AudioRecordingService : Service() {
     /** True only for the current recording session if it was initiated by the overlay button. */
     private var currentRecordingStartedFromFloatingOverlay: Boolean = false
 
+    /** True only for the current stop request if it was initiated by the overlay button. */
+    private var currentRecordingStoppedFromFloatingOverlay: Boolean = false
+
     inner class ServiceBinder : Binder() {
         fun getService(): AudioRecordingService = this@AudioRecordingService
     }
@@ -194,6 +197,7 @@ class AudioRecordingService : Service() {
                     EXTRA_STARTED_FROM_FLOATING_OVERLAY,
                     false,
                 )
+                currentRecordingStoppedFromFloatingOverlay = false
                 // Must call startForeground() synchronously before any async work
                 // to satisfy the foreground service contract and avoid ANR.
                 startForegroundWithNotification()
@@ -489,7 +493,14 @@ class AudioRecordingService : Service() {
     }
 
     fun stopRecording() {
-        audioRecorder.stopRecording()
+        stopRecording(stoppedFromFloatingOverlay = false)
+    }
+
+    fun stopRecording(stoppedFromFloatingOverlay: Boolean) {
+        currentRecordingStoppedFromFloatingOverlay = stoppedFromFloatingOverlay
+        if (!audioRecorder.stopRecording()) {
+            currentRecordingStoppedFromFloatingOverlay = false
+        }
     }
 
     private suspend fun handleRecordingStopped(isNotMaxDurationHandling: Boolean = true) {
@@ -532,6 +543,7 @@ class AudioRecordingService : Service() {
                                 recordId = recordedRecordId,
                                 recordName = record.name,
                                 startedFromFloatingOverlay = currentRecordingStartedFromFloatingOverlay,
+                                stoppedFromFloatingOverlay = currentRecordingStoppedFromFloatingOverlay,
                             ))
                             decodeRecord(
                                 recordId = recordUpdated.id,
@@ -564,6 +576,7 @@ class AudioRecordingService : Service() {
         totalRecordingSampleCount = 0
         recordingFullDataBuffer.reset()
         currentRecordingStartedFromFloatingOverlay = false
+        currentRecordingStoppedFromFloatingOverlay = false
         _recordingState.value = RecordingServiceState()
         stopNotificationUpdates()
         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -881,5 +894,6 @@ sealed class AudioRecordingServiceEvent {
         val recordId: Long,
         val recordName: String?,
         val startedFromFloatingOverlay: Boolean = false,
+        val stoppedFromFloatingOverlay: Boolean = false,
     ) : AudioRecordingServiceEvent()
 }

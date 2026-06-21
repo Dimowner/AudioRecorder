@@ -44,6 +44,7 @@ import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.v2.app.HomeActivity
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingService
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingServiceEvent
+import com.dimowner.audiorecorder.v2.audio.recordingStoppedRenamePolicy
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.Record
@@ -95,7 +96,7 @@ class FloatingRecorderOverlayService : Service() {
                 subscribeRecordingService(boundService)
                 if (pendingStop) {
                     pendingStop = false
-                    boundService.stopRecording()
+                    boundService.stopRecording(stoppedFromFloatingOverlay = true)
                 }
             }
         }
@@ -166,7 +167,10 @@ class FloatingRecorderOverlayService : Service() {
         recordingEventJob = serviceScope.launch {
             service.event.collect { event ->
                 when (event) {
-                    is AudioRecordingServiceEvent.RecordingStopped -> handleRecordingStopped(event.recordId)
+                    is AudioRecordingServiceEvent.RecordingStopped -> handleRecordingStopped(
+                        recordId = event.recordId,
+                        stoppedFromFloatingOverlay = event.stoppedFromFloatingOverlay,
+                    )
                     is AudioRecordingServiceEvent.ShowErrorSnack -> {
                         Timber.w("Floating recorder start/stop error: ${event.message}")
                         iconView?.post { updateIconAppearance(false) }
@@ -177,9 +181,14 @@ class FloatingRecorderOverlayService : Service() {
         }
     }
 
-    private suspend fun handleRecordingStopped(recordId: Long) {
+    private suspend fun handleRecordingStopped(recordId: Long, stoppedFromFloatingOverlay: Boolean) {
         iconView?.post { runSavedAnimation() }
-        if (prefs.askToRenameAfterRecordingStopped && recordId >= 0) {
+        val renamePolicy = recordingStoppedRenamePolicy(
+            askToRenameAfterRecordingStopped = prefs.askToRenameAfterRecordingStopped,
+            recordId = recordId,
+            stoppedFromFloatingOverlay = stoppedFromFloatingOverlay,
+        )
+        if (renamePolicy.showFloatingOverlayRenameDialog) {
             recordsDataSource.getRecord(recordId)?.let { record ->
                 iconView?.post { showRenameOverlay(record) }
             }
@@ -419,7 +428,7 @@ class FloatingRecorderOverlayService : Service() {
 
     private fun handleIconTap() {
         if (isRecording) {
-            recordingService?.stopRecording() ?: run {
+            recordingService?.stopRecording(stoppedFromFloatingOverlay = true) ?: run {
                 pendingStop = true
                 bindRecordingService()
             }
