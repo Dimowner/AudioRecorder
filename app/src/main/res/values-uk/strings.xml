@@ -98,6 +98,7 @@
 	<string name="failed_to_delete_all_records">Помилка під час видалення всіх записів</string>
 	<string name="please_select_record_to_share">Будь-ласка, виберіть або запишіть аудіо файл для поширення</string>
     <string name="update_record_name">Оновити назву</string>
+    <string name="update_name_and_description">Оновити ім\'я та опис</string>
 	<string name="recording">Запис: %s</string>
 	<string name="recording_is_on">Запис увімкнено</string>
 	<string name="recording_progress">Запис&#8230;</string>
@@ -180,7 +181,11 @@
 	<string name="by_name">По назві (А-Я)</string>
 	<string name="by_name_desc">По назві (Я-А)</string>
 	<string name="by_duration">Тривалість (найдовші)</string>
-	<string name="by_duration_desc">Тривалість (найкоротші)</string>
+    <string name="by_duration_desc">Тривалість (найкоротші)</string>
+    <string name="filter">Фільтр</string>
+	<string name="filter_clear">Очистити</string>
+	<string name="filter_dismiss">Сховати фільтр</string>
+	<string name="filter_no_options">Немає записів для фільтрації</string>
 	<string name="need_write_permission">Додатку потрібно дозвіл на запис в публічне сховище. Якщо не дозволити, записи будуть зберігатися в приватному каталозі додатка</string>
 	<string name="rec_name">Назва:</string>
 	<string name="rec_format">Формат:</string>
@@ -188,6 +193,13 @@
     <string name="rec_size">Розмір:</string>
 	<string name="rec_created">Дата створення:</string>
 	<string name="rec_location">Розташування файлу:</string>
+	<string name="rec_description">Опис</string>
+	<string name="rec_description_hint">Додати опис для цього запису</string>
+	<string name="edit_description">Редагувати опис</string>
+	<string name="add_description">Додати опис</string>
+	<string name="write_description_into_file">Записати опис в аудіофайл</string>
+	<string name="save_description_to_file">Також зберегти в аудіофайл</string>
+	<string name="msg_saved_successfully">Успішно збережено</string>
 	<string name="naming">Іменування:</string>
 	<string name="private_dir_warning">Записи будуть зберігатись в приватній директорії додатка, невидимій для інших додатків.</string>
 	<string name="public_dir_warning">Записи будуть зберігатись в звичайній директорії пристрою, видимій іншим додаткам.</string>

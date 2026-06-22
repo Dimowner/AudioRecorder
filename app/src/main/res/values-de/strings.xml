@@ -109,6 +109,7 @@
 	<string name="failed_to_delete_all_records">Alle Aufnahmen konnten nicht gelöscht werden</string>
 	<string name="please_select_record_to_share">Bitte eine Aufnahme zum Teilen auswählen</string>
     <string name="update_record_name">Namen aktualisieren</string>
+    <string name="update_name_and_description">Name und Beschreibung aktualisieren</string>
 	<string name="recording">Aufnahme: %s</string>
 	<string name="recording_is_on">Aufnahme läuft</string>
 	<string name="recording_progress">Aufnahme läuft&#8230;</string>
@@ -181,7 +182,11 @@
 	<string name="by_name">Nach Name (A-Z)</string>
 	<string name="by_name_desc">Nach Name (Z-A)</string>
 	<string name="by_duration">Nach Dauer (längste)</string>
-	<string name="by_duration_desc">Nach Dauer (kürzeste)</string>
+    <string name="by_duration_desc">Nach Dauer (kürzeste)</string>
+    <string name="filter">Filter</string>
+	<string name="filter_clear">Löschen</string>
+	<string name="filter_dismiss">Filter schließen</string>
+	<string name="filter_no_options">Keine Aufnahmen zum Filtern</string>
 	<string name="need_write_permission">Die App benötigt die Berechtigung zum Zugriff auf den öffentlichen Speicher. Wenn nicht erlaubt, werden Aufnahmen im privaten Verzeichnis der App gespeichert</string>
 	<string name="rec_name">Name:</string>
 	<string name="rec_format">Format:</string>
@@ -189,6 +194,13 @@
     <string name="rec_size">Größe:</string>
 	<string name="rec_created">Erstellt:</string>
 	<string name="rec_location">Dateispeicherort:</string>
+	<string name="rec_description">Beschreibung</string>
+	<string name="rec_description_hint">Beschreibung für diese Aufnahme hinzufügen</string>
+	<string name="edit_description">Beschreibung bearbeiten</string>
+	<string name="add_description">Beschreibung hinzufügen</string>
+	<string name="write_description_into_file">Beschreibung in die Audiodatei schreiben</string>
+	<string name="save_description_to_file">Auch in Audiodatei speichern</string>
+	<string name="msg_saved_successfully">Erfolgreich gespeichert</string>
 	<string name="naming">Benennung:</string>
 	<string name="private_dir_warning">Aufnahmen werden im privaten Verzeichnis der App gespeichert, das für andere Apps nicht sichtbar ist</string>
 	<string name="public_dir_warning">Aufnahmen werden in einem gemeinsamen Verzeichnis auf Ihrem Gerät gespeichert, das für andere Apps sichtbar ist</string>

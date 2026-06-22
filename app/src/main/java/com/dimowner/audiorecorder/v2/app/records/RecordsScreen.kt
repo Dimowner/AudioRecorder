@@ -69,6 +69,8 @@ import androidx.lifecycle.Lifecycle
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
+import com.dimowner.audiorecorder.v2.app.EditDescriptionDialog
+import com.dimowner.audiorecorder.v2.app.isDescriptionFileWriteSupported
 import com.dimowner.audiorecorder.v2.app.RenameAlertDialog
 import com.dimowner.audiorecorder.v2.app.SaveAsDialog
 import com.dimowner.audiorecorder.v2.app.components.MAX_CONTENT_WIDTH_WIDE
@@ -354,7 +356,7 @@ internal fun RecordsScreen(
                                             style = MaterialTheme.typography.titleMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             modifier = Modifier.padding(
-                                                16.dp, 10.dp, 16.dp, 2.dp
+                                                16.dp, 6.dp, 16.dp, 0.dp
                                             ),
                                             textAlign = TextAlign.Center,
                                             fontSize = 16.sp,
@@ -368,6 +370,7 @@ internal fun RecordsScreen(
                                     name = record.name,
                                     details = record.details,
                                     duration = record.duration,
+                                    description = record.description,
                                     isBookmarked = record.isBookmarked,
                                     isSelected = record.recordId == uiState.activeRecord?.recordId
                                             || uiState.selectedRecords.contains(record),
@@ -415,6 +418,14 @@ internal fun RecordsScreen(
                                                 )
                                             }
 
+                                            RecordDropDownMenuItemId.DESCRIPTION -> {
+                                                onAction(
+                                                    RecordsScreenAction.OnEditDescriptionRequest(
+                                                        record
+                                                    )
+                                                )
+                                            }
+
                                             RecordDropDownMenuItemId.OPEN_WITH -> {
                                                 onAction(
                                                     RecordsScreenAction.OpenRecordWithAnotherApp(
@@ -434,6 +445,13 @@ internal fun RecordsScreen(
                                                     )
                                                 )
                                             }
+                                        }
+                                    },
+                                    onClickDescription = {
+                                        if (!uiState.isRecording) {
+                                            onAction(
+                                                RecordsScreenAction.OnEditDescriptionRequest(record)
+                                            )
                                         }
                                     },
                                     modifier = Modifier.animateItem(),
@@ -491,6 +509,24 @@ internal fun RecordsScreen(
                             }, onDismissClick = {
                                 onAction(RecordsScreenAction.OnRenameRecordDismiss)
                             })
+                        }
+                    } else if (uiState.showEditDescriptionDialog) {
+                        uiState.operationSelectedRecord?.let { record ->
+                            EditDescriptionDialog(
+                                initialDescription = record.description,
+                                initialWriteToFile = uiState.saveDescriptionToFile,
+                                isWriteToFileSupported = isDescriptionFileWriteSupported(record.format),
+                                onAcceptClick = { description, writeToFile ->
+                                    onAction(
+                                        RecordsScreenAction.SaveRecordDescription(
+                                            record.recordId, description, writeToFile
+                                        )
+                                    )
+                                },
+                                onDismissClick = {
+                                    onAction(RecordsScreenAction.OnEditDescriptionDismiss)
+                                }
+                            )
                         }
                     } else if (uiState.showMoveToRecycleMultipleDialog) {
                         val count = uiState.selectedRecords.size

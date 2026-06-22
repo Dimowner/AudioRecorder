@@ -106,6 +106,7 @@
 	<string name="failed_to_delete_all_records">No s\'han pogut esborrar totes les gravacions</string>
 	<string name="please_select_record_to_share">Seleccioneu una gravació per compartir</string>
     <string name="update_record_name">Actualitza el nom</string>
+    <string name="update_name_and_description">Actualitza el nom i la descripció</string>
     <string name="recording">Gravant: %s</string>
 	<string name="recording_is_on">S\'està gravant</string>
 	<string name="recording_progress">Gravant&#8230;</string>
@@ -178,7 +179,11 @@
 	<string name="by_name">Per nom (A-Z)</string>
 	<string name="by_name_desc">Per nom (Z-A)</string>
 	<string name="by_duration">Per durada (més llarg)</string>
-	<string name="by_duration_desc">Per durada (més curt)</string>
+    <string name="by_duration_desc">Per durada (més curt)</string>
+    <string name="filter">Filtre</string>
+	<string name="filter_clear">Esborra</string>
+	<string name="filter_dismiss">Descarta el filtre</string>
+	<string name="filter_no_options">No hi ha registres per filtrar</string>
 	<string name="need_write_permission">L\'aplicació necessita permís per accedir a l\'emmagatzematge públic. Si no es permet, les gravacions s\'emmagatzemaran al directori privat de l\'aplicació</string>
 	<string name="rec_name">Nom:</string>
 	<string name="rec_format">Format:</string>
@@ -186,6 +191,13 @@
     <string name="rec_size">Mida:</string>
 	<string name="rec_created">Creat:</string>
 	<string name="rec_location">Ubicació del fitxer:</string>
+	<string name="rec_description">Descripció</string>
+	<string name="rec_description_hint">Afegiu una descripció per a aquesta gravació</string>
+	<string name="edit_description">Editar descripció</string>
+	<string name="add_description">Afegir descripció</string>
+	<string name="write_description_into_file">Escriu la descripció al fitxer d\'àudio</string>
+	<string name="save_description_to_file">També desa al fitxer d\'àudio</string>
+	<string name="msg_saved_successfully">S\'ha desat correctament</string>
 	<string name="naming">Nomenclatura:</string>
 	<string name="private_dir_warning">Les gravacions s\'emmagatzemaran al directori privat de l\'aplicació, que no és visible per a altres aplicacions</string>
 	<string name="public_dir_warning">Les gravacions s\'emmagatzemaran en una carpeta comuna del dispositiu, visible per a altres aplicacions</string>

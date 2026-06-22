@@ -32,6 +32,9 @@ interface PrefsV2 {
 
     var askToRenameAfterRecordingStopped: Boolean
 
+    /** Last chosen state of the "Also save to audio file" checkbox in the description dialog. */
+    var saveDescriptionToFile: Boolean
+
     var activeRecordId: Long
     //Stores the last recorded record id. It is not gets cleared after recording stops.
     // It gets overwritten after new recording starts.

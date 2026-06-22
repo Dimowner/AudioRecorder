@@ -110,6 +110,7 @@
 	<string name="failed_to_delete_all_records">すべての録音の削除に失敗しました</string>
 	<string name="please_select_record_to_share">共有する録音を選択してください</string>
     <string name="update_record_name">名前を更新する</string>
+    <string name="update_name_and_description">名前と説明を更新</string>
 	<string name="recording">録音中：%s</string>
 	<string name="recording_is_on">録音中です</string>
 	<string name="recording_progress">録音中&#8230;</string>
@@ -182,7 +183,11 @@
 	<string name="by_name">名前順（A〜Z）</string>
 	<string name="by_name_desc">名前順（Z〜A）</string>
 	<string name="by_duration">時間順（長い順）</string>
-	<string name="by_duration_desc">時間順（短い順）</string>
+    <string name="by_duration_desc">時間順（短い順）</string>
+    <string name="filter">フィルター</string>
+	<string name="filter_clear">クリア</string>
+	<string name="filter_dismiss">フィルターを閉じる</string>
+	<string name="filter_no_options">フィルタリングする録音がありません</string>
 	<string name="need_write_permission">アプリは公開ストレージへのアクセス権限が必要です。許可されない場合、録音はアプリのプライベートディレクトリに保存されます</string>
 	<string name="rec_name">名前：</string>
 	<string name="rec_format">フォーマット：</string>
@@ -190,6 +195,13 @@
     <string name="rec_size">サイズ：</string>
 	<string name="rec_created">作成日：</string>
 	<string name="rec_location">ファイルの場所：</string>
+	<string name="rec_description">説明</string>
+	<string name="rec_description_hint">この録音に説明を追加</string>
+	<string name="edit_description">説明を編集</string>
+	<string name="add_description">説明を追加</string>
+	<string name="write_description_into_file">オーディオファイルに説明を書き込む</string>
+	<string name="save_description_to_file">オーディオファイルにも保存</string>
+	<string name="msg_saved_successfully">正常に保存されました</string>
 	<string name="naming">命名：</string>
 	<string name="private_dir_warning">録音はアプリのプライベートディレクトリに保存されるため、他のアプリからは見えません</string>
 	<string name="public_dir_warning">録音はデバイスの共有ディレクトリに保存されるため、他のアプリからも見えます</string>

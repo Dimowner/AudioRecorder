@@ -45,18 +45,22 @@ fun File.writeTags(
 }
 
 /**
- * Writes the COMMENT metadata tag to an audio file.
- * Skipped silently if [description] is blank.
+ * Writes or removes the COMMENT metadata tag on an audio file.
+ * When [description] is empty the COMMENT field is deleted from the file;
+ * otherwise it is set to [description].
  *
  * @receiver The audio file to tag.
- * @param description The description text to store as the COMMENT tag.
+ * @param description The description text to store as the COMMENT tag, or empty to remove it.
  */
 fun File.writeCommentTag(description: String) {
-    if (description.isBlank()) return
     try {
         val audioFile = AudioFileIO.read(this)
         val tag = audioFile.tagOrCreateAndSetDefault
-        tag.setField(FieldKey.COMMENT, description)
+        if (description.isBlank()) {
+            tag.deleteField(FieldKey.COMMENT)
+        } else {
+            tag.setField(FieldKey.COMMENT, description)
+        }
         AudioFileIO.write(audioFile)
         Timber.d("Comment tag written successfully for file: $name")
     } catch (e: Exception) {

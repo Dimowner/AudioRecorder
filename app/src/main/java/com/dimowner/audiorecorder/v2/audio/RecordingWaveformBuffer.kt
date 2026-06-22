@@ -42,8 +42,9 @@ package com.dimowner.audiorecorder.v2.audio
  * For a typical 400 dp screen [targetSize] ≈ 600, so the cap is ≈ 2 400 elements (~38 KB)
  * regardless of recording length.
  *
- * **Thread-safety:** NOT thread-safe. All calls must be made from the same coroutine /
- * dispatcher (the IO dispatcher used by [AudioRecordingService]).
+ * **Thread-safety:** [add], [reset], and [downsampleToIntArray] are individually
+ * `@Synchronized` and may be called from any thread. [compressUniformly] is internal
+ * and always called under the same lock (from [add]).
  *
  * @param targetSize the number of output samples produced by [downsampleToIntArray].
  *   Usually [ARApplication.longWaveformSampleCount]. Passed explicitly so the class is
@@ -85,6 +86,7 @@ class RecordingWaveformBuffer(private val targetSize: Int) {
      * Appends [amplitude] (raw 0–32 767 from MediaRecorder.getMaxAmplitude) and triggers
      * a [compressUniformly] pass if the buffer reaches [cap].
      */
+    @Synchronized
     fun add(amplitude: Int) {
         samples.add(amplitude)
         totalSamplesAdded++
@@ -94,6 +96,7 @@ class RecordingWaveformBuffer(private val targetSize: Int) {
     }
 
     /** Clears all accumulated samples and resets the timeline counters. */
+    @Synchronized
     fun reset() {
         samples.clear()
         totalSamplesAdded = 0
@@ -113,6 +116,7 @@ class RecordingWaveformBuffer(private val targetSize: Int) {
      * [AppConstantsV2.WAVEFORM_AMPLITUDE_MAX_VALUE].
      * [adjustWaveformHeights] is applied at display time by HomeViewModel / Mapper.
      */
+    @Synchronized
     fun downsampleToIntArray(): IntArray {
         val result = IntArray(targetSize)
         if (totalSamplesAdded == 0) return result

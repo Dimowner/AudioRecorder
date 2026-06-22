@@ -3,6 +3,8 @@ package com.dimowner.audiorecorder.v2.audio
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 
 class RecordingWaveformBufferTest {
 
@@ -174,5 +176,45 @@ class RecordingWaveformBufferTest {
         val first = buf.downsampleToIntArray()
         val second = buf.downsampleToIntArray()
         assertTrue(first.contentEquals(second))
+    }
+
+    // ── thread-safety ─────────────────────────────────────────────────────────
+
+    @Test
+    fun `concurrent add-reset and downsample do not throw`() {
+        // Regression test for IndexOutOfBoundsException when reset() (new recording
+        // starting) raced downsampleToIntArray() (previous recording being saved)
+        // on different IO-pool threads.
+        val buf = RecordingWaveformBuffer(targetSize = 50)
+        val error = AtomicReference<Throwable?>(null)
+        val running = AtomicBoolean(true)
+
+        val writer = Thread {
+            try {
+                while (running.get()) {
+                    // Enough samples to trigger compression, so the compressed-region
+                    // branch of getAmplitudeAtOriginalIndex is exercised.
+                    repeat(1000) { buf.add(it % 32767) }
+                    buf.reset()
+                }
+            } catch (t: Throwable) {
+                error.set(t)
+            }
+        }
+        writer.start()
+
+        try {
+            val deadline = System.currentTimeMillis() + 500
+            while (System.currentTimeMillis() < deadline && error.get() == null) {
+                assertEquals(50, buf.downsampleToIntArray().size)
+            }
+        } catch (t: Throwable) {
+            error.set(t)
+        } finally {
+            running.set(false)
+            writer.join(5000)
+        }
+
+        error.get()?.let { throw AssertionError("Concurrent access threw", it) }
     }
 }

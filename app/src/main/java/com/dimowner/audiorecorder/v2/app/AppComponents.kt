@@ -80,6 +80,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dimowner.audiorecorder.AppConstantsV2.RECORD_DESCRIPTION_MAX_LENGTH
 import com.dimowner.audiorecorder.R
 
 @Composable
@@ -537,6 +538,297 @@ fun RenameAlertDialog(
 @Composable
 fun RenameAlertDialogPreview() {
     RenameAlertDialog("Record-14", {}, {}, {}, true)
+}
+
+@Composable
+fun UpdateNameAndDescriptionDialog(
+    recordName: String,
+    recordDescription: String,
+    isWriteToFileSupported: Boolean,
+    onAcceptClick: (name: String, description: String, writeToFile: Boolean) -> Unit,
+    onDismissClick: () -> Unit,
+    onDontAskAgain: (Boolean) -> Unit = {},
+    showDontAskAgain: Boolean = false,
+) {
+    val nameValue = remember { mutableStateOf(recordName) }
+    val descriptionValue = remember { mutableStateOf(recordDescription) }
+    val writeToFile = remember { mutableStateOf(isWriteToFileSupported) }
+    val dontAskAgainChecked = remember { mutableStateOf(false) }
+    val effectiveWriteToFile = isWriteToFileSupported && writeToFile.value
+    val isNameEmpty = nameValue.value.isBlank()
+
+    LaunchedEffect(recordName) {
+        if (nameValue.value != recordName) {
+            nameValue.value = recordName
+        }
+    }
+    LaunchedEffect(recordDescription) {
+        if (descriptionValue.value != recordDescription) {
+            descriptionValue.value = recordDescription
+        }
+    }
+
+    AlertDialog(
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    modifier = Modifier.padding(0.dp, 0.dp, 16.dp, 0.dp),
+                    painter = painterResource(id = R.drawable.ic_pencil),
+                    contentDescription = stringResource(id = R.string.update_name_and_description)
+                )
+                Text(
+                    text = stringResource(id = R.string.update_name_and_description),
+                    fontSize = 22.sp,
+                )
+            }
+        },
+        text = {
+            val localFocusManager = LocalFocusManager.current
+            Column {
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = nameValue.value,
+                    onValueChange = { nameValue.value = it },
+                    label = { Text(text = stringResource(id = R.string.rename)) },
+                    textStyle = TextStyle.Default.copy(fontSize = 20.sp),
+                    isError = isNameEmpty,
+                    supportingText = if (isNameEmpty) {
+                        { Text(text = stringResource(id = R.string.msg_name_cannot_be_empty)) }
+                    } else null,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = descriptionValue.value,
+                    onValueChange = {
+                        if (it.length <= RECORD_DESCRIPTION_MAX_LENGTH) descriptionValue.value = it
+                    },
+                    label = { Text(text = stringResource(id = R.string.rec_description)) },
+                    placeholder = { Text(text = stringResource(id = R.string.rec_description_hint)) },
+                    minLines = 2,
+                    maxLines = 5,
+                    supportingText = {
+                        Text(
+                            text = "${descriptionValue.value.length}/$RECORD_DESCRIPTION_MAX_LENGTH",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.End,
+                        )
+                    },
+                    keyboardActions = KeyboardActions {
+                        localFocusManager.clearFocus()
+                    }
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (isWriteToFileSupported) {
+                                Modifier.clickable { writeToFile.value = !writeToFile.value }
+                            } else {
+                                Modifier
+                            }
+                        ),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(
+                        checked = effectiveWriteToFile,
+                        onCheckedChange = { writeToFile.value = it },
+                        enabled = isWriteToFileSupported,
+                    )
+                    Text(
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        text = stringResource(id = R.string.write_description_into_file),
+                        fontSize = 16.sp,
+                        color = if (isWriteToFileSupported) {
+                            Color.Unspecified
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        },
+                    )
+                }
+                if (showDontAskAgain) {
+                    Row {
+                        Checkbox(
+                            checked = dontAskAgainChecked.value,
+                            onCheckedChange = { dontAskAgainChecked.value = it },
+                        )
+                        Text(
+                            modifier = Modifier.align(Alignment.CenterVertically),
+                            text = stringResource(id = R.string.dont_ask_again),
+                            fontSize = 16.sp,
+                        )
+                    }
+                }
+            }
+        },
+        onDismissRequest = {
+            onDismissClick()
+            if (showDontAskAgain) {
+                onDontAskAgain(dontAskAgainChecked.value)
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = !isNameEmpty,
+                onClick = {
+                    onAcceptClick(nameValue.value, descriptionValue.value, effectiveWriteToFile)
+                    if (showDontAskAgain) {
+                        onDontAskAgain(dontAskAgainChecked.value)
+                    }
+                }
+            ) {
+                Text(stringResource(id = R.string.btn_save))
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissClick()
+                    if (showDontAskAgain) {
+                        onDontAskAgain(dontAskAgainChecked.value)
+                    }
+                }
+            ) {
+                Text(stringResource(id = R.string.btn_cancel))
+            }
+        }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun UpdateNameAndDescriptionDialogPreview() {
+    UpdateNameAndDescriptionDialog(
+        recordName = "Record-14",
+        recordDescription = "Meeting notes",
+        isWriteToFileSupported = true,
+        onAcceptClick = { _, _, _ -> },
+        onDismissClick = {},
+        showDontAskAgain = true,
+    )
+}
+
+/**
+ * Lightweight dialog for adding or editing a record's description (note) directly
+ * from the records list, without navigating to the info screen. An empty value is
+ * allowed and clears the note.
+ *
+ * The "save to audio file" checkbox controls whether the description is also embedded
+ * as a COMMENT tag in the audio file. When unchecked, it is saved to the database only.
+ * [onAcceptClick] receives the entered text and the checkbox state.
+ *
+ * When [isWriteToFileSupported] is false (e.g. 3GP files, which can't store comment
+ * metadata) the checkbox is forced off and disabled, and the saved flag is always false.
+ */
+@Composable
+fun EditDescriptionDialog(
+    initialDescription: String,
+    onAcceptClick: (description: String, writeToFile: Boolean) -> Unit,
+    onDismissClick: () -> Unit,
+    initialWriteToFile: Boolean,
+    isWriteToFileSupported: Boolean,
+) {
+    val currentValue = remember { mutableStateOf(initialDescription) }
+    val writeToFile = remember { mutableStateOf(initialWriteToFile) }
+    // 3GP and similar containers can't store a comment tag, so file-write is forced off.
+    val effectiveWriteToFile = isWriteToFileSupported && writeToFile.value
+    // If the description arrives after first composition (async state update),
+    // populate the field as long as the user hasn't started typing yet.
+    LaunchedEffect(initialDescription) {
+        if (currentValue.value != initialDescription) {
+            currentValue.value = initialDescription
+        }
+    }
+    AlertDialog(
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    modifier = Modifier.padding(0.dp, 0.dp, 16.dp, 0.dp),
+                    painter = painterResource(id = R.drawable.ic_description),
+                    contentDescription = stringResource(id = R.string.rec_description)
+                )
+                Text(text = stringResource(id = R.string.rec_description))
+            }
+        },
+        text = {
+            Column {
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = currentValue.value,
+                    onValueChange = {
+                        if (it.length <= RECORD_DESCRIPTION_MAX_LENGTH) currentValue.value = it
+                    },
+                    placeholder = {
+                        Text(text = stringResource(id = R.string.rec_description_hint))
+                    },
+                    minLines = 3,
+                    maxLines = 9,
+                    supportingText = {
+                        Text(
+                            text = "${currentValue.value.length}/$RECORD_DESCRIPTION_MAX_LENGTH",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.End,
+                        )
+                    },
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (isWriteToFileSupported) {
+                                Modifier.clickable { writeToFile.value = !writeToFile.value }
+                            } else {
+                                Modifier
+                            }
+                        ),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(
+                        checked = effectiveWriteToFile,
+                        onCheckedChange = { writeToFile.value = it },
+                        enabled = isWriteToFileSupported,
+                    )
+                    Text(
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        text = stringResource(id = R.string.write_description_into_file),
+                        fontSize = 16.sp,
+                        color = if (isWriteToFileSupported) {
+                            Color.Unspecified
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        },
+                    )
+                }
+            }
+        },
+        onDismissRequest = { onDismissClick() },
+        confirmButton = {
+            TextButton(
+                onClick = { onAcceptClick(currentValue.value, effectiveWriteToFile) }
+            ) {
+                Text(stringResource(id = R.string.btn_save))
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = { onDismissClick() }
+            ) {
+                Text(stringResource(id = R.string.btn_cancel))
+            }
+        }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EditDescriptionDialogPreview() {
+    EditDescriptionDialog(
+        "Meeting notes for Q3 planning.",
+        { _, _ -> }, {}, true, true
+    )
 }
 
 @Composable

@@ -17,10 +17,12 @@
 package com.dimowner.audiorecorder.v2.data
 
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.dimowner.audiorecorder.AppConstantsV2.RECORD_DESCRIPTION_MAX_LENGTH
 import com.dimowner.audiorecorder.audio.AudioDecoder
 import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilter
 import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilterOptions
 import com.dimowner.audiorecorder.v2.audio.BrokenRecordRestorer
+import com.dimowner.audiorecorder.v2.audio.writeCommentTag
 import com.dimowner.audiorecorder.v2.data.extensions.toRecordsSortColumnName
 import com.dimowner.audiorecorder.v2.data.extensions.toSqlSortOrder
 import com.dimowner.audiorecorder.v2.data.model.Record
@@ -182,6 +184,34 @@ class RecordsDataSourceImpl @Inject internal constructor(
             }
         } catch (e: Exception) {
             Timber.e(e)
+            false
+        }
+    }
+
+    override suspend fun updateRecordDescription(
+        recordId: Long,
+        description: String,
+        writeToFile: Boolean,
+    ): Boolean {
+        return try {
+            val record = getRecord(recordId)
+            if (record != null) {
+                val truncated = description.take(RECORD_DESCRIPTION_MAX_LENGTH)
+                val updated = updateRecord(record.copy(description = truncated))
+                if (updated) {
+                    if (writeToFile) {
+                        File(record.path).writeCommentTag(truncated)
+                    } else {
+                        File(record.path).writeCommentTag("")
+                    }
+                }
+                updated
+            } else {
+                Timber.w("updateRecordDescription: record %s not found", recordId)
+                false
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "updateRecordDescription failed for record %s", recordId)
             false
         }
     }

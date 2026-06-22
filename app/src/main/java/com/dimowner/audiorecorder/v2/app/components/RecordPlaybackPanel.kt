@@ -82,7 +82,7 @@ internal fun RecordPlaybackPanel(
             }
         }
         WaveformComposeView(
-            modifier = Modifier.fillMaxWidth().height(48.dp),
+            modifier = Modifier.fillMaxWidth().height(42.dp),
             state = uiState.waveformState,
             showTimeline = false,
             onSeekStart = {
@@ -96,7 +96,6 @@ internal fun RecordPlaybackPanel(
             }
         )
         Row(
-            modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp),
             verticalAlignment = Alignment.Bottom,
         ) {
             Text(
@@ -111,7 +110,7 @@ internal fun RecordPlaybackPanel(
             Text(
                 modifier = Modifier
                     .wrapContentHeight().weight(1f)
-                    .padding(8.dp, 6.dp, 8.dp, 0.dp),
+                    .padding(8.dp, 4.dp, 8.dp, 0.dp),
                 textAlign = TextAlign.Center,
                 text = uiState.recordName,
                 color = MaterialTheme.colorScheme.onSurface,

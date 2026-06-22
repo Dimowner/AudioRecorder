@@ -23,6 +23,7 @@ import com.dimowner.audiorecorder.v2.app.deleted.DeletedRecordsScreen
 import com.dimowner.audiorecorder.v2.app.deleted.DeletedRecordsViewModel
 import com.dimowner.audiorecorder.v2.app.home.HomeScreen
 import com.dimowner.audiorecorder.v2.app.home.HomeViewModel
+import com.dimowner.audiorecorder.v2.app.isDescriptionFileWriteSupported
 import com.dimowner.audiorecorder.v2.app.info.AssetParamType
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoScreen
@@ -207,13 +208,14 @@ fun RecorderNavigationGraph(
                     authorName = resolvedAuthorName,
                     description = resolvedDescription
                 ),
-                isSaving = recordInfoViewModel.isSaving.value,
-                onSaveDescription = { description ->
+                saveDescriptionToFile = recordInfoViewModel.saveDescriptionToFile,
+                onSaveDescription = { description, writeToFile ->
                     if (recordInfo != null) {
                         recordInfoViewModel.saveDescription(
                             recordId = recordInfo.id,
-                            filePath = recordInfo.location,
                             description = description,
+                            writeToFile = writeToFile,
+                            writeToFileSupported = isDescriptionFileWriteSupported(recordInfo.format),
                             onDone = { success ->
                                 if (success) {
                                     Toast.makeText(context, R.string.msg_saved_successfully, Toast.LENGTH_SHORT).show()

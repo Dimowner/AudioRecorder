@@ -57,6 +57,7 @@ import com.dimowner.audiorecorder.v2.app.calculateScale
 import com.dimowner.audiorecorder.v2.app.components.WaveformState
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
+import com.dimowner.audiorecorder.v2.app.isDescriptionFileWriteSupported
 import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingService
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingServiceEvent
@@ -298,6 +299,7 @@ class HomeViewModel @Inject constructor(
                                 startTime = "",
                                 endTime = "",
                                 recordName = context.getString(R.string.recording_progress),
+                                recordDescription = "",
                                 keepScreenOn = prefs.isKeepScreenOn,
                             )
                             withContext(ioDispatcher) {
@@ -471,9 +473,12 @@ class HomeViewModel @Inject constructor(
                     ).showInAppRenameDialog
                 ) {
                     updateState()
+                    val record = recordsDataSource.getRecord(recordedRecordId)
                     withContext(mainDispatcher) {
                         _state.value = _state.value.copy(
                             recordName = recordName ?: _state.value.recordName,
+                            recordDescription = record?.description ?: "",
+                            recordFormat = record?.format ?: "",
                             showRenameAfterRecordingDialog = true,
                             keepScreenOn = false,
                         )
@@ -620,6 +625,7 @@ class HomeViewModel @Inject constructor(
                     startTime = context.getString(R.string.zero_time),
                     endTime = TimeUtils.formatTimeIntervalHourMinSec2(activeRecord.durationMills),
                     recordName = activeRecord.name,
+                    recordDescription = activeRecord.description,
                     recordInfo = activeRecord.toInfoCombinedText(context),
                     isShowWaveform = true,
                     isShowLoadingProgress = false,
@@ -839,34 +845,89 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             val activeRecord = recordsDataSource.getActiveRecord()
             if (activeRecord != null) {
-                val currentFile = File(activeRecord.path)
-                // Skip rename if the name hasn't changed
-                if (currentFile.nameWithoutExtension == newName) {
-                    showLoadingProgress(false)
-                    return@launch
-                }
-                // Check if a file with the new name already exists on disk
-                val extension = currentFile.extension
-                val targetFile = File(currentFile.parentFile, "$newName.$extension")
-                if (targetFile.exists() && currentFile.nameWithoutExtension != newName) {
-                    val context: Context = getApplication<Application>().applicationContext
-                    emitEvent(
-                        HomeScreenEvent.ShowErrorSnack(
-                            context.getString(R.string.error_file_exists)
-                        )
-                    )
-                    showLoadingProgress(false)
-                    return@launch
-                } else {
-                    recordsDataSource.renameRecord(activeRecord, newName)
-                    val context: Context = getApplication<Application>().applicationContext
-                    emitEvent(
-                        HomeScreenEvent.ShowInfoSnack(
-                            context.getString(R.string.msg_record_renamed, newName)
-                        )
-                    )
-                }
+                performRenameActiveRecord(newName, activeRecord)
                 updateState(false)
+            }
+        }
+    }
+
+    private suspend fun performRenameActiveRecord(newName: String, activeRecord: Record) {
+        val currentFile = File(activeRecord.path)
+        // Skip rename if the name hasn't changed
+        if (currentFile.nameWithoutExtension == newName) {
+            showLoadingProgress(false)
+            return
+        }
+        // Check if a file with the new name already exists on disk
+        val extension = currentFile.extension
+        val targetFile = File(currentFile.parentFile, "$newName.$extension")
+        if (targetFile.exists() && currentFile.nameWithoutExtension != newName) {
+            val context: Context = getApplication<Application>().applicationContext
+            emitEvent(
+                HomeScreenEvent.ShowErrorSnack(
+                    context.getString(R.string.error_file_exists)
+                )
+            )
+            showLoadingProgress(false)
+            return
+        } else {
+            recordsDataSource.renameRecord(activeRecord, newName)
+            val context: Context = getApplication<Application>().applicationContext
+            emitEvent(
+                HomeScreenEvent.ShowInfoSnack(
+                    context.getString(R.string.msg_record_renamed, newName)
+                )
+            )
+        }
+    }
+
+    private fun updateActiveRecordNameAndDescription(
+        newName: String,
+        newDescription: String,
+        writeToFile: Boolean
+    ) {
+        showLoadingProgress(true)
+        viewModelScope.launch(ioDispatcher) {
+            val activeRecord = recordsDataSource.getActiveRecord()
+            if (activeRecord != null) {
+                performRenameActiveRecord(newName, activeRecord)
+                recordsDataSource.updateRecordDescription(activeRecord.id, newDescription, writeToFile)
+                updateState(false)
+            }
+        }
+    }
+
+    fun showDescriptionDialog() {
+        _state.value = _state.value.copy(
+            showDescriptionDialog = true,
+            saveDescriptionToFile = prefs.saveDescriptionToFile,
+        )
+    }
+
+    fun dismissDescriptionDialog() {
+        _state.value = _state.value.copy(showDescriptionDialog = false)
+    }
+
+    fun saveActiveRecordDescription(description: String, writeToFile: Boolean) {
+        val isFileWriteSupported = isDescriptionFileWriteSupported(_state.value.recordFormat)
+        if (isFileWriteSupported) {
+            prefs.saveDescriptionToFile = writeToFile
+        }
+
+        viewModelScope.launch(ioDispatcher) {
+            val activeRecord = recordsDataSource.getActiveRecord()
+            if (activeRecord != null) {
+                recordsDataSource.updateRecordDescription(activeRecord.id, description, writeToFile)
+                withContext(mainDispatcher) {
+                    _state.value = _state.value.copy(
+                        showDescriptionDialog = false,
+                        recordDescription = description,
+                    )
+                }
+            } else {
+                withContext(mainDispatcher) {
+                    _state.value = _state.value.copy(showDescriptionDialog = false)
+                }
             }
         }
     }
@@ -1114,6 +1175,9 @@ class HomeViewModel @Inject constructor(
                     renameActiveRecord(action.newName)
                 }
             }
+            is HomeScreenAction.UpdateActiveRecordNameAndDescription -> {
+                updateActiveRecordNameAndDescription(action.newName, action.newDescription, action.writeToFile)
+            }
             HomeScreenAction.OnSeekStart -> handleSeekStart()
             is HomeScreenAction.OnSeekProgress -> handleSeekProgress(action.mills)
             is HomeScreenAction.OnSeekEnd -> handleSeekEnd(action.mills)
@@ -1148,6 +1212,9 @@ class HomeViewModel @Inject constructor(
             }
             HomeScreenAction.RestoreBrokenRecord -> restoreBrokenRecord()
             HomeScreenAction.DismissBrokenRecordDialog -> dismissBrokenRecordDialog()
+            HomeScreenAction.ShowDescriptionDialog -> showDescriptionDialog()
+            is HomeScreenAction.SaveActiveRecordDescription -> saveActiveRecordDescription(action.description, action.writeToFile)
+            HomeScreenAction.DismissDescriptionDialog -> dismissDescriptionDialog()
         }
     }
 
@@ -1268,6 +1335,8 @@ data class HomeScreenState(
     //Progress is value between 0 - 1f
     val progress: Float = 0f,
     val recordName: String = "",
+    val recordDescription: String = "",
+    val recordFormat: String = "",
     val recordInfo: String = "",
     val isShowWaveform: Boolean = false,
     // Indicates loading progress
@@ -1297,6 +1366,9 @@ data class HomeScreenState(
     val keepScreenOn: Boolean = false,
     // Show rename dialog after recording stopped
     val showRenameAfterRecordingDialog: Boolean = false,
+    // Show description edit dialog
+    val showDescriptionDialog: Boolean = false,
+    val saveDescriptionToFile: Boolean = true,
     // Broken record detection and restoration
     val showBrokenRecordDialog: Boolean = false,
     val brokenRecord: Record? = null,
@@ -1324,6 +1396,7 @@ sealed class HomeScreenAction {
     data class RestoreRecordFromRecycle(val recordId: Long) : HomeScreenAction()
     data object SaveActiveRecordAs : HomeScreenAction()
     data class RenameActiveRecord(val newName: String) : HomeScreenAction()
+    data class UpdateActiveRecordNameAndDescription(val newName: String, val newDescription: String, val writeToFile: Boolean) : HomeScreenAction()
     data object OnSeekStart : HomeScreenAction()
     data object OnPlayClick : HomeScreenAction()
     data object OnPauseClick : HomeScreenAction()
@@ -1342,6 +1415,9 @@ sealed class HomeScreenAction {
     data class DismissRenameAfterRecordingDialog(val dontAskAgain: Boolean) : HomeScreenAction()
     data object RestoreBrokenRecord : HomeScreenAction()
     data object DismissBrokenRecordDialog : HomeScreenAction()
+    data object ShowDescriptionDialog : HomeScreenAction()
+    data class SaveActiveRecordDescription(val description: String, val writeToFile: Boolean) : HomeScreenAction()
+    data object DismissDescriptionDialog : HomeScreenAction()
 }
 
 sealed class HomeScreenEvent {

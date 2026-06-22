@@ -221,6 +221,14 @@ fun recordInfoCombinedShortText(
     }
 }
 
+/**
+ * Whether a record's description can be embedded into the audio file as a COMMENT tag.
+ * 3GP containers don't support comment metadata, so embedding is unavailable for them.
+ */
+fun isDescriptionFileWriteSupported(format: String): Boolean {
+    return !format.equals(RecordingFormat.ThreeGp.value, ignoreCase = true)
+}
+
 fun Record.toInfoCombinedText(context: Context): String {
     return recordInfoCombinedShortText(
         recordingFormat = this.format,

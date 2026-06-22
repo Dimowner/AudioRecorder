@@ -31,6 +31,7 @@ object DefaultValues {
     const val IS_DYNAMIC_THEME: Boolean = false
     const val IS_ASK_TO_RENAME: Boolean = true
     const val IS_KEEP_SCREEN_ON: Boolean = false
+    const val IS_SAVE_DESCRIPTION_TO_FILE: Boolean = true
 
     val DefaultSampleRate: SampleRate = SampleRate.SR44100
     val DefaultBitRate: BitRate = BitRate.BR128

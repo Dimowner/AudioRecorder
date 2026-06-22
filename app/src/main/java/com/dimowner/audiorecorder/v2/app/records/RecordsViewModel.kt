@@ -32,6 +32,7 @@ import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
+import com.dimowner.audiorecorder.v2.app.isDescriptionFileWriteSupported
 import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilter
 import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilterOptions
 import com.dimowner.audiorecorder.v2.app.records.models.SortDropDownMenuItemId
@@ -476,6 +477,49 @@ internal class RecordsViewModel @Inject constructor(
         }
     }
 
+    fun onEditDescriptionRequest(record: RecordListItem) {
+        multiSelectCancel()
+        _state.value = _state.value.copy(
+            showEditDescriptionDialog = true,
+            saveDescriptionToFile = prefs.saveDescriptionToFile,
+            operationSelectedRecord = record
+        )
+    }
+
+    fun onEditDescriptionDismiss() {
+        _state.value = _state.value.copy(
+            showEditDescriptionDialog = false,
+            operationSelectedRecord = null
+        )
+    }
+
+    fun saveRecordDescription(recordId: Long, description: String, writeToFile: Boolean) {
+        // Only remember the checkbox choice for formats that actually support file-write,
+        // so a forced-off 3GP save doesn't clobber the default for other formats.
+        val isFileWriteSupported = _state.value.operationSelectedRecord
+            ?.let { isDescriptionFileWriteSupported(it.format) } ?: true
+        if (isFileWriteSupported) {
+            prefs.saveDescriptionToFile = writeToFile
+        }
+        viewModelScope.launch(ioDispatcher) {
+            val success = recordsDataSource.updateRecordDescription(recordId, description, writeToFile)
+            _state.value = if (success) {
+                _state.value.copy(
+                    showEditDescriptionDialog = false,
+                    operationSelectedRecord = null,
+                    recordsMap = _state.value.recordsMap.mapRecordInMap(recordId) { oldRecord ->
+                        oldRecord.copy(description = description)
+                    }
+                )
+            } else {
+                _state.value.copy(
+                    showEditDescriptionDialog = false,
+                    operationSelectedRecord = null
+                )
+            }
+        }
+    }
+
     fun openRecordWithAnotherApp(recordId: Long) {
         multiSelectCancel()
         audioPlayer.stop()
@@ -661,6 +705,9 @@ internal class RecordsViewModel @Inject constructor(
             RecordsScreenAction.OnSaveAsDismiss -> onSaveAsDismiss()
             is RecordsScreenAction.RenameRecord -> renameRecord(action.recordId, action.newName)
             RecordsScreenAction.OnRenameRecordDismiss -> onRenameRecordDismiss()
+            is RecordsScreenAction.OnEditDescriptionRequest -> onEditDescriptionRequest(action.record)
+            is RecordsScreenAction.SaveRecordDescription -> saveRecordDescription(action.recordId, action.description, action.writeToFile)
+            RecordsScreenAction.OnEditDescriptionDismiss -> onEditDescriptionDismiss()
             is RecordsScreenAction.MultiSelectAddItem -> multiSelectAdd(action.selectedRecord)
             RecordsScreenAction.MultiSelectCancel -> multiSelectCancel()
             is RecordsScreenAction.MultiSelectMoveToRecycle -> multiSelectMoveToRecycle()
@@ -880,6 +927,8 @@ data class RecordsScreenState(
     val showFilterPanel: Boolean = false,
 
     val showRenameDialog: Boolean = false,
+    val showEditDescriptionDialog: Boolean = false,
+    val saveDescriptionToFile: Boolean = true,
     val showMoveToRecycleDialog: Boolean = false,
     val showMoveToRecycleMultipleDialog: Boolean = false,
     val showSaveAsDialog: Boolean = false,
@@ -900,7 +949,9 @@ data class RecordListItem(
     val details: String,
     val duration: String,
     val added: Long,
-    val isBookmarked: Boolean
+    val isBookmarked: Boolean,
+    val description: String = "",
+    val format: String = ""
 )
 
 internal sealed class RecordsScreenEvent {
@@ -940,6 +991,13 @@ internal sealed class RecordsScreenAction {
     data object OnSaveAsDismiss : RecordsScreenAction()
     data class RenameRecord(val recordId: Long, val newName: String) : RecordsScreenAction()
     data object OnRenameRecordDismiss : RecordsScreenAction()
+    data class OnEditDescriptionRequest(val record: RecordListItem) : RecordsScreenAction()
+    data class SaveRecordDescription(
+        val recordId: Long,
+        val description: String,
+        val writeToFile: Boolean,
+    ) : RecordsScreenAction()
+    data object OnEditDescriptionDismiss : RecordsScreenAction()
     data class MultiSelectAddItem(val selectedRecord: RecordListItem) : RecordsScreenAction()
     data object MultiSelectCancel : RecordsScreenAction()
     data class MultiSelectShare(val selectedRecords: List<RecordListItem>) : RecordsScreenAction()
@@ -960,6 +1018,8 @@ internal fun Record.toRecordListItem(context: Context): RecordListItem {
         details = this.toInfoCombinedText(context),
         duration =  TimeUtils.formatTimeIntervalHourMinSec2(this.durationMills),
         added = this.added,
-        isBookmarked = this.isBookmarked
+        isBookmarked = this.isBookmarked,
+        description = this.description,
+        format = this.format
     )
 }

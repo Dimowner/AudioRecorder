@@ -94,6 +94,16 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             }
         }
 
+    override var saveDescriptionToFile: Boolean
+        get() = sharedPreferences.getBoolean(
+            PREF_KEY_SAVE_DESCRIPTION_TO_FILE, DefaultValues.IS_SAVE_DESCRIPTION_TO_FILE
+        )
+        set(value) {
+            sharedPreferences.edit {
+                putBoolean(PREF_KEY_SAVE_DESCRIPTION_TO_FILE, value)
+            }
+        }
+
     override var activeRecordId: Long
         get() = sharedPreferences.getLong(PREF_KEY_ACTIVE_RECORD, -1)
         set(value) {
@@ -384,5 +394,6 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             "pref_key_floating_recorder_rename_overlay_y"
         private const val PREF_KEY_FLOATING_RECORDER_RENAME_SPEECH_MODE =
             "pref_key_floating_recorder_rename_speech_mode"
+        private const val PREF_KEY_SAVE_DESCRIPTION_TO_FILE = "pref_key_save_description_to_file"
     }
 }

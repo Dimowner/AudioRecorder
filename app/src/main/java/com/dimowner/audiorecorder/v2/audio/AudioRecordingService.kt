@@ -421,7 +421,8 @@ class AudioRecordingService : Service() {
                     isBookmarked = false,
                     isWaveformProcessed = false,
                     isMovedToRecycle = false,
-                    amps = IntArray(ARApplication.longWaveformSampleCount)
+                    amps = IntArray(ARApplication.longWaveformSampleCount),
+                    description = "",
                 )
                 val id = recordsDataSource.insertRecord(record)
                 prefs.activeRecordId = -1

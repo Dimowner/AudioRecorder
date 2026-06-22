@@ -109,6 +109,7 @@
 	<string name="failed_to_delete_all_records">刪除所有錄音失敗</string>
 	<string name="please_select_record_to_share">請選擇要分享的錄音</string>
     <string name="update_record_name">更新名稱</string>
+    <string name="update_name_and_description">更新名稱和描述</string>
 	<string name="recording">錄音：%s</string>
 	<string name="recording_is_on">已啟動錄音</string>
 	<string name="recording_progress">正在錄製&#8230;</string>
@@ -181,7 +182,11 @@
 	<string name="by_name">名稱 (A-Z)</string>
 	<string name="by_name_desc">名稱 (Z-A)</string>
 	<string name="by_duration">時間 (最長)</string>
-	<string name="by_duration_desc">時間 (最短)</string>
+     <string name="by_duration_desc">時間 (最短)</string>
+     <string name="filter">篩選</string>
+	<string name="filter_clear">清除</string>
+	<string name="filter_dismiss">關閉篩選</string>
+	<string name="filter_no_options">沒有可篩選的錄音</string>
 	<string name="need_write_permission">需要共用儲存空間存取權限。
 		\n如果沒有這項權限，錄音將會儲存至應用程式專用資料夾。</string>
 	<string name="rec_name">名稱：</string>
@@ -190,6 +195,13 @@
     <string name="rec_size">大小：</string>
 	<string name="rec_created">建立：</string>
 	<string name="rec_location">位置：</string>
+	<string name="rec_description">描述</string>
+	<string name="rec_description_hint">為此錄音新增描述</string>
+	<string name="edit_description">編輯描述</string>
+	<string name="add_description">新增描述</string>
+	<string name="write_description_into_file">將描述寫入音訊檔</string>
+	<string name="save_description_to_file">同時儲存到音訊檔</string>
+	<string name="msg_saved_successfully">儲存成功</string>
 	<string name="naming">命名：</string>
 	<string name="private_dir_warning">錄音將會儲存至專用資料夾，且無法在其他應用程式中顯示。</string>
 	<string name="public_dir_warning">錄音將會儲存至共用資料夾，且可在其他應用程式中顯示。</string>

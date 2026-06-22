@@ -234,8 +234,8 @@ class PrefsImplTest {
     // ── App V2 ──────────────────────────────────────────────────────────────────
 
     @Test
-    fun isAppV2_returnsTrueByDefault() {
-        assertTrue(prefs.isAppV2)
+    fun isAppV2_returnsFalseByDefault() {
+        assertFalse(prefs.isAppV2)
     }
 
     @Test

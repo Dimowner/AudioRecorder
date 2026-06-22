@@ -185,7 +185,7 @@ class WavRecorderV2 @Inject constructor(
 
                         // Each read covers ~RECORDING_VISUALIZATION_INTERVAL_NEW ms, so always update amplitude
                         val amplitude = calculateAmplitude(buffer, readResult)
-                        amplitudesBuffer.add(amplitude)
+                        synchronized(amplitudesBuffer) { amplitudesBuffer.add(amplitude) }
 
                         // Check max duration
                         if (maxDurationMills > 0 && durationMills >= maxDurationMills) {
@@ -287,7 +287,7 @@ class WavRecorderV2 @Inject constructor(
         }
         _isRecording = false
         _isPaused = false
-        amplitudesBuffer.clear()
+        synchronized(amplitudesBuffer) { amplitudesBuffer.clear() }
         // Tear down the hardware; the recording coroutine will finish its current
         // read(), flush PCM data, write the WAV header in-place, and then emit OnStopRecording.
         return stopHardware()
@@ -387,14 +387,17 @@ class WavRecorderV2 @Inject constructor(
         // Skip if durationMills hasn't changed since the last emission — this prevents duplicate
         // events when the timer fires faster than the AudioRecord buffer fills (~40 ms/buffer).
         if (currentDuration == lastEmittedDurationMills) return
-        if (amplitudesBuffer.size() > 0) {
-            lastEmittedDurationMills = currentDuration
-            var amp = amplitudesBuffer.get(amplitudesBuffer.size() - 1)
-            if (amp == 0) amp = lastNonZeroAmplitude
-            else lastNonZeroAmplitude = amp
-            amplitudesBuffer.clear()
-            amplitudesBuffer.add(amp)
-            emitEvent(RecorderEvent.OnRecordingProgress(durationMills = currentDuration, amplitude = amp))
+        synchronized(amplitudesBuffer) {
+            val bufferSize = amplitudesBuffer.size()
+            if (bufferSize > 0) {
+                lastEmittedDurationMills = currentDuration
+                var amp = amplitudesBuffer.get(bufferSize - 1)
+                if (amp == 0) amp = lastNonZeroAmplitude
+                else lastNonZeroAmplitude = amp
+                amplitudesBuffer.clear()
+                amplitudesBuffer.add(amp)
+                emitEvent(RecorderEvent.OnRecordingProgress(durationMills = currentDuration, amplitude = amp))
+            }
         }
     }
 }
