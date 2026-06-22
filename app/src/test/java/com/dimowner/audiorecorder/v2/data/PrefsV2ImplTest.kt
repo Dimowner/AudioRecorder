@@ -106,4 +106,13 @@ class PrefsV2ImplTest {
 
         assertEquals(RenameSpeechMode.Replace, reloadedPrefs.floatingRecorderRenameSpeechMode)
     }
+
+    @Test
+    fun `floating recorder rename speech mode persists append to audio note`() {
+        prefs.floatingRecorderRenameSpeechMode = RenameSpeechMode.AppendToAudioNote
+
+        val reloadedPrefs = PrefsV2Impl(context)
+
+        assertEquals(RenameSpeechMode.AppendToAudioNote, reloadedPrefs.floatingRecorderRenameSpeechMode)
+    }
 }

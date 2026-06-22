@@ -1,5 +1,6 @@
 package com.dimowner.audiorecorder.v2.app.overlay
 
+import com.dimowner.audiorecorder.AppConstantsV2.RECORD_DESCRIPTION_MAX_LENGTH
 import com.dimowner.audiorecorder.v2.data.model.RenameSpeechMode
 import kotlin.math.abs
 import kotlin.math.min
@@ -41,8 +42,26 @@ internal fun applyRenameSpeechTranscription(
             .filter { it.isNotBlank() }
             .joinToString(" ")
         RenameSpeechMode.Replace -> normalizedTranscript
+        RenameSpeechMode.AppendToAudioNote -> currentName
     }
     return combined.take(maxVisibleNameCharacters.coerceAtLeast(0))
+}
+
+internal fun applyRenameSpeechTranscriptionToAudioNote(
+    currentDescription: String,
+    transcript: String,
+    maxDescriptionCharacters: Int = RECORD_DESCRIPTION_MAX_LENGTH,
+): String {
+    val normalizedTranscript = transcript
+        .filterNot { Character.isISOControl(it) }
+        .trim()
+        .replace(Regex("\\s+"), " ")
+    if (normalizedTranscript.isBlank()) return currentDescription
+
+    return listOf(currentDescription.trimEnd(), normalizedTranscript)
+        .filter { it.isNotBlank() }
+        .joinToString("\n")
+        .take(maxDescriptionCharacters.coerceAtLeast(0))
 }
 
 internal fun buildRenameResetState(originalName: String): RenameResetState {

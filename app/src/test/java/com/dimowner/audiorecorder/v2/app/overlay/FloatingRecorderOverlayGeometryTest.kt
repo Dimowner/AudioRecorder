@@ -85,6 +85,37 @@ class FloatingRecorderOverlayGeometryTest {
     }
 
     @Test
+    fun `applyRenameSpeechTranscriptionToAudioNote appends transcript on a new line`() {
+        val result = applyRenameSpeechTranscriptionToAudioNote(
+            currentDescription = "First thought",
+            transcript = "  second   thought  ",
+        )
+
+        assertEquals("First thought\nsecond thought", result)
+    }
+
+    @Test
+    fun `applyRenameSpeechTranscriptionToAudioNote appends to blank note without leading newline`() {
+        val result = applyRenameSpeechTranscriptionToAudioNote(
+            currentDescription = "",
+            transcript = "new note",
+        )
+
+        assertEquals("new note", result)
+    }
+
+    @Test
+    fun `applyRenameSpeechTranscriptionToAudioNote caps note to max description length`() {
+        val result = applyRenameSpeechTranscriptionToAudioNote(
+            currentDescription = "Existing",
+            transcript = "a".repeat(600),
+            maxDescriptionCharacters = 20,
+        )
+
+        assertEquals("Existing\naaaaaaaaaaa", result)
+    }
+
+    @Test
     fun `buildRenameResetState restores original name and moves cursor to end`() {
         val result = buildRenameResetState(originalName = "Original recording")
 
