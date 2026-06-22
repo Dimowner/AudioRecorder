@@ -1,9 +1,11 @@
 package com.dimowner.audiorecorder.v2.app.overlay
 
 import android.speech.RecognizerIntent
+import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.data.model.RenameSpeechMode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class FloatingRecorderOverlayGeometryTest {
@@ -85,6 +87,13 @@ class FloatingRecorderOverlayGeometryTest {
     }
 
     @Test
+    fun `renameSpeechModeLabelRes describes filename and description targets explicitly`() {
+        assertEquals(R.string.rename_speech_mode_append_filename, renameSpeechModeLabelRes(RenameSpeechMode.Append))
+        assertEquals(R.string.rename_speech_mode_replace_filename, renameSpeechModeLabelRes(RenameSpeechMode.Replace))
+        assertEquals(R.string.rename_speech_mode_append_description, renameSpeechModeLabelRes(RenameSpeechMode.AppendToAudioNote))
+    }
+
+    @Test
     fun `applyRenameSpeechTranscriptionToAudioNote appends transcript on a new line`() {
         val result = applyRenameSpeechTranscriptionToAudioNote(
             currentDescription = "First thought",
@@ -113,6 +122,38 @@ class FloatingRecorderOverlayGeometryTest {
         )
 
         assertEquals("Existing\naaaaaaaaaaa", result)
+    }
+
+    @Test
+    fun `buildRenameOverlaySaveRequest keeps pending filename and description changes`() {
+        val request = buildRenameOverlaySaveRequest(
+            originalName = "Original name",
+            originalDescription = "Original description",
+            inputName = "  New name  ",
+            inputDescription = "Original description\nVoice note",
+        )
+
+        assertEquals("New name", request.name)
+        assertEquals("Original description\nVoice note", request.description)
+        assertTrue(request.shouldRename)
+        assertTrue(request.shouldUpdateDescription)
+        assertFalse(request.showNameEmptyError)
+    }
+
+    @Test
+    fun `buildRenameOverlaySaveRequest rejects blank filename without dropping description draft`() {
+        val request = buildRenameOverlaySaveRequest(
+            originalName = "Original name",
+            originalDescription = "",
+            inputName = "   ",
+            inputDescription = "Voice note",
+        )
+
+        assertEquals("", request.name)
+        assertEquals("Voice note", request.description)
+        assertFalse(request.shouldRename)
+        assertTrue(request.shouldUpdateDescription)
+        assertTrue(request.showNameEmptyError)
     }
 
     @Test

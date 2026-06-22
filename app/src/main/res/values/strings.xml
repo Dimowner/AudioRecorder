@@ -50,9 +50,9 @@
 	<string name="msg_file_operation_failed">File operation failed. Please try again</string>
 	<!-- Error message for empty name during rename/save -->
 	<string name="msg_name_cannot_be_empty">Name cannot be empty</string>
-    <string name="rename_speech_mode_append">Append</string>
-    <string name="rename_speech_mode_replace">Replace</string>
-    <string name="rename_speech_mode_append_note">Append to note</string>
+    <string name="rename_speech_mode_append_filename">Append to filename</string>
+    <string name="rename_speech_mode_replace_filename">Replace filename</string>
+    <string name="rename_speech_mode_append_description">Append to description</string>
     <string name="rename_speech_listening">Listening...</string>
     <string name="rename_speech_no_recognizer">Speech recognition is not available on this device.</string>
     <string name="rename_speech_no_match">No speech recognized.</string>

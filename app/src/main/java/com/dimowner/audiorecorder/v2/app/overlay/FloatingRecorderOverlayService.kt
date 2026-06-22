@@ -24,6 +24,8 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.ResultReceiver
+import android.text.InputFilter
+import android.text.InputType
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -39,6 +41,7 @@ import android.widget.TextView
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import com.dimowner.audiorecorder.AppConstantsV2.RECORD_DESCRIPTION_MAX_LENGTH
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.v2.app.HomeActivity
@@ -525,17 +528,28 @@ class FloatingRecorderOverlayService : Service() {
             typeface = Typeface.DEFAULT_BOLD
             backgroundTintList = ColorStateList.valueOf(style.textColor)
         }
+        val descriptionInput = EditText(this).apply {
+            setText(record.description)
+            setTextColor(style.textColor)
+            setHintTextColor(if (prefs.isDarkTheme) 0x99FFFFFF.toInt() else 0x99000000.toInt())
+            backgroundTintList = ColorStateList.valueOf(style.textColor)
+            hint = getString(R.string.rec_description_hint)
+            minLines = RENAME_DESCRIPTION_VISIBLE_LINES
+            maxLines = RENAME_DESCRIPTION_VISIBLE_LINES
+            gravity = Gravity.TOP or Gravity.START
+            filters = arrayOf(InputFilter.LengthFilter(RECORD_DESCRIPTION_MAX_LENGTH))
+            inputType = InputType.TYPE_CLASS_TEXT or
+                InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+        }
         val error = TextView(this).apply {
             setTextColor(RECORDING_ICON_COLOR)
             visibility = View.GONE
         }
-        var currentDescription = record.description
         val speechButton = createRenameSpeechButton(
-            record = record,
             input = input,
+            descriptionInput = descriptionInput,
             error = error,
-            getCurrentDescription = { currentDescription },
-            onDescriptionUpdated = { currentDescription = it },
         )
 
         val panel = LinearLayout(this).apply {
@@ -549,6 +563,7 @@ class FloatingRecorderOverlayService : Service() {
                 setPadding(0, 0, 0, dp(8))
             })
             addView(input, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            addView(descriptionInput, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             addView(error, LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             addView(speechButton, LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -561,7 +576,7 @@ class FloatingRecorderOverlayService : Service() {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.END
                 addView(createRenameResetButton(record, input, error))
-                addView(createRenameSaveButton(record, input, error), LinearLayout.LayoutParams(
+                addView(createRenameSaveButton(record, input, descriptionInput, error), LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                 ).apply {
@@ -607,7 +622,12 @@ class FloatingRecorderOverlayService : Service() {
         }
     }
 
-    private fun createRenameSaveButton(record: Record, input: EditText, error: TextView): Button {
+    private fun createRenameSaveButton(
+        record: Record,
+        input: EditText,
+        descriptionInput: EditText,
+        error: TextView,
+    ): Button {
         val checkIcon = ContextCompat.getDrawable(this, R.drawable.ic_check_circle)?.mutate()?.let { icon ->
             DrawableCompat.wrap(icon).apply {
                 DrawableCompat.setTint(this, Color.WHITE)
@@ -626,7 +646,14 @@ class FloatingRecorderOverlayService : Service() {
             background = roundedDrawable(SAVE_BUTTON_COLOR, dp(24).toFloat())
             compoundDrawablePadding = dp(8)
             setCompoundDrawablesWithIntrinsicBounds(checkIcon, null, null, null)
-            setOnClickListener { saveRename(record, input.text.toString(), error) }
+            setOnClickListener {
+                saveRename(
+                    record = record,
+                    newName = input.text.toString(),
+                    newDescription = descriptionInput.text.toString(),
+                    error = error,
+                )
+            }
         }
     }
 
@@ -641,11 +668,9 @@ class FloatingRecorderOverlayService : Service() {
     }
 
     private fun createRenameSpeechButton(
-        record: Record,
         input: EditText,
+        descriptionInput: EditText,
         error: TextView,
-        getCurrentDescription: () -> String,
-        onDescriptionUpdated: (String) -> Unit,
     ): LinearLayout {
         val modeLabel = TextView(this).apply {
             setTextColor(Color.WHITE)
@@ -674,12 +699,10 @@ class FloatingRecorderOverlayService : Service() {
             ))
             setOnClickListener {
                 startRenameSpeechRecognition(
-                    record = record,
                     input = input,
+                    descriptionInput = descriptionInput,
                     error = error,
                     micButton = this,
-                    getCurrentDescription = getCurrentDescription,
-                    onDescriptionUpdated = onDescriptionUpdated,
                 )
             }
             setOnLongClickListener {
@@ -691,9 +714,9 @@ class FloatingRecorderOverlayService : Service() {
 
     private fun showRenameSpeechModePopup(anchor: View, modeLabel: TextView) {
         PopupMenu(this, anchor).apply {
-            menu.add(0, RenameSpeechMode.Append.persistedValue, 0, getString(R.string.rename_speech_mode_append))
-            menu.add(0, RenameSpeechMode.Replace.persistedValue, 1, getString(R.string.rename_speech_mode_replace))
-            menu.add(0, RenameSpeechMode.AppendToAudioNote.persistedValue, 2, getString(R.string.rename_speech_mode_append_note))
+            menu.add(0, RenameSpeechMode.Append.persistedValue, 0, getString(renameSpeechModeLabelRes(RenameSpeechMode.Append)))
+            menu.add(0, RenameSpeechMode.Replace.persistedValue, 1, getString(renameSpeechModeLabelRes(RenameSpeechMode.Replace)))
+            menu.add(0, RenameSpeechMode.AppendToAudioNote.persistedValue, 2, getString(renameSpeechModeLabelRes(RenameSpeechMode.AppendToAudioNote)))
             setOnMenuItemClickListener { item ->
                 val mode = RenameSpeechMode.fromPersistedValue(item.itemId)
                 prefs.floatingRecorderRenameSpeechMode = mode
@@ -705,12 +728,10 @@ class FloatingRecorderOverlayService : Service() {
     }
 
     private fun startRenameSpeechRecognition(
-        record: Record,
         input: EditText,
+        descriptionInput: EditText,
         error: TextView,
         micButton: View,
-        getCurrentDescription: () -> String,
-        onDescriptionUpdated: (String) -> Unit,
     ) {
         if (renameSpeechPending) return
         if (buildRenameSpeechRecognitionIntent().resolveActivity(packageManager) == null) {
@@ -726,12 +747,10 @@ class FloatingRecorderOverlayService : Service() {
             override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
                 when (resultCode) {
                     RENAME_SPEECH_RESULT_OK -> applyRenameSpeechResult(
-                        record = record,
                         input = input,
+                        descriptionInput = descriptionInput,
                         error = error,
                         resultData = resultData,
-                        getCurrentDescription = getCurrentDescription,
-                        onDescriptionUpdated = onDescriptionUpdated,
                     )
                     RENAME_SPEECH_RESULT_NO_MATCH -> showRenameInlineMessage(error, R.string.rename_speech_no_match)
                     else -> showRenameInlineMessage(error, R.string.rename_speech_error)
@@ -754,12 +773,10 @@ class FloatingRecorderOverlayService : Service() {
     }
 
     private fun applyRenameSpeechResult(
-        record: Record,
         input: EditText,
+        descriptionInput: EditText,
         error: TextView,
         resultData: Bundle?,
-        getCurrentDescription: () -> String,
-        onDescriptionUpdated: (String) -> Unit,
     ) {
         val transcript = resultData?.getString(EXTRA_RENAME_SPEECH_TEXT)
         if (transcript.isNullOrBlank()) {
@@ -768,12 +785,10 @@ class FloatingRecorderOverlayService : Service() {
         }
 
         if (prefs.floatingRecorderRenameSpeechMode == RenameSpeechMode.AppendToAudioNote) {
-            appendRenameSpeechResultToAudioNote(
-                record = record,
-                currentDescription = getCurrentDescription(),
+            appendRenameSpeechResultToDescriptionDraft(
+                descriptionInput = descriptionInput,
                 transcript = transcript,
                 error = error,
-                onDescriptionUpdated = onDescriptionUpdated,
             )
             return
         }
@@ -788,13 +803,12 @@ class FloatingRecorderOverlayService : Service() {
         error.visibility = View.GONE
     }
 
-    private fun appendRenameSpeechResultToAudioNote(
-        record: Record,
-        currentDescription: String,
+    private fun appendRenameSpeechResultToDescriptionDraft(
+        descriptionInput: EditText,
         transcript: String,
         error: TextView,
-        onDescriptionUpdated: (String) -> Unit,
     ) {
+        val currentDescription = descriptionInput.text.toString()
         val updatedDescription = applyRenameSpeechTranscriptionToAudioNote(
             currentDescription = currentDescription,
             transcript = transcript,
@@ -804,21 +818,9 @@ class FloatingRecorderOverlayService : Service() {
             return
         }
 
-        serviceScope.launch {
-            val success = recordsDataSource.updateRecordDescription(
-                recordId = record.id,
-                description = updatedDescription,
-                writeToFile = prefs.saveDescriptionToFile,
-            )
-            iconView?.post {
-                if (success) {
-                    onDescriptionUpdated(updatedDescription)
-                    showRenameInlineMessage(error, R.string.msg_saved_successfully)
-                } else {
-                    showRenameInlineMessage(error, R.string.msg_file_operation_failed)
-                }
-            }
-        }
+        descriptionInput.setText(updatedDescription)
+        descriptionInput.setSelection(updatedDescription.length)
+        error.visibility = View.GONE
     }
 
     private fun finishRenameSpeechRecognition(micButton: View) {
@@ -832,11 +834,7 @@ class FloatingRecorderOverlayService : Service() {
     }
 
     private fun renameSpeechModeText(mode: RenameSpeechMode): String {
-        return when (mode) {
-            RenameSpeechMode.Append -> getString(R.string.rename_speech_mode_append)
-            RenameSpeechMode.Replace -> getString(R.string.rename_speech_mode_replace)
-            RenameSpeechMode.AppendToAudioNote -> getString(R.string.rename_speech_mode_append_note)
-        }
+        return getString(renameSpeechModeLabelRes(mode))
     }
 
     private inner class RenameOverlayTouchListener(
@@ -922,19 +920,35 @@ class FloatingRecorderOverlayService : Service() {
         )
     }
 
-    private fun saveRename(record: Record, newName: String, error: TextView) {
-        val trimmed = newName.trim()
-        if (trimmed.isEmpty()) {
+    private fun saveRename(
+        record: Record,
+        newName: String,
+        newDescription: String,
+        error: TextView,
+    ) {
+        val request = buildRenameOverlaySaveRequest(
+            originalName = record.name,
+            originalDescription = record.description,
+            inputName = newName,
+            inputDescription = newDescription,
+        )
+        if (request.showNameEmptyError) {
             error.text = getString(R.string.msg_name_cannot_be_empty)
             error.visibility = View.VISIBLE
             return
         }
 
         serviceScope.launch {
-            val success = if (trimmed == record.name) {
-                true
-            } else {
-                recordsDataSource.renameRecord(record, trimmed)
+            var success = true
+            if (request.shouldRename) {
+                success = recordsDataSource.renameRecord(record, request.name)
+            }
+            if (success && request.shouldUpdateDescription) {
+                success = recordsDataSource.updateRecordDescription(
+                    recordId = record.id,
+                    description = request.description,
+                    writeToFile = prefs.saveDescriptionToFile,
+                )
             }
             withContext(ioDispatcher) {
                 iconView?.post {
@@ -1062,10 +1076,11 @@ class FloatingRecorderOverlayService : Service() {
         private const val SAVE_FEEDBACK_DURATION_MS = 3000L
         private const val DEFAULT_ICON_SIZE_DP = 56
         private const val DEFAULT_RECORD_DISC_SIZE_DP = 30
-        private const val RENAME_PANEL_ESTIMATED_HEIGHT_DP = 220
+        private const val RENAME_PANEL_ESTIMATED_HEIGHT_DP = 320
         private const val RENAME_PANEL_MIN_WIDTH_DP = 240
         private const val RENAME_PANEL_MAX_WIDTH_DP = 360
         private const val RENAME_SPEECH_BUTTON_MIN_HEIGHT_DP = 72
+        private const val RENAME_DESCRIPTION_VISIBLE_LINES = 1
         private const val RENAME_RESET_BUTTON_MIN_WIDTH_DP = 72
         private const val RENAME_RESET_BUTTON_MIN_HEIGHT_DP = 40
         private const val RENAME_SAVE_BUTTON_MIN_WIDTH_DP = 132

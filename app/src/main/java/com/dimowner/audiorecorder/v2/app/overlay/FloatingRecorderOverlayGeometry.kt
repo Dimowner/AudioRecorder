@@ -1,6 +1,7 @@
 package com.dimowner.audiorecorder.v2.app.overlay
 
 import com.dimowner.audiorecorder.AppConstantsV2.RECORD_DESCRIPTION_MAX_LENGTH
+import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.data.model.RenameSpeechMode
 import kotlin.math.abs
 import kotlin.math.min
@@ -24,6 +25,41 @@ internal data class RenameKeyboardPolicy(
     val showKeyboardOnOpen: Boolean,
     val focusInputAfterReset: Boolean,
 )
+
+internal data class RenameOverlaySaveRequest(
+    val name: String,
+    val description: String,
+    val shouldRename: Boolean,
+    val shouldUpdateDescription: Boolean,
+    val showNameEmptyError: Boolean,
+)
+
+internal fun renameSpeechModeLabelRes(mode: RenameSpeechMode): Int {
+    return when (mode) {
+        RenameSpeechMode.Append -> R.string.rename_speech_mode_append_filename
+        RenameSpeechMode.Replace -> R.string.rename_speech_mode_replace_filename
+        RenameSpeechMode.AppendToAudioNote -> R.string.rename_speech_mode_append_description
+    }
+}
+
+internal fun buildRenameOverlaySaveRequest(
+    originalName: String,
+    originalDescription: String,
+    inputName: String,
+    inputDescription: String,
+    maxDescriptionCharacters: Int = RECORD_DESCRIPTION_MAX_LENGTH,
+): RenameOverlaySaveRequest {
+    val trimmedName = inputName.trim()
+    val boundedDescription = inputDescription.take(maxDescriptionCharacters.coerceAtLeast(0))
+
+    return RenameOverlaySaveRequest(
+        name = trimmedName,
+        description = boundedDescription,
+        shouldRename = trimmedName.isNotEmpty() && trimmedName != originalName,
+        shouldUpdateDescription = boundedDescription != originalDescription,
+        showNameEmptyError = trimmedName.isEmpty(),
+    )
+}
 
 internal fun applyRenameSpeechTranscription(
     currentName: String,
