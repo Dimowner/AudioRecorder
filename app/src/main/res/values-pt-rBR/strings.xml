@@ -194,6 +194,7 @@
     <string name="rec_location">Local do arquivo:</string>
     <string name="rec_description">Descrição</string>
     <string name="rec_description_hint">Adicionar uma descrição para esta gravação</string>
+    <string name="floating_rename_description_hint">Adicionar descrição</string>
     <string name="edit_description">Editar descrição</string>
     <string name="add_description">Adicionar descrição</string>
     <string name="write_description_into_file">Escrever descrição no arquivo de áudio</string>

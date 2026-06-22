@@ -26,6 +26,14 @@ internal data class RenameKeyboardPolicy(
     val focusInputAfterReset: Boolean,
 )
 
+internal data class RenameDescriptionInputConfig(
+    val hintRes: Int,
+    val visibleLines: Int,
+    val minimumHeightPx: Int,
+    val verticalPaddingPx: Int,
+    val clearDefaultMinimumHeight: Boolean,
+)
+
 internal data class RenameOverlaySaveRequest(
     val name: String,
     val description: String,
@@ -40,6 +48,16 @@ internal fun renameSpeechModeLabelRes(mode: RenameSpeechMode): Int {
         RenameSpeechMode.Replace -> R.string.rename_speech_mode_replace_filename
         RenameSpeechMode.AppendToAudioNote -> R.string.rename_speech_mode_append_description
     }
+}
+
+internal fun renameDescriptionInputConfig(): RenameDescriptionInputConfig {
+    return RenameDescriptionInputConfig(
+        hintRes = R.string.floating_rename_description_hint,
+        visibleLines = 1,
+        minimumHeightPx = 0,
+        verticalPaddingPx = 0,
+        clearDefaultMinimumHeight = true,
+    )
 }
 
 internal fun buildRenameOverlaySaveRequest(

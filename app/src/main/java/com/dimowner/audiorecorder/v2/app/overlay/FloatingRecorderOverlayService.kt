@@ -529,13 +529,22 @@ class FloatingRecorderOverlayService : Service() {
             backgroundTintList = ColorStateList.valueOf(style.textColor)
         }
         val descriptionInput = EditText(this).apply {
+            val config = renameDescriptionInputConfig()
             setText(record.description)
             setTextColor(style.textColor)
             setHintTextColor(if (prefs.isDarkTheme) 0x99FFFFFF.toInt() else 0x99000000.toInt())
             backgroundTintList = ColorStateList.valueOf(style.textColor)
-            hint = getString(R.string.rec_description_hint)
-            minLines = RENAME_DESCRIPTION_VISIBLE_LINES
-            maxLines = RENAME_DESCRIPTION_VISIBLE_LINES
+            hint = getString(config.hintRes)
+            setLines(config.visibleLines)
+            minLines = config.visibleLines
+            maxLines = config.visibleLines
+            if (config.clearDefaultMinimumHeight) {
+                minHeight = config.minimumHeightPx
+                minimumHeight = config.minimumHeightPx
+            }
+            setPadding(paddingLeft, config.verticalPaddingPx, paddingRight, config.verticalPaddingPx)
+            includeFontPadding = false
+            isVerticalScrollBarEnabled = false
             gravity = Gravity.TOP or Gravity.START
             filters = arrayOf(InputFilter.LengthFilter(RECORD_DESCRIPTION_MAX_LENGTH))
             inputType = InputType.TYPE_CLASS_TEXT or
@@ -1080,7 +1089,6 @@ class FloatingRecorderOverlayService : Service() {
         private const val RENAME_PANEL_MIN_WIDTH_DP = 240
         private const val RENAME_PANEL_MAX_WIDTH_DP = 360
         private const val RENAME_SPEECH_BUTTON_MIN_HEIGHT_DP = 72
-        private const val RENAME_DESCRIPTION_VISIBLE_LINES = 1
         private const val RENAME_RESET_BUTTON_MIN_WIDTH_DP = 72
         private const val RENAME_RESET_BUTTON_MIN_HEIGHT_DP = 40
         private const val RENAME_SAVE_BUTTON_MIN_WIDTH_DP = 132

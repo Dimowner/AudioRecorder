@@ -176,6 +176,17 @@ class FloatingRecorderOverlayGeometryTest {
     }
 
     @Test
+    fun `renameDescriptionInputConfig keeps description field compact`() {
+        val config = renameDescriptionInputConfig()
+
+        assertEquals(R.string.floating_rename_description_hint, config.hintRes)
+        assertEquals(1, config.visibleLines)
+        assertEquals(0, config.minimumHeightPx)
+        assertEquals(0, config.verticalPaddingPx)
+        assertTrue(config.clearDefaultMinimumHeight)
+    }
+
+    @Test
     fun `calculateOverlaySizeBounds uses default size as minimum and half smaller screen as maximum`() {
         val bounds = calculateOverlaySizeBounds(defaultSize = 56, screenWidth = 1080, screenHeight = 1920)
 

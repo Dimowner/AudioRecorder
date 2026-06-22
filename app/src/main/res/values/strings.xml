@@ -53,6 +53,7 @@
     <string name="rename_speech_mode_append_filename">Append to filename</string>
     <string name="rename_speech_mode_replace_filename">Replace filename</string>
     <string name="rename_speech_mode_append_description">Append to description</string>
+    <string name="floating_rename_description_hint">Add a description</string>
     <string name="rename_speech_listening">Listening...</string>
     <string name="rename_speech_no_recognizer">Speech recognition is not available on this device.</string>
     <string name="rename_speech_no_match">No speech recognized.</string>

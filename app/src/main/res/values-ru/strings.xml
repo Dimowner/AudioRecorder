@@ -194,6 +194,7 @@
 	<string name="rec_location">Расположение файла:</string>
 	<string name="rec_description">Описание</string>
 	<string name="rec_description_hint">Добавить описание к этой записи</string>
+	<string name="floating_rename_description_hint">Добавить описание</string>
 	<string name="edit_description">Редактировать описание</string>
 	<string name="add_description">Добавить описание</string>
 	<string name="write_description_into_file">Записать описание в аудиофайл</string>

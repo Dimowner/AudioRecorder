@@ -179,6 +179,7 @@
 	<string name="rec_location">파일 위치:</string>
 	<string name="rec_description">설명</string>
 	<string name="rec_description_hint">이 녹음에 설명을 추가하세요</string>
+	<string name="floating_rename_description_hint">설명 추가</string>
 	<string name="edit_description">설명 편집</string>
 	<string name="add_description">설명 추가</string>
 	<string name="write_description_into_file">오디오 파일에 설명 쓰기</string>

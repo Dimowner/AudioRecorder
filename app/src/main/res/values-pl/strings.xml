@@ -215,6 +215,7 @@
 	<string name="rec_location">Lokalizacja pliku:</string>
 	<string name="rec_description">Opis</string>
 	<string name="rec_description_hint">Dodaj opis do tego nagrania</string>
+	<string name="floating_rename_description_hint">Dodaj opis</string>
 	<string name="edit_description">Edytuj opis</string>
 	<string name="add_description">Dodaj opis</string>
 	<string name="write_description_into_file">Zapisz opis w pliku audio</string>

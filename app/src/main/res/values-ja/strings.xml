@@ -197,6 +197,7 @@
 	<string name="rec_location">ファイルの場所：</string>
 	<string name="rec_description">説明</string>
 	<string name="rec_description_hint">この録音に説明を追加</string>
+	<string name="floating_rename_description_hint">説明を追加</string>
 	<string name="edit_description">説明を編集</string>
 	<string name="add_description">説明を追加</string>
 	<string name="write_description_into_file">オーディオファイルに説明を書き込む</string>
