@@ -3,6 +3,7 @@ package com.dimowner.audiorecorder.v2.app.overlay
 import com.dimowner.audiorecorder.AppConstantsV2.RECORD_DESCRIPTION_MAX_LENGTH
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.data.model.RenameSpeechMode
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -85,10 +86,7 @@ internal fun applyRenameSpeechTranscription(
     mode: RenameSpeechMode,
     maxVisibleNameCharacters: Int = 251,
 ): String {
-    val normalizedTranscript = transcript
-        .filterNot { it == '/' || it == '\\' || Character.isISOControl(it) }
-        .trim()
-        .replace(Regex("\\s+"), " ")
+    val normalizedTranscript = sanitizeFilenameSpeechTranscript(transcript)
     if (normalizedTranscript.isBlank()) return currentName
 
     val combined = when (mode) {
@@ -99,6 +97,26 @@ internal fun applyRenameSpeechTranscription(
         RenameSpeechMode.AppendToAudioNote -> currentName
     }
     return combined.take(maxVisibleNameCharacters.coerceAtLeast(0))
+}
+
+private fun sanitizeFilenameSpeechTranscript(transcript: String): String {
+    val normalized = transcript
+        .filterNot(::isForbiddenCrossPlatformFilenameCharacter)
+        .trim()
+        .replace(Regex("\\s+"), " ")
+        // Windows disallows filenames ending with a space or period; trim them from speech
+        // results so a dictated replacement remains portable to common desktop filesystems.
+        .trimEnd(' ', '.')
+    if (normalized == "." || normalized == "..") return ""
+
+    val windowsDeviceName = normalized.substringBefore('.').uppercase(Locale.ROOT)
+    if (windowsDeviceName in WINDOWS_RESERVED_DEVICE_NAMES) return ""
+
+    return normalized
+}
+
+private fun isForbiddenCrossPlatformFilenameCharacter(character: Char): Boolean {
+    return Character.isISOControl(character) || character in CROSS_PLATFORM_FORBIDDEN_FILENAME_CHARACTERS
 }
 
 internal fun applyRenameSpeechTranscriptionToAudioNote(
@@ -276,3 +294,40 @@ private fun argb(alpha: Int, red: Int, green: Int, blue: Int): Int {
         (green.coerceIn(0, 255) shl 8) or
         blue.coerceIn(0, 255)
 }
+
+private val CROSS_PLATFORM_FORBIDDEN_FILENAME_CHARACTERS = setOf(
+    '<',
+    '>',
+    ':',
+    '"',
+    '/',
+    '\\',
+    '|',
+    '?',
+    '*',
+)
+
+private val WINDOWS_RESERVED_DEVICE_NAMES = setOf(
+    "CON",
+    "PRN",
+    "AUX",
+    "NUL",
+    "COM1",
+    "COM2",
+    "COM3",
+    "COM4",
+    "COM5",
+    "COM6",
+    "COM7",
+    "COM8",
+    "COM9",
+    "LPT1",
+    "LPT2",
+    "LPT3",
+    "LPT4",
+    "LPT5",
+    "LPT6",
+    "LPT7",
+    "LPT8",
+    "LPT9",
+)

@@ -68,11 +68,33 @@ class FloatingRecorderOverlayGeometryTest {
     fun `applyRenameSpeechTranscription removes filename hostile characters`() {
         val result = applyRenameSpeechTranscription(
             currentName = "Existing",
-            transcript = "road / bridge \\ tunnel\u0000",
+            transcript = "road / bridge \\ tunnel: <left>|right? *today* \"quote\"\u0000",
             mode = RenameSpeechMode.Replace,
         )
 
-        assertEquals("road bridge tunnel", result)
+        assertEquals("road bridge tunnel leftright today quote", result)
+    }
+
+    @Test
+    fun `applyRenameSpeechTranscription removes trailing dots from filename speech`() {
+        val result = applyRenameSpeechTranscription(
+            currentName = "Existing",
+            transcript = "trip notes...",
+            mode = RenameSpeechMode.Replace,
+        )
+
+        assertEquals("trip notes", result)
+    }
+
+    @Test
+    fun `applyRenameSpeechTranscription ignores reserved Windows device filename`() {
+        val result = applyRenameSpeechTranscription(
+            currentName = "Existing",
+            transcript = "CON",
+            mode = RenameSpeechMode.Replace,
+        )
+
+        assertEquals("Existing", result)
     }
 
     @Test
@@ -97,10 +119,10 @@ class FloatingRecorderOverlayGeometryTest {
     fun `applyRenameSpeechTranscriptionToAudioNote appends transcript on a new line`() {
         val result = applyRenameSpeechTranscriptionToAudioNote(
             currentDescription = "First thought",
-            transcript = "  second   thought  ",
+            transcript = "  second: thought? keep / punctuation  ",
         )
 
-        assertEquals("First thought\nsecond thought", result)
+        assertEquals("First thought\nsecond: thought? keep / punctuation", result)
     }
 
     @Test
