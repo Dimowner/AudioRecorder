@@ -42,7 +42,7 @@ class WavRecorderV2 @Inject constructor(
     override val isPaused: Boolean
         get() = _isPaused
 
-    private var durationMills: Long = 0
+    @Volatile private var durationMills: Long = 0
     private var sampleRateConfig: Int = 44100
     private var channelCountConfig: Int = 1
     private var maxDurationMills: Int = Int.MAX_VALUE
@@ -66,7 +66,7 @@ class WavRecorderV2 @Inject constructor(
         audioSource: Int,
     ): Boolean {
         Timber.d(
-            "startRecording outputFile: ${outputFile.absolutePath} channelCount: $channelCount" +
+            "WavRecorderV2.startRecording outputFile: ${outputFile.absolutePath} channelCount: $channelCount" +
                     " sampleRate: $sampleRate bitrate: $bitrate maxRecordingDurationMills: $maxRecordingDurationMills" +
                     " audioSource: $audioSource"
         )
@@ -172,7 +172,12 @@ class WavRecorderV2 @Inject constructor(
                 fos = FileOutputStream(outputFile, true) // append after the placeholder header
                 while (isActive && _isRecording) {
                     if (_isPaused) {
-                        delay(RECORDING_VISUALIZATION_INTERVAL_NEW.toLong())
+                        // Read and discard PCM data to prevent accumulating stale audio during pause
+                        val readResult = recorder.read(buffer, 0, readChunkSize)
+                        if (readResult < 0) {
+                            Timber.e("AudioRecord read error during pause: $readResult")
+                            break
+                        }
                         continue
                     }
                     val readResult = recorder.read(buffer, 0, readChunkSize)
@@ -357,6 +362,7 @@ class WavRecorderV2 @Inject constructor(
     }
 
     private fun scheduleRecordingTimeUpdateBuffered() {
+        stopRecordingTimer()
         timerProgress = Timer()
         timerProgress?.schedule(object : TimerTask() {
             override fun run() {
@@ -372,11 +378,13 @@ class WavRecorderV2 @Inject constructor(
     private fun stopRecordingTimer() {
         timerProgress?.cancel()
         timerProgress?.purge()
+        timerProgress = null
     }
 
     private fun pauseRecordingTimer() {
         timerProgress?.cancel()
         timerProgress?.purge()
+        timerProgress = null
     }
 
     private fun readBufferedProgress() {
