@@ -54,6 +54,7 @@ import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.adjustWaveformHeights
 import com.dimowner.audiorecorder.v2.app.calculateGridStep
 import com.dimowner.audiorecorder.v2.app.calculateScale
+import com.dimowner.audiorecorder.v2.app.cleanRecordFileNameForSave
 import com.dimowner.audiorecorder.v2.app.components.WaveformState
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
@@ -852,16 +853,24 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun performRenameActiveRecord(newName: String, activeRecord: Record) {
+        val cleanedName = cleanRecordFileNameForSave(newName)
+        if (cleanedName.isEmpty()) {
+            val context: Context = getApplication<Application>().applicationContext
+            emitEvent(HomeScreenEvent.ShowErrorSnack(context.getString(R.string.msg_name_cannot_be_empty)))
+            showLoadingProgress(false)
+            return
+        }
+
         val currentFile = File(activeRecord.path)
         // Skip rename if the name hasn't changed
-        if (currentFile.nameWithoutExtension == newName) {
+        if (currentFile.nameWithoutExtension == cleanedName) {
             showLoadingProgress(false)
             return
         }
         // Check if a file with the new name already exists on disk
         val extension = currentFile.extension
-        val targetFile = File(currentFile.parentFile, "$newName.$extension")
-        if (targetFile.exists() && currentFile.nameWithoutExtension != newName) {
+        val targetFile = File(currentFile.parentFile, "$cleanedName.$extension")
+        if (targetFile.exists() && currentFile.nameWithoutExtension != cleanedName) {
             val context: Context = getApplication<Application>().applicationContext
             emitEvent(
                 HomeScreenEvent.ShowErrorSnack(
@@ -871,11 +880,11 @@ class HomeViewModel @Inject constructor(
             showLoadingProgress(false)
             return
         } else {
-            recordsDataSource.renameRecord(activeRecord, newName)
+            recordsDataSource.renameRecord(activeRecord, cleanedName)
             val context: Context = getApplication<Application>().applicationContext
             emitEvent(
                 HomeScreenEvent.ShowInfoSnack(
-                    context.getString(R.string.msg_record_renamed, newName)
+                    context.getString(R.string.msg_record_renamed, cleanedName)
                 )
             )
         }

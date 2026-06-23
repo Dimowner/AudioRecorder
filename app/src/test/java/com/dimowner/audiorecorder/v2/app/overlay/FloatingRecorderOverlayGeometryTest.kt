@@ -163,6 +163,34 @@ class FloatingRecorderOverlayGeometryTest {
     }
 
     @Test
+    fun `buildRenameOverlaySaveRequest silently cleans filename before saving`() {
+        val request = buildRenameOverlaySaveRequest(
+            originalName = "Original name",
+            originalDescription = "Original description",
+            inputName = "  bad / name: <left>|right? *today* \"quote\"...  ",
+            inputDescription = "Original description",
+        )
+
+        assertEquals("bad name leftright today quote", request.name)
+        assertTrue(request.shouldRename)
+        assertFalse(request.showNameEmptyError)
+    }
+
+    @Test
+    fun `buildRenameOverlaySaveRequest rejects filename that becomes empty after cleaning`() {
+        val request = buildRenameOverlaySaveRequest(
+            originalName = "Original name",
+            originalDescription = "Original description",
+            inputName = " / \\ : * ? | < > \" \u0000 ",
+            inputDescription = "Original description",
+        )
+
+        assertEquals("", request.name)
+        assertFalse(request.shouldRename)
+        assertTrue(request.showNameEmptyError)
+    }
+
+    @Test
     fun `buildRenameOverlaySaveRequest rejects blank filename without dropping description draft`() {
         val request = buildRenameOverlaySaveRequest(
             originalName = "Original name",
