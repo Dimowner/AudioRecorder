@@ -49,6 +49,15 @@
 	<string name="warning_duration_limit_recommended">Записите по-дълги от 2 часа не се препоръчват, тъй като може да загубите целия записан напредък при грешка</string>
 
 	<string name="keep_screen_on">Екранът да е винаги включен при запис</string>
+	<string name="floating_recorder_button">Плаващ бутон за запис</string>
+	<string name="floating_recorder_overlay_permission_title">Разрешете плаващия бутон за запис</string>
+	<string name="floating_recorder_overlay_permission_message">Android изисква разрешението „Показване върху други приложения“, за да може Audio Recorder да показва плаващия бутон за запис върху приложения за навигация или четене.</string>
+	<string name="open_overlay_settings">Отвори настройките за наслагване</string>
+	<string name="keep_default_name">Запази името по подразбиране</string>
+	<string name="floating_recorder_notification_title">Плаващият бутон за запис е активен</string>
+	<string name="floating_recorder_notification_text">Докоснете плаващия бутон, за да започнете или спрете запис.</string>
+	<string name="notification_channel_floating_recorder_name">Плаващ запис</string>
+	<string name="notification_channel_floating_recorder_description">Поддържа плаващия бутон за запис достъпен върху други приложения.</string>
 	<string name="records_author_name">Автор на записите</string>
 	<string name="record_author">Автор на записа</string>
 	<string name="records_author_name_hint">Автор</string>
@@ -169,6 +178,7 @@
 	<string name="rec_location">Местоположение на файла:</string>
 	<string name="rec_description">Описание</string>
 	<string name="rec_description_hint">Добавете описание за този запис</string>
+	<string name="floating_rename_description_hint">Добави описание</string>
 	<string name="edit_description">Редактиране на описанието</string>
 	<string name="add_description">Добави описание</string>
 	<string name="write_description_into_file">Запишете описанието в аудио файла</string>

@@ -28,6 +28,15 @@
 	</plurals>
 
 	<string name="keep_screen_on">Залишати екран увімкненим під час запису</string>
+	<string name="floating_recorder_button">Плаваюча кнопка запису</string>
+	<string name="floating_recorder_overlay_permission_title">Дозвольте плаваючу кнопку запису</string>
+	<string name="floating_recorder_overlay_permission_message">Android вимагає дозвіл Показувати поверх інших програм, щоб Audio Recorder міг показувати плаваючу кнопку запису поверх програм навігації або читання.</string>
+	<string name="open_overlay_settings">Відкрити налаштування накладання</string>
+	<string name="keep_default_name">Залишити назву за замовчуванням</string>
+	<string name="floating_recorder_notification_title">Плаваюча кнопка запису активна</string>
+	<string name="floating_recorder_notification_text">Торкніться плаваючої кнопки, щоб почати або зупинити запис.</string>
+	<string name="notification_channel_floating_recorder_name">Плаваючий запис</string>
+	<string name="notification_channel_floating_recorder_description">Залишає плаваючу кнопку запису доступною поверх інших програм.</string>
 	<string name="records_author_name">Ім\'я автора записів</string>
 	<string name="record_author">Автор запису</string>
 	<string name="records_author_name_hint">Ім\'я автора</string>
@@ -186,6 +195,7 @@
 	<string name="rec_location">Розташування файлу:</string>
 	<string name="rec_description">Опис</string>
 	<string name="rec_description_hint">Додати опис для цього запису</string>
+	<string name="floating_rename_description_hint">Додати опис</string>
 	<string name="edit_description">Редагувати опис</string>
 	<string name="add_description">Додати опис</string>
 	<string name="write_description_into_file">Записати опис в аудіофайл</string>

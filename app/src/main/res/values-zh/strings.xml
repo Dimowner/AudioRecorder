@@ -45,6 +45,15 @@
     <string name="warning_duration_limit_recommended">不建议录制超过 2 小时，因为发生错误时可能丢失所有录音进度</string>
 
     <string name="keep_screen_on">录制时保持屏幕开启</string>
+    <string name="floating_recorder_button">悬浮录音按钮</string>
+    <string name="floating_recorder_overlay_permission_title">允许悬浮录音按钮</string>
+    <string name="floating_recorder_overlay_permission_message">Android 需要“显示在其他应用上层”权限，Audio Recorder 才能在导航或阅读应用上方显示悬浮录音按钮。</string>
+    <string name="open_overlay_settings">打开悬浮窗设置</string>
+    <string name="keep_default_name">保留默认名称</string>
+    <string name="floating_recorder_notification_title">悬浮录音按钮已启用</string>
+    <string name="floating_recorder_notification_text">点击悬浮按钮开始或停止录音。</string>
+    <string name="notification_channel_floating_recorder_name">悬浮录音</string>
+    <string name="notification_channel_floating_recorder_description">让悬浮录音按钮可在其他应用上方使用。</string>
     <string name="records_author_name">录音作者名称</string>
     <string name="record_author">录音作者</string>
     <string name="records_author_name_hint">作者名称</string>
@@ -158,6 +167,7 @@
     <string name="rec_location">文件位置：</string>
     <string name="rec_description">描述</string>
     <string name="rec_description_hint">为此录音添加描述</string>
+    <string name="floating_rename_description_hint">添加描述</string>
     <string name="edit_description">编辑描述</string>
     <string name="add_description">添加描述</string>
     <string name="write_description_into_file">将描述写入音频文件</string>

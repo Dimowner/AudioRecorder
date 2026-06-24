@@ -71,6 +71,15 @@
     <string name="warning_duration_limit_recommended">Nagrania dłuższe niż 2 godziny nie są zalecane — w przypadku błędu możesz utracić cały postęp nagrania</string>
 
     <string name="keep_screen_on">Utrzymuj ekran włączony podczas nagrywania</string>
+    <string name="floating_recorder_button">Pływający przycisk nagrywania</string>
+    <string name="floating_recorder_overlay_permission_title">Zezwól na pływający przycisk nagrywania</string>
+    <string name="floating_recorder_overlay_permission_message">Android wymaga uprawnienia Wyświetlanie nad innymi aplikacjami, aby Audio Recorder mógł pokazywać pływający przycisk nagrywania nad aplikacjami do nawigacji lub czytania.</string>
+    <string name="open_overlay_settings">Otwórz ustawienia nakładki</string>
+    <string name="keep_default_name">Zachowaj nazwę domyślną</string>
+    <string name="floating_recorder_notification_title">Pływający przycisk nagrywania jest aktywny</string>
+    <string name="floating_recorder_notification_text">Dotknij pływającego przycisku, aby rozpocząć lub zatrzymać nagrywanie.</string>
+    <string name="notification_channel_floating_recorder_name">Pływające nagrywanie</string>
+    <string name="notification_channel_floating_recorder_description">Utrzymuje pływający przycisk nagrywania dostępny nad innymi aplikacjami.</string>
     <string name="records_author_name">Imię i nazwisko autora nagrań</string>
     <string name="record_author">Autor nagrania</string>
     <string name="records_author_name_hint">Imię i nazwisko autora</string>
@@ -206,6 +215,7 @@
 	<string name="rec_location">Lokalizacja pliku:</string>
 	<string name="rec_description">Opis</string>
 	<string name="rec_description_hint">Dodaj opis do tego nagrania</string>
+	<string name="floating_rename_description_hint">Dodaj opis</string>
 	<string name="edit_description">Edytuj opis</string>
 	<string name="add_description">Dodaj opis</string>
 	<string name="write_description_into_file">Zapisz opis w pliku audio</string>

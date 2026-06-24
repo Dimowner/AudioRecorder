@@ -63,6 +63,15 @@
     <string name="warning_duration_limit_recommended">No es recomanen gravacions de més de 2 hores, ja que podríeu perdre tot el progrés gravat si es produeix un error</string>
 
 	<string name="keep_screen_on">Manté la pantalla encesa mentre es grava</string>
+	<string name="floating_recorder_button">Botó flotant de gravació</string>
+	<string name="floating_recorder_overlay_permission_title">Permet el botó flotant de gravació</string>
+	<string name="floating_recorder_overlay_permission_message">Android requereix el permís Mostra sobre altres aplicacions perquè Audio Recorder pugui mostrar el botó flotant de gravació sobre aplicacions de navegació o lectura.</string>
+	<string name="open_overlay_settings">Obre la configuració de superposició</string>
+	<string name="keep_default_name">Mantén el nom per defecte</string>
+	<string name="floating_recorder_notification_title">El botó flotant de gravació està actiu</string>
+	<string name="floating_recorder_notification_text">Toca el botó flotant per iniciar o aturar la gravació.</string>
+	<string name="notification_channel_floating_recorder_name">Gravador flotant</string>
+	<string name="notification_channel_floating_recorder_description">Manté el botó flotant de gravació disponible sobre altres aplicacions.</string>
 	<string name="records_author_name">Nom de l\'autor de les gravacions</string>
 	<string name="record_author">Autor de la gravació</string>
 	<string name="records_author_name_hint">Nom de l\'autor</string>
@@ -184,6 +193,7 @@
 	<string name="rec_location">Ubicació del fitxer:</string>
 	<string name="rec_description">Descripció</string>
 	<string name="rec_description_hint">Afegiu una descripció per a aquesta gravació</string>
+	<string name="floating_rename_description_hint">Afegir una descripció</string>
 	<string name="edit_description">Editar descripció</string>
 	<string name="add_description">Afegir descripció</string>
 	<string name="write_description_into_file">Escriu la descripció al fitxer d\'àudio</string>

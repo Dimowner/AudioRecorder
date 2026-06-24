@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <queries>
+        <intent>
+            <action android:name="android.speech.action.RECOGNIZE_SPEECH" />
+        </intent>
+    </queries>
+
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
@@ -8,6 +14,7 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 <!--    <uses-permission android:name="android.permission.INTERNET" />-->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"
         android:minSdkVersion="33" />
@@ -18,6 +25,7 @@
         android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
         android:minSdkVersion="33" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <uses-feature android:name="android.hardware.screen.portrait" android:required="false" />
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
@@ -71,6 +79,12 @@
             android:name=".v2.app.HomeActivity"
             android:launchMode="singleTask"
             android:exported="false" />
+        <activity
+            android:name=".v2.app.overlay.FloatingRenameSpeechRecognitionActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Transparent" />
         <activity
             android:name=".app.settings.SettingsActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
@@ -142,6 +156,15 @@
             android:name=".v2.audio.AudioRecordingService"
             android:exported="false"
             android:foregroundServiceType="microphone" />
+
+        <service
+            android:name=".v2.app.overlay.FloatingRecorderOverlayService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="floating_recorder_overlay" />
+        </service>
 
         <receiver android:name=".WidgetReceiver" android:exported="true" />
         <receiver android:name=".app.RecordingService$StopRecordingReceiver" android:exported="false" />

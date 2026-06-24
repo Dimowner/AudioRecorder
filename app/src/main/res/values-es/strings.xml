@@ -65,6 +65,15 @@
     <string name="warning_duration_limit_recommended">No se recomiendan grabaciones de más de 2 horas ya que podría perder todo el progreso grabado si ocurre un error</string>
 
 	<string name="keep_screen_on">Mantener pantalla ENCENDIDA al grabar</string>
+	<string name="floating_recorder_button">Botón flotante de grabación</string>
+	<string name="floating_recorder_overlay_permission_title">Permitir botón flotante de grabación</string>
+	<string name="floating_recorder_overlay_permission_message">Android requiere el permiso Mostrar sobre otras apps para que Audio Recorder pueda mostrar el botón flotante de grabación sobre apps de navegación o lectura.</string>
+	<string name="open_overlay_settings">Abrir ajustes de superposición</string>
+	<string name="keep_default_name">Mantener nombre predeterminado</string>
+	<string name="floating_recorder_notification_title">El botón flotante de grabación está activo</string>
+	<string name="floating_recorder_notification_text">Toca el botón flotante para iniciar o detener la grabación.</string>
+	<string name="notification_channel_floating_recorder_name">Grabador flotante</string>
+	<string name="notification_channel_floating_recorder_description">Mantiene disponible el botón flotante de grabación sobre otras apps.</string>
 	<string name="records_author_name">Nombre del autor de grabaciones</string>
 	<string name="record_author">Autor de grabación</string>
 	<string name="records_author_name_hint">Nombre del autor</string>
@@ -186,6 +195,7 @@
 	<string name="rec_location">Ubicación de archivo:</string>
 	<string name="rec_description">Descripción</string>
 	<string name="rec_description_hint">Añadir una descripción para esta grabación</string>
+	<string name="floating_rename_description_hint">Añadir una descripción</string>
 	<string name="edit_description">Editar descripción</string>
 	<string name="add_description">Añadir descripción</string>
 	<string name="write_description_into_file">Escribir descripción en el archivo de audio</string>

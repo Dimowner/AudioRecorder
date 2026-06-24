@@ -48,6 +48,15 @@
 	<string name="warning_duration_limit_recommended">Les enregistrements de plus de 2 heures ne sont pas recommandés car vous risquez de perdre toute progression en cas d\'erreur</string>
 
 	<string name="keep_screen_on">Laisser l\'écran allumé pendant l\'enregistrement</string>
+	<string name="floating_recorder_button">Bouton flottant d\'enregistrement</string>
+	<string name="floating_recorder_overlay_permission_title">Autoriser le bouton flottant d\'enregistrement</string>
+	<string name="floating_recorder_overlay_permission_message">Android exige l\'autorisation Afficher par-dessus d\'autres applications pour qu\'Audio Recorder puisse afficher le bouton flottant d\'enregistrement au-dessus des applications de navigation ou de lecture.</string>
+	<string name="open_overlay_settings">Ouvrir les paramètres de superposition</string>
+	<string name="keep_default_name">Conserver le nom par défaut</string>
+	<string name="floating_recorder_notification_title">Le bouton flottant d\'enregistrement est actif</string>
+	<string name="floating_recorder_notification_text">Touchez le bouton flottant pour démarrer ou arrêter l\'enregistrement.</string>
+	<string name="notification_channel_floating_recorder_name">Enregistreur flottant</string>
+	<string name="notification_channel_floating_recorder_description">Garde le bouton flottant d\'enregistrement disponible au-dessus des autres applications.</string>
 	<string name="records_author_name">Nom de l\'auteur des enregistrements</string>
 	<string name="record_author">Auteur de l\'enregistrement</string>
 	<string name="records_author_name_hint">Nom de l\'auteur</string>
@@ -168,6 +177,7 @@
 	<string name="rec_location">Chemin du fichier :</string>
 	<string name="rec_description">Description</string>
 	<string name="rec_description_hint">Ajouter une description pour cet enregistrement</string>
+	<string name="floating_rename_description_hint">Ajouter une description</string>
 	<string name="edit_description">Modifier la description</string>
 	<string name="add_description">Ajouter une description</string>
 	<string name="write_description_into_file">Écrire la description dans le fichier audio</string>

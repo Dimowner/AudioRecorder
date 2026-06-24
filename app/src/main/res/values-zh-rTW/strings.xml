@@ -64,6 +64,15 @@
     <string name="warning_duration_limit_recommended">建議錄製時長不超過 2 小時，以免發生錯誤導致所有已錄製的內容遺失</string>
 
 	<string name="keep_screen_on">錄製期間保持螢幕開啟</string>
+	<string name="floating_recorder_button">浮動錄音按鈕</string>
+	<string name="floating_recorder_overlay_permission_title">允許浮動錄音按鈕</string>
+	<string name="floating_recorder_overlay_permission_message">Android 需要「顯示在其他應用程式上層」權限，Audio Recorder 才能在導航或閱讀應用程式上方顯示浮動錄音按鈕。</string>
+	<string name="open_overlay_settings">開啟浮動視窗設定</string>
+	<string name="keep_default_name">保留預設名稱</string>
+	<string name="floating_recorder_notification_title">浮動錄音按鈕已啟用</string>
+	<string name="floating_recorder_notification_text">點選浮動按鈕以開始或停止錄音。</string>
+	<string name="notification_channel_floating_recorder_name">浮動錄音</string>
+	<string name="notification_channel_floating_recorder_description">讓浮動錄音按鈕可在其他應用程式上方使用。</string>
 	<string name="records_author_name">錄音作者名稱</string>
 	<string name="record_author">錄音作者</string>
 	<string name="records_author_name_hint">作者名稱</string>
@@ -188,6 +197,7 @@
 	<string name="rec_location">位置：</string>
 	<string name="rec_description">描述</string>
 	<string name="rec_description_hint">為此錄音新增描述</string>
+	<string name="floating_rename_description_hint">新增描述</string>
 	<string name="edit_description">編輯描述</string>
 	<string name="add_description">新增描述</string>
 	<string name="write_description_into_file">將描述寫入音訊檔</string>

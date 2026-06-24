@@ -50,6 +50,14 @@
 	<string name="msg_file_operation_failed">File operation failed. Please try again</string>
 	<!-- Error message for empty name during rename/save -->
 	<string name="msg_name_cannot_be_empty">Name cannot be empty</string>
+    <string name="rename_speech_mode_append_filename">Append to filename</string>
+    <string name="rename_speech_mode_replace_filename">Replace filename</string>
+    <string name="rename_speech_mode_append_description">Append to description</string>
+    <string name="floating_rename_description_hint">Add a description</string>
+    <string name="rename_speech_listening">Listening...</string>
+    <string name="rename_speech_no_recognizer">Speech recognition is not available on this device.</string>
+    <string name="rename_speech_no_match">No speech recognized.</string>
+    <string name="rename_speech_error">Speech recognition failed.</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">Microphone permission is required to record audio. Please grant the permission to use this feature.</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
@@ -66,6 +74,16 @@
     <string name="warning_duration_limit_recommended">Recordings longer than 2 hours are not recommended as you may lose all recorded progress if an error occurs</string>
 
     <string name="keep_screen_on">Keep screen ON while recording</string>
+    <string name="floating_recorder_button">Floating recorder button</string>
+    <string name="floating_recorder_overlay_permission_title">Allow floating recorder button</string>
+    <string name="floating_recorder_overlay_permission_message">Android requires Display over other apps permission before Audio Recorder can show the floating recorder button above navigation or reading apps.</string>
+    <string name="open_overlay_settings">Open overlay settings</string>
+    <string name="keep_default_name">Keep default</string>
+    <string name="reset_record_name">Reset</string>
+    <string name="floating_recorder_notification_title">Floating recorder button is active</string>
+    <string name="floating_recorder_notification_text">Tap the floating button to start or stop recording.</string>
+    <string name="notification_channel_floating_recorder_name">Floating recorder</string>
+    <string name="notification_channel_floating_recorder_description">Keeps the floating recorder button available over other apps.</string>
     <string name="records_author_name">Records author name</string>
     <string name="record_author">Record author</string>
     <string name="records_author_name_hint">Author name</string>

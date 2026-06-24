@@ -66,6 +66,15 @@
     <string name="warning_duration_limit_recommended">Le registrazioni superiori a 2 ore non sono consigliate: un errore potrebbe causare la perdita di tutti i dati registrati</string>
 
     <string name="keep_screen_on">Tieni lo schermo acceso durante la registrazione</string>
+    <string name="floating_recorder_button">Pulsante flottante di registrazione</string>
+    <string name="floating_recorder_overlay_permission_title">Consenti il pulsante flottante di registrazione</string>
+    <string name="floating_recorder_overlay_permission_message">Android richiede l\'autorizzazione Mostra sopra altre app affinché Audio Recorder possa mostrare il pulsante flottante di registrazione sopra app di navigazione o lettura.</string>
+    <string name="open_overlay_settings">Apri impostazioni overlay</string>
+    <string name="keep_default_name">Mantieni nome predefinito</string>
+    <string name="floating_recorder_notification_title">Il pulsante flottante di registrazione è attivo</string>
+    <string name="floating_recorder_notification_text">Tocca il pulsante flottante per avviare o interrompere la registrazione.</string>
+    <string name="notification_channel_floating_recorder_name">Registratore flottante</string>
+    <string name="notification_channel_floating_recorder_description">Mantiene disponibile il pulsante flottante di registrazione sopra altre app.</string>
     <string name="records_author_name">Nome autore delle registrazioni</string>
     <string name="record_author">Autore della registrazione</string>
     <string name="records_author_name_hint">Nome autore</string>
@@ -187,6 +196,7 @@
 	<string name="rec_location">Posizione file:</string>
 	<string name="rec_description">Descrizione</string>
 	<string name="rec_description_hint">Aggiungi una descrizione per questa registrazione</string>
+	<string name="floating_rename_description_hint">Aggiungi una descrizione</string>
 	<string name="edit_description">Modifica descrizione</string>
 	<string name="add_description">Aggiungi descrizione</string>
 	<string name="write_description_into_file">Scrivi la descrizione nel file audio</string>
