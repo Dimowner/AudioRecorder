@@ -97,30 +97,48 @@ public class AudioDecoder {
 		// find and select the first audio track present in the file.
 		for (i = 0; i < numTracks; i++) {
 			format = extractor.getTrackFormat(i);
-			if (format.getString(MediaFormat.KEY_MIME).startsWith("audio/")) {
-				extractor.selectTrack(i);
-				break;
+			try {
+				if (format.getString(MediaFormat.KEY_MIME).startsWith("audio/")) {
+					extractor.selectTrack(i);
+					break;
+				}
+			} catch (Exception e) {
+				Timber.e(e);
 			}
 		}
 
 		if (i == numTracks || format == null) {
 			throw new IOException("No audio track found in " + mInputFile.toString());
 		}
-		if (format.containsKey(MediaFormat.KEY_CHANNEL_COUNT)) {
+		try {
 			channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+		} catch (Exception e) {
+			throw new IOException("Could not read channel count from " + mInputFile.getName(), e);
 		}
-		if (format.containsKey(MediaFormat.KEY_SAMPLE_RATE)) {
+		try {
 			sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+		} catch (Exception e) {
+			throw new IOException("Could not read sample rate from " + mInputFile.getName(), e);
 		}
-		if (format.containsKey(MediaFormat.KEY_DURATION)) {
-			duration = format.getLong(MediaFormat.KEY_DURATION);
+		try {
+			if (format.containsKey(MediaFormat.KEY_DURATION)) {
+				duration = format.getLong(MediaFormat.KEY_DURATION);
+			}
+		} catch (Exception e) {
+			Timber.e(e);
 		}
 
 		//TODO: Make waveform independent from dpPerSec!!!
 		dpPerSec = ARApplication.getDpPerSecond((float) duration/1000000f);
 		oneFrameAmps = new int[calculateSamplesPerFrame() * channelCount];
 
-		String mimeType = format.getString(MediaFormat.KEY_MIME);
+		String mimeType;
+		try {
+			mimeType = format.getString(MediaFormat.KEY_MIME);
+		} catch (Exception e) {
+			Timber.e(e);
+			mimeType = "";
+		}
 		//Start decoding
 		MediaCodec decoder = MediaCodec.createDecoderByType(mimeType);
 
