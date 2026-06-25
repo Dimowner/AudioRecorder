@@ -20,7 +20,9 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 enum class RecordingFormat(val value: String, val index: Int) : Parcelable {
-    M4a("m4a", 0), Wav("wav", 1), ThreeGp("3gp", 2)
+    M4a("m4a", 0), Wav("wav", 1), ThreeGp("3gp", 2);
+
+    val hasBitrate: Boolean get() = this == M4a
 }
 
 fun String.convertToRecordingFormat(): RecordingFormat? {
