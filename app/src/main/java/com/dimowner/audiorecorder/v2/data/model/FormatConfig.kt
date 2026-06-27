@@ -43,12 +43,12 @@ data class FormatConfig(
     /** Whether this format is recorded with a user-configurable bitrate. */
     val hasBitrate: Boolean get() = supportedBitRates.isNotEmpty()
 
-    fun isSampleRateSupported(sampleRate: SampleRate?): Boolean =
-        sampleRate != null && sampleRate in supportedSampleRates
+    fun isSampleRateSupported(sampleRate: SampleRate): Boolean =
+        sampleRate in supportedSampleRates
 
-    fun isBitRateSupported(bitRate: BitRate?): Boolean =
-        bitRate != null && bitRate in supportedBitRates
+    fun isBitRateSupported(bitRate: BitRate): Boolean =
+        bitRate in supportedBitRates
 
-    fun isChannelCountSupported(channelCount: ChannelCount?): Boolean =
-        channelCount != null && channelCount in supportedChannelCounts
+    fun isChannelCountSupported(channelCount: ChannelCount): Boolean =
+        channelCount in supportedChannelCounts
 }
