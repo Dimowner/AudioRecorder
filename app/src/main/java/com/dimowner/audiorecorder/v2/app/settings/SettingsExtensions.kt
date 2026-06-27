@@ -289,28 +289,13 @@ fun getChannelCounts(
     selected: ChannelCount?,
     strings: Array<String>
 ): List<ChipItem<ChannelCount>> {
-    return when (format) {
-        RecordingFormat.M4a,
-        RecordingFormat.Wav -> {
-            ChannelCount.entries.toList().mapIndexed { i, channelCount ->
-                ChipItem(
-                    id = i,
-                    value = channelCount,
-                    name = strings[i],
-                    isSelected = channelCount == selected
-                )
-            }
-        }
-        RecordingFormat.ThreeGp -> {
-            listOf(
-                ChipItem(
-                    id = 0,
-                    value = ChannelCount.Mono,
-                    name = strings[1],
-                    isSelected = ChannelCount.Mono == selected
-                )
-            )
-        }
+    return format.config.supportedChannelCounts.map { channelCount ->
+        ChipItem(
+            id = channelCount.index,
+            value = channelCount,
+            name = strings[channelCount.index],
+            isSelected = channelCount == selected
+        )
     }
 }
 
@@ -319,19 +304,13 @@ fun getBitRates(
     selected: BitRate?,
     strings: Array<String>
 ): List<ChipItem<BitRate>> {
-    return when (format) {
-        RecordingFormat.M4a -> {
-            BitRate.entries.toList().mapIndexed { i, bitRate ->
-                ChipItem(
-                    id = i,
-                    value = bitRate,
-                    name = strings[i],
-                    isSelected = bitRate == selected
-                )
-            }
-        }
-        RecordingFormat.Wav,
-        RecordingFormat.ThreeGp -> listOf()
+    return format.config.supportedBitRates.map { bitRate ->
+        ChipItem(
+            id = bitRate.index,
+            value = bitRate,
+            name = strings[bitRate.index],
+            isSelected = bitRate == selected
+        )
     }
 }
 
@@ -340,33 +319,28 @@ fun getSampleRates(
     selected: SampleRate?,
     strings: Array<String>
 ): List<ChipItem<SampleRate>> {
-    return when (format) {
-        RecordingFormat.M4a,
-        RecordingFormat.Wav -> {
-            SampleRate.entries.toList().mapIndexed { i, sampleRate ->
-                ChipItem(
-                    id = i,
-                    value = sampleRate,
-                    name = strings[i],
-                    isSelected = sampleRate == selected
-                )
-            }
-        }
-        RecordingFormat.ThreeGp -> listOf(
-            ChipItem(
-                id = 0,
-                value = SampleRate.SR8000,
-                name = strings[0],
-                isSelected = SampleRate.SR8000 == selected
-            ),
-            ChipItem(
-                id = 1,
-                value = SampleRate.SR16000,
-                name = strings[1],
-                isSelected = SampleRate.SR16000 == selected
-            )
+    return format.config.supportedSampleRates.map { sampleRate ->
+        ChipItem(
+            id = sampleRate.index,
+            value = sampleRate,
+            name = strings[sampleRate.index],
+            isSelected = sampleRate == selected
         )
     }
+}
+
+/** Sample rate to fall back to when the current selection is not supported by [this] format. */
+fun RecordingFormat.defaultSampleRate(): SampleRate = when (this) {
+    RecordingFormat.ThreeGp -> DefaultValues.Default3GpSampleRate
+    RecordingFormat.M4a,
+    RecordingFormat.Wav -> DefaultValues.DefaultSampleRate
+}
+
+/** Channel count to fall back to when the current selection is not supported by [this] format. */
+fun RecordingFormat.defaultChannelCount(): ChannelCount = when (this) {
+    RecordingFormat.ThreeGp -> DefaultValues.Default3GpChannelCount
+    RecordingFormat.M4a,
+    RecordingFormat.Wav -> DefaultValues.DefaultChannelCount
 }
 
 /**

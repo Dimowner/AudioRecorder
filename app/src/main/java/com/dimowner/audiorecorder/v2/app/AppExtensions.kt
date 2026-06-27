@@ -196,15 +196,14 @@ fun recordingSettingsCombinedText(
     bitRateText: String,
     channelCountText: String
 ): String {
-    return when (recordingFormat) {
-        RecordingFormat.M4a -> {
+    return when {
+        recordingFormat == null -> ""
+        recordingFormat.config.hasBitrate -> {
             "$recordingFormatText, $sampleRateText, $bitRateText, $channelCountText"
         }
-        RecordingFormat.Wav,
-        RecordingFormat.ThreeGp -> {
+        else -> {
             "$recordingFormatText, $sampleRateText, $channelCountText"
         }
-        else -> ""
     }
 }
 

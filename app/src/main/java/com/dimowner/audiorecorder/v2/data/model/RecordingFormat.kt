@@ -22,7 +22,52 @@ import kotlinx.parcelize.Parcelize
 enum class RecordingFormat(val value: String, val index: Int) : Parcelable {
     M4a("m4a", 0), Wav("wav", 1), ThreeGp("3gp", 2);
 
-    val hasBitrate: Boolean get() = this == M4a
+    /** Recording capabilities (supported sample rates, bitrates and channel counts) of this format. */
+    val config: FormatConfig
+        get() = when (this) {
+            M4a -> FormatConfig(
+                format = this,
+                supportedSampleRates = listOf(
+                    SampleRate.SR8000,
+                    SampleRate.SR16000,
+                    SampleRate.SR22050,
+                    SampleRate.SR32000,
+                    SampleRate.SR44100,
+                    SampleRate.SR48000
+                ),
+                supportedBitRates = listOf(
+                    BitRate.BR48,
+                    BitRate.BR96,
+                    BitRate.BR128,
+                    BitRate.BR192,
+                    BitRate.BR256,
+                    BitRate.BR288,
+                ),
+                supportedChannelCounts = listOf(ChannelCount.Mono, ChannelCount.Stereo)
+            )
+            Wav -> FormatConfig(
+                format = this,
+                supportedSampleRates = listOf(
+                    SampleRate.SR8000,
+                    SampleRate.SR16000,
+                    SampleRate.SR22050,
+                    SampleRate.SR32000,
+                    SampleRate.SR44100,
+                    SampleRate.SR48000
+                ),
+                supportedBitRates = emptyList(),
+                supportedChannelCounts = listOf(ChannelCount.Mono, ChannelCount.Stereo)
+            )
+            ThreeGp -> FormatConfig(
+                format = this,
+                supportedSampleRates = listOf(SampleRate.SR8000, SampleRate.SR16000),
+                supportedBitRates = emptyList(),
+                supportedChannelCounts = listOf(ChannelCount.Mono),
+            )
+        }
+
+    /** Whether this format is recorded with a user-configurable bitrate. */
+    val hasBitrate: Boolean get() = config.hasBitrate
 }
 
 fun String.convertToRecordingFormat(): RecordingFormat? {

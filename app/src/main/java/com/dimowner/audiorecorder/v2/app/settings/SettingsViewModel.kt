@@ -287,58 +287,39 @@ internal class SettingsViewModel @Inject constructor(
                     ),
                 )
             }
-        ).validate3GpSelectedAndAdjust(value)
+        ).adjustSelectionToFormat(value)
         .recordingSettingsUpdated()
     }
 
-    private fun SettingsState.validate3GpSelectedAndAdjust(format: RecordingFormat): SettingsState {
-        return if (format == RecordingFormat.ThreeGp) {
-            val formatSetting = this.recordingSettings.firstOrNull {
-                it.recordingFormat.value == format
-            }
-            val hasSelectedSampleRate = formatSetting?.sampleRates?.any { it.isSelected } ?: false
-            val hasSelectedChannelCount = formatSetting?.channelCounts?.any { it.isSelected } ?: false
-            if (!hasSelectedSampleRate || !hasSelectedChannelCount) {
-                this.copy(
-                    recordingSettings = recordingSettings.map { recordingSetting ->
-                        if (recordingSetting.recordingFormat.value == format) {
-                            recordingSetting.copy(
-                                sampleRates = if (hasSelectedSampleRate) {
-                                    recordingSetting.sampleRates
-                                } else {
-                                    prefs.settingSampleRate = DefaultValues.Default3GpSampleRate
-                                    recordingSetting.sampleRates.map {
-                                        if (it.value == DefaultValues.Default3GpSampleRate) {
-                                            it.copy(isSelected = true)
-                                        } else {
-                                            it
-                                        }
-                                    }
-                                },
-                                channelCounts = if (hasSelectedChannelCount) {
-                                    recordingSetting.channelCounts
-                                } else {
-                                    prefs.settingChannelCount = DefaultValues.Default3GpChannelCount
-                                    recordingSetting.channelCounts.map {
-                                        if (it.value == DefaultValues.Default3GpChannelCount) {
-                                            it.copy(isSelected = true)
-                                        } else {
-                                            it
-                                        }
-                                    }
-                                }
-                            )
-                        } else {
-                            recordingSetting
-                        }
-                    }
-                )
-            } else {
-                this
-            }
-        } else {
-            return this
+    /**
+     * Ensures the persisted sample rate, bitrate and channel count are all supported by the newly
+     * selected [format]. Any unsupported selection is replaced with the format's default, the new
+     * value is persisted, and the chips for that format are rebuilt so a valid chip stays selected.
+     */
+    private fun SettingsState.adjustSelectionToFormat(format: RecordingFormat): SettingsState {
+        val config = format.config
+        if (!config.isSampleRateSupported(prefs.settingSampleRate)) {
+            prefs.settingSampleRate = format.defaultSampleRate()
         }
+        if (!config.isChannelCountSupported(prefs.settingChannelCount)) {
+            prefs.settingChannelCount = format.defaultChannelCount()
+        }
+        if (config.hasBitrate && !config.isBitRateSupported(prefs.settingBitrate)) {
+            prefs.settingBitrate = DefaultValues.DefaultBitRate
+        }
+        return this.copy(
+            recordingSettings = recordingSettings.map { recordingSetting ->
+                if (recordingSetting.recordingFormat.value == format) {
+                    recordingSetting.copy(
+                        sampleRates = getSampleRates(format, prefs.settingSampleRate, sampleRateStrings),
+                        bitRates = getBitRates(format, prefs.settingBitrate, bitRateStrings),
+                        channelCounts = getChannelCounts(format, prefs.settingChannelCount, channelCountsStrings),
+                    )
+                } else {
+                    recordingSetting
+                }
+            }
+        )
     }
 
     fun selectSampleRate(value: SampleRate) {

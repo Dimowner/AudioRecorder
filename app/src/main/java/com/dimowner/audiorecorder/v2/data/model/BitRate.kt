@@ -29,6 +29,7 @@ enum class BitRate(val value: Int, val index: Int): Parcelable {
     BR128(128000, 2),
     BR192(192000, 3),
     BR256(256000, 4),
+    BR288(288000, 5),
 }
 
 fun Int.convertToBitRate(): BitRate? {
@@ -37,5 +38,6 @@ fun Int.convertToBitRate(): BitRate? {
     else if (this == BitRate.BR128.value) BitRate.BR128
     else if (this == BitRate.BR192.value) BitRate.BR192
     else if (this == BitRate.BR256.value) BitRate.BR256
+    else if (this == BitRate.BR288.value) BitRate.BR288
     else null
 }
