@@ -60,7 +60,13 @@ internal fun RecordSettingsPanel(
         )
         val selectedFormat =
             recordingSettings.firstOrNull { it.recordingFormat.isSelected }
-        val infoFrequency = htmlStringResource(R.string.info_frequency_html)
+        val infoFrequency = htmlStringResources(
+            R.string.info_frequency_header_html,
+            R.string.info_frequency_48khz_html,
+            R.string.info_frequency_44_1khz_html,
+            R.string.info_frequency_22khz_html,
+            R.string.info_frequency_8khz_html
+        )
         SettingSelector(
             name = stringResource(id = R.string.sample_rate),
             chips = selectedFormat?.sampleRates ?: emptyList(),

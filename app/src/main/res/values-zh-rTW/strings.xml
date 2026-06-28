@@ -246,13 +246,11 @@
 		\n\n<b>22 kHz</b> 熱門的低位元取樣率，例如 64 kbps。
 		\n\n<b>8 kHz</b> 用於較小頻寬的現代電話系統，不適合正式的錄音作業。</string>
 
-	<string name="info_frequency_html"><![CDATA[
-<b>取樣率</b> 每秒能夠傳遞的音訊取樣個數。
-<br/><br/><b>48 kHz</b> DVD 取樣率。
-<br/><b>44.1 kHz</b> CD 音訊取樣率。<b>(建議)</b>
-<br/><b>22 kHz</b> 熱門的低位元取樣率，例如 64 kbps。
-<br/><b>8 kHz</b> 用於較小頻寬的現代電話系統，不適合正式的錄音作業。
-]]></string>
+	<string name="info_frequency_header_html"><![CDATA[<b>取樣率</b> 每秒能夠傳遞的音訊取樣個數。]]></string>
+	<string name="info_frequency_48khz_html"><![CDATA[<b>48 kHz</b> DVD 取樣率。]]></string>
+	<string name="info_frequency_44_1khz_html"><![CDATA[<b>44.1 kHz</b> CD 音訊取樣率。<b>(建議)</b>]]></string>
+	<string name="info_frequency_22khz_html"><![CDATA[<b>22 kHz</b> 熱門的低位元取樣率，例如 64 kbps。]]></string>
+	<string name="info_frequency_8khz_html"><![CDATA[<b>8 kHz</b> 用於較小頻寬的現代電話系統，不適合正式的錄音作業。]]></string>
 
 	<string name="info_bitrate"><b>位元速率</b> 每秒處理的音訊資料量，直接影響品質與大小。
 		\n\n<b>256 kbps</b> 最佳品質速率。

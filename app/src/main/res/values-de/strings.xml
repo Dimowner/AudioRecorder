@@ -248,13 +248,11 @@
 		\n<b>8 kHz</b> hat eine geringere Bandbreite als moderne Telefonsysteme. Nicht für ernsthafte Aufnahmeaufgaben geeignet.
 		</string>
 
-	<string name="info_frequency_html"><![CDATA[
-<b>Abtastrate</b> ist die Anzahl der Audiosamples pro Sekunde.
-<br/><br/><b>48 kHz</b> ist die Abtastrate für DVDs.
-<br/><b>44,1 kHz</b> ist die Abtastrate von Audio-CDs. <b>(empfohlen)</b>
-<br/><b>22 kHz</b> ist eine beliebte Abtastrate für niedrige Bitraten wie 64 kbps.
-<br/><b>8 kHz</b> hat eine geringere Bandbreite als moderne Telefonsysteme. Nicht für ernsthafte Aufnahmeaufgaben geeignet.
-]]></string>
+	<string name="info_frequency_header_html"><![CDATA[<b>Abtastrate</b> ist die Anzahl der Audiosamples pro Sekunde.]]></string>
+	<string name="info_frequency_48khz_html"><![CDATA[<b>48 kHz</b> ist die Abtastrate für DVDs.]]></string>
+	<string name="info_frequency_44_1khz_html"><![CDATA[<b>44,1 kHz</b> ist die Abtastrate von Audio-CDs. <b>(empfohlen)</b>]]></string>
+	<string name="info_frequency_22khz_html"><![CDATA[<b>22 kHz</b> ist eine beliebte Abtastrate für niedrige Bitraten wie 64 kbps.]]></string>
+	<string name="info_frequency_8khz_html"><![CDATA[<b>8 kHz</b> hat eine geringere Bandbreite als moderne Telefonsysteme. Nicht für ernsthafte Aufnahmeaufgaben geeignet.]]></string>
 
 	<string name="info_bitrate"><b>Bitrate</b> ist die Datenmenge pro Sekunde Audio. Beeinflusst direkt Aufnahmequalität und Dateigröße.
 		\n<b>256 kbps</b> gute Qualitätsbitrate.

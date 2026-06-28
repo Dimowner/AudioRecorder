@@ -267,13 +267,11 @@
 		\n <b>8 kHz</b> — przepustowość mniejsza niż we współczesnych systemach telefonicznych. Nieodpowiednia do żadnych poważnych zadań nagraniowych.
 		</string>
 
-	<string name="info_frequency_html"><![CDATA[
-<b>Częstotliwość próbkowania</b> to liczba próbek audio przesyłanych na sekundę.
-<br/><br/><b>48 kHz</b> to częstotliwość próbkowania używana dla DVD.
-<br/><b>44,1 kHz</b> to częstotliwość próbkowania płyt Audio CD. <b>(zalecane)</b>
-<br/><b>22 kHz</b> — popularna częstotliwość dla niskich przepływności, np. 64 kbps.
-<br/><b>8 kHz</b> — przepustowość mniejsza niż we współczesnych systemach telefonicznych. Nieodpowiednia do żadnych poważnych zadań nagraniowych.
-]]></string>
+	<string name="info_frequency_header_html"><![CDATA[<b>Częstotliwość próbkowania</b> to liczba próbek audio przesyłanych na sekundę.]]></string>
+	<string name="info_frequency_48khz_html"><![CDATA[<b>48 kHz</b> to częstotliwość próbkowania używana dla DVD.]]></string>
+	<string name="info_frequency_44_1khz_html"><![CDATA[<b>44,1 kHz</b> to częstotliwość próbkowania płyt Audio CD. <b>(zalecane)</b>]]></string>
+	<string name="info_frequency_22khz_html"><![CDATA[<b>22 kHz</b> — popularna częstotliwość dla niskich przepływności, np. 64 kbps.]]></string>
+	<string name="info_frequency_8khz_html"><![CDATA[<b>8 kHz</b> — przepustowość mniejsza niż we współczesnych systemach telefonicznych. Nieodpowiednia do żadnych poważnych zadań nagraniowych.]]></string>
 
 	<string name="info_bitrate"><b>Bitrate</b> to ilość danych na sekundę dźwięku. Bezpośrednio wpływa na jakość i rozmiar nagrania.
 		\n<b>256 kbps</b> — bitrate dobrej jakości.

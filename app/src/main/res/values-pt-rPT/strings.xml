@@ -249,13 +249,11 @@
         \n <b>8kHz</b> tem menos largura de banda do que os sistemas telefónicos modernos. Não é adequado para qualquer tarefa de gravação séria.
         </string>
 
-    <string name="info_frequency_html"><![CDATA[
-<b>Taxa de amostragem</b> é o número de amostras de áudio por segundo.
-<br/><br/><b>48kHz</b> é a taxa de amostragem utilizada em DVDs.
-<br/><b>44,1kHz</b> é a taxa de amostragem dos CDs de áudio. <b>(recomendado)</b>
-<br/><b>22kHz</b> taxa de amostragem popular para baixa taxa de bits, como 64 kbps.
-<br/><b>8kHz</b> tem menos largura de banda do que os sistemas telefónicos modernos. Não é adequado para qualquer tarefa de gravação séria.
-]]></string>
+    <string name="info_frequency_header_html"><![CDATA[<b>Taxa de amostragem</b> é o número de amostras de áudio por segundo.]]></string>
+    <string name="info_frequency_48khz_html"><![CDATA[<b>48kHz</b> é a taxa de amostragem utilizada em DVDs.]]></string>
+    <string name="info_frequency_44_1khz_html"><![CDATA[<b>44,1kHz</b> é a taxa de amostragem dos CDs de áudio. <b>(recomendado)</b>]]></string>
+    <string name="info_frequency_22khz_html"><![CDATA[<b>22kHz</b> taxa de amostragem popular para baixa taxa de bits, como 64 kbps.]]></string>
+    <string name="info_frequency_8khz_html"><![CDATA[<b>8kHz</b> tem menos largura de banda do que os sistemas telefónicos modernos. Não é adequado para qualquer tarefa de gravação séria.]]></string>
 
     <string name="info_bitrate"><b>Taxa de bits</b> é o tamanho dos dados por segundo de áudio. Afeta diretamente a qualidade e o tamanho da gravação.
         \n<b>256 kbps</b> boa qualidade de taxa de bits.

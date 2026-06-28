@@ -240,13 +240,11 @@
 		\n<b>8kHz</b>는 현대 전화 시스템보다 대역폭이 낮아 본격적인 녹음 작업에 적합하지 않습니다.
 		</string>
 
-	<string name="info_frequency_html"><![CDATA[
-<b>샘플 레이트</b>는 초당 처리되는 오디오 샘플의 수입니다.
-<br/><br/><b>48kHz</b>는 DVD에 사용되는 샘플 레이트입니다.
-<br/><b>44.1kHz</b>는 오디오 CD의 샘플링 레이트입니다. <b>(추천)</b>
-<br/><b>22kHz</b>는 64kbps와 같은 낮은 비트레이트에 일반적인 샘플 레이트입니다.
-<br/><b>8kHz</b>는 현대 전화 시스템보다 대역폭이 낮아 본격적인 녹음 작업에 적합하지 않습니다.
-]]></string>
+	<string name="info_frequency_header_html"><![CDATA[<b>샘플 레이트</b>는 초당 처리되는 오디오 샘플의 수입니다.]]></string>
+	<string name="info_frequency_48khz_html"><![CDATA[<b>48kHz</b>는 DVD에 사용되는 샘플 레이트입니다.]]></string>
+	<string name="info_frequency_44_1khz_html"><![CDATA[<b>44.1kHz</b>는 오디오 CD의 샘플링 레이트입니다. <b>(추천)</b>]]></string>
+	<string name="info_frequency_22khz_html"><![CDATA[<b>22kHz</b>는 64kbps와 같은 낮은 비트레이트에 일반적인 샘플 레이트입니다.]]></string>
+	<string name="info_frequency_8khz_html"><![CDATA[<b>8kHz</b>는 현대 전화 시스템보다 대역폭이 낮아 본격적인 녹음 작업에 적합하지 않습니다.]]></string>
 
 	<string name="info_bitrate"><b>비트레이트</b>는 초당 사운드 데이터의 크기입니다. 녹음 품질과 파일 크기에 직접적인 영향을 미칩니다.
 		\n<b>256 kbps</b> 높은 품질의 비트레이트입니다.

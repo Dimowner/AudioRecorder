@@ -248,13 +248,11 @@
 		\n <b>8kHz</b> sample rate has less bandwidth than modern telephone systems. Not suitable for any serious recording task.
 		</string>
 
-	<string name="info_frequency_html"><![CDATA[
-<b>Sample rate</b> is the number of samples of audio carried per second.
-<br/><br/><b>48kHz</b> is the sample rate used for DVDs.
-<br/><b>44,1kHz</b> is the sampling rate of Audio CDs. <b>(recommended)</b>
-<br/><b>22kHz</b> popular sample rate for low bit rate such as 64 kbps.
-<br/><b>8kHz</b> sample rate has less bandwidth than modern telephone systems. Not suitable for any serious recording task.
-]]></string>
+	<string name="info_frequency_header_html"><![CDATA[<b>Sample rate</b> is the number of samples of audio carried per second.]]></string>
+	<string name="info_frequency_48khz_html"><![CDATA[<b>48kHz</b> is the sample rate used for DVDs.]]></string>
+	<string name="info_frequency_44_1khz_html"><![CDATA[<b>44,1kHz</b> is the sampling rate of Audio CDs. <b>(recommended)</b>]]></string>
+	<string name="info_frequency_22khz_html"><![CDATA[<b>22kHz</b> popular sample rate for low bit rate such as 64 kbps.]]></string>
+	<string name="info_frequency_8khz_html"><![CDATA[<b>8kHz</b> sample rate has less bandwidth than modern telephone systems. Not suitable for any serious recording task.]]></string>
 
 	<string name="info_bitrate"><b>Bitrate</b> is size of data per second of sound. Directly affects recording quality and size.
 		\n<b>256 kbps</b> good quality bitrate.

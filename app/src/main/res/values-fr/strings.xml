@@ -228,13 +228,11 @@
 		\n<b>8 kHz</b> : taux d\'échantillonnage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Inadapté à toute utilisation sérieuse.
 	</string>
 
-	<string name="info_frequency_html"><![CDATA[
-Le <b>taux d\'échantillonnage</b> est le nombre d\'échantillons audio enregistrés par seconde.
-<br/><br/><b>48 kHz</b> : utilisé par les DVD.
-<br/><b>44,1 kHz</b> : utilisé par les CD audio. <b>(recommandé)</b>
-<br/><b>22 kHz</b> : taux d\'échantillonnage populaire pour les débits binaires faibles comme le 64 kbps.
-<br/><b>8 kHz</b> : taux d\'échantillonnage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Inadapté à toute utilisation sérieuse.
-]]></string>
+	<string name="info_frequency_header_html"><![CDATA[Le <b>taux d\'échantillonnage</b> est le nombre d\'échantillons audio enregistrés par seconde.]]></string>
+	<string name="info_frequency_48khz_html"><![CDATA[<b>48 kHz</b> : utilisé par les DVD.]]></string>
+	<string name="info_frequency_44_1khz_html"><![CDATA[<b>44,1 kHz</b> : utilisé par les CD audio. <b>(recommandé)</b>]]></string>
+	<string name="info_frequency_22khz_html"><![CDATA[<b>22 kHz</b> : taux d\'échantillonnage populaire pour les débits binaires faibles comme le 64 kbps.]]></string>
+	<string name="info_frequency_8khz_html"><![CDATA[<b>8 kHz</b> : taux d\'échantillonnage ayant moins de bande passante que la plupart des systèmes téléphoniques modernes. Inadapté à toute utilisation sérieuse.]]></string>
 
 	<string name="info_bitrate">Le <b>débit binaire</b> est la taille des données par seconde de son. Cela affecte directement la qualité sonore et la taille de l\'enregistrement.
 		\n<b>256 kbps</b> : débit de bonne qualité.

@@ -248,13 +248,11 @@
 		\n <b>8kHz</b> ha una larghezza di banda inferiore ai moderni sistemi telefonici. Non adatta a compiti di registrazione seri.
 		</string>
 
-	<string name="info_frequency_html"><![CDATA[
-<b>Frequenza di campionamento</b> è il numero di campioni audio trasmessi al secondo.
-<br/><br/><b>48kHz</b> è la frequenza di campionamento utilizzata per i DVD.
-<br/><b>44,1kHz</b> è la frequenza di campionamento dei CD audio. <b>(consigliato)</b>
-<br/><b>22kHz</b> frequenza di campionamento comune per bitrate ridotti come 64 kbps.
-<br/><b>8kHz</b> ha una larghezza di banda inferiore ai moderni sistemi telefonici. Non adatta a compiti di registrazione seri.
-]]></string>
+	<string name="info_frequency_header_html"><![CDATA[<b>Frequenza di campionamento</b> è il numero di campioni audio trasmessi al secondo.]]></string>
+	<string name="info_frequency_48khz_html"><![CDATA[<b>48kHz</b> è la frequenza di campionamento utilizzata per i DVD.]]></string>
+	<string name="info_frequency_44_1khz_html"><![CDATA[<b>44,1kHz</b> è la frequenza di campionamento dei CD audio. <b>(consigliato)</b>]]></string>
+	<string name="info_frequency_22khz_html"><![CDATA[<b>22kHz</b> frequenza di campionamento comune per bitrate ridotti come 64 kbps.]]></string>
+	<string name="info_frequency_8khz_html"><![CDATA[<b>8kHz</b> ha una larghezza di banda inferiore ai moderni sistemi telefonici. Non adatta a compiti di registrazione seri.]]></string>
 
 	<string name="info_bitrate"><b>Bitrate</b> è la quantità di dati per secondo di audio. Influisce direttamente sulla qualità e sulla dimensione della registrazione.
 		\n<b>256 kbps</b> bitrate di buona qualità.

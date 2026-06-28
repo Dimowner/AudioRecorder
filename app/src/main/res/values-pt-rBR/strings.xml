@@ -246,13 +246,11 @@
         \n<b>8kHz</b> taxa com largura de banda menor que os sistemas telefônicos modernos. Não adequada para gravações sérias.
         </string>
 
-    <string name="info_frequency_html"><![CDATA[
-<b>Taxa de amostragem</b> é o número de amostras de áudio capturadas por segundo.
-<br/><br/><b>48kHz</b> é a taxa de amostragem usada em DVDs.
-<br/><b>44,1kHz</b> é a taxa de amostragem de CDs de áudio. <b>(recomendado)</b>
-<br/><b>22kHz</b> taxa popular para baixo bitrate, como 64 kbps.
-<br/><b>8kHz</b> taxa com largura de banda menor que os sistemas telefônicos modernos. Não adequada para gravações sérias.
-]]></string>
+    <string name="info_frequency_header_html"><![CDATA[<b>Taxa de amostragem</b> é o número de amostras de áudio capturadas por segundo.]]></string>
+    <string name="info_frequency_48khz_html"><![CDATA[<b>48kHz</b> é a taxa de amostragem usada em DVDs.]]></string>
+    <string name="info_frequency_44_1khz_html"><![CDATA[<b>44,1kHz</b> é a taxa de amostragem de CDs de áudio. <b>(recomendado)</b>]]></string>
+    <string name="info_frequency_22khz_html"><![CDATA[<b>22kHz</b> taxa popular para baixo bitrate, como 64 kbps.]]></string>
+    <string name="info_frequency_8khz_html"><![CDATA[<b>8kHz</b> taxa com largura de banda menor que os sistemas telefônicos modernos. Não adequada para gravações sérias.]]></string>
 
     <string name="info_bitrate"><b>Bitrate</b> é o tamanho de dados por segundo de som. Afeta diretamente a qualidade e o tamanho da gravação.
         \n<b>256 kbps</b> bitrate de boa qualidade.

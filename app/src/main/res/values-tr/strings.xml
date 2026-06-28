@@ -245,13 +245,11 @@
 		\n <b>8kHz</b> modern telefon sistemlerine göre daha düşük bant genişliğine sahip örnekleme oranıdır. Önemli kayıtlar için uygun değildir.
 		</string>
 
-	<string name="info_frequency_html"><![CDATA[
-<b>Örnekleme oranı</b> saniyede taşınan ses örneklerinin oranıdır.
-<br/><br/><b>48kHz</b> DVD\'ler için kullanılan örnekleme oranıdır.
-<br/><b>44,1kHz</b> Ses CD\'leri için kullanılan örnekleme oranıdır. <b>(önerilen)</b>
-<br/><b>22kHz</b> 64 kbps gibi düşük bit oranı için popüler bir örnekleme oranıdır.
-<br/><b>8kHz</b> modern telefon sistemlerine göre daha düşük bant genişliğine sahip örnekleme oranıdır. Önemli kayıtlar için uygun değildir.
-]]></string>
+	<string name="info_frequency_header_html"><![CDATA[<b>Örnekleme oranı</b> saniyede taşınan ses örneklerinin oranıdır.]]></string>
+	<string name="info_frequency_48khz_html"><![CDATA[<b>48kHz</b> DVD\'ler için kullanılan örnekleme oranıdır.]]></string>
+	<string name="info_frequency_44_1khz_html"><![CDATA[<b>44,1kHz</b> Ses CD\'leri için kullanılan örnekleme oranıdır. <b>(önerilen)</b>]]></string>
+	<string name="info_frequency_22khz_html"><![CDATA[<b>22kHz</b> 64 kbps gibi düşük bit oranı için popüler bir örnekleme oranıdır.]]></string>
+	<string name="info_frequency_8khz_html"><![CDATA[<b>8kHz</b> modern telefon sistemlerine göre daha düşük bant genişliğine sahip örnekleme oranıdır. Önemli kayıtlar için uygun değildir.]]></string>
 
 	<string name="info_bitrate"><b>Bit hızı</b> sesin saniye başına sahip olduğu veri boyutudur. Kayıt kalitesini ve boyutunu doğrudan etkiler.
 		\n<b>256 kbps</b> yüksek kalite bit hızı.

@@ -249,13 +249,11 @@
 		\n<b>8kHz</b>は現代の電話システムよりも帯域幅が低く、本格的な録音には適していません。
 		</string>
 
-	<string name="info_frequency_html"><![CDATA[
-<b>サンプルレート</b>とは、1秒間に処理されるオーディオのサンプル数です。
-<br/><br/><b>48kHz</b>はDVDで使用されるサンプルレートです。
-<br/><b>44.1kHz</b>はオーディオCDのサンプリングレートです。<b>（推奨）</b>
-<br/><b>22kHz</b>は64kbpsなどの低ビットレートに一般的なサンプルレートです。
-<br/><b>8kHz</b>は現代の電話システムよりも帯域幅が低く、本格的な録音には適していません。
-]]></string>
+	<string name="info_frequency_header_html"><![CDATA[<b>サンプルレート</b>とは、1秒間に処理されるオーディオのサンプル数です。]]></string>
+	<string name="info_frequency_48khz_html"><![CDATA[<b>48kHz</b>はDVDで使用されるサンプルレートです。]]></string>
+	<string name="info_frequency_44_1khz_html"><![CDATA[<b>44.1kHz</b>はオーディオCDのサンプリングレートです。<b>（推奨）</b>]]></string>
+	<string name="info_frequency_22khz_html"><![CDATA[<b>22kHz</b>は64kbpsなどの低ビットレートに一般的なサンプルレートです。]]></string>
+	<string name="info_frequency_8khz_html"><![CDATA[<b>8kHz</b>は現代の電話システムよりも帯域幅が低く、本格的な録音には適していません。]]></string>
 
 	<string name="info_bitrate"><b>ビットレート</b>とは、1秒間のサウンドデータのサイズです。録音の品質とファイルサイズに直接影響します。
 		\n<b>256 kbps</b>：高品質なビットレートです。

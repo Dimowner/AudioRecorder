@@ -243,13 +243,11 @@
 		\n <b>8kHz</b> té menys amplada de banda que els sistemes telefònics moderns. No és adequat per a cap tasca important d\'enregistrament.
 	</string>
 
-	<string name="info_frequency_html"><![CDATA[
-La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transportades per segon.
-<br/><br/><b>48kHz</b> és la freqüència de mostreig utilitzada per als DVD.
-<br/><b>44,1kHz</b> és la freqüència de mostreig dels CD d\'àudio. <b>(recomanat)</b>
-<br/><b>22kHz</b> és una freqüència de mostreig comuna per a taxes de bits baixes, com ara 64 kbps.
-<br/><b>8kHz</b> té menys amplada de banda que els sistemes telefònics moderns. No és adequat per a cap tasca important d\'enregistrament.
-]]></string>
+	<string name="info_frequency_header_html"><![CDATA[La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transportades per segon.]]></string>
+	<string name="info_frequency_48khz_html"><![CDATA[<b>48kHz</b> és la freqüència de mostreig utilitzada per als DVD.]]></string>
+	<string name="info_frequency_44_1khz_html"><![CDATA[<b>44,1kHz</b> és la freqüència de mostreig dels CD d\'àudio. <b>(recomanat)</b>]]></string>
+	<string name="info_frequency_22khz_html"><![CDATA[<b>22kHz</b> és una freqüència de mostreig comuna per a taxes de bits baixes, com ara 64 kbps.]]></string>
+	<string name="info_frequency_8khz_html"><![CDATA[<b>8kHz</b> té menys amplada de banda que els sistemes telefònics moderns. No és adequat per a cap tasca important d\'enregistrament.]]></string>
 
 	<string name="info_bitrate"><b>Taxa de bits</b> és la mida de dades per segon de so. Afecta directament la qualitat de la gravació i la mida del fitxer.
 		\n<b>256 kbps</b> bona qualitat.
