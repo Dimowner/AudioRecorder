@@ -79,6 +79,9 @@ public interface Prefs {
 	boolean isLegacyAppUser();
 	void setLegacyAppUser(boolean value);
 
+	long getSwitchToV2DialogDismissedTime();
+	void setSwitchToV2DialogDismissedTime(long time);
+
 	void setSettingThemeColor(String colorKey);
 	String getSettingThemeColor();
 

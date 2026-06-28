@@ -20,6 +20,7 @@ import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_ACTIVE_RECORD;
 import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_APP_V2;
 import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_FIRST_RUN;
 import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_LEGACY_APP_USER;
+import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_SWITCH_TO_V2_DIALOG_DISMISSED_TIME;
 import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_KEEP_SCREEN_ON;
 import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_RECORD_COUNTER;
 import static com.dimowner.audiorecorder.AppConstants.PREF_KEY_SETTING_BITRATE;
@@ -372,6 +373,18 @@ public class PrefsImpl implements Prefs {
 	public void setLegacyAppUser(boolean value) {
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putBoolean(PREF_KEY_IS_LEGACY_APP_USER, value);
+		editor.apply();
+	}
+
+	@Override
+	public long getSwitchToV2DialogDismissedTime() {
+		return sharedPreferences.getLong(PREF_KEY_SWITCH_TO_V2_DIALOG_DISMISSED_TIME, 0L);
+	}
+
+	@Override
+	public void setSwitchToV2DialogDismissedTime(long time) {
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putLong(PREF_KEY_SWITCH_TO_V2_DIALOG_DISMISSED_TIME, time);
 		editor.apply();
 	}
 

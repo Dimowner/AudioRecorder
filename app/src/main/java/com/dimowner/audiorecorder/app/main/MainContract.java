@@ -85,6 +85,8 @@ public interface MainContract {
 
 		void showRecordFileNotAvailable(String path);
 
+		void showSwitchToV2Dialog();
+
 		void showAppV2();
 	}
 

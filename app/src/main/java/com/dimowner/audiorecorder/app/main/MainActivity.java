@@ -738,6 +738,29 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	}
 
 	@Override
+	public void showSwitchToV2Dialog() {
+		AndroidUtils.showDialog(
+				this,
+				-1,
+				R.string.try_new_app,
+				R.string.later,
+				R.string.new_audio_recorder_available,
+				R.string.try_new_app_subtitle,
+				false,
+				v -> {
+					Prefs prefs = ARApplication.getInjector().providePrefs(getApplicationContext());
+					prefs.setAppV2(true);
+					prefs.setSwitchToV2DialogDismissedTime(System.currentTimeMillis());
+					showAppV2();
+				},
+				v -> {
+					Prefs prefs = ARApplication.getInjector().providePrefs(getApplicationContext());
+					prefs.setSwitchToV2DialogDismissedTime(System.currentTimeMillis());
+				}
+		);
+	}
+
+	@Override
 	public void showAppV2() {
 		Intent intent = new Intent(this, HomeActivity.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);

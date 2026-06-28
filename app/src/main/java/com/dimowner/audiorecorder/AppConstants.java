@@ -38,6 +38,7 @@ public class AppConstants {
 	public static final String PREF_NAME = "com.dimowner.audiorecorder.data.PrefsImpl";
 	public static final String PREF_KEY_IS_APP_V2 = "pref_is_app_v2";
 	public static final String PREF_KEY_IS_LEGACY_APP_USER = "is_legacy_app_user";
+	public static final String PREF_KEY_SWITCH_TO_V2_DIALOG_DISMISSED_TIME = "pref_switch_to_v2_dialog_dismissed_time";
 	public static final String PREF_KEY_IS_FIRST_RUN = "is_first_run";
 	public static final String PREF_KEY_RECORD_COUNTER = "record_counter";
 	public static final String PREF_KEY_KEEP_SCREEN_ON = "keep_screen_on";
