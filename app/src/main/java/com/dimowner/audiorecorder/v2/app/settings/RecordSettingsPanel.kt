@@ -82,7 +82,14 @@ internal fun RecordSettingsPanel(
             isExpandedBitRatePanel.value = !selectedFormat?.bitRates.isNullOrEmpty()
         }
         AnimatedVisibility(visible = isExpandedBitRatePanel.value) {
-            val infoBitrate = htmlStringResource(R.string.info_bitrate_html)
+            val infoBitrate = htmlStringResources(
+                R.string.info_bitrate_header_html,
+                R.string.info_bitrate_256kbps_html,
+                R.string.info_bitrate_192kbps_html,
+                R.string.info_bitrate_128kbps_html,
+                R.string.info_bitrate_96kbps_html,
+                R.string.info_bitrate_48kbps_html
+            )
             SettingSelector(
                 name = stringResource(id = R.string.bitrate),
                 chips = selectedFormat?.bitRates ?: emptyList(),

@@ -262,14 +262,12 @@
 		\n<b>48 kbps</b> im Allgemeinen nur für Sprachaufnahmen akzeptabel.
 		</string>
 
-    <string name="info_bitrate_html"><![CDATA[
-<b>Bitrate</b> ist die Datenmenge pro Sekunde Audio. Beeinflusst direkt Aufnahmequalität und Dateigröße.
-<br/><br/><b>256 kbps</b> gute Qualitätsbitrate.
-<br/><b>192 kbps</b> mittlere Qualitätsbitrate.
-<br/><b>128 kbps</b> mittlere Bitrate. Gängige Bitrate für Podcasts. <b>(empfohlen)</b>
-<br/><b>96 kbps</b> wird im Allgemeinen für Sprache oder Streaming mit geringer Qualität verwendet.
-<br/><b>48 kbps</b> im Allgemeinen nur für Sprachaufnahmen akzeptabel.
-]]></string>
+    <string name="info_bitrate_header_html"><![CDATA[<b>Bitrate</b> ist die Datenmenge pro Sekunde Audio. Beeinflusst direkt Aufnahmequalität und Dateigröße.]]></string>
+    <string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b> gute Qualitätsbitrate.]]></string>
+    <string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b> mittlere Qualitätsbitrate.]]></string>
+    <string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b> mittlere Bitrate. Gängige Bitrate für Podcasts. <b>(empfohlen)</b>]]></string>
+    <string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b> wird im Allgemeinen für Sprache oder Streaming mit geringer Qualität verwendet.]]></string>
+    <string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b> im Allgemeinen nur für Sprachaufnahmen akzeptabel.]]></string>
 
 	<string name="info_channels">
 		<b>Stereo</b>: Es werden zwei separate Kanäle aufgenommen. Das bedeutet, dass jeder Stereolautsprecher ein anderes Tonsignal erhält. <b>(empfohlen)</b>

@@ -260,14 +260,12 @@
         \n<b>48 kbps</b> geralmente aceitável apenas para voz.
         </string>
 
-    <string name="info_bitrate_html"><![CDATA[
-<b>Bitrate</b> é o tamanho de dados por segundo de som. Afeta diretamente a qualidade e o tamanho da gravação.
-<br/><br/><b>256 kbps</b> bitrate de boa qualidade.
-<br/><b>192 kbps</b> bitrate de qualidade média.
-<br/><b>128 kbps</b> qualidade intermediária. Bitrate comum para podcasts. <b>(recomendado)</b>
-<br/><b>96 kbps</b> geralmente usado para voz ou streaming de baixa qualidade.
-<br/><b>48 kbps</b> geralmente aceitável apenas para voz.
-]]></string>
+    <string name="info_bitrate_header_html"><![CDATA[<b>Bitrate</b> é o tamanho de dados por segundo de som. Afeta diretamente a qualidade e o tamanho da gravação.]]></string>
+    <string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b> bitrate de boa qualidade.]]></string>
+    <string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b> bitrate de qualidade média.]]></string>
+    <string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b> qualidade intermediária. Bitrate comum para podcasts. <b>(recomendado)</b>]]></string>
+    <string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b> geralmente usado para voz ou streaming de baixa qualidade.]]></string>
+    <string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b> geralmente aceitável apenas para voz.]]></string>
 
     <string name="info_channels">
         <b>Estéreo</b> dois canais separados são gravados. Cada alto-falante estéreo recebe um sinal de som diferente. <b>(recomendado)</b>

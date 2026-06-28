@@ -242,14 +242,12 @@
 		\n<b>48 kbps</b> : généralement uniquement utilisable pour les discours.
 	</string>
 
-	<string name="info_bitrate_html"><![CDATA[
-Le <b>débit binaire</b> est la taille des données par seconde de son. Cela affecte directement la qualité sonore et la taille de l\'enregistrement.
-<br/><br/><b>256 kbps</b> : débit de bonne qualité.
-<br/><b>192 kbps</b> : débit de qualité moyenne.
-<br/><b>128 kbps</b> : débit de qualité intermédiaire. Débit commun pour les podcasts. <b>(recommandé)</b>
-<br/><b>96 kbps</b> : généralement utilisé pour des discours ou de la diffusion en temps réel de basse qualité.
-<br/><b>48 kbps</b> : généralement uniquement utilisable pour les discours.
-]]></string>
+	<string name="info_bitrate_header_html"><![CDATA[Le <b>débit binaire</b> est la taille des données par seconde de son. Cela affecte directement la qualité sonore et la taille de l\'enregistrement.]]></string>
+	<string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b> : débit de bonne qualité.]]></string>
+	<string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b> : débit de qualité moyenne.]]></string>
+	<string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b> : débit de qualité intermédiaire. Débit commun pour les podcasts. <b>(recommandé)</b>]]></string>
+	<string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b> : généralement utilisé pour des discours ou de la diffusion en temps réel de basse qualité.]]></string>
+	<string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b> : généralement uniquement utilisable pour les discours.]]></string>
 
 	<string name="info_channels"><b>Stéréo</b> : deux canaux séparés sont enregistrés. Cela signifie que chaque haut-parleur stéréo produit un signal différent. <b>(recommandé)</b>
 		\n<b>Mono</b> : un seul canal est enregistré. Il peut être écouté sur différents haut-parleurs, mais chaque haut-parleur produira le même signal.

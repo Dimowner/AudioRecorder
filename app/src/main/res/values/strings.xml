@@ -262,14 +262,12 @@
 		\n<b>48 kbps</b> generally acceptable only for speech.
 		</string>
 
-    <string name="info_bitrate_html"><![CDATA[
-<b>Bitrate</b> is size of data per second of sound. Directly affects recording quality and size.
-<br/><br/><b>256 kbps</b> good quality bitrate.
-<br/><b>192 kbps</b> medium quality bitrate.
-<br/><b>128 kbps</b> mid-range bitrate quality. Common bitrate for podcasts. <b>(recommended)</b>
-<br/><b>96 kbps</b> generally used for speech or low-quality streaming.
-<br/><b>48 kbps</b> generally acceptable only for speech.
-]]></string>
+    <string name="info_bitrate_header_html"><![CDATA[<b>Bitrate</b> is size of data per second of sound. Directly affects recording quality and size.]]></string>
+    <string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b> good quality bitrate.]]></string>
+    <string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b> medium quality bitrate.]]></string>
+    <string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b> mid-range bitrate quality. Common bitrate for podcasts. <b>(recommended)</b>]]></string>
+    <string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b> generally used for speech or low-quality streaming.]]></string>
+    <string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b> generally acceptable only for speech.]]></string>
 
 	<string name="info_channels">
 		<b>Stereo</b> two separate channels are recorded. This means that each stereo speaker has a different sound signal. <b>(recommended)</b>

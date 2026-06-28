@@ -263,14 +263,12 @@
 		\n<b>48 kbps</b>：音声にのみ許容できる品質です。
 		</string>
 
-    <string name="info_bitrate_html"><![CDATA[
-<b>ビットレート</b>とは、1秒間のサウンドデータのサイズです。録音の品質とファイルサイズに直接影響します。
-<br/><br/><b>256 kbps</b>：高品質なビットレートです。
-<br/><b>192 kbps</b>：中程度の品質のビットレートです。
-<br/><b>128 kbps</b>：中間のビットレート品質です。ポッドキャストで一般的なビットレートです。<b>（推奨）</b>
-<br/><b>96 kbps</b>：主に音声や低品質のストリーミングに使用されます。
-<br/><b>48 kbps</b>：音声にのみ許容できる品質です。
-]]></string>
+    <string name="info_bitrate_header_html"><![CDATA[<b>ビットレート</b>とは、1秒間のサウンドデータのサイズです。録音の品質とファイルサイズに直接影響します。]]></string>
+    <string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b>：高品質なビットレートです。]]></string>
+    <string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b>：中程度の品質のビットレートです。]]></string>
+    <string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b>：中間のビットレート品質です。ポッドキャストで一般的なビットレートです。<b>（推奨）</b>]]></string>
+    <string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b>：主に音声や低品質のストリーミングに使用されます。]]></string>
+    <string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b>：音声にのみ許容できる品質です。]]></string>
 
 	<string name="info_channels">
 		<b>ステレオ</b>は2つの独立したチャンネルで録音します。各スピーカーが異なる音声信号を出力します。<b>（推奨）</b>

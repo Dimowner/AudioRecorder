@@ -262,14 +262,12 @@
 		\n<b>48 kbps</b> generalmente accettabile solo per il parlato.
 		</string>
 
-    <string name="info_bitrate_html"><![CDATA[
-<b>Bitrate</b> è la quantità di dati per secondo di audio. Influisce direttamente sulla qualità e sulla dimensione della registrazione.
-<br/><br/><b>256 kbps</b> bitrate di buona qualità.
-<br/><b>192 kbps</b> bitrate di qualità media.
-<br/><b>128 kbps</b> bitrate di qualità medio-alta. Bitrate comune per i podcast. <b>(consigliato)</b>
-<br/><b>96 kbps</b> generalmente usato per parlato o streaming di bassa qualità.
-<br/><b>48 kbps</b> generalmente accettabile solo per il parlato.
-]]></string>
+    <string name="info_bitrate_header_html"><![CDATA[<b>Bitrate</b> è la quantità di dati per secondo di audio. Influisce direttamente sulla qualità e sulla dimensione della registrazione.]]></string>
+    <string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b> bitrate di buona qualità.]]></string>
+    <string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b> bitrate di qualità media.]]></string>
+    <string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b> bitrate di qualità medio-alta. Bitrate comune per i podcast. <b>(consigliato)</b>]]></string>
+    <string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b> generalmente usato per parlato o streaming di bassa qualità.]]></string>
+    <string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b> generalmente accettabile solo per il parlato.]]></string>
 
 	<string name="info_channels">
 		<b>Stereo</b> vengono registrati due canali separati. Ogni altoparlante stereo riproduce un segnale audio diverso. <b>(consigliato)</b>

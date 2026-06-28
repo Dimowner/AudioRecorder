@@ -257,14 +257,12 @@
 		\n<b>48 kbps</b> generalment és acceptable només per a veu.
 	</string>
 
-	<string name="info_bitrate_html"><![CDATA[
-<b>Taxa de bits</b> és la mida de dades per segon de so. Afecta directament la qualitat de la gravació i la mida del fitxer.
-<br/><br/><b>256 kbps</b> bona qualitat.
-<br/><b>192 kbps</b> qualitat mitjana.
-<br/><b>128 kbps</b> qualitat de gamma mitjana. Taxa de bits comuna per a podcasts. <b>(recomanat)</b>
-<br/><b>96 kbps</b> s\'utilitza generalment per a parla o retransmissions a baixa qualitat.
-<br/><b>48 kbps</b> generalment és acceptable només per a veu.
-]]></string>
+	<string name="info_bitrate_header_html"><![CDATA[<b>Taxa de bits</b> és la mida de dades per segon de so. Afecta directament la qualitat de la gravació i la mida del fitxer.]]></string>
+	<string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b> bona qualitat.]]></string>
+	<string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b> qualitat mitjana.]]></string>
+	<string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b> qualitat de gamma mitjana. Taxa de bits comuna per a podcasts. <b>(recomanat)</b>]]></string>
+	<string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b> s\'utilitza generalment per a parla o retransmissions a baixa qualitat.]]></string>
+	<string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b> generalment és acceptable només per a veu.]]></string>
 
 	<string name="info_channels">
 		<b>Estèreo</b> s\'enregistren dos canals separats. Això vol dir que cada altaveu estèreo té un senyal de so diferent. <b>(recomanat)</b>

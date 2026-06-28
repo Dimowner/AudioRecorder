@@ -228,14 +228,12 @@
 		\n<b>96 kbps</b> 通常用于语音或低质量流媒体。
 		\n<b>48 kbps</b> 通常仅适用于语音。
 		</string>
-    <string name="info_bitrate_html"><![CDATA[
-<b>比特率</b>是每秒声音数据的大小，直接影响录音质量和文件大小。
-<br/><br/><b>256 kbps</b> 高质量比特率。
-<br/><b>192 kbps</b> 中等质量比特率。
-<br/><b>128 kbps</b> 中档比特率质量，播客常用比特率。<b>（推荐）</b>
-<br/><b>96 kbps</b> 通常用于语音或低质量流媒体。
-<br/><b>48 kbps</b> 通常仅适用于语音。
-]]></string>
+    <string name="info_bitrate_header_html"><![CDATA[<b>比特率</b>是每秒声音数据的大小，直接影响录音质量和文件大小。]]></string>
+    <string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b> 高质量比特率。]]></string>
+    <string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b> 中等质量比特率。]]></string>
+    <string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b> 中档比特率质量，播客常用比特率。<b>（推荐）</b>]]></string>
+    <string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b> 通常用于语音或低质量流媒体。]]></string>
+    <string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b> 通常仅适用于语音。]]></string>
     <string name="info_channels">
 		<b>双声道</b>录制两个独立的音频通道，使每个立体声扬声器具有不同的声音信号。<b>（推荐）</b>
 		\n<b>单声道</b>录制一个信号通道，可通过多个扬声器播放，但所有扬声器播放相同的信号。

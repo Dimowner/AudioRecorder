@@ -281,14 +281,12 @@
 		\n<b>48 kbps</b> — ogólnie akceptowalny jedynie dla mowy.
 		</string>
 
-    <string name="info_bitrate_html"><![CDATA[
-<b>Bitrate</b> to ilość danych na sekundę dźwięku. Bezpośrednio wpływa na jakość i rozmiar nagrania.
-<br/><br/><b>256 kbps</b> — bitrate dobrej jakości.
-<br/><b>192 kbps</b> — bitrate średniej jakości.
-<br/><b>128 kbps</b> — bitrate jakości średniego zakresu. Popularny bitrate dla podcastów. <b>(zalecane)</b>
-<br/><b>96 kbps</b> — zazwyczaj używany do mowy lub strumieniowania niskiej jakości.
-<br/><b>48 kbps</b> — ogólnie akceptowalny jedynie dla mowy.
-]]></string>
+    <string name="info_bitrate_header_html"><![CDATA[<b>Bitrate</b> to ilość danych na sekundę dźwięku. Bezpośrednio wpływa na jakość i rozmiar nagrania.]]></string>
+    <string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b> — bitrate dobrej jakości.]]></string>
+    <string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b> — bitrate średniej jakości.]]></string>
+    <string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b> — bitrate jakości średniego zakresu. Popularny bitrate dla podcastów. <b>(zalecane)</b>]]></string>
+    <string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b> — zazwyczaj używany do mowy lub strumieniowania niskiej jakości.]]></string>
+    <string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b> — ogólnie akceptowalny jedynie dla mowy.]]></string>
 
 	<string name="info_channels">
 		<b>Stereo</b> — nagrywane są dwa oddzielne kanały. Każdy głośnik stereo odtwarza inny sygnał dźwiękowy. <b>(zalecane)</b>

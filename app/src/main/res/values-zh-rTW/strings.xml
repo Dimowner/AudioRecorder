@@ -259,14 +259,12 @@
 		\n\n<b>96 kbps</b> 通常用於語音或較低品質的媒體串流。
 		\n\n<b>48 kbps</b> 通常僅用於語音。</string>
 
-	<string name="info_bitrate_html"><![CDATA[
-<b>位元速率</b> 每秒處理的音訊資料量，直接影響品質與大小。
-<br/><br/><b>256 kbps</b> 最佳品質速率。
-<br/><b>192 kbps</b> 中階品質速率。
-<br/><b>128 kbps</b> 標準品質與大小，廣播服務常用速率。<b>(建議)</b>
-<br/><b>96 kbps</b> 通常用於語音或較低品質的媒體串流。
-<br/><b>48 kbps</b> 通常僅用於語音。
-]]></string>
+	<string name="info_bitrate_header_html"><![CDATA[<b>位元速率</b> 每秒處理的音訊資料量，直接影響品質與大小。]]></string>
+	<string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b> 最佳品質速率。]]></string>
+	<string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b> 中階品質速率。]]></string>
+	<string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b> 標準品質與大小，廣播服務常用速率。<b>(建議)</b>]]></string>
+	<string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b> 通常用於語音或較低品質的媒體串流。]]></string>
+	<string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b> 通常僅用於語音。]]></string>
 
 	<string name="info_channels"><b>立體聲</b> 錄製兩個音效通道，使每個揚聲器帶有相異訊號。<b>(建議)</b>
 		\n\n<b>單聲道</b> 僅錄製單一音效通道，仍可由複數揚聲器轉播，但僅能呈現相同訊號。</string>

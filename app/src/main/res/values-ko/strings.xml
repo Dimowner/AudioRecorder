@@ -254,14 +254,12 @@
 		\n<b>48 kbps</b> 음성에만 허용 가능한 품질입니다.
 		</string>
 
-    <string name="info_bitrate_html"><![CDATA[
-<b>비트레이트</b>는 초당 사운드 데이터의 크기입니다. 녹음 품질과 파일 크기에 직접적인 영향을 미칩니다.
-<br/><br/><b>256 kbps</b> 높은 품질의 비트레이트입니다.
-<br/><b>192 kbps</b> 중간 품질의 비트레이트입니다.
-<br/><b>128 kbps</b> 중간 비트레이트 품질입니다. 팟캐스트에 일반적인 비트레이트입니다. <b>(추천)</b>
-<br/><b>96 kbps</b> 주로 음성이나 저품질 스트리밍에 사용됩니다.
-<br/><b>48 kbps</b> 음성에만 허용 가능한 품질입니다.
-]]></string>
+    <string name="info_bitrate_header_html"><![CDATA[<b>비트레이트</b>는 초당 사운드 데이터의 크기입니다. 녹음 품질과 파일 크기에 직접적인 영향을 미칩니다.]]></string>
+    <string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b> 높은 품질의 비트레이트입니다.]]></string>
+    <string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b> 중간 품질의 비트레이트입니다.]]></string>
+    <string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b> 중간 비트레이트 품질입니다. 팟캐스트에 일반적인 비트레이트입니다. <b>(추천)</b>]]></string>
+    <string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b> 주로 음성이나 저품질 스트리밍에 사용됩니다.]]></string>
+    <string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b> 음성에만 허용 가능한 품질입니다.]]></string>
 
 	<string name="info_channels">
 		<b>스테레오</b>는 두 개의 독립적인 채널로 녹음합니다. 각 스테레오 스피커는 다른 음성 신호를 출력합니다. <b>(추천)</b>

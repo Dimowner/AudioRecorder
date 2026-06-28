@@ -261,14 +261,12 @@
 		\n<b>48 kbps</b> generalmente aceptable sólo para voces.
 		</string>
 
-    <string name="info_bitrate_html"><![CDATA[
-<b>Tasa de bits</b> es el tamaño de datos por segundo de sonido. Afecta directamente la calidad y el tamaño de la grabación.
-<br/><br/><b>256 kbps</b> tasa de bits de buena calidad.
-<br/><b>192 kbps</b> tasa de bits de calidad media.
-<br/><b>128 kbps</b> calidad de tasa de bits de rango medio. Común para podcasts. <b>(recomendado)</b>
-<br/><b>96 kbps</b> generalmente usado para voces o streaming en baja calidad.
-<br/><b>48 kbps</b> generalmente aceptable sólo para voces.
-]]></string>
+    <string name="info_bitrate_header_html"><![CDATA[<b>Tasa de bits</b> es el tamaño de datos por segundo de sonido. Afecta directamente la calidad y el tamaño de la grabación.]]></string>
+    <string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b> tasa de bits de buena calidad.]]></string>
+    <string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b> tasa de bits de calidad media.]]></string>
+    <string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b> calidad de tasa de bits de rango medio. Común para podcasts. <b>(recomendado)</b>]]></string>
+    <string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b> generalmente usado para voces o streaming en baja calidad.]]></string>
+    <string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b> generalmente aceptable sólo para voces.]]></string>
 
 	<string name="info_channels">
 		<b>Estéreo</b>: Se graban dos canales separados. Esto significa que cada parlante estéreo tiene una señal de sonido distinta. <b>(recomendado)</b>
