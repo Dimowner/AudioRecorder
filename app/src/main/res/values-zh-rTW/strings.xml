@@ -236,11 +236,9 @@
 	<string name="info_format"><b>M4a</b> 採用 AAC 音訊編碼，兼具較小體積與較佳品質。<b>(建議)</b>
 		\n\n<b>Wav</b> 未壓縮的音訊，需要比其他格式更多的空間，特殊情況使用。
 		\n\n<b>3gp</b> 為行動電信服務而設的多媒體封裝格式，需要節省空間時使用。</string>
-	<string name="info_format_html"><![CDATA[
-<b>M4a</b> 採用 AAC 音訊編碼，兼具較小體積與較佳品質。<b>(建議)</b>
-<br/><br/><b>Wav</b> 未壓縮的音訊，需要比其他格式更多的空間，特殊情況使用。
-<br/><b>3gp</b> 為行動電信服務而設的多媒體封裝格式，需要節省空間時使用。
-]]></string>
+	<string name="info_format_m4a_html"><![CDATA[<b>M4a</b> 採用 AAC 音訊編碼，兼具較小體積與較佳品質。<b>(建議)</b>]]></string>
+	<string name="info_format_wav_html"><![CDATA[<b>Wav</b> 未壓縮的音訊，需要比其他格式更多的空間，特殊情況使用。]]></string>
+	<string name="info_format_3gp_html"><![CDATA[<b>3gp</b> 為行動電信服務而設的多媒體封裝格式，需要節省空間時使用。]]></string>
 
 	<string name="info_frequency"><b>取樣率</b> 每秒能夠傳遞的音訊取樣個數。
 		\n\n<b>48 kHz</b> DVD 取樣率。

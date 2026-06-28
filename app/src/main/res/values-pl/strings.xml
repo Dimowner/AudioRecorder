@@ -256,11 +256,9 @@
 		\n<b>3gp</b> to format kontenera multimedialnego opracowany dla mobilnych usług telekomunikacyjnych. Użyj go, jeśli potrzebujesz zaoszczędzić miejsce.
 		</string>
 
-	<string name="info_format_html"><![CDATA[
-<b>M4a</b> to format zakodowany z kodekiem audio AAC o dobrej jakości i małym rozmiarze. <b>(zalecane)</b>
-<br/><br/><b>Wav</b> to nieskompresowany format danych audio. Zajmuje znacznie więcej miejsca niż inne formaty. Potrzebny w szczególnych przypadkach.
-<br/><b>3gp</b> to format kontenera multimedialnego opracowany dla mobilnych usług telekomunikacyjnych. Użyj go, jeśli potrzebujesz zaoszczędzić miejsce.
-]]></string>
+	<string name="info_format_m4a_html"><![CDATA[<b>M4a</b> to format zakodowany z kodekiem audio AAC o dobrej jakości i małym rozmiarze. <b>(zalecane)</b>]]></string>
+	<string name="info_format_wav_html"><![CDATA[<b>Wav</b> to nieskompresowany format danych audio. Zajmuje znacznie więcej miejsca niż inne formaty. Potrzebny w szczególnych przypadkach.]]></string>
+	<string name="info_format_3gp_html"><![CDATA[<b>3gp</b> to format kontenera multimedialnego opracowany dla mobilnych usług telekomunikacyjnych. Użyj go, jeśli potrzebujesz zaoszczędzić miejsce.]]></string>
 
 	<string name="info_frequency"><b>Częstotliwość próbkowania</b> to liczba próbek audio przesyłanych na sekundę.
 		\n<b>48 kHz</b> to częstotliwość próbkowania używana dla DVD.

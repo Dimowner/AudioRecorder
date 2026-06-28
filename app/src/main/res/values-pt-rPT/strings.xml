@@ -238,11 +238,9 @@
         \n<b>3gp</b> é um formato de contentor multimédia desenvolvido para serviços de telecomunicações móveis. Use-o se necessitar de poupar espaço.
         </string>
 
-    <string name="info_format_html"><![CDATA[
-<b>M4a</b> é codificado com o codec de áudio AAC, oferece boa qualidade e tamanho reduzido. <b>(recomendado)</b>
-<br/><br/><b>Wav</b> é um formato de dados de áudio não comprimido. Ocupa muito mais espaço do que outros formatos. Indicado para casos específicos.
-<br/><b>3gp</b> é um formato de contentor multimédia desenvolvido para serviços de telecomunicações móveis. Use-o se necessitar de poupar espaço.
-]]></string>
+    <string name="info_format_m4a_html"><![CDATA[<b>M4a</b> é codificado com o codec de áudio AAC, oferece boa qualidade e tamanho reduzido. <b>(recomendado)</b>]]></string>
+    <string name="info_format_wav_html"><![CDATA[<b>Wav</b> é um formato de dados de áudio não comprimido. Ocupa muito mais espaço do que outros formatos. Indicado para casos específicos.]]></string>
+    <string name="info_format_3gp_html"><![CDATA[<b>3gp</b> é um formato de contentor multimédia desenvolvido para serviços de telecomunicações móveis. Use-o se necessitar de poupar espaço.]]></string>
 
     <string name="info_frequency"><b>Taxa de amostragem</b> é o número de amostras de áudio por segundo.
         \n<b>48kHz</b> é a taxa de amostragem utilizada em DVDs.

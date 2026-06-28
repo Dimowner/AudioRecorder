@@ -150,7 +150,11 @@ internal fun WelcomeSetupSettingsScreen(
                         currentAuthorName = uiState.recordAuthorName,
                         onAction = onAction,
                     )
-                    val infoFormat = htmlStringResource(R.string.info_format_html)
+                    val infoFormat = htmlStringResources(
+                        R.string.info_format_m4a_html,
+                        R.string.info_format_wav_html,
+                        R.string.info_format_3gp_html
+                    )
                     SettingSelector(
                         name = stringResource(id = R.string.recording_format),
                         chips = uiState.recordingSettings.map { it.recordingFormat },

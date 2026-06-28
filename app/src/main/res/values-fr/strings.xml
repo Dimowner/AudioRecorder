@@ -217,11 +217,9 @@
 		\n<b>Wav</b> : format audio non compressé. Prend plus de place que les autres formats. Il est nécessaire pour des cas spécifiques.
 		\n<b>3gp</b> : format multimédia développé pour les communications téléphoniques. Utilisez ceci si vous avez besoin de sauver de l\'espace.
 	</string>
-	<string name="info_format_html"><![CDATA[
-<b>M4a</b> : encodé avec le codec audio AAC, possède une bonne qualité pour une petite taille. <b>(recommandé)</b>
-<br/><br/><b>Wav</b> : format audio non compressé. Prend plus de place que les autres formats. Il est nécessaire pour des cas spécifiques.
-<br/><b>3gp</b> : format multimédia développé pour les communications téléphoniques. Utilisez ceci si vous avez besoin de sauver de l\'espace.
-]]></string>
+	<string name="info_format_m4a_html"><![CDATA[<b>M4a</b> : encodé avec le codec audio AAC, possède une bonne qualité pour une petite taille. <b>(recommandé)</b>]]></string>
+	<string name="info_format_wav_html"><![CDATA[<b>Wav</b> : format audio non compressé. Prend plus de place que les autres formats. Il est nécessaire pour des cas spécifiques.]]></string>
+	<string name="info_format_3gp_html"><![CDATA[<b>3gp</b> : format multimédia développé pour les communications téléphoniques. Utilisez ceci si vous avez besoin de sauver de l\'espace.]]></string>
 
 	<string name="info_frequency">Le <b>taux d\'échantillonnage</b> est le nombre d\'échantillons audio enregistrés par seconde.
 		\n<b>48 kHz</b> : utilisé par les DVD.

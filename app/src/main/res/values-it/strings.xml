@@ -237,11 +237,9 @@
 		\n<b>3gp</b> è un formato contenitore multimediale sviluppato per i servizi di telecomunicazione mobile. Usalo per risparmiare spazio.
 		</string>
 
-	<string name="info_format_html"><![CDATA[
-<b>M4a</b> è codificato con il codec audio AAC, ha buona qualità e dimensioni ridotte. <b>(consigliato)</b>
-<br/><br/><b>Wav</b> è un formato audio non compresso. Occupa molto più spazio degli altri formati. È utile in casi specifici.
-<br/><b>3gp</b> è un formato contenitore multimediale sviluppato per i servizi di telecomunicazione mobile. Usalo per risparmiare spazio.
-]]></string>
+	<string name="info_format_m4a_html"><![CDATA[<b>M4a</b> è codificato con il codec audio AAC, ha buona qualità e dimensioni ridotte. <b>(consigliato)</b>]]></string>
+	<string name="info_format_wav_html"><![CDATA[<b>Wav</b> è un formato audio non compresso. Occupa molto più spazio degli altri formati. È utile in casi specifici.]]></string>
+	<string name="info_format_3gp_html"><![CDATA[<b>3gp</b> è un formato contenitore multimediale sviluppato per i servizi di telecomunicazione mobile. Usalo per risparmiare spazio.]]></string>
 
 	<string name="info_frequency"><b>Frequenza di campionamento</b> è il numero di campioni audio trasmessi al secondo.
 		\n<b>48kHz</b> è la frequenza di campionamento utilizzata per i DVD.

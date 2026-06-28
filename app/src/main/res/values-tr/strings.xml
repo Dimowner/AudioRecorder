@@ -234,11 +234,9 @@
 		\n<b>Wav</b> sıkıştırılmamış ses formatıdır. Diğer formatlardan daha fazla alan kaplar. Özel durumlarda kullanılabilir.
 		\n<b>3gp</b> mobil telekomünikasyon servisleri için geliştirilmiş bir multimedya formatıdır. Alandan tasarruf etmeniz gerekiyorsa kullanabilirsiniz.
 		</string>
-	<string name="info_format_html"><![CDATA[
-<b>M4a</b> formatı AAC ses çözücüsüyle kodlanmıştır, iyi kalitede ve düşük boyutludur. <b>(önerilen)</b>
-<br/><br/><b>Wav</b> sıkıştırılmamış ses formatıdır. Diğer formatlardan daha fazla alan kaplar. Özel durumlarda kullanılabilir.
-<br/><b>3gp</b> mobil telekomünikasyon servisleri için geliştirilmiş bir multimedya formatıdır. Alandan tasarruf etmeniz gerekiyorsa kullanabilirsiniz.
-]]></string>
+	<string name="info_format_m4a_html"><![CDATA[<b>M4a</b> formatı AAC ses çözücüsüyle kodlanmıştır, iyi kalitede ve düşük boyutludur. <b>(önerilen)</b>]]></string>
+	<string name="info_format_wav_html"><![CDATA[<b>Wav</b> sıkıştırılmamış ses formatıdır. Diğer formatlardan daha fazla alan kaplar. Özel durumlarda kullanılabilir.]]></string>
+	<string name="info_format_3gp_html"><![CDATA[<b>3gp</b> mobil telekomünikasyon servisleri için geliştirilmiş bir multimedya formatıdır. Alandan tasarruf etmeniz gerekiyorsa kullanabilirsiniz.]]></string>
 
 	<string name="info_frequency"><b>Örnekleme oranı</b> saniyede taşınan ses örneklerinin oranıdır.
 		\n<b>48kHz</b> DVD\'ler için kullanılan örnekleme oranıdır.

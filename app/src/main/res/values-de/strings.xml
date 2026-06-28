@@ -237,11 +237,9 @@
 		\n<b>3gp</b> ist ein Multimedia-Containerformat, das für mobile Telekommunikationsdienste entwickelt wurde. Verwenden Sie es, wenn Sie Speicherplatz sparen müssen.
 		</string>
 
-	<string name="info_format_html"><![CDATA[
-<b>M4a</b>-Format ist mit dem AAC-Audiocodec kodiert und hat gute Qualität bei kleiner Dateigröße. <b>(empfohlen)</b>
-<br/><br/><b>Wav</b> ist ein unkomprimiertes Audiodatenformat. Es benötigt wesentlich mehr Speicherplatz als andere Formate. Es wird für spezielle Anwendungsfälle benötigt.
-<br/><b>3gp</b> ist ein Multimedia-Containerformat, das für mobile Telekommunikationsdienste entwickelt wurde. Verwenden Sie es, wenn Sie Speicherplatz sparen müssen.
-]]></string>
+	<string name="info_format_m4a_html"><![CDATA[<b>M4a</b>-Format ist mit dem AAC-Audiocodec kodiert und hat gute Qualität bei kleiner Dateigröße. <b>(empfohlen)</b>]]></string>
+	<string name="info_format_wav_html"><![CDATA[<b>Wav</b> ist ein unkomprimiertes Audiodatenformat. Es benötigt wesentlich mehr Speicherplatz als andere Formate. Es wird für spezielle Anwendungsfälle benötigt.]]></string>
+	<string name="info_format_3gp_html"><![CDATA[<b>3gp</b> ist ein Multimedia-Containerformat, das für mobile Telekommunikationsdienste entwickelt wurde. Verwenden Sie es, wenn Sie Speicherplatz sparen müssen.]]></string>
 
 	<string name="info_frequency"><b>Abtastrate</b> ist die Anzahl der Audiosamples pro Sekunde.
 		\n<b>48 kHz</b> ist die Abtastrate für DVDs.

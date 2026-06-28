@@ -229,11 +229,9 @@
 		\n<b>3gp</b>는 모바일 통신 서비스를 위해 개발된 멀티미디어 컨테이너 형식입니다. 공간을 절약해야 할 때 사용하세요.
 		</string>
 
-	<string name="info_format_html"><![CDATA[
-<b>M4a</b> 형식은 AAC 오디오 코덱으로 인코딩되어 음질이 좋고 파일 크기가 작습니다. <b>(추천)</b>
-<br/><br/><b>Wav</b>는 비압축 오디오 데이터 형식입니다. 다른 형식보다 훨씬 많은 공간을 차지합니다. 특별한 경우에 필요할 때 사용하세요.
-<br/><b>3gp</b>는 모바일 통신 서비스를 위해 개발된 멀티미디어 컨테이너 형식입니다. 공간을 절약해야 할 때 사용하세요.
-]]></string>
+	<string name="info_format_m4a_html"><![CDATA[<b>M4a</b> 형식은 AAC 오디오 코덱으로 인코딩되어 음질이 좋고 파일 크기가 작습니다. <b>(추천)</b>]]></string>
+	<string name="info_format_wav_html"><![CDATA[<b>Wav</b>는 비압축 오디오 데이터 형식입니다. 다른 형식보다 훨씬 많은 공간을 차지합니다. 특별한 경우에 필요할 때 사용하세요.]]></string>
+	<string name="info_format_3gp_html"><![CDATA[<b>3gp</b>는 모바일 통신 서비스를 위해 개발된 멀티미디어 컨테이너 형식입니다. 공간을 절약해야 할 때 사용하세요.]]></string>
 
 	<string name="info_frequency"><b>샘플 레이트</b>는 초당 처리되는 오디오 샘플의 수입니다.
 		\n<b>48kHz</b>는 DVD에 사용되는 샘플 레이트입니다.

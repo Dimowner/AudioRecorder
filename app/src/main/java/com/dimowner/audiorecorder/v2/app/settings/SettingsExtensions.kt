@@ -161,6 +161,13 @@ fun htmlStringResource(@StringRes resId: Int): AnnotatedString {
     return spanned.toAnnotatedString()
 }
 
+@Composable
+fun htmlStringResources(@StringRes vararg resIds: Int): AnnotatedString {
+    val text = resIds.map { stringResource(it) }.joinToString("<br/><br/>")
+    val spanned = HtmlCompat.fromHtml(text, HtmlCompat.FROM_HTML_MODE_COMPACT)
+    return spanned.toAnnotatedString()
+}
+
 fun RecordingFormat.convertToText(formatStrings: Array<String>): String {
     return formatStrings[this.index]
 }

@@ -42,7 +42,11 @@ internal fun RecordSettingsPanel(
     val isExpandedBitRatePanel = remember { mutableStateOf(true) }
 
     Column(modifier = modifier) {
-        val infoFormat = htmlStringResource(R.string.info_format_html)
+        val infoFormat = htmlStringResources(
+            R.string.info_format_m4a_html,
+            R.string.info_format_wav_html,
+            R.string.info_format_3gp_html
+        )
         SettingSelector(
             name = stringResource(id = R.string.recording_format),
             chips = recordingSettings.map { it.recordingFormat },

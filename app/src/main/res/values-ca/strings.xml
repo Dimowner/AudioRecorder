@@ -232,11 +232,9 @@
 		\n<b>Wav</b> és un format de dades d\'àudio sense compressió. Ocupa molt més espai que altres formats. Es necessita en casos específics.
 		\n<b>3gp</b> és un format de contenidor multimèdia desenvolupat per a serveis de telecomunicacions mòbils. Feu-lo servir si necessiteu estalviar espai.
 	</string>
-	<string name="info_format_html"><![CDATA[
-<b>M4a</b> està codificat amb el còdec d\'àudio AAC, té bona qualitat i una mida petita. <b>(recomanat)</b>
-<br/><br/><b>Wav</b> és un format de dades d\'àudio sense compressió. Ocupa molt més espai que altres formats. Es necessita en casos específics.
-<br/><b>3gp</b> és un format de contenidor multimèdia desenvolupat per a serveis de telecomunicacions mòbils. Feu-lo servir si necessiteu estalviar espai.
-]]></string>
+	<string name="info_format_m4a_html"><![CDATA[<b>M4a</b> està codificat amb el còdec d\'àudio AAC, té bona qualitat i una mida petita. <b>(recomanat)</b>]]></string>
+	<string name="info_format_wav_html"><![CDATA[<b>Wav</b> és un format de dades d\'àudio sense compressió. Ocupa molt més espai que altres formats. Es necessita en casos específics.]]></string>
+	<string name="info_format_3gp_html"><![CDATA[<b>3gp</b> és un format de contenidor multimèdia desenvolupat per a serveis de telecomunicacions mòbils. Feu-lo servir si necessiteu estalviar espai.]]></string>
 
 	<string name="info_frequency">La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transportades per segon.
 		\n<b>48kHz</b> és la freqüència de mostreig utilitzada per als DVD.
