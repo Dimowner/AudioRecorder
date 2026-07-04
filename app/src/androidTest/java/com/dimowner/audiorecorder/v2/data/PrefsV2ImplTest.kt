@@ -307,4 +307,28 @@ class PrefsV2ImplTest {
         prefs.saveDescriptionToFile = true
         assertTrue(prefs.saveDescriptionToFile)
     }
+
+    // -------------------------------------------------------------------------
+    // alwaysUseBluetoothMic
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun test_alwaysUseBluetoothMic_default_value_is_false() {
+        assertEquals(DefaultValues.IS_ALWAYS_USE_BLUETOOTH_MIC, prefs.alwaysUseBluetoothMic)
+        assertFalse(prefs.alwaysUseBluetoothMic)
+    }
+
+    @Test
+    fun test_alwaysUseBluetoothMic_stores_true_correctly() {
+        prefs.alwaysUseBluetoothMic = false
+        assertFalse(prefs.alwaysUseBluetoothMic)
+    }
+
+    @Test
+    fun test_alwaysUseBluetoothMic_stores_false_correctly_after_being_set_to_true() {
+        prefs.alwaysUseBluetoothMic = false
+        assertFalse(prefs.alwaysUseBluetoothMic)
+        prefs.alwaysUseBluetoothMic = true
+        assertTrue(prefs.alwaysUseBluetoothMic)
+    }
 }

@@ -85,6 +85,7 @@ class AudioManagerHelper @Inject constructor(
 
     private var isBluetoothScoActive = false
     private var previousAudioMode = AudioManager.MODE_NORMAL
+    private var isCommunicationDeviceSet = false
 
     private var selectedBluetoothDevice: BluetoothDeviceInfo? = null
 
@@ -101,22 +102,11 @@ class AudioManagerHelper @Inject constructor(
             if (selectedBluetoothDevice != null && removedDeviceIds.contains(selectedBluetoothDevice!!.id)) {
                 Timber.d("Selected Bluetooth device was removed, clearing selection")
                 selectedBluetoothDevice = null
-                // Disable Bluetooth routing
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    try {
-                        audioManager.clearCommunicationDevice()
-                        audioManager.mode = previousAudioMode
-                    } catch (e: Exception) {
-                        Timber.e(e, "Error clearing communication device")
-                    }
-                } else {
-                    if (isBluetoothScoActive) {
-                        audioManager.stopBluetoothSco()
-                        audioManager.isBluetoothScoOn = false
-                        audioManager.mode = previousAudioMode
-                        isBluetoothScoActive = false
-                    }
-                }
+            }
+            // Disable routing if it was enabled and no Bluetooth input device remains
+            if ((isCommunicationDeviceSet || isBluetoothScoActive) && !hasBluetoothAudioInputDevice()) {
+                Timber.d("Last Bluetooth input device removed, disabling routing")
+                disableBluetoothRouting()
             }
             updateBluetoothDeviceState()
         }
@@ -172,6 +162,15 @@ class AudioManagerHelper @Inject constructor(
     fun selectBluetoothDevice(device: BluetoothDeviceInfo?) {
         Timber.d("selectBluetoothDevice: ${device?.productName}")
         selectedBluetoothDevice = device
+        // If routing is already enabled, switch to the newly selected device immediately
+        if (device != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && isCommunicationDeviceSet) {
+            try {
+                val success = audioManager.setCommunicationDevice(device.audioDeviceInfo)
+                Timber.d("setCommunicationDevice on selection result: $success for device: ${device.productName}")
+            } catch (e: Exception) {
+                Timber.e(e, "Error switching communication device on selection")
+            }
+        }
         updateBluetoothDeviceState()
     }
 
@@ -185,24 +184,30 @@ class AudioManagerHelper @Inject constructor(
                 // Use selected device if available, otherwise use first available device
                 val bluetoothDevice = selectedBluetoothDevice?.audioDeviceInfo
                     ?: getBluetoothAudioInputDevice()
-                
+
                 if (bluetoothDevice != null) {
-                    previousAudioMode = audioManager.mode
+                    // Capture the mode to restore only when routing is not already active,
+                    // otherwise a repeated enable would capture MODE_IN_COMMUNICATION
+                    // and disabling could never restore the original mode.
+                    if (!isCommunicationDeviceSet) {
+                        previousAudioMode = audioManager.mode
+                    }
                     audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
                     val success = audioManager.setCommunicationDevice(bluetoothDevice)
                     Timber.d("setCommunicationDevice result: $success for device: ${bluetoothDevice.productName}")
-                    if (!success) {
-                        Timber.w("Failed to set communication device")
-                        audioManager.mode = previousAudioMode
+                    if (success) {
+                        isCommunicationDeviceSet = true
                     } else {
-                        Timber.d("Success to set communication device!")
+                        Timber.w("Failed to set communication device")
+                        if (!isCommunicationDeviceSet) {
+                            audioManager.mode = previousAudioMode
+                        }
                     }
                 } else {
                     Timber.w("No Bluetooth audio input device available")
                 }
             } else {
-                audioManager.clearCommunicationDevice()
-                audioManager.mode = previousAudioMode
+                disableBluetoothRouting()
                 Timber.d("Cleared communication device and restored audio mode")
             }
         } catch (e: Exception) {
@@ -225,6 +230,29 @@ class AudioManagerHelper @Inject constructor(
                     Timber.d("Started Bluetooth SCO")
                 }
             } else {
+                disableBluetoothRouting()
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error enabling/disabling Bluetooth mic (legacy)")
+        }
+    }
+
+    /**
+     * Disables Bluetooth audio routing and restores the previous audio mode,
+     * but only if routing was actually enabled by this helper. This avoids
+     * clobbering the global audio mode when Bluetooth was never enabled
+     * (e.g. during a phone call handled by another app).
+     */
+    private fun disableBluetoothRouting() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (isCommunicationDeviceSet) {
+                    audioManager.clearCommunicationDevice()
+                    audioManager.mode = previousAudioMode
+                    isCommunicationDeviceSet = false
+                    Timber.d("Cleared communication device")
+                }
+            } else {
                 if (isBluetoothScoActive) {
                     audioManager.stopBluetoothSco()
                     audioManager.isBluetoothScoOn = false
@@ -234,7 +262,7 @@ class AudioManagerHelper @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            Timber.e(e, "Error enabling/disabling Bluetooth mic (legacy)")
+            Timber.e(e, "Error disabling Bluetooth routing")
         }
     }
 
@@ -244,27 +272,16 @@ class AudioManagerHelper @Inject constructor(
      */
     fun release() {
         Timber.d("Releasing AudioManagerHelper")
-        
+
         try {
-            // Stop Bluetooth SCO if active
-            if (isBluetoothScoActive) {
-                audioManager.stopBluetoothSco()
-                audioManager.isBluetoothScoOn = false
-                isBluetoothScoActive = false
-            }
-
-            // Clear communication device on API 31+
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                audioManager.clearCommunicationDevice()
-            }
-
-            // Reset audio mode
-            audioManager.mode = AudioManager.MODE_NORMAL
+            // Disable Bluetooth routing if this helper enabled it
+            disableBluetoothRouting()
 
             // Unregister callback
             unregister()
 
             // Reset state
+            selectedBluetoothDevice = null
             _bluetoothMicState.value = BluetoothMicState()
         } catch (e: Exception) {
             Timber.e(e, "Error releasing AudioManagerHelper")

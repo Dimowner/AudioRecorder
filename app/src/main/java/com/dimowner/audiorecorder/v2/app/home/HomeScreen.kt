@@ -286,11 +286,15 @@ internal fun HomeScreen(
                     connectedDevices = uiState.connectedBluetoothDevices,
                     selectedDevice = uiState.selectedBluetoothDevice,
                     isEnabled = uiState.isBluetoothMicEnabled,
+                    alwaysUseWhenAvailable = uiState.alwaysUseBluetoothMic,
                     onDeviceSelected = { device ->
                         onAction(HomeScreenAction.SelectBluetoothDevice(device))
                     },
                     onToggleEnabled = { enabled ->
                         onAction(HomeScreenAction.SetBluetoothMicEnabled(enabled))
+                    },
+                    onAlwaysUseChanged = { enabled ->
+                        onAction(HomeScreenAction.SetAlwaysUseBluetoothMic(enabled))
                     }
                 )
             }

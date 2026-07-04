@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -62,109 +63,133 @@ fun BluetoothMicSelector(
     connectedDevices: List<BluetoothDeviceInfo>,
     selectedDevice: BluetoothDeviceInfo?,
     isEnabled: Boolean,
+    alwaysUseWhenAvailable: Boolean,
     onDeviceSelected: (BluetoothDeviceInfo?) -> Unit,
     onToggleEnabled: (Boolean) -> Unit,
+    onAlwaysUseChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val expanded = remember { mutableStateOf(false) }
-    val checkState = remember(isEnabled) { mutableStateOf(isEnabled) }
     val isAvailable = connectedDevices.isNotEmpty()
-    
-    Row(
+
+    Column(
         modifier = modifier
             .wrapContentHeight()
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+            .fillMaxWidth()
     ) {
-        Icon(
+        Row(
             modifier = Modifier
-                .padding(24.dp, 16.dp, 16.dp, 16.dp)
-                .wrapContentSize(),
-            painter = painterResource(id = R.drawable.ic_bluetooth),
-            contentDescription = stringResource(R.string.bluetooth_microphone_available),
-            tint = if (isAvailable) {
-                MaterialTheme.colorScheme.onSurface
-            } else {
-                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-            }
-        )
-        
-        ExposedDropdownMenuBox(
-            expanded = expanded.value,
-            onExpandedChange = { 
-                if (isAvailable) {
-                    expanded.value = !expanded.value 
-                }
-            },
-            modifier = Modifier
-                .weight(1f)
-                .padding(0.dp, 12.dp, 0.dp, 12.dp)
+                .wrapContentHeight()
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            TextField(
-                value = if (isAvailable) {
-                    selectedDevice?.productName ?: connectedDevices.firstOrNull()?.productName ?: ""
-                } else {
-                    ""
-                },
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded.value)
-                },
-                colors = ExposedDropdownMenuDefaults.textFieldColors(
-                    disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                ),
+            Icon(
                 modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth(),
-                enabled = isAvailable,
-                textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = 16.sp,
-                    fontFamily = FontFamily(
-                        Font(
-                            DeviceFontFamilyName("sans-serif"),
-                            weight = FontWeight.Normal
-                        )
-                    )
-                ),
-                label = {
-                    Text(
-                        text = stringResource(R.string.bluetooth_microphone_available),
-                        fontSize = 12.sp
-                    )
+                    .padding(24.dp, 16.dp, 16.dp, 16.dp)
+                    .wrapContentSize(),
+                painter = painterResource(id = R.drawable.ic_bluetooth),
+                contentDescription = stringResource(R.string.bluetooth_microphone_available),
+                tint = if (isAvailable) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
                 }
             )
-            
-            ExposedDropdownMenu(
+
+            ExposedDropdownMenuBox(
                 expanded = expanded.value,
-                onDismissRequest = { expanded.value = false }
+                onExpandedChange = {
+                    if (isAvailable) {
+                        expanded.value = !expanded.value
+                    }
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(0.dp, 12.dp, 0.dp, 12.dp)
             ) {
-                connectedDevices.forEach { device ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = device.productName,
-                                fontSize = 16.sp
+                TextField(
+                    value = if (isAvailable) {
+                        selectedDevice?.productName ?: connectedDevices.firstOrNull()?.productName ?: ""
+                    } else {
+                        ""
+                    },
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded.value)
+                    },
+                    colors = ExposedDropdownMenuDefaults.textFieldColors(
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                    ),
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth(),
+                    enabled = isAvailable,
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = 16.sp,
+                        fontFamily = FontFamily(
+                            Font(
+                                DeviceFontFamilyName("sans-serif"),
+                                weight = FontWeight.Normal
                             )
-                        },
-                        onClick = {
-                            onDeviceSelected(device)
-                            expanded.value = false
-                        }
-                    )
+                        )
+                    ),
+                    label = {
+                        Text(
+                            text = stringResource(R.string.bluetooth_microphone_available),
+                            fontSize = 12.sp
+                        )
+                    }
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded.value,
+                    onDismissRequest = { expanded.value = false }
+                ) {
+                    connectedDevices.forEach { device ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = device.productName,
+                                    fontSize = 16.sp
+                                )
+                            },
+                            onClick = {
+                                onDeviceSelected(device)
+                                expanded.value = false
+                            }
+                        )
+                    }
                 }
             }
+
+            Switch(
+                checked = isEnabled,
+                onCheckedChange = {
+                    onToggleEnabled(it)
+                },
+                enabled = isAvailable,
+                modifier = Modifier.padding(8.dp)
+            )
         }
-        
-        Switch(
-            checked = checkState.value,
-            onCheckedChange = {
-                checkState.value = it
-                onToggleEnabled(it)
-            },
-            enabled = isAvailable,
-            modifier = Modifier.padding(8.dp)
-        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onAlwaysUseChanged(!alwaysUseWhenAvailable) }
+                .padding(start = 12.dp, end = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = alwaysUseWhenAvailable,
+                onCheckedChange = { onAlwaysUseChanged(it) }
+            )
+            Text(
+                text = stringResource(R.string.bluetooth_always_use_when_available),
+                fontSize = 14.sp,
+                modifier = Modifier.padding(end = 8.dp)
+            )
+        }
     }
 }
 
@@ -175,8 +200,10 @@ fun BluetoothMicSelectorUnavailablePreview() {
         connectedDevices = emptyList(),
         selectedDevice = null,
         isEnabled = false,
+        alwaysUseWhenAvailable = false,
         onDeviceSelected = {},
         onToggleEnabled = {},
+        onAlwaysUseChanged = {},
     )
 }
 

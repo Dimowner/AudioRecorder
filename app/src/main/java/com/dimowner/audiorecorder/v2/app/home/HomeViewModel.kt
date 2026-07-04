@@ -50,6 +50,7 @@ import com.dimowner.audiorecorder.exception.ErrorParser
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.util.AudioManagerHelper
 import com.dimowner.audiorecorder.util.BluetoothDeviceInfo
+import com.dimowner.audiorecorder.util.BluetoothMicState
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.adjustWaveformHeights
 import com.dimowner.audiorecorder.v2.app.calculateGridStep
@@ -106,6 +107,9 @@ class HomeViewModel @Inject constructor(
 
     private var recordingStateJob: Job? = null
     private var recordingEventJob: Job? = null
+
+    // Guards the "always use Bluetooth mic" auto-enable so it runs once per availability period
+    private var bluetoothAutoEnableRequested = false
 
     private val _state = mutableStateOf(HomeScreenState())
     val state: State<HomeScreenState> = _state
@@ -200,6 +204,7 @@ class HomeViewModel @Inject constructor(
         subscribePlayerUpdates()
 
         // Register AudioManagerHelper and subscribe to Bluetooth mic state
+        _state.value = _state.value.copy(alwaysUseBluetoothMic = prefs.alwaysUseBluetoothMic)
         audioManagerHelper.register()
         viewModelScope.launch {
             audioManagerHelper.bluetoothMicState.collect { bluetoothState ->
@@ -210,7 +215,27 @@ class HomeViewModel @Inject constructor(
                     connectedBluetoothDevices = bluetoothState.connectedDevices,
                     selectedBluetoothDevice = bluetoothState.selectedDevice
                 )
+                autoEnableBluetoothMicIfNeeded(bluetoothState)
             }
+        }
+    }
+
+    /**
+     * Enables Bluetooth mic routing automatically when the "always use" preference is on
+     * and a device becomes available. Attempted once per availability period, so a user
+     * turning the switch off manually is not fought until devices disconnect and reconnect.
+     */
+    private fun autoEnableBluetoothMicIfNeeded(bluetoothState: BluetoothMicState) {
+        if (bluetoothState.isAvailable) {
+            if (prefs.alwaysUseBluetoothMic && !bluetoothState.isEnabled && !bluetoothAutoEnableRequested) {
+                bluetoothAutoEnableRequested = true
+                Timber.d("Auto-enabling Bluetooth mic (always use when available)")
+                viewModelScope.launch {
+                    audioManagerHelper.enableBluetoothMic(true)
+                }
+            }
+        } else {
+            bluetoothAutoEnableRequested = false
         }
     }
 
@@ -687,9 +712,19 @@ class HomeViewModel @Inject constructor(
                 }
             } else {
                 withContext(mainDispatcher) {
+                    // Preserve Bluetooth mic state when resetting the screen state,
+                    // otherwise devices detected before this reset never reappear
+                    // (bluetoothMicState is a StateFlow and won't re-emit an unchanged value).
+                    val bluetoothState = audioManagerHelper.bluetoothMicState.value
                     _state.value = HomeScreenState(
                         bottomBarState = bottomBarState,
-                        waveformState = WaveformState()
+                        waveformState = WaveformState(),
+                        isBluetoothMicAvailable = bluetoothState.isAvailable,
+                        isBluetoothMicEnabled = bluetoothState.isEnabled,
+                        bluetoothDeviceName = bluetoothState.deviceName,
+                        connectedBluetoothDevices = bluetoothState.connectedDevices,
+                        selectedBluetoothDevice = bluetoothState.selectedDevice,
+                        alwaysUseBluetoothMic = prefs.alwaysUseBluetoothMic,
                     )
                 }
             }
@@ -1192,6 +1227,18 @@ class HomeViewModel @Inject constructor(
             is HomeScreenAction.SelectBluetoothDevice -> {
                 audioManagerHelper.selectBluetoothDevice(action.device)
             }
+            is HomeScreenAction.SetAlwaysUseBluetoothMic -> {
+                prefs.alwaysUseBluetoothMic = action.enabled
+                _state.value = _state.value.copy(alwaysUseBluetoothMic = action.enabled)
+                if (action.enabled && _state.value.isBluetoothMicAvailable
+                    && !_state.value.isBluetoothMicEnabled
+                ) {
+                    bluetoothAutoEnableRequested = true
+                    viewModelScope.launch {
+                        audioManagerHelper.enableBluetoothMic(true)
+                    }
+                }
+            }
             HomeScreenAction.DismissLostRecordsDialog -> dismissLostRecordsDialog()
             is HomeScreenAction.DismissRenameAfterRecordingDialog -> {
                 dismissRenameAfterRecordingDialog(action.dontAskAgain)
@@ -1343,6 +1390,7 @@ data class HomeScreenState(
     val bluetoothDeviceName: String? = null,
     val connectedBluetoothDevices: List<BluetoothDeviceInfo> = emptyList(),
     val selectedBluetoothDevice: BluetoothDeviceInfo? = null,
+    val alwaysUseBluetoothMic: Boolean = false,
     // Audio source selection
     val selectedAudioSource: AudioSource = AudioSource.MIC,
     // Lost records
@@ -1397,6 +1445,7 @@ sealed class HomeScreenAction {
     data class OnProgressBarStateChange(val value: Float) : HomeScreenAction()
     data class SetBluetoothMicEnabled(val enabled: Boolean) : HomeScreenAction()
     data class SelectBluetoothDevice(val device: BluetoothDeviceInfo?) : HomeScreenAction()
+    data class SetAlwaysUseBluetoothMic(val enabled: Boolean) : HomeScreenAction()
     data object DismissLostRecordsDialog : HomeScreenAction()
     data class DismissRenameAfterRecordingDialog(val dontAskAgain: Boolean) : HomeScreenAction()
     data object RestoreBrokenRecord : HomeScreenAction()

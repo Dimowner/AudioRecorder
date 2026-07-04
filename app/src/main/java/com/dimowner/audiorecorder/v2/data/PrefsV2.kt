@@ -34,6 +34,9 @@ interface PrefsV2 {
     /** Last chosen state of the "Also save to audio file" checkbox in the description dialog. */
     var saveDescriptionToFile: Boolean
 
+    /** When true, Bluetooth microphone routing is enabled automatically when a device is available. */
+    var alwaysUseBluetoothMic: Boolean
+
     var activeRecordId: Long
     //Stores the last recorded record id. It is not gets cleared after recording stops.
     // It gets overwritten after new recording starts.
