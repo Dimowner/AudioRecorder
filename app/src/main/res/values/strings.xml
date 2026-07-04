@@ -46,6 +46,8 @@
 	<string name="msg_recording_saved_with_name">Recording saved with name: %s</string>
     <!-- Error message when saving a recording fails -->
 	<string name="msg_save_recording_failed">Failed to save recording.</string>
+    <!-- Error message shown when an operation (saving, importing, etc.) fails because the device is out of storage space -->
+    <string name="msg_not_enough_storage_space">Not enough storage space. Free up some space and try again.</string>
 	<!-- Error message for file operation failure -->
 	<string name="msg_file_operation_failed">File operation failed. Please try again</string>
 	<!-- Error message for empty name during rename/save -->
