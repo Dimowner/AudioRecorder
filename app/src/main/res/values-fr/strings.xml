@@ -34,6 +34,7 @@
 	<string name="msg_record_renamed">Enregistrement renommé en \'%1$s\'</string>
 	<string name="msg_recording_saved_with_name">Enregistrement sauvegardé sous le nom : %s</string>
 	<string name="msg_save_recording_failed">Échec de la sauvegarde de l\'enregistrement.</string>
+	<string name="msg_not_enough_storage_space">Espace de stockage insuffisant. Libérez de l\'espace et réessayez.</string>
 	<string name="msg_file_operation_failed">Opération de fichier échouée. Veuillez réessayer</string>
 	<string name="msg_name_cannot_be_empty">Le nom ne peut pas être vide</string>
 	<string name="msg_permission_microphone_denied">La permission du microphone est requise pour enregistrer l\'audio. Veuillez accorder la permission pour utiliser cette fonctionnalité.</string>

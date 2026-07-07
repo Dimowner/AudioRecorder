@@ -37,6 +37,7 @@
 	<string name="msg_record_renamed">Запись переименована в \'%1$s\'</string>
 	<string name="msg_recording_saved_with_name">Запись сохранена с именем: %s</string>
 	<string name="msg_save_recording_failed">Не удалось сохранить запись.</string>
+	<string name="msg_not_enough_storage_space">Недостаточно места для хранения. Освободите место и попробуйте снова.</string>
 	<string name="msg_file_operation_failed">Ошибка операции с файлом. Попробуйте ещё раз</string>
 	<string name="msg_name_cannot_be_empty">Имя не может быть пустым</string>
 	<string name="msg_permission_microphone_denied">Для записи аудио необходимо разрешение на использование микрофона. Пожалуйста, предоставьте разрешение для использования этой функции.</string>

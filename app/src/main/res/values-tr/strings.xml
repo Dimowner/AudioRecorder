@@ -44,6 +44,7 @@
 	<string name="msg_recording_saved_with_name">Kayıt şu isimle kaydedildi: %s</string>
 	<!-- Error message when saving a recording fails -->
 	<string name="msg_save_recording_failed">Kayıt kaydedilemedi.</string>
+	<string name="msg_not_enough_storage_space">Yeterli depolama alanı yok. Biraz yer açın ve tekrar deneyin.</string>
 	<!-- Error message for file operation failure -->
 	<string name="msg_file_operation_failed">Dosya işlemi başarısız. Lütfen tekrar deneyin</string>
 	<!-- Error message for empty name during rename/save -->

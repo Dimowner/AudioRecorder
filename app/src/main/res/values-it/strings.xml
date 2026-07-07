@@ -46,6 +46,7 @@
 	<string name="msg_recording_saved_with_name">Registrazione salvata con nome: %s</string>
     <!-- Error message when saving a recording fails -->
 	<string name="msg_save_recording_failed">Impossibile salvare la registrazione.</string>
+	<string name="msg_not_enough_storage_space">Spazio di archiviazione insufficiente. Libera spazio e riprova.</string>
 	<!-- Error message for file operation failure -->
 	<string name="msg_file_operation_failed">Operazione sul file non riuscita. Riprova</string>
 	<!-- Error message for empty name during rename/save -->

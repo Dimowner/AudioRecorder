@@ -47,6 +47,7 @@
 	<string name="msg_recording_saved_with_name">録音を次の名前で保存しました：%s</string>
     <!-- Error message when saving a recording fails -->
 	<string name="msg_save_recording_failed">録音の保存に失敗しました。</string>
+	<string name="msg_not_enough_storage_space">ストレージの空き容量が不足しています。空き容量を確保してから再度お試しください。</string>
 	<!-- Error message for file operation failure -->
 	<string name="msg_file_operation_failed">ファイル操作に失敗しました。もう一度お試しください</string>
 	<!-- Error message for empty name during rename/save -->

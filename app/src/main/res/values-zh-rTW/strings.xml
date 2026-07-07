@@ -44,6 +44,7 @@
 	<string name="msg_recording_saved_with_name">錄音已儲存，名稱：%s</string>
     <!-- Error message when saving a recording fails -->
 	<string name="msg_save_recording_failed">儲存錄音失敗</string>
+	<string name="msg_not_enough_storage_space">儲存空間不足，請釋放一些空間後再試一次。</string>
 	<!-- Error message for file operation failure -->
 	<string name="msg_file_operation_failed">檔案操作失敗，請再試一次</string>
 	<!-- Error message for empty name during rename/save -->

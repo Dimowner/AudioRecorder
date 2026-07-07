@@ -45,6 +45,7 @@
 	<string name="msg_recording_saved_with_name">녹음이 다음 이름으로 저장되었습니다: %s</string>
     <!-- Error message when saving a recording fails -->
 	<string name="msg_save_recording_failed">녹음 저장에 실패했습니다.</string>
+	<string name="msg_not_enough_storage_space">저장 공간이 부족합니다. 공간을 확보한 후 다시 시도해 주세요.</string>
 	<!-- Error message for file operation failure -->
 	<string name="msg_file_operation_failed">파일 작업에 실패했습니다. 다시 시도해 주세요</string>
 	<!-- Error message for empty name during rename/save -->

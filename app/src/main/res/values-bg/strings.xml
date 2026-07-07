@@ -35,6 +35,7 @@
 
 	<string name="msg_recording_saved_with_name">Записът е запазен с название: %s</string>
 	<string name="msg_save_recording_failed">Грешка при запазването на записа.</string>
+	<string name="msg_not_enough_storage_space">Няма достатъчно място за съхранение. Освободете място и опитайте отново.</string>
 	<string name="msg_file_operation_failed">Грешка при операцията с файла. Опитайте отново</string>
 	<string name="msg_name_cannot_be_empty">Името не може да бъде празно</string>
 	<string name="msg_permission_microphone_denied">Необходимо е разрешение за микрофон за запис на звук. Моля, предоставете разрешението, за да използвате тази функция.</string>
