@@ -33,7 +33,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -405,14 +407,16 @@ fun InfoAlertDialog(
             }
         },
         text = {
-            Text(
-                text = dialogText,
-                style = TextStyle(
-                    fontSize = 18.sp,
-                    lineBreak = LineBreak.Heading,
-                    fontWeight = FontWeight.Normal,
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Text(
+                    text = dialogText,
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        lineBreak = LineBreak.Heading,
+                        fontWeight = FontWeight.Normal,
+                    )
                 )
-            )
+            }
         },
         onDismissRequest = {
             onDismissRequest()

@@ -214,22 +214,22 @@ fun requestAllocateSpace(context: Context, file: File, requiredSpace: Long) {
 }
 
 /**
- * Copy a file from a FileDescriptor to a new File.
+ * Copies [fileToCopy] into [newFile], returning `true` when any bytes were written.
+ *
+ * Propagates [IOException] (e.g. an out-of-space `ENOSPC` failure) so the caller can react to it
+ * instead of it being silently reported as an empty copy.
+ *
  * @param fileToCopy The source FileDescriptor to copy from.
  * @param newFile The destination File to copy to.
  * @return true if the copy was successful and bytes were copied, false otherwise.
  */
+@Throws(IOException::class)
 fun copyFile(fileToCopy: FileDescriptor, newFile: File): Boolean {
-    return try {
-        FileInputStream(fileToCopy).use { inputStream ->
-            FileOutputStream(newFile).use { outputStream ->
-                val bytesCopied = inputStream.copyTo(outputStream)
-                bytesCopied > 0
-            }
+    return FileInputStream(fileToCopy).use { inputStream ->
+        FileOutputStream(newFile).use { outputStream ->
+            val bytesCopied = inputStream.copyTo(outputStream)
+            bytesCopied > 0
         }
-    } catch (e: IOException) {
-        Timber.e(e)
-        false
     }
 }
 

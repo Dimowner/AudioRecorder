@@ -43,6 +43,7 @@
 	<string name="msg_recording_saved_with_name">La gravació s\'ha desat amb el nom: %s</string>
     <!-- Error message when saving a recording fails -->
 	<string name="msg_save_recording_failed">No s\'ha pogut desar la gravació.</string>
+	<string name="msg_not_enough_storage_space">No hi ha prou espai d\'emmagatzematge. Allibereu espai i torneu-ho a provar.</string>
 	<!-- Error message for file operation failure -->
 	<string name="msg_file_operation_failed">L\'operació amb el fitxer ha fallat. Torneu-ho a provar</string>
 	<!-- Error message for empty name during rename/save -->
@@ -232,11 +233,9 @@
 		\n<b>Wav</b> és un format de dades d\'àudio sense compressió. Ocupa molt més espai que altres formats. Es necessita en casos específics.
 		\n<b>3gp</b> és un format de contenidor multimèdia desenvolupat per a serveis de telecomunicacions mòbils. Feu-lo servir si necessiteu estalviar espai.
 	</string>
-	<string name="info_format_html"><![CDATA[
-<b>M4a</b> està codificat amb el còdec d\'àudio AAC, té bona qualitat i una mida petita. <b>(recomanat)</b>
-<br/><br/><b>Wav</b> és un format de dades d\'àudio sense compressió. Ocupa molt més espai que altres formats. Es necessita en casos específics.
-<br/><b>3gp</b> és un format de contenidor multimèdia desenvolupat per a serveis de telecomunicacions mòbils. Feu-lo servir si necessiteu estalviar espai.
-]]></string>
+	<string name="info_format_m4a_html"><![CDATA[<b>M4a</b> està codificat amb el còdec d\'àudio AAC, té bona qualitat i una mida petita. <b>(recomanat)</b>]]></string>
+	<string name="info_format_wav_html"><![CDATA[<b>Wav</b> és un format de dades d\'àudio sense compressió. Ocupa molt més espai que altres formats. Es necessita en casos específics.]]></string>
+	<string name="info_format_3gp_html"><![CDATA[<b>3gp</b> és un format de contenidor multimèdia desenvolupat per a serveis de telecomunicacions mòbils. Feu-lo servir si necessiteu estalviar espai.]]></string>
 
 	<string name="info_frequency">La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transportades per segon.
 		\n<b>48kHz</b> és la freqüència de mostreig utilitzada per als DVD.
@@ -245,13 +244,11 @@
 		\n <b>8kHz</b> té menys amplada de banda que els sistemes telefònics moderns. No és adequat per a cap tasca important d\'enregistrament.
 	</string>
 
-	<string name="info_frequency_html"><![CDATA[
-La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transportades per segon.
-<br/><br/><b>48kHz</b> és la freqüència de mostreig utilitzada per als DVD.
-<br/><b>44,1kHz</b> és la freqüència de mostreig dels CD d\'àudio. <b>(recomanat)</b>
-<br/><b>22kHz</b> és una freqüència de mostreig comuna per a taxes de bits baixes, com ara 64 kbps.
-<br/><b>8kHz</b> té menys amplada de banda que els sistemes telefònics moderns. No és adequat per a cap tasca important d\'enregistrament.
-]]></string>
+	<string name="info_frequency_header_html"><![CDATA[La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transportades per segon.]]></string>
+	<string name="info_frequency_48khz_html"><![CDATA[<b>48kHz</b> és la freqüència de mostreig utilitzada per als DVD.]]></string>
+	<string name="info_frequency_44_1khz_html"><![CDATA[<b>44,1kHz</b> és la freqüència de mostreig dels CD d\'àudio. <b>(recomanat)</b>]]></string>
+	<string name="info_frequency_22khz_html"><![CDATA[<b>22kHz</b> és una freqüència de mostreig comuna per a taxes de bits baixes, com ara 64 kbps.]]></string>
+	<string name="info_frequency_8khz_html"><![CDATA[<b>8kHz</b> té menys amplada de banda que els sistemes telefònics moderns. No és adequat per a cap tasca important d\'enregistrament.]]></string>
 
 	<string name="info_bitrate"><b>Taxa de bits</b> és la mida de dades per segon de so. Afecta directament la qualitat de la gravació i la mida del fitxer.
 		\n<b>256 kbps</b> bona qualitat.
@@ -261,14 +258,12 @@ La <b>freqüència de mostreig</b> és el nombre de mostres d\'àudio transporta
 		\n<b>48 kbps</b> generalment és acceptable només per a veu.
 	</string>
 
-	<string name="info_bitrate_html"><![CDATA[
-<b>Taxa de bits</b> és la mida de dades per segon de so. Afecta directament la qualitat de la gravació i la mida del fitxer.
-<br/><br/><b>256 kbps</b> bona qualitat.
-<br/><b>192 kbps</b> qualitat mitjana.
-<br/><b>128 kbps</b> qualitat de gamma mitjana. Taxa de bits comuna per a podcasts. <b>(recomanat)</b>
-<br/><b>96 kbps</b> s\'utilitza generalment per a parla o retransmissions a baixa qualitat.
-<br/><b>48 kbps</b> generalment és acceptable només per a veu.
-]]></string>
+	<string name="info_bitrate_header_html"><![CDATA[<b>Taxa de bits</b> és la mida de dades per segon de so. Afecta directament la qualitat de la gravació i la mida del fitxer.]]></string>
+	<string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b> bona qualitat.]]></string>
+	<string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b> qualitat mitjana.]]></string>
+	<string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b> qualitat de gamma mitjana. Taxa de bits comuna per a podcasts. <b>(recomanat)</b>]]></string>
+	<string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b> s\'utilitza generalment per a parla o retransmissions a baixa qualitat.]]></string>
+	<string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b> generalment és acceptable només per a veu.]]></string>
 
 	<string name="info_channels">
 		<b>Estèreo</b> s\'enregistren dos canals separats. Això vol dir que cada altaveu estèreo té un senyal de so diferent. <b>(recomanat)</b>

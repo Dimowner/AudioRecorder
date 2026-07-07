@@ -150,7 +150,11 @@ internal fun WelcomeSetupSettingsScreen(
                         currentAuthorName = uiState.recordAuthorName,
                         onAction = onAction,
                     )
-                    val infoFormat = htmlStringResource(R.string.info_format_html)
+                    val infoFormat = htmlStringResources(
+                        R.string.info_format_m4a_html,
+                        R.string.info_format_wav_html,
+                        R.string.info_format_3gp_html
+                    )
                     SettingSelector(
                         name = stringResource(id = R.string.recording_format),
                         chips = uiState.recordingSettings.map { it.recordingFormat },
@@ -165,7 +169,13 @@ internal fun WelcomeSetupSettingsScreen(
                     )
                     val selectedFormat =
                         uiState.recordingSettings.firstOrNull { it.recordingFormat.isSelected }
-                    val infoFrequency = htmlStringResource(R.string.info_frequency_html)
+                    val infoFrequency = htmlStringResources(
+                        R.string.info_frequency_header_html,
+                        R.string.info_frequency_48khz_html,
+                        R.string.info_frequency_44_1khz_html,
+                        R.string.info_frequency_22khz_html,
+                        R.string.info_frequency_8khz_html
+                    )
                     SettingSelector(
                         name = stringResource(id = R.string.sample_rate),
                         chips = selectedFormat?.sampleRates ?: emptyList(),
@@ -182,7 +192,14 @@ internal fun WelcomeSetupSettingsScreen(
                         isExpandedBitRatePanel.value = !selectedFormat?.bitRates.isNullOrEmpty()
                     }
                     AnimatedVisibility(visible = isExpandedBitRatePanel.value) {
-                        val infoBitrate = htmlStringResource(R.string.info_bitrate_html)
+                        val infoBitrate = htmlStringResources(
+                            R.string.info_bitrate_header_html,
+                            R.string.info_bitrate_256kbps_html,
+                            R.string.info_bitrate_192kbps_html,
+                            R.string.info_bitrate_128kbps_html,
+                            R.string.info_bitrate_96kbps_html,
+                            R.string.info_bitrate_48kbps_html
+                        )
                         SettingSelector(
                             name = stringResource(id = R.string.bitrate),
                             chips = selectedFormat?.bitRates ?: emptyList(),
