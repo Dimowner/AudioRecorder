@@ -136,8 +136,10 @@ public class AudioDecoder {
 		try {
 			mimeType = format.getString(MediaFormat.KEY_MIME);
 		} catch (Exception e) {
-			Timber.e(e);
-			mimeType = "";
+			throw new IOException("Could not read MIME type from " + mInputFile.getName(), e);
+		}
+		if (mimeType == null || mimeType.isEmpty()) {
+			throw new IOException("Empty MIME type for " + mInputFile.getName());
 		}
 		//Start decoding
 		MediaCodec decoder = MediaCodec.createDecoderByType(mimeType);
