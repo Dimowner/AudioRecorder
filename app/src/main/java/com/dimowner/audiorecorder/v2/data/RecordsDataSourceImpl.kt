@@ -27,6 +27,7 @@ import com.dimowner.audiorecorder.v2.data.extensions.toRecordsSortColumnName
 import com.dimowner.audiorecorder.v2.data.extensions.toSqlSortOrder
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
+import com.dimowner.audiorecorder.v2.data.model.convertToRecordingFormat
 import com.dimowner.audiorecorder.v2.data.room.RecordDao
 import com.dimowner.audiorecorder.v2.data.room.RecordEntity
 import timber.log.Timber
@@ -363,7 +364,11 @@ class RecordsDataSourceImpl @Inject internal constructor(
                         size = info.size,
                         sampleRate = if (info.sampleRate > 0) info.sampleRate else record.sampleRate,
                         channelCount = if (info.channelCount > 0) info.channelCount else record.channelCount,
-                        bitrate = if (info.bitrate > 0) info.bitrate else record.bitrate,
+                        bitrate = when {
+                            info.format.convertToRecordingFormat()?.hasBitrate != true -> 0
+                            info.bitrate > 0 -> info.bitrate
+                            else -> record.bitrate
+                        },
                     )
                     val success = recordDao.updateRecord(updatedRecord.toRecordEntity()) == 1
                     if (success) {

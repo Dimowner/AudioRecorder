@@ -45,6 +45,7 @@
 	<string name="msg_recording_saved_with_name">녹음이 다음 이름으로 저장되었습니다: %s</string>
     <!-- Error message when saving a recording fails -->
 	<string name="msg_save_recording_failed">녹음 저장에 실패했습니다.</string>
+	<string name="msg_not_enough_storage_space">저장 공간이 부족합니다. 공간을 확보한 후 다시 시도해 주세요.</string>
 	<!-- Error message for file operation failure -->
 	<string name="msg_file_operation_failed">파일 작업에 실패했습니다. 다시 시도해 주세요</string>
 	<!-- Error message for empty name during rename/save -->
@@ -229,11 +230,9 @@
 		\n<b>3gp</b>는 모바일 통신 서비스를 위해 개발된 멀티미디어 컨테이너 형식입니다. 공간을 절약해야 할 때 사용하세요.
 		</string>
 
-	<string name="info_format_html"><![CDATA[
-<b>M4a</b> 형식은 AAC 오디오 코덱으로 인코딩되어 음질이 좋고 파일 크기가 작습니다. <b>(추천)</b>
-<br/><br/><b>Wav</b>는 비압축 오디오 데이터 형식입니다. 다른 형식보다 훨씬 많은 공간을 차지합니다. 특별한 경우에 필요할 때 사용하세요.
-<br/><b>3gp</b>는 모바일 통신 서비스를 위해 개발된 멀티미디어 컨테이너 형식입니다. 공간을 절약해야 할 때 사용하세요.
-]]></string>
+	<string name="info_format_m4a_html"><![CDATA[<b>M4a</b> 형식은 AAC 오디오 코덱으로 인코딩되어 음질이 좋고 파일 크기가 작습니다. <b>(추천)</b>]]></string>
+	<string name="info_format_wav_html"><![CDATA[<b>Wav</b>는 비압축 오디오 데이터 형식입니다. 다른 형식보다 훨씬 많은 공간을 차지합니다. 특별한 경우에 필요할 때 사용하세요.]]></string>
+	<string name="info_format_3gp_html"><![CDATA[<b>3gp</b>는 모바일 통신 서비스를 위해 개발된 멀티미디어 컨테이너 형식입니다. 공간을 절약해야 할 때 사용하세요.]]></string>
 
 	<string name="info_frequency"><b>샘플 레이트</b>는 초당 처리되는 오디오 샘플의 수입니다.
 		\n<b>48kHz</b>는 DVD에 사용되는 샘플 레이트입니다.
@@ -242,13 +241,11 @@
 		\n<b>8kHz</b>는 현대 전화 시스템보다 대역폭이 낮아 본격적인 녹음 작업에 적합하지 않습니다.
 		</string>
 
-	<string name="info_frequency_html"><![CDATA[
-<b>샘플 레이트</b>는 초당 처리되는 오디오 샘플의 수입니다.
-<br/><br/><b>48kHz</b>는 DVD에 사용되는 샘플 레이트입니다.
-<br/><b>44.1kHz</b>는 오디오 CD의 샘플링 레이트입니다. <b>(추천)</b>
-<br/><b>22kHz</b>는 64kbps와 같은 낮은 비트레이트에 일반적인 샘플 레이트입니다.
-<br/><b>8kHz</b>는 현대 전화 시스템보다 대역폭이 낮아 본격적인 녹음 작업에 적합하지 않습니다.
-]]></string>
+	<string name="info_frequency_header_html"><![CDATA[<b>샘플 레이트</b>는 초당 처리되는 오디오 샘플의 수입니다.]]></string>
+	<string name="info_frequency_48khz_html"><![CDATA[<b>48kHz</b>는 DVD에 사용되는 샘플 레이트입니다.]]></string>
+	<string name="info_frequency_44_1khz_html"><![CDATA[<b>44.1kHz</b>는 오디오 CD의 샘플링 레이트입니다. <b>(추천)</b>]]></string>
+	<string name="info_frequency_22khz_html"><![CDATA[<b>22kHz</b>는 64kbps와 같은 낮은 비트레이트에 일반적인 샘플 레이트입니다.]]></string>
+	<string name="info_frequency_8khz_html"><![CDATA[<b>8kHz</b>는 현대 전화 시스템보다 대역폭이 낮아 본격적인 녹음 작업에 적합하지 않습니다.]]></string>
 
 	<string name="info_bitrate"><b>비트레이트</b>는 초당 사운드 데이터의 크기입니다. 녹음 품질과 파일 크기에 직접적인 영향을 미칩니다.
 		\n<b>256 kbps</b> 높은 품질의 비트레이트입니다.
@@ -258,14 +255,12 @@
 		\n<b>48 kbps</b> 음성에만 허용 가능한 품질입니다.
 		</string>
 
-    <string name="info_bitrate_html"><![CDATA[
-<b>비트레이트</b>는 초당 사운드 데이터의 크기입니다. 녹음 품질과 파일 크기에 직접적인 영향을 미칩니다.
-<br/><br/><b>256 kbps</b> 높은 품질의 비트레이트입니다.
-<br/><b>192 kbps</b> 중간 품질의 비트레이트입니다.
-<br/><b>128 kbps</b> 중간 비트레이트 품질입니다. 팟캐스트에 일반적인 비트레이트입니다. <b>(추천)</b>
-<br/><b>96 kbps</b> 주로 음성이나 저품질 스트리밍에 사용됩니다.
-<br/><b>48 kbps</b> 음성에만 허용 가능한 품질입니다.
-]]></string>
+    <string name="info_bitrate_header_html"><![CDATA[<b>비트레이트</b>는 초당 사운드 데이터의 크기입니다. 녹음 품질과 파일 크기에 직접적인 영향을 미칩니다.]]></string>
+    <string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b> 높은 품질의 비트레이트입니다.]]></string>
+    <string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b> 중간 품질의 비트레이트입니다.]]></string>
+    <string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b> 중간 비트레이트 품질입니다. 팟캐스트에 일반적인 비트레이트입니다. <b>(추천)</b>]]></string>
+    <string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b> 주로 음성이나 저품질 스트리밍에 사용됩니다.]]></string>
+    <string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b> 음성에만 허용 가능한 품질입니다.]]></string>
 
 	<string name="info_channels">
 		<b>스테레오</b>는 두 개의 독립적인 채널로 녹음합니다. 각 스테레오 스피커는 다른 음성 신호를 출력합니다. <b>(추천)</b>

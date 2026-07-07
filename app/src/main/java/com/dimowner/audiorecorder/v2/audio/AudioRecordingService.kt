@@ -48,6 +48,7 @@ import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
+import com.dimowner.audiorecorder.v2.data.model.convertToRecordingFormat
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
@@ -402,7 +403,7 @@ class AudioRecordingService : Service() {
                     size = 0,
                     sampleRate = sampleRate,
                     channelCount = channelCount,
-                    bitrate = if (format == RecordingFormat.M4a) bitrate else 0,
+                    bitrate = if (format.hasBitrate) bitrate else 0,
                     isBookmarked = false,
                     isWaveformProcessed = false,
                     isMovedToRecycle = false,
@@ -501,7 +502,7 @@ class AudioRecordingService : Service() {
                         size = info.size,
                         sampleRate = info.sampleRate,
                         channelCount = info.channelCount,
-                        bitrate = info.bitrate,
+                        bitrate = if (record.format.convertToRecordingFormat()?.hasBitrate == true) info.bitrate else 0,
                         // Persist the full-session amplitude data captured during recording as
                         // the initial waveform. Gives the UI an immediate waveform to display
                         // while DecodeService runs in the background to produce the final version.

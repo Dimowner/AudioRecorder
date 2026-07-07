@@ -61,6 +61,8 @@ import com.dimowner.audiorecorder.v2.app.isDescriptionFileWriteSupported
 import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingService
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingServiceEvent
+import com.dimowner.audiorecorder.v2.audio.NotEnoughSpaceException
+import com.dimowner.audiorecorder.v2.audio.isOutOfSpace
 import com.dimowner.audiorecorder.v2.audio.RecordingServiceState
 import com.dimowner.audiorecorder.v2.audio.RecordingState
 import com.dimowner.audiorecorder.v2.audio.readDescription
@@ -712,13 +714,18 @@ class HomeViewModel @Inject constructor(
         showLoadingProgress(true)
         _state.value = _state.value.copy(isShowImportProgress = true)
         viewModelScope.launch(ioDispatcher) {
+            // Tracks the destination file so a partial copy can be cleaned up on failure.
+            var newFile: File? = null
             try {
                 val parcelFileDescriptor: ParcelFileDescriptor? =
                     context.contentResolver.openFileDescriptor(uri, "r")
                 val fileDescriptor = parcelFileDescriptor?.fileDescriptor
-                val name: String? = DocumentFile.fromSingleUri(context, uri)?.name
+                val sourceDocument = DocumentFile.fromSingleUri(context, uri)
+                val name: String? = sourceDocument?.name
                 if (name != null) {
-                    val newFile: File = fileDataSource.createRecordFile(name)
+                    // Fail fast if the file clearly won't fit, before creating anything on disk.
+                    requireFreeSpaceForImport(sourceDocument.length())
+                    newFile = fileDataSource.createRecordFile(name)
                     if (fileDescriptor != null && copyFile(fileDescriptor, newFile)) {
                         val info = AudioDecoder.readRecordInfo(newFile)
                         val importedDescription = newFile.readDescription()
@@ -752,6 +759,14 @@ class HomeViewModel @Inject constructor(
                         prefs.activeRecordId = id
                         updateState()
                         decodeRecord(id, record.path, record.durationMills)
+                    } else {
+                        // Copy produced no data; surface an error instead of leaving the
+                        // progress indicator spinning forever.
+                        newFile.delete()
+                        withContext(mainDispatcher) {
+                            _state.value = _state.value.copy(isShowImportProgress = false)
+                        }
+                        handleError(context.getString(R.string.error_unable_to_read_sound_file))
                     }
                 } else {
                     withContext(mainDispatcher) {
@@ -761,16 +776,31 @@ class HomeViewModel @Inject constructor(
                 }
             } catch (e: SecurityException) {
                 Timber.e(e)
+                newFile?.delete()
                 withContext(mainDispatcher) {
                     _state.value = _state.value.copy(isShowImportProgress = false)
                 }
                 handleError(context.getString(R.string.error_permission_denied))
-            } catch (e: IOException) {
-                Timber.e(e)
+            } catch (e: NotEnoughSpaceException) {
+                Timber.w(e, "importAudioFile: not enough storage space")
+                newFile?.delete()
                 withContext(mainDispatcher) {
                     _state.value = _state.value.copy(isShowImportProgress = false)
                 }
-                handleError(context.getString(R.string.error_unable_to_read_sound_file))
+                handleError(context.getString(R.string.msg_not_enough_storage_space))
+            } catch (e: IOException) {
+                Timber.e(e)
+                newFile?.delete()
+                withContext(mainDispatcher) {
+                    _state.value = _state.value.copy(isShowImportProgress = false)
+                }
+                // A full disk surfaces here as an ENOSPC IOException from the copy step.
+                val message = if (e.isOutOfSpace()) {
+                    context.getString(R.string.msg_not_enough_storage_space)
+                } else {
+                    context.getString(R.string.error_unable_to_read_sound_file)
+                }
+                handleError(message)
             } catch (e: OutOfMemoryError) {
                 Timber.e(e)
                 withContext(mainDispatcher) {
@@ -790,6 +820,24 @@ class HomeViewModel @Inject constructor(
                 }
                 handleError(ex)
             }
+        }
+    }
+
+    /**
+     * Throws [NotEnoughSpaceException] when the device clearly can't hold a [sourceSizeBytes] copy,
+     * so the import fails fast before creating a partial file. Skipped when either the source size
+     * or the free space is unknown (non-positive), leaving the copy step to surface a real ENOSPC.
+     */
+    private fun requireFreeSpaceForImport(sourceSizeBytes: Long) {
+        if (sourceSizeBytes <= 0) return
+        val available = try {
+            fileDataSource.getAvailableSpace()
+        } catch (e: Exception) {
+            Timber.w(e, "importAudioFile: could not read available space")
+            return
+        }
+        if (available in 1 until sourceSizeBytes) {
+            throw NotEnoughSpaceException()
         }
     }
 

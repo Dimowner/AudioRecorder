@@ -267,6 +267,27 @@ class PrefsImplTest {
         assertFalse(prefs.isLegacyAppUser)
     }
 
+    // ── Switch to V2 dialog dismissed time ─────────────────────────────────────
+
+    @Test
+    fun getSwitchToV2DialogDismissedTime_returnsZeroByDefault() {
+        assertEquals(0L, prefs.switchToV2DialogDismissedTime)
+    }
+
+    @Test
+    fun setSwitchToV2DialogDismissedTime_persistsValue() {
+        val timestamp = 1_750_000_000_000L
+        prefs.setSwitchToV2DialogDismissedTime(timestamp)
+        assertEquals(timestamp, prefs.switchToV2DialogDismissedTime)
+    }
+
+    @Test
+    fun setSwitchToV2DialogDismissedTime_canBeOverwritten() {
+        prefs.setSwitchToV2DialogDismissedTime(1_000_000L)
+        prefs.setSwitchToV2DialogDismissedTime(2_000_000L)
+        assertEquals(2_000_000L, prefs.switchToV2DialogDismissedTime)
+    }
+
     // ── Theme color ─────────────────────────────────────────────────────────────
 
     @Test

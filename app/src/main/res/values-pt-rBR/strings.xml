@@ -44,6 +44,7 @@
     <string name="msg_recording_saved_with_name">Gravação salva com o nome: %s</string>
     <!-- Error message when saving a recording fails -->
     <string name="msg_save_recording_failed">Falha ao salvar a gravação.</string>
+    <string name="msg_not_enough_storage_space">Espaço de armazenamento insuficiente. Libere espaço e tente novamente.</string>
     <!-- Error message for file operation failure -->
     <string name="msg_file_operation_failed">Operação de arquivo falhou. Tente novamente</string>
     <!-- Error message for empty name during rename/save -->
@@ -235,11 +236,9 @@
         \n<b>3gp</b> é um formato de contêiner multimídia desenvolvido para serviços de telecomunicações móveis. Use quando precisar economizar espaço.
         </string>
 
-    <string name="info_format_html"><![CDATA[
-<b>M4a</b> é codificado com o codec de áudio AAC, com boa qualidade e tamanho reduzido. <b>(recomendado)</b>
-<br/><br/><b>Wav</b> é um formato de áudio sem compressão. Ocupa muito mais espaço que os demais. Use apenas em casos específicos.
-<br/><b>3gp</b> é um formato de contêiner multimídia desenvolvido para serviços de telecomunicações móveis. Use quando precisar economizar espaço.
-]]></string>
+    <string name="info_format_m4a_html"><![CDATA[<b>M4a</b> é codificado com o codec de áudio AAC, com boa qualidade e tamanho reduzido. <b>(recomendado)</b>]]></string>
+    <string name="info_format_wav_html"><![CDATA[<b>Wav</b> é um formato de áudio sem compressão. Ocupa muito mais espaço que os demais. Use apenas em casos específicos.]]></string>
+    <string name="info_format_3gp_html"><![CDATA[<b>3gp</b> é um formato de contêiner multimídia desenvolvido para serviços de telecomunicações móveis. Use quando precisar economizar espaço.]]></string>
 
     <string name="info_frequency"><b>Taxa de amostragem</b> é o número de amostras de áudio capturadas por segundo.
         \n<b>48kHz</b> é a taxa de amostragem usada em DVDs.
@@ -248,13 +247,11 @@
         \n<b>8kHz</b> taxa com largura de banda menor que os sistemas telefônicos modernos. Não adequada para gravações sérias.
         </string>
 
-    <string name="info_frequency_html"><![CDATA[
-<b>Taxa de amostragem</b> é o número de amostras de áudio capturadas por segundo.
-<br/><br/><b>48kHz</b> é a taxa de amostragem usada em DVDs.
-<br/><b>44,1kHz</b> é a taxa de amostragem de CDs de áudio. <b>(recomendado)</b>
-<br/><b>22kHz</b> taxa popular para baixo bitrate, como 64 kbps.
-<br/><b>8kHz</b> taxa com largura de banda menor que os sistemas telefônicos modernos. Não adequada para gravações sérias.
-]]></string>
+    <string name="info_frequency_header_html"><![CDATA[<b>Taxa de amostragem</b> é o número de amostras de áudio capturadas por segundo.]]></string>
+    <string name="info_frequency_48khz_html"><![CDATA[<b>48kHz</b> é a taxa de amostragem usada em DVDs.]]></string>
+    <string name="info_frequency_44_1khz_html"><![CDATA[<b>44,1kHz</b> é a taxa de amostragem de CDs de áudio. <b>(recomendado)</b>]]></string>
+    <string name="info_frequency_22khz_html"><![CDATA[<b>22kHz</b> taxa popular para baixo bitrate, como 64 kbps.]]></string>
+    <string name="info_frequency_8khz_html"><![CDATA[<b>8kHz</b> taxa com largura de banda menor que os sistemas telefônicos modernos. Não adequada para gravações sérias.]]></string>
 
     <string name="info_bitrate"><b>Bitrate</b> é o tamanho de dados por segundo de som. Afeta diretamente a qualidade e o tamanho da gravação.
         \n<b>256 kbps</b> bitrate de boa qualidade.
@@ -264,14 +261,12 @@
         \n<b>48 kbps</b> geralmente aceitável apenas para voz.
         </string>
 
-    <string name="info_bitrate_html"><![CDATA[
-<b>Bitrate</b> é o tamanho de dados por segundo de som. Afeta diretamente a qualidade e o tamanho da gravação.
-<br/><br/><b>256 kbps</b> bitrate de boa qualidade.
-<br/><b>192 kbps</b> bitrate de qualidade média.
-<br/><b>128 kbps</b> qualidade intermediária. Bitrate comum para podcasts. <b>(recomendado)</b>
-<br/><b>96 kbps</b> geralmente usado para voz ou streaming de baixa qualidade.
-<br/><b>48 kbps</b> geralmente aceitável apenas para voz.
-]]></string>
+    <string name="info_bitrate_header_html"><![CDATA[<b>Bitrate</b> é o tamanho de dados por segundo de som. Afeta diretamente a qualidade e o tamanho da gravação.]]></string>
+    <string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b> bitrate de boa qualidade.]]></string>
+    <string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b> bitrate de qualidade média.]]></string>
+    <string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b> qualidade intermediária. Bitrate comum para podcasts. <b>(recomendado)</b>]]></string>
+    <string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b> geralmente usado para voz ou streaming de baixa qualidade.]]></string>
+    <string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b> geralmente aceitável apenas para voz.]]></string>
 
     <string name="info_channels">
         <b>Estéreo</b> dois canais separados são gravados. Cada alto-falante estéreo recebe um sinal de som diferente. <b>(recomendado)</b>

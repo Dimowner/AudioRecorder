@@ -79,6 +79,8 @@ public class MainPresenter implements MainContract.UserActionsListener {
 	 * And after view bind we need to show import progress.*/
 	private boolean showImportProgress = false;
 
+	private boolean switchToV2DialogShownThisSession = false;
+
 	public MainPresenter(final Prefs prefs, final FileRepository fileRepository,
 						 final LocalRepository localRepository,
 						 PlayerContractNew.Player audioPlayer,
@@ -111,6 +113,13 @@ public class MainPresenter implements MainContract.UserActionsListener {
 		}
 		if (prefs.isAppV2()) {
 			view.showAppV2();
+		} else if (!switchToV2DialogShownThisSession) {
+			long dismissedTime = prefs.getSwitchToV2DialogDismissedTime();
+			long twoWeeksMs = 14L * 24 * 60 * 60 * 1000;
+			if (dismissedTime == 0L || System.currentTimeMillis() - dismissedTime >= twoWeeksMs) {
+				switchToV2DialogShownThisSession = true;
+				view.showSwitchToV2Dialog();
+			}
 		}
 		if (showImportProgress) {
 			view.showImportStart();

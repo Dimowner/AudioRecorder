@@ -51,6 +51,7 @@
 	<string name="msg_recording_saved_with_name">Nagranie zapisano pod nazwą: %s</string>
     <!-- Error message when saving a recording fails -->
 	<string name="msg_save_recording_failed">Nie udało się zapisać nagrania.</string>
+	<string name="msg_not_enough_storage_space">Za mało miejsca w pamięci. Zwolnij trochę miejsca i spróbuj ponownie.</string>
 	<!-- Error message for file operation failure -->
 	<string name="msg_file_operation_failed">Operacja na pliku nie powiodła się. Spróbuj ponownie</string>
 	<!-- Error message for empty name during rename/save -->
@@ -256,11 +257,9 @@
 		\n<b>3gp</b> to format kontenera multimedialnego opracowany dla mobilnych usług telekomunikacyjnych. Użyj go, jeśli potrzebujesz zaoszczędzić miejsce.
 		</string>
 
-	<string name="info_format_html"><![CDATA[
-<b>M4a</b> to format zakodowany z kodekiem audio AAC o dobrej jakości i małym rozmiarze. <b>(zalecane)</b>
-<br/><br/><b>Wav</b> to nieskompresowany format danych audio. Zajmuje znacznie więcej miejsca niż inne formaty. Potrzebny w szczególnych przypadkach.
-<br/><b>3gp</b> to format kontenera multimedialnego opracowany dla mobilnych usług telekomunikacyjnych. Użyj go, jeśli potrzebujesz zaoszczędzić miejsce.
-]]></string>
+	<string name="info_format_m4a_html"><![CDATA[<b>M4a</b> to format zakodowany z kodekiem audio AAC o dobrej jakości i małym rozmiarze. <b>(zalecane)</b>]]></string>
+	<string name="info_format_wav_html"><![CDATA[<b>Wav</b> to nieskompresowany format danych audio. Zajmuje znacznie więcej miejsca niż inne formaty. Potrzebny w szczególnych przypadkach.]]></string>
+	<string name="info_format_3gp_html"><![CDATA[<b>3gp</b> to format kontenera multimedialnego opracowany dla mobilnych usług telekomunikacyjnych. Użyj go, jeśli potrzebujesz zaoszczędzić miejsce.]]></string>
 
 	<string name="info_frequency"><b>Częstotliwość próbkowania</b> to liczba próbek audio przesyłanych na sekundę.
 		\n<b>48 kHz</b> to częstotliwość próbkowania używana dla DVD.
@@ -269,13 +268,11 @@
 		\n <b>8 kHz</b> — przepustowość mniejsza niż we współczesnych systemach telefonicznych. Nieodpowiednia do żadnych poważnych zadań nagraniowych.
 		</string>
 
-	<string name="info_frequency_html"><![CDATA[
-<b>Częstotliwość próbkowania</b> to liczba próbek audio przesyłanych na sekundę.
-<br/><br/><b>48 kHz</b> to częstotliwość próbkowania używana dla DVD.
-<br/><b>44,1 kHz</b> to częstotliwość próbkowania płyt Audio CD. <b>(zalecane)</b>
-<br/><b>22 kHz</b> — popularna częstotliwość dla niskich przepływności, np. 64 kbps.
-<br/><b>8 kHz</b> — przepustowość mniejsza niż we współczesnych systemach telefonicznych. Nieodpowiednia do żadnych poważnych zadań nagraniowych.
-]]></string>
+	<string name="info_frequency_header_html"><![CDATA[<b>Częstotliwość próbkowania</b> to liczba próbek audio przesyłanych na sekundę.]]></string>
+	<string name="info_frequency_48khz_html"><![CDATA[<b>48 kHz</b> to częstotliwość próbkowania używana dla DVD.]]></string>
+	<string name="info_frequency_44_1khz_html"><![CDATA[<b>44,1 kHz</b> to częstotliwość próbkowania płyt Audio CD. <b>(zalecane)</b>]]></string>
+	<string name="info_frequency_22khz_html"><![CDATA[<b>22 kHz</b> — popularna częstotliwość dla niskich przepływności, np. 64 kbps.]]></string>
+	<string name="info_frequency_8khz_html"><![CDATA[<b>8 kHz</b> — przepustowość mniejsza niż we współczesnych systemach telefonicznych. Nieodpowiednia do żadnych poważnych zadań nagraniowych.]]></string>
 
 	<string name="info_bitrate"><b>Bitrate</b> to ilość danych na sekundę dźwięku. Bezpośrednio wpływa na jakość i rozmiar nagrania.
 		\n<b>256 kbps</b> — bitrate dobrej jakości.
@@ -285,14 +282,12 @@
 		\n<b>48 kbps</b> — ogólnie akceptowalny jedynie dla mowy.
 		</string>
 
-    <string name="info_bitrate_html"><![CDATA[
-<b>Bitrate</b> to ilość danych na sekundę dźwięku. Bezpośrednio wpływa na jakość i rozmiar nagrania.
-<br/><br/><b>256 kbps</b> — bitrate dobrej jakości.
-<br/><b>192 kbps</b> — bitrate średniej jakości.
-<br/><b>128 kbps</b> — bitrate jakości średniego zakresu. Popularny bitrate dla podcastów. <b>(zalecane)</b>
-<br/><b>96 kbps</b> — zazwyczaj używany do mowy lub strumieniowania niskiej jakości.
-<br/><b>48 kbps</b> — ogólnie akceptowalny jedynie dla mowy.
-]]></string>
+    <string name="info_bitrate_header_html"><![CDATA[<b>Bitrate</b> to ilość danych na sekundę dźwięku. Bezpośrednio wpływa na jakość i rozmiar nagrania.]]></string>
+    <string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b> — bitrate dobrej jakości.]]></string>
+    <string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b> — bitrate średniej jakości.]]></string>
+    <string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b> — bitrate jakości średniego zakresu. Popularny bitrate dla podcastów. <b>(zalecane)</b>]]></string>
+    <string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b> — zazwyczaj używany do mowy lub strumieniowania niskiej jakości.]]></string>
+    <string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b> — ogólnie akceptowalny jedynie dla mowy.]]></string>
 
 	<string name="info_channels">
 		<b>Stereo</b> — nagrywane są dwa oddzielne kanały. Każdy głośnik stereo odtwarza inny sygnał dźwiękowy. <b>(zalecane)</b>
