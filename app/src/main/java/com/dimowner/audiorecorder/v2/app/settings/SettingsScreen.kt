@@ -51,6 +51,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -65,6 +66,7 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.ScrollableTitleBar
 import com.dimowner.audiorecorder.v2.app.components.AudioSourceSelector
+import com.dimowner.audiorecorder.v2.app.components.DISABLED_ALPHA
 import com.dimowner.audiorecorder.v2.app.components.MAX_CONTENT_WIDTH_NARROW
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
@@ -230,7 +232,8 @@ internal fun SettingsScreen(
                 Spacer(modifier = Modifier.size(8.dp))
                 MaxDurationSettingRow(
                     currentValue = uiState.maxRecordingDurationMinutes,
-                    onAction = onAction
+                    onAction = onAction,
+                    enabled = uiState.isRecordingSettingEditable,
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 SettingsItem(stringResource(R.string.rate_app), R.drawable.ic_thumbs) {
@@ -306,6 +309,7 @@ internal fun MaxDurationSettingRow(
     currentValue: Int,
     onAction: (SettingsScreenAction) -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     val showDialog = remember { mutableStateOf(false) }
 
@@ -318,6 +322,7 @@ internal fun MaxDurationSettingRow(
         currentMinutes = minutes,
         onClick = { showDialog.value = true },
         modifier = modifier,
+        enabled = enabled,
     )
 
     if (showDialog.value) {
@@ -372,12 +377,14 @@ fun MaxDurationSettingItem(
     currentMinutes: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .clickable { onClick() }
+            .alpha(if (enabled) 1f else DISABLED_ALPHA)
+            .clickable(enabled = enabled) { onClick() }
             .padding(horizontal = 8.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
