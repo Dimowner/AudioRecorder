@@ -277,7 +277,7 @@ internal fun HomeScreen(
                 }
             },
             showImportButton = !uiState.isRecording(),
-            showMenuButton = !uiState.isRecording()
+            showMenuButton = !uiState.isRecording() && uiState.isShowWaveform
         )
     }
     val statusPanels: @Composable () -> Unit = {
