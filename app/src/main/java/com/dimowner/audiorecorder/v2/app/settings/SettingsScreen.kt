@@ -16,9 +16,13 @@
 
 package com.dimowner.audiorecorder.v2.app.settings
 
+import android.Manifest
 import android.os.Build
+import android.content.pm.PackageManager
 import android.text.format.Formatter
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -73,6 +77,9 @@ import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import timber.log.Timber
 import androidx.compose.ui.platform.LocalResources
+import androidx.core.content.ContextCompat
+import com.dimowner.audiorecorder.v2.app.overlay.FloatingRecorderOverlayPermission
+import com.dimowner.audiorecorder.v2.app.overlay.FloatingRecorderOverlayService
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,6 +93,8 @@ internal fun SettingsScreen(
 
     val openInfoDialog = remember { mutableStateOf(false) }
     val openWarningDialog = remember { mutableStateOf(false) }
+    val openOverlayPermissionDialog = remember { mutableStateOf(false) }
+    val shouldEnableFloatingOverlayAfterPermission = remember { mutableStateOf(false) }
     val infoText = remember { mutableStateOf("") }
     val infoTextAnnotated = remember { mutableStateOf<AnnotatedString?>(null) }
     val warningText = remember { mutableStateOf("") }
@@ -93,6 +102,58 @@ internal fun SettingsScreen(
     val appInfoTapCount = remember { mutableIntStateOf(0) }
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    fun hasMicrophonePermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.RECORD_AUDIO,
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun setFloatingOverlayEnabled(enabled: Boolean) {
+        onAction(SettingsScreenAction.SetFloatingRecorderOverlayEnabled(enabled))
+        if (enabled) {
+            FloatingRecorderOverlayService.startService(context.applicationContext)
+        } else {
+            FloatingRecorderOverlayService.stopService(context.applicationContext)
+        }
+    }
+
+    fun enableFloatingOverlayIfAllowed() {
+        if (hasMicrophonePermission() && FloatingRecorderOverlayPermission.canDrawOverlays(context)) {
+            setFloatingOverlayEnabled(true)
+        }
+    }
+
+    val overlayPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+    ) {
+        if (shouldEnableFloatingOverlayAfterPermission.value) {
+            shouldEnableFloatingOverlayAfterPermission.value = false
+            enableFloatingOverlayIfAllowed()
+        }
+    }
+
+    val microphonePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        if (granted) {
+            when (decideFloatingRecorderOverlayEnableAction(
+                hasMicrophonePermission = true,
+                hasOverlayPermission = FloatingRecorderOverlayPermission.canDrawOverlays(context),
+            )) {
+                FloatingRecorderOverlayEnableAction.Enable -> {
+                    setFloatingOverlayEnabled(true)
+                }
+                FloatingRecorderOverlayEnableAction.OpenOverlayPermissionSettings -> {
+                    openOverlayPermissionDialog.value = true
+                }
+                FloatingRecorderOverlayEnableAction.RequestMicrophonePermission -> Unit
+            }
+        } else {
+            shouldEnableFloatingOverlayAfterPermission.value = false
+        }
+    }
 
     ComposableLifecycle { _, event ->
         when (event) {
@@ -106,6 +167,11 @@ internal fun SettingsScreen(
 
             Lifecycle.Event.ON_RESUME -> {
                 Timber.d("SettingsScreen: On Resume")
+                if (uiState.isFloatingRecorderOverlayEnabled
+                    && !FloatingRecorderOverlayPermission.canDrawOverlays(context)
+                ) {
+                    setFloatingOverlayEnabled(false)
+                }
             }
 
             Lifecycle.Event.ON_PAUSE -> {
@@ -176,6 +242,34 @@ internal fun SettingsScreen(
                     {
                         onAction(SettingsScreenAction.SetKeepScreenOn(it))
                     })
+                SettingsItemCheckBox(
+                    checked = uiState.isFloatingRecorderOverlayEnabled,
+                    label = stringResource(R.string.floating_recorder_button),
+                    iconRes = R.drawable.ic_floating_record,
+                    onCheckedChange = { enabled ->
+                        if (!enabled) {
+                            shouldEnableFloatingOverlayAfterPermission.value = false
+                            setFloatingOverlayEnabled(false)
+                        } else {
+                            when (decideFloatingRecorderOverlayEnableAction(
+                                hasMicrophonePermission = hasMicrophonePermission(),
+                                hasOverlayPermission = FloatingRecorderOverlayPermission.canDrawOverlays(context),
+                            )) {
+                                FloatingRecorderOverlayEnableAction.Enable -> {
+                                    setFloatingOverlayEnabled(true)
+                                }
+                                FloatingRecorderOverlayEnableAction.RequestMicrophonePermission -> {
+                                    shouldEnableFloatingOverlayAfterPermission.value = true
+                                    microphonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                                }
+                                FloatingRecorderOverlayEnableAction.OpenOverlayPermissionSettings -> {
+                                    shouldEnableFloatingOverlayAfterPermission.value = true
+                                    openOverlayPermissionDialog.value = true
+                                }
+                            }
+                        }
+                    },
+                )
                 SettingsItemCheckBox(
                     uiState.isShowRenameDialog,
                     stringResource(R.string.ask_to_rename),
@@ -296,6 +390,20 @@ internal fun SettingsScreen(
             }
             if (openWarningDialog.value) {
                 SettingsWarningDialog(openWarningDialog, warningText.value)
+            }
+            if (openOverlayPermissionDialog.value) {
+                FloatingRecorderOverlayPermissionDialog(
+                    onOpenSettings = {
+                        openOverlayPermissionDialog.value = false
+                        overlayPermissionLauncher.launch(
+                            FloatingRecorderOverlayPermission.overlayPermissionSettingsIntent(context)
+                        )
+                    },
+                    onDismiss = {
+                        openOverlayPermissionDialog.value = false
+                        shouldEnableFloatingOverlayAfterPermission.value = false
+                    },
+                )
             }
         }
     }
@@ -466,6 +574,7 @@ fun SettingsScreenPreview() {
         isDarkTheme = false,
         isAppV2 = false,
         isKeepScreenOn = false,
+        isFloatingRecorderOverlayEnabled = false,
         isShowRenameDialog = true,
         isRecordingSettingEditable = true,
         nameFormats = listOf(NameFormatItem(NameFormat.Record, "Name text")),

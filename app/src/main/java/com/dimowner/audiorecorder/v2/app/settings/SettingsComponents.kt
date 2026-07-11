@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.OutlinedButton
@@ -139,7 +140,6 @@ fun SettingsItemCheckBox(
     onCheckedChange: ((Boolean) -> Unit),
     enabled: Boolean = true,
 ) {
-    val checkState = remember { mutableStateOf(checked) }
     Row(
         modifier = Modifier
             .wrapContentHeight()
@@ -169,15 +169,40 @@ fun SettingsItemCheckBox(
             ),
         )
         Switch(
-            checked = checkState.value,
+            checked = checked,
             onCheckedChange = {
-                checkState.value = it
                 onCheckedChange(it)
             },
             enabled = enabled,
             modifier = Modifier.padding(8.dp)
         )
     }
+}
+
+@Composable
+fun FloatingRecorderOverlayPermissionDialog(
+    onOpenSettings: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        title = {
+            Text(text = stringResource(id = R.string.floating_recorder_overlay_permission_title))
+        },
+        text = {
+            Text(text = stringResource(id = R.string.floating_recorder_overlay_permission_message))
+        },
+        confirmButton = {
+            TextButton(onClick = onOpenSettings) {
+                Text(text = stringResource(id = R.string.open_overlay_settings))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(id = R.string.btn_cancel))
+            }
+        },
+        onDismissRequest = onDismiss,
+    )
 }
 
 @Preview(showBackground = true)

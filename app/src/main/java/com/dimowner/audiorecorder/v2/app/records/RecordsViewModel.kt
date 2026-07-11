@@ -30,6 +30,7 @@ import com.dimowner.audiorecorder.audio.player.PlayerContractNew.PlayerCallback
 import com.dimowner.audiorecorder.exception.AppException
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.util.TimeUtils
+import com.dimowner.audiorecorder.v2.app.cleanRecordFileNameForSave
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
 import com.dimowner.audiorecorder.v2.app.isDescriptionFileWriteSupported
@@ -426,9 +427,20 @@ internal class RecordsViewModel @Inject constructor(
     fun renameRecord(recordId: Long, newName: String) {
         viewModelScope.launch(ioDispatcher) {
             recordsDataSource.getRecord(recordId)?.let { record ->
+                val cleanedName = cleanRecordFileNameForSave(newName)
+                if (cleanedName.isEmpty()) {
+                    val context: Context = getApplication<Application>().applicationContext
+                    emitEvent(RecordsScreenEvent.ShowErrorSnack(context.getString(R.string.msg_name_cannot_be_empty)))
+                    _state.value = _state.value.copy(
+                        showRenameDialog = false,
+                        operationSelectedRecord = null
+                    )
+                    return@let
+                }
+
                 val currentFile = File(record.path)
                 // Skip rename if the name hasn't changed
-                if (currentFile.nameWithoutExtension == newName) {
+                if (currentFile.nameWithoutExtension == cleanedName) {
                     _state.value = _state.value.copy(
                         showRenameDialog = false,
                         operationSelectedRecord = null
@@ -437,8 +449,8 @@ internal class RecordsViewModel @Inject constructor(
                 }
                 // Check if a file with the new name already exists on disk
                 val extension = currentFile.extension
-                val targetFile = File(currentFile.parentFile, "$newName.$extension")
-                if (targetFile.exists() && currentFile.nameWithoutExtension != newName) {
+                val targetFile = File(currentFile.parentFile, "$cleanedName.$extension")
+                if (targetFile.exists() && currentFile.nameWithoutExtension != cleanedName) {
                     val context: Context = getApplication<Application>().applicationContext
                     emitEvent(
                         RecordsScreenEvent.ShowErrorSnack(
@@ -449,11 +461,11 @@ internal class RecordsViewModel @Inject constructor(
                         showRenameDialog = false,
                         operationSelectedRecord = null
                     )
-                } else if (recordsDataSource.renameRecord(record, newName)) {
+                } else if (recordsDataSource.renameRecord(record, cleanedName)) {
                     val context: Context = getApplication<Application>().applicationContext
                     emitEvent(
                         RecordsScreenEvent.ShowInfoSnack(
-                            context.getString(R.string.msg_record_renamed, newName)
+                            context.getString(R.string.msg_record_renamed, cleanedName)
                         )
                     )
                     _state.value = _state.value.copy(
@@ -461,7 +473,7 @@ internal class RecordsViewModel @Inject constructor(
                         operationSelectedRecord = null,
                         recordsMap = _state.value.recordsMap.mapRecordInMap(recordId) { oldRecord ->
                             if (recordId == record.id) {
-                                oldRecord.copy(name = newName)
+                                oldRecord.copy(name = cleanedName)
                             } else {
                                 oldRecord
                             }
