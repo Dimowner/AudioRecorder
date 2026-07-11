@@ -330,6 +330,8 @@
 	<string name="error_permission_denied">Permiso denegado</string>
 	<string name="error_process_waveform">No se puede dibujar la onda de audio</string>
 	<string name="error_lost_records">Algunas de tus grabaciones fueron movidas o eliminadas</string>
+	<string name="local_storage_info_title">Las grabaciones se almacenan en el dispositivo</string>
+	<string name="local_storage_info_message">Las grabaciones no se respaldan en la nube. Eliminar la aplicación o sus datos las borrará permanentemente.</string>
 	<string name="broken_record_title">Grabación interrumpida</string>
 	<string name="broken_record_message">La grabación \'%s\' fue interrumpida (posiblemente debido a un reinicio del dispositivo) y su archivo puede estar dañado. ¿Desea intentar restaurarla?</string>
 	<string name="btn_restore">Restaurar</string>

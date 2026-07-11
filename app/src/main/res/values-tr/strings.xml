@@ -328,6 +328,8 @@
 	<string name="error_permission_denied">İzin reddedildi</string>
 	<string name="error_process_waveform">Dalga biçimi çizilemedi</string>
 	<string name="error_lost_records">Bazı kayıtlarınız silinmiş veya taşınmış</string>
+	<string name="local_storage_info_title">Kayıtlar cihazda saklanır</string>
+	<string name="local_storage_info_message">Kayıtlar buluta yedeklenmez. Uygulamayı veya verilerini silmek onları kalıcı olarak siler.</string>
 	<string name="broken_record_title">Kayıt kesildi</string>
 	<string name="broken_record_message">\'%s\' kaydı (muhtemelen cihaz yeniden başlatılması nedeniyle) kesintiye uğradı ve dosyası bozulmuş olabilir. Geri yüklemeyi denemek ister misiniz?</string>
 	<string name="btn_restore">Geri Yükle</string>

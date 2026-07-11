@@ -331,6 +331,8 @@
 	<string name="error_permission_denied">Berechtigung verweigert</string>
 	<string name="error_process_waveform">Wellenform kann nicht gezeichnet werden</string>
 	<string name="error_lost_records">Einige Ihrer Aufnahmen wurden gelöscht oder verschoben</string>
+	<string name="local_storage_info_title">Aufnahmen werden auf dem Gerät gespeichert</string>
+	<string name="local_storage_info_message">Aufnahmen werden nicht in der Cloud gesichert. Das Löschen der App oder ihrer Daten entfernt sie dauerhaft.</string>
 	<string name="broken_record_title">Aufnahme unterbrochen</string>
 	<string name="broken_record_message">Die Aufnahme \'%s\' wurde unterbrochen (möglicherweise durch einen Geräteneustart) und die Datei könnte beschädigt sein. Möchten Sie versuchen, sie wiederherzustellen?</string>
 	<string name="btn_restore">Wiederherstellen</string>

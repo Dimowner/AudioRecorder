@@ -83,6 +83,14 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         }
     }
 
+    override var isLocalStorageInfoShown: Boolean
+        get() = sharedPreferences.getBoolean(PREF_KEY_IS_LOCAL_STORAGE_INFO_SHOWN, false)
+        set(value) {
+            sharedPreferences.edit {
+                putBoolean(PREF_KEY_IS_LOCAL_STORAGE_INFO_SHOWN, value)
+            }
+        }
+
     override var askToRenameAfterRecordingStopped: Boolean
         get() = sharedPreferences.getBoolean(
             PREF_KEY_ASK_TO_RENAME_AFTER_RECORDING_STOPPED, DefaultValues.IS_ASK_TO_RENAME
@@ -325,5 +333,6 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         private const val PREF_KEY_SETTING_AUDIO_SOURCE = "pref_key_setting_audio_source"
         private const val PREF_KEY_RECORD_AUTHOR_NAME = "pref_key_record_author_name"
         private const val PREF_KEY_SAVE_DESCRIPTION_TO_FILE = "pref_key_save_description_to_file"
+        private const val PREF_KEY_IS_LOCAL_STORAGE_INFO_SHOWN = "pref_key_is_local_storage_info_shown"
     }
 }

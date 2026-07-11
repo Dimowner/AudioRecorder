@@ -326,6 +326,8 @@
 	<string name="error_permission_denied">存取遭拒</string>
 	<string name="error_process_waveform">無法建構波形</string>
 	<string name="error_lost_records">部分錄音已被移動或刪除。</string>
+	<string name="local_storage_info_title">錄音儲存在裝置上</string>
+	<string name="local_storage_info_message">錄音不會備份到雲端。刪除應用程式或其資料將永久刪除它們。</string>
 	<string name="broken_record_title">錄製中斷</string>
 	<string name="broken_record_message">錄音「%s」已中斷（可能因裝置重新啟動），其檔案可能已損毀，是否嘗試還原？</string>
 	<string name="btn_restore">還原</string>

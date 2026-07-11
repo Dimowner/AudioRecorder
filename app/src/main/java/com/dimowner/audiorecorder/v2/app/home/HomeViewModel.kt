@@ -473,6 +473,8 @@ class HomeViewModel @Inject constructor(
                     }
                 } else {
                     updateState()
+                    // No rename prompt – surface the one-time local storage info now.
+                    maybeShowLocalStorageInfoDialog()
                 }
             }
         }
@@ -691,7 +693,9 @@ class HomeViewModel @Inject constructor(
                 withContext(mainDispatcher) {
                     _state.value = HomeScreenState(
                         bottomBarState = bottomBarState,
-                        waveformState = WaveformState()
+                        waveformState = WaveformState(),
+                        // Preserve a pending local-storage info dialog across this full reset.
+                        showLocalStorageInfoDialog = _state.value.showLocalStorageInfoDialog,
                     )
                 }
             }
@@ -1246,6 +1250,7 @@ class HomeViewModel @Inject constructor(
             }
             HomeScreenAction.RestoreBrokenRecord -> restoreBrokenRecord()
             HomeScreenAction.DismissBrokenRecordDialog -> dismissBrokenRecordDialog()
+            HomeScreenAction.DismissLocalStorageInfoDialog -> dismissLocalStorageInfoDialog()
             HomeScreenAction.ShowDescriptionDialog -> showDescriptionDialog()
             is HomeScreenAction.SaveActiveRecordDescription -> saveActiveRecordDescription(action.description, action.writeToFile)
             HomeScreenAction.DismissDescriptionDialog -> dismissDescriptionDialog()
@@ -1253,7 +1258,13 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun dismissRenameAfterRecordingDialog(dontAskAgain: Boolean) {
-        _state.value = _state.value.copy(showRenameAfterRecordingDialog = false)
+        // Surface the one-time local storage info once the rename prompt is out of the way,
+        // so the two dialogs are shown sequentially rather than stacked.
+        val showLocalStorageInfo = !prefs.isLocalStorageInfoShown
+        _state.value = _state.value.copy(
+            showRenameAfterRecordingDialog = false,
+            showLocalStorageInfoDialog = showLocalStorageInfo,
+        )
         if (dontAskAgain) {
             prefs.askToRenameAfterRecordingStopped = false
         }
@@ -1342,6 +1353,23 @@ class HomeViewModel @Inject constructor(
         )
     }
 
+    private fun dismissLocalStorageInfoDialog() {
+        prefs.isLocalStorageInfoShown = true
+        _state.value = _state.value.copy(showLocalStorageInfoDialog = false)
+    }
+
+    /**
+     * Shows the one-time info that recordings are stored locally only and will be lost if the
+     * app is deleted or its data is reset. Triggered right after the first recording is saved.
+     */
+    private suspend fun maybeShowLocalStorageInfoDialog() {
+        if (!prefs.isLocalStorageInfoShown) {
+            withContext(mainDispatcher) {
+                _state.value = _state.value.copy(showLocalStorageInfoDialog = true)
+            }
+        }
+    }
+
     private fun emitEvent(event: HomeScreenEvent) {
         viewModelScope.launch {
             _event.emit(event)
@@ -1406,6 +1434,8 @@ data class HomeScreenState(
     // Broken record detection and restoration
     val showBrokenRecordDialog: Boolean = false,
     val brokenRecord: Record? = null,
+    // One-time info that recordings are stored locally only
+    val showLocalStorageInfoDialog: Boolean = false,
 ) {
     fun isRecording(): Boolean {
         return this.bottomBarState == BottomBarState.RECORDING || this.bottomBarState == BottomBarState.PAUSED
@@ -1449,6 +1479,7 @@ sealed class HomeScreenAction {
     data class DismissRenameAfterRecordingDialog(val dontAskAgain: Boolean) : HomeScreenAction()
     data object RestoreBrokenRecord : HomeScreenAction()
     data object DismissBrokenRecordDialog : HomeScreenAction()
+    data object DismissLocalStorageInfoDialog : HomeScreenAction()
     data object ShowDescriptionDialog : HomeScreenAction()
     data class SaveActiveRecordDescription(val description: String, val writeToFile: Boolean) : HomeScreenAction()
     data object DismissDescriptionDialog : HomeScreenAction()

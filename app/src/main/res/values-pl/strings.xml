@@ -350,6 +350,8 @@
 	<string name="error_permission_denied">Odmowa uprawnień</string>
 	<string name="error_process_waveform">Nie można narysować przebiegu fali</string>
 	<string name="error_lost_records">Niektóre nagrania zostały usunięte lub przeniesione</string>
+	<string name="local_storage_info_title">Nagrania są przechowywane na urządzeniu</string>
+	<string name="local_storage_info_message">Nagrania nie są archiwizowane w chmurze. Usunięcie aplikacji lub jej danych trwale je skasuje.</string>
 	<string name="broken_record_title">Nagranie przerwane</string>
 	<string name="broken_record_message">Nagranie \'%s\' zostało przerwane (prawdopodobnie z powodu ponownego uruchomienia urządzenia) i plik może być uszkodzony. Czy chcesz spróbować go przywrócić?</string>
 	<string name="btn_restore">Przywróć</string>

@@ -307,4 +307,35 @@ class PrefsV2ImplTest {
         prefs.saveDescriptionToFile = true
         assertTrue(prefs.saveDescriptionToFile)
     }
+
+    // -------------------------------------------------------------------------
+    // isLocalStorageInfoShown
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun test_isLocalStorageInfoShown_returnsFalseByDefault() {
+        assertFalse(prefs.isLocalStorageInfoShown)
+    }
+
+    @Test
+    fun test_isLocalStorageInfoShown_persistsTrue() {
+        prefs.isLocalStorageInfoShown = true
+        assertTrue(prefs.isLocalStorageInfoShown)
+    }
+
+    @Test
+    fun test_isLocalStorageInfoShown_persistsFalse() {
+        prefs.isLocalStorageInfoShown = true
+        prefs.isLocalStorageInfoShown = false
+        assertFalse(prefs.isLocalStorageInfoShown)
+    }
+
+    @Test
+    fun test_isLocalStorageInfoShown_resetsToFalseOnFullReset() {
+        prefs.isLocalStorageInfoShown = true
+
+        prefs.fullPreferenceReset()
+
+        assertFalse(prefs.isLocalStorageInfoShown)
+    }
 }

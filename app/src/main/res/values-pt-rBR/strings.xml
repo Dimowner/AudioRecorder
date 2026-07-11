@@ -329,6 +329,8 @@
     <string name="error_permission_denied">Permissão negada</string>
     <string name="error_process_waveform">Não foi possível exibir a forma de onda</string>
     <string name="error_lost_records">Algumas das suas gravações foram excluídas ou movidas</string>
+    <string name="local_storage_info_title">As gravações são armazenadas no dispositivo</string>
+    <string name="local_storage_info_message">As gravações não são copiadas para a nuvem. Excluir o aplicativo ou seus dados irá apagá-las permanentemente.</string>
     <string name="broken_record_title">Gravação interrompida</string>
     <string name="broken_record_message">A gravação \'%s\' foi interrompida (possivelmente por uma reinicialização do dispositivo) e o arquivo pode estar corrompido. Deseja tentar restaurá-la?</string>
     <string name="btn_restore">Restaurar</string>

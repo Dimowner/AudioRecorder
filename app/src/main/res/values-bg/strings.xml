@@ -314,6 +314,8 @@
 	<string name="error_permission_denied">Няма разрешение за четене</string>
 	<string name="error_process_waveform">Не може да се нарисува формата на вълната</string>
 	<string name="error_lost_records">Някои от вашите записи са изтрити или преместени</string>
+	<string name="local_storage_info_title">Записите се съхраняват на устройството</string>
+	<string name="local_storage_info_message">Записите не се архивират в облака. Изтриването на приложението или неговите данни ще ги изтрие завинаги.</string>
 	<string name="broken_record_title">Прекъснат запис</string>
 	<string name="broken_record_message">Записът \'%s\' е прекъснат (вероятно поради рестартиране на устройството) и файлът може да е повреден. Искате ли да опитате да го възстановите?</string>
 	<string name="btn_restore">Възстановяване</string>

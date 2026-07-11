@@ -29,7 +29,7 @@ class AppExtensionsTest {
 
     @Test
     fun formatDuration_correctly_formats_duration() {
-        val resources: Resources = ApplicationProvider.getApplicationContext<Context?>().resources
+        val resources: Resources = ApplicationProvider.getApplicationContext<Context>().resources
 
         val durationMillis = (365L * 24 * 60 * 60 + 24L * 60 * 60 + 60L * 60 + 60 + 1) * 1000
         Assert.assertEquals("1year 1day 01h:01m:01s", formatDuration(resources, durationMillis))
@@ -52,7 +52,7 @@ class AppExtensionsTest {
         // Example input: 0 milliseconds
         val durationMillis = 0L
 
-        val resources: Resources = ApplicationProvider.getApplicationContext<Context?>().resources
+        val resources: Resources = ApplicationProvider.getApplicationContext<Context>().resources
 
         val formattedDuration = formatDuration(resources, durationMillis)
 

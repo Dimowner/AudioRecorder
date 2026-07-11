@@ -332,6 +332,8 @@
 	<string name="error_permission_denied">権限が拒否されました</string>
 	<string name="error_process_waveform">波形を描画できません</string>
 	<string name="error_lost_records">一部の録音が削除または移動されました</string>
+	<string name="local_storage_info_title">録音はデバイスに保存されます</string>
+	<string name="local_storage_info_message">録音はクラウドにバックアップされません。アプリまたはそのデータを削除すると、完全に消去されます。</string>
 	<string name="broken_record_title">録音が中断されました</string>
 	<string name="broken_record_message">録音\'%s\'が中断されました（デバイスの再起動が原因の可能性があります）。ファイルが破損している可能性があります。復元を試みますか？</string>
 	<string name="btn_restore">復元</string>

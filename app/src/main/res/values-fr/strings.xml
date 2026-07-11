@@ -309,6 +309,8 @@
 	<string name="error_permission_denied">Permission refusée</string>
 	<string name="error_process_waveform">Impossible de dessiner la forme d\'onde</string>
 	<string name="error_lost_records">Certains de vos enregistrements ont été supprimés ou déplacés</string>
+	<string name="local_storage_info_title">Les enregistrements sont stockés sur l\'appareil</string>
+	<string name="local_storage_info_message">Les enregistrements ne sont pas sauvegardés dans le cloud. La suppression de l\'application ou de ses données les effacera définitivement.</string>
 	<string name="error_no_available_space">Pas d\'espace disponible !</string>
 	<string name="error_failed_access_to_storage">Échec de l\'accès au stockage de fichiers</string>
 	<string name="error_on_recording">Erreur pendant l\'enregistrement !</string>

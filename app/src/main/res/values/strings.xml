@@ -332,6 +332,8 @@
 	<string name="error_permission_denied">Permission denied</string>
 	<string name="error_process_waveform">Can\'t draw waveform</string>
 	<string name="error_lost_records">Some of your records were deleted or moved</string>
+	<string name="local_storage_info_title">Recordings are stored on the device</string>
+	<string name="local_storage_info_message">Recordings are not backed up to the cloud. Deleting the app or its data will permanently erase them.</string>
 	<string name="broken_record_title">Recording interrupted</string>
 	<string name="broken_record_message">The recording \'%s\' was interrupted (possibly due to a device reboot) and its file may be broken. Would you like to attempt to restore it?</string>
 	<string name="btn_restore">Restore</string>

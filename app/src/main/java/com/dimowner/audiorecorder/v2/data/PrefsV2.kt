@@ -29,6 +29,9 @@ interface PrefsV2 {
     val isFirstRun: Boolean
     fun confirmFirstRunExecuted()
 
+    /** Whether the "records are stored locally" info dialog has already been shown on Home screen. */
+    var isLocalStorageInfoShown: Boolean
+
     var askToRenameAfterRecordingStopped: Boolean
 
     /** Last chosen state of the "Also save to audio file" checkbox in the description dialog. */

@@ -327,6 +327,8 @@
 	<string name="error_permission_denied">Permís denegat</string>
 	<string name="error_process_waveform">No es pot dibuixar la forma d\'ona</string>
 	<string name="error_lost_records">Algunes de les gravacions s\'han esborrat o mogut</string>
+	<string name="local_storage_info_title">Les gravacions s\'emmagatzemen al dispositiu</string>
+	<string name="local_storage_info_message">Les gravacions no es desen al núvol. Si suprimeixes l\'aplicació o les seves dades, s\'esborraran de manera permanent.</string>
 	<string name="broken_record_title">Gravació interrompuda</string>
 	<string name="broken_record_message">La gravació \'%s\' va ser interrompuda (possiblement a causa d\'un reinici del dispositiu) i el fitxer pot estar danyat. Voleu intentar restaurar-la?</string>
 	<string name="btn_restore">Restaura</string>

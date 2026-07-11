@@ -294,6 +294,8 @@
     <string name="error_permission_denied">权限被拒绝</string>
     <string name="error_process_waveform">无法绘制波形</string>
     <string name="error_lost_records">您的某些录音已被删除或移动</string>
+    <string name="local_storage_info_title">录音存储在设备上</string>
+    <string name="local_storage_info_message">录音不会备份到云端。删除应用或其数据将永久删除它们。</string>
     <string name="broken_record_title">录音中断</string>
     <string name="broken_record_message">录音 \'%s\' 已中断（可能由于设备重启），文件可能已损坏。是否尝试恢复？</string>
     <string name="btn_restore">恢复</string>

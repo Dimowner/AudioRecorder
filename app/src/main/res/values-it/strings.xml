@@ -331,6 +331,8 @@
 	<string name="error_permission_denied">Permesso negato</string>
 	<string name="error_process_waveform">Impossibile disegnare la forma d\'onda</string>
 	<string name="error_lost_records">Alcune registrazioni sono state eliminate o spostate</string>
+	<string name="local_storage_info_title">Le registrazioni sono memorizzate sul dispositivo</string>
+	<string name="local_storage_info_message">Le registrazioni non vengono salvate nel cloud. L\'eliminazione dell\'app o dei suoi dati le cancellerà definitivamente.</string>
 	<string name="broken_record_title">Registrazione interrotta</string>
 	<string name="broken_record_message">La registrazione \'%s\' è stata interrotta (probabilmente a causa di un riavvio del dispositivo) e il file potrebbe essere danneggiato. Vuoi tentare il ripristino?</string>
 	<string name="btn_restore">Ripristina</string>
