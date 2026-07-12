@@ -16,9 +16,15 @@
 
 package com.dimowner.audiorecorder.audio;
 
+import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.database.Cursor;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
+import android.net.Uri;
+import android.provider.DocumentsContract;
+import android.provider.OpenableColumns;
 
 import com.dimowner.audiorecorder.ARApplication;
 import com.dimowner.audiorecorder.AppConstants;
@@ -33,6 +39,7 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import timber.log.Timber;
 
 import static com.dimowner.audiorecorder.AppConstants.SUPPORTED_EXT;
@@ -75,9 +82,28 @@ public class AudioDecoder {
 				throw new IOException();
 			}
 			AudioDecoder decoder = new AudioDecoder();
-			decoder.decodeFile(file, decodeListener, QUEUE_INPUT_BUFFER_EFFECTIVE);
+			decoder.decodeInternal(null, null, file, decodeListener, QUEUE_INPUT_BUFFER_EFFECTIVE);
 		} catch (Exception e) {
 			decodeListener.onError(e);
+		}
+	}
+
+	/**
+	 * Decodes a record addressed either by an absolute file path or by a content:// document
+	 * Uri (record stored in a user-selected public directory via Storage Access Framework).
+	 */
+	public static void decode(@NonNull Context context, @NonNull String pathOrUri,
+							  @NonNull AudioDecodingListener decodeListener) {
+		if (pathOrUri.startsWith("content://")) {
+			try {
+				AudioDecoder decoder = new AudioDecoder();
+				decoder.decodeInternal(context.getApplicationContext(), Uri.parse(pathOrUri), null,
+						decodeListener, QUEUE_INPUT_BUFFER_EFFECTIVE);
+			} catch (Exception e) {
+				decodeListener.onError(e);
+			}
+		} else {
+			decode(pathOrUri, decodeListener);
 		}
 	}
 
@@ -85,14 +111,24 @@ public class AudioDecoder {
 		return (int)(sampleRate / dpPerSec);
 	}
 
-	private void decodeFile(@NonNull final File mInputFile, @NonNull final AudioDecodingListener decodeListener, final int queueType)
+	private void decodeInternal(@Nullable final Context context, @Nullable final Uri inputUri,
+			@Nullable final File inputFile, @NonNull final AudioDecodingListener decodeListener, final int queueType)
 			throws IOException, OutOfMemoryError, IllegalStateException {
 		gains = new IntArrayList();
 		final MediaExtractor extractor = new MediaExtractor();
 		MediaFormat format = null;
 		int i;
 
-		extractor.setDataSource(mInputFile.getPath());
+		final String inputName;
+		if (inputUri != null && context != null) {
+			extractor.setDataSource(context, inputUri, null);
+			inputName = inputUri.toString();
+		} else if (inputFile != null) {
+			extractor.setDataSource(inputFile.getPath());
+			inputName = inputFile.getPath();
+		} else {
+			throw new IOException("No decode input provided");
+		}
 		int numTracks = extractor.getTrackCount();
 		// find and select the first audio track present in the file.
 		for (i = 0; i < numTracks; i++) {
@@ -108,17 +144,17 @@ public class AudioDecoder {
 		}
 
 		if (i == numTracks || format == null) {
-			throw new IOException("No audio track found in " + mInputFile.toString());
+			throw new IOException("No audio track found in " + inputName);
 		}
 		try {
 			channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
 		} catch (Exception e) {
-			throw new IOException("Could not read channel count from " + mInputFile.getName(), e);
+			throw new IOException("Could not read channel count from " + inputName, e);
 		}
 		try {
 			sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
 		} catch (Exception e) {
-			throw new IOException("Could not read sample rate from " + mInputFile.getName(), e);
+			throw new IOException("Could not read sample rate from " + inputName, e);
 		}
 		try {
 			if (format.containsKey(MediaFormat.KEY_DURATION)) {
@@ -136,11 +172,16 @@ public class AudioDecoder {
 		try {
 			mimeType = format.getString(MediaFormat.KEY_MIME);
 		} catch (Exception e) {
-			throw new IOException("Could not read MIME type from " + mInputFile.getName(), e);
+			throw new IOException("Could not read MIME type from " + inputName, e);
 		}
 		if (mimeType == null || mimeType.isEmpty()) {
-			throw new IOException("Empty MIME type for " + mInputFile.getName());
+			throw new IOException("Empty MIME type for " + inputName);
 		}
+
+		final long inputSize = inputFile != null
+				? inputFile.length()
+				: getUriSize(context, inputUri);
+
 		//Start decoding
 		MediaCodec decoder = MediaCodec.createDecoderByType(mimeType);
 
@@ -150,7 +191,7 @@ public class AudioDecoder {
 			private boolean mOutputEOS = false;
 			private boolean mInputEOS = false;
 			private long decoded = 0;
-			private long totalSize = mInputFile.length();
+			private long totalSize = Math.max(1, inputSize);
 			private int percent = 0;
 
 			@Override
@@ -159,7 +200,7 @@ public class AudioDecoder {
 				if (queueType == QUEUE_INPUT_BUFFER_EFFECTIVE) {
 					try {
 						AudioDecoder decoder = new AudioDecoder();
-						decoder.decodeFile(mInputFile, decodeListener, QUEUE_INPUT_BUFFER_SIMPLE);
+						decoder.decodeInternal(context, inputUri, inputFile, decodeListener, QUEUE_INPUT_BUFFER_SIMPLE);
 					} catch (IllegalStateException | IOException | OutOfMemoryError e) {
 						decodeListener.onError(exception);
 					}
@@ -309,6 +350,148 @@ public class AudioDecoder {
 		});
 		decoder.configure(format, null, null, 0);
 		decoder.start();
+	}
+
+	private static long getUriSize(@Nullable Context context, @Nullable Uri uri) {
+		if (context == null || uri == null) {
+			return 0;
+		}
+		try (AssetFileDescriptor afd = context.getContentResolver().openAssetFileDescriptor(uri, "r")) {
+			if (afd != null && afd.getLength() > 0) {
+				return afd.getLength();
+			}
+		} catch (Exception e) {
+			Timber.e(e);
+		}
+		return 0;
+	}
+
+	/**
+	 * Reads audio metadata of a record addressed by a content:// document Uri
+	 * (record stored in a user-selected public directory via Storage Access Framework).
+	 */
+	public static RecordInfo readRecordInfo(@NonNull final Context context, @NonNull final Uri uri)
+			throws OutOfMemoryError, IllegalStateException {
+		String displayName = "";
+		long size = 0;
+		long lastModified = 0;
+		try (Cursor cursor = context.getContentResolver().query(uri,
+				new String[]{
+						OpenableColumns.DISPLAY_NAME,
+						OpenableColumns.SIZE,
+						DocumentsContract.Document.COLUMN_LAST_MODIFIED
+				}, null, null, null)) {
+			if (cursor != null && cursor.moveToFirst()) {
+				if (!cursor.isNull(0)) displayName = cursor.getString(0);
+				if (!cursor.isNull(1)) size = cursor.getLong(1);
+				if (!cursor.isNull(2)) lastModified = cursor.getLong(2);
+			}
+		} catch (Exception e) {
+			Timber.e(e);
+		}
+		if (size <= 0) {
+			size = getUriSize(context, uri);
+		}
+		try {
+			final MediaExtractor extractor = new MediaExtractor();
+			MediaFormat format = null;
+			int i;
+
+			extractor.setDataSource(context, uri, null);
+			int numTracks = extractor.getTrackCount();
+			// find and select the first audio track present in the file.
+			for (i = 0; i < numTracks; i++) {
+				format = extractor.getTrackFormat(i);
+				try {
+					if (format.getString(MediaFormat.KEY_MIME).startsWith("audio/")) {
+						extractor.selectTrack(i);
+						break;
+					}
+				} catch (Exception e) {
+					Timber.e(e);
+				}
+			}
+
+			if (i == numTracks || format == null) {
+				throw new IOException("No audio track found in " + uri);
+			}
+			int channelCount;
+			try {
+				if (format.containsKey(MediaFormat.KEY_CHANNEL_COUNT)) {
+					channelCount = format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+				} else {
+					channelCount = 0;
+				}
+			} catch (Exception e) {
+				Timber.e(e);
+				channelCount = 0;
+			}
+			int sampleRate;
+			try {
+				if (format.containsKey(MediaFormat.KEY_SAMPLE_RATE)) {
+					sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+				} else {
+					sampleRate = 0;
+				}
+			} catch (Exception e) {
+				Timber.e(e);
+				sampleRate = 0;
+			}
+
+			long duration;
+			try {
+				if (format.containsKey(MediaFormat.KEY_DURATION)) {
+					duration = format.getLong(MediaFormat.KEY_DURATION);
+				} else {
+					duration = 0;
+				}
+			} catch (Exception e) {
+				Timber.e(e);
+				duration = 0;
+			}
+
+			int bitrate;
+			try {
+				if (format.containsKey(MediaFormat.KEY_BIT_RATE)) {
+					bitrate = format.getInteger(MediaFormat.KEY_BIT_RATE);
+				} else if (duration > 0 && size > 0) {
+					int estimated = (int) (size * 8000000L / duration);
+					bitrate = snapToStandardBitrate(estimated);
+				} else {
+					bitrate = 0;
+				}
+			} catch (Exception e) {
+				Timber.e(e);
+				bitrate = 0;
+			}
+
+			String mimeType;
+			try {
+				mimeType = format.getString(MediaFormat.KEY_MIME);
+			} catch (Exception e) {
+				Timber.e(e);
+				mimeType = "";
+			}
+
+			return new RecordInfo(
+					FileUtil.removeFileExtension(displayName),
+					readFileFormat(displayName, mimeType),
+					duration,
+					size,
+					uri.toString(),
+					lastModified,
+					sampleRate,
+					channelCount,
+					bitrate,
+					false
+			);
+		} catch (Exception e) {
+			Timber.e(e);
+			return new RecordInfo(
+					FileUtil.removeFileExtension(displayName), "", 0, size,
+					uri.toString(), lastModified, 0, 0, 0, false
+			);
+		}
 	}
 
 	public static RecordInfo readRecordInfo(@NonNull final File inputFile)
@@ -501,7 +684,11 @@ public class AudioDecoder {
 	}
 
 	private static String readFileFormat(File file, String mime) {
-		String name = file.getName().toLowerCase();
+		return readFileFormat(file.getName(), mime);
+	}
+
+	private static String readFileFormat(String fileName, String mime) {
+		String name = fileName == null ? "" : fileName.toLowerCase();
 		if (name.contains(AppConstants.FORMAT_M4A) || (mime != null && mime.contains("audio") && mime.contains("mp4a"))) {
 			return AppConstants.FORMAT_M4A;
 		} else if (name.contains(AppConstants.FORMAT_WAV) || (mime != null && mime.contains("audio") && mime.contains("raw"))) {

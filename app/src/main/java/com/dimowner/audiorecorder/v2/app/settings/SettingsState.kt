@@ -52,6 +52,11 @@ data class SettingsState(
     val recordAuthorName: String,
     /** True when the user previously used V1 and intentionally switched to V2. */
     val isLegacyAppUser: Boolean = false,
+    /**
+     * Display name of the user-selected public directory where new recordings are stored,
+     * or null when the default app-private storage is used.
+     */
+    val publicRecordingDirName: String? = null,
 ) : Parcelable
 
 @Parcelize

@@ -1,5 +1,6 @@
 package com.dimowner.audiorecorder.v2.di
 
+import android.content.Context
 import com.dimowner.audiorecorder.audio.player.AudioPlayerNew
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
@@ -7,6 +8,7 @@ import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -32,8 +34,8 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun providePlayerContractNew(): PlayerContractNew.Player {
-        return AudioPlayerNew()
+    fun providePlayerContractNew(@ApplicationContext context: Context): PlayerContractNew.Player {
+        return AudioPlayerNew(context)
     }
 
     /**

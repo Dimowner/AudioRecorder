@@ -131,6 +131,18 @@ class PrefsV2ImplTest {
     }
 
     @Test
+    fun test_publicRecordingDirUri() {
+        assertNull(prefs.publicRecordingDirUri)
+
+        val uri = "content://com.android.externalstorage.documents/tree/primary%3ARecords"
+        prefs.publicRecordingDirUri = uri
+        assertEquals(uri, prefs.publicRecordingDirUri)
+
+        prefs.publicRecordingDirUri = null
+        assertNull(prefs.publicRecordingDirUri)
+    }
+
+    @Test
     fun test_recordCounter() {
         assertEquals(1, prefs.recordCounter)
 

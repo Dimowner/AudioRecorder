@@ -74,6 +74,12 @@ interface PrefsV2 {
 
     var recordAuthorName: String
 
+    /**
+     * Persisted SAF tree Uri (as String) of the user-selected public directory where new
+     * recordings are stored. Null means the default app-private storage is used.
+     */
+    var publicRecordingDirUri: String?
+
     fun resetRecordingSettings()
 
     fun fullPreferenceReset()

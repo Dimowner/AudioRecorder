@@ -18,25 +18,35 @@ package com.dimowner.audiorecorder.v2.data
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
 import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.exception.CantCreateFileException
+import com.dimowner.audiorecorder.v2.data.extensions.createDocumentInTree
 import com.dimowner.audiorecorder.v2.data.extensions.createFile
+import com.dimowner.audiorecorder.v2.data.extensions.deleteDocument
 import com.dimowner.audiorecorder.v2.data.extensions.deleteFileAndChildren
+import com.dimowner.audiorecorder.v2.data.extensions.getAvailableSpaceForDocument
 import com.dimowner.audiorecorder.v2.data.extensions.getPrivateMusicStorageDir
+import com.dimowner.audiorecorder.v2.data.extensions.hasPersistedTreePermission
+import com.dimowner.audiorecorder.v2.data.extensions.isContentUri
 import com.dimowner.audiorecorder.v2.data.extensions.markFileAsDeleted
+import com.dimowner.audiorecorder.v2.data.extensions.renameDocumentWithExtension
 import com.dimowner.audiorecorder.v2.data.extensions.renameFileWithExtension
 import com.dimowner.audiorecorder.v2.data.extensions.requestAllocateSpace
 import com.dimowner.audiorecorder.v2.data.extensions.unmarkFileAsDeleted
+import com.dimowner.audiorecorder.v2.data.model.RecordTarget
 import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.core.net.toUri
 
 @Singleton
 class FileDataSourceImpl @Inject internal constructor(
-    @ApplicationContext context: Context
+    @param:ApplicationContext private val context: Context,
+    private val prefs: PrefsV2,
 ): FileDataSource {
 
     private val recordDirectory: File? by lazy {
@@ -62,8 +72,36 @@ class FileDataSourceImpl @Inject internal constructor(
         throw CantCreateFileException()
     }
 
+    override fun createRecordTarget(fileName: String): RecordTarget {
+        val publicDirUri = prefs.publicRecordingDirUri
+        if (publicDirUri != null) {
+            val treeUri = publicDirUri.toUri()
+            if (hasPersistedTreePermission(context, treeUri)) {
+                val document = createDocumentInTree(context, treeUri, fileName)
+                val documentName = document?.name
+                if (document != null && documentName != null) {
+                    return RecordTarget.PublicDocument(
+                        uri = document.uri,
+                        name = documentName,
+                        created = document.lastModified().takeIf { it > 0 }
+                            ?: System.currentTimeMillis(),
+                    )
+                }
+            }
+            Timber.e(
+                "Public recording dir is not accessible," +
+                    " falling back to private storage: $publicDirUri"
+            )
+        }
+        return RecordTarget.LocalFile(createRecordFile(fileName))
+    }
+
     override fun deleteRecordFile(path: String): Boolean {
-        return deleteFileAndChildren(File(path))
+        return if (path.isContentUri()) {
+            deleteDocument(context, path)
+        } else {
+            deleteFileAndChildren(File(path))
+        }
     }
 
     override fun markAsRecordDeleted(path: String): String? {
@@ -78,9 +116,25 @@ class FileDataSourceImpl @Inject internal constructor(
         return renameFileWithExtension(File(path), newName)
     }
 
+    override fun renameRecordFile(pathOrUri: String, newName: String): String? {
+        return if (pathOrUri.isContentUri()) {
+            renameDocumentWithExtension(context, pathOrUri, newName)
+        } else {
+            renameFileWithExtension(File(pathOrUri), newName)?.absolutePath
+        }
+    }
+
     @SuppressLint("UsableSpace")
     override fun getAvailableSpace(): Long {
         return recordDirectory?.usableSpace ?: 0
+    }
+
+    override fun getAvailableSpace(pathOrUri: String?): Long {
+        return if (pathOrUri != null && pathOrUri.isContentUri()) {
+            getAvailableSpaceForDocument(context, pathOrUri)
+        } else {
+            getAvailableSpace()
+        }
     }
 
     override fun requestSystemMoreMemory(context: Context, file: File, requiredSpace: Long) {

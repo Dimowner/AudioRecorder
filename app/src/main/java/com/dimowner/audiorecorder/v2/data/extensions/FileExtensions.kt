@@ -236,3 +236,15 @@ fun copyFile(fileToCopy: FileDescriptor, newFile: File): Boolean {
 fun isFileExists(path: String): Boolean {
     return File(path).exists()
 }
+
+/**
+ * Checks record file existence for both app-private file paths and SAF document Uris
+ * (records stored in a user-selected public directory).
+ */
+fun recordFileExists(context: Context, path: String): Boolean {
+    return if (path.isContentUri()) {
+        documentFileExists(context, path)
+    } else {
+        File(path).exists()
+    }
+}

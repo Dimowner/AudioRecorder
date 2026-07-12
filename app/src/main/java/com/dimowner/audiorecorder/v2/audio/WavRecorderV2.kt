@@ -1,13 +1,16 @@
 package com.dimowner.audiorecorder.v2.audio
 
+import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
+import android.os.ParcelFileDescriptor
 import com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
 import com.dimowner.audiorecorder.audio.sumOfAmplitudes
 import com.dimowner.audiorecorder.IntArrayList
 import com.dimowner.audiorecorder.exception.AlreadyRecordingException
 import com.dimowner.audiorecorder.exception.InvalidOutputFile
 import com.dimowner.audiorecorder.exception.RecorderInitException
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -17,10 +20,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.RandomAccessFile
 import java.util.Timer
 import java.util.TimerTask
 import javax.inject.Inject
@@ -28,11 +29,14 @@ import javax.inject.Singleton
 
 @Singleton
 class WavRecorderV2 @Inject constructor(
+    @ApplicationContext private val applicationContext: Context,
     private val coroutineScope: CoroutineScope,
 ) : RecorderV2 {
 
     private var audioRecord: AudioRecord? = null
     private var recordingJob: Job? = null
+    /** Open descriptor of the SAF output document; held for the whole recording session. */
+    private var outputPfd: ParcelFileDescriptor? = null
 
     @Volatile private var _isRecording: Boolean = false
     @Volatile private var _isPaused: Boolean = false
@@ -58,7 +62,7 @@ class WavRecorderV2 @Inject constructor(
     }
 
     override fun startRecording(
-        outputFile: File,
+        output: RecordingOutput,
         channelCount: Int,
         sampleRate: Int,
         bitrate: Int,
@@ -66,7 +70,7 @@ class WavRecorderV2 @Inject constructor(
         audioSource: Int,
     ): Boolean {
         Timber.d(
-            "WavRecorderV2.startRecording outputFile: ${outputFile.absolutePath} channelCount: $channelCount" +
+            "WavRecorderV2.startRecording output: ${output.describe()} channelCount: $channelCount" +
                     " sampleRate: $sampleRate bitrate: $bitrate maxRecordingDurationMills: $maxRecordingDurationMills" +
                     " audioSource: $audioSource"
         )
@@ -78,7 +82,9 @@ class WavRecorderV2 @Inject constructor(
         amplitudesBuffer.clear()
         lastNonZeroAmplitude = 0
         lastEmittedDurationMills = -1L
-        if (!outputFile.exists() || !outputFile.isFile) {
+        if (output is RecordingOutput.OutputFile
+            && !(output.file.exists() && output.file.isFile)
+        ) {
             emitEvent(RecorderEvent.OnError(InvalidOutputFile()))
             return false
         }
@@ -131,15 +137,16 @@ class WavRecorderV2 @Inject constructor(
 
         audioRecord = recorder
 
-        // Write a placeholder 44-byte WAV header; it will be overwritten with real values after recording.
-        try {
-            FileOutputStream(outputFile).use { fos ->
-                fos.write(ByteArray(44))
-            }
-        } catch (e: IOException) {
-            Timber.e(e, "Failed to write placeholder WAV header")
+        // Open the output stream once for the whole session (plain file or SAF document
+        // descriptor) and write a placeholder 44-byte WAV header; it is overwritten in-place
+        // with real values after recording via the stream's seekable channel.
+        val outputStream = try {
+            openOutputStream(output).also { it.write(ByteArray(44)) }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to open WAV output: ${output.describe()}")
             recorder.release()
             audioRecord = null
+            closeOutputPfd()
             emitEvent(RecorderEvent.OnError(RecorderInitException()))
             return false
         }
@@ -150,6 +157,7 @@ class WavRecorderV2 @Inject constructor(
             Timber.e(e, "startRecording() failed")
             recorder.release()
             audioRecord = null
+            closeOutput(outputStream)
             emitEvent(RecorderEvent.OnError(RecorderInitException()))
             return false
         }
@@ -163,13 +171,11 @@ class WavRecorderV2 @Inject constructor(
         // Launch a coroutine to read audio data in the background
         recordingJob = coroutineScope.launch(Dispatchers.IO) {
             val buffer = ByteArray(bufferSize)
-            var fos: FileOutputStream? = null
             var totalBytesWritten = 0L
             val bytesPerSecond = sampleRate * channelCount * (bitsPerSample / 8)
             var maxDurationReached = false
 
             try {
-                fos = FileOutputStream(outputFile, true) // append after the placeholder header
                 while (isActive && _isRecording) {
                     if (_isPaused) {
                         // Read and discard PCM data to prevent accumulating stale audio during pause
@@ -182,7 +188,7 @@ class WavRecorderV2 @Inject constructor(
                     }
                     val readResult = recorder.read(buffer, 0, readChunkSize)
                     if (readResult > 0) {
-                        fos.write(buffer, 0, readResult)
+                        outputStream.write(buffer, 0, readResult)
                         totalBytesWritten += readResult
 
                         // Calculate duration from bytes written
@@ -215,50 +221,79 @@ class WavRecorderV2 @Inject constructor(
             } catch (e: IOException) {
                 Timber.e(e, "Error writing PCM data")
                 emitEvent(RecorderEvent.OnError(RecorderInitException()))
-            } finally {
-                try {
-                    fos?.close()
-                } catch (e: IOException) {
-                    Timber.e(e, "Error closing output file stream")
-                }
             }
 
-            // Write the real WAV header in-place now that we know the final audio length.
-            if (outputFile.exists()) {
-                try {
-                    val totalAudioLen = totalBytesWritten
-                    val totalDataLen = totalAudioLen + 36
-                    val byteRate = (sampleRateConfig * channelCountConfig * bitsPerSample / 8).toLong()
+            // Write the real WAV header in-place now that we know the final audio length,
+            // seeking back to the start of the still-open output stream.
+            try {
+                val totalAudioLen = totalBytesWritten
+                val totalDataLen = totalAudioLen + 36
+                val byteRate = (sampleRateConfig * channelCountConfig * bitsPerSample / 8).toLong()
 
-                    RandomAccessFile(outputFile, "rw").use { raf ->
-                        raf.seek(0)
-                        val headerStream = FileOutputStream(raf.fd)
-                        writeWavHeader(
-                            out = headerStream,
-                            totalAudioLen = totalAudioLen,
-                            totalDataLen = totalDataLen,
-                            sampleRate = sampleRateConfig,
-                            channels = channelCountConfig,
-                            byteRate = byteRate,
-                        )
-                        headerStream.flush()
-                    }
+                outputStream.channel.position(0)
+                writeWavHeader(
+                    out = outputStream,
+                    totalAudioLen = totalAudioLen,
+                    totalDataLen = totalDataLen,
+                    sampleRate = sampleRateConfig,
+                    channels = channelCountConfig,
+                    byteRate = byteRate,
+                )
+                outputStream.flush()
 
-                    if (maxDurationReached) {
-                        emitEvent(RecorderEvent.OnMaxDurationReached)
-                    } else {
-                        emitEvent(RecorderEvent.OnStopRecording)
-                    }
-                } catch (e: IOException) {
-                    Timber.e(e, "Error writing WAV header")
-                    emitEvent(RecorderEvent.OnError(RecorderInitException()))
+                if (maxDurationReached) {
+                    emitEvent(RecorderEvent.OnMaxDurationReached)
+                } else {
+                    emitEvent(RecorderEvent.OnStopRecording)
                 }
+            } catch (e: IOException) {
+                Timber.e(e, "Error writing WAV header")
+                emitEvent(RecorderEvent.OnError(RecorderInitException()))
+            } finally {
+                closeOutput(outputStream)
             }
 
             // Clean up state only after header write so nothing above reads stale nulls.
             durationMills = 0
         }
         return true
+    }
+
+    /**
+     * Opens the output as a [FileOutputStream] whose channel supports seeking, so the WAV
+     * header can be rewritten in-place at the end of the session. For a SAF document the
+     * backing [ParcelFileDescriptor] is kept in [outputPfd] until [closeOutput].
+     */
+    @Throws(IOException::class)
+    private fun openOutputStream(output: RecordingOutput): FileOutputStream {
+        return when (output) {
+            is RecordingOutput.OutputFile -> FileOutputStream(output.file)
+            is RecordingOutput.OutputDocument -> {
+                val pfd = applicationContext.contentResolver
+                    .openFileDescriptor(output.uri, "rw")
+                    ?: throw IOException("Cannot open output document: ${output.uri}")
+                outputPfd = pfd
+                FileOutputStream(pfd.fileDescriptor)
+            }
+        }
+    }
+
+    private fun closeOutput(outputStream: FileOutputStream) {
+        try {
+            outputStream.close()
+        } catch (e: IOException) {
+            Timber.e(e, "Error closing output stream")
+        }
+        closeOutputPfd()
+    }
+
+    private fun closeOutputPfd() {
+        try {
+            outputPfd?.close()
+        } catch (e: IOException) {
+            Timber.e(e, "Failed to close output document descriptor")
+        }
+        outputPfd = null
     }
 
     override fun resumeRecording(): Boolean {

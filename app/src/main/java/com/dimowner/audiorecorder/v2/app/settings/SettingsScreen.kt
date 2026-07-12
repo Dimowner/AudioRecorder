@@ -16,9 +16,12 @@
 
 package com.dimowner.audiorecorder.v2.app.settings
 
+import android.content.ActivityNotFoundException
 import android.os.Build
 import android.text.format.Formatter
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -40,6 +43,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -196,6 +200,11 @@ internal fun SettingsScreen(
                     currentAuthorName = uiState.recordAuthorName,
                     onAction = onAction,
                 )
+                RecordingLocationSettingRow(
+                    publicRecordingDirName = uiState.publicRecordingDirName,
+                    onAction = onAction,
+                    enabled = uiState.isRecordingSettingEditable,
+                )
                 ResetRecordingSettingsPanel(
                     sizePerMin = stringResource(id = R.string.size_per_min, uiState.sizePerMin),
                     recordingSettingsText = uiState.recordingSettingsText,
@@ -336,6 +345,84 @@ internal fun MaxDurationSettingRow(
                 showDialog.value = false
             }
         )
+    }
+}
+
+/**
+ * Setting row for the recording storage location. Tapping the row opens the system directory
+ * picker (Storage Access Framework, no storage permission required); the picked public
+ * directory is used for all new recordings. The reset button switches back to the default
+ * app-private storage.
+ */
+@Composable
+internal fun RecordingLocationSettingRow(
+    publicRecordingDirName: String?,
+    onAction: (SettingsScreenAction) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    val directoryPickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        if (uri != null) {
+            onAction(SettingsScreenAction.SetPublicRecordingDir(uri))
+        }
+    }
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .alpha(if (enabled) 1f else DISABLED_ALPHA)
+            .clickable(enabled = enabled) {
+                try {
+                    directoryPickerLauncher.launch(null)
+                } catch (e: ActivityNotFoundException) {
+                    Timber.e(e, "No activity found to handle OpenDocumentTree")
+                }
+            }
+            .padding(horizontal = 8.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            modifier = Modifier
+                .padding(16.dp)
+                .wrapContentSize(),
+            painter = painterResource(id = R.drawable.ic_folder_open),
+            contentDescription = stringResource(R.string.recording_location),
+        )
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .wrapContentHeight()
+        ) {
+            Text(
+                text = stringResource(R.string.recording_location),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = publicRecordingDirName
+                    ?: stringResource(R.string.recording_location_app_storage),
+                fontSize = 14.sp,
+                lineHeight = 18.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+        if (publicRecordingDirName != null) {
+            IconButton(
+                enabled = enabled,
+                onClick = { onAction(SettingsScreenAction.ResetPublicRecordingDir) },
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_round_close),
+                    contentDescription = stringResource(R.string.recording_location_reset),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
     }
 }
 

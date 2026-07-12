@@ -340,13 +340,25 @@ public class AndroidUtils {
 		menuItem.setIcon(null);
 	}
 
+	/**
+	 * Resolves a record path to a shareable Uri: a content:// document Uri (record stored in
+	 * a user-selected public directory) is shared directly, a file path goes through
+	 * the app's FileProvider.
+	 */
+	private static Uri getShareableUri(Context context, String sharePath) {
+		if (sharePath.startsWith("content://")) {
+			return Uri.parse(sharePath);
+		}
+		return FileProvider.getUriForFile(
+				context,
+				context.getApplicationContext().getPackageName() + ".app_file_provider",
+				new File(sharePath)
+		);
+	}
+
 	public static void shareAudioFile(Context context, String sharePath, String name, String format) {
 		if (sharePath != null) {
-			Uri fileUri = FileProvider.getUriForFile(
-					context,
-					context.getApplicationContext().getPackageName() + ".app_file_provider",
-					new File(sharePath)
-			);
+			Uri fileUri = getShareableUri(context, sharePath);
 			Intent share = new Intent(Intent.ACTION_SEND);
 			share.setType("audio/" + format);
 			share.putExtra(Intent.EXTRA_STREAM, fileUri);
@@ -369,12 +381,7 @@ public class AndroidUtils {
 
 		ArrayList<Uri> files = new ArrayList<>();
 		for(String path : list) {
-			Uri uri = FileProvider.getUriForFile(
-					context,
-					context.getApplicationContext().getPackageName() + ".app_file_provider",
-					new File(path)
-			);
-			files.add(uri);
+			files.add(getShareableUri(context, path));
 		}
 		intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files);
 		String text = context.getResources().getQuantityString(R.plurals.share_records_count, list.size(), list.size());
@@ -385,11 +392,7 @@ public class AndroidUtils {
 
 	public static void openAudioFile(Context context, String sharePath, String name) {
 		if (sharePath != null) {
-			Uri fileUri = FileProvider.getUriForFile(
-					context,
-					context.getApplicationContext().getPackageName() + ".app_file_provider",
-					new File(sharePath)
-			);
+			Uri fileUri = getShareableUri(context, sharePath);
 			Intent intent = new Intent(Intent.ACTION_VIEW);
 			intent.setDataAndType(fileUri, "audio/*");
 			intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);

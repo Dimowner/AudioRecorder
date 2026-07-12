@@ -15,6 +15,7 @@
  */
 package com.dimowner.audiorecorder.audio.player
 
+import android.content.Context
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.MediaPlayer.OnPreparedListener
@@ -26,8 +27,15 @@ import com.dimowner.audiorecorder.exception.PlayerDataSourceException
 import com.dimowner.audiorecorder.exception.PlayerInitException
 import timber.log.Timber
 import java.util.*
+import androidx.core.net.toUri
 
-class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
+/**
+ * @param context Required to resolve content:// data sources (records stored in a
+ * user-selected public directory). When null only plain file paths are supported.
+ */
+class AudioPlayerNew(
+	private val context: Context? = null,
+): PlayerContractNew.Player, OnPreparedListener {
 
 	private val actionsListeners: MutableList<PlayerContractNew.PlayerCallback> = ArrayList()
 
@@ -49,7 +57,11 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 		try {
 			playerState = PlayerState.STOPPED
 			mediaPlayer.reset()
-			mediaPlayer.setDataSource(dataSource)
+			if (dataSource.startsWith("content://") && context != null) {
+				mediaPlayer.setDataSource(context, dataSource.toUri())
+			} else {
+				mediaPlayer.setDataSource(dataSource)
+			}
 			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
 		} catch (e: Exception) {
 			Timber.e(e)

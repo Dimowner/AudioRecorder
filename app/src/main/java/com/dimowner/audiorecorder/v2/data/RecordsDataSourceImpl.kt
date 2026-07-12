@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.v2.data
 
+import android.content.Context
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.dimowner.audiorecorder.AppConstantsV2.RECORD_DESCRIPTION_MAX_LENGTH
 import com.dimowner.audiorecorder.audio.AudioDecoder
@@ -23,6 +24,8 @@ import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilter
 import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilterOptions
 import com.dimowner.audiorecorder.v2.audio.BrokenRecordRestorer
 import com.dimowner.audiorecorder.v2.audio.writeCommentTag
+import com.dimowner.audiorecorder.v2.data.extensions.getDocumentLength
+import com.dimowner.audiorecorder.v2.data.extensions.isContentUri
 import com.dimowner.audiorecorder.v2.data.extensions.toRecordsSortColumnName
 import com.dimowner.audiorecorder.v2.data.extensions.toSqlSortOrder
 import com.dimowner.audiorecorder.v2.data.model.Record
@@ -30,6 +33,7 @@ import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.data.model.convertToRecordingFormat
 import com.dimowner.audiorecorder.v2.data.room.RecordDao
 import com.dimowner.audiorecorder.v2.data.room.RecordEntity
+import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
@@ -38,6 +42,7 @@ import javax.inject.Singleton
 @SuppressWarnings("TooGenericExceptionCaught")
 @Singleton
 class RecordsDataSourceImpl @Inject internal constructor(
+    @param:ApplicationContext private val context: Context,
     private val prefs: PrefsV2,
     private val recordDao: RecordDao,
     private val fileDataSource: FileDataSource,
@@ -150,13 +155,13 @@ class RecordsDataSourceImpl @Inject internal constructor(
 
     override suspend fun renameRecord(record: Record, newName: String): Boolean {
         return try {
-            val renamed = try {
-                fileDataSource.renameFile(record.path, newName)
+            val renamedPathOrUri = try {
+                fileDataSource.renameRecordFile(record.path, newName)
             } catch (e: Exception) {
                 Timber.e(e)
                 null
             }
-            if (renamed == null) {
+            if (renamedPathOrUri == null) {
                 // Step 1 failed — nothing to roll back.
                 false
             } else {
@@ -164,7 +169,7 @@ class RecordsDataSourceImpl @Inject internal constructor(
                     val updated = recordDao.updateRecord(
                         record.copy(
                             name = newName,
-                            path = renamed.absolutePath
+                            path = renamedPathOrUri
                         ).toRecordEntity()
                     )
                     if (updated == 0) {
@@ -175,7 +180,7 @@ class RecordsDataSourceImpl @Inject internal constructor(
                     Timber.e(e)
                     // Step 2 failed — roll back the file rename.
                     try {
-                        fileDataSource.renameFile(renamed.absolutePath, record.name)
+                        fileDataSource.renameRecordFile(renamedPathOrUri, record.name)
                     } catch (re: Exception) {
                         Timber.e(re, "Failed to rollback file rename after DB update failure")
                     }
@@ -200,7 +205,11 @@ class RecordsDataSourceImpl @Inject internal constructor(
                 val truncated = description.take(RECORD_DESCRIPTION_MAX_LENGTH)
                 val updated = updateRecord(record.copy(description = truncated))
                 if (updated) {
-                    if (writeToFile) {
+                    if (record.path.isContentUri()) {
+                        //Comment tags are not written for records in a public directory:
+                        // the tag library requires direct file access.
+                        Timber.d("Skip writing comment tag for SAF record: %s", record.path)
+                    } else if (writeToFile) {
                         File(record.path).writeCommentTag(truncated)
                     } else {
                         File(record.path).writeCommentTag("")
@@ -327,8 +336,12 @@ class RecordsDataSourceImpl @Inject internal constructor(
                 .filter { record ->
                     // Only include records whose file exists on disk with non-zero size.
                     // If the file doesn't exist or is empty, the record data is truly lost.
-                    val file = File(record.path)
-                    file.exists() && file.length() > 0
+                    if (record.path.isContentUri()) {
+                        getDocumentLength(context, record.path) > 0
+                    } else {
+                        val file = File(record.path)
+                        file.exists() && file.length() > 0
+                    }
                 }
         } catch (e: Exception) {
             Timber.e(e, "Failed to get broken records")
@@ -339,6 +352,12 @@ class RecordsDataSourceImpl @Inject internal constructor(
     override suspend fun restoreBrokenRecord(recordId: Long): Boolean {
         return try {
             val record = recordDao.getRecordById(recordId)?.toRecord() ?: return false
+            if (record.path.isContentUri()) {
+                //Restoration rewrites the file structure in-place and requires direct
+                // file access, which is not available for SAF documents.
+                Timber.e("Cannot restore broken record stored in a public directory: ${record.path}")
+                return false
+            }
             val file = File(record.path)
             if (!file.exists() || file.length() == 0L) {
                 Timber.e("Cannot restore broken record: file does not exist or is empty: ${record.path}")

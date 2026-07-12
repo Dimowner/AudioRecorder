@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.v2.data
 
 import android.content.Context
 import com.dimowner.audiorecorder.exception.CantCreateFileException
+import com.dimowner.audiorecorder.v2.data.model.RecordTarget
 import java.io.File
 
 interface FileDataSource {
@@ -27,6 +28,15 @@ interface FileDataSource {
     @Throws(CantCreateFileException::class)
     fun createRecordFile(fileName: String): File
 
+    /**
+     * Creates the destination for a new recording honoring the user-selected public directory
+     * setting: a SAF document in the picked directory when set (falling back to the private
+     * directory when the picked directory is no longer accessible), a private file otherwise.
+     */
+    @Throws(CantCreateFileException::class)
+    fun createRecordTarget(fileName: String): RecordTarget
+
+    /** Deletes a record file addressed by an absolute path or a content:// document Uri string. */
     fun deleteRecordFile(path: String): Boolean
 
     @Deprecated("Not used anymore as redundant complexity logic")
@@ -37,8 +47,21 @@ interface FileDataSource {
 
     fun renameFile(path: String, newName: String): File?
 
+    /**
+     * Renames a record file addressed by an absolute path or a content:// document Uri string,
+     * keeping the original extension.
+     * @return the new path/Uri string, or null on failure.
+     */
+    fun renameRecordFile(pathOrUri: String, newName: String): String?
+
     @Throws(IllegalArgumentException::class)
     fun getAvailableSpace(): Long
+
+    /**
+     * Available space in bytes at the storage hosting [pathOrUri] (file path or document Uri).
+     * Null falls back to the private records directory.
+     */
+    fun getAvailableSpace(pathOrUri: String?): Long
 
     fun requestSystemMoreMemory(context: Context, file: File, requiredSpace: Long)
 }

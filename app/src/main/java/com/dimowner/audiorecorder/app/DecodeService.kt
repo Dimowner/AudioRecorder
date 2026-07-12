@@ -181,7 +181,7 @@ class DecodeService : Service() {
 			var prevTime: Long = 0
 			val rec = localRepository.getRecord(id.toInt())
 			if (rec != null && rec.duration / 1000 < DECODE_DURATION) {
-				waveformVisualization.decodeRecordWaveform(rec.path, object : AudioDecodingListener {
+				waveformVisualization.decodeRecordWaveform(applicationContext, rec.path, object : AudioDecodingListener {
 					override fun isCanceled(): Boolean {
 						return isCancel
 					}
@@ -249,7 +249,7 @@ class DecodeService : Service() {
 		processingTasks.postRunnable {
 			var prevTime: Long = 0
 			if (durationMills < DECODE_DURATION) {
-				waveformVisualization.decodeRecordWaveform(path, object : AudioDecodingListener {
+				waveformVisualization.decodeRecordWaveform(applicationContext, path, object : AudioDecodingListener {
 					override fun isCanceled(): Boolean {
 						return isCancel
 					}

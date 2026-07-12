@@ -42,6 +42,7 @@ import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
 import com.dimowner.audiorecorder.v2.data.extensions.checkForLostRecords
+import com.dimowner.audiorecorder.v2.data.extensions.isContentUri
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
@@ -150,7 +151,7 @@ internal class RecordsViewModel @Inject constructor(
 
         val deletedRecordsCount = recordsDataSource.getMovedToRecycleRecordsCount()
         val filterOptions = recordsDataSource.getFilterOptions()
-        val lostRecords = checkForLostRecords(allLoadedRecords)
+        val lostRecords = checkForLostRecords(context, allLoadedRecords)
         if (lostRecords.isNotEmpty()) {
             analyticsTracker.trackLostRecordsDetected(count = lostRecords.size)
         }
@@ -426,6 +427,10 @@ internal class RecordsViewModel @Inject constructor(
     fun renameRecord(recordId: Long, newName: String) {
         viewModelScope.launch(ioDispatcher) {
             recordsDataSource.getRecord(recordId)?.let { record ->
+                if (record.path.isContentUri()) {
+                    renameSafRecord(record, newName)
+                    return@let
+                }
                 val currentFile = File(record.path)
                 // Skip rename if the name hasn't changed
                 if (currentFile.nameWithoutExtension == newName) {
@@ -474,6 +479,46 @@ internal class RecordsViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    /**
+     * Renames a record stored in a user-selected public directory. A SAF document has no
+     * filesystem path to pre-check for collisions; the DocumentsProvider itself rejects
+     * a rename to an existing name.
+     */
+    private suspend fun renameSafRecord(record: Record, newName: String) {
+        if (record.name == newName) {
+            _state.value = _state.value.copy(
+                showRenameDialog = false,
+                operationSelectedRecord = null
+            )
+            return
+        }
+        val context: Context = getApplication<Application>().applicationContext
+        if (recordsDataSource.renameRecord(record, newName)) {
+            emitEvent(
+                RecordsScreenEvent.ShowInfoSnack(
+                    context.getString(R.string.msg_record_renamed, newName)
+                )
+            )
+            _state.value = _state.value.copy(
+                showRenameDialog = false,
+                operationSelectedRecord = null,
+                recordsMap = _state.value.recordsMap.mapRecordInMap(record.id) { oldRecord ->
+                    oldRecord.copy(name = newName)
+                }
+            )
+        } else {
+            emitEvent(
+                RecordsScreenEvent.ShowErrorSnack(
+                    context.getString(R.string.error_file_exists)
+                )
+            )
+            _state.value = _state.value.copy(
+                showRenameDialog = false,
+                operationSelectedRecord = null
+            )
         }
     }
 
@@ -555,10 +600,21 @@ internal class RecordsViewModel @Inject constructor(
         multiSelectCancel()
         viewModelScope.launch(ioDispatcher) {
             recordsDataSource.getRecord(recordId)?.let {
-                DownloadService.startNotification(
-                    getApplication<Application>().applicationContext,
-                    it.path
-                )
+                if (it.path.isContentUri()) {
+                    //The download pipeline requires direct file access; a record in a
+                    // user-selected public directory is already reachable by other apps.
+                    val context: Context = getApplication<Application>().applicationContext
+                    emitEvent(
+                        RecordsScreenEvent.ShowInfoSnack(
+                            context.getString(R.string.msg_record_already_in_public_dir)
+                        )
+                    )
+                } else {
+                    DownloadService.startNotification(
+                        getApplication<Application>().applicationContext,
+                        it.path
+                    )
+                }
             }
             _state.value = _state.value.copy(
                 showSaveAsDialog = false,
@@ -773,12 +829,23 @@ internal class RecordsViewModel @Inject constructor(
     private fun multiSelectSaveAs() {
         viewModelScope.launch(ioDispatcher) {
             val recordList = recordsDataSource.getRecords(state.value.selectedRecords.map { it.recordId })
-            if (recordList.isNotEmpty()) {
+            //The download pipeline requires direct file access; records in a user-selected
+            // public directory are skipped — they are already reachable by other apps.
+            val downloadableList = recordList.filter { !it.path.isContentUri() }
+            if (downloadableList.size < recordList.size) {
+                val context: Context = getApplication<Application>().applicationContext
+                emitEvent(
+                    RecordsScreenEvent.ShowInfoSnack(
+                        context.getString(R.string.msg_record_already_in_public_dir)
+                    )
+                )
+            }
+            if (downloadableList.isNotEmpty()) {
                 withContext(mainDispatcher) {
                     //Download record file with Service
                     DownloadService.startNotification(
                         getApplication<Application>().applicationContext,
-                        recordList
+                        downloadableList
                             .map { it.path }
                             .toCollection(ArrayList())
                     )
@@ -787,6 +854,11 @@ internal class RecordsViewModel @Inject constructor(
                         showSaveAsMultipleDialog = false,
                     )
                 }
+            } else if (recordList.isNotEmpty()) {
+                multiSelectCancel()
+                _state.value = _state.value.copy(
+                    showSaveAsMultipleDialog = false,
+                )
             } else {
                 val context: Context = getApplication<Application>().applicationContext
                 emitEvent(
