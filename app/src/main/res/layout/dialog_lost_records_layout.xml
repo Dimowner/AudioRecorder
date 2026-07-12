@@ -66,8 +66,6 @@
 				android:textSize="@dimen/text_normal"
 				android:paddingStart="@dimen/spacing_normal"
 				android:paddingEnd="@dimen/spacing_normal"
-				android:paddingLeft="@dimen/spacing_normal"
-				android:paddingRight="@dimen/spacing_normal"
 				android:text="@string/btn_ok" />
 
 		<Button
@@ -78,8 +76,6 @@
 				android:textSize="@dimen/text_normal"
 				android:paddingStart="@dimen/spacing_normal"
 				android:paddingEnd="@dimen/spacing_normal"
-				android:paddingLeft="@dimen/spacing_normal"
-				android:paddingRight="@dimen/spacing_normal"
 				android:layout_marginStart="@dimen/spacing_small"
 				android:text="@string/btn_details" />
 

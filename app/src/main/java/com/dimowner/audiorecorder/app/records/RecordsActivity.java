@@ -84,6 +84,7 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 	private ImageButton btnDecoding;
 	private TextView txtProgress;
 	private TextView txtDuration;
+	private TextView txtZeroTime;
 	private TextView txtName;
 	private TextView txtEmpty;
 	private TextView txtTitle;
@@ -179,6 +180,8 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 		playProgress = findViewById(R.id.play_progress);
 		txtProgress = findViewById(R.id.txt_progress);
 		txtDuration = findViewById(R.id.txt_duration);
+		txtZeroTime = findViewById(R.id.txt_zero_time);
+		txtZeroTime.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 		txtName = findViewById(R.id.txt_name);
 		waveformView = findViewById(R.id.record);
 		waveformView.showTimeline(false);

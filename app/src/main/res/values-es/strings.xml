@@ -106,7 +106,6 @@
 	<string name="recording_progress">Grabando&#8230;</string>
 	<string name="recording_paused">Pausado</string>
 	<string name="playback">Reproducción: %s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">Vacío</string>
 	<string name="items_selected"> %d seleccionados</string>
 	<string name="no_records">No hay grabaciones</string>

@@ -104,7 +104,6 @@
 	<string name="recording_progress">녹음 중&#8230;</string>
 	<string name="recording_paused">일시 정지됨</string>
 	<string name="playback">재생 중: %s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">비어 있음</string>
 	<string name="items_selected"> %d개 선택됨</string>
 	<string name="no_records">녹음이 없습니다</string>

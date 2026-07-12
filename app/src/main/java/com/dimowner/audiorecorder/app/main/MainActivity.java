@@ -174,6 +174,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtProgress = findViewById(R.id.txt_progress);
 		txtDuration = findViewById(R.id.txt_duration);
 		txtZeroTime = findViewById(R.id.txt_zero_time);
+		txtZeroTime.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 		txtName = findViewById(R.id.txt_name);
 		txtRecordInfo = findViewById(R.id.txt_record_info);
 		btnPlay = findViewById(R.id.btn_play);
@@ -449,7 +450,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnShare.setVisibility(View.GONE);
 		playProgress.setProgress(0);
 		playProgress.setEnabled(false);
-		txtDuration.setText(R.string.zero_time);
+		txtDuration.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 		waveformView.setVisibility(View.GONE);
 		recordingWaveformView.setVisibility(View.VISIBLE);
 		ivPlaceholder.setVisibility(View.GONE);
@@ -520,7 +521,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnRecordingStop.setEnabled(false);
 		playProgress.setProgress(0);
 		playProgress.setEnabled(false);
-		txtDuration.setText(R.string.zero_time);
+		txtDuration.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 		ivPlaceholder.setVisibility(View.GONE);
 	}
 

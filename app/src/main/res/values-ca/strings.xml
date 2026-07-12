@@ -104,7 +104,6 @@
 	<string name="recording_progress">Gravant&#8230;</string>
 	<string name="recording_paused">En pausa</string>
 	<string name="playback">Reproducció: %s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">Buit</string>
 	<string name="items_selected"> %d seleccionats</string>
 	<string name="no_records">No hi ha cap gravació</string>

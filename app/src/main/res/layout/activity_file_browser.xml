@@ -45,9 +45,7 @@
 				android:layout_weight="1"
 				android:gravity="center_vertical"
 				android:paddingStart="@dimen/spacing_normal"
-				android:paddingLeft="@dimen/spacing_normal"
 				android:paddingEnd="@dimen/spacing_normal"
-				android:paddingRight="@dimen/spacing_normal"
 				android:text="@string/file_browser"
 				android:textColor="@color/text_primary_light" />
 
@@ -118,10 +116,8 @@
 			android:layout_height="wrap_content"
 			android:gravity="center_vertical"
 			android:paddingStart="@dimen/spacing_normal"
-			android:paddingLeft="@dimen/spacing_normal"
 			android:paddingTop="@dimen/spacing_small"
 			android:paddingEnd="@dimen/spacing_normal"
-			android:paddingRight="@dimen/spacing_normal"
 			android:paddingBottom="@dimen/spacing_small"
 			android:text="@string/records_were_removed"
 			android:textColor="@color/text_primary_light" />

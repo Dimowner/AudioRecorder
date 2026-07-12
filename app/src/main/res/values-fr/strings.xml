@@ -88,7 +88,6 @@
 	<string name="recording_progress">Enregistrement&#8230;</string>
 	<string name="recording_paused">En pause</string>
 	<string name="playback">Lecture : %s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">Vide</string>
 	<string name="items_selected">%d sélectionné</string>
 	<string name="no_records">Pas d\'enregistrements</string>

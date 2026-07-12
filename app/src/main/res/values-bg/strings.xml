@@ -89,7 +89,6 @@
 	<string name="recording_progress">Записване&#8230;</string>
 	<string name="recording_paused">Пауза</string>
 	<string name="playback">Възпроизвеждане: %s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">Празно</string>
 	<string name="items_selected"> %d избрани</string>
 	<string name="no_records">Няма записи</string>

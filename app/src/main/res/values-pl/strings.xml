@@ -116,7 +116,6 @@
 	<string name="recording_progress">Nagrywanie&#8230;</string>
 	<string name="recording_paused">Wstrzymano</string>
 	<string name="playback">Odtwarzanie: %s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">Puste</string>
 	<string name="items_selected"> %d zaznaczono</string>
 	<string name="no_records">Brak nagrań</string>

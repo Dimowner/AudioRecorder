@@ -105,7 +105,6 @@
 	<string name="recording_progress">Kayıt alınıyor&#8230;</string>
 	<string name="recording_paused">Duraklatıldı</string>
 	<string name="playback">Oynat: %s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">Boş</string>
 	<string name="items_selected"> %d seçildi</string>
 	<string name="no_records">Kayıtlar boş</string>

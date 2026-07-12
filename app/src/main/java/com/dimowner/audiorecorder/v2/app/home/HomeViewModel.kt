@@ -612,7 +612,7 @@ class HomeViewModel @Inject constructor(
                         isRecording = _state.value.bottomBarState != BottomBarState.READY_TO_START_RECORDING,
                         waveformDataOffset = 0,
                     ),
-                    startTime = context.getString(R.string.zero_time),
+                    startTime = TimeUtils.formatTimeIntervalHourMinSec2(0),
                     endTime = TimeUtils.formatTimeIntervalHourMinSec2(activeRecord.durationMills),
                     recordName = activeRecord.name,
                     recordDescription = activeRecord.description,

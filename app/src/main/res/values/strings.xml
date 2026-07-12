@@ -108,7 +108,6 @@
 	<string name="recording_progress">Recording&#8230;</string>
 	<string name="recording_paused">Paused</string>
 	<string name="playback">Playback: %s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">Empty</string>
 	<string name="items_selected"> %d selected</string>
 	<string name="no_records">Records is empty</string>

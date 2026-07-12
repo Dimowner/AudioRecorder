@@ -1,0 +1,476 @@
+<resources>
+	<string name="app_name">مسجل الصوت</string>
+
+	<string name="records">التسجيلات</string>
+	<string name="settings">الإعدادات</string>
+	<string name="setup">الإعداد</string>
+	<string name="welcome_1">مرحباً بك في تطبيق بسيط وسريع</string>
+    <string name="rate_app">قيِّم التطبيق</string>
+	<string name="store_records_public">حفظ التسجيلات في مجلد عام</string>
+	<string name="record_in_stereo">التسجيل بنظام ستيريو</string>
+
+	<string name="dynamic_theme_colors">ألوان السمة الديناميكية</string>
+	<string name="dark_theme">السمة الداكنة</string>
+	<string name="record_name_format">صيغة اسم التسجيل</string>
+	<string name="version">الإصدار %s</string>
+
+	<plurals name="years">
+		<item quantity="zero">سنة</item>
+		<item quantity="one">سنة</item>
+		<item quantity="two">سنتان</item>
+		<item quantity="few">سنوات</item>
+		<item quantity="many">سنة</item>
+		<item quantity="other">سنة</item>
+	</plurals>
+	<plurals name="days">
+		<item quantity="zero">يوم</item>
+		<item quantity="one">يوم</item>
+		<item quantity="two">يومان</item>
+		<item quantity="few">أيام</item>
+		<item quantity="many">يومًا</item>
+		<item quantity="other">يوم</item>
+	</plurals>
+
+	<!-- Confirmation for successful deletion. -->
+	<string name="msg_recording_permanently_deleted">تم حذف التسجيل \'%1$s\' نهائيًا</string>
+	<!-- Confirmation for sending to trash (if no UNDO is provided) -->
+	<string name="msg_recording_moved_to_trash">تم نقل التسجيل \'%1$s\' إلى سلة المهملات</string>
+	<!-- Confirmation for sending to trash multiple records. -->
+	<string name="msg_few_recordings_moved_to_trash">تم نقل %1$d من %2$d من التسجيلات إلى سلة المهملات</string>
+	<!-- Error message when moving a recording to Trash fails -->
+	<string name="msg_move_to_trash_failed">فشل نقل التسجيل إلى سلة المهملات</string>
+	<!-- Error message when moving a multiple recordings to Trash fails -->
+	<string name="msg_multiple_move_to_trash_failed">فشل نقل التسجيلات إلى سلة المهملات.</string>
+	<!-- Confirmation for canceling a recording session (progress discarded) -->
+	<string name="msg_recording_canceled">تم نقل التسجيل الملغى إلى سلة المهملات</string>
+	<!-- Confirmation for successful restoration after UNDO is clicked -->
+	<string name="msg_recording_restored">تمت استعادة التسجيل \'%1$s\'</string>
+
+	<string name="msg_record_renamed">تمت إعادة تسمية التسجيل إلى \'%1$s\'</string>
+
+	<!-- Confirmation for saving a new recording -->
+	<string name="msg_recording_saved_with_name">تم حفظ التسجيل باسم: %s</string>
+    <!-- Error message when saving a recording fails -->
+	<string name="msg_save_recording_failed">فشل حفظ التسجيل.</string>
+    <!-- Error message shown when an operation fails because the device is out of storage space -->
+	<string name="msg_not_enough_storage_space">لا توجد مساحة تخزين كافية. حرِّر بعض المساحة وحاول مرة أخرى.</string>
+	<!-- Error message for file operation failure -->
+	<string name="msg_file_operation_failed">فشلت عملية الملف. يرجى المحاولة مرة أخرى</string>
+	<!-- Error message for empty name during rename/save -->
+	<string name="msg_name_cannot_be_empty">لا يمكن أن يكون الاسم فارغًا</string>
+    <!-- Permission Messages -->
+    <string name="msg_permission_microphone_denied">إذن الميكروفون مطلوب لتسجيل الصوت. يرجى منح الإذن لاستخدام هذه الميزة.</string>
+	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
+	<string name="action_undo">تراجع</string>
+	<!-- Generic error message for a common failure -->
+	<string name="msg_operation_failed_generic">فشلت العملية</string>
+
+    <string name="recording_duration">مدة التسجيل</string>
+    <string name="recording_duration_subtitle">بدء ملف تسجيل جديد تلقائيًا عند الوصول إلى هذا الحد</string>
+    <string name="new_recording_part_started">بدأ جزء تسجيل جديد</string>
+    <string name="duration_picker_hint">أدخل الساعات والدقائق</string>
+    <string name="error_duration_at_least_one_minute">يجب أن تكون المدة دقيقة واحدة على الأقل</string>
+    <!-- Warnings & Constraints -->
+    <string name="warning_duration_limit_recommended">لا يُنصح بالتسجيلات الأطول من ساعتين، إذ قد تفقد كل ما سجّلته في حال حدوث خطأ</string>
+
+    <string name="keep_screen_on">إبقاء الشاشة مضاءة أثناء التسجيل</string>
+    <string name="records_author_name">اسم مؤلف التسجيلات</string>
+    <string name="record_author">مؤلف التسجيل</string>
+    <string name="records_author_name_hint">اسم المؤلف</string>
+	<!-- Records Author name explanation -->
+	<string name="info_record_author_name">يحدد وسم الفنان/المؤلف المضمَّن في البيانات الوصفية لكل ملف تسجيل جديد. سيظهر هذا الاسم في مشغلات الموسيقى ومديري الملفات.</string>
+	<string name="total_duration">إجمالي مدة التسجيلات: %s</string>
+	<string name="total_record_count">إجمالي عدد التسجيلات: %d</string>
+	<string name="available_space">المساحة المتاحة: %s</string>
+    <string name="delete_all2">حذف الكل</string>
+    <string name="delete_all3">إفراغ سلة المهملات</string>
+	<string name="records_were_removed">لم يتم العثور على بعض ملفات التسجيلات في مجلد التسجيلات. ربما تم حذفها أو نقلها.</string>
+	<string name="title_file_is_not_available">لا يمكن الوصول إلى ملف التسجيل!</string>
+	<string name="details_file_is_not_available">للأسف، لم يعد بإمكان التطبيق الوصول إلى وحدة التخزين العامة في أندرويد.\nيمكنك العثور على ملف التسجيل على هاتفك في هذا الموقع:\n%s</string>
+	<string name="warning">تحذير!</string>
+    <string name="move_record_to_trash">هل تريد نقل %s إلى سلة المهملات؟</string>
+    <string name="delete_record">هل تريد حذف التسجيل %s؟</string>
+    <string name="delete_record_forever">هل تريد حذف التسجيل %s نهائيًا؟</string>
+	<plurals name="delete_selected_records">
+		<item quantity="zero">هل تريد نقل %d تسجيل محدد إلى سلة المهملات؟</item>
+		<item quantity="one">هل تريد نقل التسجيل المحدد (%d) إلى سلة المهملات؟</item>
+		<item quantity="two">هل تريد نقل التسجيلَين المحددَين (%d) إلى سلة المهملات؟</item>
+		<item quantity="few">هل تريد نقل %d تسجيلات محددة إلى سلة المهملات؟</item>
+		<item quantity="many">هل تريد نقل %d تسجيلاً محددًا إلى سلة المهملات؟</item>
+		<item quantity="other">هل تريد نقل %d تسجيل محدد إلى سلة المهملات؟</item>
+	</plurals>
+	<plurals name="download_selected_records">
+		<item quantity="zero">هل تريد نسخ %d تسجيل محدد إلى مجلد \'التنزيلات\'؟</item>
+		<item quantity="one">هل تريد نسخ التسجيل المحدد (%d) إلى مجلد \'التنزيلات\'؟</item>
+		<item quantity="two">هل تريد نسخ التسجيلَين المحددَين (%d) إلى مجلد \'التنزيلات\'؟</item>
+		<item quantity="few">هل تريد نسخ %d تسجيلات محددة إلى مجلد \'التنزيلات\'؟</item>
+		<item quantity="many">هل تريد نسخ %d تسجيلاً محددًا إلى مجلد \'التنزيلات\'؟</item>
+		<item quantity="other">هل تريد نسخ %d تسجيل محدد إلى مجلد \'التنزيلات\'؟</item>
+	</plurals>
+	<string name="start_recording">بدء التسجيل</string>
+	<string name="recording_feature_disabled">ميزة التسجيل معطلة</string>
+	<string name="restore_record">هل تريد استعادة التسجيل %s؟</string>
+	<string name="delete_all_records">هل تريد حذف جميع التسجيلات؟</string>
+	<string name="delete_all_records2">هل تريد إفراغ سلة المهملات؟ سيتم حذف جميع التسجيلات نهائيًا.</string>
+	<string name="all_records_deleted">تم حذف جميع التسجيلات بنجاح</string>
+	<string name="failed_to_delete_all_records">فشل حذف جميع التسجيلات</string>
+	<string name="please_select_record_to_share">يرجى تحديد تسجيل للمشاركة</string>
+    <string name="update_record_name">تحديث الاسم</string>
+    <string name="update_name_and_description">تحديث الاسم والوصف</string>
+	<string name="recording">جارٍ التسجيل: %s</string>
+	<string name="recording_is_on">التسجيل قيد التشغيل</string>
+	<string name="recording_progress">جارٍ التسجيل&#8230;</string>
+	<string name="recording_paused">متوقف مؤقتًا</string>
+	<string name="playback">التشغيل: %s</string>
+	<string name="empty">فارغ</string>
+	<string name="items_selected"> تم تحديد %d</string>
+	<string name="no_records">لا توجد تسجيلات</string>
+	<string name="no_bookmarks">لا توجد إشارات مرجعية</string>
+	<string name="bookmarks">الإشارات المرجعية</string>
+	<string name="share_record">مشاركة التسجيل: %s</string>
+	<plurals name="share_records_count">
+		<item quantity="zero">مشاركة %d تسجيل</item>
+		<item quantity="one">مشاركة تسجيل واحد (%d)</item>
+		<item quantity="two">مشاركة تسجيلَين (%d)</item>
+		<item quantity="few">مشاركة %d تسجيلات</item>
+		<item quantity="many">مشاركة %d تسجيلاً</item>
+		<item quantity="other">مشاركة %d تسجيل</item>
+	</plurals>
+	<string name="import_progress">جارٍ استيراد الملف الصوتي&#8230;</string>
+	<string name="btn_import">استيراد</string>
+	<string name="processing_canceled">تم إلغاء المعالجة</string>
+	<string name="record_processing">جارٍ معالجة الصوت&#8230;</string>
+	<string name="request">طلب أو ملاحظات</string>
+	<string name="email_clients_not_found">لم يتم العثور على أي تطبيق بريد إلكتروني</string>
+	<string name="send_email">إرسال عبر البريد الإلكتروني&#8230;</string>
+	<string name="open_record_with">فتح %s باستخدام</string>
+	<string name="delete">حذف</string>
+	<string name="restore">استعادة</string>
+	<string name="info">معلومات</string>
+	<string name="rename">إعادة تسمية</string>
+	<string name="dont_ask_again">عدم السؤال مرة أخرى</string>
+	<string name="open_with">فتح باستخدام&#8230;</string>
+	<string name="save_as">حفظ باسم&#8230;</string>
+	<string name="downloading">جارٍ النسخ: %s</string>
+	<plurals name="downloading_success_count">
+		<item quantity="zero">تم نسخ %d تسجيل بنجاح</item>
+		<item quantity="one">تم نسخ تسجيل واحد (%d) بنجاح</item>
+		<item quantity="two">تم نسخ تسجيلَين (%d) بنجاح</item>
+		<item quantity="few">تم نسخ %d تسجيلات بنجاح</item>
+		<item quantity="many">تم نسخ %d تسجيلاً بنجاح</item>
+		<item quantity="other">تم نسخ %d تسجيل بنجاح</item>
+	</plurals>
+	<plurals name="move_records_success_count">
+		<item quantity="zero">تم نقل %d تسجيل بنجاح</item>
+		<item quantity="one">تم نقل تسجيل واحد (%d) بنجاح</item>
+		<item quantity="two">تم نقل تسجيلَين (%d) بنجاح</item>
+		<item quantity="few">تم نقل %d تسجيلات بنجاح</item>
+		<item quantity="many">تم نقل %d تسجيلاً بنجاح</item>
+		<item quantity="other">تم نقل %d تسجيل بنجاح</item>
+	</plurals>
+	<string name="downloading_success_and_fail_count">تم نسخ %1$d من التسجيلات بنجاح وفشل نسخ %2$d</string>
+	<string name="moving_records_success_and_fail_count">تم نقل %1$d من التسجيلات بنجاح وفشل نقل %2$d</string>
+	<string name="downloading_success">تم نسخ %s إلى مجلد \'التنزيلات\'</string>
+	<string name="move_record_success">تم نقل %s إلى المجلد الخاص بالتطبيق</string>
+	<plurals name="downloading_failed_count">
+		<item quantity="zero">فشل نسخ %d تسجيل</item>
+		<item quantity="one">فشل نسخ تسجيل واحد (%d)</item>
+		<item quantity="two">فشل نسخ تسجيلَين (%d)</item>
+		<item quantity="few">فشل نسخ %d تسجيلات</item>
+		<item quantity="many">فشل نسخ %d تسجيلاً</item>
+		<item quantity="other">فشل نسخ %d تسجيل</item>
+	</plurals>
+	<plurals name="move_records_failed_count">
+		<item quantity="zero">فشل نقل %d تسجيل</item>
+		<item quantity="one">فشل نقل تسجيل واحد (%d)</item>
+		<item quantity="two">فشل نقل تسجيلَين (%d)</item>
+		<item quantity="few">فشل نقل %d تسجيلات</item>
+		<item quantity="many">فشل نقل %d تسجيلاً</item>
+		<item quantity="other">فشل نقل %d تسجيل</item>
+	</plurals>
+	<string name="record_will_be_copied_into_downloads">سيتم نسخ التسجيل إلى مجلد \'التنزيلات\'</string>
+	<string name="record_name_will_be_copied_into_downloads">سيتم نسخ التسجيل \'%s\' إلى مجلد \'التنزيلات\'</string>
+	<string name="move_record_failed">فشل النقل: %s</string>
+	<string name="downloading_failed">فشل النسخ: %s</string>
+	<string name="downloading_failed_file_already_exists">فشل النسخ. يوجد ملف بالاسم %s بالفعل</string>
+	<string name="downloading_cancel">تم إلغاء النسخ</string>
+	<string name="share">مشاركة</string>
+	<string name="ask_to_rename">عرض مربع حوار إعادة التسمية بعد اكتمال التسجيل</string>
+	<string name="record_moved_into_trash">تم نقل التسجيل إلى سلة المهملات</string>
+	<string name="selected_records_moved_into_trash">تم نقل التسجيلات المحددة إلى سلة المهملات</string>
+	<string name="all_records_deleted_successfully">تم حذف جميع التسجيلات بنجاح</string>
+	<string name="record_deleted_successfully">تم حذف التسجيل بنجاح</string>
+	<string name="record_restored_successfully">تمت استعادة التسجيل بنجاح</string>
+	<string name="record_imported_successfully">تم استيراد التسجيل بنجاح</string>
+	<string name="cant_import_files">تعذّر استيراد الملفات</string>
+	<string name="by_date">حسب التاريخ (الأحدث)</string>
+	<string name="by_date_desc">حسب التاريخ (الأقدم)</string>
+	<string name="by_name">حسب الاسم (أ-ي)</string>
+	<string name="by_name_desc">حسب الاسم (ي-أ)</string>
+	<string name="by_duration">حسب المدة (الأطول)</string>
+	<string name="by_duration_desc">حسب المدة (الأقصر)</string>
+	<string name="filter">تصفية</string>
+	<string name="filter_clear">مسح</string>
+	<string name="filter_dismiss">إزالة التصفية</string>
+	<string name="filter_no_options">لا توجد تسجيلات للتصفية</string>
+	<string name="need_write_permission">يتطلب التطبيق إذنًا للوصول إلى وحدة التخزين العامة. إذا لم يُسمح بذلك، فسيتم حفظ التسجيلات في المجلد الخاص بالتطبيق</string>
+	<string name="rec_name">الاسم:</string>
+	<string name="rec_format">الصيغة:</string>
+	<string name="rec_duration">المدة:</string>
+    <string name="rec_size">الحجم:</string>
+	<string name="rec_created">تاريخ الإنشاء:</string>
+	<string name="rec_location">موقع الملف:</string>
+	<string name="rec_description">الوصف</string>
+	<string name="rec_description_hint">أضف وصفًا لهذا التسجيل</string>
+	<string name="edit_description">تعديل الوصف</string>
+	<string name="add_description">إضافة وصف</string>
+	<string name="write_description_into_file">كتابة الوصف داخل الملف الصوتي</string>
+	<string name="save_description_to_file">الحفظ أيضًا في الملف الصوتي</string>
+	<string name="msg_saved_successfully">تم الحفظ بنجاح</string>
+	<string name="naming">التسمية:</string>
+	<string name="private_dir_warning">سيتم حفظ التسجيلات في المجلد الخاص بالتطبيق وهو غير مرئي للتطبيقات الأخرى</string>
+	<string name="public_dir_warning">سيتم حفظ التسجيلات في مجلد عام على جهازك وهو مرئي للتطبيقات الأخرى</string>
+	<string name="lost_records">التسجيلات المفقودة</string>
+	<string name="trash">سلة المهملات</string>
+	<string name="trash_info">تُحذف التسجيلات الموجودة في سلة المهملات نهائيًا بعد 60 يومًا.</string>
+	<string name="file_browser">متصفح الملفات</string>
+	<string name="private_dir">المجلد الخاص</string>
+	<string name="public_dir">المجلد العام</string>
+	<string name="found_in_the_app">موجود في التطبيق</string>
+	<string name="not_found_in_the_app">غير موجود في التطبيق</string>
+	<string name="in_trash">في سلة المهملات</string>
+
+    <string name="recording_settings">إعدادات التسجيل</string>
+
+    <string name="today">اليوم</string>
+	<string name="yesterday">أمس</string>
+
+	<string name="btn_save">حفظ</string>
+
+	<string name="btn_cancel">إلغاء</string>
+	<string name="btn_yes">نعم</string>
+	<string name="btn_ok">حسنًا</string>
+	<string name="btn_got_it">فهمت</string>
+	<string name="btn_no">لا</string>
+	<string name="btn_play">تشغيل</string>
+	<string name="btn_previous">السابق</string>
+	<string name="btn_next">التالي</string>
+	<string name="btn_deny">رفض</string>
+    <string name="btn_details">التفاصيل</string>
+	<string name="btn_get_started">ابدأ</string>
+	<string name="btn_apply">تطبيق</string>
+	<string name="btn_reset">إعادة تعيين</string>
+	<string name="btn_recommended">موصى به</string>
+    <string name="btn_dismiss">إغلاق</string>
+    <string name="view">عرض</string>
+	<string name="view_records">عرض التسجيلات</string>
+	<string name="move_records_needed">يلزم نقل التسجيلات</string>
+	<string name="moving_record">جارٍ نقل التسجيل: %s</string>
+	<string name="moving_record_cancel">تم إلغاء النقل</string>
+	<string name="move_records_info">لا تزال بعض تسجيلاتك محفوظة في وحدة التخزين العامة. قريبًا لن تكون وحدة التخزين العامة متاحة للتطبيق. نحتاج إلى نقل تلك التسجيلات إلى المجلد الخاص بالتطبيق.</string>
+	<string name="info_format">صيغة <b>M4a</b> مشفرة بترميز AAC الصوتي وتتميز بجودة جيدة وحجم صغير. <b>(موصى بها)</b>
+		\n<b>Wav</b> صيغة بيانات صوتية غير مضغوطة. تشغل مساحة أكبر بكثير من الصيغ الأخرى، وهي مطلوبة لحالات خاصة.
+		\n<b>3gp</b> صيغة حاوية وسائط متعددة طُوِّرت لخدمات الاتصالات المتنقلة. استخدمها إذا كنت بحاجة إلى توفير المساحة.
+		</string>
+
+	<string name="info_format_m4a_html"><![CDATA[صيغة <b>M4a</b> مشفرة بترميز AAC الصوتي وتتميز بجودة جيدة وحجم صغير. <b>(موصى بها)</b>]]></string>
+	<string name="info_format_wav_html"><![CDATA[<b>Wav</b> صيغة بيانات صوتية غير مضغوطة. تشغل مساحة أكبر بكثير من الصيغ الأخرى، وهي مطلوبة لحالات خاصة.]]></string>
+	<string name="info_format_3gp_html"><![CDATA[<b>3gp</b> صيغة حاوية وسائط متعددة طُوِّرت لخدمات الاتصالات المتنقلة. استخدمها إذا كنت بحاجة إلى توفير المساحة.]]></string>
+
+	<string name="info_frequency"><b>معدل العينة</b> هو عدد عينات الصوت المنقولة في الثانية.
+		\n<b>48kHz</b> هو معدل العينة المستخدم في أقراص DVD.
+		\n<b>44,1kHz</b> هو معدل العينة المستخدم في الأقراص الصوتية المدمجة. <b>(موصى به)</b>
+		\n<b>22kHz</b> معدل عينة شائع لمعدلات البت المنخفضة مثل 64 kbps.
+		\n <b>8kHz</b> معدل عينة أقل نطاقًا من أنظمة الهاتف الحديثة. غير مناسب لأي مهمة تسجيل جادة.
+		</string>
+
+	<string name="info_frequency_header_html"><![CDATA[<b>معدل العينة</b> هو عدد عينات الصوت المنقولة في الثانية.]]></string>
+	<string name="info_frequency_48khz_html"><![CDATA[<b>48kHz</b> هو معدل العينة المستخدم في أقراص DVD.]]></string>
+	<string name="info_frequency_44_1khz_html"><![CDATA[<b>44,1kHz</b> هو معدل العينة المستخدم في الأقراص الصوتية المدمجة. <b>(موصى به)</b>]]></string>
+	<string name="info_frequency_22khz_html"><![CDATA[<b>22kHz</b> معدل عينة شائع لمعدلات البت المنخفضة مثل 64 kbps.]]></string>
+	<string name="info_frequency_8khz_html"><![CDATA[<b>8kHz</b> معدل عينة أقل نطاقًا من أنظمة الهاتف الحديثة. غير مناسب لأي مهمة تسجيل جادة.]]></string>
+
+	<string name="info_bitrate"><b>معدل البت</b> هو حجم البيانات لكل ثانية من الصوت. يؤثر مباشرة على جودة التسجيل وحجمه.
+		\n<b>256 kbps</b> معدل بت بجودة جيدة.
+		\n<b>192 kbps</b> معدل بت بجودة متوسطة.
+		\n<b>128 kbps</b> جودة معدل بت متوسطة المدى. معدل بت شائع للبودكاست. <b>(موصى به)</b>
+		\n<b>96 kbps</b> يُستخدم عمومًا للكلام أو البث منخفض الجودة.
+		\n<b>48 kbps</b> مقبول عمومًا للكلام فقط.
+		</string>
+
+    <string name="info_bitrate_header_html"><![CDATA[<b>معدل البت</b> هو حجم البيانات لكل ثانية من الصوت. يؤثر مباشرة على جودة التسجيل وحجمه.]]></string>
+    <string name="info_bitrate_256kbps_html"><![CDATA[<b>256 kbps</b> معدل بت بجودة جيدة.]]></string>
+    <string name="info_bitrate_192kbps_html"><![CDATA[<b>192 kbps</b> معدل بت بجودة متوسطة.]]></string>
+    <string name="info_bitrate_128kbps_html"><![CDATA[<b>128 kbps</b> جودة معدل بت متوسطة المدى. معدل بت شائع للبودكاست. <b>(موصى به)</b>]]></string>
+    <string name="info_bitrate_96kbps_html"><![CDATA[<b>96 kbps</b> يُستخدم عمومًا للكلام أو البث منخفض الجودة.]]></string>
+    <string name="info_bitrate_48kbps_html"><![CDATA[<b>48 kbps</b> مقبول عمومًا للكلام فقط.]]></string>
+
+	<string name="info_channels">
+		<b>ستيريو</b> يتم تسجيل قناتين منفصلتين. هذا يعني أن كل سماعة ستيريو تتلقى إشارة صوتية مختلفة. <b>(موصى به)</b>
+		\n<b>مونو</b> يتم تسجيل قناة إشارة واحدة. يمكن تشغيلها عبر عدة سماعات، لكن جميع السماعات تشغّل النسخة نفسها من الإشارة.
+		</string>
+
+    <string name="info_channels_html"><![CDATA[
+<b>ستيريو (قناتان):</b> يسجل قناتين صوتيتين مستقلتين لخلق إحساس بالمكان والاتجاه. <b>(موصى به)</b>
+<br/><br/><b>مونو (قناة واحدة):</b> يسجل قناة صوتية واحدة. تُشغَّل الإشارة نفسها عبر جميع السماعات.
+]]></string>
+
+    <string name="info_audio_source_html"><![CDATA[
+<b>افتراضي:</b> الإعداد الموصى به من الشركة المصنعة. يعمل عادةً مثل خيار <b>الميكروفون</b> لكنه يسمح للجهاز بتطبيق ضبطه المحسَّن الخاص.
+<br/><br/><b>الميكروفون:</b> إعداد الميكروفون القياسي. الأفضل للتسجيل العام. يوازن مستوى الصوت تلقائيًا مع التقاط الأجواء الطبيعية للمحيط.
+<br/><br/><b>اتصال صوتي:</b> مصمم خصيصًا لوضوح صوت الإنسان. الأفضل مع البلوتوث لأنه يفعّل إلغاء الضوضاء والصدى.
+<br/><br/><b>غير معالج:</b> يلتقط الصوت الخام دون أي مرشحات أو تعديلات من النظام. بدون إزالة ضوضاء الخلفية وبدون موازنة مستوى الصوت. الأفضل للاستخدام الاحترافي وعالي الدقة.
+]]></string>
+    <string name="info_3gp"><b>3gp</b> صيغة حاوية وسائط متعددة طُوِّرت لخدمات الاتصالات المتنقلة. استخدمها إذا كنت بحاجة إلى توفير المساحة.</string>
+    <string name="info_m4a">صيغة <b>M4a</b> مشفرة بترميز AAC الصوتي وتتميز بجودة جيدة وحجم صغير. <b>(موصى بها)</b></string>
+    <string name="info_wav"><b>Wav</b> صيغة بيانات صوتية غير مضغوطة. تشغل مساحة أكبر بكثير من الصيغ الأخرى، وهي مطلوبة لحالات خاصة.</string>
+	<string name="info_stereo"><b>ستيريو</b> يتم تسجيل قناتين منفصلتين. هذا يعني أن كل سماعة ستيريو تتلقى إشارة صوتية مختلفة. <b>(موصى به)</b></string>
+	<string name="info_mono"><b>مونو</b> يتم تسجيل قناة إشارة واحدة. يمكن تشغيلها عبر عدة سماعات، لكن جميع السماعات تشغّل النسخة نفسها من الإشارة.</string>
+	<string name="info_bitrate_48"><b>48 kbps</b> مقبول عمومًا للكلام فقط.</string>
+	<string name="info_bitrate_96"><b>96 kbps</b> يُستخدم عمومًا للكلام أو البث منخفض الجودة.</string>
+	<string name="info_bitrate_128"><b>128 kbps</b> جودة معدل بت متوسطة المدى. معدل بت شائع للبودكاست. <b>(موصى به)</b></string>
+	<string name="info_bitrate_192"><b>192 kbps</b> معدل بت بجودة متوسطة.</string>
+	<string name="info_bitrate_256"><b>256 kbps</b> معدل بت بجودة جيدة.</string>
+	<string name="info_bitrate_288"><b>288 kbps</b> معدل بت بجودة عالية جدًا.</string>
+	<string name="info_sample_rate_8k"><b>8kHz</b> معدل عينة أقل نطاقًا من أنظمة الهاتف الحديثة. غير مناسب لأي مهمة تسجيل جادة.</string>
+	<string name="info_sample_rate_16k"><b>16kHz</b> أفضل من 8kHz.</string>
+	<string name="info_sample_rate_22k"><b>22kHz</b> معدل عينة شائع لمعدلات البت المنخفضة مثل 64 kbps.</string>
+	<string name="info_sample_rate_32k"><b>32kHz</b> أفضل قليلاً من 22kHz.</string>
+	<string name="info_sample_rate_44k"><b>44,1kHz</b> هو معدل العينة المستخدم في الأقراص الصوتية المدمجة. <b>(موصى به)</b></string>
+	<string name="info_sample_rate_48k"><b>48kHz</b> هو معدل العينة المستخدم في أقراص DVD.</string>
+	<string name="recording_format">صيغة التسجيل:</string>
+	<string name="bitrate">معدل البت:</string>
+	<string name="channels">عدد القنوات:</string>
+	<string name="sample_rate">معدل العينة:</string>
+	<string name="size_per_min">الحجم المتوقع %s م.ب/الدقيقة</string>
+	<string name="value_khz">%d كيلوهرتز</string>
+	<string name="value_hz">%d هرتز</string>
+	<string name="value_kbps">%d كيلوبت/ث</string>
+	<string name="stereo">ستيريو</string>
+	<string name="mono">مونو</string>
+	<string name="records_location">موقع التسجيلات:\n%s</string>
+	<string name="feature_not_available_in_android_10">لم تعد هذه الميزة متاحة في أندرويد 10 أو أحدث.</string>
+	<string name="size">%s م.ب</string>
+	<string name="move_records">نقل %d من التسجيلات</string>
+
+	<string name="error_unknown">خطأ غير متوقع</string>
+	<string name="error_cant_create_file">تعذّر إنشاء الملف</string>
+	<string name="error_failed_to_start_recording">فشل بدء التسجيل</string>
+	<string name="error_invalid_output_file">ملف إخراج غير صالح</string>
+	<string name="error_file_exists">يوجد ملف بهذا الاسم بالفعل!</string>
+	<string name="error_failed_to_rename">فشلت إعادة تسمية التسجيل!</string>
+	<string name="error_failed_to_init_recorder">فشلت تهيئة المسجل</string>
+	<string name="error_failed_to_init_player">فشلت تهيئة المشغل</string>
+	<string name="error_player_data_source">يتعذر على المشغل قراءة الملف</string>
+	<string name="error_unable_to_read_sound_file">يتعذر قراءة الملف الصوتي</string>
+	<string name="error_permission_denied">تم رفض الإذن</string>
+	<string name="error_process_waveform">يتعذر رسم الموجة الصوتية</string>
+	<string name="error_lost_records">بعض تسجيلاتك حُذفت أو نُقلت</string>
+	<string name="local_storage_info_title">تُحفظ التسجيلات على الجهاز</string>
+	<string name="local_storage_info_message">لا يتم نسخ التسجيلات احتياطيًا إلى السحابة. حذف التطبيق أو بياناته سيمحوها نهائيًا.</string>
+	<string name="broken_record_title">انقطع التسجيل</string>
+	<string name="broken_record_message">انقطع التسجيل \'%s\' (ربما بسبب إعادة تشغيل الجهاز) وقد يكون ملفه تالفًا. هل تريد محاولة استعادته؟</string>
+	<string name="btn_restore">استعادة</string>
+	<string name="msg_broken_record_restored">تمت استعادة التسجيل \'%s\' بنجاح</string>
+	<string name="error_broken_record_restore_failed">فشلت استعادة التسجيل. قد يكون الملف غير قابل للاستعادة.</string>
+	<string name="error_no_available_space">لا توجد مساحة متاحة!</string>
+	<string name="error_failed_access_to_storage">فشل الوصول إلى وحدة تخزين الملفات</string>
+	<string name="error_on_recording">خطأ في التسجيل!</string>
+	<string name="error_failed_to_restore">فشلت استعادة التسجيل!</string>
+	<string name="error_failed_to_delete">فشل حذف التسجيل!</string>
+	<string name="error_recording_already_started">التسجيل قيد التشغيل بالفعل!</string>
+
+	<string name="move_public_storage_records_message">يلزم نقل التسجيلات من وحدة التخزين العامة</string>
+	<string name="later">لاحقًا</string>
+	<string name="move">نقل</string>
+	<string name="move_all">نقل الكل</string>
+
+	<string name="button_record">تسجيل</string>
+	<string name="button_stop">إيقاف</string>
+	<string name="button_pause">إيقاف مؤقت</string>
+	<string name="button_resume">استئناف</string>
+	<string name="button_finish">إنهاء</string>
+	<string name="legacy_app">التطبيق القديم</string>
+	<string name="legacy_app_subtitle">التبديل إلى واجهة التطبيق القديمة</string>
+	<string name="switch_to_legacy">التبديل إلى التطبيق القديم</string>
+	<string name="new_audio_recorder_available">يتوفر مسجل صوت جديد</string>
+	<string name="try_new_app_subtitle">يحتفظ بجميع تسجيلاتك — ويتيح العودة في أي وقت</string>
+	<string name="try_new_app">جرّب التطبيق الجديد</string>
+
+	<!-- Shown in the 'About' window of the app. -->
+	<string name="about_body"><![CDATA[
+    	<b>مسجل الصوت 2026</b><br>
+		الإصدار %s
+	]]></string>
+
+	<string-array name="theme_colors2">
+		<item>سمة رمادي مزرق</item>
+		<item>سمة أسود</item>
+		<item>سمة أزرق مخضر</item>
+		<item>سمة أزرق</item>
+		<item>سمة بنفسجي</item>
+		<item>سمة وردي</item>
+		<item>سمة برتقالي</item>
+		<item>سمة أحمر</item>
+		<item>سمة بني</item>
+	</string-array>
+
+	<string-array name="bit_rates2">
+		<item>48 kbps</item>
+		<item>96 kbps</item>
+		<item>128 kbps</item>
+		<item>192 kbps</item>
+		<item>256 kbps</item>
+		<item>288 kbps</item>
+	</string-array>
+
+	<string-array name="sample_rates2">
+		<item>8kHz</item>
+		<item>16kHz</item>
+		<item>22kHz</item>
+		<item>32kHz</item>
+		<item>44.1kHz</item>
+		<item>48kHz</item>
+	</string-array>
+
+	<string-array name="channels">
+		<item>ستيريو</item>
+		<item>مونو</item>
+	</string-array>
+
+    <!-- Time duration days, hours and minutes. Example: "1d 2h 30m" -->
+    <string name="duration_days_hours_minutes">%1$dي %2$dس %3$dد</string>
+    <!-- Time duration hours and minutes. Examples: "2h 30m", "5h 0m" -->
+    <string name="duration_hours_and_minutes">%1$dس %2$dد</string>
+    <!-- Time duration minutes only. Examples: "45m", or "0m"-->
+    <string name="duration_minutes">%1$dد</string>
+
+    <string name="app_widget_description">أداة بدء التسجيل</string>
+
+    <string name="bluetooth_microphone_available">ميكروفون بلوتوث متاح</string>
+    <string name="audio_source">مصدر الصوت</string>
+    <string name="audio_source_default">افتراضي</string>
+    <string name="audio_source_mic">الميكروفون</string>
+    <string name="audio_source_voice_communication">اتصال صوتي</string>
+    <string name="audio_source_unprocessed">غير معالج</string>
+
+    <!-- Database migration -->
+    <string name="database_update_in_progress">جارٍ تحديث قاعدة البيانات</string>
+
+    <!-- Audio Playback Notification channel name -->
+    <string name="notification_channel_playback_name">تشغيل الصوت</string>
+    <!-- Audio Playback Notification channel description -->
+    <string name="notification_channel_playback_description">يعرض تقدم تشغيل الصوت</string>
+    <!-- Audio Recording Notification channel name -->
+    <string name="notification_channel_recording_name">تسجيل الصوت</string>
+    <!-- Audio Recording Notification channel description -->
+    <string name="notification_channel_recording_description">يعرض تقدم تسجيل الصوت</string>
+    <!-- Recording Notification Status Messages -->
+    <string name="status_recording_active">التسجيل قيد التقدم</string>
+    <string name="status_recording_paused">التسجيل متوقف مؤقتًا</string>
+    <!-- Navigate back button description -->
+    <string name="navigate_back">الرجوع</string>
+    <!-- Dropdown menu button description -->
+    <string name="dropdown_menu">القائمة</string>
+`
+</resources>

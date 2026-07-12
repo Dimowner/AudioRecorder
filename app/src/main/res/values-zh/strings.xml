@@ -83,7 +83,6 @@
     <string name="recording_progress">录制中&#8230;</string>
     <string name="recording_paused">已暂停</string>
     <string name="playback">播放：%s</string>
-    <string name="zero_time">00:00</string>
     <string name="empty">空</string>
     <string name="items_selected">已选择 %d 项</string>
     <string name="no_records">没有录音</string>
