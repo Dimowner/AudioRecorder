@@ -142,8 +142,8 @@
         <item quantity="one">%d gravação movida com sucesso</item>
         <item quantity="other">%d gravações movidas com sucesso</item>
     </plurals>
-    <string name="downloading_success_and_fail_count">%d gravações copiadas com sucesso e %d falharam</string>
-    <string name="moving_records_success_and_fail_count">%d gravações movidas com sucesso e %d falharam</string>
+    <string name="downloading_success_and_fail_count">%1$d gravações copiadas com sucesso e %2$d falharam</string>
+    <string name="moving_records_success_and_fail_count">%1$d gravações movidas com sucesso e %2$d falharam</string>
     <string name="downloading_success">%s copiado para a pasta \'Transferências\'</string>
     <string name="move_record_success">%s movido para a pasta privada da aplicação</string>
     <plurals name="downloading_failed_count">

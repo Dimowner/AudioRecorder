@@ -114,8 +114,8 @@
     <plurals name="move_records_success_count">
         <item quantity="other">%d 个录音移动成功</item>
     </plurals>
-    <string name="downloading_success_and_fail_count">%d 个录音复制成功，%d 个复制失败</string>
-    <string name="moving_records_success_and_fail_count">%d 个录音移动成功，%d 个移动失败</string>
+    <string name="downloading_success_and_fail_count">%1$d 个录音复制成功，%2$d 个复制失败</string>
+    <string name="moving_records_success_and_fail_count">%1$d 个录音移动成功，%2$d 个移动失败</string>
     <string name="downloading_success">%s 已保存到"下载"目录</string>
     <string name="move_record_success">%s 已移动到应用的私有目录</string>
     <plurals name="downloading_failed_count">

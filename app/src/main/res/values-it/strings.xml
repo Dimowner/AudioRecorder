@@ -141,8 +141,8 @@
 		<item quantity="one">%d registrazione spostata con successo</item>
 		<item quantity="other">%d registrazioni spostate con successo</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d registrazioni copiate con successo e %d non riuscite</string>
-	<string name="moving_records_success_and_fail_count">%d registrazioni spostate con successo e %d non riuscite</string>
+	<string name="downloading_success_and_fail_count">%1$d registrazioni copiate con successo e %2$d non riuscite</string>
+	<string name="moving_records_success_and_fail_count">%1$d registrazioni spostate con successo e %2$d non riuscite</string>
 	<string name="downloading_success">%s copiato nella cartella \'Download\'</string>
 	<string name="move_record_success">%s spostato nella cartella privata dell\'app</string>
 	<plurals name="downloading_failed_count">

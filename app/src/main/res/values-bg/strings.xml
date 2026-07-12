@@ -123,8 +123,8 @@
 		<item quantity="one">%d запис е преместен успешно</item>
 		<item quantity="other">%d записа са преместени успешно</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d записа са копирани успешно и %d са неуспешни</string>
-	<string name="moving_records_success_and_fail_count">%d записа са преместени успешно и %d са неуспешни</string>
+	<string name="downloading_success_and_fail_count">%1$d записа са копирани успешно и %2$d са неуспешни</string>
+	<string name="moving_records_success_and_fail_count">%1$d записа са преместени успешно и %2$d са неуспешни</string>
 	<string name="downloading_success">%s е копиран в директорията \'Изтеглени\'</string>
 	<string name="move_record_success">%s е преместен в частната директория на приложението</string>
 	<plurals name="downloading_failed_count">

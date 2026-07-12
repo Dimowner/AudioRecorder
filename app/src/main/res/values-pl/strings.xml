@@ -156,8 +156,8 @@
 		<item quantity="many">%d nagrań zostało pomyślnie przeniesionych</item>
 		<item quantity="other">%d nagrania zostały pomyślnie przeniesione</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d nagrań skopiowano pomyślnie, %d nie udało się skopiować</string>
-	<string name="moving_records_success_and_fail_count">%d nagrań przeniesiono pomyślnie, %d nie udało się przenieść</string>
+	<string name="downloading_success_and_fail_count">%1$d nagrań skopiowano pomyślnie, %2$d nie udało się skopiować</string>
+	<string name="moving_records_success_and_fail_count">%1$d nagrań przeniesiono pomyślnie, %2$d nie udało się przenieść</string>
 	<string name="downloading_success">%s skopiowano do katalogu \'Pobrane\'</string>
 	<string name="move_record_success">%s przeniesiono do prywatnego katalogu aplikacji</string>
 	<plurals name="downloading_failed_count">

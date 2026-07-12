@@ -122,8 +122,8 @@
 		<item quantity="one">%d enregistrement déplacé avec succès</item>
 		<item quantity="other">%d enregistrements déplacés avec succès</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d enregistrements copiés avec succès et %d ont échoué</string>
-	<string name="moving_records_success_and_fail_count">%d enregistrements déplacés avec succès et %d ont échoué</string>
+	<string name="downloading_success_and_fail_count">%1$d enregistrements copiés avec succès et %2$d ont échoué</string>
+	<string name="moving_records_success_and_fail_count">%1$d enregistrements déplacés avec succès et %2$d ont échoué</string>
 	<string name="downloading_success">%s copié dans le dossier \'Downloads\'</string>
 	<string name="move_record_success">%s déplacé dans le dossier privé de l\'application</string>
 	<plurals name="downloading_failed_count">

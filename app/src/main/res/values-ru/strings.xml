@@ -135,8 +135,8 @@
 		<item quantity="many">%d записей перемещено успешно</item>
 		<item quantity="other">%d записей перемещено успешно</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d записей скопировано успешно, и %d не удалось скопировать</string>
-	<string name="moving_records_success_and_fail_count">%d записей перемещено успешно, и %d не удалось переместить</string>
+	<string name="downloading_success_and_fail_count">%1$d записей скопировано успешно, и %2$d не удалось скопировать</string>
+	<string name="moving_records_success_and_fail_count">%1$d записей перемещено успешно, и %2$d не удалось переместить</string>
 	<string name="downloading_success">%s скопировано в папку \'Downloads\'</string>
 	<string name="move_record_success">%s перемещено в приватную папку приложения</string>
 	<plurals name="downloading_failed_count">

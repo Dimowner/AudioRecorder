@@ -142,8 +142,8 @@
 		<item quantity="one">%d record moved successfully</item>
 		<item quantity="other">%d records moved successfully</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d records copied successfully and %d failed to copy</string>
-	<string name="moving_records_success_and_fail_count">%d records moved successfully and %d failed to move</string>
+	<string name="downloading_success_and_fail_count">%1$d records copied successfully and %2$d failed to copy</string>
+	<string name="moving_records_success_and_fail_count">%1$d records moved successfully and %2$d failed to move</string>
 	<string name="downloading_success">%s copied to the \'Downloads\' directory</string>
 	<string name="move_record_success">%s moved to the app\'s private directory</string>
 	<plurals name="downloading_failed_count">

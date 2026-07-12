@@ -141,8 +141,8 @@
 		<item quantity="one">已移動 %d 則錄音</item>
 		<item quantity="other">已移動 %d 則錄音</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">已複製 %d 則錄音，%d 個失敗</string>
-	<string name="moving_records_success_and_fail_count">已移動 %d 則錄音，%d 個失敗</string>
+	<string name="downloading_success_and_fail_count">已複製 %1$d 則錄音，%2$d 個失敗</string>
+	<string name="moving_records_success_and_fail_count">已移動 %1$d 則錄音，%2$d 個失敗</string>
 	<string name="downloading_success">「%s」已複製到 Download 資料夾</string>
 	<string name="move_record_success">「%s」已移動到應用程式專用資料夾</string>
 	<plurals name="downloading_failed_count">

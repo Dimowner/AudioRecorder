@@ -141,8 +141,8 @@
 		<item quantity="one">%d Aufnahme erfolgreich verschoben</item>
 		<item quantity="other">%d Aufnahmen erfolgreich verschoben</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d Aufnahmen erfolgreich kopiert und %d fehlgeschlagen</string>
-	<string name="moving_records_success_and_fail_count">%d Aufnahmen erfolgreich verschoben und %d fehlgeschlagen</string>
+	<string name="downloading_success_and_fail_count">%1$d Aufnahmen erfolgreich kopiert und %2$d fehlgeschlagen</string>
+	<string name="moving_records_success_and_fail_count">%1$d Aufnahmen erfolgreich verschoben und %2$d fehlgeschlagen</string>
 	<string name="downloading_success">%s in das Verzeichnis \'Downloads\' kopiert</string>
 	<string name="move_record_success">%s in das private Verzeichnis der App verschoben</string>
 	<plurals name="downloading_failed_count">

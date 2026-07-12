@@ -138,8 +138,8 @@
 		<item quantity="one">S\'ha mogut %d gravació correctament</item>
 		<item quantity="other">S\'han mogut %d gravacions correctament</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">S\'han copiat %d gravacions correctament i n\'han fallat %d</string>
-	<string name="moving_records_success_and_fail_count">S\'han mogut %d gravacions correctament i n\'han fallat %d</string>
+	<string name="downloading_success_and_fail_count">S\'han copiat %1$d gravacions correctament i n\'han fallat %2$d</string>
+	<string name="moving_records_success_and_fail_count">S\'han mogut %1$d gravacions correctament i n\'han fallat %2$d</string>
 	<string name="downloading_success">S\'ha copiat %s al directori de Baixades</string>
 	<string name="move_record_success">S\'ha mogut %s al directori privat de l\'aplicació</string>
 	<plurals name="downloading_failed_count">
