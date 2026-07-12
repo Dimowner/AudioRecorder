@@ -452,7 +452,12 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			stopPlayback();
 		} else if (id == R.id.btn_next) {
 			presenter.pausePlayback();
-			final long recId = adapter.getNextTo(presenter.getActiveRecordId());
+			// Icons keep their fixed visual direction in RTL, so the button positions
+			// mirror (btn_next ends up on the physical left) while the arrow glyphs don't.
+			// Swap which adjacent record is loaded so tapping the button still moves
+			// in the direction its position/icon suggests.
+			boolean isRtl = getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+			final long recId = isRtl ? adapter.getPrevTo(presenter.getActiveRecordId()) : adapter.getNextTo(presenter.getActiveRecordId());
 			presenter.setActiveRecord(recId, new RecordsContract.Callback() {
 				@Override public void onSuccess() {
 					presenter.stopPlayback();
@@ -477,7 +482,8 @@ public class RecordsActivity extends Activity implements RecordsContract.View, V
 			});
 		} else if (id == R.id.btn_prev) {
 			presenter.pausePlayback();
-			final long prevRecId = adapter.getPrevTo(presenter.getActiveRecordId());
+			boolean isRtl = getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+			final long prevRecId = isRtl ? adapter.getNextTo(presenter.getActiveRecordId()) : adapter.getPrevTo(presenter.getActiveRecordId());
 			presenter.setActiveRecord(prevRecId, new RecordsContract.Callback() {
 				@Override public void onSuccess() {
 					presenter.stopPlayback();

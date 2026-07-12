@@ -24,6 +24,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -138,7 +139,10 @@ public class ChipsView extends FrameLayout {
 
 	public TextView createChipView(int id, final String key, final Context context, final String name, final int color, boolean checked) {
 		final TextView textView = new TextView(context);
-		LayoutParams  lp = new LayoutParams(LayoutParams.WRAP_CONTENT, (int) ROW_HEIGHT);
+		// Absolute (non-mirrored) gravity keeps each chip's un-translated rest position
+		// anchored to the left regardless of layout direction, so posX/translationX below
+		// can be computed and mirrored consistently for RTL.
+		LayoutParams  lp = new LayoutParams(LayoutParams.WRAP_CONTENT, (int) ROW_HEIGHT, Gravity.LEFT | Gravity.TOP);
 		textView.setLayoutParams(lp);
 		if (checked) {
 			setSelected(context, textView, color);
@@ -317,8 +321,15 @@ public class ChipsView extends FrameLayout {
 				calculatePositionsDefault(temp);
 			}
 
+			boolean isRtl = getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
 			for (int i = 0; i < chips.size(); i++) {
-				chips.get(i).getView().setTranslationX(chips.get(i).getPosX());
+				float posX = chips.get(i).getPosX();
+				// Rows are always packed left-to-right by calculatePositions(); for RTL
+				// mirror each chip within the full row width so chips read right-to-left.
+				if (isRtl) {
+					posX = WIDTH - chips.get(i).getWidth() - posX;
+				}
+				chips.get(i).getView().setTranslationX(posX);
 				chips.get(i).getView().setTranslationY(chips.get(i).getPosY());
 				chips.get(i).getView().setVisibility(VISIBLE);
 			}
