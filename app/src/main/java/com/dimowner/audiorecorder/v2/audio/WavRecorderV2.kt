@@ -141,12 +141,22 @@ class WavRecorderV2 @Inject constructor(
         // descriptor) and write a placeholder 44-byte WAV header; it is overwritten in-place
         // with real values after recording via the stream's seekable channel.
         val outputStream = try {
-            openOutputStream(output).also { it.write(ByteArray(44)) }
+            openOutputStream(output)
         } catch (e: Exception) {
             Timber.e(e, "Failed to open WAV output: ${output.describe()}")
             recorder.release()
             audioRecord = null
             closeOutputPfd()
+            emitEvent(RecorderEvent.OnError(RecorderInitException()))
+            return false
+        }
+        try {
+            outputStream.write(ByteArray(44))
+        } catch (e: IOException) {
+            Timber.e(e, "Failed to write placeholder WAV header")
+            recorder.release()
+            audioRecord = null
+            closeOutput(outputStream)
             emitEvent(RecorderEvent.OnError(RecorderInitException()))
             return false
         }
