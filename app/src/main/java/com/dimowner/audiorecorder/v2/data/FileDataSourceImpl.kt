@@ -35,6 +35,7 @@ import com.dimowner.audiorecorder.v2.data.extensions.renameFileWithExtension
 import com.dimowner.audiorecorder.v2.data.extensions.requestAllocateSpace
 import com.dimowner.audiorecorder.v2.data.extensions.unmarkFileAsDeleted
 import com.dimowner.audiorecorder.v2.data.model.RecordTarget
+import com.dimowner.audiorecorder.v2.data.model.RenamedRecordFile
 import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
 import java.io.File
@@ -116,11 +117,13 @@ class FileDataSourceImpl @Inject internal constructor(
         return renameFileWithExtension(File(path), newName)
     }
 
-    override fun renameRecordFile(pathOrUri: String, newName: String): String? {
+    override fun renameRecordFile(pathOrUri: String, newName: String): RenamedRecordFile? {
         return if (pathOrUri.isContentUri()) {
             renameDocumentWithExtension(context, pathOrUri, newName)
         } else {
-            renameFileWithExtension(File(pathOrUri), newName)?.absolutePath
+            renameFileWithExtension(File(pathOrUri), newName)?.let {
+                RenamedRecordFile(it.absolutePath, it.nameWithoutExtension)
+            }
         }
     }
 

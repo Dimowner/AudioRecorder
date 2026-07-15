@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.v2.data
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilter
 import com.dimowner.audiorecorder.v2.audio.BrokenRecordRestorer
+import com.dimowner.audiorecorder.v2.data.model.RenamedRecordFile
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.data.room.RecordDao
 import com.dimowner.audiorecorder.v2.data.room.RecordEntity
@@ -317,18 +318,40 @@ class RecordsDataSourceImplTest {
     fun test_renameRecord_success() = runBlocking {
         val record = testRecordEntity.toRecord()
         val newName = "record_new_name"
-        val renamedPath = "path/record_new_name"
+        val renamedFile = RenamedRecordFile("path/record_new_name", newName)
 
-        every { fileDataSource.renameRecordFile(record.path, newName) } returns renamedPath
+        every { fileDataSource.renameRecordFile(record.path, newName) } returns renamedFile
         every { recordDao.updateRecord(any()) } returns 1
 
         val result = recordsDataSourceImpl.renameRecord(record, newName)
 
-        assertTrue(result)
+        assertEquals(newName, result)
         verify(exactly = 1) { fileDataSource.renameRecordFile(record.path, newName) }
         verify(exactly = 1) {
             recordDao.updateRecord(
-                record.copy(name = newName, path = renamedPath).toRecordEntity()
+                record.copy(name = newName, path = renamedFile.pathOrUri).toRecordEntity()
+            )
+        }
+    }
+
+    @Test
+    fun test_renameRecord_name_collision_resolved_by_destination() = runBlocking {
+        val record = testRecordEntity.toRecord()
+        val newName = "record_new_name"
+        //The destination already held "record_new_name.m4a" and renamed the file to avoid it.
+        val actualName = "record_new_name (1)"
+        val renamedFile = RenamedRecordFile("path/record_new_name (1)", actualName)
+
+        every { fileDataSource.renameRecordFile(record.path, newName) } returns renamedFile
+        every { recordDao.updateRecord(any()) } returns 1
+
+        val result = recordsDataSourceImpl.renameRecord(record, newName)
+
+        //The record is named after the file, not after the requested name.
+        assertEquals(actualName, result)
+        verify(exactly = 1) {
+            recordDao.updateRecord(
+                record.copy(name = actualName, path = renamedFile.pathOrUri).toRecordEntity()
             )
         }
     }
@@ -342,7 +365,7 @@ class RecordsDataSourceImplTest {
 
         val result = recordsDataSourceImpl.renameRecord(record, newName)
 
-        assertFalse(result)
+        assertNull(result)
         verify(exactly = 0) { recordDao.updateRecord(any()) }
     }
 
@@ -350,53 +373,57 @@ class RecordsDataSourceImplTest {
     fun test_renameRecord_step_2_failed_update_returns_0_and_rollback_success() = runBlocking {
         val record = testRecordEntity.toRecord()
         val newName = "record_new_name"
-        val renamedPath = "path/record_new_name"
+        val renamedFile = RenamedRecordFile("path/record_new_name", newName)
 
-        every { fileDataSource.renameRecordFile(record.path, newName) } returns renamedPath
+        every { fileDataSource.renameRecordFile(record.path, newName) } returns renamedFile
         every { recordDao.updateRecord(any()) } returns 0
-        every { fileDataSource.renameRecordFile(renamedPath, record.name) } returns record.path
+        every {
+            fileDataSource.renameRecordFile(renamedFile.pathOrUri, record.name)
+        } returns RenamedRecordFile(record.path, record.name)
 
         val result = recordsDataSourceImpl.renameRecord(record, newName)
 
-        assertFalse(result)
+        assertNull(result)
         verify(exactly = 1) { fileDataSource.renameRecordFile(record.path, newName) }
-        verify(exactly = 1) { recordDao.updateRecord(record.copy(name = newName, path = renamedPath).toRecordEntity()) }
-        verify(exactly = 1) { fileDataSource.renameRecordFile(renamedPath, record.name) }
+        verify(exactly = 1) { recordDao.updateRecord(record.copy(name = newName, path = renamedFile.pathOrUri).toRecordEntity()) }
+        verify(exactly = 1) { fileDataSource.renameRecordFile(renamedFile.pathOrUri, record.name) }
     }
 
     @Test
     fun test_renameRecord_step_2_failed_and_rollback_success() = runBlocking {
         val record = testRecordEntity.toRecord()
         val newName = "record_new_name"
-        val renamedPath = "path/record_new_name"
+        val renamedFile = RenamedRecordFile("path/record_new_name", newName)
 
-        every { fileDataSource.renameRecordFile(record.path, newName) } returns renamedPath
+        every { fileDataSource.renameRecordFile(record.path, newName) } returns renamedFile
         every { recordDao.updateRecord(any()) } throws Exception("Failed to update record")
-        every { fileDataSource.renameRecordFile(renamedPath, record.name) } returns record.path
+        every {
+            fileDataSource.renameRecordFile(renamedFile.pathOrUri, record.name)
+        } returns RenamedRecordFile(record.path, record.name)
 
         val result = recordsDataSourceImpl.renameRecord(record, newName)
 
-        assertFalse(result)
+        assertNull(result)
         verify(exactly = 1) { fileDataSource.renameRecordFile(record.path, newName) }
-        verify(exactly = 1) { recordDao.updateRecord(record.copy(name = newName, path = renamedPath).toRecordEntity()) }
-        verify(exactly = 1) { fileDataSource.renameRecordFile(renamedPath, record.name) }
+        verify(exactly = 1) { recordDao.updateRecord(record.copy(name = newName, path = renamedFile.pathOrUri).toRecordEntity()) }
+        verify(exactly = 1) { fileDataSource.renameRecordFile(renamedFile.pathOrUri, record.name) }
     }
 
     @Test
     fun test_renameRecord_step_2_failed_and_rollback_failed() = runBlocking {
         val record = testRecordEntity.toRecord()
         val newName = "record_new_name"
-        val renamedPath = "path/record_new_name"
+        val renamedFile = RenamedRecordFile("path/record_new_name", newName)
 
-        every { fileDataSource.renameRecordFile(record.path, newName) } returns renamedPath
+        every { fileDataSource.renameRecordFile(record.path, newName) } returns renamedFile
         every { recordDao.updateRecord(any()) } throws Exception("Failed to update record")
-        every { fileDataSource.renameRecordFile(renamedPath, record.name) } throws Exception("Failed to rollback")
+        every { fileDataSource.renameRecordFile(renamedFile.pathOrUri, record.name) } throws Exception("Failed to rollback")
 
         val result = recordsDataSourceImpl.renameRecord(record, newName)
 
-        assertFalse(result)
+        assertNull(result)
         verify(exactly = 1) { fileDataSource.renameRecordFile(record.path, newName) }
-        verify(exactly = 1) { fileDataSource.renameRecordFile(renamedPath, record.name) }
+        verify(exactly = 1) { fileDataSource.renameRecordFile(renamedFile.pathOrUri, record.name) }
     }
 
     @Test

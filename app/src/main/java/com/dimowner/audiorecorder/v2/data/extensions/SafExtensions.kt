@@ -19,18 +19,34 @@ import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.system.Os
+import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
+import com.dimowner.audiorecorder.v2.data.model.RenamedRecordFile
 import timber.log.Timber
 import androidx.core.net.toUri
 
 private const val CONTENT_URI_PREFIX = "content://"
 
-/**
- * SAF documents are created with a generic MIME type so DocumentsProvider implementations
- * don't append their own extension to the display name (the real audio MIME type is derived
- * from the file extension by the provider afterwards).
- */
+/** Fallback for extensions the platform has no MIME type for. */
 private const val GENERIC_MIME_TYPE = "application/octet-stream"
+
+/**
+ * MIME type to create a document named [fileName] with.
+ *
+ * It is derived from the extension with the same lookup a DocumentsProvider uses on its side, so
+ * the requested type always agrees with the display name. That agreement is what keeps the name
+ * intact: given a MIME type that contradicts the extension, the provider appends an extension of
+ * its own and treats the whole display name as the base name, suffixing a colliding one as
+ * "Record.m4a (1)" instead of "Record (1).m4a".
+ *
+ * An extension the platform doesn't know still agrees, as both sides fall back to the same
+ * generic type.
+ */
+private fun mimeTypeForFileName(fileName: String): String {
+    val extension = fileName.substringAfterLast('.', "")
+    return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.lowercase())
+        ?: GENERIC_MIME_TYPE
+}
 
 /**
  * Returns true when this record path is a SAF document Uri (record stored in a user-selected
@@ -50,7 +66,10 @@ fun hasPersistedTreePermission(context: Context, treeUri: Uri): Boolean {
 
 /**
  * Creates a new document with name [fileName] inside the SAF tree [treeUri].
- * The DocumentsProvider resolves display-name collisions itself (appends " (1)", " (2)"…).
+ *
+ * The DocumentsProvider resolves a collision with an existing name itself, by creating
+ * "Record (1).m4a" rather than by failing, so the caller must name the record after the created
+ * document instead of after [fileName] (see RecordTarget.nameWithoutExtension).
  *
  * @return the created document, or null when the tree is not accessible/writable.
  */
@@ -61,7 +80,7 @@ fun createDocumentInTree(context: Context, treeUri: Uri, fileName: String): Docu
             Timber.e("SAF tree is not accessible or not writable: $treeUri")
             null
         } else {
-            tree.createFile(GENERIC_MIME_TYPE, fileName)
+            tree.createFile(mimeTypeForFileName(fileName), fileName)
         }
     } catch (e: Exception) {
         Timber.e(e, "Failed to create document $fileName in tree: $treeUri")
@@ -117,9 +136,17 @@ fun deleteDocument(context: Context, uriString: String): Boolean {
 /**
  * Renames the document keeping its original extension, mirroring [renameFileWithExtension].
  *
- * @return the Uri of the renamed document as String, or null on failure.
+ * The DocumentsProvider resolves a collision with an existing name itself, by renaming to
+ * "Record (1).m4a" rather than by failing, so the resulting name is read back from the provider
+ * instead of being assumed to be [newName].
+ *
+ * @return the renamed document, or null on failure.
  */
-fun renameDocumentWithExtension(context: Context, uriString: String, newName: String): String? {
+fun renameDocumentWithExtension(
+    context: Context,
+    uriString: String,
+    newName: String,
+): RenamedRecordFile? {
     return try {
         val uri = uriString.toUri()
         val currentName = getDocumentName(context, uriString) ?: return null
@@ -128,7 +155,10 @@ fun renameDocumentWithExtension(context: Context, uriString: String, newName: St
         }
         val extension = currentName.substringAfterLast('.', "")
         val newFileName = if (extension.isEmpty()) newName else "$newName.$extension"
-        DocumentsContract.renameDocument(context.contentResolver, uri, newFileName)?.toString()
+        val renamedUri = DocumentsContract
+            .renameDocument(context.contentResolver, uri, newFileName)?.toString() ?: return null
+        val actualName = getDocumentName(context, renamedUri) ?: newFileName
+        RenamedRecordFile(renamedUri, actualName.recordNameWithoutExtension())
     } catch (e: Exception) {
         Timber.e(e, "Failed to rename document: $uriString to $newName")
         null

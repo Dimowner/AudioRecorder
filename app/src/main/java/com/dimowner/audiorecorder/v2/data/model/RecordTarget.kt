@@ -16,6 +16,7 @@
 package com.dimowner.audiorecorder.v2.data.model
 
 import android.net.Uri
+import com.dimowner.audiorecorder.v2.data.extensions.recordNameWithoutExtension
 import java.io.File
 
 /**
@@ -35,8 +36,9 @@ sealed class RecordTarget {
     /** Creation timestamp in milliseconds. */
     abstract val created: Long
 
+    /** Name to store in [Record.name] so it matches the file this target points to. */
     val nameWithoutExtension: String
-        get() = name.substringBeforeLast('.')
+        get() = name.recordNameWithoutExtension()
 
     data class LocalFile(val file: File) : RecordTarget() {
         override val pathOrUri: String get() = file.absolutePath

@@ -922,16 +922,17 @@ class HomeViewModel @Inject constructor(
     private suspend fun performRenameActiveRecord(newName: String, activeRecord: Record) {
         val context: Context = getApplication<Application>().applicationContext
         if (activeRecord.path.isContentUri()) {
-            // A SAF document has no filesystem path to pre-check for collisions;
-            // the DocumentsProvider itself rejects a rename to an existing name.
+            // A SAF document has no filesystem path to pre-check for collisions; the
+            // DocumentsProvider resolves them itself, so the resulting name is reported back.
             if (activeRecord.name == newName) {
                 showLoadingProgress(false)
                 return
             }
-            if (recordsDataSource.renameRecord(activeRecord, newName)) {
+            val actualName = recordsDataSource.renameRecord(activeRecord, newName)
+            if (actualName != null) {
                 emitEvent(
                     HomeScreenEvent.ShowInfoSnack(
-                        context.getString(R.string.msg_record_renamed, newName)
+                        context.getString(R.string.msg_record_renamed, actualName)
                     )
                 )
             } else {
@@ -963,11 +964,11 @@ class HomeViewModel @Inject constructor(
             showLoadingProgress(false)
             return
         } else {
-            recordsDataSource.renameRecord(activeRecord, newName)
+            val actualName = recordsDataSource.renameRecord(activeRecord, newName) ?: newName
             val context: Context = getApplication<Application>().applicationContext
             emitEvent(
                 HomeScreenEvent.ShowInfoSnack(
-                    context.getString(R.string.msg_record_renamed, newName)
+                    context.getString(R.string.msg_record_renamed, actualName)
                 )
             )
         }

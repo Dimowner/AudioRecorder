@@ -153,44 +153,46 @@ class RecordsDataSourceImpl @Inject internal constructor(
         return recordDao.updateRecords(records.map { it.toRecordEntity() })
     }
 
-    override suspend fun renameRecord(record: Record, newName: String): Boolean {
+    override suspend fun renameRecord(record: Record, newName: String): String? {
         return try {
-            val renamedPathOrUri = try {
+            val renamedFile = try {
                 fileDataSource.renameRecordFile(record.path, newName)
             } catch (e: Exception) {
                 Timber.e(e)
                 null
             }
-            if (renamedPathOrUri == null) {
+            if (renamedFile == null) {
                 // Step 1 failed — nothing to roll back.
-                false
+                null
             } else {
-                val isUpdated = try {
+                // The name of the file on disk wins: it can differ from the requested one when
+                // the destination resolved a collision with an existing name.
+                val actualName = renamedFile.nameWithoutExtension
+                try {
                     val updated = recordDao.updateRecord(
                         record.copy(
-                            name = newName,
-                            path = renamedPathOrUri
+                            name = actualName,
+                            path = renamedFile.pathOrUri
                         ).toRecordEntity()
                     )
                     if (updated == 0) {
                         throw Exception("No records updated")
                     }
-                    true
+                    actualName
                 } catch (e: Exception) {
                     Timber.e(e)
                     // Step 2 failed — roll back the file rename.
                     try {
-                        fileDataSource.renameRecordFile(renamedPathOrUri, record.name)
+                        fileDataSource.renameRecordFile(renamedFile.pathOrUri, record.name)
                     } catch (re: Exception) {
                         Timber.e(re, "Failed to rollback file rename after DB update failure")
                     }
-                    false
+                    null
                 }
-                isUpdated
             }
         } catch (e: Exception) {
             Timber.e(e)
-            false
+            null
         }
     }
 

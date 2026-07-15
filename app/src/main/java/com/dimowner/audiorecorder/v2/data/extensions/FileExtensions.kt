@@ -34,6 +34,44 @@ import java.io.IOException
 
 private const val RETRY_COUNT = 3
 
+/** Trailing dot segment that may be stripped as an extension: "m4a", "mp3", "3gp"… */
+private val FILE_EXTENSION_REGEX = Regex("[A-Za-z0-9]{1,5}")
+
+/**
+ * Makes [fileName] unique by adding a suffix (-1 or -2 or -3...) before its extension
+ * ("Record.m4a" -> "Record-1.m4a") until [isTaken] no longer matches.
+ * @param fileName Desired file name with extension.
+ * @param isTaken Tells whether a name is already used in the destination directory.
+ */
+fun uniqueFileName(fileName: String, isTaken: (String) -> Boolean): String {
+    if (!isTaken(fileName)) {
+        return fileName
+    }
+    val baseName = fileName.substringBeforeLast('.')
+    val extension = fileName.substringAfterLast('.', "")
+    var suffix = 1
+    var uniqueName: String
+    do {
+        uniqueName = if (extension.isEmpty()) "$baseName-$suffix" else "$baseName-$suffix.$extension"
+        suffix++
+    } while (isTaken(uniqueName))
+    return uniqueName
+}
+
+/**
+ * Record name for the file named [this]: the file name without its extension. The extension is
+ * stripped only when the trailing dot segment really looks like one, so a name a DocumentsProvider
+ * built while resolving a collision ("Record.m4a (1)") is kept whole and the record name still
+ * matches the file it points to.
+ */
+fun String.recordNameWithoutExtension(): String {
+    return if (substringAfterLast('.', "").matches(FILE_EXTENSION_REGEX)) {
+        substringBeforeLast('.')
+    } else {
+        this
+    }
+}
+
 /**
  * Create a file.
  * Also create parent directories if they are not exist.
@@ -47,15 +85,7 @@ fun createFile(directory: File, fileName: String): File {
         directory.mkdirs() // Create the directory if it doesn't exist
     }
 
-    var newFileName = fileName
-    var suffix = 1
-
-    // Check if the file with the same name already exists
-    while (File(directory, newFileName).exists()) {
-        // Append a numeric suffix to the file name
-        newFileName = "${fileName.substringBeforeLast('.')}-$suffix.${fileName.substringAfterLast('.')}"
-        suffix++
-    }
+    val newFileName = uniqueFileName(fileName) { File(directory, it).exists() }
 
     val file = File(directory, newFileName)
     try {

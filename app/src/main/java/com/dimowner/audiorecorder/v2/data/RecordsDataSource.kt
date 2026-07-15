@@ -53,7 +53,12 @@ interface RecordsDataSource {
 
     suspend fun updateRecords(records: List<Record>): Int
 
-    suspend fun renameRecord(record: Record, newName: String): Boolean
+    /**
+     * Renames the record file and the record itself.
+     * @return the name the record actually got, which differs from [newName] when the destination
+     * resolved a name collision ("Record (1)"), or null when the rename failed.
+     */
+    suspend fun renameRecord(record: Record, newName: String): String?
 
     /**
      * Persists a record's description to the database and, when [writeToFile] is true,

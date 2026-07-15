@@ -19,6 +19,7 @@ package com.dimowner.audiorecorder.v2.data
 import android.content.Context
 import com.dimowner.audiorecorder.exception.CantCreateFileException
 import com.dimowner.audiorecorder.v2.data.model.RecordTarget
+import com.dimowner.audiorecorder.v2.data.model.RenamedRecordFile
 import java.io.File
 
 interface FileDataSource {
@@ -50,9 +51,9 @@ interface FileDataSource {
     /**
      * Renames a record file addressed by an absolute path or a content:// document Uri string,
      * keeping the original extension.
-     * @return the new path/Uri string, or null on failure.
+     * @return where the file now lives and the name it actually got, or null on failure.
      */
-    fun renameRecordFile(pathOrUri: String, newName: String): String?
+    fun renameRecordFile(pathOrUri: String, newName: String): RenamedRecordFile?
 
     @Throws(IllegalArgumentException::class)
     fun getAvailableSpace(): Long

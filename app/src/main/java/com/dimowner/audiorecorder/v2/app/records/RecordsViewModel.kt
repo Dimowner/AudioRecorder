@@ -454,7 +454,7 @@ internal class RecordsViewModel @Inject constructor(
                         showRenameDialog = false,
                         operationSelectedRecord = null
                     )
-                } else if (recordsDataSource.renameRecord(record, newName)) {
+                } else if (recordsDataSource.renameRecord(record, newName) != null) {
                     val context: Context = getApplication<Application>().applicationContext
                     emitEvent(
                         RecordsScreenEvent.ShowInfoSnack(
@@ -484,8 +484,8 @@ internal class RecordsViewModel @Inject constructor(
 
     /**
      * Renames a record stored in a user-selected public directory. A SAF document has no
-     * filesystem path to pre-check for collisions; the DocumentsProvider itself rejects
-     * a rename to an existing name.
+     * filesystem path to pre-check for collisions; the DocumentsProvider resolves them itself,
+     * so the record is shown under the name the file actually got.
      */
     private suspend fun renameSafRecord(record: Record, newName: String) {
         if (record.name == newName) {
@@ -496,17 +496,18 @@ internal class RecordsViewModel @Inject constructor(
             return
         }
         val context: Context = getApplication<Application>().applicationContext
-        if (recordsDataSource.renameRecord(record, newName)) {
+        val actualName = recordsDataSource.renameRecord(record, newName)
+        if (actualName != null) {
             emitEvent(
                 RecordsScreenEvent.ShowInfoSnack(
-                    context.getString(R.string.msg_record_renamed, newName)
+                    context.getString(R.string.msg_record_renamed, actualName)
                 )
             )
             _state.value = _state.value.copy(
                 showRenameDialog = false,
                 operationSelectedRecord = null,
                 recordsMap = _state.value.recordsMap.mapRecordInMap(record.id) { oldRecord ->
-                    oldRecord.copy(name = newName)
+                    oldRecord.copy(name = actualName)
                 }
             )
         } else {
