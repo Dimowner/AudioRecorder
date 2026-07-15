@@ -147,6 +147,11 @@ internal fun WelcomeSetupSettingsScreen(
                         currentAuthorName = uiState.recordAuthorName,
                         onAction = onAction,
                     )
+                    RecordingLocationSettingRow(
+                        publicRecordingDirName = uiState.publicRecordingDirName,
+                        onAction = onAction,
+                        enabled = uiState.isRecordingSettingEditable,
+                    )
                     RecordSettingsPanel(
                         recordingSettings = uiState.recordingSettings,
                         enabled = uiState.isRecordingSettingEditable,
