@@ -58,7 +58,6 @@ import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
 import javax.inject.Inject
-import androidx.core.net.toUri
 
 @HiltViewModel
 internal class SettingsViewModel @Inject constructor(
@@ -397,8 +396,11 @@ internal class SettingsViewModel @Inject constructor(
 
     /**
      * Persists the SAF tree picked via Intent.ACTION_OPEN_DOCUMENT_TREE as the public directory
-     * for new recordings. Takes a persistable Uri permission (no storage permission required)
-     * and releases the permission of the previously selected directory.
+     * for new recordings. Takes a persistable Uri permission (no storage permission required).
+     *
+     * The permission of a previously selected directory is deliberately kept: records already
+     * stored there stay readable, and dropping it would make every one of them fail its existence
+     * check and be reported as lost.
      */
     fun setPublicRecordingDir(uri: Uri) {
         viewModelScope.launch(ioDispatcher) {
@@ -411,7 +413,6 @@ internal class SettingsViewModel @Inject constructor(
                 Timber.e(e, "Failed to take persistable permission for: $uri")
                 return@launch
             }
-            releasePublicRecordingDirPermission(except = uri)
             prefs.publicRecordingDirUri = uri.toString()
             val name = getTreeDisplayName(context, uri.toString()) ?: uri.toString()
             withContext(mainDispatcher) {
@@ -420,28 +421,16 @@ internal class SettingsViewModel @Inject constructor(
         }
     }
 
-    /** Switches new recordings back to the default app-private storage. */
+    /**
+     * Switches new recordings back to the default app-private storage. The persisted permission of
+     * the directory is kept, so records already stored there remain accessible.
+     */
     fun resetPublicRecordingDir() {
         viewModelScope.launch(ioDispatcher) {
-            releasePublicRecordingDirPermission(except = null)
             prefs.publicRecordingDirUri = null
             withContext(mainDispatcher) {
                 _state.value = _state.value.copy(publicRecordingDirName = null)
             }
-        }
-    }
-
-    private fun releasePublicRecordingDirPermission(except: Uri?) {
-        val previous = prefs.publicRecordingDirUri ?: return
-        val previousUri = previous.toUri()
-        if (previousUri == except) return
-        try {
-            context.contentResolver.releasePersistableUriPermission(
-                previousUri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            )
-        } catch (e: SecurityException) {
-            Timber.w(e, "Failed to release persistable permission for: $previousUri")
         }
     }
 
