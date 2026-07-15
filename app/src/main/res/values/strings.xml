@@ -79,6 +79,7 @@
 	<string name="recording_location_app_storage">App storage (private)</string>
 	<string name="recording_location_reset">Use app storage</string>
 	<string name="error_public_dir_unavailable">Selected folder is unavailable. Recording is saved to app storage.</string>
+	<string name="error_public_dir_unavailable_import">Selected folder is unavailable. File is imported to app storage.</string>
 	<string name="msg_record_already_in_public_dir">The recording is already stored in a public folder</string>
 	<string name="total_duration">Total recorded duration: %s</string>
 	<string name="total_record_count">Total records count: %d</string>

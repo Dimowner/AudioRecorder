@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.v2.data.extensions
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.ParcelFileDescriptor
@@ -230,6 +231,20 @@ fun copyFile(fileToCopy: FileDescriptor, newFile: File): Boolean {
             val bytesCopied = inputStream.copyTo(outputStream)
             bytesCopied > 0
         }
+    }
+}
+
+/**
+ * Copies [fileToCopy] into the SAF document [uri], mirroring [copyFile] for records stored
+ * in a user-selected public directory.
+ */
+@Throws(IOException::class)
+fun copyFile(context: Context, fileToCopy: FileDescriptor, uri: Uri): Boolean {
+    return FileInputStream(fileToCopy).use { inputStream ->
+        context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+            val bytesCopied = inputStream.copyTo(outputStream)
+            bytesCopied > 0
+        } ?: false
     }
 }
 
