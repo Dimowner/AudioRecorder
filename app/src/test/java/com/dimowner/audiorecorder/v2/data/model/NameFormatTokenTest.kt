@@ -142,6 +142,12 @@ class NameFormatTokenTest {
     }
 
     @Test
+    fun test_monthName_rendersFullMonthName() {
+        val tokens = listOf(NameFormatToken(NameFormatTokenType.MonthName))
+        assertEquals("March", tokens.render())
+    }
+
+    @Test
     fun test_dividers_areOfferedAndRenderable() {
         assertTrue(NAME_FORMAT_DIVIDERS.contains("-"))
         val tokens = NAME_FORMAT_DIVIDERS.map { NameFormatToken(NameFormatTokenType.Divider, it) }

@@ -32,6 +32,7 @@ enum class NameFormatTokenType(val key: String) {
     Timestamp("TS"),
     Year("YR"),
     Month("MO"),
+    MonthName("MNM"),
     Day("DY"),
     DayOfWeek("DW"),
     Hour24("H24"),
@@ -50,6 +51,7 @@ enum class NameFormatTokenType(val key: String) {
     fun datePattern(): String? = when (this) {
         Year -> "yyyy"
         Month -> "MM"
+        MonthName -> "MMMM"
         Day -> "dd"
         DayOfWeek -> "EEE"
         Hour24 -> "HH"

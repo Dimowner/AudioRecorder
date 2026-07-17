@@ -467,6 +467,7 @@
     <string name="name_format_timestamp">Timestamp</string>
     <string name="name_format_year">Year</string>
     <string name="name_format_month">Month</string>
+    <string name="name_format_month_name">Month name</string>
     <string name="name_format_day">Day</string>
     <string name="name_format_day_of_week">Day of week</string>
     <string name="name_format_hour_24">Hour (24h)</string>

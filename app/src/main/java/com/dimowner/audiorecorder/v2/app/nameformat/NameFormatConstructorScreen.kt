@@ -78,6 +78,7 @@ private val DATE_TIME_TOKEN_TYPES = listOf(
     NameFormatTokenType.Timestamp,
     NameFormatTokenType.Year,
     NameFormatTokenType.Month,
+    NameFormatTokenType.MonthName,
     NameFormatTokenType.Day,
     NameFormatTokenType.DayOfWeek,
     NameFormatTokenType.Hour24,
@@ -416,6 +417,7 @@ private fun NameFormatTokenType.labelRes(): Int = when (this) {
     NameFormatTokenType.Timestamp -> R.string.name_format_timestamp
     NameFormatTokenType.Year -> R.string.name_format_year
     NameFormatTokenType.Month -> R.string.name_format_month
+    NameFormatTokenType.MonthName -> R.string.name_format_month_name
     NameFormatTokenType.Day -> R.string.name_format_day
     NameFormatTokenType.DayOfWeek -> R.string.name_format_day_of_week
     NameFormatTokenType.Hour24 -> R.string.name_format_hour_24
