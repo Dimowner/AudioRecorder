@@ -37,6 +37,7 @@ sealed class NameFormatConstructorAction {
     data object InitScreen : NameFormatConstructorAction()
     data class AddToken(val token: NameFormatToken) : NameFormatConstructorAction()
     data class RemoveToken(val index: Int) : NameFormatConstructorAction()
+    data class MoveToken(val fromIndex: Int, val toIndex: Int) : NameFormatConstructorAction()
     data class ApplyPreset(val preset: NameFormat) : NameFormatConstructorAction()
     data object ClearTokens : NameFormatConstructorAction()
     data object Save : NameFormatConstructorAction()

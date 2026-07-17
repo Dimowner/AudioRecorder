@@ -62,6 +62,7 @@ internal class NameFormatConstructorViewModel @Inject constructor(
             NameFormatConstructorAction.InitScreen -> initScreen()
             is NameFormatConstructorAction.AddToken -> addToken(action.token)
             is NameFormatConstructorAction.RemoveToken -> removeToken(action.index)
+            is NameFormatConstructorAction.MoveToken -> moveToken(action.fromIndex, action.toIndex)
             is NameFormatConstructorAction.ApplyPreset -> applyPreset(action.preset)
             NameFormatConstructorAction.ClearTokens -> updateTokens(emptyList())
             NameFormatConstructorAction.Save -> save()
@@ -95,6 +96,16 @@ internal class NameFormatConstructorViewModel @Inject constructor(
         val tokens = _state.value.tokens
         if (index !in tokens.indices) return
         updateTokens(tokens.filterIndexed { i, _ -> i != index })
+    }
+
+    private fun moveToken(fromIndex: Int, toIndex: Int) {
+        val tokens = _state.value.tokens
+        if (fromIndex !in tokens.indices || toIndex !in tokens.indices) return
+        if (fromIndex == toIndex) return
+        val reordered = tokens.toMutableList().apply {
+            add(toIndex, removeAt(fromIndex))
+        }
+        updateTokens(reordered)
     }
 
     private fun applyPreset(preset: NameFormat) {

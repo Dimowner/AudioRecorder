@@ -16,6 +16,7 @@
 
 package com.dimowner.audiorecorder.v2.app.nameformat
 
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
@@ -53,17 +55,29 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.boundsInParent
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import kotlin.math.roundToInt
 import androidx.compose.ui.window.Dialog
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ScrollableTitleBar
@@ -140,6 +154,9 @@ internal fun NameFormatConstructorScreen(
                 ConstructedFormatPanel(
                     tokens = uiState.tokens,
                     onRemoveToken = { onAction(NameFormatConstructorAction.RemoveToken(it)) },
+                    onMoveToken = { from, to ->
+                        onAction(NameFormatConstructorAction.MoveToken(from, to))
+                    },
                     onClear = { onAction(NameFormatConstructorAction.ClearTokens) },
                 )
                 TokenSection(title = stringResource(R.string.name_format_date_and_time)) {
@@ -230,11 +247,12 @@ private fun NameFormatPreview(preview: String) {
 }
 
 /** The elements the format is currently built from, in render order. */
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ConstructedFormatPanel(
     tokens: List<NameFormatToken>,
     onRemoveToken: (Int) -> Unit,
+    onMoveToken: (Int, Int) -> Unit,
     onClear: () -> Unit,
 ) {
     Row(
@@ -261,24 +279,94 @@ private fun ConstructedFormatPanel(
             modifier = Modifier.padding(vertical = 8.dp),
         )
     } else {
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            tokens.forEachIndexed { index, token ->
-                InputChip(
-                    selected = false,
-                    onClick = { onRemoveToken(index) },
-                    label = { Text(text = token.chipLabel()) },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(R.string.name_format_remove_element),
-                            modifier = Modifier.size(18.dp),
+        ReorderableTokenFlow(
+            tokens = tokens,
+            onRemoveToken = onRemoveToken,
+            onMoveToken = onMoveToken,
+        )
+    }
+}
+
+/**
+ * The constructed tokens as chips that can be reordered by long-pressing a chip and dragging it
+ * onto another position. The dragged chip floats under the finger while the remaining chips shift
+ * live to reveal where it will land; releasing drops it into that slot.
+ */
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@Composable
+private fun ReorderableTokenFlow(
+    tokens: List<NameFormatToken>,
+    onRemoveToken: (Int) -> Unit,
+    onMoveToken: (Int, Int) -> Unit,
+) {
+    // Slot bounds of every chip, in the FlowRow's coordinate space, used to hit-test the finger
+    // against the target position while dragging.
+    val chipBounds = remember { mutableStateMapOf<Int, Rect>() }
+    var draggingIndex by remember { mutableStateOf<Int?>(null) }
+    // The finger position in the FlowRow's coordinate space, tracked across the whole drag.
+    var pointerPosition by remember { mutableStateOf(Offset.Zero) }
+    val haptic = LocalHapticFeedback.current
+    val chipShape = MaterialTheme.shapes.small
+
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        tokens.forEachIndexed { index, token ->
+            val isDragging = draggingIndex == index
+            InputChip(
+                selected = isDragging,
+                onClick = { onRemoveToken(index) },
+                label = { Text(text = token.chipLabel()) },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = stringResource(R.string.name_format_remove_element),
+                        modifier = Modifier.size(18.dp),
+                    )
+                },
+                modifier = Modifier
+                    .onGloballyPositioned { chipBounds[index] = it.boundsInParent() }
+                    .zIndex(if (isDragging) 1f else 0f)
+                    .offset {
+                        if (draggingIndex == index) {
+                            val center = chipBounds[index]?.center ?: Offset.Zero
+                            val translation = pointerPosition - center
+                            IntOffset(translation.x.roundToInt(), translation.y.roundToInt())
+                        } else {
+                            IntOffset.Zero
+                        }
+                    }
+                    .then(
+                        if (isDragging) Modifier.shadow(6.dp, chipShape) else Modifier
+                    )
+                    .pointerInput(tokens.size) {
+                        detectDragGesturesAfterLongPress(
+                            onDragStart = { offset ->
+                                draggingIndex = index
+                                pointerPosition = (chipBounds[index]?.topLeft ?: Offset.Zero) + offset
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            },
+                            onDrag = { change, dragAmount ->
+                                change.consume()
+                                val from = draggingIndex ?: return@detectDragGesturesAfterLongPress
+                                pointerPosition += dragAmount
+                                val target = chipBounds.entries
+                                    .filter { it.key in tokens.indices }
+                                    .minByOrNull {
+                                        (it.value.center - pointerPosition).getDistanceSquared()
+                                    }
+                                    ?.key
+                                if (target != null && target != from) {
+                                    onMoveToken(from, target)
+                                    draggingIndex = target
+                                }
+                            },
+                            onDragEnd = { draggingIndex = null },
+                            onDragCancel = { draggingIndex = null },
                         )
                     },
-                )
-            }
+            )
         }
     }
 }
