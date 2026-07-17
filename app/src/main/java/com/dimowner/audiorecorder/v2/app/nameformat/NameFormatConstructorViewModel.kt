@@ -37,6 +37,14 @@ const val MAX_NAME_FORMAT_TOKENS = 20
 /** Upper bound on the length of a single text element. */
 const val MAX_NAME_FORMAT_TEXT_LENGTH = 30
 
+/**
+ * Upper bound on the rendered name length. Needed in addition to [MAX_NAME_FORMAT_TOKENS] and
+ * [MAX_NAME_FORMAT_TEXT_LENGTH], since those alone still allow a format that renders to a
+ * unreadably long name, e.g. [MAX_NAME_FORMAT_TOKENS] text elements [MAX_NAME_FORMAT_TEXT_LENGTH]
+ * characters long each.
+ */
+const val MAX_NAME_FORMAT_LENGTH = 100
+
 private const val PREVIEW_EXTENSION = ".m4a"
 
 @HiltViewModel
@@ -78,7 +86,9 @@ internal class NameFormatConstructorViewModel @Inject constructor(
         }
         //A text element without text would silently render to nothing.
         if (sanitized.type == NameFormatTokenType.Text && sanitized.value.isEmpty()) return
-        updateTokens(_state.value.tokens + sanitized)
+        val newTokens = _state.value.tokens + sanitized
+        if (newTokens.formatRecordName(counter = prefs.recordCounter).length > MAX_NAME_FORMAT_LENGTH) return
+        updateTokens(newTokens)
     }
 
     private fun removeToken(index: Int) {
