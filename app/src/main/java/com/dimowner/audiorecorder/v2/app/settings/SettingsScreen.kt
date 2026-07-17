@@ -81,6 +81,7 @@ import androidx.compose.ui.platform.LocalResources
 internal fun SettingsScreen(
     onPopBackStack: () -> Unit,
     showDeletedRecordsScreen: () -> Unit,
+    showNameFormatConstructorScreen: () -> Unit,
     uiState: SettingsState,
     onAction: (SettingsScreenAction) -> Unit,
 ) {
@@ -108,6 +109,8 @@ internal fun SettingsScreen(
 
             Lifecycle.Event.ON_RESUME -> {
                 Timber.d("SettingsScreen: On Resume")
+                //Pick up a format that was just built in the name format constructor.
+                onAction(SettingsScreenAction.RefreshNameFormat)
             }
 
             Lifecycle.Event.ON_PAUSE -> {
@@ -190,7 +193,8 @@ internal fun SettingsScreen(
                     selectedItem = uiState.selectedNameFormat,
                     onSelect = {
                         onAction(SettingsScreenAction.SetNameFormat(it))
-                    }
+                    },
+                    onEditNameFormat = showNameFormatConstructorScreen,
                 )
                 AuthorNameSettingRow(
                     currentAuthorName = uiState.recordAuthorName,
@@ -468,7 +472,7 @@ fun formatDurationDisplay(hours: Int, minutes: Int): String {
 @Preview
 @Composable
 fun SettingsScreenPreview() {
-    SettingsScreen({}, {}, uiState = SettingsState(
+    SettingsScreen({}, {}, {}, uiState = SettingsState(
         isDynamicColors = true,
         isDarkTheme = false,
         isAppV2 = false,

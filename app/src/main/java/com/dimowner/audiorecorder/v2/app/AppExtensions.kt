@@ -36,6 +36,7 @@ import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
+import com.dimowner.audiorecorder.v2.data.model.formatRecordName
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
@@ -319,6 +320,7 @@ suspend fun RecordsDataSource.removeOutdatedTrashRecords() {
  * - [NameFormat.DateUs]: US date format
  * - [NameFormat.DateIso8601]: ISO 8601 date format
  * - [NameFormat.Timestamp]: Unix timestamp format
+ * - [NameFormat.Custom]: The format built by the user in the name format constructor
  * @param prefs The preferences instance used to access and increment the record counter.
  * @return A formatted string to be used as the record name.
  */
@@ -331,6 +333,13 @@ fun NameFormat.getNewRecordName(prefs: PrefsV2): String {
         NameFormat.DateUs -> FileUtil.generateRecordNameDateUS()
         NameFormat.DateIso8601 -> FileUtil.generateRecordNameDateISO8601()
         NameFormat.Timestamp -> FileUtil.generateRecordNameMills()
+        NameFormat.Custom -> {
+            val customName = FileUtil.removeUnallowedSignsFromName(
+                prefs.customNameFormat.formatRecordName(counter = prefs.recordCounter)
+            )
+            //An empty custom format would produce an unusable file name, fall back to the default.
+            customName.ifBlank { FileUtil.generateRecordNameCounted(prefs.recordCounter) }
+        }
     }
     prefs.incrementRecordCounter()
 
