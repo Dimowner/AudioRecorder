@@ -485,5 +485,6 @@
     <string name="name_format_preset_date">Date</string>
     <string name="name_format_preset_date_us">Date US</string>
     <string name="name_format_preset_date_iso8601">Date ISO 8601</string>
+    <string name="name_format_preset_date_long">Date long</string>
     <string name="name_format_preset_custom">Custom</string>
 </resources>

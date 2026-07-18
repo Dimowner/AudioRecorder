@@ -37,6 +37,7 @@ import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.formatRecordName
+import com.dimowner.audiorecorder.v2.data.model.presetTokens
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
@@ -319,6 +320,7 @@ suspend fun RecordsDataSource.removeOutdatedTrashRecords() {
  * - [NameFormat.Date]: Date-based format
  * - [NameFormat.DateUs]: US date format
  * - [NameFormat.DateIso8601]: ISO 8601 date format
+ * - [NameFormat.DateLong]: Date with the month spelled out, localised
  * - [NameFormat.Timestamp]: Unix timestamp format
  * - [NameFormat.Custom]: The format built by the user in the name format constructor
  * @param prefs The preferences instance used to access and increment the record counter.
@@ -332,6 +334,10 @@ fun NameFormat.getNewRecordName(prefs: PrefsV2): String {
         NameFormat.Date -> FileUtil.generateRecordNameDateVariant()
         NameFormat.DateUs -> FileUtil.generateRecordNameDateUS()
         NameFormat.DateIso8601 -> FileUtil.generateRecordNameDateISO8601()
+        //Month names come from the locale, so the rendered name has to be sanitised.
+        NameFormat.DateLong -> FileUtil.removeUnallowedSignsFromName(
+            NameFormat.DateLong.presetTokens().orEmpty().formatRecordName()
+        )
         NameFormat.Timestamp -> FileUtil.generateRecordNameMills()
         NameFormat.Custom -> {
             val customName = FileUtil.removeUnallowedSignsFromName(

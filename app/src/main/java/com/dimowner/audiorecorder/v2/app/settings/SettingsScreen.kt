@@ -184,7 +184,7 @@ internal fun SettingsScreen(
                 SettingsItemCheckBox(
                     uiState.isShowRenameDialog,
                     stringResource(R.string.ask_to_rename),
-                    R.drawable.ic_pencil,
+                    R.drawable.ic_rename_prompt,
                     {
                         onAction(SettingsScreenAction.SetShowRenamingDialog(it))
                     })

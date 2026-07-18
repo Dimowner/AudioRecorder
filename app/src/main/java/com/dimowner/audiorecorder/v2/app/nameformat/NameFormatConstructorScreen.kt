@@ -108,6 +108,7 @@ private val PRESETS = listOf(
     NameFormat.Date,
     NameFormat.DateUs,
     NameFormat.DateIso8601,
+    NameFormat.DateLong,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -524,6 +525,7 @@ private fun NameFormat.labelRes(): Int = when (this) {
     NameFormat.Date -> R.string.name_format_preset_date
     NameFormat.DateUs -> R.string.name_format_preset_date_us
     NameFormat.DateIso8601 -> R.string.name_format_preset_date_iso8601
+    NameFormat.DateLong -> R.string.name_format_preset_date_long
     NameFormat.Custom -> R.string.name_format_preset_custom
 }
 

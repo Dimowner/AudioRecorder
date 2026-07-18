@@ -72,6 +72,23 @@ class NameFormatTokenTest {
     }
 
     @Test
+    fun test_dateLongPreset_spellsOutTheMonth() {
+        assertEquals("07 March 2024 14.05.09", NameFormat.DateLong.presetTokens()!!.render())
+    }
+
+    /** The month name comes from the locale, which is the whole point of this preset. */
+    @Test
+    fun test_dateLongPreset_localisesTheMonthName() {
+        assertEquals(
+            "07 März 2024 14.05.09",
+            NameFormat.DateLong.presetTokens()!!.formatRecordName(
+                timeMills = timeMills,
+                locale = Locale.GERMAN,
+            )
+        )
+    }
+
+    @Test
     fun test_customPreset_hasNoTokens() {
         assertNull(NameFormat.Custom.presetTokens())
     }

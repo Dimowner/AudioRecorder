@@ -29,12 +29,14 @@ class ModelTest {
         assertEquals(NameFormat.Date, NameFormat.Date.toString().convertToNameFormat())
         assertEquals(NameFormat.DateUs, NameFormat.DateUs.toString().convertToNameFormat())
         assertEquals(NameFormat.DateIso8601, NameFormat.DateIso8601.toString().convertToNameFormat())
+        assertEquals(NameFormat.DateLong, NameFormat.DateLong.toString().convertToNameFormat())
 
         assertEquals(NameFormat.Record, "RECORD".convertToNameFormat())
         assertEquals(NameFormat.Timestamp, "TIMESTAMP".convertToNameFormat())
         assertEquals(NameFormat.Date, "DATE".convertToNameFormat())
         assertEquals(NameFormat.DateUs, "DATEUS".convertToNameFormat())
         assertEquals(NameFormat.DateIso8601, "DATEISO8601".convertToNameFormat())
+        assertEquals(NameFormat.DateLong, "DATELONG".convertToNameFormat())
 
         //Fail cases
         assertNull("".convertToNameFormat())

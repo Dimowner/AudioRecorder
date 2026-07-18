@@ -201,6 +201,20 @@ fun NameFormat.presetTokens(): List<NameFormatToken>? {
             NameFormatToken(NameFormatTokenType.Divider, "."),
             NameFormatToken(NameFormatTokenType.Second),
         )
+        //dd MMMM yyyy HH.mm.ss
+        NameFormat.DateLong -> listOf(
+            NameFormatToken(NameFormatTokenType.Day),
+            NameFormatToken(NameFormatTokenType.Divider, " "),
+            NameFormatToken(NameFormatTokenType.MonthName),
+            NameFormatToken(NameFormatTokenType.Divider, " "),
+            NameFormatToken(NameFormatTokenType.Year),
+            NameFormatToken(NameFormatTokenType.Divider, " "),
+            NameFormatToken(NameFormatTokenType.Hour24),
+            NameFormatToken(NameFormatTokenType.Divider, "."),
+            NameFormatToken(NameFormatTokenType.Minute),
+            NameFormatToken(NameFormatTokenType.Divider, "."),
+            NameFormatToken(NameFormatTokenType.Second),
+        )
         NameFormat.Custom -> null
     }
 }

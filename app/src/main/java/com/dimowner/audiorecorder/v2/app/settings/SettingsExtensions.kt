@@ -47,6 +47,7 @@ import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.NameFormatToken
 import com.dimowner.audiorecorder.v2.data.model.formatRecordName
+import com.dimowner.audiorecorder.v2.data.model.presetTokens
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import timber.log.Timber
@@ -63,6 +64,7 @@ fun makeNameFormats(customTokens: List<NameFormatToken> = emptyList()): List<Nam
         NameFormat.Date,
         NameFormat.DateUs,
         NameFormat.DateIso8601,
+        NameFormat.DateLong,
         NameFormat.Timestamp,
     ).map { it.toNameFormatItem(customTokens) }
     return if (customTokens.isEmpty()) {
@@ -83,6 +85,7 @@ fun NameFormat.toNameFormatItem(customTokens: List<NameFormatToken> = emptyList(
         NameFormat.Date -> FileUtil.generateRecordNameDateVariant()
         NameFormat.DateUs -> FileUtil.generateRecordNameDateUS()
         NameFormat.DateIso8601 -> FileUtil.generateRecordNameDateISO8601()
+        NameFormat.DateLong -> NameFormat.DateLong.presetTokens().orEmpty().formatRecordName()
         NameFormat.Timestamp -> FileUtil.generateRecordNameMills()
         NameFormat.Custom -> customTokens.formatRecordName()
     }
