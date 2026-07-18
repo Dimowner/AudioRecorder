@@ -210,7 +210,7 @@
 	<string name="by_duration">حسب المدة (الأطول)</string>
 	<string name="by_duration_desc">حسب المدة (الأقصر)</string>
 	<string name="filter">تصفية</string>
-	<string name="filter_clear">مسح</string>
+	<string name="clear">مسح</string>
 	<string name="filter_dismiss">إزالة التصفية</string>
 	<string name="filter_no_options">لا توجد تسجيلات للتصفية</string>
 	<string name="need_write_permission">يتطلب التطبيق إذنًا للوصول إلى وحدة التخزين العامة. إذا لم يُسمح بذلك، فسيتم حفظ التسجيلات في المجلد الخاص بالتطبيق</string>
@@ -473,4 +473,38 @@
     <!-- Dropdown menu button description -->
     <string name="dropdown_menu">القائمة</string>
 `
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">تعديل تنسيق الاسم</string>
+    <string name="name_format_preview">معاينة</string>
+    <string name="name_format_preview_empty">أضف عناصر لإنشاء اسم</string>
+    <string name="name_format_your_format">تنسيقك</string>
+    <string name="name_format_empty_hint">انقر على العناصر أدناه لإضافتها إلى تنسيقك.</string>
+    <string name="name_format_remove_element">إزالة العنصر</string>
+    <string name="name_format_date_and_time">التاريخ والوقت</string>
+    <string name="name_format_other">العداد والنص</string>
+    <string name="name_format_dividers">الفواصل</string>
+    <string name="name_format_presets">قوالب جاهزة</string>
+    <string name="name_format_add_text">إضافة نص</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">الطابع الزمني</string>
+    <string name="name_format_year">السنة</string>
+    <string name="name_format_month">الشهر</string>
+    <string name="name_format_month_name">اسم الشهر</string>
+    <string name="name_format_day">اليوم</string>
+    <string name="name_format_day_of_week">يوم الأسبوع</string>
+    <string name="name_format_hour_24">الساعة (24)</string>
+    <string name="name_format_hour_12">الساعة (12)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">الدقيقة</string>
+    <string name="name_format_second">الثانية</string>
+    <string name="name_format_counter">العداد</string>
+    <string name="name_format_text">النص</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">الطابع الزمني</string>
+    <string name="name_format_preset_date">التاريخ</string>
+    <string name="name_format_preset_date_us">تاريخ أمريكي</string>
+    <string name="name_format_preset_date_iso8601">تاريخ ISO 8601</string>
+    <string name="name_format_preset_date_long">تاريخ مطوَّل</string>
+    <string name="name_format_preset_custom">مخصص</string>
 </resources>

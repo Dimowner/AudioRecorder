@@ -126,7 +126,7 @@ internal fun NameFormatConstructorScreen(
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             ScrollableTitleBar(
-                title = stringResource(R.string.name_format),
+                title = stringResource(R.string.record_name_format),
                 onBackPressed = onPopBackStack,
                 scrollBehavior = scrollBehavior,
                 actionButtonText = stringResource(R.string.btn_save),
@@ -268,7 +268,7 @@ private fun ConstructedFormatPanel(
         )
         if (tokens.isNotEmpty()) {
             TextButton(onClick = onClear) {
-                Text(text = stringResource(R.string.name_format_clear))
+                Text(text = stringResource(R.string.clear))
             }
         }
     }
@@ -462,7 +462,7 @@ private fun TextTokenDialog(
                     onValueChange = {
                         if (it.length <= MAX_NAME_FORMAT_TEXT_LENGTH) text = it
                     },
-                    label = { Text(stringResource(R.string.name_format_text_hint)) },
+                    label = { Text(stringResource(R.string.name_format_text)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )

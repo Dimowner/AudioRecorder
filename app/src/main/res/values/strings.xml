@@ -176,7 +176,7 @@
 	<string name="by_duration">By duration (longest)</string>
 	<string name="by_duration_desc">By duration (shortest)</string>
 	<string name="filter">Filter</string>
-	<string name="filter_clear">Clear</string>
+	<string name="clear">Clear</string>
 	<string name="filter_dismiss">Dismiss filter</string>
 	<string name="filter_no_options">No records to filter</string>
 	<string name="need_write_permission">The app requires permission to access to the public storage. If not allowed, records will be stored in the app’s private directory</string>
@@ -447,22 +447,18 @@
     <string name="dropdown_menu">Menu</string>
 
     <!-- Name format constructor screen -->
-    <string name="name_format">Name format</string>
     <string name="name_format_edit">Edit name format</string>
     <string name="name_format_preview">Preview</string>
     <string name="name_format_preview_empty">Add elements to build a name</string>
     <string name="name_format_your_format">Your format</string>
     <string name="name_format_empty_hint">Tap the elements below to add them to your format.</string>
-    <string name="name_format_clear">Clear</string>
     <string name="name_format_remove_element">Remove element</string>
     <string name="name_format_date_and_time">Date and time</string>
     <string name="name_format_other">Counter and text</string>
     <string name="name_format_dividers">Dividers</string>
     <string name="name_format_presets">Presets</string>
     <string name="name_format_add_text">Add text</string>
-    <string name="name_format_text_hint">Text</string>
-    <!-- Label for a divider element that is a space character, U+2423 OPEN BOX -->
-    <string name="name_format_divider_space" translatable="false">␣</string>
+
     <!-- Name format element labels -->
     <string name="name_format_timestamp">Timestamp</string>
     <string name="name_format_year">Year</string>
@@ -480,11 +476,13 @@
     <string name="name_format_counter">Counter</string>
     <string name="name_format_text">Text</string>
     <!-- Name format preset labels -->
-    <string name="name_format_preset_record">Record</string>
     <string name="name_format_preset_timestamp">Timestamp</string>
     <string name="name_format_preset_date">Date</string>
     <string name="name_format_preset_date_us">Date US</string>
     <string name="name_format_preset_date_iso8601">Date ISO 8601</string>
     <string name="name_format_preset_date_long">Date long</string>
     <string name="name_format_preset_custom">Custom</string>
+	<!-- Label for a divider element that is a space character, U+2423 OPEN BOX -->
+	<string name="name_format_divider_space" translatable="false">␣</string>
+	<string name="name_format_preset_record" translatable="false">Record</string>
 </resources>

@@ -173,7 +173,7 @@
 	<string name="by_duration">Длительность (длинные)</string>
     <string name="by_duration_desc">Длительность (короткие)</string>
     <string name="filter">Фильтр</string>
-	<string name="filter_clear">Очистить</string>
+	<string name="clear">Очистить</string>
 	<string name="filter_dismiss">Скрыть фильтр</string>
 	<string name="filter_no_options">Нет записей для фильтрации</string>
 	<string name="need_write_permission">Приложению требуется разрешение на запись в публичное хранилище. Если не разрешить, записи будут сохраняться в приватном каталоге приложения</string>
@@ -434,4 +434,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">Назад</string>
     <string name="dropdown_menu">Меню</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Изменить формат имени</string>
+    <string name="name_format_preview">Предпросмотр</string>
+    <string name="name_format_preview_empty">Добавьте элементы, чтобы составить имя</string>
+    <string name="name_format_your_format">Ваш формат</string>
+    <string name="name_format_empty_hint">Нажимайте на элементы ниже, чтобы добавить их в формат.</string>
+    <string name="name_format_remove_element">Удалить элемент</string>
+    <string name="name_format_date_and_time">Дата и время</string>
+    <string name="name_format_other">Счётчик и текст</string>
+    <string name="name_format_dividers">Разделители</string>
+    <string name="name_format_presets">Шаблоны</string>
+    <string name="name_format_add_text">Добавить текст</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Метка времени</string>
+    <string name="name_format_year">Год</string>
+    <string name="name_format_month">Месяц</string>
+    <string name="name_format_month_name">Название месяца</string>
+    <string name="name_format_day">День</string>
+    <string name="name_format_day_of_week">День недели</string>
+    <string name="name_format_hour_24">Часы (24 ч)</string>
+    <string name="name_format_hour_12">Часы (12 ч)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Минуты</string>
+    <string name="name_format_second">Секунды</string>
+    <string name="name_format_counter">Счётчик</string>
+    <string name="name_format_text">Текст</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Метка времени</string>
+    <string name="name_format_preset_date">Дата</string>
+    <string name="name_format_preset_date_us">Дата США</string>
+    <string name="name_format_preset_date_iso8601">Дата ISO 8601</string>
+    <string name="name_format_preset_date_long">Дата полностью</string>
+    <string name="name_format_preset_custom">Свой</string>
 </resources>

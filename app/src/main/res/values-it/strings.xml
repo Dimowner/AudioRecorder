@@ -175,7 +175,7 @@
 	<string name="by_duration">Per durata (più lunga)</string>
     <string name="by_duration_desc">Per durata (più breve)</string>
     <string name="filter">Filtro</string>
-	<string name="filter_clear">Cancella</string>
+	<string name="clear">Cancella</string>
 	<string name="filter_dismiss">Chiudi filtro</string>
 	<string name="filter_no_options">Nessuna registrazione da filtrare</string>
 	<string name="need_write_permission">L\'app richiede il permesso di accesso all\'archivio pubblico. Se non concesso, le registrazioni verranno salvate nella cartella privata dell\'app</string>
@@ -441,4 +441,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">Torna indietro</string>
     <string name="dropdown_menu">Menu</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Modifica formato nome</string>
+    <string name="name_format_preview">Anteprima</string>
+    <string name="name_format_preview_empty">Aggiungi elementi per comporre un nome</string>
+    <string name="name_format_your_format">Il tuo formato</string>
+    <string name="name_format_empty_hint">Tocca gli elementi qui sotto per aggiungerli al tuo formato.</string>
+    <string name="name_format_remove_element">Rimuovi elemento</string>
+    <string name="name_format_date_and_time">Data e ora</string>
+    <string name="name_format_other">Contatore e testo</string>
+    <string name="name_format_dividers">Separatori</string>
+    <string name="name_format_presets">Modelli</string>
+    <string name="name_format_add_text">Aggiungi testo</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Timestamp</string>
+    <string name="name_format_year">Anno</string>
+    <string name="name_format_month">Mese</string>
+    <string name="name_format_month_name">Nome del mese</string>
+    <string name="name_format_day">Giorno</string>
+    <string name="name_format_day_of_week">Giorno della settimana</string>
+    <string name="name_format_hour_24">Ora (24 h)</string>
+    <string name="name_format_hour_12">Ora (12 h)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Minuto</string>
+    <string name="name_format_second">Secondo</string>
+    <string name="name_format_counter">Contatore</string>
+    <string name="name_format_text">Testo</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Timestamp</string>
+    <string name="name_format_preset_date">Data</string>
+    <string name="name_format_preset_date_us">Data USA</string>
+    <string name="name_format_preset_date_iso8601">Data ISO 8601</string>
+    <string name="name_format_preset_date_long">Data estesa</string>
+    <string name="name_format_preset_custom">Personalizzato</string>
 </resources>

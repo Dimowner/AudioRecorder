@@ -172,7 +172,7 @@
 	<string name="by_duration">Per durada (més llarg)</string>
     <string name="by_duration_desc">Per durada (més curt)</string>
     <string name="filter">Filtre</string>
-	<string name="filter_clear">Esborra</string>
+	<string name="clear">Esborra</string>
 	<string name="filter_dismiss">Descarta el filtre</string>
 	<string name="filter_no_options">No hi ha registres per filtrar</string>
 	<string name="need_write_permission">L\'aplicació necessita permís per accedir a l\'emmagatzematge públic. Si no es permet, les gravacions s\'emmagatzemaran al directori privat de l\'aplicació</string>
@@ -439,4 +439,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">Torna enrere</string>
     <string name="dropdown_menu">Menú</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Edita el format del nom</string>
+    <string name="name_format_preview">Vista prèvia</string>
+    <string name="name_format_preview_empty">Afegeix elements per crear un nom</string>
+    <string name="name_format_your_format">El teu format</string>
+    <string name="name_format_empty_hint">Toca els elements de sota per afegir-los al teu format.</string>
+    <string name="name_format_remove_element">Elimina l\'element</string>
+    <string name="name_format_date_and_time">Data i hora</string>
+    <string name="name_format_other">Comptador i text</string>
+    <string name="name_format_dividers">Separadors</string>
+    <string name="name_format_presets">Plantilles</string>
+    <string name="name_format_add_text">Afegeix text</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Marca de temps</string>
+    <string name="name_format_year">Any</string>
+    <string name="name_format_month">Mes</string>
+    <string name="name_format_month_name">Nom del mes</string>
+    <string name="name_format_day">Dia</string>
+    <string name="name_format_day_of_week">Dia de la setmana</string>
+    <string name="name_format_hour_24">Hora (24 h)</string>
+    <string name="name_format_hour_12">Hora (12 h)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Minut</string>
+    <string name="name_format_second">Segon</string>
+    <string name="name_format_counter">Comptador</string>
+    <string name="name_format_text">Text</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Marca de temps</string>
+    <string name="name_format_preset_date">Data</string>
+    <string name="name_format_preset_date_us">Data EUA</string>
+    <string name="name_format_preset_date_iso8601">Data ISO 8601</string>
+    <string name="name_format_preset_date_long">Data llarga</string>
+    <string name="name_format_preset_custom">Personalitzat</string>
 </resources>

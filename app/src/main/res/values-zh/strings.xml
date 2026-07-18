@@ -146,7 +146,7 @@
     <string name="by_duration">按时长（最长）</string>
     <string name="by_duration_desc">按时长（最短）</string>
     <string name="filter">筛选</string>
-    <string name="filter_clear">清除</string>
+    <string name="clear">清除</string>
     <string name="filter_dismiss">关闭筛选</string>
     <string name="filter_no_options">没有可筛选的录音</string>
     <string name="need_write_permission">该应用需要访问公共存储的权限。如果不允许，录音将存储在应用的私有目录中</string>
@@ -397,4 +397,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">返回</string>
     <string name="dropdown_menu">菜单</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">编辑名称格式</string>
+    <string name="name_format_preview">预览</string>
+    <string name="name_format_preview_empty">添加元素以组成名称</string>
+    <string name="name_format_your_format">你的格式</string>
+    <string name="name_format_empty_hint">点按下方的元素将其添加到格式中。</string>
+    <string name="name_format_remove_element">移除元素</string>
+    <string name="name_format_date_and_time">日期和时间</string>
+    <string name="name_format_other">计数器和文本</string>
+    <string name="name_format_dividers">分隔符</string>
+    <string name="name_format_presets">预设</string>
+    <string name="name_format_add_text">添加文本</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">时间戳</string>
+    <string name="name_format_year">年</string>
+    <string name="name_format_month">月</string>
+    <string name="name_format_month_name">月份名称</string>
+    <string name="name_format_day">日</string>
+    <string name="name_format_day_of_week">星期</string>
+    <string name="name_format_hour_24">小时 (24 小时制)</string>
+    <string name="name_format_hour_12">小时 (12 小时制)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">分钟</string>
+    <string name="name_format_second">秒</string>
+    <string name="name_format_counter">计数器</string>
+    <string name="name_format_text">文本</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">时间戳</string>
+    <string name="name_format_preset_date">日期</string>
+    <string name="name_format_preset_date_us">日期 (美国)</string>
+    <string name="name_format_preset_date_iso8601">日期 ISO 8601</string>
+    <string name="name_format_preset_date_long">日期 (长)</string>
+    <string name="name_format_preset_custom">自定义</string>
 </resources>
