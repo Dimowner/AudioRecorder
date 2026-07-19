@@ -167,7 +167,7 @@
 	<string name="by_duration">시간순 (긴순)</string>
     <string name="by_duration_desc">시간순 (짧은순)</string>
     <string name="filter">필터</string>
-	<string name="filter_clear">지우기</string>
+	<string name="clear">지우기</string>
 	<string name="filter_dismiss">필터 닫기</string>
 	<string name="filter_no_options">필터링할 녹음이 없습니다</string>
 	<string name="need_write_permission">앱이 공개 저장소에 접근하려면 권한이 필요합니다. 허용하지 않으면 녹음은 앱의 개인 디렉토리에 저장됩니다</string>
@@ -434,4 +434,38 @@
     <string name="navigate_back">뒤로 가기</string>
     <!-- Dropdown menu button description -->
     <string name="dropdown_menu">메뉴</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">이름 형식 편집</string>
+    <string name="name_format_preview">미리보기</string>
+    <string name="name_format_preview_empty">요소를 추가하여 이름을 만드세요</string>
+    <string name="name_format_your_format">내 형식</string>
+    <string name="name_format_empty_hint">아래 요소를 탭하여 형식에 추가하세요.</string>
+    <string name="name_format_remove_element">요소 삭제</string>
+    <string name="name_format_date_and_time">날짜 및 시간</string>
+    <string name="name_format_other">카운터 및 텍스트</string>
+    <string name="name_format_dividers">구분 기호</string>
+    <string name="name_format_presets">프리셋</string>
+    <string name="name_format_add_text">텍스트 추가</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">타임스탬프</string>
+    <string name="name_format_year">년</string>
+    <string name="name_format_month">월</string>
+    <string name="name_format_month_name">월 이름</string>
+    <string name="name_format_day">일</string>
+    <string name="name_format_day_of_week">요일</string>
+    <string name="name_format_hour_24">시 (24시간)</string>
+    <string name="name_format_hour_12">시 (12시간)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">분</string>
+    <string name="name_format_second">초</string>
+    <string name="name_format_counter">카운터</string>
+    <string name="name_format_text">텍스트</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">타임스탬프</string>
+    <string name="name_format_preset_date">날짜</string>
+    <string name="name_format_preset_date_us">날짜 (미국)</string>
+    <string name="name_format_preset_date_iso8601">날짜 ISO 8601</string>
+    <string name="name_format_preset_date_long">날짜 (긴 형식)</string>
+    <string name="name_format_preset_custom">사용자 지정</string>
 </resources>

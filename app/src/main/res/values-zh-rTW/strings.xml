@@ -175,7 +175,7 @@
 	<string name="by_duration">時間 (最長)</string>
      <string name="by_duration_desc">時間 (最短)</string>
      <string name="filter">篩選</string>
-	<string name="filter_clear">清除</string>
+	<string name="clear">清除</string>
 	<string name="filter_dismiss">關閉篩選</string>
 	<string name="filter_no_options">沒有可篩選的錄音</string>
 	<string name="need_write_permission">需要共用儲存空間存取權限。
@@ -431,4 +431,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">返回</string>
     <string name="dropdown_menu">選單</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">編輯名稱格式</string>
+    <string name="name_format_preview">預覽</string>
+    <string name="name_format_preview_empty">新增元素以組成名稱</string>
+    <string name="name_format_your_format">你的格式</string>
+    <string name="name_format_empty_hint">點按下方的元素以將其加入格式。</string>
+    <string name="name_format_remove_element">移除元素</string>
+    <string name="name_format_date_and_time">日期和時間</string>
+    <string name="name_format_other">計數器和文字</string>
+    <string name="name_format_dividers">分隔符號</string>
+    <string name="name_format_presets">預設組合</string>
+    <string name="name_format_add_text">新增文字</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">時間戳記</string>
+    <string name="name_format_year">年</string>
+    <string name="name_format_month">月</string>
+    <string name="name_format_month_name">月份名稱</string>
+    <string name="name_format_day">日</string>
+    <string name="name_format_day_of_week">星期</string>
+    <string name="name_format_hour_24">小時 (24 小時制)</string>
+    <string name="name_format_hour_12">小時 (12 小時制)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">分鐘</string>
+    <string name="name_format_second">秒</string>
+    <string name="name_format_counter">計數器</string>
+    <string name="name_format_text">文字</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">時間戳記</string>
+    <string name="name_format_preset_date">日期</string>
+    <string name="name_format_preset_date_us">日期 (美國)</string>
+    <string name="name_format_preset_date_iso8601">日期 ISO 8601</string>
+    <string name="name_format_preset_date_long">日期 (長)</string>
+    <string name="name_format_preset_custom">自訂</string>
 </resources>

@@ -45,44 +45,57 @@ import com.dimowner.audiorecorder.v2.DefaultValues
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
+import com.dimowner.audiorecorder.v2.data.model.NameFormatToken
+import com.dimowner.audiorecorder.v2.data.model.formatRecordName
+import com.dimowner.audiorecorder.v2.data.model.presetTokens
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import timber.log.Timber
+import androidx.core.net.toUri
 
-fun makeNameFormats(): List<NameFormatItem> {
-    return listOf(
-        NameFormatItem(
-            NameFormat.Record, FileUtil.generateRecordNameCounted(1) + ".m4a"
-        ),
-        NameFormatItem(
-            NameFormat.Date, FileUtil.generateRecordNameDateVariant() + ".m4a"
-        ),
-        NameFormatItem(
-            NameFormat.DateUs, FileUtil.generateRecordNameDateUS() + ".m4a"
-        ),
-        NameFormatItem(
-            NameFormat.DateIso8601, FileUtil.generateRecordNameDateISO8601() + ".m4a"
-        ),
-        NameFormatItem(
-            NameFormat.Timestamp, FileUtil.generateRecordNameMills() + ".m4a"
-        ),
-    )
+/**
+ * Builds the name format entries shown in the settings dropdown. [NameFormat.Custom] is only
+ * offered once the user has built a format in the name format constructor.
+ *
+ * @param customTokens Tokens of the user built format, see `PrefsV2.customNameFormat`.
+ */
+fun makeNameFormats(customTokens: List<NameFormatToken> = emptyList()): List<NameFormatItem> {
+    val presets = listOf(
+        NameFormat.Record,
+        NameFormat.Date,
+        NameFormat.DateUs,
+        NameFormat.DateIso8601,
+        NameFormat.DateLong,
+        NameFormat.Timestamp,
+    ).map { it.toNameFormatItem(customTokens) }
+    return if (customTokens.isEmpty()) {
+        presets
+    } else {
+        presets + NameFormat.Custom.toNameFormatItem(customTokens)
+    }
 }
 
-fun NameFormat.toNameFormatItem(): NameFormatItem {
+/**
+ * Renders a sample record name for this format.
+ *
+ * @param customTokens Tokens used to render [NameFormat.Custom]; ignored by the presets.
+ */
+fun NameFormat.toNameFormatItem(customTokens: List<NameFormatToken> = emptyList()): NameFormatItem {
     val text = when (this) {
-        NameFormat.Record -> FileUtil.generateRecordNameCounted(1) + ".m4a"
-        NameFormat.Date -> FileUtil.generateRecordNameDateVariant() + ".m4a"
-        NameFormat.DateUs -> FileUtil.generateRecordNameDateUS() + ".m4a"
-        NameFormat.DateIso8601 -> FileUtil.generateRecordNameDateISO8601() + ".m4a"
-        NameFormat.Timestamp -> FileUtil.generateRecordNameMills() + ".m4a"
+        NameFormat.Record -> FileUtil.generateRecordNameCounted(1)
+        NameFormat.Date -> FileUtil.generateRecordNameDateVariant()
+        NameFormat.DateUs -> FileUtil.generateRecordNameDateUS()
+        NameFormat.DateIso8601 -> FileUtil.generateRecordNameDateISO8601()
+        NameFormat.DateLong -> NameFormat.DateLong.presetTokens().orEmpty().formatRecordName()
+        NameFormat.Timestamp -> FileUtil.generateRecordNameMills()
+        NameFormat.Custom -> customTokens.formatRecordName()
     }
-    return NameFormatItem(this, text)
+    return NameFormatItem(this, "$text.m4a")
 }
 
 private fun rateIntentForUrl(url: String, context: Context): Intent {
     val intent = Intent(
-        Intent.ACTION_VIEW, Uri.parse(String.format("%s?id=%s", url, context.packageName))
+        Intent.ACTION_VIEW, String.format("%s?id=%s", url, context.packageName).toUri()
     )
     var flags = Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK
     flags = flags or Intent.FLAG_ACTIVITY_NEW_DOCUMENT
