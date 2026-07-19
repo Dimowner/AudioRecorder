@@ -23,6 +23,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.dimowner.audiorecorder.ARApplication
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.data.FileRepository
@@ -31,6 +32,7 @@ import com.dimowner.audiorecorder.exception.CantCreateFileException
 import com.dimowner.audiorecorder.exception.ErrorParser
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingService
+import timber.log.Timber
 
 const val REQ_CODE_RECORD_AUDIO = 303
 const val REQ_CODE_WRITE_EXTERNAL_STORAGE = 404
@@ -40,24 +42,43 @@ class TransparentRecordingActivity : Activity() {
     private lateinit var prefs: Prefs
     private lateinit var fileRepository: FileRepository
 
+    private var recordingRequested = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         prefs = ARApplication.injector.providePrefs(applicationContext)
         fileRepository = ARApplication.injector.provideFileRepository(applicationContext)
+    }
 
-        if (checkRecordPermission2()) {
-            if (prefs.isAppV2 || checkStoragePermission2()) {
-                startRecordingService()
-                finish()
-            }
-        }
+    /**
+     * The service is started here and not in [onCreate] on purpose. While the activity is being
+     * created the process may still be in a background state, and starting a service then fails
+     * with BackgroundServiceStartNotAllowedException. By the time the activity is resumed the
+     * process is in the foreground and the start is allowed.
+     */
+    override fun onResume() {
+        super.onResume()
+        if (recordingRequested) return
+        if (!checkRecordPermission2()) return
+        if (!prefs.isAppV2 && !checkStoragePermission2()) return
+        recordingRequested = true
+        startRecordingService()
+        finish()
     }
 
     private fun startRecordingService() {
-        if (prefs.isAppV2) {
-            startRecordingServiceV2()
-        } else {
-            startLegacyRecordingService()
+        try {
+            if (prefs.isAppV2) {
+                startRecordingServiceV2()
+            } else {
+                startLegacyRecordingService()
+            }
+        } catch (e: IllegalStateException) {
+            //BackgroundServiceStartNotAllowedException and ForegroundServiceStartNotAllowedException.
+            Timber.e(e)
+            Toast.makeText(
+                applicationContext, R.string.error_failed_to_start_recording, Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -71,7 +92,7 @@ class TransparentRecordingActivity : Activity() {
             val path = fileRepository.provideRecordFile().absolutePath
             startIntent.action = RecordingService.ACTION_START_RECORDING_SERVICE
             startIntent.putExtra(RecordingService.EXTRAS_KEY_RECORD_PATH, path)
-            startService(startIntent)
+            ContextCompat.startForegroundService(applicationContext, startIntent)
         } catch (e: CantCreateFileException) {
             Toast.makeText(applicationContext, ErrorParser.parseException(e), Toast.LENGTH_LONG).show()
         }
@@ -82,27 +103,26 @@ class TransparentRecordingActivity : Activity() {
         permissions: Array<String?>,
         grantResults: IntArray
     ) {
-        if (requestCode == REQ_CODE_RECORD_AUDIO && grantResults.isNotEmpty()
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED
-        ) {
-            if (prefs.isAppV2 || checkStoragePermission2()) {
-                startRecordingService()
-            }
-        } else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.isNotEmpty()
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                && grantResults[1] == PackageManager.PERMISSION_GRANTED
-        ) {
-            if (checkRecordPermission2()) {
-                startRecordingService()
-            }
-        } else if (requestCode == REQ_CODE_WRITE_EXTERNAL_STORAGE && grantResults.isNotEmpty()
-            && (grantResults[0] == PackageManager.PERMISSION_DENIED
-            || grantResults[1] == PackageManager.PERMISSION_DENIED)
-        ) {
-            setStoragePrivate()
-            startRecordingService()
+        //Recording itself is started from onResume(), which runs right after this callback.
+        if (grantResults.isEmpty()) {
+            //The request was cancelled, otherwise onResume() would ask for the permission again.
+            finish()
+            return
         }
-        finish()
+        when (requestCode) {
+            //Without the record permission there is nothing to continue with.
+            REQ_CODE_RECORD_AUDIO -> {
+                if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    finish()
+                }
+            }
+            //Denied storage permission is not fatal, the record goes to the private dir instead.
+            REQ_CODE_WRITE_EXTERNAL_STORAGE -> {
+                if (grantResults.any { it != PackageManager.PERMISSION_GRANTED }) {
+                    setStoragePrivate()
+                }
+            }
+        }
     }
 
     private fun setStoragePrivate() {
