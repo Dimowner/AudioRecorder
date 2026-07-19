@@ -51,6 +51,7 @@ import com.dimowner.audiorecorder.v2.data.model.presetTokens
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import timber.log.Timber
+import androidx.core.net.toUri
 
 /**
  * Builds the name format entries shown in the settings dropdown. [NameFormat.Custom] is only
@@ -89,12 +90,12 @@ fun NameFormat.toNameFormatItem(customTokens: List<NameFormatToken> = emptyList(
         NameFormat.Timestamp -> FileUtil.generateRecordNameMills()
         NameFormat.Custom -> customTokens.formatRecordName()
     }
-    return NameFormatItem(this, text + ".m4a")
+    return NameFormatItem(this, "$text.m4a")
 }
 
 private fun rateIntentForUrl(url: String, context: Context): Intent {
     val intent = Intent(
-        Intent.ACTION_VIEW, Uri.parse(String.format("%s?id=%s", url, context.packageName))
+        Intent.ACTION_VIEW, String.format("%s?id=%s", url, context.packageName).toUri()
     )
     var flags = Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK
     flags = flags or Intent.FLAG_ACTIVITY_NEW_DOCUMENT

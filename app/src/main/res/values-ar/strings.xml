@@ -472,7 +472,6 @@
     <string name="navigate_back">الرجوع</string>
     <!-- Dropdown menu button description -->
     <string name="dropdown_menu">القائمة</string>
-`
 
     <!-- Name format constructor -->
     <string name="name_format_edit">تعديل تنسيق الاسم</string>
