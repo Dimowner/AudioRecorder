@@ -374,6 +374,7 @@
     <string name="app_widget_description">开始录音小组件</string>
 
     <string name="bluetooth_microphone_available">蓝牙麦克风可用</string>
+    <string name="bluetooth_always_use_when_available">可用时始终使用蓝牙麦克风</string>
     <string name="audio_source">音频来源</string>
     <string name="audio_source_default">默认</string>
     <string name="audio_source_mic">麦克风</string>

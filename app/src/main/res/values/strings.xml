@@ -421,6 +421,7 @@
     <string name="app_widget_description">Start recording widget</string>
 
     <string name="bluetooth_microphone_available">Bluetooth microphone available</string>
+    <string name="bluetooth_always_use_when_available">Always use Bluetooth mic when available</string>
     <string name="audio_source">Audio Source</string>
     <string name="audio_source_default">Default</string>
     <string name="audio_source_mic">Mic</string>

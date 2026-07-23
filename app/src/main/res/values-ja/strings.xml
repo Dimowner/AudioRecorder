@@ -419,6 +419,7 @@
     <string name="app_widget_description">録音開始ウィジェット</string>
 
     <string name="bluetooth_microphone_available">Bluetoothマイクが利用可能です</string>
+    <string name="bluetooth_always_use_when_available">利用可能なときは常にBluetoothマイクを使用</string>
     <string name="audio_source">オーディオソース</string>
     <string name="audio_source_default">デフォルト</string>
     <string name="audio_source_mic">マイク</string>

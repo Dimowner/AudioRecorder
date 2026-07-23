@@ -114,6 +114,16 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             }
         }
 
+    override var alwaysUseBluetoothMic: Boolean
+        get() = sharedPreferences.getBoolean(
+            PREF_KEY_ALWAYS_USE_BLUETOOTH_MIC, DefaultValues.IS_ALWAYS_USE_BLUETOOTH_MIC
+        )
+        set(value) {
+            sharedPreferences.edit {
+                putBoolean(PREF_KEY_ALWAYS_USE_BLUETOOTH_MIC, value)
+            }
+        }
+
     override var activeRecordId: Long
         get() = sharedPreferences.getLong(PREF_KEY_ACTIVE_RECORD, -1)
         set(value) {
@@ -347,5 +357,6 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         private const val PREF_KEY_SAVE_DESCRIPTION_TO_FILE = "pref_key_save_description_to_file"
         private const val PREF_KEY_IS_LOCAL_STORAGE_INFO_SHOWN = "pref_key_is_local_storage_info_shown"
         private const val PREF_KEY_CUSTOM_NAME_FORMAT = "pref_key_custom_name_format"
+        private const val PREF_KEY_ALWAYS_USE_BLUETOOTH_MIC = "pref_key_always_use_bluetooth_mic"
     }
 }

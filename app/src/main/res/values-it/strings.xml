@@ -418,6 +418,7 @@
     <string name="app_widget_description">Widget avvio registrazione</string>
 
     <string name="bluetooth_microphone_available">Microfono Bluetooth disponibile</string>
+    <string name="bluetooth_always_use_when_available">Usa sempre il microfono Bluetooth quando disponibile</string>
     <string name="audio_source">Sorgente audio</string>
     <string name="audio_source_default">Predefinito</string>
     <string name="audio_source_mic">Microfono</string>

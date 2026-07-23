@@ -416,6 +416,7 @@
     <string name="app_widget_description">Widget per començar a gravar</string>
 
     <string name="bluetooth_microphone_available">Micròfon Bluetooth disponible</string>
+    <string name="bluetooth_always_use_when_available">Utilitza sempre el micròfon Bluetooth quan estigui disponible</string>
     <string name="audio_source">Font d\'àudio</string>
     <string name="audio_source_default">Per defecte</string>
     <string name="audio_source_mic">Micròfon</string>

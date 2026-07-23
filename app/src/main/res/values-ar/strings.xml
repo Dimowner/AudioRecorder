@@ -448,6 +448,7 @@
     <string name="app_widget_description">أداة بدء التسجيل</string>
 
     <string name="bluetooth_microphone_available">ميكروفون بلوتوث متاح</string>
+    <string name="bluetooth_always_use_when_available">استخدام ميكروفون البلوتوث دائمًا عند توفره</string>
     <string name="audio_source">مصدر الصوت</string>
     <string name="audio_source_default">افتراضي</string>
     <string name="audio_source_mic">الميكروفون</string>

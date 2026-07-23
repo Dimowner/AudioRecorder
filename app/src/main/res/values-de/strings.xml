@@ -418,6 +418,7 @@
     <string name="app_widget_description">Widget zum Starten der Aufnahme</string>
 
     <string name="bluetooth_microphone_available">Bluetooth-Mikrofon verfügbar</string>
+    <string name="bluetooth_always_use_when_available">Bluetooth-Mikrofon immer verwenden, wenn verfügbar</string>
     <string name="audio_source">Audioquelle</string>
     <string name="audio_source_default">Standard</string>
     <string name="audio_source_mic">Mikrofon</string>
