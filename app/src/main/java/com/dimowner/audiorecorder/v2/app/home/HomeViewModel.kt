@@ -1426,7 +1426,18 @@ class HomeViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         try {
-            audioManagerHelper.release()
+            // AudioManagerHelper is a singleton and the recording foreground service keeps
+            // capturing from the Bluetooth mic after the UI is destroyed. A full release()
+            // here clears the communication device and resets the routing state, so on the
+            // next launch the mic switch would show as off even though the Bluetooth
+            // recording is still running. While a recording is in progress, only stop
+            // observing device changes and leave the routing untouched.
+            val isRecordingActive = recordingService?.recordingState?.value?.isRecording() == true
+            if (isRecordingActive) {
+                audioManagerHelper.unregister()
+            } else {
+                audioManagerHelper.release()
+            }
         } catch (e: Exception) {
             Timber.e(e, "Error releasing AudioManagerHelper")
         }
