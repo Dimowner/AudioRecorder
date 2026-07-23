@@ -410,6 +410,7 @@
     <string name="app_widget_description">녹음 시작 위젯</string>
 
     <string name="bluetooth_microphone_available">블루투스 마이크를 사용할 수 있습니다</string>
+    <string name="bluetooth_always_use_when_available">사용 가능할 때 항상 블루투스 마이크 사용</string>
     <string name="audio_source">오디오 소스</string>
     <string name="audio_source_default">기본값</string>
     <string name="audio_source_mic">마이크</string>

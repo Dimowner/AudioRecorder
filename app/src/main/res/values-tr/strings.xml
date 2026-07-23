@@ -411,6 +411,7 @@
     <string name="app_widget_description">Kayıt widgetini başlat</string>
 
     <string name="bluetooth_microphone_available">Bluetooth mikrofon mevcut</string>
+    <string name="bluetooth_always_use_when_available">Kullanılabilir olduğunda her zaman Bluetooth mikrofonu kullan</string>
     <string name="audio_source">Ses Kaynağı</string>
     <string name="audio_source_default">Varsayılan</string>
     <string name="audio_source_mic">Mikrofon</string>

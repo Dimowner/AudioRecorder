@@ -408,6 +408,7 @@
     <string name="app_widget_description">啟動錄音小工具</string>
 
     <string name="bluetooth_microphone_available">藍牙麥克風可用</string>
+    <string name="bluetooth_always_use_when_available">可用時一律使用藍牙麥克風</string>
     <string name="audio_source">音訊來源</string>
     <string name="audio_source_default">預設</string>
     <string name="audio_source_mic">麥克風</string>

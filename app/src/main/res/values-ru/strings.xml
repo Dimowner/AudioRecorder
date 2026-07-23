@@ -410,7 +410,8 @@
 
 	<string name="app_widget_description">Начать запись виджет</string>
 
-    <string name="bluetooth_microphone_available">Доступен микрофон Bluetooth</string>
+    <string name="bluetooth_microphone_available">Доступен Bluetooth-микрофон</string>
+    <string name="bluetooth_always_use_when_available">Всегда использовать Bluetooth-микрофон, когда он доступен</string>
     <string name="audio_source">Источник звука</string>
     <string name="audio_source_default">По умолчанию</string>
     <string name="audio_source_mic">Микрофон</string>

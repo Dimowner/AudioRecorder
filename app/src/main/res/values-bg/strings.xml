@@ -397,6 +397,7 @@
 	<string name="app_widget_description">Джаджа за стартиране на запис</string>
 
 	<string name="bluetooth_microphone_available">Наличен Bluetooth микрофон</string>
+	<string name="bluetooth_always_use_when_available">Винаги използвай Bluetooth микрофон, когато е наличен</string>
 	<string name="audio_source">Аудио източник</string>
 	<string name="audio_source_default">По подразбиране</string>
 	<string name="audio_source_mic">Микрофон</string>

@@ -405,7 +405,8 @@
 
 	<string name="app_widget_description">Почати запис віджет</string>
 
-    <string name="bluetooth_microphone_available">Доступний Bluetooth мікрофон</string>
+    <string name="bluetooth_microphone_available">Доступний Bluetooth-мікрофон</string>
+    <string name="bluetooth_always_use_when_available">Завжди використовувати Bluetooth-мікрофон, коли він доступний</string>
     <string name="audio_source">Джерело звуку</string>
     <string name="audio_source_default">За замовчуванням</string>
     <string name="audio_source_mic">Мікрофон</string>
