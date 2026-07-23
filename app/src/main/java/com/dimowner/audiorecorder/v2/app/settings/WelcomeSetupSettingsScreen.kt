@@ -17,7 +17,6 @@
 package com.dimowner.audiorecorder.v2.app.settings
 
 import android.os.Build
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -78,8 +77,6 @@ internal fun WelcomeSetupSettingsScreen(
     val openInfoDialog = remember { mutableStateOf(false) }
     val infoText = remember { mutableStateOf("") }
     val infoTextAnnotated = remember { mutableStateOf<AnnotatedString?>(null) }
-
-    val isExpandedBitRatePanel = remember { mutableStateOf(true) }
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -150,81 +147,15 @@ internal fun WelcomeSetupSettingsScreen(
                         currentAuthorName = uiState.recordAuthorName,
                         onAction = onAction,
                     )
-                    val infoFormat = htmlStringResources(
-                        R.string.info_format_m4a_html,
-                        R.string.info_format_wav_html,
-                        R.string.info_format_3gp_html
-                    )
-                    SettingSelector(
-                        name = stringResource(id = R.string.recording_format),
-                        chips = uiState.recordingSettings.map { it.recordingFormat },
-                        onSelect = {
-                            onAction(SettingsScreenAction.SelectRecordingFormat(it.value))
-                        },
-                        onClickInfo = {
+                    RecordSettingsPanel(
+                        recordingSettings = uiState.recordingSettings,
+                        enabled = uiState.isRecordingSettingEditable,
+                        onAction = onAction,
+                        onShowInfo = {
                             infoText.value = ""
-                            infoTextAnnotated.value = infoFormat
+                            infoTextAnnotated.value = it
                             openInfoDialog.value = true
-                        }
-                    )
-                    val selectedFormat =
-                        uiState.recordingSettings.firstOrNull { it.recordingFormat.isSelected }
-                    val infoFrequency = htmlStringResources(
-                        R.string.info_frequency_header_html,
-                        R.string.info_frequency_48khz_html,
-                        R.string.info_frequency_44_1khz_html,
-                        R.string.info_frequency_22khz_html,
-                        R.string.info_frequency_8khz_html
-                    )
-                    SettingSelector(
-                        name = stringResource(id = R.string.sample_rate),
-                        chips = selectedFormat?.sampleRates ?: emptyList(),
-                        onSelect = {
-                            onAction(SettingsScreenAction.SelectSampleRate(it.value))
                         },
-                        onClickInfo = {
-                            infoText.value = ""
-                            infoTextAnnotated.value = infoFrequency
-                            openInfoDialog.value = true
-                        }
-                    )
-                    if (isExpandedBitRatePanel.value != !selectedFormat?.bitRates.isNullOrEmpty()) {
-                        isExpandedBitRatePanel.value = !selectedFormat?.bitRates.isNullOrEmpty()
-                    }
-                    AnimatedVisibility(visible = isExpandedBitRatePanel.value) {
-                        val infoBitrate = htmlStringResources(
-                            R.string.info_bitrate_header_html,
-                            R.string.info_bitrate_256kbps_html,
-                            R.string.info_bitrate_192kbps_html,
-                            R.string.info_bitrate_128kbps_html,
-                            R.string.info_bitrate_96kbps_html,
-                            R.string.info_bitrate_48kbps_html
-                        )
-                        SettingSelector(
-                            name = stringResource(id = R.string.bitrate),
-                            chips = selectedFormat?.bitRates ?: emptyList(),
-                            onSelect = {
-                                onAction(SettingsScreenAction.SelectBitrate(it.value))
-                            },
-                            onClickInfo = {
-                                infoText.value = ""
-                                infoTextAnnotated.value = infoBitrate
-                                openInfoDialog.value = true
-                            }
-                        )
-                    }
-                    val infoChannels = htmlStringResource(R.string.info_channels_html)
-                    SettingSelector(
-                        name = stringResource(id = R.string.channels),
-                        chips = selectedFormat?.channelCounts ?: emptyList(),
-                        onSelect = {
-                            onAction(SettingsScreenAction.SelectChannelCount(it.value))
-                        },
-                        onClickInfo = {
-                            infoText.value = ""
-                            infoTextAnnotated.value = infoChannels
-                            openInfoDialog.value = true
-                        }
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     val infoAudioSource = htmlStringResource(R.string.info_audio_source_html)

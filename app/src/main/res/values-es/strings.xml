@@ -45,6 +45,7 @@
 	<string name="msg_recording_saved_with_name">Grabación guardada con nombre: %s</string>
     <!-- Error message when saving a recording fails -->
 	<string name="msg_save_recording_failed">Error al guardar la grabación.</string>
+	<string name="msg_not_enough_storage_space">No hay suficiente espacio de almacenamiento. Libere espacio e inténtelo de nuevo.</string>
 	<!-- Error message for file operation failure -->
 	<string name="msg_file_operation_failed">Error en la operación del archivo. Por favor intente nuevamente.</string>
 	<!-- Error message for empty name during rename/save -->
@@ -105,7 +106,6 @@
 	<string name="recording_progress">Grabando&#8230;</string>
 	<string name="recording_paused">Pausado</string>
 	<string name="playback">Reproducción: %s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">Vacío</string>
 	<string name="items_selected"> %d seleccionados</string>
 	<string name="no_records">No hay grabaciones</string>
@@ -140,8 +140,8 @@
 		<item quantity="one">%d grabación movida exitosamente</item>
 		<item quantity="other">%d grabaciones movidas exitosamente</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d grabaciones copiadas exitosamente y %d fallaron al copiar</string>
-	<string name="moving_records_success_and_fail_count">%d grabaciones movidas exitosamente y %d fallaron al mover</string>
+	<string name="downloading_success_and_fail_count">%1$d grabaciones copiadas exitosamente y %2$d fallaron al copiar</string>
+	<string name="moving_records_success_and_fail_count">%1$d grabaciones movidas exitosamente y %2$d fallaron al mover</string>
 	<string name="downloading_success">%s copiada al directorio de \'Descargas\'</string>
 	<string name="move_record_success">%s movida al directorio privado de la app</string>
 	<plurals name="downloading_failed_count">
@@ -174,7 +174,7 @@
 	<string name="by_duration">Por duración (más largo)</string>
     <string name="by_duration_desc">Por duración (más corto)</string>
     <string name="filter">Filtro</string>
-	<string name="filter_clear">Borrar</string>
+	<string name="clear">Borrar</string>
 	<string name="filter_dismiss">Ocultar filtro</string>
 	<string name="filter_no_options">No hay grabaciones para filtrar</string>
 	<string name="need_write_permission">Esta app requiere permiso para acceder al almacenamiento público. Si no se concede, las grabaciones se guardarán en el directorio privado de la app.</string>
@@ -329,6 +329,8 @@
 	<string name="error_permission_denied">Permiso denegado</string>
 	<string name="error_process_waveform">No se puede dibujar la onda de audio</string>
 	<string name="error_lost_records">Algunas de tus grabaciones fueron movidas o eliminadas</string>
+	<string name="local_storage_info_title">Las grabaciones se almacenan en el dispositivo</string>
+	<string name="local_storage_info_message">Las grabaciones no se respaldan en la nube. Eliminar la aplicación o sus datos las borrará permanentemente.</string>
 	<string name="broken_record_title">Grabación interrumpida</string>
 	<string name="broken_record_message">La grabación \'%s\' fue interrumpida (posiblemente debido a un reinicio del dispositivo) y su archivo puede estar dañado. ¿Desea intentar restaurarla?</string>
 	<string name="btn_restore">Restaurar</string>
@@ -439,4 +441,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">Volver</string>
     <string name="dropdown_menu">Menú</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Editar formato de nombre</string>
+    <string name="name_format_preview">Vista previa</string>
+    <string name="name_format_preview_empty">Añada elementos para crear un nombre</string>
+    <string name="name_format_your_format">Su formato</string>
+    <string name="name_format_empty_hint">Toque los elementos de abajo para añadirlos a su formato.</string>
+    <string name="name_format_remove_element">Eliminar elemento</string>
+    <string name="name_format_date_and_time">Fecha y hora</string>
+    <string name="name_format_other">Contador y texto</string>
+    <string name="name_format_dividers">Separadores</string>
+    <string name="name_format_presets">Plantillas</string>
+    <string name="name_format_add_text">Añadir texto</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Marca de tiempo</string>
+    <string name="name_format_year">Año</string>
+    <string name="name_format_month">Mes</string>
+    <string name="name_format_month_name">Nombre del mes</string>
+    <string name="name_format_day">Día</string>
+    <string name="name_format_day_of_week">Día de la semana</string>
+    <string name="name_format_hour_24">Hora (24 h)</string>
+    <string name="name_format_hour_12">Hora (12 h)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Minuto</string>
+    <string name="name_format_second">Segundo</string>
+    <string name="name_format_counter">Contador</string>
+    <string name="name_format_text">Texto</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Marca de tiempo</string>
+    <string name="name_format_preset_date">Fecha</string>
+    <string name="name_format_preset_date_us">Fecha EE. UU.</string>
+    <string name="name_format_preset_date_iso8601">Fecha ISO 8601</string>
+    <string name="name_format_preset_date_long">Fecha larga</string>
+    <string name="name_format_preset_custom">Personalizado</string>
 </resources>

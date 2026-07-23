@@ -35,6 +35,7 @@
 
 	<string name="msg_recording_saved_with_name">Записът е запазен с название: %s</string>
 	<string name="msg_save_recording_failed">Грешка при запазването на записа.</string>
+	<string name="msg_not_enough_storage_space">Няма достатъчно място за съхранение. Освободете място и опитайте отново.</string>
 	<string name="msg_file_operation_failed">Грешка при операцията с файла. Опитайте отново</string>
 	<string name="msg_name_cannot_be_empty">Името не може да бъде празно</string>
 	<string name="msg_permission_microphone_denied">Необходимо е разрешение за микрофон за запис на звук. Моля, предоставете разрешението, за да използвате тази функция.</string>
@@ -88,7 +89,6 @@
 	<string name="recording_progress">Записване&#8230;</string>
 	<string name="recording_paused">Пауза</string>
 	<string name="playback">Възпроизвеждане: %s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">Празно</string>
 	<string name="items_selected"> %d избрани</string>
 	<string name="no_records">Няма записи</string>
@@ -123,8 +123,8 @@
 		<item quantity="one">%d запис е преместен успешно</item>
 		<item quantity="other">%d записа са преместени успешно</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d записа са копирани успешно и %d са неуспешни</string>
-	<string name="moving_records_success_and_fail_count">%d записа са преместени успешно и %d са неуспешни</string>
+	<string name="downloading_success_and_fail_count">%1$d записа са копирани успешно и %2$d са неуспешни</string>
+	<string name="moving_records_success_and_fail_count">%1$d записа са преместени успешно и %2$d са неуспешни</string>
 	<string name="downloading_success">%s е копиран в директорията \'Изтеглени\'</string>
 	<string name="move_record_success">%s е преместен в частната директория на приложението</string>
 	<plurals name="downloading_failed_count">
@@ -157,7 +157,7 @@
 	<string name="by_duration">По продължителност (най-дълги)</string>
     <string name="by_duration_desc">По продължителност (най-кратки)</string>
     <string name="filter">Филтър</string>
-	<string name="filter_clear">Изчисти</string>
+	<string name="clear">Изчисти</string>
 	<string name="filter_dismiss">Затвори филтъра</string>
 	<string name="filter_no_options">Няма записи за филтриране</string>
 	<string name="need_write_permission">Приложението изисква разрешение за достъп до публичното хранилище. Ако не е разрешено, записите ще бъдат съхранени в частната директория на приложението</string>
@@ -313,6 +313,8 @@
 	<string name="error_permission_denied">Няма разрешение за четене</string>
 	<string name="error_process_waveform">Не може да се нарисува формата на вълната</string>
 	<string name="error_lost_records">Някои от вашите записи са изтрити или преместени</string>
+	<string name="local_storage_info_title">Записите се съхраняват на устройството</string>
+	<string name="local_storage_info_message">Записите не се архивират в облака. Изтриването на приложението или неговите данни ще ги изтрие завинаги.</string>
 	<string name="broken_record_title">Прекъснат запис</string>
 	<string name="broken_record_message">Записът \'%s\' е прекъснат (вероятно поради рестартиране на устройството) и файлът може да е повреден. Искате ли да опитате да го възстановите?</string>
 	<string name="btn_restore">Възстановяване</string>
@@ -411,4 +413,38 @@
 	<string name="status_recording_paused">Записването е на пауза</string>
 	<string name="navigate_back">Назад</string>
     <string name="dropdown_menu">Меню</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Редактиране на формата на името</string>
+    <string name="name_format_preview">Преглед</string>
+    <string name="name_format_preview_empty">Добавете елементи, за да съставите име</string>
+    <string name="name_format_your_format">Вашият формат</string>
+    <string name="name_format_empty_hint">Докоснете елементите по-долу, за да ги добавите към формата си.</string>
+    <string name="name_format_remove_element">Премахване на елемента</string>
+    <string name="name_format_date_and_time">Дата и час</string>
+    <string name="name_format_other">Брояч и текст</string>
+    <string name="name_format_dividers">Разделители</string>
+    <string name="name_format_presets">Шаблони</string>
+    <string name="name_format_add_text">Добавяне на текст</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Времеви печат</string>
+    <string name="name_format_year">Година</string>
+    <string name="name_format_month">Месец</string>
+    <string name="name_format_month_name">Име на месеца</string>
+    <string name="name_format_day">Ден</string>
+    <string name="name_format_day_of_week">Ден от седмицата</string>
+    <string name="name_format_hour_24">Час (24 ч)</string>
+    <string name="name_format_hour_12">Час (12 ч)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Минута</string>
+    <string name="name_format_second">Секунда</string>
+    <string name="name_format_counter">Брояч</string>
+    <string name="name_format_text">Текст</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Времеви печат</string>
+    <string name="name_format_preset_date">Дата</string>
+    <string name="name_format_preset_date_us">Дата САЩ</string>
+    <string name="name_format_preset_date_iso8601">Дата ISO 8601</string>
+    <string name="name_format_preset_date_long">Дълга дата</string>
+    <string name="name_format_preset_custom">Персонализиран</string>
 </resources>

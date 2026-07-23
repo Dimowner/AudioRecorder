@@ -224,7 +224,7 @@ fun RecordsFilterPanel(
                     )
                     if (!filter.isEmpty) {
                         TextButton(onClick = onClear) {
-                            Text(text = stringResource(id = R.string.filter_clear))
+                            Text(text = stringResource(id = R.string.clear))
                         }
                     }
                     IconButton(onClick = onDismiss) {

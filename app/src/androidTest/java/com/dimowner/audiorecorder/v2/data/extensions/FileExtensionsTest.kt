@@ -326,10 +326,10 @@ class FileExtensionsTest {
 
         val destFile = File("/nonexistent/directory/destination.m4a")
 
-        val result = FileInputStream(sourceFile).use { fis ->
-            copyFile(fis.fd, destFile)
+        FileInputStream(sourceFile).use { fis ->
+            assertThrows(IOException::class.java) {
+                copyFile(fis.fd, destFile)
+            }
         }
-
-        assertFalse(result)
     }
 }

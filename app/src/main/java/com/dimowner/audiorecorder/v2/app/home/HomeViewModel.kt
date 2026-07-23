@@ -62,6 +62,8 @@ import com.dimowner.audiorecorder.v2.app.isDescriptionFileWriteSupported
 import com.dimowner.audiorecorder.v2.app.toInfoCombinedText
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingService
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingServiceEvent
+import com.dimowner.audiorecorder.v2.audio.NotEnoughSpaceException
+import com.dimowner.audiorecorder.v2.audio.isOutOfSpace
 import com.dimowner.audiorecorder.v2.audio.RecordingServiceState
 import com.dimowner.audiorecorder.v2.audio.RecordingState
 import com.dimowner.audiorecorder.v2.audio.readDescription
@@ -496,6 +498,8 @@ class HomeViewModel @Inject constructor(
                     }
                 } else {
                     updateState()
+                    // No rename prompt – surface the one-time local storage info now.
+                    maybeShowLocalStorageInfoDialog()
                 }
             }
         }
@@ -633,7 +637,7 @@ class HomeViewModel @Inject constructor(
                         isRecording = _state.value.bottomBarState != BottomBarState.READY_TO_START_RECORDING,
                         waveformDataOffset = 0,
                     ),
-                    startTime = context.getString(R.string.zero_time),
+                    startTime = TimeUtils.formatTimeIntervalHourMinSec2(0),
                     endTime = TimeUtils.formatTimeIntervalHourMinSec2(activeRecord.durationMills),
                     recordName = activeRecord.name,
                     recordDescription = activeRecord.description,
@@ -725,6 +729,8 @@ class HomeViewModel @Inject constructor(
                         connectedBluetoothDevices = bluetoothState.connectedDevices,
                         selectedBluetoothDevice = bluetoothState.selectedDevice,
                         alwaysUseBluetoothMic = prefs.alwaysUseBluetoothMic,
+                        // Preserve a pending local-storage info dialog across this full reset.
+                        showLocalStorageInfoDialog = _state.value.showLocalStorageInfoDialog,
                     )
                 }
             }
@@ -747,13 +753,18 @@ class HomeViewModel @Inject constructor(
         showLoadingProgress(true)
         _state.value = _state.value.copy(isShowImportProgress = true)
         viewModelScope.launch(ioDispatcher) {
+            // Tracks the destination file so a partial copy can be cleaned up on failure.
+            var newFile: File? = null
             try {
                 val parcelFileDescriptor: ParcelFileDescriptor? =
                     context.contentResolver.openFileDescriptor(uri, "r")
                 val fileDescriptor = parcelFileDescriptor?.fileDescriptor
-                val name: String? = DocumentFile.fromSingleUri(context, uri)?.name
+                val sourceDocument = DocumentFile.fromSingleUri(context, uri)
+                val name: String? = sourceDocument?.name
                 if (name != null) {
-                    val newFile: File = fileDataSource.createRecordFile(name)
+                    // Fail fast if the file clearly won't fit, before creating anything on disk.
+                    requireFreeSpaceForImport(sourceDocument.length())
+                    newFile = fileDataSource.createRecordFile(name)
                     if (fileDescriptor != null && copyFile(fileDescriptor, newFile)) {
                         val info = AudioDecoder.readRecordInfo(newFile)
                         val importedDescription = newFile.readDescription()
@@ -787,6 +798,14 @@ class HomeViewModel @Inject constructor(
                         prefs.activeRecordId = id
                         updateState()
                         decodeRecord(id, record.path, record.durationMills)
+                    } else {
+                        // Copy produced no data; surface an error instead of leaving the
+                        // progress indicator spinning forever.
+                        newFile.delete()
+                        withContext(mainDispatcher) {
+                            _state.value = _state.value.copy(isShowImportProgress = false)
+                        }
+                        handleError(context.getString(R.string.error_unable_to_read_sound_file))
                     }
                 } else {
                     withContext(mainDispatcher) {
@@ -796,16 +815,31 @@ class HomeViewModel @Inject constructor(
                 }
             } catch (e: SecurityException) {
                 Timber.e(e)
+                newFile?.delete()
                 withContext(mainDispatcher) {
                     _state.value = _state.value.copy(isShowImportProgress = false)
                 }
                 handleError(context.getString(R.string.error_permission_denied))
-            } catch (e: IOException) {
-                Timber.e(e)
+            } catch (e: NotEnoughSpaceException) {
+                Timber.w(e, "importAudioFile: not enough storage space")
+                newFile?.delete()
                 withContext(mainDispatcher) {
                     _state.value = _state.value.copy(isShowImportProgress = false)
                 }
-                handleError(context.getString(R.string.error_unable_to_read_sound_file))
+                handleError(context.getString(R.string.msg_not_enough_storage_space))
+            } catch (e: IOException) {
+                Timber.e(e)
+                newFile?.delete()
+                withContext(mainDispatcher) {
+                    _state.value = _state.value.copy(isShowImportProgress = false)
+                }
+                // A full disk surfaces here as an ENOSPC IOException from the copy step.
+                val message = if (e.isOutOfSpace()) {
+                    context.getString(R.string.msg_not_enough_storage_space)
+                } else {
+                    context.getString(R.string.error_unable_to_read_sound_file)
+                }
+                handleError(message)
             } catch (e: OutOfMemoryError) {
                 Timber.e(e)
                 withContext(mainDispatcher) {
@@ -825,6 +859,24 @@ class HomeViewModel @Inject constructor(
                 }
                 handleError(ex)
             }
+        }
+    }
+
+    /**
+     * Throws [NotEnoughSpaceException] when the device clearly can't hold a [sourceSizeBytes] copy,
+     * so the import fails fast before creating a partial file. Skipped when either the source size
+     * or the free space is unknown (non-positive), leaving the copy step to surface a real ENOSPC.
+     */
+    private fun requireFreeSpaceForImport(sourceSizeBytes: Long) {
+        if (sourceSizeBytes <= 0) return
+        val available = try {
+            fileDataSource.getAvailableSpace()
+        } catch (e: Exception) {
+            Timber.w(e, "importAudioFile: could not read available space")
+            return
+        }
+        if (available in 1 until sourceSizeBytes) {
+            throw NotEnoughSpaceException()
         }
     }
 
@@ -1245,6 +1297,7 @@ class HomeViewModel @Inject constructor(
             }
             HomeScreenAction.RestoreBrokenRecord -> restoreBrokenRecord()
             HomeScreenAction.DismissBrokenRecordDialog -> dismissBrokenRecordDialog()
+            HomeScreenAction.DismissLocalStorageInfoDialog -> dismissLocalStorageInfoDialog()
             HomeScreenAction.ShowDescriptionDialog -> showDescriptionDialog()
             is HomeScreenAction.SaveActiveRecordDescription -> saveActiveRecordDescription(action.description, action.writeToFile)
             HomeScreenAction.DismissDescriptionDialog -> dismissDescriptionDialog()
@@ -1252,7 +1305,13 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun dismissRenameAfterRecordingDialog(dontAskAgain: Boolean) {
-        _state.value = _state.value.copy(showRenameAfterRecordingDialog = false)
+        // Surface the one-time local storage info once the rename prompt is out of the way,
+        // so the two dialogs are shown sequentially rather than stacked.
+        val showLocalStorageInfo = !prefs.isLocalStorageInfoShown
+        _state.value = _state.value.copy(
+            showRenameAfterRecordingDialog = false,
+            showLocalStorageInfoDialog = showLocalStorageInfo,
+        )
         if (dontAskAgain) {
             prefs.askToRenameAfterRecordingStopped = false
         }
@@ -1341,6 +1400,23 @@ class HomeViewModel @Inject constructor(
         )
     }
 
+    private fun dismissLocalStorageInfoDialog() {
+        prefs.isLocalStorageInfoShown = true
+        _state.value = _state.value.copy(showLocalStorageInfoDialog = false)
+    }
+
+    /**
+     * Shows the one-time info that recordings are stored locally only and will be lost if the
+     * app is deleted or its data is reset. Triggered right after the first recording is saved.
+     */
+    private suspend fun maybeShowLocalStorageInfoDialog() {
+        if (!prefs.isLocalStorageInfoShown) {
+            withContext(mainDispatcher) {
+                _state.value = _state.value.copy(showLocalStorageInfoDialog = true)
+            }
+        }
+    }
+
     private fun emitEvent(event: HomeScreenEvent) {
         viewModelScope.launch {
             _event.emit(event)
@@ -1406,6 +1482,8 @@ data class HomeScreenState(
     // Broken record detection and restoration
     val showBrokenRecordDialog: Boolean = false,
     val brokenRecord: Record? = null,
+    // One-time info that recordings are stored locally only
+    val showLocalStorageInfoDialog: Boolean = false,
 ) {
     fun isRecording(): Boolean {
         return this.bottomBarState == BottomBarState.RECORDING || this.bottomBarState == BottomBarState.PAUSED
@@ -1450,6 +1528,7 @@ sealed class HomeScreenAction {
     data class DismissRenameAfterRecordingDialog(val dontAskAgain: Boolean) : HomeScreenAction()
     data object RestoreBrokenRecord : HomeScreenAction()
     data object DismissBrokenRecordDialog : HomeScreenAction()
+    data object DismissLocalStorageInfoDialog : HomeScreenAction()
     data object ShowDescriptionDialog : HomeScreenAction()
     data class SaveActiveRecordDescription(val description: String, val writeToFile: Boolean) : HomeScreenAction()
     data object DismissDescriptionDialog : HomeScreenAction()

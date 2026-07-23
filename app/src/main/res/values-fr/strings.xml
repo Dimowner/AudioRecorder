@@ -34,6 +34,7 @@
 	<string name="msg_record_renamed">Enregistrement renommé en \'%1$s\'</string>
 	<string name="msg_recording_saved_with_name">Enregistrement sauvegardé sous le nom : %s</string>
 	<string name="msg_save_recording_failed">Échec de la sauvegarde de l\'enregistrement.</string>
+	<string name="msg_not_enough_storage_space">Espace de stockage insuffisant. Libérez de l\'espace et réessayez.</string>
 	<string name="msg_file_operation_failed">Opération de fichier échouée. Veuillez réessayer</string>
 	<string name="msg_name_cannot_be_empty">Le nom ne peut pas être vide</string>
 	<string name="msg_permission_microphone_denied">La permission du microphone est requise pour enregistrer l\'audio. Veuillez accorder la permission pour utiliser cette fonctionnalité.</string>
@@ -87,7 +88,6 @@
 	<string name="recording_progress">Enregistrement&#8230;</string>
 	<string name="recording_paused">En pause</string>
 	<string name="playback">Lecture : %s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">Vide</string>
 	<string name="items_selected">%d sélectionné</string>
 	<string name="no_records">Pas d\'enregistrements</string>
@@ -122,8 +122,8 @@
 		<item quantity="one">%d enregistrement déplacé avec succès</item>
 		<item quantity="other">%d enregistrements déplacés avec succès</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d enregistrements copiés avec succès et %d ont échoué</string>
-	<string name="moving_records_success_and_fail_count">%d enregistrements déplacés avec succès et %d ont échoué</string>
+	<string name="downloading_success_and_fail_count">%1$d enregistrements copiés avec succès et %2$d ont échoué</string>
+	<string name="moving_records_success_and_fail_count">%1$d enregistrements déplacés avec succès et %2$d ont échoué</string>
 	<string name="downloading_success">%s copié dans le dossier \'Downloads\'</string>
 	<string name="move_record_success">%s déplacé dans le dossier privé de l\'application</string>
 	<plurals name="downloading_failed_count">
@@ -156,7 +156,7 @@
 	<string name="by_duration">Par durée (le plus long)</string>
     <string name="by_duration_desc">Par durée (le plus court)</string>
     <string name="filter">Filtrer</string>
-	<string name="filter_clear">Effacer</string>
+	<string name="clear">Effacer</string>
 	<string name="filter_dismiss">Fermer le filtre</string>
 	<string name="filter_no_options">Aucun enregistrement à filtrer</string>
 	<string name="need_write_permission">L\'application nécessite la permission d\'accéder au stockage public. Si non autorisé, les enregistrements seront stockés dans le dossier privé de l\'application</string>
@@ -308,6 +308,8 @@
 	<string name="error_permission_denied">Permission refusée</string>
 	<string name="error_process_waveform">Impossible de dessiner la forme d\'onde</string>
 	<string name="error_lost_records">Certains de vos enregistrements ont été supprimés ou déplacés</string>
+	<string name="local_storage_info_title">Les enregistrements sont stockés sur l\'appareil</string>
+	<string name="local_storage_info_message">Les enregistrements ne sont pas sauvegardés dans le cloud. La suppression de l\'application ou de ses données les effacera définitivement.</string>
 	<string name="error_no_available_space">Pas d\'espace disponible !</string>
 	<string name="error_failed_access_to_storage">Échec de l\'accès au stockage de fichiers</string>
 	<string name="error_on_recording">Erreur pendant l\'enregistrement !</string>
@@ -410,4 +412,38 @@
     <string name="duration_hours_and_minutes">%1$dh %2$dmin</string>
     <string name="duration_minutes">%1$dmin</string>
     <string name="dropdown_menu">Menu</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Modifier le format du nom</string>
+    <string name="name_format_preview">Aperçu</string>
+    <string name="name_format_preview_empty">Ajoutez des éléments pour composer un nom</string>
+    <string name="name_format_your_format">Votre format</string>
+    <string name="name_format_empty_hint">Appuyez sur les éléments ci-dessous pour les ajouter à votre format.</string>
+    <string name="name_format_remove_element">Supprimer l\'élément</string>
+    <string name="name_format_date_and_time">Date et heure</string>
+    <string name="name_format_other">Compteur et texte</string>
+    <string name="name_format_dividers">Séparateurs</string>
+    <string name="name_format_presets">Modèles</string>
+    <string name="name_format_add_text">Ajouter du texte</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Horodatage</string>
+    <string name="name_format_year">Année</string>
+    <string name="name_format_month">Mois</string>
+    <string name="name_format_month_name">Nom du mois</string>
+    <string name="name_format_day">Jour</string>
+    <string name="name_format_day_of_week">Jour de la semaine</string>
+    <string name="name_format_hour_24">Heure (24 h)</string>
+    <string name="name_format_hour_12">Heure (12 h)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Minute</string>
+    <string name="name_format_second">Seconde</string>
+    <string name="name_format_counter">Compteur</string>
+    <string name="name_format_text">Texte</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Horodatage</string>
+    <string name="name_format_preset_date">Date</string>
+    <string name="name_format_preset_date_us">Date US</string>
+    <string name="name_format_preset_date_iso8601">Date ISO 8601</string>
+    <string name="name_format_preset_date_long">Date longue</string>
+    <string name="name_format_preset_custom">Personnalisé</string>
 </resources>

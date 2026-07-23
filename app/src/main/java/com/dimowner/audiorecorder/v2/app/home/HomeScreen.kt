@@ -42,6 +42,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -62,6 +64,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -74,6 +77,7 @@ import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
 import com.dimowner.audiorecorder.v2.app.EditDescriptionDialog
+import com.dimowner.audiorecorder.v2.app.InfoAlertDialog
 import com.dimowner.audiorecorder.v2.app.RenameAlertDialog
 import com.dimowner.audiorecorder.v2.app.SaveAsDialog
 import com.dimowner.audiorecorder.v2.app.UpdateNameAndDescriptionDialog
@@ -273,7 +277,7 @@ internal fun HomeScreen(
                 }
             },
             showImportButton = !uiState.isRecording(),
-            showMenuButton = !uiState.isRecording()
+            showMenuButton = !uiState.isRecording() && uiState.isShowWaveform
         )
     }
     val statusPanels: @Composable () -> Unit = {
@@ -555,6 +559,20 @@ internal fun HomeScreen(
                             onAction(HomeScreenAction.DismissRenameAfterRecordingDialog(dontAskAgain))
                         },
                         showDontAskAgain = true
+                    )
+                }
+                if (uiState.showLocalStorageInfoDialog) {
+                    InfoAlertDialog(
+                        onDismissRequest = {
+                            onAction(HomeScreenAction.DismissLocalStorageInfoDialog)
+                        },
+                        onConfirmation = {
+                            onAction(HomeScreenAction.DismissLocalStorageInfoDialog)
+                        },
+                        dialogTitle = stringResource(id = R.string.local_storage_info_title),
+                        dialogText = AnnotatedString(stringResource(id = R.string.local_storage_info_message)),
+                        icon = Icons.Default.Info,
+                        dismissButton = stringResource(id = R.string.btn_got_it)
                     )
                 }
                 if (uiState.showBrokenRecordDialog) {

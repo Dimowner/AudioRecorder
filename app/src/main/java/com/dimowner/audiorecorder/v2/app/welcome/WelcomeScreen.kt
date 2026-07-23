@@ -36,7 +36,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
+import com.dimowner.audiorecorder.v2.app.components.rememberSafePainterResource
 
 @Composable
 fun WelcomeScreen(
@@ -62,14 +62,17 @@ fun WelcomeScreen(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.Center,
             ) {
-                Icon(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .wrapContentSize()
-                        .align(Alignment.CenterHorizontally),
-                    painter = painterResource(id = R.drawable.waveform),
-                    contentDescription = stringResource(id = R.string.app_name)
-                )
+                val waveformPainter = rememberSafePainterResource(id = R.drawable.waveform)
+                if (waveformPainter != null) {
+                    Icon(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .wrapContentSize()
+                            .align(Alignment.CenterHorizontally),
+                        painter = waveformPainter,
+                        contentDescription = stringResource(id = R.string.app_name)
+                    )
+                }
                 Text(
                     modifier = Modifier
                         .padding(8.dp)

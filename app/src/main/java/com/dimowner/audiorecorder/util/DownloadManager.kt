@@ -20,15 +20,19 @@ import android.annotation.TargetApi
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
+import android.database.sqlite.SQLiteConstraintException
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import androidx.annotation.RequiresApi
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.audio.AudioDecoder
 import timber.log.Timber
 import java.io.*
 
 private const val BUFFER_SIZE = 10240
+private const val MAX_INSERT_ATTEMPTS = 32
 
 /**
  * Copies list of files into Download directory.
@@ -102,7 +106,7 @@ fun downloadFiles(context: Context, list: List<File>, listener: OnCopyListListen
  * Copies file into Download directory.
  * @author Dimowner
  */
-@TargetApi(29)
+@RequiresApi(29)
 fun downloadFile(context: Context, sourceFile: File, listener: OnCopyListener?) {
 	val sourceName = sourceFile.name
 	var isCancel = false
@@ -110,11 +114,7 @@ fun downloadFile(context: Context, sourceFile: File, listener: OnCopyListener?) 
 		val mime = AudioDecoder.readRecordMime(sourceFile)
 		if (!isUriFileAlreadyExists(context, sourceName)) {
 			val resolver: ContentResolver = context.contentResolver
-			val contentValues = ContentValues()
-			contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, sourceName)
-			contentValues.put(MediaStore.MediaColumns.MIME_TYPE, mime)
-			contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-			val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+			val uri = insertDownloadEntry(resolver, sourceName, mime)
 			if (uri != null) {
 				try {
 					val outputStream = resolver.openOutputStream(uri)
@@ -224,10 +224,51 @@ fun copyFileToDir(context: Context, sourceFile: File, destinationFile: File, lis
 		})
 }
 
-@TargetApi(29)
+/**
+ * Inserts a new entry into the Downloads collection.
+ *
+ * MediaStore makes the display name unique by looking at the file system, but the uniqueness of
+ * the underlying `_data` column is enforced by the database. When a stale row points to a path
+ * that no longer exists on disk (file removed outside of MediaStore, app reinstalled, etc.)
+ * MediaStore keeps the requested name and the insert fails with a UNIQUE constraint violation.
+ * In that case retry with an explicitly uniquified name.
+ *
+ * @return Uri of the created entry or null if it was not possible to create it.
+ */
+@RequiresApi(29)
+private fun insertDownloadEntry(resolver: ContentResolver, name: String, mime: String?): Uri? {
+	val nameNoExt = FileUtil.removeFileExtension(name)
+	val extension = name.removePrefix(nameNoExt)
+	for (attempt in 0..MAX_INSERT_ATTEMPTS) {
+		val displayName = if (attempt == 0) name else "$nameNoExt ($attempt)$extension"
+		val contentValues = ContentValues()
+		contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, displayName)
+		contentValues.put(MediaStore.MediaColumns.MIME_TYPE, mime)
+		contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+		try {
+			return resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+		} catch (e: SQLiteConstraintException) {
+			Timber.w(e, "Failed to insert %s into Downloads, retrying with a unique name", displayName)
+		} catch (e: IllegalArgumentException) {
+			Timber.e(e)
+			return null
+		} catch (e: IllegalStateException) {
+			Timber.e(e)
+			return null
+		}
+	}
+	return null
+}
+
+@RequiresApi(29)
 private fun isUriFileAlreadyExists(context: Context, name: String): Boolean {
 	val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
-	val cursor = context.contentResolver.query(MediaStore.Downloads.EXTERNAL_CONTENT_URI, projection, null, null, null, null)
+	val selection = MediaStore.MediaColumns.DISPLAY_NAME + " = ? AND " +
+			MediaStore.MediaColumns.RELATIVE_PATH + " LIKE ?"
+	val selectionArgs = arrayOf(name, "%" + Environment.DIRECTORY_DOWNLOADS + "%")
+	val cursor = context.contentResolver.query(
+		MediaStore.Downloads.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null, null
+	)
 	cursor.use {
 		if (it != null && it.moveToFirst()) {
 			do {

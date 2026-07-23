@@ -46,6 +46,7 @@
 	<string name="msg_recording_saved_with_name">Aufnahme gespeichert unter dem Namen: %s</string>
     <!-- Error message when saving a recording fails -->
 	<string name="msg_save_recording_failed">Aufnahme konnte nicht gespeichert werden.</string>
+	<string name="msg_not_enough_storage_space">Nicht genügend Speicherplatz. Geben Sie Speicherplatz frei und versuchen Sie es erneut.</string>
 	<!-- Error message for file operation failure -->
 	<string name="msg_file_operation_failed">Dateivorgang fehlgeschlagen. Bitte erneut versuchen</string>
 	<!-- Error message for empty name during rename/save -->
@@ -106,7 +107,6 @@
 	<string name="recording_progress">Aufnahme läuft&#8230;</string>
 	<string name="recording_paused">Pausiert</string>
 	<string name="playback">Wiedergabe: %s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">Leer</string>
 	<string name="items_selected"> %d ausgewählt</string>
 	<string name="no_records">Keine Aufnahmen vorhanden</string>
@@ -141,8 +141,8 @@
 		<item quantity="one">%d Aufnahme erfolgreich verschoben</item>
 		<item quantity="other">%d Aufnahmen erfolgreich verschoben</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d Aufnahmen erfolgreich kopiert und %d fehlgeschlagen</string>
-	<string name="moving_records_success_and_fail_count">%d Aufnahmen erfolgreich verschoben und %d fehlgeschlagen</string>
+	<string name="downloading_success_and_fail_count">%1$d Aufnahmen erfolgreich kopiert und %2$d fehlgeschlagen</string>
+	<string name="moving_records_success_and_fail_count">%1$d Aufnahmen erfolgreich verschoben und %2$d fehlgeschlagen</string>
 	<string name="downloading_success">%s in das Verzeichnis \'Downloads\' kopiert</string>
 	<string name="move_record_success">%s in das private Verzeichnis der App verschoben</string>
 	<plurals name="downloading_failed_count">
@@ -175,7 +175,7 @@
 	<string name="by_duration">Nach Dauer (längste)</string>
     <string name="by_duration_desc">Nach Dauer (kürzeste)</string>
     <string name="filter">Filter</string>
-	<string name="filter_clear">Löschen</string>
+	<string name="clear">Löschen</string>
 	<string name="filter_dismiss">Filter schließen</string>
 	<string name="filter_no_options">Keine Aufnahmen zum Filtern</string>
 	<string name="need_write_permission">Die App benötigt die Berechtigung zum Zugriff auf den öffentlichen Speicher. Wenn nicht erlaubt, werden Aufnahmen im privaten Verzeichnis der App gespeichert</string>
@@ -330,6 +330,8 @@
 	<string name="error_permission_denied">Berechtigung verweigert</string>
 	<string name="error_process_waveform">Wellenform kann nicht gezeichnet werden</string>
 	<string name="error_lost_records">Einige Ihrer Aufnahmen wurden gelöscht oder verschoben</string>
+	<string name="local_storage_info_title">Aufnahmen werden auf dem Gerät gespeichert</string>
+	<string name="local_storage_info_message">Aufnahmen werden nicht in der Cloud gesichert. Das Löschen der App oder ihrer Daten entfernt sie dauerhaft.</string>
 	<string name="broken_record_title">Aufnahme unterbrochen</string>
 	<string name="broken_record_message">Die Aufnahme \'%s\' wurde unterbrochen (möglicherweise durch einen Geräteneustart) und die Datei könnte beschädigt sein. Möchten Sie versuchen, sie wiederherzustellen?</string>
 	<string name="btn_restore">Wiederherstellen</string>
@@ -439,4 +441,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">Zurck navigieren</string>
     <string name="dropdown_menu">Menü</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Namensformat bearbeiten</string>
+    <string name="name_format_preview">Vorschau</string>
+    <string name="name_format_preview_empty">Elemente hinzufügen, um einen Namen zu bilden</string>
+    <string name="name_format_your_format">Dein Format</string>
+    <string name="name_format_empty_hint">Auf die Elemente unten tippen, um sie zum Format hinzuzufügen.</string>
+    <string name="name_format_remove_element">Element entfernen</string>
+    <string name="name_format_date_and_time">Datum und Uhrzeit</string>
+    <string name="name_format_other">Zähler und Text</string>
+    <string name="name_format_dividers">Trennzeichen</string>
+    <string name="name_format_presets">Vorlagen</string>
+    <string name="name_format_add_text">Text hinzufügen</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Zeitstempel</string>
+    <string name="name_format_year">Jahr</string>
+    <string name="name_format_month">Monat</string>
+    <string name="name_format_month_name">Monatsname</string>
+    <string name="name_format_day">Tag</string>
+    <string name="name_format_day_of_week">Wochentag</string>
+    <string name="name_format_hour_24">Stunde (24 h)</string>
+    <string name="name_format_hour_12">Stunde (12 h)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Minute</string>
+    <string name="name_format_second">Sekunde</string>
+    <string name="name_format_counter">Zähler</string>
+    <string name="name_format_text">Text</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Zeitstempel</string>
+    <string name="name_format_preset_date">Datum</string>
+    <string name="name_format_preset_date_us">Datum US</string>
+    <string name="name_format_preset_date_iso8601">Datum ISO 8601</string>
+    <string name="name_format_preset_date_long">Datum lang</string>
+    <string name="name_format_preset_custom">Benutzerdefiniert</string>
 </resources>

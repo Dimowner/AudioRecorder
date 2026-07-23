@@ -152,6 +152,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	};
 
 	private float space = 75;
+	private boolean isRtl = false;
 
 	public static Intent getStartIntent(Context context) {
 		return new Intent(context, MainActivity.class);
@@ -174,6 +175,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		txtProgress = findViewById(R.id.txt_progress);
 		txtDuration = findViewById(R.id.txt_duration);
 		txtZeroTime = findViewById(R.id.txt_zero_time);
+		txtZeroTime.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 		txtName = findViewById(R.id.txt_name);
 		txtRecordInfo = findViewById(R.id.txt_record_info);
 		btnPlay = findViewById(R.id.btn_play);
@@ -206,6 +208,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnImport.setOnClickListener(this);
 		txtName.setOnClickListener(this);
 		space = getResources().getDimension(R.dimen.spacing_xnormal);
+		isRtl = getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
 
 		playProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 			@Override
@@ -449,7 +452,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnShare.setVisibility(View.GONE);
 		playProgress.setProgress(0);
 		playProgress.setEnabled(false);
-		txtDuration.setText(R.string.zero_time);
+		txtDuration.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 		waveformView.setVisibility(View.GONE);
 		recordingWaveformView.setVisibility(View.VISIBLE);
 		ivPlaceholder.setVisibility(View.GONE);
@@ -520,7 +523,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		btnRecordingStop.setEnabled(false);
 		playProgress.setProgress(0);
 		playProgress.setEnabled(false);
-		txtDuration.setText(R.string.zero_time);
+		txtDuration.setText(TimeUtils.formatTimeIntervalHourMinSec2(0));
 		ivPlaceholder.setVisibility(View.GONE);
 	}
 
@@ -569,7 +572,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	public void showPlayStart(boolean animate) {
 		btnRecord.setEnabled(false);
 		if (animate) {
-			AnimationUtil.viewAnimationX(btnPlay, -space, new Animator.AnimatorListener() {
+			AnimationUtil.viewAnimationX(btnPlay, isRtl ? space : -space, new Animator.AnimatorListener() {
 				@Override public void onAnimationStart(Animator animation) { }
 				@Override public void onAnimationEnd(Animator animation) {
 					btnStop.setVisibility(View.VISIBLE);
@@ -579,7 +582,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 				@Override public void onAnimationRepeat(Animator animation) { }
 			});
 		} else {
-			btnPlay.setTranslationX(-space);
+			btnPlay.setTranslationX(isRtl ? space : -space);
 			btnStop.setVisibility(View.VISIBLE);
 			btnPlay.setImageResource(R.drawable.ic_pause);
 		}
@@ -588,7 +591,7 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 	@Override
 	public void showPlayPause() {
 		btnStop.setVisibility(View.VISIBLE);
-		btnPlay.setTranslationX(-space);
+		btnPlay.setTranslationX(isRtl ? space : -space);
 		btnPlay.setImageResource(R.drawable.ic_play);
 	}
 

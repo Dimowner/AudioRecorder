@@ -564,6 +564,7 @@ fun DropDownSetting(
     items: List<NameFormatItem>,
     selectedItem: NameFormatItem?,
     onSelect: (NameFormatItem) -> Unit,
+    onEditNameFormat: (() -> Unit)? = null,
 ) {
     val expanded = remember { mutableStateOf(false) }
 
@@ -641,6 +642,17 @@ fun DropDownSetting(
                 painter = painterResource(id = R.drawable.ic_arrow_down),
                 contentDescription = text,
             )
+            if (onEditNameFormat != null) {
+                IconButton(
+                    modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp),
+                    onClick = onEditNameFormat,
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_pencil),
+                        contentDescription = stringResource(id = R.string.name_format_edit),
+                    )
+                }
+            }
         }
     }
 }

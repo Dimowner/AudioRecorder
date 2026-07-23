@@ -29,6 +29,9 @@ import com.dimowner.audiorecorder.v2.app.info.RecordInfoState
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoScreen
 import com.dimowner.audiorecorder.v2.app.info.RecordInfoViewModel
 import com.dimowner.audiorecorder.v2.app.lostrecords.LostRecordsScreen
+import com.dimowner.audiorecorder.v2.app.nameformat.NameFormatConstructorAction
+import com.dimowner.audiorecorder.v2.app.nameformat.NameFormatConstructorScreen
+import com.dimowner.audiorecorder.v2.app.nameformat.NameFormatConstructorViewModel
 import com.dimowner.audiorecorder.v2.app.lostrecords.LostRecordsViewModel
 import com.dimowner.audiorecorder.v2.app.records.RecordsScreen
 import com.dimowner.audiorecorder.v2.app.records.RecordsViewModel
@@ -141,6 +144,8 @@ fun RecorderNavigationGraph(
                     navController.popBackStack()
                 }, showDeletedRecordsScreen = {
                     navController.navigate(Routes.DELETED_RECORDS_SCREEN)
+                }, showNameFormatConstructorScreen = {
+                    navController.navigate(Routes.NAME_FORMAT_CONSTRUCTOR_SCREEN)
                 }, uiState = settingsViewModel.state.value,
                 onAction = {
                     settingsViewModel.onAction(it)
@@ -148,6 +153,17 @@ fun RecorderNavigationGraph(
                         onSwitchToLegacyApp()
                     }
                 }
+            )
+        }
+        composable(Routes.NAME_FORMAT_CONSTRUCTOR_SCREEN) {
+            val nameFormatViewModel: NameFormatConstructorViewModel = hiltViewModel()
+            LaunchedEffect(Unit) {
+                nameFormatViewModel.onAction(NameFormatConstructorAction.InitScreen)
+            }
+            NameFormatConstructorScreen(
+                onPopBackStack = { navController.popBackStack() },
+                uiState = nameFormatViewModel.state.value,
+                onAction = { nameFormatViewModel.onAction(it) },
             )
         }
         composable(Routes.WELCOME_SCREEN) {
