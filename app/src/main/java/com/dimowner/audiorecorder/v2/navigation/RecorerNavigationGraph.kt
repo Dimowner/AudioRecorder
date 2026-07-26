@@ -179,6 +179,8 @@ fun RecorderNavigationGraph(
                     navController.navigate(Routes.HOME_SCREEN) {
                         popUpTo(0)
                     }
+                }, showNameFormatConstructorScreen = {
+                    navController.navigate(Routes.NAME_FORMAT_CONSTRUCTOR_SCREEN)
                 }, uiState = settingsViewModel.state.value,
                     onAction = { settingsViewModel.onAction(it) }
             )
