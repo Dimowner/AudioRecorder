@@ -730,7 +730,7 @@ class HomeViewModel @Inject constructor(
                         selectedBluetoothDevice = bluetoothState.selectedDevice,
                         alwaysUseBluetoothMic = prefs.alwaysUseBluetoothMic,
                         // Preserve a pending local-storage info dialog across this full reset.
-                        showLocalStorageInfoDialog = _state.value.showLocalStorageInfoDialog,
+//                        showLocalStorageInfoDialog = _state.value.showLocalStorageInfoDialog,
                     )
                 }
             }
@@ -1307,10 +1307,10 @@ class HomeViewModel @Inject constructor(
     private fun dismissRenameAfterRecordingDialog(dontAskAgain: Boolean) {
         // Surface the one-time local storage info once the rename prompt is out of the way,
         // so the two dialogs are shown sequentially rather than stacked.
-        val showLocalStorageInfo = !prefs.isLocalStorageInfoShown
+//        val showLocalStorageInfo = !prefs.isLocalStorageInfoShown
         _state.value = _state.value.copy(
             showRenameAfterRecordingDialog = false,
-            showLocalStorageInfoDialog = showLocalStorageInfo,
+//            showLocalStorageInfoDialog = showLocalStorageInfo,
         )
         if (dontAskAgain) {
             prefs.askToRenameAfterRecordingStopped = false
@@ -1401,8 +1401,8 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun dismissLocalStorageInfoDialog() {
-        prefs.isLocalStorageInfoShown = true
-        _state.value = _state.value.copy(showLocalStorageInfoDialog = false)
+//        prefs.isLocalStorageInfoShown = true
+//        _state.value = _state.value.copy(showLocalStorageInfoDialog = false)
     }
 
     /**
@@ -1410,11 +1410,11 @@ class HomeViewModel @Inject constructor(
      * app is deleted or its data is reset. Triggered right after the first recording is saved.
      */
     private suspend fun maybeShowLocalStorageInfoDialog() {
-        if (!prefs.isLocalStorageInfoShown) {
-            withContext(mainDispatcher) {
-                _state.value = _state.value.copy(showLocalStorageInfoDialog = true)
-            }
-        }
+//        if (!prefs.isLocalStorageInfoShown) {
+//            withContext(mainDispatcher) {
+//                _state.value = _state.value.copy(showLocalStorageInfoDialog = true)
+//            }
+//        }
     }
 
     private fun emitEvent(event: HomeScreenEvent) {
@@ -1494,7 +1494,7 @@ data class HomeScreenState(
     val showBrokenRecordDialog: Boolean = false,
     val brokenRecord: Record? = null,
     // One-time info that recordings are stored locally only
-    val showLocalStorageInfoDialog: Boolean = false,
+//    val showLocalStorageInfoDialog: Boolean = false,
 ) {
     fun isRecording(): Boolean {
         return this.bottomBarState == BottomBarState.RECORDING || this.bottomBarState == BottomBarState.PAUSED

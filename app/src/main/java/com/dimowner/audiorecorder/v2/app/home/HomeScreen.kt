@@ -561,20 +561,20 @@ internal fun HomeScreen(
                         showDontAskAgain = true
                     )
                 }
-                if (uiState.showLocalStorageInfoDialog) {
-                    InfoAlertDialog(
-                        onDismissRequest = {
-                            onAction(HomeScreenAction.DismissLocalStorageInfoDialog)
-                        },
-                        onConfirmation = {
-                            onAction(HomeScreenAction.DismissLocalStorageInfoDialog)
-                        },
-                        dialogTitle = stringResource(id = R.string.local_storage_info_title),
-                        dialogText = AnnotatedString(stringResource(id = R.string.local_storage_info_message)),
-                        icon = Icons.Default.Info,
-                        dismissButton = stringResource(id = R.string.btn_got_it)
-                    )
-                }
+//                if (uiState.showLocalStorageInfoDialog) {
+//                    InfoAlertDialog(
+//                        onDismissRequest = {
+//                            onAction(HomeScreenAction.DismissLocalStorageInfoDialog)
+//                        },
+//                        onConfirmation = {
+//                            onAction(HomeScreenAction.DismissLocalStorageInfoDialog)
+//                        },
+//                        dialogTitle = stringResource(id = R.string.local_storage_info_title),
+//                        dialogText = AnnotatedString(stringResource(id = R.string.local_storage_info_message)),
+//                        icon = Icons.Default.Info,
+//                        dismissButton = stringResource(id = R.string.btn_got_it)
+//                    )
+//                }
                 if (uiState.showBrokenRecordDialog) {
                     BrokenRecordDialog(
                         recordName = uiState.brokenRecord?.name ?: "",
