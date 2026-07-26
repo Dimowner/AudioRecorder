@@ -437,15 +437,15 @@ class PrefsV2ImplTest {
 
     @Test
     fun test_alwaysUseBluetoothMic_stores_true_correctly() {
-        prefs.alwaysUseBluetoothMic = false
-        assertFalse(prefs.alwaysUseBluetoothMic)
+        prefs.alwaysUseBluetoothMic = true
+        assertTrue(prefs.alwaysUseBluetoothMic)
     }
 
     @Test
     fun test_alwaysUseBluetoothMic_stores_false_correctly_after_being_set_to_true() {
-        prefs.alwaysUseBluetoothMic = false
-        assertFalse(prefs.alwaysUseBluetoothMic)
         prefs.alwaysUseBluetoothMic = true
         assertTrue(prefs.alwaysUseBluetoothMic)
+        prefs.alwaysUseBluetoothMic = false
+        assertFalse(prefs.alwaysUseBluetoothMic)
     }
 }
