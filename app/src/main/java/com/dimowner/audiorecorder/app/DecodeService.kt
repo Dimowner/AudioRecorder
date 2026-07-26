@@ -36,6 +36,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.dimowner.audiorecorder.ARApplication
 import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.AppConstants.DECODE_DURATION
@@ -84,7 +85,7 @@ class DecodeService : Service() {
 			val intent = Intent(context, DecodeService::class.java)
 			intent.action = ACTION_START_DECODING_SERVICE
 			intent.putExtra(EXTRAS_KEY_DECODE_INFO, recordId)
-			context.startService(intent)
+			startDecodeService(context, intent)
 		}
 
 		fun startNotificationV2(context: Context, recordId: Long, path: String, durationMills: Long) {
@@ -93,7 +94,26 @@ class DecodeService : Service() {
 			intent.putExtra(EXTRAS_KEY_DECODE_INFO, recordId)
 			intent.putExtra(EXTRAS_KEY_DECODE_RECORD_PATH, path)
 			intent.putExtra(EXTRAS_KEY_DECODE_RECORD_DURATION, durationMills)
-			context.startService(intent)
+			startDecodeService(context, intent)
+		}
+
+		/**
+		 * The service promotes itself to foreground in [onStartCommand], so it has to be started
+		 * with startForegroundService(). A plain startService() does not reserve a foreground
+		 * service start allowance: the system re-evaluates it when startForeground() is finally
+		 * called on the main thread, and by then the app may have left the foreground (the
+		 * recording service that requested decoding stops right after the request), which makes
+		 * startForeground() throw ForegroundServiceStartNotAllowedException.
+		 *
+		 * Starting from the background is still not always permitted, so a failed start is logged
+		 * and swallowed instead of crashing — records keep the waveform captured while recording.
+		 */
+		private fun startDecodeService(context: Context, intent: Intent) {
+			try {
+				ContextCompat.startForegroundService(context, intent)
+			} catch (e: Exception) {
+				Timber.e(e, "Failed to start DecodeService as a foreground service")
+			}
 		}
 	}
 
@@ -124,6 +144,7 @@ class DecodeService : Service() {
 	lateinit var waveformVisualization: AudioWaveformVisualization
 	lateinit var colorMap: ColorMap
 	private var isCancel = false
+	private var isForegroundStarted = false
 
 	override fun onBind(intent: Intent): IBinder? {
 		return binder
@@ -144,18 +165,17 @@ class DecodeService : Service() {
 			if (action != null && action.isNotEmpty()) {
 				when (action) {
 					ACTION_START_DECODING_SERVICE -> {
-						if (intent.hasExtra(EXTRAS_KEY_DECODE_RECORD_PATH)) {
-							val recordId = intent.getLongExtra(EXTRAS_KEY_DECODE_INFO, -1)
-							val path = intent.getStringExtra(EXTRAS_KEY_DECODE_RECORD_PATH)
-							val duration = intent.getLongExtra(EXTRAS_KEY_DECODE_RECORD_DURATION, 0)
-							path?.let {
-								startDecodeV2(recordId, path, duration)
-							}
-						} else if (intent.hasExtra(EXTRAS_KEY_DECODE_INFO)) {
-							val id = intent.getLongExtra(EXTRAS_KEY_DECODE_INFO, -1)
-							if (id >= 0) {
-								startDecode(id)
-							}
+						val recordId = intent.getLongExtra(EXTRAS_KEY_DECODE_INFO, -1)
+						val path = intent.getStringExtra(EXTRAS_KEY_DECODE_RECORD_PATH)
+						val duration = intent.getLongExtra(EXTRAS_KEY_DECODE_RECORD_DURATION, 0)
+						if (path != null) {
+							startDecodeV2(recordId, path, duration)
+						} else if (recordId >= 0) {
+							startDecode(recordId)
+						} else {
+							//Nothing to decode. The service is started with startForegroundService(),
+							//so it has to be stopped instead of staying alive without a notification.
+							stopService()
 						}
 					}
 					ACTION_STOP_DECODING_SERVICE -> stopService()
@@ -302,6 +322,12 @@ class DecodeService : Service() {
 		}
 	}
 
+	/**
+	 * Promotes the service to foreground. The system may still refuse the promotion (the app left
+	 * the foreground between the start request and this call), in which case decoding continues as
+	 * a plain background service instead of crashing the process — the work is short lived and the
+	 * result is only a waveform.
+	 */
 	@SuppressLint("WrongConstant")
 	private fun startNotification() {
 		notificationManager = NotificationManagerCompat.from(this)
@@ -312,10 +338,17 @@ class DecodeService : Service() {
 		val intent = Intent(applicationContext, MainActivity::class.java)
 		intent.flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
 		contentPendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, PENDING_INTENT_FLAGS)
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-			startForeground(NOTIF_ID, buildNotification())
-		} else {
-			startForeground(NOTIF_ID, buildNotification(), FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+		try {
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+				startForeground(NOTIF_ID, buildNotification())
+			} else {
+				startForeground(NOTIF_ID, buildNotification(), FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+			}
+			isForegroundStarted = true
+		} catch (e: Exception) {
+			//ForegroundServiceStartNotAllowedException on API 31+, IllegalStateException below it.
+			isForegroundStarted = false
+			Timber.e(e, "DecodeService: startForeground() not allowed, decoding in background")
 		}
 	}
 
@@ -390,6 +423,7 @@ class DecodeService : Service() {
 			@Suppress("DEPRECATION")
 			stopForeground(true)
 		}
+		isForegroundStarted = false
 		stopSelf()
 	}
 
@@ -429,6 +463,9 @@ class DecodeService : Service() {
 	}
 
 	private fun updateNotification(percent: Int) {
+		//Without a foreground start the progress notification would not be removed by
+		//stopForeground() and would stay in the shade after decoding is done.
+		if (!isForegroundStarted) return
 		if (percent == notifiedProgress) return
 		decodeProgress = percent
 		notifiedProgress = percent
@@ -443,7 +480,13 @@ class DecodeService : Service() {
 		override fun onReceive(context: Context, intent: Intent) {
 			val stopIntent = Intent(context, DecodeService::class.java)
 			stopIntent.action = intent.action
-			context.startService(stopIntent)
+			try {
+				//A plain start, the stop actions never promote the service to foreground.
+				context.startService(stopIntent)
+			} catch (e: Exception) {
+				//The service is already gone and the app is in the background - nothing to stop.
+				Timber.e(e, "Failed to deliver %s to DecodeService", intent.action)
+			}
 		}
 	}
 
