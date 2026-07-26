@@ -108,7 +108,6 @@
 	<string name="recording_progress">録音中&#8230;</string>
 	<string name="recording_paused">一時停止中</string>
 	<string name="playback">再生中：%s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">空</string>
 	<string name="items_selected"> %d件選択中</string>
 	<string name="no_records">録音がありません</string>
@@ -177,7 +176,7 @@
 	<string name="by_duration">時間順（長い順）</string>
     <string name="by_duration_desc">時間順（短い順）</string>
     <string name="filter">フィルター</string>
-	<string name="filter_clear">クリア</string>
+	<string name="clear">クリア</string>
 	<string name="filter_dismiss">フィルターを閉じる</string>
 	<string name="filter_no_options">フィルタリングする録音がありません</string>
 	<string name="need_write_permission">アプリは公開ストレージへのアクセス権限が必要です。許可されない場合、録音はアプリのプライベートディレクトリに保存されます</string>
@@ -332,6 +331,8 @@
 	<string name="error_permission_denied">権限が拒否されました</string>
 	<string name="error_process_waveform">波形を描画できません</string>
 	<string name="error_lost_records">一部の録音が削除または移動されました</string>
+	<string name="local_storage_info_title">録音はデバイスに保存されます</string>
+	<string name="local_storage_info_message">録音はクラウドにバックアップされません。アプリまたはそのデータを削除すると、完全に消去されます。</string>
 	<string name="broken_record_title">録音が中断されました</string>
 	<string name="broken_record_message">録音\'%s\'が中断されました（デバイスの再起動が原因の可能性があります）。ファイルが破損している可能性があります。復元を試みますか？</string>
 	<string name="btn_restore">復元</string>
@@ -418,6 +419,7 @@
     <string name="app_widget_description">録音開始ウィジェット</string>
 
     <string name="bluetooth_microphone_available">Bluetoothマイクが利用可能です</string>
+    <string name="bluetooth_always_use_when_available">利用可能なときは常にBluetoothマイクを使用</string>
     <string name="audio_source">オーディオソース</string>
     <string name="audio_source_default">デフォルト</string>
     <string name="audio_source_mic">マイク</string>
@@ -441,4 +443,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">前の画面に戻る</string>
     <string name="dropdown_menu">メニュー</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">名前の形式を編集</string>
+    <string name="name_format_preview">プレビュー</string>
+    <string name="name_format_preview_empty">要素を追加して名前を作成します</string>
+    <string name="name_format_your_format">現在の形式</string>
+    <string name="name_format_empty_hint">下の要素をタップして形式に追加します。</string>
+    <string name="name_format_remove_element">要素を削除</string>
+    <string name="name_format_date_and_time">日付と時刻</string>
+    <string name="name_format_other">カウンターとテキスト</string>
+    <string name="name_format_dividers">区切り文字</string>
+    <string name="name_format_presets">プリセット</string>
+    <string name="name_format_add_text">テキストを追加</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">タイムスタンプ</string>
+    <string name="name_format_year">年</string>
+    <string name="name_format_month">月</string>
+    <string name="name_format_month_name">月名</string>
+    <string name="name_format_day">日</string>
+    <string name="name_format_day_of_week">曜日</string>
+    <string name="name_format_hour_24">時 (24時間)</string>
+    <string name="name_format_hour_12">時 (12時間)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">分</string>
+    <string name="name_format_second">秒</string>
+    <string name="name_format_counter">カウンター</string>
+    <string name="name_format_text">テキスト</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">タイムスタンプ</string>
+    <string name="name_format_preset_date">日付</string>
+    <string name="name_format_preset_date_us">日付 (米国)</string>
+    <string name="name_format_preset_date_iso8601">日付 ISO 8601</string>
+    <string name="name_format_preset_date_long">日付 (長)</string>
+    <string name="name_format_preset_custom">カスタム</string>
 </resources>

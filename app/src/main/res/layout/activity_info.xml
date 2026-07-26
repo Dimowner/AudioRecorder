@@ -49,9 +49,7 @@
 					android:layout_weight="1"
 					android:gravity="center_vertical"
 					android:paddingStart="@dimen/spacing_normal"
-					android:paddingLeft="@dimen/spacing_normal"
 					android:paddingEnd="@dimen/spacing_normal"
-					android:paddingRight="@dimen/spacing_normal"
 					android:textColor="@color/text_primary_light"
 					android:text="@string/info"
 					/>

@@ -18,11 +18,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.getTestWaveformData
@@ -131,6 +133,10 @@ internal fun RecordPlaybackPanel(
             onProgressChange = onProgressChange
         )
         // Prev / Play controls / Next row
+        // Row mirrors button positions in RTL automatically, but the skip icons keep
+        // their fixed visual direction, so swap which callback each button fires to
+        // match what its position/icon now indicates.
+        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -138,7 +144,7 @@ internal fun RecordPlaybackPanel(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(
-                onClick = onPrevClick,
+                onClick = if (isRtl) onNextClick else onPrevClick,
                 modifier = Modifier.size(42.dp),
             ) {
                 Icon(
@@ -157,7 +163,7 @@ internal fun RecordPlaybackPanel(
             )
             Spacer(modifier = Modifier.weight(1f))
             IconButton(
-                onClick = onNextClick,
+                onClick = if (isRtl) onPrevClick else onNextClick,
                 modifier = Modifier.size(42.dp),
             ) {
                 Icon(

@@ -51,6 +51,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -65,6 +66,7 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.ScrollableTitleBar
 import com.dimowner.audiorecorder.v2.app.components.AudioSourceSelector
+import com.dimowner.audiorecorder.v2.app.components.DISABLED_ALPHA
 import com.dimowner.audiorecorder.v2.app.components.MAX_CONTENT_WIDTH_NARROW
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
@@ -79,6 +81,7 @@ import androidx.compose.ui.platform.LocalResources
 internal fun SettingsScreen(
     onPopBackStack: () -> Unit,
     showDeletedRecordsScreen: () -> Unit,
+    showNameFormatConstructorScreen: () -> Unit,
     uiState: SettingsState,
     onAction: (SettingsScreenAction) -> Unit,
 ) {
@@ -106,6 +109,8 @@ internal fun SettingsScreen(
 
             Lifecycle.Event.ON_RESUME -> {
                 Timber.d("SettingsScreen: On Resume")
+                //Pick up a format that was just built in the name format constructor.
+                onAction(SettingsScreenAction.RefreshNameFormat)
             }
 
             Lifecycle.Event.ON_PAUSE -> {
@@ -179,7 +184,7 @@ internal fun SettingsScreen(
                 SettingsItemCheckBox(
                     uiState.isShowRenameDialog,
                     stringResource(R.string.ask_to_rename),
-                    R.drawable.ic_pencil,
+                    R.drawable.ic_rename_prompt,
                     {
                         onAction(SettingsScreenAction.SetShowRenamingDialog(it))
                     })
@@ -188,7 +193,8 @@ internal fun SettingsScreen(
                     selectedItem = uiState.selectedNameFormat,
                     onSelect = {
                         onAction(SettingsScreenAction.SetNameFormat(it))
-                    }
+                    },
+                    onEditNameFormat = showNameFormatConstructorScreen,
                 )
                 AuthorNameSettingRow(
                     currentAuthorName = uiState.recordAuthorName,
@@ -230,7 +236,8 @@ internal fun SettingsScreen(
                 Spacer(modifier = Modifier.size(8.dp))
                 MaxDurationSettingRow(
                     currentValue = uiState.maxRecordingDurationMinutes,
-                    onAction = onAction
+                    onAction = onAction,
+                    enabled = uiState.isRecordingSettingEditable,
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 SettingsItem(stringResource(R.string.rate_app), R.drawable.ic_thumbs) {
@@ -306,6 +313,7 @@ internal fun MaxDurationSettingRow(
     currentValue: Int,
     onAction: (SettingsScreenAction) -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     val showDialog = remember { mutableStateOf(false) }
 
@@ -318,6 +326,7 @@ internal fun MaxDurationSettingRow(
         currentMinutes = minutes,
         onClick = { showDialog.value = true },
         modifier = modifier,
+        enabled = enabled,
     )
 
     if (showDialog.value) {
@@ -372,12 +381,14 @@ fun MaxDurationSettingItem(
     currentMinutes: Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .clickable { onClick() }
+            .alpha(if (enabled) 1f else DISABLED_ALPHA)
+            .clickable(enabled = enabled) { onClick() }
             .padding(horizontal = 8.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -461,7 +472,7 @@ fun formatDurationDisplay(hours: Int, minutes: Int): String {
 @Preview
 @Composable
 fun SettingsScreenPreview() {
-    SettingsScreen({}, {}, uiState = SettingsState(
+    SettingsScreen({}, {}, {}, uiState = SettingsState(
         isDynamicColors = true,
         isDarkTheme = false,
         isAppV2 = false,

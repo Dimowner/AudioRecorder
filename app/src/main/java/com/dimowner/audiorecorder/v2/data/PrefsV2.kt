@@ -20,6 +20,7 @@ import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
+import com.dimowner.audiorecorder.v2.data.model.NameFormatToken
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
@@ -29,10 +30,16 @@ interface PrefsV2 {
     val isFirstRun: Boolean
     fun confirmFirstRunExecuted()
 
+    /** Whether the "records are stored locally" info dialog has already been shown on Home screen. */
+    var isLocalStorageInfoShown: Boolean
+
     var askToRenameAfterRecordingStopped: Boolean
 
     /** Last chosen state of the "Also save to audio file" checkbox in the description dialog. */
     var saveDescriptionToFile: Boolean
+
+    /** When true, Bluetooth microphone routing is enabled automatically when a device is available. */
+    var alwaysUseBluetoothMic: Boolean
 
     var activeRecordId: Long
     //Stores the last recorded record id. It is not gets cleared after recording stops.
@@ -61,6 +68,13 @@ interface PrefsV2 {
     var isLegacyAppUser: Boolean
 
     var settingNamingFormat: NameFormat
+
+    /**
+     * Tokens of the format built in the name format constructor. Only used for record naming while
+     * [settingNamingFormat] is [NameFormat.Custom], but kept stored regardless so that switching to
+     * a preset and back does not lose the user's work.
+     */
+    var customNameFormat: List<NameFormatToken>
     var settingRecordingFormat: RecordingFormat
     var settingSampleRate: SampleRate
     var settingBitrate: BitRate

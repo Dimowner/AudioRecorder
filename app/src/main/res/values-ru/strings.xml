@@ -95,7 +95,6 @@
 	<string name="recording_progress">Запись&#8230;</string>
 	<string name="recording_paused">Пауза</string>
 	<string name="playback">Воспроизведение: %s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">Пусто</string>
 	<string name="items_selected">%d выбрано</string>
 	<string name="no_records">Нет записей</string>
@@ -136,8 +135,8 @@
 		<item quantity="many">%d записей перемещено успешно</item>
 		<item quantity="other">%d записей перемещено успешно</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d записей скопировано успешно, и %d не удалось скопировать</string>
-	<string name="moving_records_success_and_fail_count">%d записей перемещено успешно, и %d не удалось переместить</string>
+	<string name="downloading_success_and_fail_count">%1$d записей скопировано успешно, и %2$d не удалось скопировать</string>
+	<string name="moving_records_success_and_fail_count">%1$d записей перемещено успешно, и %2$d не удалось переместить</string>
 	<string name="downloading_success">%s скопировано в папку \'Downloads\'</string>
 	<string name="move_record_success">%s перемещено в приватную папку приложения</string>
 	<plurals name="downloading_failed_count">
@@ -174,7 +173,7 @@
 	<string name="by_duration">Длительность (длинные)</string>
     <string name="by_duration_desc">Длительность (короткие)</string>
     <string name="filter">Фильтр</string>
-	<string name="filter_clear">Очистить</string>
+	<string name="clear">Очистить</string>
 	<string name="filter_dismiss">Скрыть фильтр</string>
 	<string name="filter_no_options">Нет записей для фильтрации</string>
 	<string name="need_write_permission">Приложению требуется разрешение на запись в публичное хранилище. Если не разрешить, записи будут сохраняться в приватном каталоге приложения</string>
@@ -328,6 +327,8 @@
 	<string name="error_permission_denied">Доступ запрещен</string>
 	<string name="error_process_waveform">Не удалось отобразить аудиофайл</string>
 	<string name="error_lost_records">Некоторые ваши записи были удалены или перемещены</string>
+	<string name="local_storage_info_title">Записи хранятся на устройстве</string>
+	<string name="local_storage_info_message">Записи не резервируются в облаке. Удаление приложения или его данных приведет к их безвозвратному удалению.</string>
 	<string name="broken_record_title">Запись прервана</string>
 	<string name="broken_record_message">Запись \'%s\' была прервана (возможно, из-за перезагрузки устройства), и файл может быть повреждён. Хотите попытаться восстановить его?</string>
 	<string name="btn_restore">Восстановить</string>
@@ -409,7 +410,8 @@
 
 	<string name="app_widget_description">Начать запись виджет</string>
 
-    <string name="bluetooth_microphone_available">Доступен микрофон Bluetooth</string>
+    <string name="bluetooth_microphone_available">Доступен Bluetooth-микрофон</string>
+    <string name="bluetooth_always_use_when_available">Всегда использовать Bluetooth-микрофон, когда он доступен</string>
     <string name="audio_source">Источник звука</string>
     <string name="audio_source_default">По умолчанию</string>
     <string name="audio_source_mic">Микрофон</string>
@@ -433,4 +435,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">Назад</string>
     <string name="dropdown_menu">Меню</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Изменить формат имени</string>
+    <string name="name_format_preview">Предпросмотр</string>
+    <string name="name_format_preview_empty">Добавьте элементы, чтобы составить имя</string>
+    <string name="name_format_your_format">Ваш формат</string>
+    <string name="name_format_empty_hint">Нажимайте на элементы ниже, чтобы добавить их в формат.</string>
+    <string name="name_format_remove_element">Удалить элемент</string>
+    <string name="name_format_date_and_time">Дата и время</string>
+    <string name="name_format_other">Счётчик и текст</string>
+    <string name="name_format_dividers">Разделители</string>
+    <string name="name_format_presets">Шаблоны</string>
+    <string name="name_format_add_text">Добавить текст</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Метка времени</string>
+    <string name="name_format_year">Год</string>
+    <string name="name_format_month">Месяц</string>
+    <string name="name_format_month_name">Название месяца</string>
+    <string name="name_format_day">День</string>
+    <string name="name_format_day_of_week">День недели</string>
+    <string name="name_format_hour_24">Часы (24 ч)</string>
+    <string name="name_format_hour_12">Часы (12 ч)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Минуты</string>
+    <string name="name_format_second">Секунды</string>
+    <string name="name_format_counter">Счётчик</string>
+    <string name="name_format_text">Текст</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Метка времени</string>
+    <string name="name_format_preset_date">Дата</string>
+    <string name="name_format_preset_date_us">Дата США</string>
+    <string name="name_format_preset_date_iso8601">Дата ISO 8601</string>
+    <string name="name_format_preset_date_long">Дата полностью</string>
+    <string name="name_format_preset_custom">Свой</string>
 </resources>

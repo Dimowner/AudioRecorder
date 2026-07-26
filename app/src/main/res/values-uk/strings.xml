@@ -96,7 +96,6 @@
 	<string name="recording_progress">Запис&#8230;</string>
 	<string name="recording_paused">Пауза</string>
 	<string name="playback">Відтворення: %s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">Пусто</string>
 	<string name="items_selected">%d вибрано</string>
 	<string name="no_records">Нема записів</string>
@@ -137,8 +136,8 @@
 		<item quantity="few">%d записи успішно переміщено</item>
 		<item quantity="many">%d записів успішно переміщено</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d записів успішно скопійовано, та %d не вдалося скопіювати</string>
-	<string name="moving_records_success_and_fail_count">%d записів успішно переміщено, та %d не вдалося перемістити</string>
+	<string name="downloading_success_and_fail_count">%1$d записів успішно скопійовано, та %2$d не вдалося скопіювати</string>
+	<string name="moving_records_success_and_fail_count">%1$d записів успішно переміщено, та %2$d не вдалося перемістити</string>
 	<string name="downloading_success">%s скопійовано в папку \'Downloads\'</string>
 	<string name="move_record_success">%s переміщено в приватну папку додатка</string>
 	<plurals name="downloading_failed_count">
@@ -175,7 +174,7 @@
 	<string name="by_duration">Тривалість (найдовші)</string>
     <string name="by_duration_desc">Тривалість (найкоротші)</string>
     <string name="filter">Фільтр</string>
-	<string name="filter_clear">Очистити</string>
+	<string name="clear">Очистити</string>
 	<string name="filter_dismiss">Сховати фільтр</string>
 	<string name="filter_no_options">Немає записів для фільтрації</string>
 	<string name="need_write_permission">Додатку потрібно дозвіл на запис в публічне сховище. Якщо не дозволити, записи будуть зберігатися в приватному каталозі додатка</string>
@@ -328,6 +327,8 @@
 	<string name="error_permission_denied">Доступ заборонено</string>
 	<string name="error_process_waveform">Не вдалося відобразити аудіофайл</string>
 	<string name="error_lost_records">Деякі ваші записи були видалені або переміщені</string>
+	<string name="local_storage_info_title">Записи зберігаються на пристрої</string>
+	<string name="local_storage_info_message">Записи не резервуються в хмарі. Видалення додатка або його даних призведе до їх безповоротного видалення.</string>
 	<string name="error_no_available_space">Немає доступної пам\'яті</string>
 	<string name="error_failed_access_to_storage">Не вдалося отримати доступ до сховища файлів</string>
 	<string name="error_on_recording">Помилка при запису</string>
@@ -404,7 +405,8 @@
 
 	<string name="app_widget_description">Почати запис віджет</string>
 
-    <string name="bluetooth_microphone_available">Доступний Bluetooth мікрофон</string>
+    <string name="bluetooth_microphone_available">Доступний Bluetooth-мікрофон</string>
+    <string name="bluetooth_always_use_when_available">Завжди використовувати Bluetooth-мікрофон, коли він доступний</string>
     <string name="audio_source">Джерело звуку</string>
     <string name="audio_source_default">За замовчуванням</string>
     <string name="audio_source_mic">Мікрофон</string>
@@ -432,4 +434,38 @@
     <string name="duration_hours_and_minutes">%1$dг %2$dхв</string>
     <string name="duration_minutes">%1$dхв</string>
     <string name="dropdown_menu">Меню</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Змінити формат назви</string>
+    <string name="name_format_preview">Попередній перегляд</string>
+    <string name="name_format_preview_empty">Додайте елементи, щоб скласти назву</string>
+    <string name="name_format_your_format">Ваш формат</string>
+    <string name="name_format_empty_hint">Натискайте на елементи нижче, щоб додати їх до формату.</string>
+    <string name="name_format_remove_element">Видалити елемент</string>
+    <string name="name_format_date_and_time">Дата й час</string>
+    <string name="name_format_other">Лічильник і текст</string>
+    <string name="name_format_dividers">Роздільники</string>
+    <string name="name_format_presets">Шаблони</string>
+    <string name="name_format_add_text">Додати текст</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Мітка часу</string>
+    <string name="name_format_year">Рік</string>
+    <string name="name_format_month">Місяць</string>
+    <string name="name_format_month_name">Назва місяця</string>
+    <string name="name_format_day">День</string>
+    <string name="name_format_day_of_week">День тижня</string>
+    <string name="name_format_hour_24">Години (24 год)</string>
+    <string name="name_format_hour_12">Години (12 год)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Хвилини</string>
+    <string name="name_format_second">Секунди</string>
+    <string name="name_format_counter">Лічильник</string>
+    <string name="name_format_text">Текст</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Мітка часу</string>
+    <string name="name_format_preset_date">Дата</string>
+    <string name="name_format_preset_date_us">Дата США</string>
+    <string name="name_format_preset_date_iso8601">Дата ISO 8601</string>
+    <string name="name_format_preset_date_long">Дата повністю</string>
+    <string name="name_format_preset_custom">Власний</string>
 </resources>

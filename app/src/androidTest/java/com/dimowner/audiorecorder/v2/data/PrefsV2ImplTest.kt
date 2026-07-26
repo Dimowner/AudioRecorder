@@ -26,6 +26,8 @@ import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
+import com.dimowner.audiorecorder.v2.data.model.NameFormatToken
+import com.dimowner.audiorecorder.v2.data.model.NameFormatTokenType
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
@@ -186,6 +188,90 @@ class PrefsV2ImplTest {
         assertEquals(NameFormat.DateUs, prefs.settingNamingFormat)
     }
 
+    // -------------------------------------------------------------------------
+    // customNameFormat
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun test_customNameFormat_defaultIsEmptyList() {
+        assertEquals(emptyList<NameFormatToken>(), prefs.customNameFormat)
+    }
+
+    @Test
+    fun test_customNameFormat_roundTripsTokens() {
+        val tokens = listOf(
+            NameFormatToken(NameFormatTokenType.Text, "Meeting"),
+            NameFormatToken(NameFormatTokenType.Divider, "_"),
+            NameFormatToken(NameFormatTokenType.DayOfWeek),
+            NameFormatToken(NameFormatTokenType.Divider, "-"),
+            NameFormatToken(NameFormatTokenType.Counter),
+        )
+
+        prefs.customNameFormat = tokens
+
+        assertEquals(tokens, prefs.customNameFormat)
+    }
+
+    @Test
+    fun test_customNameFormat_roundTripsValueContainingSeparators() {
+        // Token values are URL encoded internally, so raw separator/percent characters
+        // must not corrupt the stored format.
+        val tokens = listOf(
+            NameFormatToken(NameFormatTokenType.Text, "a|b:c d%e+f"),
+            NameFormatToken(NameFormatTokenType.Counter),
+        )
+
+        prefs.customNameFormat = tokens
+
+        assertEquals(tokens, prefs.customNameFormat)
+    }
+
+    @Test
+    fun test_customNameFormat_overwritesPreviousValue() {
+        prefs.customNameFormat = listOf(NameFormatToken(NameFormatTokenType.Timestamp))
+
+        val newTokens = listOf(
+            NameFormatToken(NameFormatTokenType.Text, "Note"),
+            NameFormatToken(NameFormatTokenType.Divider, "-"),
+        )
+        prefs.customNameFormat = newTokens
+
+        assertEquals(newTokens, prefs.customNameFormat)
+    }
+
+    @Test
+    fun test_customNameFormat_settingEmptyListClearsStoredValue() {
+        prefs.customNameFormat = listOf(NameFormatToken(NameFormatTokenType.Counter))
+
+        prefs.customNameFormat = emptyList()
+
+        assertEquals(emptyList<NameFormatToken>(), prefs.customNameFormat)
+    }
+
+    @Test
+    fun test_customNameFormat_persistsAcrossInstances() {
+        val tokens = listOf(
+            NameFormatToken(NameFormatTokenType.Year),
+            NameFormatToken(NameFormatTokenType.Divider, "-"),
+            NameFormatToken(NameFormatTokenType.Month),
+        )
+        prefs.customNameFormat = tokens
+
+        val context: Context = ApplicationProvider.getApplicationContext()
+        val reloadedPrefs = PrefsV2Impl(context)
+
+        assertEquals(tokens, reloadedPrefs.customNameFormat)
+    }
+
+    @Test
+    fun test_customNameFormat_resetsToEmptyOnFullReset() {
+        prefs.customNameFormat = listOf(NameFormatToken(NameFormatTokenType.Counter))
+
+        prefs.fullPreferenceReset()
+
+        assertEquals(emptyList<NameFormatToken>(), prefs.customNameFormat)
+    }
+
     @Test
     fun test_settingRecordingFormat() {
         assertEquals(DefaultValues.DefaultRecordingFormat, prefs.settingRecordingFormat)
@@ -306,5 +392,60 @@ class PrefsV2ImplTest {
         assertFalse(prefs.saveDescriptionToFile)
         prefs.saveDescriptionToFile = true
         assertTrue(prefs.saveDescriptionToFile)
+    }
+
+    // -------------------------------------------------------------------------
+    // isLocalStorageInfoShown
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun test_isLocalStorageInfoShown_returnsFalseByDefault() {
+        assertFalse(prefs.isLocalStorageInfoShown)
+    }
+
+    @Test
+    fun test_isLocalStorageInfoShown_persistsTrue() {
+        prefs.isLocalStorageInfoShown = true
+        assertTrue(prefs.isLocalStorageInfoShown)
+    }
+
+    @Test
+    fun test_isLocalStorageInfoShown_persistsFalse() {
+        prefs.isLocalStorageInfoShown = true
+        prefs.isLocalStorageInfoShown = false
+        assertFalse(prefs.isLocalStorageInfoShown)
+    }
+
+    @Test
+    fun test_isLocalStorageInfoShown_resetsToFalseOnFullReset() {
+        prefs.isLocalStorageInfoShown = true
+
+        prefs.fullPreferenceReset()
+
+        assertFalse(prefs.isLocalStorageInfoShown)
+    }
+
+    // -------------------------------------------------------------------------
+    // alwaysUseBluetoothMic
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun test_alwaysUseBluetoothMic_default_value_is_false() {
+        assertEquals(DefaultValues.IS_ALWAYS_USE_BLUETOOTH_MIC, prefs.alwaysUseBluetoothMic)
+        assertFalse(prefs.alwaysUseBluetoothMic)
+    }
+
+    @Test
+    fun test_alwaysUseBluetoothMic_stores_true_correctly() {
+        prefs.alwaysUseBluetoothMic = true
+        assertTrue(prefs.alwaysUseBluetoothMic)
+    }
+
+    @Test
+    fun test_alwaysUseBluetoothMic_stores_false_correctly_after_being_set_to_true() {
+        prefs.alwaysUseBluetoothMic = true
+        assertTrue(prefs.alwaysUseBluetoothMic)
+        prefs.alwaysUseBluetoothMic = false
+        assertFalse(prefs.alwaysUseBluetoothMic)
     }
 }

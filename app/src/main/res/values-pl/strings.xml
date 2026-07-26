@@ -116,7 +116,6 @@
 	<string name="recording_progress">Nagrywanie&#8230;</string>
 	<string name="recording_paused">Wstrzymano</string>
 	<string name="playback">Odtwarzanie: %s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">Puste</string>
 	<string name="items_selected"> %d zaznaczono</string>
 	<string name="no_records">Brak nagrań</string>
@@ -157,8 +156,8 @@
 		<item quantity="many">%d nagrań zostało pomyślnie przeniesionych</item>
 		<item quantity="other">%d nagrania zostały pomyślnie przeniesione</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d nagrań skopiowano pomyślnie, %d nie udało się skopiować</string>
-	<string name="moving_records_success_and_fail_count">%d nagrań przeniesiono pomyślnie, %d nie udało się przenieść</string>
+	<string name="downloading_success_and_fail_count">%1$d nagrań skopiowano pomyślnie, %2$d nie udało się skopiować</string>
+	<string name="moving_records_success_and_fail_count">%1$d nagrań przeniesiono pomyślnie, %2$d nie udało się przenieść</string>
 	<string name="downloading_success">%s skopiowano do katalogu \'Pobrane\'</string>
 	<string name="move_record_success">%s przeniesiono do prywatnego katalogu aplikacji</string>
 	<plurals name="downloading_failed_count">
@@ -195,7 +194,7 @@
 	<string name="by_duration">Wg czasu (najdłuższe)</string>
     <string name="by_duration_desc">Wg czasu (najkrótsze)</string>
     <string name="filter">Filtr</string>
-	<string name="filter_clear">Wyczyść</string>
+	<string name="clear">Wyczyść</string>
 	<string name="filter_dismiss">Zamknij filtr</string>
 	<string name="filter_no_options">Brak nagrań do filtrowania</string>
 	<string name="need_write_permission">Aplikacja wymaga uprawnień dostępu do pamięci publicznej. Jeśli nie zostaną przyznane, nagrania będą przechowywane w prywatnym katalogu aplikacji</string>
@@ -350,6 +349,8 @@
 	<string name="error_permission_denied">Odmowa uprawnień</string>
 	<string name="error_process_waveform">Nie można narysować przebiegu fali</string>
 	<string name="error_lost_records">Niektóre nagrania zostały usunięte lub przeniesione</string>
+	<string name="local_storage_info_title">Nagrania są przechowywane na urządzeniu</string>
+	<string name="local_storage_info_message">Nagrania nie są archiwizowane w chmurze. Usunięcie aplikacji lub jej danych trwale je skasuje.</string>
 	<string name="broken_record_title">Nagranie przerwane</string>
 	<string name="broken_record_message">Nagranie \'%s\' zostało przerwane (prawdopodobnie z powodu ponownego uruchomienia urządzenia) i plik może być uszkodzony. Czy chcesz spróbować go przywrócić?</string>
 	<string name="btn_restore">Przywróć</string>
@@ -436,6 +437,7 @@
     <string name="app_widget_description">Widget do rozpoczęcia nagrywania</string>
 
     <string name="bluetooth_microphone_available">Dostępny mikrofon Bluetooth</string>
+    <string name="bluetooth_always_use_when_available">Zawsze używaj mikrofonu Bluetooth, gdy jest dostępny</string>
     <string name="audio_source">Źródło audio</string>
     <string name="audio_source_default">Domyślne</string>
     <string name="audio_source_mic">Mikrofon</string>
@@ -459,4 +461,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">Przejdź wstecz</string>
     <string name="dropdown_menu">Menu</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Edytuj format nazwy</string>
+    <string name="name_format_preview">Podgląd</string>
+    <string name="name_format_preview_empty">Dodaj elementy, aby utworzyć nazwę</string>
+    <string name="name_format_your_format">Twój format</string>
+    <string name="name_format_empty_hint">Dotknij elementów poniżej, aby dodać je do formatu.</string>
+    <string name="name_format_remove_element">Usuń element</string>
+    <string name="name_format_date_and_time">Data i godzina</string>
+    <string name="name_format_other">Licznik i tekst</string>
+    <string name="name_format_dividers">Separatory</string>
+    <string name="name_format_presets">Szablony</string>
+    <string name="name_format_add_text">Dodaj tekst</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Znacznik czasu</string>
+    <string name="name_format_year">Rok</string>
+    <string name="name_format_month">Miesiąc</string>
+    <string name="name_format_month_name">Nazwa miesiąca</string>
+    <string name="name_format_day">Dzień</string>
+    <string name="name_format_day_of_week">Dzień tygodnia</string>
+    <string name="name_format_hour_24">Godzina (24 h)</string>
+    <string name="name_format_hour_12">Godzina (12 h)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Minuta</string>
+    <string name="name_format_second">Sekunda</string>
+    <string name="name_format_counter">Licznik</string>
+    <string name="name_format_text">Tekst</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Znacznik czasu</string>
+    <string name="name_format_preset_date">Data</string>
+    <string name="name_format_preset_date_us">Data USA</string>
+    <string name="name_format_preset_date_iso8601">Data ISO 8601</string>
+    <string name="name_format_preset_date_long">Data długa</string>
+    <string name="name_format_preset_custom">Niestandardowy</string>
 </resources>

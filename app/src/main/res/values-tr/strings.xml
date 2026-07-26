@@ -105,7 +105,6 @@
 	<string name="recording_progress">Kayıt alınıyor&#8230;</string>
 	<string name="recording_paused">Duraklatıldı</string>
 	<string name="playback">Oynat: %s</string>
-	<string name="zero_time">00:00</string>
 	<string name="empty">Boş</string>
 	<string name="items_selected"> %d seçildi</string>
 	<string name="no_records">Kayıtlar boş</string>
@@ -140,8 +139,8 @@
 		<item quantity="one">%d kayıt taşındı</item>
 		<item quantity="other">%d kayıt taşındı</item>
 	</plurals>
-	<string name="downloading_success_and_fail_count">%d kayıt kopyalandı ve %d kayıt kopyalanamadı</string>
-	<string name="moving_records_success_and_fail_count">%d kayıt taşındı ve %d kayıt taşınamadı</string>
+	<string name="downloading_success_and_fail_count">%1$d kayıt kopyalandı ve %2$d kayıt kopyalanamadı</string>
+	<string name="moving_records_success_and_fail_count">%1$d kayıt taşındı ve %2$d kayıt taşınamadı</string>
 	<string name="downloading_success">%s \'Downloads\' dizinine kaydedildi</string>
 	<string name="move_record_success">%s uygulama dizinine taşındı</string>
 	<plurals name="downloading_failed_count">
@@ -174,7 +173,7 @@
 	<string name="by_duration">Süreye göre (en uzun)</string>
     <string name="by_duration_desc">Süreye göre (en kısa)</string>
     <string name="filter">Filtre</string>
-	<string name="filter_clear">Temizle</string>
+	<string name="clear">Temizle</string>
 	<string name="filter_dismiss">Filtreyi kapat</string>
 	<string name="filter_no_options">Filtrelenecek kayıt yok</string>
 	<string name="need_write_permission">Uygulama genel dosya dizinine erişim izni gerektiriyor. Eğer izin onaylanmazsa, kayıtlar uygulamanın kendi dizinine kaydedilecek.</string>
@@ -328,6 +327,8 @@
 	<string name="error_permission_denied">İzin reddedildi</string>
 	<string name="error_process_waveform">Dalga biçimi çizilemedi</string>
 	<string name="error_lost_records">Bazı kayıtlarınız silinmiş veya taşınmış</string>
+	<string name="local_storage_info_title">Kayıtlar cihazda saklanır</string>
+	<string name="local_storage_info_message">Kayıtlar buluta yedeklenmez. Uygulamayı veya verilerini silmek onları kalıcı olarak siler.</string>
 	<string name="broken_record_title">Kayıt kesildi</string>
 	<string name="broken_record_message">\'%s\' kaydı (muhtemelen cihaz yeniden başlatılması nedeniyle) kesintiye uğradı ve dosyası bozulmuş olabilir. Geri yüklemeyi denemek ister misiniz?</string>
 	<string name="btn_restore">Geri Yükle</string>
@@ -410,6 +411,7 @@
     <string name="app_widget_description">Kayıt widgetini başlat</string>
 
     <string name="bluetooth_microphone_available">Bluetooth mikrofon mevcut</string>
+    <string name="bluetooth_always_use_when_available">Kullanılabilir olduğunda her zaman Bluetooth mikrofonu kullan</string>
     <string name="audio_source">Ses Kaynağı</string>
     <string name="audio_source_default">Varsayılan</string>
     <string name="audio_source_mic">Mikrofon</string>
@@ -433,4 +435,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">Geri git</string>
     <string name="dropdown_menu">Menü</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Ad biçimini düzenle</string>
+    <string name="name_format_preview">Önizleme</string>
+    <string name="name_format_preview_empty">Ad oluşturmak için öğe ekleyin</string>
+    <string name="name_format_your_format">Biçiminiz</string>
+    <string name="name_format_empty_hint">Biçiminize eklemek için aşağıdaki öğelere dokunun.</string>
+    <string name="name_format_remove_element">Öğeyi kaldır</string>
+    <string name="name_format_date_and_time">Tarih ve saat</string>
+    <string name="name_format_other">Sayaç ve metin</string>
+    <string name="name_format_dividers">Ayırıcılar</string>
+    <string name="name_format_presets">Hazır biçimler</string>
+    <string name="name_format_add_text">Metin ekle</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Zaman damgası</string>
+    <string name="name_format_year">Yıl</string>
+    <string name="name_format_month">Ay</string>
+    <string name="name_format_month_name">Ay adı</string>
+    <string name="name_format_day">Gün</string>
+    <string name="name_format_day_of_week">Haftanın günü</string>
+    <string name="name_format_hour_24">Saat (24s)</string>
+    <string name="name_format_hour_12">Saat (12s)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Dakika</string>
+    <string name="name_format_second">Saniye</string>
+    <string name="name_format_counter">Sayaç</string>
+    <string name="name_format_text">Metin</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Zaman damgası</string>
+    <string name="name_format_preset_date">Tarih</string>
+    <string name="name_format_preset_date_us">Tarih ABD</string>
+    <string name="name_format_preset_date_iso8601">Tarih ISO 8601</string>
+    <string name="name_format_preset_date_long">Uzun tarih</string>
+    <string name="name_format_preset_custom">Özel</string>
 </resources>

@@ -145,12 +145,36 @@ class AudioManagerHelperTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.S])
     fun testEnableBluetoothMic_api31Plus_disable() = runTest {
+        val mockDevice = mockk<AudioDeviceInfo>(relaxed = true)
+        every { mockDevice.isSource } returns true
+        every { mockDevice.type } returns AudioDeviceInfo.TYPE_BLUETOOTH_SCO
+        every { mockDevice.productName } returns "Test Device"
+
+        every { audioManager.availableCommunicationDevices } returns listOf(mockDevice)
+        every { audioManager.setCommunicationDevice(any()) } returns true
+        every { audioManager.mode } returns AudioManager.MODE_NORMAL
+
+        // First enable
+        audioManagerHelper.enableBluetoothMic(true)
+
+        // Then disable
+        audioManagerHelper.enableBluetoothMic(false)
+
+        verify { audioManager.clearCommunicationDevice() }
+        verify { audioManager.mode = AudioManager.MODE_NORMAL }
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.S])
+    fun testEnableBluetoothMic_api31Plus_disableWithoutEnable_doesNotTouchAudioState() = runTest {
         every { audioManager.mode } returns AudioManager.MODE_IN_COMMUNICATION
 
         audioManagerHelper.enableBluetoothMic(false)
 
-        verify { audioManager.clearCommunicationDevice() }
-        verify { audioManager.mode = any() }
+        // Routing was never enabled by the helper, so the global audio state
+        // (possibly owned by another app, e.g. an ongoing call) must not be touched.
+        verify(exactly = 0) { audioManager.clearCommunicationDevice() }
+        verify(exactly = 0) { audioManager.mode = any() }
     }
 
     @Test
@@ -176,7 +200,20 @@ class AudioManagerHelperTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.S])
-    fun testRelease_cleansUpResources_api31Plus() {
+    fun testRelease_cleansUpResources_api31Plus() = runTest {
+        val mockDevice = mockk<AudioDeviceInfo>(relaxed = true)
+        every { mockDevice.isSource } returns true
+        every { mockDevice.type } returns AudioDeviceInfo.TYPE_BLUETOOTH_SCO
+        every { mockDevice.productName } returns "Test Device"
+
+        every { audioManager.availableCommunicationDevices } returns listOf(mockDevice)
+        every { audioManager.setCommunicationDevice(any()) } returns true
+        every { audioManager.mode } returns AudioManager.MODE_NORMAL
+
+        // Enable Bluetooth first
+        audioManagerHelper.enableBluetoothMic(true)
+
+        // Then release
         audioManagerHelper.release()
 
         verify { audioManager.clearCommunicationDevice() }

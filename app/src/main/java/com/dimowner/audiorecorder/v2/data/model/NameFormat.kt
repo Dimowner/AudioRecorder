@@ -15,15 +15,15 @@
  */
 package com.dimowner.audiorecorder.v2.data.model
 
+/**
+ * Record name formats. Every entry except [Custom] is a preset built from a fixed list of
+ * [NameFormatToken]s, see `NameFormat.presetTokens()`. [Custom] renders the tokens the user built
+ * in the name format constructor and stored in `PrefsV2.customNameFormat`.
+ */
 enum class NameFormat {
-    Record, Timestamp, Date, DateUs, DateIso8601
+    Record, Timestamp, Date, DateUs, DateIso8601, DateLong, Custom
 }
 
 fun String.convertToNameFormat(): NameFormat? {
-    return if (this.equals(NameFormat.Record.toString(), true)) NameFormat.Record
-    else if (this.equals(NameFormat.Timestamp.toString(), true)) NameFormat.Timestamp
-    else if (this.equals(NameFormat.Date.toString(), true)) NameFormat.Date
-    else if (this.equals(NameFormat.DateUs.toString(), true)) NameFormat.DateUs
-    else if (this.equals(NameFormat.DateIso8601.toString(), true)) NameFormat.DateIso8601
-    else null
+    return NameFormat.entries.firstOrNull { it.name.equals(this, ignoreCase = true) }
 }
