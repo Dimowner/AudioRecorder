@@ -115,9 +115,9 @@ class DecodeService : Service() {
 	private val binder = LocalBinder()
 
 	lateinit var notificationManager: NotificationManagerCompat
-	lateinit var remoteViewsSmall: RemoteViews
-	lateinit var remoteViewsBig: RemoteViews
 	lateinit var contentPendingIntent: PendingIntent
+	private var decodeProgress = 0
+	private var notifiedProgress = -1
 	lateinit var processingTasks: BackgroundQueue
 	lateinit var recordingsTasks: BackgroundQueue
 	lateinit var localRepository: LocalRepository
@@ -308,64 +308,6 @@ class DecodeService : Service() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			createNotificationChannel(CHANNEL_ID, CHANNEL_NAME)
 		}
-		val isNightMode = isUsingNightModeResources(applicationContext)
-
-		remoteViewsSmall = RemoteViews(packageName, R.layout.layout_progress_notification)
-		remoteViewsSmall.setOnClickPendingIntent(R.id.btn_close, getCancelDecodePendingIntent(applicationContext))
-		remoteViewsSmall.setTextViewText(R.id.txt_name, resources.getString(R.string.record_processing))
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-			remoteViewsSmall.setInt(
-				R.id.container,
-				"setBackgroundColor",
-				this.resources.getColor(colorMap.primaryColorRes)
-			)
-			remoteViewsSmall.setInt(R.id.app_logo, "setVisibility", View.VISIBLE)
-		} else {
-			remoteViewsSmall.setInt(
-				R.id.container,
-				"setBackgroundColor",
-				this.resources.getColor(R.color.transparent)
-			)
-			remoteViewsSmall.setInt(R.id.app_logo, "setVisibility", View.GONE)
-			if (isNightMode) {
-				remoteViewsSmall.setInt(R.id.txt_name, "setTextColor", this.resources.getColor(R.color.text_primary_light))
-				remoteViewsSmall.setInt(R.id.txt_app_label, "setTextColor", this.resources.getColor(R.color.text_primary_light))
-				remoteViewsSmall.setInt(R.id.btn_close, "setImageResource", R.drawable.ic_round_close)
-			} else {
-				remoteViewsSmall.setInt(R.id.txt_name, "setTextColor", this.resources.getColor(R.color.text_primary_dark))
-				remoteViewsSmall.setInt(R.id.txt_app_label, "setTextColor", this.resources.getColor(R.color.text_primary_dark))
-				remoteViewsSmall.setInt(R.id.btn_close, "setImageResource", R.drawable.ic_round_close_dark)
-			}
-		}
-
-		remoteViewsBig = RemoteViews(packageName, R.layout.layout_progress_notification)
-		remoteViewsBig.setOnClickPendingIntent(R.id.btn_close, getCancelDecodePendingIntent(applicationContext))
-		remoteViewsBig.setTextViewText(R.id.txt_name, resources.getString(R.string.record_processing))
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-			remoteViewsBig.setInt(
-				R.id.container,
-				"setBackgroundColor",
-				this.resources.getColor(colorMap.primaryColorRes)
-			)
-			remoteViewsBig.setInt(R.id.app_logo, "setVisibility", View.VISIBLE)
-		} else {
-			remoteViewsBig.setInt(
-				R.id.container,
-				"setBackgroundColor",
-				this.resources.getColor(R.color.transparent)
-			)
-			remoteViewsBig.setInt(R.id.app_logo, "setVisibility", View.GONE)
-			if (isNightMode) {
-				remoteViewsBig.setInt(R.id.txt_name, "setTextColor", this.resources.getColor(R.color.text_primary_light))
-				remoteViewsBig.setInt(R.id.txt_app_label, "setTextColor", this.resources.getColor(R.color.text_primary_light))
-				remoteViewsBig.setInt(R.id.btn_close, "setImageResource", R.drawable.ic_round_close)
-			} else {
-				remoteViewsBig.setInt(R.id.txt_name, "setTextColor", this.resources.getColor(R.color.text_primary_dark))
-				remoteViewsBig.setInt(R.id.txt_app_label, "setTextColor", this.resources.getColor(R.color.text_primary_dark))
-				remoteViewsBig.setInt(R.id.btn_close, "setImageResource", R.drawable.ic_round_close_dark)
-			}
-		}
-
 		// Create notification default intent.
 		val intent = Intent(applicationContext, MainActivity::class.java)
 		intent.flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
@@ -375,6 +317,48 @@ class DecodeService : Service() {
 		} else {
 			startForeground(NOTIF_ID, buildNotification(), FOREGROUND_SERVICE_TYPE_DATA_SYNC)
 		}
+	}
+
+	/**
+	 * Builds a fresh [RemoteViews] reflecting the current decoding progress.
+	 *
+	 * RemoteViews accumulates every setter call in an internal action list that is serialized on
+	 * each notify(). Reusing a single instance across progress updates grows that list without
+	 * bound and eventually breaks the binder transaction limit (TransactionTooLargeException),
+	 * so a new instance is created for every notification instead.
+	 */
+	private fun buildRemoteViews(): RemoteViews {
+		val isNightMode = isUsingNightModeResources(applicationContext)
+
+		val views = RemoteViews(packageName, R.layout.layout_progress_notification)
+		views.setOnClickPendingIntent(R.id.btn_close, getCancelDecodePendingIntent(applicationContext))
+		views.setTextViewText(R.id.txt_name, resources.getString(R.string.record_processing))
+		views.setProgressBar(R.id.progress, 100, decodeProgress, false)
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+			views.setInt(
+				R.id.container,
+				"setBackgroundColor",
+				this.resources.getColor(colorMap.primaryColorRes)
+			)
+			views.setInt(R.id.app_logo, "setVisibility", View.VISIBLE)
+		} else {
+			views.setInt(
+				R.id.container,
+				"setBackgroundColor",
+				this.resources.getColor(R.color.transparent)
+			)
+			views.setInt(R.id.app_logo, "setVisibility", View.GONE)
+			if (isNightMode) {
+				views.setInt(R.id.txt_name, "setTextColor", this.resources.getColor(R.color.text_primary_light))
+				views.setInt(R.id.txt_app_label, "setTextColor", this.resources.getColor(R.color.text_primary_light))
+				views.setInt(R.id.btn_close, "setImageResource", R.drawable.ic_round_close)
+			} else {
+				views.setInt(R.id.txt_name, "setTextColor", this.resources.getColor(R.color.text_primary_dark))
+				views.setInt(R.id.txt_app_label, "setTextColor", this.resources.getColor(R.color.text_primary_dark))
+				views.setInt(R.id.btn_close, "setImageResource", R.drawable.ic_round_close_dark)
+			}
+		}
+		return views
 	}
 
 	private fun buildNotification(): Notification {
@@ -390,8 +374,8 @@ class DecodeService : Service() {
 		}
 		// Make head-up notification.
 		builder.setContentIntent(contentPendingIntent)
-		builder.setCustomContentView(remoteViewsSmall)
-		builder.setCustomBigContentView(remoteViewsBig)
+		builder.setCustomContentView(buildRemoteViews())
+		builder.setCustomBigContentView(buildRemoteViews())
 		builder.setOngoing(true)
 		builder.setOnlyAlertOnce(true)
 		builder.setDefaults(0)
@@ -445,8 +429,9 @@ class DecodeService : Service() {
 	}
 
 	private fun updateNotification(percent: Int) {
-		remoteViewsSmall.setProgressBar(R.id.progress, 100, percent, false)
-		remoteViewsBig.setProgressBar(R.id.progress, 100, percent, false)
+		if (percent == notifiedProgress) return
+		decodeProgress = percent
+		notifiedProgress = percent
 		notificationManager.notify(NOTIF_ID, buildNotification())
 	}
 
