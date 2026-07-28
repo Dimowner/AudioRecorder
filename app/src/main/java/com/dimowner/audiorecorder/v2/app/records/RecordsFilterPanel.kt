@@ -30,12 +30,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -235,6 +238,30 @@ fun RecordsFilterPanel(
                     }
                 }
 
+                // Bookmarks used to be a top bar toggle; it lives here as a filter dimension so
+                // the top bar has room for the search action.
+                FilterChip(
+                    selected = filter.bookmarkedOnly,
+                    onClick = {
+                        onFilterChange(filter.copy(bookmarkedOnly = !filter.bookmarkedOnly))
+                    },
+                    label = { Text(text = stringResource(id = R.string.bookmarks)) },
+                    // Unlike the value chips below, this one always shows an icon: the filled
+                    // vs. bordered bookmark carries the on/off state the way it did when
+                    // bookmarks was a top bar toggle.
+                    leadingIcon = {
+                        Icon(
+                            painter = if (filter.bookmarkedOnly) {
+                                painterResource(id = R.drawable.ic_bookmark)
+                            } else {
+                                painterResource(id = R.drawable.ic_bookmark_bordered)
+                            },
+                            contentDescription = null,
+                            modifier = Modifier.size(FilterChipDefaults.IconSize),
+                        )
+                    },
+                )
+
                 if (filterOptions.isEmpty) {
                     Text(
                         text = stringResource(id = R.string.filter_no_options),
@@ -341,6 +368,7 @@ private fun <T> Set<T>.toggle(value: T): Set<T> {
 fun RecordsFilterPanelPreview() {
     RecordsFilterPanel(
         filter = RecordsFilter(
+            bookmarkedOnly = true,
             formats = setOf("m4a"),
             sampleRates = setOf(44100),
         ),
