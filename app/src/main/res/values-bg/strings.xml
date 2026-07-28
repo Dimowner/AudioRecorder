@@ -160,6 +160,11 @@
 	<string name="clear">Изчисти</string>
 	<string name="filter_dismiss">Затвори филтъра</string>
 	<string name="filter_no_options">Няма записи за филтриране</string>
+	<string name="search">Търсене</string>
+	<string name="search_records_hint">Търсене в записите</string>
+	<string name="search_close">Затваряне на търсенето</string>
+	<string name="search_clear">Изчистване на търсенето</string>
+	<string name="no_search_results">Няма намерени записи за „%1$s“</string>
 	<string name="need_write_permission">Приложението изисква разрешение за достъп до публичното хранилище. Ако не е разрешено, записите ще бъдат съхранени в частната директория на приложението</string>
 	<string name="rec_name">Име:</string>
 	<string name="rec_format">Формат:</string>

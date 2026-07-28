@@ -176,6 +176,11 @@
     <string name="clear">Limpar</string>
     <string name="filter_dismiss">Fechar filtro</string>
     <string name="filter_no_options">Nenhum registro para filtrar</string>
+    <string name="search">Pesquisar</string>
+    <string name="search_records_hint">Pesquisar gravações</string>
+    <string name="search_close">Fechar pesquisa</string>
+    <string name="search_clear">Limpar pesquisa</string>
+    <string name="no_search_results">Nenhuma gravação encontrada para “%1$s”</string>
     <string name="need_write_permission">O app precisa de permissão para acessar o armazenamento público. Caso não seja concedida, as gravações serão salvas no diretório privado do app</string>
     <string name="rec_name">Nome:</string>
     <string name="rec_format">Formato:</string>

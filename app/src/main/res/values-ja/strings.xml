@@ -179,6 +179,11 @@
 	<string name="clear">クリア</string>
 	<string name="filter_dismiss">フィルターを閉じる</string>
 	<string name="filter_no_options">フィルタリングする録音がありません</string>
+	<string name="search">検索</string>
+	<string name="search_records_hint">録音を検索</string>
+	<string name="search_close">検索を閉じる</string>
+	<string name="search_clear">検索をクリア</string>
+	<string name="no_search_results">「%1$s」に一致する録音がありません</string>
 	<string name="need_write_permission">アプリは公開ストレージへのアクセス権限が必要です。許可されない場合、録音はアプリのプライベートディレクトリに保存されます</string>
 	<string name="rec_name">名前：</string>
 	<string name="rec_format">フォーマット：</string>

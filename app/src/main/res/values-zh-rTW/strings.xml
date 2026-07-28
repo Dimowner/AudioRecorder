@@ -178,6 +178,11 @@
 	<string name="clear">清除</string>
 	<string name="filter_dismiss">關閉篩選</string>
 	<string name="filter_no_options">沒有可篩選的錄音</string>
+	<string name="search">搜尋</string>
+	<string name="search_records_hint">搜尋錄音</string>
+	<string name="search_close">關閉搜尋</string>
+	<string name="search_clear">清除搜尋</string>
+	<string name="no_search_results">找不到符合「%1$s」的錄音</string>
 	<string name="need_write_permission">需要共用儲存空間存取權限。
 		\n如果沒有這項權限，錄音將會儲存至應用程式專用資料夾。</string>
 	<string name="rec_name">名稱：</string>

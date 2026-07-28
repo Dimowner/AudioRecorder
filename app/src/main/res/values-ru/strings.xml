@@ -176,6 +176,11 @@
 	<string name="clear">Очистить</string>
 	<string name="filter_dismiss">Скрыть фильтр</string>
 	<string name="filter_no_options">Нет записей для фильтрации</string>
+	<string name="search">Поиск</string>
+	<string name="search_records_hint">Поиск записей</string>
+	<string name="search_close">Закрыть поиск</string>
+	<string name="search_clear">Очистить поиск</string>
+	<string name="no_search_results">Нет записей по запросу «%1$s»</string>
 	<string name="need_write_permission">Приложению требуется разрешение на запись в публичное хранилище. Если не разрешить, записи будут сохраняться в приватном каталоге приложения</string>
 	<string name="rec_name">Название:</string>
 	<string name="rec_format">Формат:</string>

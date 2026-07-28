@@ -177,6 +177,11 @@
 	<string name="clear">Очистити</string>
 	<string name="filter_dismiss">Сховати фільтр</string>
 	<string name="filter_no_options">Немає записів для фільтрації</string>
+	<string name="search">Пошук</string>
+	<string name="search_records_hint">Пошук записів</string>
+	<string name="search_close">Закрити пошук</string>
+	<string name="search_clear">Очистити пошук</string>
+	<string name="no_search_results">Немає записів за запитом «%1$s»</string>
 	<string name="need_write_permission">Додатку потрібно дозвіл на запис в публічне сховище. Якщо не дозволити, записи будуть зберігатися в приватному каталозі додатка</string>
 	<string name="rec_name">Назва:</string>
 	<string name="rec_format">Формат:</string>

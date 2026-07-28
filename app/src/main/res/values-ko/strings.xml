@@ -170,6 +170,11 @@
 	<string name="clear">지우기</string>
 	<string name="filter_dismiss">필터 닫기</string>
 	<string name="filter_no_options">필터링할 녹음이 없습니다</string>
+	<string name="search">검색</string>
+	<string name="search_records_hint">녹음 검색</string>
+	<string name="search_close">검색 닫기</string>
+	<string name="search_clear">검색 지우기</string>
+	<string name="no_search_results">“%1$s”에 대한 녹음을 찾을 수 없습니다</string>
 	<string name="need_write_permission">앱이 공개 저장소에 접근하려면 권한이 필요합니다. 허용하지 않으면 녹음은 앱의 개인 디렉토리에 저장됩니다</string>
 	<string name="rec_name">이름:</string>
 	<string name="rec_format">형식:</string>

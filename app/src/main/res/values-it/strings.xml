@@ -178,6 +178,11 @@
 	<string name="clear">Cancella</string>
 	<string name="filter_dismiss">Chiudi filtro</string>
 	<string name="filter_no_options">Nessuna registrazione da filtrare</string>
+	<string name="search">Cerca</string>
+	<string name="search_records_hint">Cerca registrazioni</string>
+	<string name="search_close">Chiudi la ricerca</string>
+	<string name="search_clear">Cancella la ricerca</string>
+	<string name="no_search_results">Nessuna registrazione trovata per “%1$s”</string>
 	<string name="need_write_permission">L\'app richiede il permesso di accesso all\'archivio pubblico. Se non concesso, le registrazioni verranno salvate nella cartella privata dell\'app</string>
 	<string name="rec_name">Nome:</string>
 	<string name="rec_format">Formato:</string>

@@ -175,6 +175,11 @@
 	<string name="clear">Esborra</string>
 	<string name="filter_dismiss">Descarta el filtre</string>
 	<string name="filter_no_options">No hi ha registres per filtrar</string>
+	<string name="search">Cerca</string>
+	<string name="search_records_hint">Cerca gravacions</string>
+	<string name="search_close">Tanca la cerca</string>
+	<string name="search_clear">Esborra la cerca</string>
+	<string name="no_search_results">No s\'ha trobat cap gravació per a «%1$s»</string>
 	<string name="need_write_permission">L\'aplicació necessita permís per accedir a l\'emmagatzematge públic. Si no es permet, les gravacions s\'emmagatzemaran al directori privat de l\'aplicació</string>
 	<string name="rec_name">Nom:</string>
 	<string name="rec_format">Format:</string>

@@ -177,6 +177,11 @@
 	<string name="clear">Borrar</string>
 	<string name="filter_dismiss">Ocultar filtro</string>
 	<string name="filter_no_options">No hay grabaciones para filtrar</string>
+	<string name="search">Buscar</string>
+	<string name="search_records_hint">Buscar grabaciones</string>
+	<string name="search_close">Cerrar búsqueda</string>
+	<string name="search_clear">Borrar búsqueda</string>
+	<string name="no_search_results">No se encontraron grabaciones para «%1$s»</string>
 	<string name="need_write_permission">Esta app requiere permiso para acceder al almacenamiento público. Si no se concede, las grabaciones se guardarán en el directorio privado de la app.</string>
 	<string name="rec_name">Nombre:</string>
 	<string name="rec_format">Formato:</string>

@@ -176,6 +176,11 @@
 	<string name="clear">Temizle</string>
 	<string name="filter_dismiss">Filtreyi kapat</string>
 	<string name="filter_no_options">Filtrelenecek kayıt yok</string>
+	<string name="search">Ara</string>
+	<string name="search_records_hint">Kayıtlarda ara</string>
+	<string name="search_close">Aramayı kapat</string>
+	<string name="search_clear">Aramayı temizle</string>
+	<string name="no_search_results">“%1$s” için kayıt bulunamadı</string>
 	<string name="need_write_permission">Uygulama genel dosya dizinine erişim izni gerektiriyor. Eğer izin onaylanmazsa, kayıtlar uygulamanın kendi dizinine kaydedilecek.</string>
 	<string name="rec_name">İsim:</string>
 	<string name="rec_format">Format:</string>

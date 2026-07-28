@@ -179,6 +179,11 @@
     <string name="clear">Limpar</string>
     <string name="filter_dismiss">Fechar filtro</string>
     <string name="filter_no_options">Nenhum registo para filtrar</string>
+    <string name="search">Pesquisar</string>
+    <string name="search_records_hint">Pesquisar gravações</string>
+    <string name="search_close">Fechar pesquisa</string>
+    <string name="search_clear">Limpar pesquisa</string>
+    <string name="no_search_results">Não foram encontradas gravações para «%1$s»</string>
     <string name="need_write_permission">A aplicação necessita de permissão para aceder ao armazenamento público. Se não for concedida, as gravações serão guardadas na pasta privada da aplicação</string>
     <string name="rec_name">Nome:</string>
     <string name="rec_format">Formato:</string>
