@@ -110,6 +110,9 @@ class HomeViewModel @Inject constructor(
     private var recordingStateJob: Job? = null
     private var recordingEventJob: Job? = null
 
+    // Started/cancelled on the main thread only (see moveToStart)
+    private var moveAnimator: ValueAnimator? = null
+
     // Guards the "always use Bluetooth mic" auto-enable so it runs once per availability period
     private var bluetoothAutoEnableRequested = false
 
@@ -1208,18 +1211,24 @@ class HomeViewModel @Inject constructor(
     }
 
     fun moveToStart() {
-        val moveAnimator = ValueAnimator.ofObject(
-            LongEvaluator(),
-            _state.value.waveformState.progressMills,
-            0L
-        )
-        moveAnimator.interpolator = DecelerateInterpolator()
-        moveAnimator.duration = ANIMATION_DURATION
-        moveAnimator.addUpdateListener { animation: ValueAnimator ->
-            val moveValMills = animation.animatedValue as Long
-            handleSeekProgress(moveValMills)
+        // Player callbacks are delivered on the thread that called the player (which may be an
+        // IO coroutine), and ValueAnimator may only be started on a Looper thread.
+        viewModelScope.launch(mainDispatcher) {
+            moveAnimator?.cancel()
+            moveAnimator = ValueAnimator.ofObject(
+                LongEvaluator(),
+                _state.value.waveformState.progressMills,
+                0L
+            ).apply {
+                interpolator = DecelerateInterpolator()
+                duration = ANIMATION_DURATION
+                addUpdateListener { animation: ValueAnimator ->
+                    val moveValMills = animation.animatedValue as Long
+                    handleSeekProgress(moveValMills)
+                }
+                start()
+            }
         }
-        moveAnimator.start()
     }
 
     fun showLoadingProgress(value: Boolean) {
@@ -1425,6 +1434,8 @@ class HomeViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
+        moveAnimator?.cancel()
+        moveAnimator = null
         try {
             // AudioManagerHelper is a singleton and the recording foreground service keeps
             // capturing from the Bluetooth mic after the UI is destroyed. A full release()
