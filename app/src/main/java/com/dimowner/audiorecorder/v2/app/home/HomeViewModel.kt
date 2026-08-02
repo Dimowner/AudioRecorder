@@ -43,6 +43,7 @@ import com.dimowner.audiorecorder.app.DecodeServiceListener
 import com.dimowner.audiorecorder.app.DownloadService
 import com.dimowner.audiorecorder.audio.AudioDecoder
 import com.dimowner.audiorecorder.audio.player.AudioPlaybackService
+import com.dimowner.audiorecorder.audio.player.NORMAL_PLAYBACK_SPEED
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.exception.AppException
 import com.dimowner.audiorecorder.exception.CantCreateFileException
@@ -72,7 +73,6 @@ import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.extensions.isLostRecord
 import com.dimowner.audiorecorder.v2.data.extensions.copyFile
-import com.dimowner.audiorecorder.v2.DefaultValues
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.PlaybackSpeed
 import com.dimowner.audiorecorder.v2.data.model.Record
@@ -470,9 +470,11 @@ class HomeViewModel @Inject constructor(
             }
 
             override fun onStopPlay() {
+                audioPlayer.setPlaybackSpeed(NORMAL_PLAYBACK_SPEED)
                 _state.value = _state.value.copy(
                     showPause = false,
-                    showStop = false
+                    showStop = false,
+                    playbackSpeed = null
                 )
                 moveToStart()
             }
@@ -1147,13 +1149,14 @@ class HomeViewModel @Inject constructor(
     }
 
     /**
-     * Applies the selected rate to the player right away, so it takes effect mid-playback, and
-     * remembers it, so the next playback and the next app launch start at the same rate.
+     * Applies the clicked rate to the player right away, so it takes effect mid-playback, and
+     * remembers it for the tracks played next. Clicking the already selected rate deselects it and
+     * puts playback back to the normal rate.
      */
-    fun handlePlaybackSpeedSelected(speed: PlaybackSpeed) {
-        if (_state.value.playbackSpeed == speed) return
-        audioPlayer.setPlaybackSpeed(speed.value)
-        _state.value = _state.value.copy(playbackSpeed = speed)
+    fun handlePlaybackSpeedClick(speed: PlaybackSpeed) {
+        val newSpeed = if (_state.value.playbackSpeed == speed) null else speed
+        audioPlayer.setPlaybackSpeed(newSpeed?.value ?: NORMAL_PLAYBACK_SPEED)
+        _state.value = _state.value.copy(playbackSpeed = newSpeed)
     }
 
     // - If is playing, stop playback
@@ -1283,7 +1286,7 @@ class HomeViewModel @Inject constructor(
                 }
             }
             HomeScreenAction.OnStopClick -> handlePlaybackStopClick()
-            is HomeScreenAction.OnPlaybackSpeedSelected -> handlePlaybackSpeedSelected(action.speed)
+            is HomeScreenAction.OnPlaybackSpeedClick -> handlePlaybackSpeedClick(action.speed)
             //Recording
             HomeScreenAction.OnStartRecordingClick -> {
                 handleStartRecordingClick()
@@ -1493,7 +1496,8 @@ data class HomeScreenState(
     val bottomBarState: BottomBarState = BottomBarState.READY_TO_START_RECORDING,
     val showPause: Boolean = false,
     val showStop: Boolean = false,
-    val playbackSpeed: PlaybackSpeed = DefaultValues.DefaultPlaybackSpeed,
+    /** `null` means no rate button is selected and playback runs at the normal rate. */
+    val playbackSpeed: PlaybackSpeed? = null,
     val isSeek: Boolean = false,
     val isDeleteRecordingProgressRequested: Boolean = false,
     // Bluetooth mic state
@@ -1549,7 +1553,7 @@ sealed class HomeScreenAction {
     data object OnPlayClick : HomeScreenAction()
     data object OnPauseClick : HomeScreenAction()
     data object OnStopClick : HomeScreenAction()
-    data class OnPlaybackSpeedSelected(val speed: PlaybackSpeed) : HomeScreenAction()
+    data class OnPlaybackSpeedClick(val speed: PlaybackSpeed) : HomeScreenAction()
     data object OnStartRecordingClick : HomeScreenAction()
     data object OnPauseRecordingClick : HomeScreenAction()
     data object OnResumeRecordingClick : HomeScreenAction()

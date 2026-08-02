@@ -20,7 +20,6 @@ import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
-import com.dimowner.audiorecorder.v2.data.model.PlaybackSpeed
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
@@ -34,8 +33,6 @@ object DefaultValues {
     const val IS_KEEP_SCREEN_ON: Boolean = false
     const val IS_SAVE_DESCRIPTION_TO_FILE: Boolean = true
     const val IS_ALWAYS_USE_BLUETOOTH_MIC: Boolean = false
-
-    val DefaultPlaybackSpeed: PlaybackSpeed = PlaybackSpeed.X1
 
     val DefaultSampleRate: SampleRate = SampleRate.SR44100
     val DefaultBitRate: BitRate = BitRate.BR128

@@ -35,6 +35,7 @@ import com.dimowner.audiorecorder.v2.app.getTestWaveformData
 import com.dimowner.audiorecorder.v2.app.home.HomeScreenState
 import com.dimowner.audiorecorder.v2.app.home.LegacySlider
 import com.dimowner.audiorecorder.v2.app.home.PlayPanel
+import com.dimowner.audiorecorder.v2.data.model.PlaybackSpeed
 
 @Composable
 internal fun RecordPlaybackPanel(
@@ -48,6 +49,7 @@ internal fun RecordPlaybackPanel(
     onPlayClick: () -> Unit,
     onStopClick: () -> Unit,
     onPauseClick: () -> Unit,
+    onPlaybackSpeedClick: (PlaybackSpeed) -> Unit = {},
     onBookmarkClick: () -> Unit = {},
     onPrevClick: () -> Unit = {},
     onNextClick: () -> Unit = {},
@@ -169,9 +171,13 @@ internal fun RecordPlaybackPanel(
                 modifier = Modifier.wrapContentHeight().wrapContentSize(),
                 showPause = uiState.showPause,
                 showStop = uiState.showStop,
+                selectedSpeed = uiState.playbackSpeed,
                 onPlayClick = { onPlayClick() },
                 onStopClick = { onStopClick() },
-                onPauseClick = { onPauseClick() }
+                onPauseClick = { onPauseClick() },
+                onPlaybackSpeedClick = onPlaybackSpeedClick,
+                // Only the extreme rates: this row also carries the prev/next buttons.
+                speeds = PlaybackSpeed.compact
             )
             Spacer(modifier = Modifier.weight(1f))
             IconButton(

@@ -335,23 +335,20 @@ internal fun HomeScreen(
                 )
                 if (!uiState.isRecording()) {
                     PlayPanel(
+                        // Wraps its content on purpose: the panel keeps a constant width and is
+                        // centered by the parent, so the play controls stay put as playback starts.
                         modifier = Modifier
-                            .wrapContentHeight()
-                            .fillMaxWidth()
+                            .wrapContentSize()
                             .padding(8.dp, 8.dp),
                         showPause = uiState.showPause,
                         showStop = uiState.showStop,
+                        selectedSpeed = uiState.playbackSpeed,
                         onPlayClick = { onAction(HomeScreenAction.OnPlayClick) },
                         onStopClick = { onAction(HomeScreenAction.OnStopClick) },
-                        onPauseClick = { onAction(HomeScreenAction.OnPauseClick) }
-                    )
-                    PlaybackSpeedPanel(
-                        selectedSpeed = uiState.playbackSpeed,
-                        onSpeedSelected = { onAction(HomeScreenAction.OnPlaybackSpeedSelected(it)) },
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .widthIn(max = MAX_CONTENT_WIDTH_NARROW)
-                            .padding(horizontal = 8.dp)
+                        onPauseClick = { onAction(HomeScreenAction.OnPauseClick) },
+                        onPlaybackSpeedClick = {
+                            onAction(HomeScreenAction.OnPlaybackSpeedClick(it))
+                        }
                     )
                 }
             } else {

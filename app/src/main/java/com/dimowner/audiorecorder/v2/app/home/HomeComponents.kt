@@ -18,16 +18,15 @@ package com.dimowner.audiorecorder.v2.app.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,15 +54,18 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -81,8 +83,22 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.RecordsDropDownMenu
 import com.dimowner.audiorecorder.v2.app.components.onDebounceClick
 import com.dimowner.audiorecorder.v2.data.model.PlaybackSpeed
+import com.dimowner.audiorecorder.v2.data.model.faster
+import com.dimowner.audiorecorder.v2.data.model.slower
 
 private const val ANIMATION_DURATION = 300
+
+// The play controls and both rate groups share one row, which on a narrow screen also holds the
+// prev/next buttons, so the gaps and the rate buttons are kept tight on purpose.
+private val SPEED_BUTTONS_GAP = 16.dp
+
+private val PLAY_BUTTON_SIZE = 42.dp
+private val STOP_BUTTON_GAP = 4.dp
+
+// The play and stop buttons sit in an area wide enough for both, whether or not stop is on screen.
+// That way only the play button moves when stop appears, and the rate buttons beside the area keep
+// their place.
+private val PLAY_CONTROLS_WIDTH = PLAY_BUTTON_SIZE * 2 + STOP_BUTTON_GAP
 
 @Composable
 fun TopAppBar(
@@ -162,56 +178,99 @@ fun TopAppBarPreview() {
     TopAppBar({}, {})
 }
 
+/**
+ * Play controls with the playback rate buttons around them: the [speeds] slower than normal on the
+ * left of the play button, the faster ones on its right. Callers short on horizontal space can pass
+ * a reduced [speeds] set. The rate buttons share [showStop] with the stop button, so they are only
+ * on screen while a record is playing or paused; they fade in and out without moving, while the play
+ * button slides aside to make room for the stop button. [selectedSpeed] is `null` when playback runs
+ * at the normal rate, which is also what tapping the selected rate button goes back to.
+ */
 @Composable
 fun PlayPanel(
     modifier: Modifier,
     showStop: Boolean,
     showPause: Boolean,
+    selectedSpeed: PlaybackSpeed?,
     onPlayClick: () -> Unit,
     onStopClick: () -> Unit,
     onPauseClick: () -> Unit,
+    onPlaybackSpeedClick: (PlaybackSpeed) -> Unit,
+    speeds: List<PlaybackSpeed> = PlaybackSpeed.entries,
 ) {
+    // The rate buttons keep their slots even while hidden, so nothing around them shifts.
+    val speedButtonsAlpha by animateFloatAsState(
+        targetValue = if (showStop) 1f else 0f,
+        animationSpec = tween(ANIMATION_DURATION),
+        label = "playbackSpeedButtonsAlpha",
+    )
     Row(
-        modifier = Modifier.animateContentSize(),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        IconButton(
-            onClick = if (showPause) onPauseClick else onPlayClick,
-            modifier = Modifier
-                .size(42.dp)
-                .align(Alignment.CenterVertically),
+        PlaybackSpeedButtons(
+            speeds = speeds.slower(),
+            selectedSpeed = selectedSpeed,
+            onSpeedClick = onPlaybackSpeedClick,
+            alpha = speedButtonsAlpha,
+            isShown = showStop,
+        )
+        Spacer(modifier = Modifier.size(SPEED_BUTTONS_GAP))
+        Box(
+            modifier = Modifier.width(PLAY_CONTROLS_WIDTH),
+            contentAlignment = Alignment.Center,
         ) {
-            val imageResourceId = if (showPause) {
-                R.drawable.ic_pause
-            } else {
-                R.drawable.ic_play
-            }
-            Icon(
-                painter = painterResource(id = imageResourceId),
-                contentDescription = stringResource(id = R.string.btn_play),
-            )
-        }
-        AnimatedVisibility(
-            visible = showStop,
-            enter = fadeIn(animationSpec = tween(ANIMATION_DURATION)),
-            exit = fadeOut(animationSpec = tween(ANIMATION_DURATION)),
-        ) {
-            Row {
-                Spacer(modifier = Modifier.size(8.dp))
+            Row(
+                modifier = Modifier.animateContentSize(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 IconButton(
-                    onClick = onStopClick,
+                    onClick = if (showPause) onPauseClick else onPlayClick,
                     modifier = Modifier
-                        .size(42.dp)
+                        .size(PLAY_BUTTON_SIZE)
                         .align(Alignment.CenterVertically),
                 ) {
+                    val imageResourceId = if (showPause) {
+                        R.drawable.ic_pause
+                    } else {
+                        R.drawable.ic_play
+                    }
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_stop),
-                        contentDescription = stringResource(id = R.string.button_stop),
+                        painter = painterResource(id = imageResourceId),
+                        contentDescription = stringResource(id = R.string.btn_play),
                     )
+                }
+                AnimatedVisibility(
+                    visible = showStop,
+                    enter = fadeIn(animationSpec = tween(ANIMATION_DURATION)),
+                    exit = fadeOut(animationSpec = tween(ANIMATION_DURATION)),
+                ) {
+                    Row {
+                        Spacer(modifier = Modifier.size(STOP_BUTTON_GAP))
+                        IconButton(
+                            onClick = onStopClick,
+                            modifier = Modifier
+                                .size(PLAY_BUTTON_SIZE)
+                                .align(Alignment.CenterVertically),
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_stop),
+                                contentDescription = stringResource(id = R.string.button_stop),
+                            )
+                        }
+                    }
                 }
             }
         }
+        Spacer(modifier = Modifier.size(SPEED_BUTTONS_GAP))
+        PlaybackSpeedButtons(
+            speeds = speeds.faster(),
+            selectedSpeed = selectedSpeed,
+            onSpeedClick = onPlaybackSpeedClick,
+            alpha = speedButtonsAlpha,
+            isShown = showStop,
+        )
     }
 }
 
@@ -224,35 +283,47 @@ fun PlayPanelPreview() {
             .padding(8.dp, 8.dp),
         showPause = false,
         showStop = true,
+        selectedSpeed = PlaybackSpeed.X1_5,
         onPlayClick = {},
         onStopClick = {},
         onPauseClick = {},
+        onPlaybackSpeedClick = {},
     )
 }
 
 /**
- * Row of playback rate buttons. The selected rate stays highlighted and applies to the current
- * playback as well as to the tracks played later.
+ * Group of playback rate buttons. The selected rate stays highlighted and applies to the current
+ * playback as well as to the tracks played later. The group takes the same space at any [alpha];
+ * while [isShown] is false it is faded out and takes no clicks and no accessibility focus.
  */
 @Composable
-fun PlaybackSpeedPanel(
-    selectedSpeed: PlaybackSpeed,
-    onSpeedSelected: (PlaybackSpeed) -> Unit,
-    modifier: Modifier = Modifier,
+private fun PlaybackSpeedButtons(
+    speeds: List<PlaybackSpeed>,
+    selectedSpeed: PlaybackSpeed?,
+    onSpeedClick: (PlaybackSpeed) -> Unit,
+    alpha: Float,
+    isShown: Boolean,
 ) {
-    val panelDescription = stringResource(id = R.string.playback_speed)
+    val groupDescription = stringResource(id = R.string.playback_speed)
     Row(
-        modifier = modifier
-            .horizontalScroll(rememberScrollState())
-            .semantics { contentDescription = panelDescription },
-        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
+        modifier = Modifier
+            .alpha(alpha)
+            .then(
+                if (isShown) {
+                    Modifier.semantics { contentDescription = groupDescription }
+                } else {
+                    Modifier.clearAndSetSemantics { }
+                }
+            ),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        PlaybackSpeed.entries.forEach { speed ->
+        speeds.forEach { speed ->
             PlaybackSpeedButton(
                 speed = speed,
                 isSelected = speed == selectedSpeed,
-                onClick = { onSpeedSelected(speed) },
+                isEnabled = isShown,
+                onClick = { onSpeedClick(speed) },
             )
         }
     }
@@ -262,6 +333,7 @@ fun PlaybackSpeedPanel(
 private fun PlaybackSpeedButton(
     speed: PlaybackSpeed,
     isSelected: Boolean,
+    isEnabled: Boolean,
     onClick: () -> Unit,
 ) {
     val backgroundColor = if (isSelected) {
@@ -283,31 +355,19 @@ private fun PlaybackSpeedButton(
                 color = if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outlineVariant,
                 shape = CircleShape
             )
-            .clickable(onClick = onClick)
+            .clickable(enabled = isEnabled, onClick = onClick)
             .semantics { selected = isSelected }
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(horizontal = 8.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = speed.label,
             color = contentColor,
-            fontSize = 13.sp,
+            fontSize = 12.sp,
             maxLines = 1,
             fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
         )
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PlaybackSpeedPanelPreview() {
-    PlaybackSpeedPanel(
-        selectedSpeed = PlaybackSpeed.X1_5,
-        onSpeedSelected = {},
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp, 4.dp),
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
