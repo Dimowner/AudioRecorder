@@ -359,6 +359,8 @@
 	<string name="button_pause">Pause</string>
 	<string name="button_resume">Fortsetzen</string>
 	<string name="button_finish">Fertig</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Wiedergabegeschwindigkeit %1$s</string>
 	<string name="legacy_app">Legacy-App</string>
 	<string name="legacy_app_subtitle">Zur alten App-Oberfläche wechseln</string>
 	<string name="switch_to_legacy">Zur Legacy-App wechseln</string>

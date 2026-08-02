@@ -351,6 +351,8 @@
 	<string name="button_pause">일시 정지</string>
 	<string name="button_resume">재개</string>
 	<string name="button_finish">완료</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">재생 속도 %1$s</string>
 	<string name="legacy_app">이전 버전</string>
 	<string name="legacy_app_subtitle">이전 앱 인터페이스로 전환</string>
 	<string name="switch_to_legacy">이전 버전으로 전환</string>

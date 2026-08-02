@@ -18,10 +18,12 @@ package com.dimowner.audiorecorder.v2.app.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -41,8 +43,12 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,15 +58,24 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -74,8 +89,26 @@ import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.RecordsDropDownMenu
 import com.dimowner.audiorecorder.v2.app.components.onDebounceClick
+import com.dimowner.audiorecorder.v2.data.model.PlaybackSpeed
+import com.dimowner.audiorecorder.v2.data.model.formatValue
 
 private const val ANIMATION_DURATION = 300
+
+// The play controls and the rate menu share one row, which on a narrow screen also holds the
+// prev/next buttons, so the gap and the menu button are kept tight on purpose.
+private val SPEED_MENU_GAP = 10.dp
+
+// Fixed so the menu button does not resize as rates of different label lengths are picked, and so
+// the row can reserve the same width on the other side of the play controls, see [PlayPanel].
+private val SPEED_MENU_WIDTH = 64.dp
+
+private val PLAY_BUTTON_SIZE = 42.dp
+private val STOP_BUTTON_GAP = 4.dp
+
+// The play and stop buttons sit in an area wide enough for both, whether or not stop is on screen.
+// That way only the play button moves when stop appears, and the rate menu beside the area keeps
+// its place.
+private val PLAY_CONTROLS_WIDTH = PLAY_BUTTON_SIZE * 2 + STOP_BUTTON_GAP
 
 @Composable
 fun TopAppBar(
@@ -155,56 +188,90 @@ fun TopAppBarPreview() {
     TopAppBar({}, {})
 }
 
+/**
+ * Play controls with the playback rate menu after them, i.e. to the right of the stop button in an
+ * LTR layout and to its left in an RTL one, as the row mirrors. The same width the menu takes is
+ * reserved on the other side of the play controls, which keeps them centered in the row whether or
+ * not the menu is on screen. The menu shares [showStop] with the stop button, so it is only on
+ * screen while a record is playing or paused; it fades in and out without moving, while the play
+ * button slides aside to make room for the stop button.
+ */
 @Composable
 fun PlayPanel(
     modifier: Modifier,
     showStop: Boolean,
     showPause: Boolean,
+    selectedSpeed: PlaybackSpeed,
     onPlayClick: () -> Unit,
     onStopClick: () -> Unit,
     onPauseClick: () -> Unit,
+    onPlaybackSpeedClick: (PlaybackSpeed) -> Unit,
 ) {
+    // The menu keeps its slot even while hidden, so nothing around it shifts.
+    val speedMenuAlpha by animateFloatAsState(
+        targetValue = if (showStop) 1f else 0f,
+        animationSpec = tween(ANIMATION_DURATION),
+        label = "playbackSpeedMenuAlpha",
+    )
     Row(
-        modifier = Modifier.animateContentSize(),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        IconButton(
-            onClick = if (showPause) onPauseClick else onPlayClick,
-            modifier = Modifier
-                .size(42.dp)
-                .align(Alignment.CenterVertically),
+        Spacer(modifier = Modifier.width(SPEED_MENU_WIDTH + SPEED_MENU_GAP))
+        Box(
+            modifier = Modifier.width(PLAY_CONTROLS_WIDTH),
+            contentAlignment = Alignment.Center,
         ) {
-            val imageResourceId = if (showPause) {
-                R.drawable.ic_pause
-            } else {
-                R.drawable.ic_play
-            }
-            Icon(
-                painter = painterResource(id = imageResourceId),
-                contentDescription = stringResource(id = R.string.btn_play),
-            )
-        }
-        AnimatedVisibility(
-            visible = showStop,
-            enter = fadeIn(animationSpec = tween(ANIMATION_DURATION)),
-            exit = fadeOut(animationSpec = tween(ANIMATION_DURATION)),
-        ) {
-            Row {
-                Spacer(modifier = Modifier.size(8.dp))
+            Row(
+                modifier = Modifier.animateContentSize(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 IconButton(
-                    onClick = onStopClick,
+                    onClick = if (showPause) onPauseClick else onPlayClick,
                     modifier = Modifier
-                        .size(42.dp)
+                        .size(PLAY_BUTTON_SIZE)
                         .align(Alignment.CenterVertically),
                 ) {
+                    val imageResourceId = if (showPause) {
+                        R.drawable.ic_pause
+                    } else {
+                        R.drawable.ic_play
+                    }
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_stop),
-                        contentDescription = stringResource(id = R.string.button_stop),
+                        painter = painterResource(id = imageResourceId),
+                        contentDescription = stringResource(id = R.string.btn_play),
                     )
+                }
+                AnimatedVisibility(
+                    visible = showStop,
+                    enter = fadeIn(animationSpec = tween(ANIMATION_DURATION)),
+                    exit = fadeOut(animationSpec = tween(ANIMATION_DURATION)),
+                ) {
+                    Row {
+                        Spacer(modifier = Modifier.size(STOP_BUTTON_GAP))
+                        IconButton(
+                            onClick = onStopClick,
+                            modifier = Modifier
+                                .size(PLAY_BUTTON_SIZE)
+                                .align(Alignment.CenterVertically),
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_stop),
+                                contentDescription = stringResource(id = R.string.button_stop),
+                            )
+                        }
+                    }
                 }
             }
         }
+        Spacer(modifier = Modifier.size(SPEED_MENU_GAP))
+        PlaybackSpeedMenu(
+            selectedSpeed = selectedSpeed,
+            onSpeedClick = onPlaybackSpeedClick,
+            alpha = speedMenuAlpha,
+            isShown = showStop,
+        )
     }
 }
 
@@ -217,10 +284,108 @@ fun PlayPanelPreview() {
             .padding(8.dp, 8.dp),
         showPause = false,
         showStop = true,
+        selectedSpeed = PlaybackSpeed.X1_5,
         onPlayClick = {},
         onStopClick = {},
         onPauseClick = {},
+        onPlaybackSpeedClick = {},
     )
+}
+
+/**
+ * Drop down menu listing every playback rate, with the selected one both on the button that opens
+ * it and check marked in the list. The picked rate applies to the current playback as well as to
+ * the tracks played later. The button takes the same space at any [alpha]; while [isShown] is false
+ * it is faded out and takes no clicks and no accessibility focus.
+ */
+@Composable
+private fun PlaybackSpeedMenu(
+    selectedSpeed: PlaybackSpeed,
+    onSpeedClick: (PlaybackSpeed) -> Unit,
+    alpha: Float,
+    isShown: Boolean,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    // Playback can stop while the menu is open — from the notification, or by reaching the end of
+    // the record. The button it hangs off is gone by then, so close it rather than leave it
+    // floating over the panel.
+    LaunchedEffect(isShown) {
+        if (!isShown) expanded = false
+    }
+    val selectedLabel = stringResource(
+        id = R.string.playback_speed_value,
+        selectedSpeed.formatValue()
+    )
+    // "1x" on its own says nothing to a screen reader, so the button carries the full phrase.
+    val description = stringResource(id = R.string.playback_speed_value_description, selectedLabel)
+    Box(
+        modifier = Modifier
+            .alpha(alpha)
+            .then(if (isShown) Modifier else Modifier.clearAndSetSemantics { }),
+    ) {
+        Row(
+            modifier = Modifier
+                .width(SPEED_MENU_WIDTH)
+                .clip(CircleShape)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    shape = CircleShape
+                )
+                .clickable(
+                    enabled = isShown,
+                    onClick = { expanded = true },
+                    role = Role.DropdownList,
+                )
+                .semantics { contentDescription = description }
+                .padding(start = 8.dp, end = 2.dp, top = 6.dp, bottom = 6.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = selectedLabel,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 12.sp,
+                maxLines = 1,
+            )
+            Icon(
+                modifier = Modifier.size(16.dp),
+                painter = painterResource(id = R.drawable.ic_arrow_down),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            PlaybackSpeed.entries.forEach { speed ->
+                val isSelected = speed == selectedSpeed
+                val label = stringResource(id = R.string.playback_speed_value, speed.formatValue())
+                DropdownMenuItem(
+                    modifier = Modifier.semantics { selected = isSelected },
+                    text = {
+                        Text(
+                            text = label,
+                            fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
+                        )
+                    },
+                    trailingIcon = {
+                        if (isSelected) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                            )
+                        }
+                    },
+                    onClick = {
+                        expanded = false
+                        onSpeedClick(speed)
+                    },
+                )
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

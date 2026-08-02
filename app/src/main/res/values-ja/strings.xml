@@ -360,6 +360,8 @@
 	<string name="button_pause">一時停止</string>
 	<string name="button_resume">再開</string>
 	<string name="button_finish">完了</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">再生速度 %1$s</string>
 	<string name="legacy_app">旧バージョン</string>
 	<string name="legacy_app_subtitle">古いアプリのインターフェースに切り替える</string>
 	<string name="switch_to_legacy">旧バージョンに切り替える</string>

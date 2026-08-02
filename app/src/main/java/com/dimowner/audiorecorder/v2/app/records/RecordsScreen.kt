@@ -603,6 +603,9 @@ internal fun RecordsScreen(
                             }
                         },
                         onPauseClick = { onHomeAction(HomeScreenAction.OnPauseClick) },
+                        onPlaybackSpeedClick = {
+                            onHomeAction(HomeScreenAction.OnPlaybackSpeedClick(it))
+                        },
                         onBookmarkClick = {
                             onAction(RecordsScreenAction.BookmarkActiveRecord)
                         },

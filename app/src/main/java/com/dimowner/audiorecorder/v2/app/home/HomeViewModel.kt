@@ -73,6 +73,7 @@ import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.extensions.isLostRecord
 import com.dimowner.audiorecorder.v2.data.extensions.copyFile
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
+import com.dimowner.audiorecorder.v2.data.model.PlaybackSpeed
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
@@ -470,7 +471,7 @@ class HomeViewModel @Inject constructor(
             override fun onStopPlay() {
                 _state.value = _state.value.copy(
                     showPause = false,
-                    showStop = false
+                    showStop = false,
                 )
                 moveToStart()
             }
@@ -1144,6 +1145,15 @@ class HomeViewModel @Inject constructor(
         audioPlayer.stop()
     }
 
+    /**
+     * Applies the rate picked in the playback speed menu to the player right away, so it takes
+     * effect mid-playback, and remembers it for the tracks played next.
+     */
+    fun handlePlaybackSpeedClick(speed: PlaybackSpeed) {
+        audioPlayer.setPlaybackSpeed(speed.value)
+        _state.value = _state.value.copy(playbackSpeed = speed)
+    }
+
     // - If is playing, stop playback
     // - Start recording service
     fun handleStartRecordingClick() {
@@ -1271,6 +1281,7 @@ class HomeViewModel @Inject constructor(
                 }
             }
             HomeScreenAction.OnStopClick -> handlePlaybackStopClick()
+            is HomeScreenAction.OnPlaybackSpeedClick -> handlePlaybackSpeedClick(action.speed)
             //Recording
             HomeScreenAction.OnStartRecordingClick -> {
                 handleStartRecordingClick()
@@ -1480,6 +1491,8 @@ data class HomeScreenState(
     val bottomBarState: BottomBarState = BottomBarState.READY_TO_START_RECORDING,
     val showPause: Boolean = false,
     val showStop: Boolean = false,
+    /** The playback rate selected in the speed menu and applied to the player. */
+    val playbackSpeed: PlaybackSpeed = PlaybackSpeed.NORMAL,
     val isSeek: Boolean = false,
     val isDeleteRecordingProgressRequested: Boolean = false,
     // Bluetooth mic state
@@ -1535,6 +1548,7 @@ sealed class HomeScreenAction {
     data object OnPlayClick : HomeScreenAction()
     data object OnPauseClick : HomeScreenAction()
     data object OnStopClick : HomeScreenAction()
+    data class OnPlaybackSpeedClick(val speed: PlaybackSpeed) : HomeScreenAction()
     data object OnStartRecordingClick : HomeScreenAction()
     data object OnPauseRecordingClick : HomeScreenAction()
     data object OnResumeRecordingClick : HomeScreenAction()

@@ -36,6 +36,7 @@ materialIconsExtended = "1.7.8"
 jaudiotagger = "3.0.1"
 mp4parser = "1.9.56"
 media = "1.8.0"
+media3 = "1.10.1"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -88,6 +89,8 @@ jaudiotagger = { module = "net.jthink:jaudiotagger", version.ref = "jaudiotagger
 #mp4parser = { module = "org.mp4parser:isoparser", version.ref = "mp4parser" }
 mp4parser-muxer = { module = "org.mp4parser:muxer", version.ref = "mp4parser" }
 androidx-media = { module = "androidx.media:media", version.ref = "media" }
+androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3" }
+androidx-media3-common = { module = "androidx.media3:media3-common", version.ref = "media3" }
 #androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 #androidx-fragment = { group = "androidx.fragment:fragment-ktx:", version.ref = "fragment" }
 
