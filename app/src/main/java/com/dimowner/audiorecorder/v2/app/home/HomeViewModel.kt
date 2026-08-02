@@ -470,11 +470,9 @@ class HomeViewModel @Inject constructor(
             }
 
             override fun onStopPlay() {
-                audioPlayer.setPlaybackSpeed(NORMAL_PLAYBACK_SPEED)
                 _state.value = _state.value.copy(
                     showPause = false,
                     showStop = false,
-                    playbackSpeed = null
                 )
                 moveToStart()
             }
@@ -1149,14 +1147,12 @@ class HomeViewModel @Inject constructor(
     }
 
     /**
-     * Applies the clicked rate to the player right away, so it takes effect mid-playback, and
-     * remembers it for the tracks played next. Clicking the already selected rate deselects it and
-     * puts playback back to the normal rate.
+     * Applies the rate picked in the playback speed menu to the player right away, so it takes
+     * effect mid-playback, and remembers it for the tracks played next.
      */
     fun handlePlaybackSpeedClick(speed: PlaybackSpeed) {
-        val newSpeed = if (_state.value.playbackSpeed == speed) null else speed
-        audioPlayer.setPlaybackSpeed(newSpeed?.value ?: NORMAL_PLAYBACK_SPEED)
-        _state.value = _state.value.copy(playbackSpeed = newSpeed)
+        audioPlayer.setPlaybackSpeed(speed.value)
+        _state.value = _state.value.copy(playbackSpeed = speed)
     }
 
     // - If is playing, stop playback
@@ -1496,8 +1492,8 @@ data class HomeScreenState(
     val bottomBarState: BottomBarState = BottomBarState.READY_TO_START_RECORDING,
     val showPause: Boolean = false,
     val showStop: Boolean = false,
-    /** `null` means no rate button is selected and playback runs at the normal rate. */
-    val playbackSpeed: PlaybackSpeed? = null,
+    /** The rate the playback speed menu shows; playback starts at the normal one. */
+    val playbackSpeed: PlaybackSpeed = PlaybackSpeed.NORMAL,
     val isSeek: Boolean = false,
     val isDeleteRecordingProgressRequested: Boolean = false,
     // Bluetooth mic state

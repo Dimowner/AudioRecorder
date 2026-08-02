@@ -43,8 +43,12 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,9 +58,11 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -84,22 +90,24 @@ import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.RecordsDropDownMenu
 import com.dimowner.audiorecorder.v2.app.components.onDebounceClick
 import com.dimowner.audiorecorder.v2.data.model.PlaybackSpeed
-import com.dimowner.audiorecorder.v2.data.model.faster
 import com.dimowner.audiorecorder.v2.data.model.formatValue
-import com.dimowner.audiorecorder.v2.data.model.slower
 
 private const val ANIMATION_DURATION = 300
 
-// The play controls and both rate groups share one row, which on a narrow screen also holds the
-// prev/next buttons, so the gaps and the rate buttons are kept tight on purpose.
-private val SPEED_BUTTONS_GAP = 16.dp
+// The play controls and the rate menu share one row, which on a narrow screen also holds the
+// prev/next buttons, so the gap and the menu button are kept tight on purpose.
+private val SPEED_MENU_GAP = 10.dp
+
+// Fixed so the menu button does not resize as rates of different label lengths are picked, and so
+// the row can reserve the same width on the other side of the play controls, see [PlayPanel].
+private val SPEED_MENU_WIDTH = 64.dp
 
 private val PLAY_BUTTON_SIZE = 42.dp
 private val STOP_BUTTON_GAP = 4.dp
 
 // The play and stop buttons sit in an area wide enough for both, whether or not stop is on screen.
-// That way only the play button moves when stop appears, and the rate buttons beside the area keep
-// their place.
+// That way only the play button moves when stop appears, and the rate menu beside the area keeps
+// its place.
 private val PLAY_CONTROLS_WIDTH = PLAY_BUTTON_SIZE * 2 + STOP_BUTTON_GAP
 
 @Composable
@@ -181,45 +189,36 @@ fun TopAppBarPreview() {
 }
 
 /**
- * Play controls with the playback rate buttons around them: the [speeds] slower than normal before
- * the play button, the faster ones after it. The row mirrors in an RTL layout, which puts the rates
- * in ascending order along the reading direction either way. Callers short on horizontal space can
- * pass a reduced [speeds] set. The rate buttons share [showStop] with the stop button, so they are only
- * on screen while a record is playing or paused; they fade in and out without moving, while the play
- * button slides aside to make room for the stop button. [selectedSpeed] is `null` when playback runs
- * at the normal rate, which is also what tapping the selected rate button goes back to.
+ * Play controls with the playback rate menu after them, i.e. to the right of the stop button in an
+ * LTR layout and to its left in an RTL one, as the row mirrors. The same width the menu takes is
+ * reserved on the other side of the play controls, which keeps them centered in the row whether or
+ * not the menu is on screen. The menu shares [showStop] with the stop button, so it is only on
+ * screen while a record is playing or paused; it fades in and out without moving, while the play
+ * button slides aside to make room for the stop button.
  */
 @Composable
 fun PlayPanel(
     modifier: Modifier,
     showStop: Boolean,
     showPause: Boolean,
-    selectedSpeed: PlaybackSpeed?,
+    selectedSpeed: PlaybackSpeed,
     onPlayClick: () -> Unit,
     onStopClick: () -> Unit,
     onPauseClick: () -> Unit,
     onPlaybackSpeedClick: (PlaybackSpeed) -> Unit,
-    speeds: List<PlaybackSpeed> = PlaybackSpeed.entries,
 ) {
-    // The rate buttons keep their slots even while hidden, so nothing around them shifts.
-    val speedButtonsAlpha by animateFloatAsState(
+    // The menu keeps its slot even while hidden, so nothing around it shifts.
+    val speedMenuAlpha by animateFloatAsState(
         targetValue = if (showStop) 1f else 0f,
         animationSpec = tween(ANIMATION_DURATION),
-        label = "playbackSpeedButtonsAlpha",
+        label = "playbackSpeedMenuAlpha",
     )
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        PlaybackSpeedButtons(
-            speeds = speeds.slower(),
-            selectedSpeed = selectedSpeed,
-            onSpeedClick = onPlaybackSpeedClick,
-            alpha = speedButtonsAlpha,
-            isShown = showStop,
-        )
-        Spacer(modifier = Modifier.size(SPEED_BUTTONS_GAP))
+        Spacer(modifier = Modifier.width(SPEED_MENU_WIDTH + SPEED_MENU_GAP))
         Box(
             modifier = Modifier.width(PLAY_CONTROLS_WIDTH),
             contentAlignment = Alignment.Center,
@@ -266,12 +265,11 @@ fun PlayPanel(
                 }
             }
         }
-        Spacer(modifier = Modifier.size(SPEED_BUTTONS_GAP))
-        PlaybackSpeedButtons(
-            speeds = speeds.faster(),
+        Spacer(modifier = Modifier.size(SPEED_MENU_GAP))
+        PlaybackSpeedMenu(
             selectedSpeed = selectedSpeed,
             onSpeedClick = onPlaybackSpeedClick,
-            alpha = speedButtonsAlpha,
+            alpha = speedMenuAlpha,
             isShown = showStop,
         )
     }
@@ -295,82 +293,98 @@ fun PlayPanelPreview() {
 }
 
 /**
- * Group of playback rate buttons. The selected rate stays highlighted and applies to the current
- * playback as well as to the tracks played later. The group takes the same space at any [alpha];
- * while [isShown] is false it is faded out and takes no clicks and no accessibility focus.
+ * Drop down menu listing every playback rate, with the selected one both on the button that opens
+ * it and check marked in the list. The picked rate applies to the current playback as well as to
+ * the tracks played later. The button takes the same space at any [alpha]; while [isShown] is false
+ * it is faded out and takes no clicks and no accessibility focus.
  */
 @Composable
-private fun PlaybackSpeedButtons(
-    speeds: List<PlaybackSpeed>,
-    selectedSpeed: PlaybackSpeed?,
+private fun PlaybackSpeedMenu(
+    selectedSpeed: PlaybackSpeed,
     onSpeedClick: (PlaybackSpeed) -> Unit,
     alpha: Float,
     isShown: Boolean,
 ) {
-    Row(
+    var expanded by remember { mutableStateOf(false) }
+    // Playback can stop while the menu is open — from the notification, or by reaching the end of
+    // the record. The button it hangs off is gone by then, so close it rather than leave it
+    // floating over the panel.
+    LaunchedEffect(isShown) {
+        if (!isShown) expanded = false
+    }
+    val selectedLabel = stringResource(
+        id = R.string.playback_speed_value,
+        selectedSpeed.formatValue()
+    )
+    // "1x" on its own says nothing to a screen reader, so the button carries the full phrase.
+    val description = stringResource(id = R.string.playback_speed_value_description, selectedLabel)
+    Box(
         modifier = Modifier
             .alpha(alpha)
             .then(if (isShown) Modifier else Modifier.clearAndSetSemantics { }),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically,
     ) {
-        speeds.forEach { speed ->
-            PlaybackSpeedButton(
-                speed = speed,
-                isSelected = speed == selectedSpeed,
-                isEnabled = isShown,
-                onClick = { onSpeedClick(speed) },
+        Row(
+            modifier = Modifier
+                .width(SPEED_MENU_WIDTH)
+                .clip(CircleShape)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    shape = CircleShape
+                )
+                .clickable(
+                    enabled = isShown,
+                    onClick = { expanded = true },
+                    role = Role.DropdownList,
+                )
+                .semantics { contentDescription = description }
+                .padding(start = 8.dp, end = 2.dp, top = 6.dp, bottom = 6.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = selectedLabel,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 12.sp,
+                maxLines = 1,
+            )
+            Icon(
+                modifier = Modifier.size(16.dp),
+                painter = painterResource(id = R.drawable.ic_arrow_down),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-    }
-}
-
-@Composable
-private fun PlaybackSpeedButton(
-    speed: PlaybackSpeed,
-    isSelected: Boolean,
-    isEnabled: Boolean,
-    onClick: () -> Unit,
-) {
-    val backgroundColor = if (isSelected) {
-        MaterialTheme.colorScheme.secondaryContainer
-    } else {
-        Color.Transparent
-    }
-    val contentColor = if (isSelected) {
-        MaterialTheme.colorScheme.onSecondaryContainer
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
-    val label = stringResource(id = R.string.playback_speed_value, speed.formatValue())
-    // "0.5x" on its own says nothing to a screen reader, so each button carries the full phrase.
-    // The description has to sit on the button: a description on the surrounding Row is never
-    // announced, as the Row neither merges its children nor is a leaf.
-    val description = stringResource(id = R.string.playback_speed_value_description, label)
-    Box(
-        modifier = Modifier
-            .clip(CircleShape)
-            .background(backgroundColor)
-            .border(
-                width = 1.dp,
-                color = if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outlineVariant,
-                shape = CircleShape
-            )
-            .clickable(enabled = isEnabled, onClick = onClick, role = Role.RadioButton)
-            .semantics {
-                selected = isSelected
-                contentDescription = description
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            PlaybackSpeed.entries.forEach { speed ->
+                val isSelected = speed == selectedSpeed
+                val label = stringResource(id = R.string.playback_speed_value, speed.formatValue())
+                DropdownMenuItem(
+                    modifier = Modifier.semantics { selected = isSelected },
+                    text = {
+                        Text(
+                            text = label,
+                            fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
+                        )
+                    },
+                    trailingIcon = {
+                        if (isSelected) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                            )
+                        }
+                    },
+                    onClick = {
+                        expanded = false
+                        onSpeedClick(speed)
+                    },
+                )
             }
-            .padding(horizontal = 8.dp, vertical = 6.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = label,
-            color = contentColor,
-            fontSize = 12.sp,
-            maxLines = 1,
-            fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
-        )
+        }
     }
 }
 

@@ -152,9 +152,11 @@ internal fun RecordPlaybackPanel(
         // match what its position/icon now indicates.
         val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
         Row(
+            // Tight padding: the play controls, the speed menu and the prev/next buttons all share
+            // this row, which barely fits on a narrow screen.
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(
@@ -176,8 +178,6 @@ internal fun RecordPlaybackPanel(
                 onStopClick = { onStopClick() },
                 onPauseClick = { onPauseClick() },
                 onPlaybackSpeedClick = onPlaybackSpeedClick,
-                // Only the extreme rates: this row also carries the prev/next buttons.
-                speeds = PlaybackSpeed.compact
             )
             Spacer(modifier = Modifier.weight(1f))
             IconButton(
