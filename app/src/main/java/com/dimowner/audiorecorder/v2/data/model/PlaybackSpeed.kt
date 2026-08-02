@@ -16,17 +16,19 @@
 package com.dimowner.audiorecorder.v2.data.model
 
 import com.dimowner.audiorecorder.audio.player.NORMAL_PLAYBACK_SPEED
+import java.text.NumberFormat
+import java.util.Locale
 
 /**
- * Playback rates offered next to the play controls. [value] is the multiplier passed to the player,
- * [label] is what the button shows. The normal rate has no button: it is what playback falls back to
- * when no rate is selected.
+ * Playback rates offered next to the play controls. [value] is the multiplier passed to the player
+ * and the number the button shows, see [formatValue]. The normal rate has no button: it is what
+ * playback falls back to when no rate is selected.
  */
-enum class PlaybackSpeed(val value: Float, val label: String) {
-    X0_5(value = 0.5f, label = "0.5x"),
-    X0_75(value = 0.75f, label = "0.75x"),
-    X1_5(value = 1.5f, label = "1.5x"),
-    X2(value = 2.0f, label = "2.0x");
+enum class PlaybackSpeed(val value: Float) {
+    X0_5(value = 0.5f),
+    X0_75(value = 0.75f),
+    X1_5(value = 1.5f),
+    X2(value = 2.0f);
 
     companion object {
         /**
@@ -37,11 +39,24 @@ enum class PlaybackSpeed(val value: Float, val label: String) {
     }
 }
 
-/** Rates shown to the left of the play controls. */
+/** Rates shown before the play controls, i.e. to their left in an LTR layout. */
 fun List<PlaybackSpeed>.slower(): List<PlaybackSpeed> = filter { it.value < NORMAL_PLAYBACK_SPEED }
 
-/** Rates shown to the right of the play controls. */
+/** Rates shown after the play controls, i.e. to their right in an LTR layout. */
 fun List<PlaybackSpeed>.faster(): List<PlaybackSpeed> = filter { it.value > NORMAL_PLAYBACK_SPEED }
+
+/**
+ * The multiplier as it appears on the button, in the numbering system and with the decimal
+ * separator of [locale] — Arabic renders it as `٠٫٥`, not `0.5`. Durations elsewhere in the
+ * playback panel are formatted against the default locale too, so both use the same digits.
+ * One fraction digit is always kept, which is what makes `2` read as `2.0`.
+ */
+fun PlaybackSpeed.formatValue(locale: Locale = Locale.getDefault()): String {
+    return NumberFormat.getNumberInstance(locale).apply {
+        minimumFractionDigits = 1
+        maximumFractionDigits = 2
+    }.format(value)
+}
 
 private const val SPEED_COMPARISON_TOLERANCE = 0.01f
 

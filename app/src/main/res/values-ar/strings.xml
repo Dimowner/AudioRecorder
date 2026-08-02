@@ -395,6 +395,9 @@
 	<string name="button_pause">إيقاف مؤقت</string>
 	<string name="button_resume">استئناف</string>
 	<string name="button_finish">إنهاء</string>
+	<string name="playback_speed">سرعة التشغيل</string>
+	<string name="playback_speed_value">%1$s×</string>
+	<string name="playback_speed_value_description">سرعة التشغيل %1$s</string>
 	<string name="legacy_app">التطبيق القديم</string>
 	<string name="legacy_app_subtitle">التبديل إلى واجهة التطبيق القديمة</string>
 	<string name="switch_to_legacy">التبديل إلى التطبيق القديم</string>

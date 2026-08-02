@@ -356,6 +356,9 @@
 	<string name="button_pause">Пауза</string>
 	<string name="button_resume">Возобнов.</string>
 	<string name="button_finish">Финиш</string>
+	<string name="playback_speed">Скорость воспроизведения</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Скорость воспроизведения %1$s</string>
 	<string name="legacy_app">Старое приложение</string>
 	<string name="legacy_app_subtitle">Переключиться на старый интерфейс</string>
 	<string name="switch_to_legacy">Переключиться на старое приложение</string>

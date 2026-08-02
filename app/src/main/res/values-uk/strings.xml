@@ -357,6 +357,9 @@
 	<string name="button_resume">Відновити</string>
 	<string name="button_pause">Пауза</string>
 	<string name="button_finish">Фініш</string>
+	<string name="playback_speed">Швидкість відтворення</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Швидкість відтворення %1$s</string>
 
 	<string name="legacy_app">Застарілий додаток</string>
 	<string name="legacy_app_subtitle">Перейти до старого інтерфейсу додатка</string>

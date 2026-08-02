@@ -342,6 +342,9 @@
 	<string name="button_pause">Пауза</string>
 	<string name="button_resume">Продължаване</string>
 	<string name="button_finish">Край</string>
+	<string name="playback_speed">Скорост на възпроизвеждане</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Скорост на възпроизвеждане %1$s</string>
 	<string name="legacy_app">Стара версия</string>
 	<string name="legacy_app_subtitle">Превключване към стария интерфейс</string>
 	<string name="switch_to_legacy">Превключване към стара версия</string>

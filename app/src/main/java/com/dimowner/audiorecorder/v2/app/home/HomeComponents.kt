@@ -65,6 +65,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
@@ -84,6 +85,7 @@ import com.dimowner.audiorecorder.v2.app.RecordsDropDownMenu
 import com.dimowner.audiorecorder.v2.app.components.onDebounceClick
 import com.dimowner.audiorecorder.v2.data.model.PlaybackSpeed
 import com.dimowner.audiorecorder.v2.data.model.faster
+import com.dimowner.audiorecorder.v2.data.model.formatValue
 import com.dimowner.audiorecorder.v2.data.model.slower
 
 private const val ANIMATION_DURATION = 300
@@ -179,9 +181,10 @@ fun TopAppBarPreview() {
 }
 
 /**
- * Play controls with the playback rate buttons around them: the [speeds] slower than normal on the
- * left of the play button, the faster ones on its right. Callers short on horizontal space can pass
- * a reduced [speeds] set. The rate buttons share [showStop] with the stop button, so they are only
+ * Play controls with the playback rate buttons around them: the [speeds] slower than normal before
+ * the play button, the faster ones after it. The row mirrors in an RTL layout, which puts the rates
+ * in ascending order along the reading direction either way. Callers short on horizontal space can
+ * pass a reduced [speeds] set. The rate buttons share [showStop] with the stop button, so they are only
  * on screen while a record is playing or paused; they fade in and out without moving, while the play
  * button slides aside to make room for the stop button. [selectedSpeed] is `null` when playback runs
  * at the normal rate, which is also what tapping the selected rate button goes back to.
@@ -304,17 +307,10 @@ private fun PlaybackSpeedButtons(
     alpha: Float,
     isShown: Boolean,
 ) {
-    val groupDescription = stringResource(id = R.string.playback_speed)
     Row(
         modifier = Modifier
             .alpha(alpha)
-            .then(
-                if (isShown) {
-                    Modifier.semantics { contentDescription = groupDescription }
-                } else {
-                    Modifier.clearAndSetSemantics { }
-                }
-            ),
+            .then(if (isShown) Modifier else Modifier.clearAndSetSemantics { }),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -346,6 +342,11 @@ private fun PlaybackSpeedButton(
     } else {
         MaterialTheme.colorScheme.onSurfaceVariant
     }
+    val label = stringResource(id = R.string.playback_speed_value, speed.formatValue())
+    // "0.5x" on its own says nothing to a screen reader, so each button carries the full phrase.
+    // The description has to sit on the button: a description on the surrounding Row is never
+    // announced, as the Row neither merges its children nor is a leaf.
+    val description = stringResource(id = R.string.playback_speed_value_description, label)
     Box(
         modifier = Modifier
             .clip(CircleShape)
@@ -355,13 +356,16 @@ private fun PlaybackSpeedButton(
                 color = if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outlineVariant,
                 shape = CircleShape
             )
-            .clickable(enabled = isEnabled, onClick = onClick)
-            .semantics { selected = isSelected }
+            .clickable(enabled = isEnabled, onClick = onClick, role = Role.RadioButton)
+            .semantics {
+                selected = isSelected
+                contentDescription = description
+            }
             .padding(horizontal = 8.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = speed.label,
+            text = label,
             color = contentColor,
             fontSize = 12.sp,
             maxLines = 1,

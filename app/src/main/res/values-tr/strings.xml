@@ -356,6 +356,9 @@
 	<string name="button_pause">Duraklat</string>
 	<string name="button_resume">Devam et</string>
 	<string name="button_finish">Bitir</string>
+	<string name="playback_speed">Oynatma hızı</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Oynatma hızı %1$s</string>
 	<string name="legacy_app">Eski Uygulama</string>
 	<string name="legacy_app_subtitle">Eski uygulama arayüzüne geç</string>
 	<string name="switch_to_legacy">Eski uygulamaya geç</string>
