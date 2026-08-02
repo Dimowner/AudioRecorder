@@ -22,9 +22,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,6 +64,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -74,6 +80,7 @@ import androidx.compose.ui.unit.sp
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.v2.app.RecordsDropDownMenu
 import com.dimowner.audiorecorder.v2.app.components.onDebounceClick
+import com.dimowner.audiorecorder.v2.data.model.PlaybackSpeed
 
 private const val ANIMATION_DURATION = 300
 
@@ -220,6 +227,86 @@ fun PlayPanelPreview() {
         onPlayClick = {},
         onStopClick = {},
         onPauseClick = {},
+    )
+}
+
+/**
+ * Row of playback rate buttons. The selected rate stays highlighted and applies to the current
+ * playback as well as to the tracks played later.
+ */
+@Composable
+fun PlaybackSpeedPanel(
+    selectedSpeed: PlaybackSpeed,
+    onSpeedSelected: (PlaybackSpeed) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val panelDescription = stringResource(id = R.string.playback_speed)
+    Row(
+        modifier = modifier
+            .horizontalScroll(rememberScrollState())
+            .semantics { contentDescription = panelDescription },
+        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        PlaybackSpeed.entries.forEach { speed ->
+            PlaybackSpeedButton(
+                speed = speed,
+                isSelected = speed == selectedSpeed,
+                onClick = { onSpeedSelected(speed) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun PlaybackSpeedButton(
+    speed: PlaybackSpeed,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    val backgroundColor = if (isSelected) {
+        MaterialTheme.colorScheme.secondaryContainer
+    } else {
+        Color.Transparent
+    }
+    val contentColor = if (isSelected) {
+        MaterialTheme.colorScheme.onSecondaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    Box(
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(backgroundColor)
+            .border(
+                width = 1.dp,
+                color = if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outlineVariant,
+                shape = CircleShape
+            )
+            .clickable(onClick = onClick)
+            .semantics { selected = isSelected }
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = speed.label,
+            color = contentColor,
+            fontSize = 13.sp,
+            maxLines = 1,
+            fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PlaybackSpeedPanelPreview() {
+    PlaybackSpeedPanel(
+        selectedSpeed = PlaybackSpeed.X1_5,
+        onSpeedSelected = {},
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp, 4.dp),
     )
 }
 

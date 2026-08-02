@@ -345,6 +345,14 @@ internal fun HomeScreen(
                         onStopClick = { onAction(HomeScreenAction.OnStopClick) },
                         onPauseClick = { onAction(HomeScreenAction.OnPauseClick) }
                     )
+                    PlaybackSpeedPanel(
+                        selectedSpeed = uiState.playbackSpeed,
+                        onSpeedSelected = { onAction(HomeScreenAction.OnPlaybackSpeedSelected(it)) },
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .widthIn(max = MAX_CONTENT_WIDTH_NARROW)
+                            .padding(horizontal = 8.dp)
+                    )
                 }
             } else {
                 Image(

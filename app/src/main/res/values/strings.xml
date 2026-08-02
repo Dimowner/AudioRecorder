@@ -360,6 +360,7 @@
 	<string name="button_pause">Pause</string>
 	<string name="button_resume">Resume</string>
 	<string name="button_finish">Finish</string>
+	<string name="playback_speed">Playback speed</string>
 	<string name="legacy_app">Legacy App</string>
 	<string name="legacy_app_subtitle">Switch to the old app interface</string>
 	<string name="switch_to_legacy">Switch to Legacy app</string>

@@ -18,6 +18,10 @@ package com.dimowner.audiorecorder.audio.player
 
 import com.dimowner.audiorecorder.exception.AppException
 
+const val NORMAL_PLAYBACK_SPEED = 1.0f
+const val MIN_PLAYBACK_SPEED = 0.25f
+const val MAX_PLAYBACK_SPEED = 4.0f
+
 interface PlayerContractNew {
 	interface PlayerCallback {
 		fun onStartPlay()
@@ -40,6 +44,15 @@ interface PlayerContractNew {
 		fun getPauseTime(): Long
 		fun isPaused(): Boolean
 		fun isPlaying(): Boolean
+
+		/**
+		 * Sets playback rate. 1.0 is the normal speed, values below slow the playback down,
+		 * values above speed it up. The pitch is preserved. The speed is kept between
+		 * playbacks, so it also applies to the tracks started later.
+		 */
+		fun setPlaybackSpeed(speed: Float)
+
+		fun getPlaybackSpeed(): Float
 	}
 }
 
