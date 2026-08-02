@@ -360,7 +360,6 @@
 	<string name="button_pause">Pause</string>
 	<string name="button_resume">Resume</string>
 	<string name="button_finish">Finish</string>
-	<string name="playback_speed">Playback speed</string>
 	<!-- Text on a playback rate button. %1$s is the multiplier, already formatted for the locale
 	     (0.5, ٠٫٥, …). Translate the suffix to whatever marks a multiplier in your language. -->
 	<string name="playback_speed_value">%1$sx</string>

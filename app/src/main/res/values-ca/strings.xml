@@ -355,7 +355,6 @@
 	<string name="button_pause">Pausa</string>
 	<string name="button_resume">Reprèn</string>
 	<string name="button_finish">Finalitza</string>
-	<string name="playback_speed">Velocitat de reproducció</string>
 	<string name="playback_speed_value">%1$sx</string>
 	<string name="playback_speed_value_description">Velocitat de reproducció %1$s</string>
 	<string name="legacy_app">Aplicació antiga</string>

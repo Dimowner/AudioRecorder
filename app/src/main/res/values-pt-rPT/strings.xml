@@ -360,7 +360,6 @@
     <string name="button_pause">Pausar</string>
     <string name="button_resume">Retomar</string>
     <string name="button_finish">Concluir</string>
-    <string name="playback_speed">Velocidade de reprodução</string>
     <string name="playback_speed_value">%1$sx</string>
     <string name="playback_speed_value_description">Velocidade de reprodução %1$s</string>
     <string name="legacy_app">Aplicação Clássica</string>

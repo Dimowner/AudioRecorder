@@ -43,7 +43,6 @@ import com.dimowner.audiorecorder.app.DecodeServiceListener
 import com.dimowner.audiorecorder.app.DownloadService
 import com.dimowner.audiorecorder.audio.AudioDecoder
 import com.dimowner.audiorecorder.audio.player.AudioPlaybackService
-import com.dimowner.audiorecorder.audio.player.NORMAL_PLAYBACK_SPEED
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.exception.AppException
 import com.dimowner.audiorecorder.exception.CantCreateFileException
@@ -1492,7 +1491,7 @@ data class HomeScreenState(
     val bottomBarState: BottomBarState = BottomBarState.READY_TO_START_RECORDING,
     val showPause: Boolean = false,
     val showStop: Boolean = false,
-    /** The rate the playback speed menu shows; playback starts at the normal one. */
+    /** The playback rate selected in the speed menu and applied to the player. */
     val playbackSpeed: PlaybackSpeed = PlaybackSpeed.NORMAL,
     val isSeek: Boolean = false,
     val isDeleteRecordingProgressRequested: Boolean = false,

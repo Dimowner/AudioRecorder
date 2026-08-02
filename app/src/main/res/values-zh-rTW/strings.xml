@@ -354,7 +354,6 @@
 	<string name="button_pause">暫停</string>
     <string name="button_resume">復原</string>
     <string name="button_finish">完成</string>
-    <string name="playback_speed">播放速度</string>
     <string name="playback_speed_value">%1$sx</string>
     <string name="playback_speed_value_description">播放速度 %1$s</string>
 	<string name="legacy_app">舊版應用程式</string>

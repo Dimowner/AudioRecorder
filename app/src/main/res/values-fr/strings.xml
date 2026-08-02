@@ -338,7 +338,6 @@
 	<string name="button_pause">Pause</string>
 	<string name="button_resume">Reprendre</string>
 	<string name="button_finish">Terminer</string>
-	<string name="playback_speed">Vitesse de lecture</string>
 	<string name="playback_speed_value">%1$sx</string>
 	<string name="playback_speed_value_description">Vitesse de lecture %1$s</string>
 	<string name="legacy_app">Application héritée</string>
