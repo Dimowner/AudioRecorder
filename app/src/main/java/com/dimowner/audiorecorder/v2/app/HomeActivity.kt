@@ -32,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.dimowner.audiorecorder.app.main.MainActivity
 import com.dimowner.audiorecorder.v2.app.home.HomeViewModel
@@ -57,6 +58,14 @@ class HomeActivity: ComponentActivity() {
     private val notificationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { /* Permission result handled — no action needed */ }
+
+    // The permission dialog is requested only once per activity instance. Re-entering the home
+    // destination (back navigation) re-triggers the check, and launching a second request while
+    // the first dialog is up makes the system fail to start the dialog activity.
+    private var notificationPermissionRequested = false
+
+    // Set when the check happens while the activity is not resumed, so it can be retried later.
+    private var notificationPermissionCheckPending = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (resources.configuration.smallestScreenWidthDp < TABLET_MIN_SMALLEST_WIDTH_DP) {
@@ -96,15 +105,34 @@ class HomeActivity: ComponentActivity() {
         )
     }
 
-    private fun checkNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
+    override fun onResume() {
+        super.onResume()
+        if (notificationPermissionCheckPending) {
+            notificationPermissionCheckPending = false
+            checkNotificationPermission()
         }
+    }
+
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        if (notificationPermissionRequested) return
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        if (isFinishing || isDestroyed) return
+        // The check is triggered from a composition, which may run before the activity is resumed
+        // or after it went to the background. Starting the permission dialog from a non-resumed
+        // activity is rejected by the system, so postpone it until the next onResume().
+        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+            notificationPermissionCheckPending = true
+            return
+        }
+        notificationPermissionRequested = true
+        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+
     }
 }
