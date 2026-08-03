@@ -13,7 +13,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -45,6 +48,29 @@ import kotlinx.coroutines.CoroutineScope
 
 private const val ANIMATION_DURATION = 120
 
+/**
+ * A screen is only allowed to drive navigation while its own entry is RESUMED.
+ *
+ * An entry drops below RESUMED as soon as it starts animating away — including the moment a
+ * predictive back gesture grabs it. Gating on that state stops a screen from popping or
+ * navigating twice, and stops a tap on the toolbar back arrow from tearing down an entry that a
+ * back gesture is already transitioning, which leaves NavHost holding an entry that is no longer
+ * in the back stack ("Cannot transition entry that is not in the back stack").
+ */
+private fun NavBackStackEntry.isResumed() = lifecycle.currentState == Lifecycle.State.RESUMED
+
+private fun NavController.navigateFrom(
+    from: NavBackStackEntry,
+    route: String,
+    builder: NavOptionsBuilder.() -> Unit = {},
+) {
+    if (from.isResumed()) navigate(route, builder)
+}
+
+private fun NavController.popBackStackFrom(from: NavBackStackEntry) {
+    if (from.isResumed()) popBackStack()
+}
+
 @Composable
 fun RecorderNavigationGraph(
     coroutineScope: CoroutineScope,
@@ -62,38 +88,38 @@ fun RecorderNavigationGraph(
         popEnterTransition = { popEnterTransition(this) },
         popExitTransition = { popExitTransition(this) }
     ) {
-        composable(Routes.HOME_SCREEN) {
+        composable(Routes.HOME_SCREEN) { entry ->
             LaunchedEffect(Unit) {
                 onCheckNotificationPermission()
             }
             HomeScreen(
-                showRecordsScreen = { navController.navigate(Routes.RECORDS_SCREEN) },
-                showSettingsScreen = { navController.navigate(Routes.SETTINGS_SCREEN) },
+                showRecordsScreen = { navController.navigateFrom(entry, Routes.RECORDS_SCREEN) },
+                showSettingsScreen = { navController.navigateFrom(entry, Routes.SETTINGS_SCREEN) },
                 showRecordInfoScreen = { json ->
-                    navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
+                    navController.navigateFrom(entry, Routes.RECORD_INFO_SCREEN + "/${json}")
                 },
                 showLostRecordsScreen = { lostRecord ->
                     val idsString = lostRecord.id.toString()
-                    navController.navigate("${Routes.LOST_RECORDS_SCREEN}/$idsString")
+                    navController.navigateFrom(entry, "${Routes.LOST_RECORDS_SCREEN}/$idsString")
                 },
                 uiState = homeViewModel.state.value,
                 event = homeViewModel.event,
                 onAction = { homeViewModel.onAction(it) }
             )
         }
-        composable(Routes.RECORDS_SCREEN) {
+        composable(Routes.RECORDS_SCREEN) { entry ->
             val recordsViewModel: RecordsViewModel = hiltViewModel()
             RecordsScreen(
                 onPopBackStack = {
-                    navController.popBackStack()
+                    navController.popBackStackFrom(entry)
                 },
                 showRecordInfoScreen = { json ->
-                    navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
+                    navController.navigateFrom(entry, Routes.RECORD_INFO_SCREEN + "/${json}")
                 }, showDeletedRecordsScreen = {
-                    navController.navigate(Routes.DELETED_RECORDS_SCREEN)
+                    navController.navigateFrom(entry, Routes.DELETED_RECORDS_SCREEN)
                 }, showLostRecordsScreen = { lostRecords ->
                     val idsString = lostRecords.joinToString(",") { it.id.toString() }
-                    navController.navigate("${Routes.LOST_RECORDS_SCREEN}/$idsString")
+                    navController.navigateFrom(entry, "${Routes.LOST_RECORDS_SCREEN}/$idsString")
                 }, uiState = recordsViewModel.state.value,
                 event = recordsViewModel.event.collectAsState(null).value,
                 onAction = {
@@ -103,13 +129,13 @@ fun RecorderNavigationGraph(
                 onHomeAction = { homeViewModel.onAction(it) }
             )
         }
-        composable(Routes.DELETED_RECORDS_SCREEN) {
+        composable(Routes.DELETED_RECORDS_SCREEN) { entry ->
             val deletedViewModel: DeletedRecordsViewModel = hiltViewModel()
             DeletedRecordsScreen(onPopBackStack = {
-                    navController.popBackStack()
+                    navController.popBackStackFrom(entry)
                 },
                 showRecordInfoScreen = { json ->
-                    navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
+                    navController.navigateFrom(entry, Routes.RECORD_INFO_SCREEN + "/${json}")
                 }, uiState = deletedViewModel.state.value,
                 event = deletedViewModel.event,
                 onAction = { deletedViewModel.onAction(it) }
@@ -128,24 +154,24 @@ fun RecorderNavigationGraph(
             lostRecordsViewModel.loadRecordsByIds(idsString)
             LostRecordsScreen(
                 onPopBackStack = {
-                    navController.popBackStack()
+                    navController.popBackStackFrom(backStackEntry)
                 },
                 showRecordInfoScreen = { json ->
-                    navController.navigate(Routes.RECORD_INFO_SCREEN +"/${json}")
+                    navController.navigateFrom(backStackEntry, Routes.RECORD_INFO_SCREEN + "/${json}")
                 },
                 uiState = lostRecordsViewModel.state.value,
                 event = lostRecordsViewModel.event.collectAsState(null).value,
                 onAction = { lostRecordsViewModel.onAction(it) }
             )
         }
-        composable(Routes.SETTINGS_SCREEN) {
+        composable(Routes.SETTINGS_SCREEN) { entry ->
             val settingsViewModel: SettingsViewModel = hiltViewModel()
             SettingsScreen(onPopBackStack = {
-                    navController.popBackStack()
+                    navController.popBackStackFrom(entry)
                 }, showDeletedRecordsScreen = {
-                    navController.navigate(Routes.DELETED_RECORDS_SCREEN)
+                    navController.navigateFrom(entry, Routes.DELETED_RECORDS_SCREEN)
                 }, showNameFormatConstructorScreen = {
-                    navController.navigate(Routes.NAME_FORMAT_CONSTRUCTOR_SCREEN)
+                    navController.navigateFrom(entry, Routes.NAME_FORMAT_CONSTRUCTOR_SCREEN)
                 }, uiState = settingsViewModel.state.value,
                 onAction = {
                     settingsViewModel.onAction(it)
@@ -155,32 +181,32 @@ fun RecorderNavigationGraph(
                 }
             )
         }
-        composable(Routes.NAME_FORMAT_CONSTRUCTOR_SCREEN) {
+        composable(Routes.NAME_FORMAT_CONSTRUCTOR_SCREEN) { entry ->
             val nameFormatViewModel: NameFormatConstructorViewModel = hiltViewModel()
             LaunchedEffect(Unit) {
                 nameFormatViewModel.onAction(NameFormatConstructorAction.InitScreen)
             }
             NameFormatConstructorScreen(
-                onPopBackStack = { navController.popBackStack() },
+                onPopBackStack = { navController.popBackStackFrom(entry) },
                 uiState = nameFormatViewModel.state.value,
                 onAction = { nameFormatViewModel.onAction(it) },
             )
         }
-        composable(Routes.WELCOME_SCREEN) {
+        composable(Routes.WELCOME_SCREEN) { entry ->
             WelcomeScreen(onGetStarted = {
-                navController.navigate(Routes.WELCOME_SETUP_SETTINGS_SCREEN)
+                navController.navigateFrom(entry, Routes.WELCOME_SETUP_SETTINGS_SCREEN)
             })
         }
-        composable(Routes.WELCOME_SETUP_SETTINGS_SCREEN) {
+        composable(Routes.WELCOME_SETUP_SETTINGS_SCREEN) { entry ->
             val settingsViewModel: SettingsViewModel = hiltViewModel()
             WelcomeSetupSettingsScreen(onPopBackStack = {
-                    navController.popBackStack()
+                    navController.popBackStackFrom(entry)
                 }, onApplySettings = {
-                    navController.navigate(Routes.HOME_SCREEN) {
+                    navController.navigateFrom(entry, Routes.HOME_SCREEN) {
                         popUpTo(0)
                     }
                 }, showNameFormatConstructorScreen = {
-                    navController.navigate(Routes.NAME_FORMAT_CONSTRUCTOR_SCREEN)
+                    navController.navigateFrom(entry, Routes.NAME_FORMAT_CONSTRUCTOR_SCREEN)
                 }, uiState = settingsViewModel.state.value,
                     onAction = { settingsViewModel.onAction(it) }
             )
@@ -192,11 +218,11 @@ fun RecorderNavigationGraph(
                     type = AssetParamType()
                 }
             ),
-        ) {
+        ) { entry ->
             val recordInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                it.arguments?.getParcelable(Routes.RECORD_INFO,  RecordInfoState::class.java)
+                entry.arguments?.getParcelable(Routes.RECORD_INFO,  RecordInfoState::class.java)
             } else {
-                it.arguments?.getParcelable(Routes.RECORD_INFO)
+                entry.arguments?.getParcelable(Routes.RECORD_INFO)
             }
             val recordInfoViewModel: RecordInfoViewModel = hiltViewModel()
             LaunchedEffect(recordInfo?.location) {
@@ -221,7 +247,7 @@ fun RecorderNavigationGraph(
             val context = LocalContext.current
 
             RecordInfoScreen(
-                onPopBackStack = { navController.popBackStack() },
+                onPopBackStack = { navController.popBackStackFrom(entry) },
                 recordInfo = recordInfo?.copy(
                     authorName = resolvedAuthorName,
                     description = resolvedDescription
