@@ -19,7 +19,8 @@ import android.content.Context
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Handler
-import android.os.Looper
+import android.os.HandlerThread
+import android.os.Process
 import android.os.SystemClock
 import com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
 import com.dimowner.audiorecorder.IntArrayList
@@ -53,12 +54,17 @@ abstract class MediaRecorderBase(
     private val amplitudesBuffer: IntArrayList = IntArrayList()
     @Volatile private var lastNonZeroAmplitude: Int = 0
 
-    // Written from the caller's background thread (start/stop) and read from the main thread
-    // by recordingTimeUpdateRunnable, so all of them have to be volatile.
+    // Written from the caller's background thread (start/stop) and read from the sampling
+    // thread by recordingTimeUpdateRunnable, so all of them have to be volatile.
     @Volatile private var mediaRecorder: MediaRecorder? = null
     private var recordFile: File? = null
-    private var updateTime: Long = 0
-    private var durationMills: Long = 0
+
+    // updateTime is written by the sampling thread and read by the timerProgress thread;
+    // durationMills is written by timerProgress and read on pause/stop. Volatile publishes
+    // those writes - it does not make `durationMills +=` atomic, which is fine because the
+    // increment only ever runs on the timerProgress thread.
+    @Volatile private var updateTime: Long = 0
+    @Volatile private var durationMills: Long = 0
 
     @Volatile private var _isRecording: Boolean = false
     @Volatile private var _isPaused: Boolean = false
@@ -67,8 +73,18 @@ abstract class MediaRecorderBase(
     override val isPaused: Boolean
         get() = _isPaused
 
-    // Using Handler tied to the main Looper for UI thread synchronization and timing updates
-    private val handler = Handler(Looper.getMainLooper())
+    /**
+     * Dedicated thread the amplitude ticks run on, alive only for the duration of a recording.
+     *
+     * These ticks used to be posted to the main looper, which coupled amplitude sampling to UI
+     * load. A janky frame delayed the tick, [readBufferedProgress] then found an empty
+     * [amplitudesBuffer] and left [durationMills] frozen until the next successful read, and the
+     * recording service back-fills such a gap by repeating a single amplitude value - which
+     * draws as one wide flat block in the waveform. Sampling at audio priority off the main
+     * thread keeps the interval steady regardless of what the UI is doing.
+     */
+    @Volatile private var samplingThread: HandlerThread? = null
+    @Volatile private var handler: Handler? = null
 
     private val _event = MutableSharedFlow<RecorderEvent>()
     override fun subscribeRecorderEvents(): Flow<RecorderEvent> = _event
@@ -136,6 +152,7 @@ abstract class MediaRecorderBase(
                 }
                 recorder.prepare()
                 recorder.start()
+                startSamplingThread()
                 scheduleRecordingTimeUpdate()
                 scheduleRecordingTimeUpdateBuffered()
                 emitEvent(RecorderEvent.OnStartRecording)
@@ -172,6 +189,7 @@ abstract class MediaRecorderBase(
             mediaRecorder?.let { recorder ->
                 recorder.resume()
                 updateTime = SystemClock.elapsedRealtime()
+                startSamplingThread()
                 scheduleRecordingTimeUpdate()
                 scheduleRecordingTimeUpdateBuffered()
                 emitEvent(RecorderEvent.OnResumeRecording)
@@ -309,28 +327,51 @@ abstract class MediaRecorderBase(
      * Stops the progress timers and releases [mediaRecorder]. Safe to call from any thread.
      *
      * The field is cleared *before* [MediaRecorder.release] so a tick that is already running on
-     * the main thread cannot pick up an instance that is about to be released. It can still be
-     * mid-read when we release, which is why the amplitude read is guarded as well.
+     * the sampling thread cannot pick up an instance that is about to be released. It can still
+     * be mid-read when we release, which is why the amplitude read is guarded as well.
      */
     private fun releaseRecorder() {
         val recorder = mediaRecorder
         mediaRecorder = null
-        stopRecordingTimer()
+        stopSamplingThread()
         stopRecordingTimerBuffered()
         recorder?.release()
     }
 
+    /**
+     * Starts the amplitude sampling thread if it isn't running. Idempotent, so start and
+     * resume can both call it. Synchronized because start/stop/release reach this class from
+     * the service's IO scope and from MediaRecorder's own callback thread.
+     */
+    @Synchronized
+    private fun startSamplingThread() {
+        if (samplingThread != null) return
+        val thread = HandlerThread("AmplitudeSampler", Process.THREAD_PRIORITY_AUDIO)
+        thread.start()
+        samplingThread = thread
+        handler = Handler(thread.looper)
+    }
+
+    @Synchronized
+    private fun stopSamplingThread() {
+        handler?.removeCallbacks(recordingTimeUpdateRunnable)
+        handler = null
+        samplingThread?.quitSafely()
+        samplingThread = null
+    }
+
     private fun scheduleRecordingTimeUpdate() {
+        val handler = this.handler ?: return
         handler.removeCallbacks(recordingTimeUpdateRunnable)
         handler.postDelayed(recordingTimeUpdateRunnable, (RECORDING_VISUALIZATION_INTERVAL_NEW/1.5).toLong())
     }
 
     private fun stopRecordingTimer() {
-        handler.removeCallbacks(recordingTimeUpdateRunnable)
+        handler?.removeCallbacks(recordingTimeUpdateRunnable)
     }
 
     private fun pauseRecordingTimer() {
-        handler.removeCallbacks(recordingTimeUpdateRunnable)
+        handler?.removeCallbacks(recordingTimeUpdateRunnable)
     }
 
     private fun scheduleRecordingTimeUpdateBuffered() {

@@ -35,9 +35,18 @@ import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.TEST_WAVEFORM_DATA
 import com.dimowner.audiorecorder.v2.app.TEST_WAVEFORM_DATA_DURATION_MILLS
 import com.dimowner.audiorecorder.v2.app.getTestWaveformData
+import kotlin.math.ceil
+import kotlin.math.floor
 
 private val GIRD_SUBLINE_HEIGHT: Float = AndroidUtils.dpToPx(12)
 private val PADD: Float = AndroidUtils.dpToPx(6)
+
+/**
+ * Horizontal slack added around the view bounds when deciding whether a grid step is
+ * visible. Timeline labels are centred on their grid line, so a line just past the edge
+ * still has half its label on screen.
+ */
+private val TIMELINE_TEXT_MARGIN: Float = AndroidUtils.dpToPx(32)
 
 @Composable
 fun WaveformComposeView(
@@ -201,15 +210,41 @@ private fun drawGrid(
     showTimeline: Boolean,
     paintState: PaintState
 ) {
-    val subStepPx = (state.gridStepMills / 2) * viewState.pxPerMill
-    val halfWidthMills = (size.width / 2) * viewState.millsPerPx
-    val gridEndMills = state.durationMills + halfWidthMills.toInt() + state.gridStepMills
-    val halfScreenStepCount = (halfWidthMills/state.gridStepMills).toInt()
+    val pxPerMill = viewState.pxPerMill
+    // Nothing to lay a grid on before the view is measured or the duration is known.
+    // Both cases make pxPerMill zero or infinite, which would poison the maths below.
+    if (state.durationMills <= 0L || pxPerMill <= 0f || !pxPerMill.isFinite()) return
 
-    for (indexMills in -halfScreenStepCount*state.gridStepMills until gridEndMills step state.gridStepMills) {
-        val sampleIndexPx = indexMills * viewState.pxPerMill
-        val xPos = (viewState.waveformShiftPx + sampleIndexPx)
-        if (xPos >= -state.gridStepMills && xPos <= size.width + state.gridStepMills) {
+    val gridStep = state.gridStepMills
+    val subStepPx = (gridStep / 2) * pxPerMill
+    val halfWidthMills = (size.width / 2) * viewState.millsPerPx
+    val gridEndMills = state.durationMills + halfWidthMills.toInt() + gridStep
+    val halfScreenStepCount = (halfWidthMills/gridStep).toInt()
+    val gridStartMills = -halfScreenStepCount*gridStep
+
+    // A sub-line sits half a step to the right of its main line, so the on-screen band has
+    // to be widened by a full step plus room for the centred timeline label.
+    val marginPx = gridStep * pxPerMill + TIMELINE_TEXT_MARGIN
+
+    // Walk only the grid steps that can land on screen. Solving
+    // `xPos = waveformShiftPx + indexMills * pxPerMill` for the visible band bounds the loop
+    // by the number of lines actually drawn; iterating the whole 0..durationMills range made
+    // it O(recording duration) instead - ~12 600 steps per frame after 7 h of recording, to
+    // draw around 30 lines. One extra step of slack on each side keeps float rounding from
+    // dropping a line that the exact per-step check below would have kept.
+    val shift = viewState.waveformShiftPx
+    val firstVisibleMills = ((-marginPx - shift) / pxPerMill).toLong() - gridStep
+    val lastVisibleMills = ((size.width + marginPx - shift) / pxPerMill).toLong() + gridStep
+
+    val skippedMills = firstVisibleMills - gridStartMills
+    val skippedSteps = if (skippedMills <= 0) 0L else (skippedMills + gridStep - 1) / gridStep
+    val endMills = minOf(gridEndMills, lastVisibleMills)
+
+    var indexMills = gridStartMills + skippedSteps * gridStep
+    while (indexMills < endMills) {
+        val sampleIndexPx = indexMills * pxPerMill
+        val xPos = (shift + sampleIndexPx)
+        if (xPos >= -marginPx && xPos <= size.width + marginPx) {
             //Draw grid lines
             //Draw main grid line
             canvas.nativeCanvas.drawLine(
@@ -248,6 +283,7 @@ private fun drawGrid(
                 }
             }
         }
+        indexMills += gridStep
     }
 }
 
@@ -258,37 +294,51 @@ private fun drawWaveform(
     state: WaveformState,
     paintState: PaintState
 ) {
-    if (state.waveformData.isNotEmpty()) {
-        for (i in viewState.drawLinesArray.indices) {
-            viewState.drawLinesArray[i] = 0f
+    if (state.waveformData.isEmpty()) return
+
+    val lines = viewState.drawLinesArray
+    val lastIndex = viewState.durationPx.toInt() - 1
+    if (lines.isEmpty() || lastIndex < 0) return
+
+    // Walk only the pixel columns that can land on screen. `xPos` is `waveformShiftPx + index`,
+    // so the visible band [0, width] maps to a fixed ~width-wide slice of the index range no
+    // matter how long the recording is. Scanning `0 until durationPx` made this loop
+    // O(recording duration): during recording widthScale grows with elapsed time, so after 7 h
+    // durationPx is ~2.3 M px - 2.3 M iterations per frame to draw ~1 k columns, which
+    // saturates the main thread and drags amplitude sampling down with it.
+    val shift = viewState.waveformShiftPx
+    val firstVisible = ceil(-shift).toInt().coerceAtLeast(0)
+    val lastVisible = floor(size.width - shift).toInt().coerceAtMost(lastIndex)
+
+    val half = size.height / 2
+    val textIndent = viewState.textIndent
+    var step = 0
+    for (index in firstVisible..lastVisible) {
+        if (step + 3 >= lines.size) break
+        var sampleIndex = (index * viewState.samplePerPx).toInt()
+        if (sampleIndex >= state.durationSample) {
+            sampleIndex = state.durationSample - 1
         }
-        val half = size.height / 2
-        val textIndent = viewState.textIndent
-        var step = 0
-        for (index in 0 until viewState.durationPx.toInt()) {
-            var sampleIndex = (index * viewState.samplePerPx).toInt()
-            if (sampleIndex >= state.durationSample) {
-                sampleIndex = state.durationSample - 1
-            }
-            val xPos = viewState.waveformShiftPx + index
-            if (xPos >= 0 && xPos <= size.width && step + 3 < viewState.drawLinesArray.size) {
-                // Adjust sample index by the buffer offset (used during RECORDING ONLY when
-                // waveformData is a sliding window over the full sample timeline).
-                val bufferIndex = sampleIndex - state.waveformDataOffset
-                val amp = if (bufferIndex in state.waveformData.indices) {
-                    state.waveformData[bufferIndex]
-                } else {
-                    0
-                }
-                viewState.drawLinesArray[step] = xPos
-                viewState.drawLinesArray[step + 1] = (half + amp*(half-textIndent)/AppConstantsV2.WAVEFORM_AMPLITUDE_MAX_VALUE + 1)
-                viewState.drawLinesArray[step + 2] = xPos
-                viewState.drawLinesArray[step + 3] = (half - amp*(half-textIndent)/AppConstantsV2.WAVEFORM_AMPLITUDE_MAX_VALUE - 1)
-                step += 4
-            }
+        val xPos = shift + index
+        // Adjust sample index by the buffer offset (used during RECORDING ONLY when
+        // waveformData is a sliding window over the full sample timeline).
+        val bufferIndex = sampleIndex - state.waveformDataOffset
+        val amp = if (bufferIndex in state.waveformData.indices) {
+            state.waveformData[bufferIndex]
+        } else {
+            0
         }
-        canvas.nativeCanvas.drawLines(viewState.drawLinesArray, 0,
-            viewState.drawLinesArray.size, paintState.waveformPaint)
+        lines[step] = xPos
+        lines[step + 1] = (half + amp*(half-textIndent)/AppConstantsV2.WAVEFORM_AMPLITUDE_MAX_VALUE + 1)
+        lines[step + 2] = xPos
+        lines[step + 3] = (half - amp*(half-textIndent)/AppConstantsV2.WAVEFORM_AMPLITUDE_MAX_VALUE - 1)
+        step += 4
+    }
+    // Only the first `step` values were written this pass; the tail still holds the previous
+    // frame's coordinates. Passing the count instead of the whole array is what makes zeroing
+    // it up front unnecessary.
+    if (step > 0) {
+        canvas.nativeCanvas.drawLines(lines, 0, step, paintState.waveformPaint)
     }
 }
 
