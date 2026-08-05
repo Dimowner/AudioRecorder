@@ -152,11 +152,11 @@ abstract class MediaRecorderBase(
                 }
                 recorder.prepare()
                 recorder.start()
+                _isPaused = false
                 startSamplingThread()
                 scheduleRecordingTimeUpdate()
                 scheduleRecordingTimeUpdateBuffered()
                 emitEvent(RecorderEvent.OnStartRecording)
-                _isPaused = false
                 true
             } catch (e: IOException) {
                 Timber.e(e, "prepare() failed")
@@ -189,11 +189,11 @@ abstract class MediaRecorderBase(
             mediaRecorder?.let { recorder ->
                 recorder.resume()
                 updateTime = SystemClock.elapsedRealtime()
+                _isPaused = false
                 startSamplingThread()
                 scheduleRecordingTimeUpdate()
                 scheduleRecordingTimeUpdateBuffered()
                 emitEvent(RecorderEvent.OnResumeRecording)
-                _isPaused = false
                 true
             } ?: false
         } catch (e: IllegalStateException) {
@@ -213,10 +213,10 @@ abstract class MediaRecorderBase(
                 mediaRecorder?.let { recorder ->
                     recorder.pause()
                     durationMills += SystemClock.elapsedRealtime() - updateTime
+                    _isPaused = true
                     pauseRecordingTimer()
                     pauseRecordingTimerBuffered()
                     emitEvent(RecorderEvent.OnPauseRecording)
-                    _isPaused = true
                     true
                 } ?: false
             } catch (e: IllegalStateException) {
@@ -318,8 +318,8 @@ abstract class MediaRecorderBase(
                 } else {
                     synchronized(amplitudesBuffer) { amplitudesBuffer.add(amplitude) }
                 }
+                scheduleRecordingTimeUpdate()
             }
-            scheduleRecordingTimeUpdate()
         }
     }
 
