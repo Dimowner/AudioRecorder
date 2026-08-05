@@ -130,6 +130,7 @@
 	<string name="info">資訊</string>
 	<string name="rename">重新命名</string>
 	<string name="dont_ask_again">不再詢問</string>
+	<string name="dont_show_next_time">下次不再顯示</string>
 	<string name="open_with">開啟&#8230;</string>
 	<string name="save_as">另存&#8230;</string>
 	<string name="downloading">正在下載：%s</string>
@@ -178,6 +179,11 @@
 	<string name="clear">清除</string>
 	<string name="filter_dismiss">關閉篩選</string>
 	<string name="filter_no_options">沒有可篩選的錄音</string>
+	<string name="search">搜尋</string>
+	<string name="search_records_hint">搜尋錄音</string>
+	<string name="search_close">關閉搜尋</string>
+	<string name="search_clear">清除搜尋</string>
+	<string name="no_search_results">找不到符合「%1$s」的錄音</string>
 	<string name="need_write_permission">需要共用儲存空間存取權限。
 		\n如果沒有這項權限，錄音將會儲存至應用程式專用資料夾。</string>
 	<string name="rec_name">名稱：</string>
@@ -349,6 +355,8 @@
 	<string name="button_pause">暫停</string>
     <string name="button_resume">復原</string>
     <string name="button_finish">完成</string>
+    <string name="playback_speed_value">%1$sx</string>
+    <string name="playback_speed_value_description">播放速度 %1$s</string>
 	<string name="legacy_app">舊版應用程式</string>
 	<string name="legacy_app_subtitle">切換至舊版應用程式介面</string>
 	<string name="switch_to_legacy">切換至舊版</string>

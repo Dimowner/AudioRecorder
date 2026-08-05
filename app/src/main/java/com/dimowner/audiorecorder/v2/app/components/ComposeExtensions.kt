@@ -94,9 +94,13 @@ fun KeepScreenOn(enabled: Boolean) {
 
 /**
  * A safe alternative to `painterResource` that guards against [Resources.NotFoundException]
- * crashes seen in the wild (e.g. Crashlytics reports of `ResourceIdCache.resolveResourcePath`
- * throwing for otherwise valid, always-bundled drawable ids on some OEM ROMs / after config
- * changes).
+ * crashes seen in the wild (Crashlytics reports of `ResourceIdCache.resolveResourcePath` throwing
+ * for drawable ids that are present in the resource table but have no value for the device's
+ * configuration — e.g. `R.drawable.waveform`, our only raster drawable, when the matching density
+ * split isn't installed, plus app-updated-while-running and repacked-APK cases).
+ *
+ * Note this is only a safety net: a drawable should also always have a density-agnostic definition
+ * in `res/drawable/` so it ships in the base APK and stays resolvable on every configuration.
  *
  * Deliberately avoids calling Compose's `painterResource` (and its internal `ResourceIdCache`)
  * since try/catch isn't supported around composable invocations, and the cache itself is the

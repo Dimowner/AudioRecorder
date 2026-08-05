@@ -127,6 +127,7 @@
 	<string name="info">Informació</string>
 	<string name="rename">Canvia el nom</string>
 	<string name="dont_ask_again">No ho tornis a preguntar</string>
+	<string name="dont_show_next_time">No ho mostris la propera vegada</string>
 	<string name="open_with">Obre amb&#8230;</string>
 	<string name="save_as">Anomena i desa&#8230;</string>
 	<string name="downloading">Baixant: %s</string>
@@ -175,6 +176,11 @@
 	<string name="clear">Esborra</string>
 	<string name="filter_dismiss">Descarta el filtre</string>
 	<string name="filter_no_options">No hi ha registres per filtrar</string>
+	<string name="search">Cerca</string>
+	<string name="search_records_hint">Cerca gravacions</string>
+	<string name="search_close">Tanca la cerca</string>
+	<string name="search_clear">Esborra la cerca</string>
+	<string name="no_search_results">No s\'ha trobat cap gravació per a «%1$s»</string>
 	<string name="need_write_permission">L\'aplicació necessita permís per accedir a l\'emmagatzematge públic. Si no es permet, les gravacions s\'emmagatzemaran al directori privat de l\'aplicació</string>
 	<string name="rec_name">Nom:</string>
 	<string name="rec_format">Format:</string>
@@ -350,6 +356,8 @@
 	<string name="button_pause">Pausa</string>
 	<string name="button_resume">Reprèn</string>
 	<string name="button_finish">Finalitza</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Velocitat de reproducció %1$s</string>
 	<string name="legacy_app">Aplicació antiga</string>
 	<string name="legacy_app_subtitle">Canvia a la interfície antiga de l\'aplicació</string>
 	<string name="switch_to_legacy">Canvia a l\'aplicació antiga</string>

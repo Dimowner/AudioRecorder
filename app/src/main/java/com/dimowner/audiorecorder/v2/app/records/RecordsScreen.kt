@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.v2.app.records
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -189,6 +190,11 @@ internal fun RecordsScreen(
         }
     }
 
+    // While searching, system back leaves search mode instead of leaving the screen.
+    BackHandler(enabled = uiState.isSearchActive) {
+        onAction(RecordsScreenAction.CloseSearch)
+    }
+
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val listState = rememberLazyListState()
 
@@ -212,11 +218,18 @@ internal fun RecordsScreen(
         contentWindowInsets = WindowInsets.safeDrawing,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
-            if (uiState.selectedRecords.isEmpty()) {
+            if (uiState.isSearchActive && uiState.selectedRecords.isEmpty()) {
+                RecordsSearchTopBar(
+                    query = uiState.searchQuery,
+                    onQueryChange = { query ->
+                        onAction(RecordsScreenAction.UpdateSearchQuery(query))
+                    },
+                    onCloseSearch = { onAction(RecordsScreenAction.CloseSearch) },
+                )
+            } else if (uiState.selectedRecords.isEmpty()) {
                 ScrollableRecordsTopBar(
                     stringResource(id = R.string.records),
                     uiState.sortOrder.toText(context),
-                    bookmarksSelected = uiState.bookmarksSelected,
                     filterActiveCount = uiState.filter.activeCount,
                     onBackPressed = { onPopBackStack() },
                     onFilterClick = {
@@ -225,12 +238,8 @@ internal fun RecordsScreen(
                     onSortItemClick = { order ->
                         onAction(RecordsScreenAction.UpdateListWithSortOrder(order))
                     },
-                    onBookmarksClick = { bookmarksSelected ->
-                        onAction(
-                            RecordsScreenAction.UpdateListWithBookmarks(
-                                bookmarksSelected
-                            )
-                        )
+                    onSearchClick = {
+                        onAction(RecordsScreenAction.OpenSearch)
                     },
                     scrollBehavior = scrollBehavior
                 )
@@ -279,17 +288,25 @@ internal fun RecordsScreen(
                         verticalArrangement = Arrangement.Center,
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_audiotrack_64),
+                            painter = painterResource(
+                                id = if (uiState.searchQuery.isNotEmpty()) {
+                                    R.drawable.ic_search
+                                } else {
+                                    R.drawable.ic_audiotrack_64
+                                }
+                            ),
                             contentDescription = null,
                             modifier = Modifier.size(72.dp),
                             tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = if (uiState.bookmarksSelected) {
-                                stringResource(R.string.no_bookmarks)
-                            } else {
-                                stringResource(R.string.no_records)
+                            text = when {
+                                uiState.searchQuery.isNotEmpty() -> stringResource(
+                                    R.string.no_search_results, uiState.searchQuery
+                                )
+                                uiState.filter.bookmarkedOnly -> stringResource(R.string.no_bookmarks)
+                                else -> stringResource(R.string.no_records)
                             },
                             color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.titleLarge,
@@ -586,6 +603,9 @@ internal fun RecordsScreen(
                             }
                         },
                         onPauseClick = { onHomeAction(HomeScreenAction.OnPauseClick) },
+                        onPlaybackSpeedClick = {
+                            onHomeAction(HomeScreenAction.OnPlaybackSpeedClick(it))
+                        },
                         onBookmarkClick = {
                             onAction(RecordsScreenAction.BookmarkActiveRecord)
                         },

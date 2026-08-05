@@ -21,8 +21,10 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -30,12 +32,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,9 +52,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -212,80 +219,113 @@ fun RecordsFilterPanel(
                 start = 16.dp, end = 16.dp, top = 8.dp, bottom = 12.dp
             ),
         ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.filter),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f),
-                    )
-                    if (!filter.isEmpty) {
-                        TextButton(onClick = onClear) {
-                            Text(text = stringResource(id = R.string.clear))
-                        }
-                    }
-                    IconButton(onClick = onDismiss) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(id = R.string.filter_dismiss),
-                        )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(id = R.string.filter),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f),
+                )
+                if (!filter.isEmpty) {
+                    TextButton(onClick = onClear) {
+                        Text(text = stringResource(id = R.string.clear))
                     }
                 }
-
-                if (filterOptions.isEmpty) {
-                    Text(
-                        text = stringResource(id = R.string.filter_no_options),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 8.dp),
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = stringResource(id = R.string.filter_dismiss),
                     )
                 }
+            }
 
-                FilterChipsSection(
-                    title = stringResource(id = R.string.rec_format),
-                    options = filterOptions.formats,
-                    selected = filter.formats,
-                    label = { it.uppercase() },
-                    onToggle = { value ->
-                        onFilterChange(filter.copy(formats = filter.formats.toggle(value)))
-                    },
+            // Bookmarks used to be a top bar toggle; it lives here as a filter dimension so
+            // the top bar has room for the search action.
+            FilterChip(
+                selected = filter.bookmarkedOnly,
+                onClick = {
+                    onFilterChange(filter.copy(bookmarkedOnly = !filter.bookmarkedOnly))
+                },
+                label = { Text(text = stringResource(id = R.string.bookmarks)) },
+                // Unlike the value chips below, this one always shows an icon: the filled
+                // vs. bordered bookmark carries the on/off state the way it did when
+                // bookmarks was a top bar toggle.
+                leadingIcon = {
+                    Icon(
+                        painter = if (filter.bookmarkedOnly) {
+                            painterResource(id = R.drawable.ic_bookmark)
+                        } else {
+                            painterResource(id = R.drawable.ic_bookmark_bordered)
+                        },
+                        contentDescription = null,
+                        modifier = Modifier.size(FilterChipDefaults.IconSize),
+                    )
+                },
+            )
+
+            if (filterOptions.isEmpty) {
+                Text(
+                    text = stringResource(id = R.string.filter_no_options),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 8.dp),
                 )
-                FilterChipsSection(
-                    title = stringResource(id = R.string.sample_rate),
-                    options = filterOptions.sampleRates,
-                    selected = filter.sampleRates,
-                    label = { stringResource(id = R.string.value_khz, it / 1000) },
-                    onToggle = { value ->
-                        onFilterChange(filter.copy(sampleRates = filter.sampleRates.toggle(value)))
-                    },
-                )
-                FilterChipsSection(
-                    title = stringResource(id = R.string.channels),
-                    options = filterOptions.channelCounts,
-                    selected = filter.channelCounts,
-                    label = { count ->
-                        when (count) {
-                            1 -> stringResource(id = R.string.mono)
-                            2 -> stringResource(id = R.string.stereo)
-                            else -> count.toString()
-                        }
-                    },
-                    onToggle = { value ->
-                        onFilterChange(filter.copy(channelCounts = filter.channelCounts.toggle(value)))
-                    },
-                )
-                FilterChipsSection(
-                    title = stringResource(id = R.string.bitrate),
-                    options = filterOptions.bitrates,
-                    selected = filter.bitrates,
-                    label = { stringResource(id = R.string.value_kbps, it / 1000) },
-                    onToggle = { value ->
-                        onFilterChange(filter.copy(bitrates = filter.bitrates.toggle(value)))
-                    },
-                )
+            }
+
+            FilterChipsSection(
+                title = stringResource(id = R.string.rec_format),
+                options = filterOptions.formats,
+                selected = filter.formats,
+                label = { it.uppercase() },
+                onToggle = { value ->
+                    onFilterChange(filter.copy(formats = filter.formats.toggle(value)))
+                },
+            )
+            FilterChipsSection(
+                title = stringResource(id = R.string.sample_rate),
+                options = filterOptions.sampleRates,
+                selected = filter.sampleRates,
+                label = { stringResource(id = R.string.value_khz, it / 1000) },
+                onToggle = { value ->
+                    onFilterChange(filter.copy(sampleRates = filter.sampleRates.toggle(value)))
+                },
+            )
+            FilterChipsSection(
+                title = stringResource(id = R.string.channels),
+                options = filterOptions.channelCounts,
+                selected = filter.channelCounts,
+                label = { count ->
+                    when (count) {
+                        1 -> stringResource(id = R.string.mono)
+                        2 -> stringResource(id = R.string.stereo)
+                        else -> count.toString()
+                    }
+                },
+                onToggle = { value ->
+                    onFilterChange(filter.copy(channelCounts = filter.channelCounts.toggle(value)))
+                },
+            )
+            FilterChipsSection(
+                title = stringResource(id = R.string.bitrate),
+                options = filterOptions.bitrates,
+                selected = filter.bitrates,
+                label = { stringResource(id = R.string.value_kbps, it / 1000) },
+                onToggle = { value ->
+                    onFilterChange(filter.copy(bitrates = filter.bitrates.toggle(value)))
+                },
+            )
+            // Grab handle indicates the panel can be dragged to dismiss.
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 6.dp)
+                    .size(width = 36.dp, height = 4.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
+            )
         }
     }
 }
@@ -341,6 +381,7 @@ private fun <T> Set<T>.toggle(value: T): Set<T> {
 fun RecordsFilterPanelPreview() {
     RecordsFilterPanel(
         filter = RecordsFilter(
+            bookmarkedOnly = true,
             formats = setOf("m4a"),
             sampleRates = setOf(44100),
         ),

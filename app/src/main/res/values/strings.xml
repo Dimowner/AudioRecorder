@@ -131,6 +131,7 @@
 	<string name="info">Information</string>
 	<string name="rename">Rename</string>
 	<string name="dont_ask_again">Don\'t ask again</string>
+	<string name="dont_show_next_time">Don\'t show next time</string>
 	<string name="open_with">Open with&#8230;</string>
 	<string name="save_as">Save as&#8230;</string>
 	<string name="downloading">Downloading: %s</string>
@@ -179,6 +180,11 @@
 	<string name="clear">Clear</string>
 	<string name="filter_dismiss">Dismiss filter</string>
 	<string name="filter_no_options">No records to filter</string>
+	<string name="search">Search</string>
+	<string name="search_records_hint">Search records</string>
+	<string name="search_close">Close search</string>
+	<string name="search_clear">Clear search</string>
+	<string name="no_search_results">No records found for “%1$s”</string>
 	<string name="need_write_permission">The app requires permission to access to the public storage. If not allowed, records will be stored in the app’s private directory</string>
 	<string name="rec_name">Name:</string>
 	<string name="rec_format">Format:</string>
@@ -355,6 +361,11 @@
 	<string name="button_pause">Pause</string>
 	<string name="button_resume">Resume</string>
 	<string name="button_finish">Finish</string>
+	<!-- Text on a playback rate button. %1$s is the multiplier, already formatted for the locale
+	     (0.5, ٠٫٥, …). Translate the suffix to whatever marks a multiplier in your language. -->
+	<string name="playback_speed_value">%1$sx</string>
+	<!-- Screen reader description of a playback rate button. %1$s is the formatted button text. -->
+	<string name="playback_speed_value_description">Playback speed %1$s</string>
 	<string name="legacy_app">Legacy App</string>
 	<string name="legacy_app_subtitle">Switch to the old app interface</string>
 	<string name="switch_to_legacy">Switch to Legacy app</string>

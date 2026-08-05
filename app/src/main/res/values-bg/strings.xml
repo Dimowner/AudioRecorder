@@ -112,6 +112,7 @@
 	<string name="info">Информация</string>
 	<string name="rename">Преименуване</string>
 	<string name="dont_ask_again">Не питай отново</string>
+	<string name="dont_show_next_time">Не показвай следващия път</string>
 	<string name="open_with">Отваряне с&#8230;</string>
 	<string name="save_as">Запазване като&#8230;</string>
 	<string name="downloading">Копиране: %s</string>
@@ -160,6 +161,11 @@
 	<string name="clear">Изчисти</string>
 	<string name="filter_dismiss">Затвори филтъра</string>
 	<string name="filter_no_options">Няма записи за филтриране</string>
+	<string name="search">Търсене</string>
+	<string name="search_records_hint">Търсене в записите</string>
+	<string name="search_close">Затваряне на търсенето</string>
+	<string name="search_clear">Изчистване на търсенето</string>
+	<string name="no_search_results">Няма намерени записи за „%1$s“</string>
 	<string name="need_write_permission">Приложението изисква разрешение за достъп до публичното хранилище. Ако не е разрешено, записите ще бъдат съхранени в частната директория на приложението</string>
 	<string name="rec_name">Име:</string>
 	<string name="rec_format">Формат:</string>
@@ -337,6 +343,8 @@
 	<string name="button_pause">Пауза</string>
 	<string name="button_resume">Продължаване</string>
 	<string name="button_finish">Край</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Скорост на възпроизвеждане %1$s</string>
 	<string name="legacy_app">Стара версия</string>
 	<string name="legacy_app_subtitle">Превключване към стария интерфейс</string>
 	<string name="switch_to_legacy">Превключване към стара версия</string>

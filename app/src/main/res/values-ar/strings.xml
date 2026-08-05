@@ -149,6 +149,7 @@
 	<string name="info">معلومات</string>
 	<string name="rename">إعادة تسمية</string>
 	<string name="dont_ask_again">عدم السؤال مرة أخرى</string>
+	<string name="dont_show_next_time">عدم الإظهار في المرة القادمة</string>
 	<string name="open_with">فتح باستخدام&#8230;</string>
 	<string name="save_as">حفظ باسم&#8230;</string>
 	<string name="downloading">جارٍ النسخ: %s</string>
@@ -213,6 +214,11 @@
 	<string name="clear">مسح</string>
 	<string name="filter_dismiss">إزالة التصفية</string>
 	<string name="filter_no_options">لا توجد تسجيلات للتصفية</string>
+	<string name="search">بحث</string>
+	<string name="search_records_hint">البحث في التسجيلات</string>
+	<string name="search_close">إغلاق البحث</string>
+	<string name="search_clear">مسح البحث</string>
+	<string name="no_search_results">لا توجد تسجيلات لـ «%1$s»</string>
 	<string name="need_write_permission">يتطلب التطبيق إذنًا للوصول إلى وحدة التخزين العامة. إذا لم يُسمح بذلك، فسيتم حفظ التسجيلات في المجلد الخاص بالتطبيق</string>
 	<string name="rec_name">الاسم:</string>
 	<string name="rec_format">الصيغة:</string>
@@ -390,6 +396,8 @@
 	<string name="button_pause">إيقاف مؤقت</string>
 	<string name="button_resume">استئناف</string>
 	<string name="button_finish">إنهاء</string>
+	<string name="playback_speed_value">%1$s×</string>
+	<string name="playback_speed_value_description">سرعة التشغيل %1$s</string>
 	<string name="legacy_app">التطبيق القديم</string>
 	<string name="legacy_app_subtitle">التبديل إلى واجهة التطبيق القديمة</string>
 	<string name="switch_to_legacy">التبديل إلى التطبيق القديم</string>

@@ -33,12 +33,17 @@ interface RecordsDataSource {
     suspend fun getMovedToRecycleRecords(page: Int, pageSize: Int): List<Record>
     suspend fun getMovedToRecycleRecordsCount(): Int
 
+    /**
+     * Returns one page of records, optionally narrowed by [filter] and [searchQuery].
+     * [searchQuery] is matched case-insensitively against the record name and description; a
+     * blank query applies no text restriction.
+     */
     suspend fun getRecords(
         page: Int,
         pageSize: Int,
         sortOrder: SortOrder = SortOrder.DateDesc,
-        isBookmarked: Boolean = false,
         filter: RecordsFilter = RecordsFilter(),
+        searchQuery: String = "",
     ): List<Record>
 
     /**

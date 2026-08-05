@@ -105,6 +105,7 @@
     <string name="info">信息</string>
     <string name="rename">重命名</string>
     <string name="dont_ask_again">不再询问</string>
+    <string name="dont_show_next_time">下次不再显示</string>
     <string name="open_with">打开方式&#8230;</string>
     <string name="save_as">另存为&#8230;</string>
     <string name="downloading">下载中：%s</string>
@@ -149,6 +150,11 @@
     <string name="clear">清除</string>
     <string name="filter_dismiss">关闭筛选</string>
     <string name="filter_no_options">没有可筛选的录音</string>
+    <string name="search">搜索</string>
+    <string name="search_records_hint">搜索录音</string>
+    <string name="search_close">关闭搜索</string>
+    <string name="search_clear">清除搜索</string>
+    <string name="no_search_results">未找到与“%1$s”匹配的录音</string>
     <string name="need_write_permission">该应用需要访问公共存储的权限。如果不允许，录音将存储在应用的私有目录中</string>
     <string name="rec_name">名称：</string>
     <string name="rec_format">格式：</string>
@@ -317,6 +323,8 @@
     <string name="button_pause">暂停</string>
     <string name="button_resume">继续</string>
     <string name="button_finish">完成</string>
+    <string name="playback_speed_value">%1$sx</string>
+    <string name="playback_speed_value_description">播放速度 %1$s</string>
     <string name="legacy_app">旧版应用</string>
     <string name="legacy_app_subtitle">切换到旧版应用界面</string>
     <string name="switch_to_legacy">切换到旧版应用</string>

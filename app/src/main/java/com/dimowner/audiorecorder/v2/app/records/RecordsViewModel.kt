@@ -49,6 +49,7 @@ import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -104,6 +105,33 @@ internal class RecordsViewModel @Inject constructor(
 
     private var currentPage = 1
 
+    /**
+     * The in-flight search request. Every keystroke starts a new one and cancels the previous
+     * one, so a slow query for an earlier prefix can never overwrite the results of a later,
+     * more specific one.
+     */
+    private var searchJob: Job? = null
+
+    /**
+     * Loads a single page of records honoring [sortOrder], [filter] (including its
+     * bookmarked-only dimension) and [searchQuery]. Every list load goes through here so a new
+     * query dimension never gets forgotten at one of the call sites.
+     */
+    private suspend fun fetchRecordsPage(
+        page: Int,
+        sortOrder: SortOrder,
+        filter: RecordsFilter,
+        searchQuery: String,
+    ): List<Record> {
+        return recordsDataSource.getRecords(
+            page = page,
+            pageSize = DEFAULT_PAGE_SIZE,
+            sortOrder = sortOrder,
+            filter = filter,
+            searchQuery = searchQuery,
+        )
+    }
+
     fun onStart(showPlayPanel: Boolean) {
         showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
@@ -121,6 +149,10 @@ internal class RecordsViewModel @Inject constructor(
         val context: Context = getApplication<Application>().applicationContext
         val sortOrder = state.value.sortOrder
         val filter = state.value.filter
+        // Preserved across restarts (e.g. a configuration change) so an open search is not
+        // silently reset while the user is typing.
+        val isSearchActive = state.value.isSearchActive
+        val searchQuery = state.value.searchQuery
         val activeRecordId = prefs.activeRecordId
 
         // Load pages until the active record is found or there are no more pages.
@@ -131,13 +163,7 @@ internal class RecordsViewModel @Inject constructor(
         var hasMoreData: Boolean
         var activeRecordFound = !showPlayPanel || activeRecordId <= 0
         while (true) {
-            val page = recordsDataSource.getRecords(
-                sortOrder = sortOrder,
-                page = currentPage,
-                pageSize = DEFAULT_PAGE_SIZE,
-                isBookmarked = false,
-                filter = filter,
-            )
+            val page = fetchRecordsPage(currentPage, sortOrder, filter, searchQuery)
             allLoadedRecords.addAll(page)
             hasMoreData = page.size >= DEFAULT_PAGE_SIZE
             if (!activeRecordFound && page.any { it.id == activeRecordId }) {
@@ -177,6 +203,8 @@ internal class RecordsViewModel @Inject constructor(
                 lostRecords = lostRecords,
                 hasMoreData = hasMoreData,
                 activeRecord = activeRecord,
+                isSearchActive = isSearchActive,
+                searchQuery = searchQuery,
             )
             showLoadingProgress(false)
         }
@@ -189,14 +217,20 @@ internal class RecordsViewModel @Inject constructor(
             currentPage++
             val context: Context = getApplication<Application>().applicationContext
             val sortOrder = state.value.sortOrder
-            val newRecords = recordsDataSource.getRecords(
-                sortOrder = sortOrder,
+            val searchQuery = state.value.searchQuery
+            val newRecords = fetchRecordsPage(
                 page = currentPage,
-                pageSize = DEFAULT_PAGE_SIZE,
-                isBookmarked = state.value.bookmarksSelected,
+                sortOrder = sortOrder,
                 filter = state.value.filter,
+                searchQuery = searchQuery,
             )
             withContext(mainDispatcher) {
+                // A keystroke may have restarted the list from page 1 while this page was
+                // loading; appending it then would mix results of two different queries.
+                if (_state.value.searchQuery != searchQuery) {
+                    showLoadingProgress(false)
+                    return@withContext
+                }
                 val newRecordsMap = newRecords.map { it.toRecordListItem(context) }
                     .groupRecordsByDate(context, sortOrder)
                 val merged = state.value.recordsMap.toMutableMap()
@@ -212,26 +246,57 @@ internal class RecordsViewModel @Inject constructor(
         }
     }
 
-    fun updateListWithBookmarks(bookmarksSelected: Boolean) {
-        viewModelScope.launch(ioDispatcher) {
+    /** Opens the search input in the top bar. The list is left untouched until text is typed. */
+    private fun openSearch() {
+        if (_state.value.isSearchActive) return
+        multiSelectCancel()
+        _state.value = _state.value.copy(
+            isSearchActive = true,
+            searchQuery = "",
+            // The filter panel would overlay the search field, so it is closed on entry.
+            showFilterPanel = false,
+        )
+    }
+
+    /** Closes the search input and reloads the unfiltered-by-text list. */
+    private fun closeSearch() {
+        if (!_state.value.isSearchActive) return
+        val hadQuery = _state.value.searchQuery.isNotEmpty()
+        searchJob?.cancel()
+        _state.value = _state.value.copy(
+            isSearchActive = false,
+            searchQuery = "",
+        )
+        if (hadQuery) {
+            reloadFirstPage()
+        }
+    }
+
+    /**
+     * Runs a new search for [query]. Called on every keystroke: the previous request is
+     * cancelled so only the newest query can write its results into the state.
+     */
+    private fun updateSearchQuery(query: String) {
+        if (_state.value.searchQuery == query) return
+        _state.value = _state.value.copy(searchQuery = query)
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch(ioDispatcher) {
             currentPage = 1
-            val sortOrder = state.value.sortOrder
-            val records = recordsDataSource.getRecords(
-                sortOrder = sortOrder,
-                page = currentPage,
-                pageSize = DEFAULT_PAGE_SIZE,
-                isBookmarked = bookmarksSelected,
-                filter = state.value.filter,
-            )
+            val sortOrder = _state.value.sortOrder
+            val records = fetchRecordsPage(currentPage, sortOrder, _state.value.filter, query)
             val context = getApplication<Application>().applicationContext
+            val recordsMap = records.map { it.toRecordListItem(context) }
+                .groupRecordsByDate(context, sortOrder)
             withContext(mainDispatcher) {
-                _state.value = _state.value.copy(
-                    recordsMap = records.map {
-                        it.toRecordListItem(context)
-                    }.groupRecordsByDate(context, sortOrder),
-                    bookmarksSelected = bookmarksSelected,
-                    hasMoreData = records.size >= DEFAULT_PAGE_SIZE,
-                )
+                // The query may have moved on while this page was loading; only publish results
+                // that still match what is in the input field.
+                if (_state.value.searchQuery == query) {
+                    _state.value = _state.value.copy(
+                        recordsMap = recordsMap,
+                        hasMoreData = records.size >= DEFAULT_PAGE_SIZE,
+                        isShowLoadingProgress = false,
+                    )
+                }
             }
         }
     }
@@ -321,12 +386,11 @@ internal class RecordsViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             currentPage = 1
             val sortOrder = sortOrderId.toSortOrder()
-            val records = recordsDataSource.getRecords(
-                sortOrder = sortOrder,
+            val records = fetchRecordsPage(
                 page = currentPage,
-                pageSize = DEFAULT_PAGE_SIZE,
-                isBookmarked = _state.value.bookmarksSelected,
+                sortOrder = sortOrder,
                 filter = _state.value.filter,
+                searchQuery = _state.value.searchQuery,
             )
             val context = getApplication<Application>().applicationContext
             withContext(mainDispatcher) {
@@ -347,29 +411,28 @@ internal class RecordsViewModel @Inject constructor(
 
     private fun updateFilter(filter: RecordsFilter) {
         _state.value = _state.value.copy(filter = filter)
-        reloadRecordsWithCurrentFilter()
+        reloadFirstPage()
     }
 
     private fun clearFilter() {
         if (_state.value.filter.isEmpty) return
         _state.value = _state.value.copy(filter = RecordsFilter())
-        reloadRecordsWithCurrentFilter()
+        reloadFirstPage()
     }
 
     /**
-     * Reloads the first page of records honoring the currently active sort order, bookmarks
-     * selection and filter. Used whenever the filter selection changes.
+     * Reloads the first page of records honoring the currently active sort order, filter
+     * (including bookmarked-only) and search query. Used whenever one of those changes.
      */
-    private fun reloadRecordsWithCurrentFilter() {
+    private fun reloadFirstPage() {
         viewModelScope.launch(ioDispatcher) {
             currentPage = 1
             val sortOrder = _state.value.sortOrder
-            val records = recordsDataSource.getRecords(
-                sortOrder = sortOrder,
+            val records = fetchRecordsPage(
                 page = currentPage,
-                pageSize = DEFAULT_PAGE_SIZE,
-                isBookmarked = _state.value.bookmarksSelected,
+                sortOrder = sortOrder,
                 filter = _state.value.filter,
+                searchQuery = _state.value.searchQuery,
             )
             val context = getApplication<Application>().applicationContext
             withContext(mainDispatcher) {
@@ -683,7 +746,9 @@ internal class RecordsViewModel @Inject constructor(
             is RecordsScreenAction.OnStartRecordsScreen -> onStart(action.showPlayPanel)
             is RecordsScreenAction.OnStopRecordsScreen -> onStop()
             is RecordsScreenAction.UpdateListWithSortOrder -> updateListWithSortOrder(action.sortOrderId)
-            is RecordsScreenAction.UpdateListWithBookmarks -> updateListWithBookmarks(action.bookmarksSelected)
+            RecordsScreenAction.OpenSearch -> openSearch()
+            RecordsScreenAction.CloseSearch -> closeSearch()
+            is RecordsScreenAction.UpdateSearchQuery -> updateSearchQuery(action.query)
             RecordsScreenAction.ToggleFilterPanel -> toggleFilterPanel()
             is RecordsScreenAction.UpdateFilter -> updateFilter(action.filter)
             RecordsScreenAction.ClearFilter -> clearFilter()
@@ -824,12 +889,11 @@ internal class RecordsViewModel @Inject constructor(
                 currentPage = 1
                 val context: Context = getApplication<Application>().applicationContext
                 val sortOrder = state.value.sortOrder
-                val records = recordsDataSource.getRecords(
-                    sortOrder = sortOrder,
+                val records = fetchRecordsPage(
                     page = currentPage,
-                    pageSize = DEFAULT_PAGE_SIZE,
-                    isBookmarked = state.value.bookmarksSelected,
+                    sortOrder = sortOrder,
                     filter = state.value.filter,
+                    searchQuery = state.value.searchQuery,
                 )
                 val recordsInRecycleCount = recordsDataSource.getMovedToRecycleRecordsCount()
                 val selectedRecords = state.value.selectedRecords
@@ -915,7 +979,6 @@ data class RecordsScreenState(
     val recordsMap: Map<String, List<RecordListItem>> = emptyMap(),
     val selectedRecords: List<RecordListItem> = emptyList(),
     val sortOrder: SortOrder = SortOrder.DateDesc,
-    val bookmarksSelected: Boolean = false,
     val showDeletedRecordsButton: Boolean = false,
     val showRecordPlaybackPanel: Boolean = false,
     val deletedRecordsCount: Int = 0,
@@ -925,6 +988,10 @@ data class RecordsScreenState(
     val filter: RecordsFilter = RecordsFilter(),
     val filterOptions: RecordsFilterOptions = RecordsFilterOptions(),
     val showFilterPanel: Boolean = false,
+
+    /** True while the top bar shows the search input instead of the title and actions. */
+    val isSearchActive: Boolean = false,
+    val searchQuery: String = "",
 
     val showRenameDialog: Boolean = false,
     val showEditDescriptionDialog: Boolean = false,
@@ -969,7 +1036,9 @@ internal sealed class RecordsScreenAction {
     data class OnStartRecordsScreen(val showPlayPanel: Boolean) : RecordsScreenAction()
     data object OnStopRecordsScreen : RecordsScreenAction()
     data class UpdateListWithSortOrder(val sortOrderId: SortDropDownMenuItemId) : RecordsScreenAction()
-    data class UpdateListWithBookmarks(val bookmarksSelected: Boolean) : RecordsScreenAction()
+    data object OpenSearch : RecordsScreenAction()
+    data object CloseSearch : RecordsScreenAction()
+    data class UpdateSearchQuery(val query: String) : RecordsScreenAction()
     data object ToggleFilterPanel : RecordsScreenAction()
     data class UpdateFilter(val filter: RecordsFilter) : RecordsScreenAction()
     data object ClearFilter : RecordsScreenAction()

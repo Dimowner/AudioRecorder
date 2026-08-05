@@ -31,6 +31,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -43,21 +45,27 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -176,17 +184,19 @@ fun RecordsTopBarPreview() {
     RecordsTopBar("Title bar", "By date", false, {}, {}, {})
 }
 
+/**
+ * The default records list top bar: title, sort subtitle and the Filter, Sort and Search actions.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScrollableRecordsTopBar(
     title: String,
     subTitle: String,
-    bookmarksSelected: Boolean,
     filterActiveCount: Int,
     onBackPressed: () -> Unit,
     onFilterClick: () -> Unit,
     onSortItemClick: (SortDropDownMenuItemId) -> Unit,
-    onBookmarksClick: (Boolean) -> Unit,
+    onSearchClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
 ) {
     val expanded = remember { mutableStateOf(false) }
@@ -283,17 +293,11 @@ fun ScrollableRecordsTopBar(
                 }
             }
             IconButton(
-                onClick = {
-                    onBookmarksClick(!bookmarksSelected)
-                },
+                onClick = onSearchClick,
             ) {
                 Icon(
-                    painter = if (bookmarksSelected) {
-                        painterResource(id = R.drawable.ic_bookmark)
-                    } else {
-                        painterResource(id = R.drawable.ic_bookmark_bordered)
-                    },
-                    contentDescription = stringResource(id = androidx.compose.ui.R.string.dropdown_menu),
+                    painter = painterResource(id = R.drawable.ic_search),
+                    contentDescription = stringResource(id = R.string.search),
                     modifier = Modifier
                         .size(36.dp)
                         .padding(6.dp)
@@ -315,13 +319,116 @@ fun ScrollableRecordsTopBarPreview() {
     ScrollableRecordsTopBar(
         "Title bar",
         "By date",
-        false,
         filterActiveCount = 2,
         onBackPressed = {},
         onFilterClick = {},
         onSortItemClick = {},
-        onBookmarksClick = {},
+        onSearchClick = {},
         scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    )
+}
+
+/**
+ * Replaces [ScrollableRecordsTopBar] while a search is in progress. The input takes over the
+ * whole bar so the query has the full width, gets focus (and the keyboard) as soon as it
+ * appears, and every keystroke is reported through [onQueryChange]. The trailing button clears
+ * a non-empty query, and the navigation icon leaves search mode.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RecordsSearchTopBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onCloseSearch: () -> Unit,
+) {
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
+    TopAppBar(
+        title = {
+            TextField(
+                value = query,
+                onValueChange = onQueryChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
+                placeholder = {
+                    Text(
+                        text = stringResource(id = R.string.search_records_hint),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 20.sp,
+                        fontFamily = FontFamily(
+                            Font(
+                                DeviceFontFamilyName("sans-serif"),
+                                weight = FontWeight.Light
+                            )
+                        ),
+                        fontWeight = FontWeight.Light,
+                    )
+                },
+                singleLine = true,
+                textStyle = MaterialTheme.typography.titleLarge,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(onSearch = { keyboardController?.hide() }),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                ),
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = onCloseSearch) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.search_close),
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        },
+        actions = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = stringResource(R.string.search_clear),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            scrolledContainerColor = MaterialTheme.colorScheme.surface,
+        )
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Composable
+fun RecordsSearchTopBarPreview() {
+    RecordsSearchTopBar(
+        query = "meeting notes",
+        onQueryChange = {},
+        onCloseSearch = {},
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Composable
+fun RecordsSearchTopBarEmptyPreview() {
+    RecordsSearchTopBar(
+        query = "",
+        onQueryChange = {},
+        onCloseSearch = {},
     )
 }
 

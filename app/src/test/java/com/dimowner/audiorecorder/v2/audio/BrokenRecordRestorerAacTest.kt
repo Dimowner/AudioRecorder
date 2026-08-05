@@ -20,6 +20,7 @@ import com.dimowner.audiorecorder.v2.audio.BrokenRecordRestorer.Companion.ADTS_H
 import com.dimowner.audiorecorder.v2.audio.BrokenRecordRestorer.Companion.MIN_AAC_FRAME_BYTES
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -30,9 +31,12 @@ import java.io.File
 /**
  * Unit tests for the raw-AAC → ADTS wrapping step of [BrokenRecordRestorer].
  *
- * This step feeds the mp4parser fallback path and runs over the whole mdat payload of a
- * broken recording, which can be hundreds of megabytes — so besides producing correct
- * ADTS framing it must work as a stream and not load the file into memory.
+ * This step feeds the container rebuild and runs over the whole mdat payload of a broken
+ * recording, which can be hundreds of megabytes — so besides producing correct ADTS framing
+ * it must work as a stream and not load the file into memory.
+ *
+ * Also covers [BrokenRecordRestorer.averageAdtsFrameLength], which sizes the resulting stream
+ * so the non-streaming mp4parser fallback is never entered on a file that would exhaust the heap.
  */
 class BrokenRecordRestorerAacTest {
 
@@ -213,5 +217,55 @@ class BrokenRecordRestorerAacTest {
     fun `wrapRawAacWithAdts rejects an empty file`() {
         val (result, _) = wrap(ByteArray(0))
         assertFalse("Empty input cannot be wrapped", result)
+    }
+
+    // -------------------------------------------------------------------------
+    // averageAdtsFrameLength — sizing guard for the mp4parser fallback
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `averageAdtsFrameLength measures uniform frames`() {
+        val frameSize = 400
+        val (result, outFile) = wrap(buildRawMonoAac(frameCount = 30, frameSize = frameSize))
+
+        assertTrue(result)
+        assertEquals(
+            "Average should be the payload plus its ADTS header",
+            frameSize + ADTS_HEADER_SIZE,
+            restorer.averageAdtsFrameLength(outFile),
+        )
+    }
+
+    @Test
+    fun `averageAdtsFrameLength reports tiny frames produced by mis-detected boundaries`() {
+        // A stream that looks like a frame start every MIN_AAC_FRAME_BYTES bytes is the
+        // pathological case: it inflates the frame count and, with it, the heap an
+        // mp4parser rebuild would need.
+        val (result, outFile) = wrap(
+            buildRawMonoAac(frameCount = 40, frameSize = MIN_AAC_FRAME_BYTES)
+        )
+
+        assertTrue(result)
+        val average = restorer.averageAdtsFrameLength(outFile)!!
+        assertEquals(MIN_AAC_FRAME_BYTES + ADTS_HEADER_SIZE, average)
+        assertTrue(
+            "A tiny average must imply a frame count far above the real one",
+            outFile.length() / average > 30,
+        )
+    }
+
+    @Test
+    fun `averageAdtsFrameLength returns null when the stream has no sync word`() {
+        val notAdts = tempFolder.newFile("not_adts_${System.nanoTime()}.aac")
+        notAdts.writeBytes(ByteArray(1024) { 0x00 })
+
+        assertNull("A stream without a sync word cannot be measured", restorer.averageAdtsFrameLength(notAdts))
+    }
+
+    @Test
+    fun `averageAdtsFrameLength returns null for an empty file`() {
+        val empty = tempFolder.newFile("empty_${System.nanoTime()}.aac")
+
+        assertNull("An empty file cannot be measured", restorer.averageAdtsFrameLength(empty))
     }
 }

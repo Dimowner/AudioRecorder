@@ -120,6 +120,7 @@
 	<string name="info">Информация</string>
 	<string name="rename">Переименовать</string>
 	<string name="dont_ask_again">Больше не показывать</string>
+	<string name="dont_show_next_time">Не показывать в следующий раз</string>
 	<string name="open_with">Открыть с помощью&#8230;</string>
 	<string name="save_as">Сохранить как&#8230;</string>
 	<string name="downloading">Копирование: %s</string>
@@ -176,6 +177,11 @@
 	<string name="clear">Очистить</string>
 	<string name="filter_dismiss">Скрыть фильтр</string>
 	<string name="filter_no_options">Нет записей для фильтрации</string>
+	<string name="search">Поиск</string>
+	<string name="search_records_hint">Поиск записей</string>
+	<string name="search_close">Закрыть поиск</string>
+	<string name="search_clear">Очистить поиск</string>
+	<string name="no_search_results">Нет записей по запросу «%1$s»</string>
 	<string name="need_write_permission">Приложению требуется разрешение на запись в публичное хранилище. Если не разрешить, записи будут сохраняться в приватном каталоге приложения</string>
 	<string name="rec_name">Название:</string>
 	<string name="rec_format">Формат:</string>
@@ -351,6 +357,8 @@
 	<string name="button_pause">Пауза</string>
 	<string name="button_resume">Возобнов.</string>
 	<string name="button_finish">Финиш</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Скорость воспроизведения %1$s</string>
 	<string name="legacy_app">Старое приложение</string>
 	<string name="legacy_app_subtitle">Переключиться на старый интерфейс</string>
 	<string name="switch_to_legacy">Переключиться на старое приложение</string>

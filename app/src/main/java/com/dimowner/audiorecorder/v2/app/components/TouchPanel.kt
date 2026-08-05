@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.dimowner.audiorecorder.util.equalsDelta
 import com.dimowner.audiorecorder.v2.app.home.HomeScreenState
+import com.dimowner.audiorecorder.v2.data.model.PlaybackSpeed
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
@@ -45,6 +46,7 @@ fun TouchPanel(
     onPlayClick: () -> Unit,
     onStopClick: () -> Unit,
     onPauseClick: () -> Unit,
+    onPlaybackSpeedClick: (PlaybackSpeed) -> Unit = {},
     onBookmarkClick: () -> Unit = {},
     onPrevClick: () -> Unit = {},
     onNextClick: () -> Unit = {},
@@ -161,6 +163,7 @@ fun TouchPanel(
                 onPlayClick = onPlayClick,
                 onStopClick = onStopClick,
                 onPauseClick = onPauseClick,
+                onPlaybackSpeedClick = onPlaybackSpeedClick,
                 onBookmarkClick = onBookmarkClick,
                 onPrevClick = onPrevClick,
                 onNextClick = onNextClick,

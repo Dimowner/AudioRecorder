@@ -126,6 +126,7 @@
 	<string name="info">정보</string>
 	<string name="rename">이름 바꾸기</string>
 	<string name="dont_ask_again">다시 묻지 않기</string>
+	<string name="dont_show_next_time">다음에 표시하지 않기</string>
 	<string name="open_with">다른 앱으로 열기&#8230;</string>
 	<string name="save_as">다른 이름으로 저장&#8230;</string>
 	<string name="downloading">다운로드 중: %s</string>
@@ -170,6 +171,11 @@
 	<string name="clear">지우기</string>
 	<string name="filter_dismiss">필터 닫기</string>
 	<string name="filter_no_options">필터링할 녹음이 없습니다</string>
+	<string name="search">검색</string>
+	<string name="search_records_hint">녹음 검색</string>
+	<string name="search_close">검색 닫기</string>
+	<string name="search_clear">검색 지우기</string>
+	<string name="no_search_results">“%1$s”에 대한 녹음을 찾을 수 없습니다</string>
 	<string name="need_write_permission">앱이 공개 저장소에 접근하려면 권한이 필요합니다. 허용하지 않으면 녹음은 앱의 개인 디렉토리에 저장됩니다</string>
 	<string name="rec_name">이름:</string>
 	<string name="rec_format">형식:</string>
@@ -346,6 +352,8 @@
 	<string name="button_pause">일시 정지</string>
 	<string name="button_resume">재개</string>
 	<string name="button_finish">완료</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">재생 속도 %1$s</string>
 	<string name="legacy_app">이전 버전</string>
 	<string name="legacy_app_subtitle">이전 앱 인터페이스로 전환</string>
 	<string name="switch_to_legacy">이전 버전으로 전환</string>

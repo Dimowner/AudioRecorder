@@ -129,6 +129,7 @@
 	<string name="info">Información</string>
 	<string name="rename">Renombrar</string>
 	<string name="dont_ask_again">No preguntar nuevamente</string>
+	<string name="dont_show_next_time">No mostrar la próxima vez</string>
 	<string name="open_with">Abrir con&#8230;</string>
 	<string name="save_as">Guardar como&#8230;</string>
 	<string name="downloading">Descargando: %s</string>
@@ -177,6 +178,11 @@
 	<string name="clear">Borrar</string>
 	<string name="filter_dismiss">Ocultar filtro</string>
 	<string name="filter_no_options">No hay grabaciones para filtrar</string>
+	<string name="search">Buscar</string>
+	<string name="search_records_hint">Buscar grabaciones</string>
+	<string name="search_close">Cerrar búsqueda</string>
+	<string name="search_clear">Borrar búsqueda</string>
+	<string name="no_search_results">No se encontraron grabaciones para «%1$s»</string>
 	<string name="need_write_permission">Esta app requiere permiso para acceder al almacenamiento público. Si no se concede, las grabaciones se guardarán en el directorio privado de la app.</string>
 	<string name="rec_name">Nombre:</string>
 	<string name="rec_format">Formato:</string>
@@ -353,6 +359,8 @@
 	<string name="button_pause">Pausar</string>
 	<string name="button_resume">Reanudar</string>
 	<string name="button_finish">Finalizar</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Velocidad de reproducción %1$s</string>
 	<string name="legacy_app">App Heredada</string>
 	<string name="legacy_app_subtitle">Cambiar a la interfaz de la app antigua</string>
 	<string name="switch_to_legacy">Cambiar a App Heredada</string>

@@ -15,6 +15,7 @@
  */
 package com.dimowner.audiorecorder.v2.audio
 
+import android.media.MediaCodec
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMuxer
@@ -28,6 +29,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.RandomAccessFile
+import java.nio.ByteBuffer
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -47,7 +49,8 @@ import javax.inject.Singleton
  *   its 'moov' atom. This class attempts to recover such files using multiple strategies:
  *   1. Try MediaExtractor (works if the OS partially recovered the file)
  *   2. Try re-muxing with MediaExtractor + MediaMuxer
- *   3. Fallback to mp4parser to extract raw AAC frames and build a new valid container
+ *   3. Extract the raw AAC frames from the mdat atom, ADTS-frame them, and re-mux that stream
+ *      into a new valid container (with a heap-guarded mp4parser fallback)
  */
 @Singleton
 class BrokenRecordRestorer @Inject constructor() {
@@ -608,8 +611,12 @@ class BrokenRecordRestorer @Inject constructor() {
      *    wraps each raw AAC-LC frame with an ADTS header so that AACTrackImpl
      *    can parse it. The ADTS header encodes profile, sample-rate index and
      *    channel configuration derived from the recording settings stored in the DB.
-     * 3. Uses mp4parser's AACTrackImpl to parse the ADTS stream and create a proper track
-     * 4. Builds a new valid MPEG-4 container with DefaultMp4Builder
+     * 3. Rebuilds a valid MPEG-4 container around that ADTS stream with MediaExtractor +
+     *    MediaMuxer ([remuxAdtsIntoMp4]), which streams frame by frame and so uses a constant
+     *    amount of heap regardless of how long the recording is.
+     * 4. Only if the platform muxer cannot read the stream, falls back to mp4parser's
+     *    AACTrackImpl + DefaultMp4Builder. That path holds every frame on the heap at once, so
+     *    it is gated on [canAffordMp4ParserRebuild] to avoid an OutOfMemoryError.
      *
      * @param file The broken audio file
      * @return RestoreResult indicating success or failure
@@ -650,18 +657,37 @@ class BrokenRecordRestorer @Inject constructor() {
                 tempAdtsFile
             }
 
-            // Step 3: Use mp4parser to parse the ADTS AAC stream and create a valid container
-            val aacTrack = AACTrackImpl(FileDataSourceImpl(aacFileForParsing))
+            // Step 3: Rebuild a valid MPEG-4 container around the ADTS stream.
+            // Preferred path: MediaExtractor + MediaMuxer. It streams one frame at a time
+            // through a single reusable buffer, so heap use is constant no matter how long
+            // the recording is.
+            val rebuilt = remuxAdtsIntoMp4(aacFileForParsing, tempMp4File)
 
-            val movie = Movie()
-            movie.addTrack(aacTrack)
+            // Step 4: Fall back to mp4parser only if the platform muxer could not read the
+            // stream. mp4parser materialises one Java object per AAC frame (see
+            // MP4PARSER_HEAP_BYTES_PER_FRAME), so it is only attempted when the frame count
+            // of this particular file fits in the heap we actually have left.
+            if (!rebuilt) {
+                tempMp4File.delete()
+                if (!canAffordMp4ParserRebuild(aacFileForParsing)) {
+                    tempAacFile.delete()
+                    tempAdtsFile.delete()
+                    return RestoreResult.Failed(
+                        "Recording is too long to rebuild with mp4parser without exhausting the heap"
+                    )
+                }
 
-            val mp4Builder = DefaultMp4Builder()
-            val container = mp4Builder.build(movie)
+                val aacTrack = AACTrackImpl(FileDataSourceImpl(aacFileForParsing))
 
-            // Step 4: Write the valid MP4 container to the temp file
-            FileOutputStream(tempMp4File).use { fos ->
-                container.writeContainer(fos.channel)
+                val movie = Movie()
+                movie.addTrack(aacTrack)
+
+                val mp4Builder = DefaultMp4Builder()
+                val container = mp4Builder.build(movie)
+
+                FileOutputStream(tempMp4File).use { fos ->
+                    container.writeContainer(fos.channel)
+                }
             }
 
             // Step 5: Verify the restored file is readable
@@ -678,7 +704,8 @@ class BrokenRecordRestorer @Inject constructor() {
             tempAacFile.delete()
             tempAdtsFile.delete()
 
-            Timber.d("File restored via mp4parser: ${file.absolutePath}, duration: ${verifyDuration}μs")
+            val strategy = if (rebuilt) "ADTS re-mux" else "mp4parser"
+            Timber.d("File restored via $strategy: ${file.absolutePath}, duration: ${verifyDuration}μs")
             RestoreResult.Success(verifyDuration)
         } catch (e: Exception) {
             Timber.e(e, "mp4parser restoration failed for: ${file.absolutePath}")
@@ -700,6 +727,188 @@ class BrokenRecordRestorer @Inject constructor() {
             val b0 = raf.read()
             val b1 = raf.read()
             return b0 == 0xFF && (b1 and 0xF0) == 0xF0
+        }
+    }
+
+    /**
+     * Re-muxes an ADTS AAC stream into a valid MPEG-4 container using the platform
+     * [MediaExtractor] + [MediaMuxer].
+     *
+     * This is the memory-safe way to rebuild the container: frames are copied one at a time
+     * through a single reusable [ByteBuffer], and the sample tables are accumulated by the
+     * native muxer rather than on the Java heap. Heap use is therefore independent of the
+     * recording length, unlike the mp4parser path (see [canAffordMp4ParserRebuild]).
+     *
+     * @param adtsFile   Source ADTS AAC stream.
+     * @param outputFile Destination MPEG-4 file. Left deleted if the re-mux fails.
+     * @return true if an audio track was fully written, false if the stream could not be
+     *         read or contained no samples.
+     */
+    @Suppress("TooGenericExceptionCaught")
+    private fun remuxAdtsIntoMp4(adtsFile: File, outputFile: File): Boolean {
+        val extractor = MediaExtractor()
+        var muxer: MediaMuxer? = null
+        var muxerStarted = false
+
+        return try {
+            extractor.setDataSource(adtsFile.absolutePath)
+
+            var audioTrackIndex = -1
+            var audioFormat: MediaFormat? = null
+            for (i in 0 until extractor.trackCount) {
+                val format = extractor.getTrackFormat(i)
+                val mime = format.getString(MediaFormat.KEY_MIME) ?: continue
+                if (mime.startsWith("audio/")) {
+                    audioTrackIndex = i
+                    audioFormat = format
+                    break
+                }
+            }
+            if (audioTrackIndex == -1 || audioFormat == null) {
+                Timber.d("ADTS re-mux: no audio track found in ${adtsFile.absolutePath}")
+                return false
+            }
+
+            extractor.selectTrack(audioTrackIndex)
+
+            muxer = MediaMuxer(outputFile.absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+            val muxerTrackIndex = muxer.addTrack(audioFormat)
+            muxer.start()
+            muxerStarted = true
+
+            // One ADTS frame can never exceed 8191 bytes, but honour KEY_MAX_INPUT_SIZE when
+            // the extractor reports a larger value.
+            val bufferSize = try {
+                audioFormat.getInteger(MediaFormat.KEY_MAX_INPUT_SIZE)
+            } catch (_: Exception) {
+                0
+            }.coerceAtLeast(ADTS_REMUX_BUFFER_SIZE)
+            val buffer = ByteBuffer.allocate(bufferSize)
+            val bufferInfo = MediaCodec.BufferInfo()
+
+            var sampleCount = 0
+            while (true) {
+                val sampleSize = extractor.readSampleData(buffer, 0)
+                if (sampleSize < 0) break
+
+                bufferInfo.offset = 0
+                bufferInfo.size = sampleSize
+                bufferInfo.presentationTimeUs = extractor.sampleTime
+                // Every AAC frame is independently decodable.
+                bufferInfo.flags = MediaCodec.BUFFER_FLAG_KEY_FRAME
+
+                muxer.writeSampleData(muxerTrackIndex, buffer, bufferInfo)
+                sampleCount++
+
+                extractor.advance()
+            }
+
+            if (sampleCount == 0) {
+                Timber.d("ADTS re-mux: no samples read from ${adtsFile.absolutePath}")
+                return false
+            }
+
+            muxer.stop()
+            muxerStarted = false
+            Timber.d("ADTS re-mux wrote $sampleCount samples to ${outputFile.absolutePath}")
+            true
+        } catch (e: Exception) {
+            Timber.e(e, "ADTS re-mux failed for: ${adtsFile.absolutePath}")
+            false
+        } finally {
+            if (muxerStarted) {
+                // stop() was never reached — the muxer would otherwise throw on release().
+                try { muxer?.stop() } catch (_: Throwable) {}
+            }
+            try { muxer?.release() } catch (_: Throwable) {}
+            try { extractor.release() } catch (_: Throwable) {}
+        }
+    }
+
+    /**
+     * Decides whether rebuilding [adtsFile] with mp4parser can fit in the heap still available.
+     *
+     * mp4parser is not streaming: `AACTrackImpl` allocates one `Sample` object per ADTS frame
+     * and keeps them all in a list, and `DefaultMp4Builder` then adds a per-frame entry to the
+     * decoding-time and sample-size arrays plus the chunk list. That works out to roughly
+     * [MP4PARSER_HEAP_BYTES_PER_FRAME] bytes of live heap per frame, which at ~43 frames per
+     * second is several MB per hour of audio — enough to exhaust the default 128 MB heap on a
+     * long recording and take the whole process down with an OutOfMemoryError (the crash may
+     * then surface on any thread, typically in Compose recomposition rather than here).
+     *
+     * The frame count is estimated from the average `aac_frame_length` of the first
+     * [ADTS_FRAMES_TO_SAMPLE] frames rather than assumed, because a mis-detected frame boundary
+     * in [wrapRawAacWithAdts] can produce frames as small as [MIN_AAC_FRAME_BYTES] and blow the
+     * estimate up by an order of magnitude — exactly the case that must be rejected.
+     *
+     * @return true if the estimated cost stays under [MP4PARSER_HEAP_BUDGET_FRACTION] of the
+     *         heap headroom, false if it does not or the stream could not be measured.
+     */
+    private fun canAffordMp4ParserRebuild(adtsFile: File): Boolean {
+        val averageFrameLength = averageAdtsFrameLength(adtsFile)
+        if (averageFrameLength == null || averageFrameLength <= 0) {
+            Timber.w("Cannot measure ADTS frame size, refusing mp4parser rebuild: ${adtsFile.absolutePath}")
+            return false
+        }
+
+        val estimatedFrames = adtsFile.length() / averageFrameLength
+        val estimatedHeapBytes = estimatedFrames * MP4PARSER_HEAP_BYTES_PER_FRAME
+
+        val runtime = Runtime.getRuntime()
+        val usedHeap = runtime.totalMemory() - runtime.freeMemory()
+        val headroom = runtime.maxMemory() - usedHeap
+        val budget = (headroom * MP4PARSER_HEAP_BUDGET_FRACTION).toLong()
+
+        val affordable = estimatedHeapBytes < budget
+        Timber.d(
+            "mp4parser rebuild estimate: frames=$estimatedFrames (avg ${averageFrameLength}B), " +
+                "heap needed=${estimatedHeapBytes / 1024}KB, budget=${budget / 1024}KB, affordable=$affordable"
+        )
+        return affordable
+    }
+
+    /**
+     * Reads the `aac_frame_length` field of up to [ADTS_FRAMES_TO_SAMPLE] leading frames of
+     * [adtsFile] and returns their average size in bytes, walking the stream header-to-header.
+     *
+     * @return the average frame length, or null if the file does not start with a valid ADTS
+     *         sync word or no complete frame could be read.
+     */
+    @Suppress("MagicNumber", "ReturnCount")
+    internal fun averageAdtsFrameLength(adtsFile: File): Int? {
+        return try {
+            RandomAccessFile(adtsFile, "r").use { raf ->
+                val fileLength = raf.length()
+                val header = ByteArray(ADTS_HEADER_SIZE)
+                var offset = 0L
+                var frames = 0
+                var totalLength = 0L
+
+                while (frames < ADTS_FRAMES_TO_SAMPLE && offset + ADTS_HEADER_SIZE <= fileLength) {
+                    raf.seek(offset)
+                    raf.readFully(header)
+
+                    // Sync word: 0xFF followed by 0xF in the high nibble of byte 1.
+                    val b0 = header[0].toInt() and 0xFF
+                    val b1 = header[1].toInt() and 0xFF
+                    if (b0 != 0xFF || (b1 and 0xF0) != 0xF0) break
+
+                    // aac_frame_length is 13 bits spanning bytes 3..5.
+                    val frameLength = ((header[3].toInt() and 0x03) shl 11) or
+                        ((header[4].toInt() and 0xFF) shl 3) or
+                        ((header[5].toInt() and 0xFF) ushr 5)
+                    if (frameLength <= ADTS_HEADER_SIZE) break
+
+                    totalLength += frameLength
+                    offset += frameLength
+                    frames++
+                }
+
+                if (frames == 0) null else (totalLength / frames).toInt()
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to measure ADTS frame length: ${adtsFile.absolutePath}")
+            null
         }
     }
 
@@ -1017,6 +1226,34 @@ class BrokenRecordRestorer @Inject constructor() {
          * Very small values would indicate noise rather than real frame boundaries.
          */
         internal const val MIN_AAC_FRAME_BYTES = 32
+
+        /**
+         * Copy buffer for [remuxAdtsIntoMp4]. A single ADTS frame is capped at 8191 bytes by
+         * the 13-bit aac_frame_length field, so 8 KB always holds one frame.
+         */
+        private const val ADTS_REMUX_BUFFER_SIZE = 8 * 1024
+
+        /**
+         * Approximate live heap cost per AAC frame of an mp4parser rebuild: the anonymous
+         * `Sample` instance held by `AACTrackImpl` (~40 B) and its list slot, plus the
+         * per-frame entries `DefaultMp4Builder` adds to the decoding-time and sample-size
+         * arrays and the chunk list. Deliberately rounded up — this is a safety budget.
+         */
+        private const val MP4PARSER_HEAP_BYTES_PER_FRAME = 64L
+
+        /**
+         * Share of the remaining heap an mp4parser rebuild is allowed to claim. Half leaves
+         * room for the UI, the Room cache and GC headroom, all of which stay live while the
+         * restore runs on a background dispatcher.
+         */
+        private const val MP4PARSER_HEAP_BUDGET_FRACTION = 0.5
+
+        /**
+         * How many leading ADTS frames [averageAdtsFrameLength] measures before extrapolating
+         * to the whole file. 64 frames is ~1.5 s of audio: enough to smooth out VBR variation,
+         * cheap enough to be a handful of seeks.
+         */
+        private const val ADTS_FRAMES_TO_SAMPLE = 64
 
         // -----------------------------------------------------------------
         // AMR constants

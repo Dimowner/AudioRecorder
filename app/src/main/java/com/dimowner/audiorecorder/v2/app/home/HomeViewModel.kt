@@ -73,6 +73,7 @@ import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.extensions.isLostRecord
 import com.dimowner.audiorecorder.v2.data.extensions.copyFile
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
+import com.dimowner.audiorecorder.v2.data.model.PlaybackSpeed
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
@@ -109,6 +110,9 @@ class HomeViewModel @Inject constructor(
 
     private var recordingStateJob: Job? = null
     private var recordingEventJob: Job? = null
+
+    // Started/cancelled on the main thread only (see moveToStart)
+    private var moveAnimator: ValueAnimator? = null
 
     // Guards the "always use Bluetooth mic" auto-enable so it runs once per availability period
     private var bluetoothAutoEnableRequested = false
@@ -467,7 +471,7 @@ class HomeViewModel @Inject constructor(
             override fun onStopPlay() {
                 _state.value = _state.value.copy(
                     showPause = false,
-                    showStop = false
+                    showStop = false,
                 )
                 moveToStart()
             }
@@ -1141,6 +1145,15 @@ class HomeViewModel @Inject constructor(
         audioPlayer.stop()
     }
 
+    /**
+     * Applies the rate picked in the playback speed menu to the player right away, so it takes
+     * effect mid-playback, and remembers it for the tracks played next.
+     */
+    fun handlePlaybackSpeedClick(speed: PlaybackSpeed) {
+        audioPlayer.setPlaybackSpeed(speed.value)
+        _state.value = _state.value.copy(playbackSpeed = speed)
+    }
+
     // - If is playing, stop playback
     // - Start recording service
     fun handleStartRecordingClick() {
@@ -1208,18 +1221,24 @@ class HomeViewModel @Inject constructor(
     }
 
     fun moveToStart() {
-        val moveAnimator = ValueAnimator.ofObject(
-            LongEvaluator(),
-            _state.value.waveformState.progressMills,
-            0L
-        )
-        moveAnimator.interpolator = DecelerateInterpolator()
-        moveAnimator.duration = ANIMATION_DURATION
-        moveAnimator.addUpdateListener { animation: ValueAnimator ->
-            val moveValMills = animation.animatedValue as Long
-            handleSeekProgress(moveValMills)
+        // Player callbacks are delivered on the thread that called the player (which may be an
+        // IO coroutine), and ValueAnimator may only be started on a Looper thread.
+        viewModelScope.launch(mainDispatcher) {
+            moveAnimator?.cancel()
+            moveAnimator = ValueAnimator.ofObject(
+                LongEvaluator(),
+                _state.value.waveformState.progressMills,
+                0L
+            ).apply {
+                interpolator = DecelerateInterpolator()
+                duration = ANIMATION_DURATION
+                addUpdateListener { animation: ValueAnimator ->
+                    val moveValMills = animation.animatedValue as Long
+                    handleSeekProgress(moveValMills)
+                }
+                start()
+            }
         }
-        moveAnimator.start()
     }
 
     fun showLoadingProgress(value: Boolean) {
@@ -1262,6 +1281,7 @@ class HomeViewModel @Inject constructor(
                 }
             }
             HomeScreenAction.OnStopClick -> handlePlaybackStopClick()
+            is HomeScreenAction.OnPlaybackSpeedClick -> handlePlaybackSpeedClick(action.speed)
             //Recording
             HomeScreenAction.OnStartRecordingClick -> {
                 handleStartRecordingClick()
@@ -1425,6 +1445,8 @@ class HomeViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
+        moveAnimator?.cancel()
+        moveAnimator = null
         try {
             // AudioManagerHelper is a singleton and the recording foreground service keeps
             // capturing from the Bluetooth mic after the UI is destroyed. A full release()
@@ -1469,6 +1491,8 @@ data class HomeScreenState(
     val bottomBarState: BottomBarState = BottomBarState.READY_TO_START_RECORDING,
     val showPause: Boolean = false,
     val showStop: Boolean = false,
+    /** The playback rate selected in the speed menu and applied to the player. */
+    val playbackSpeed: PlaybackSpeed = PlaybackSpeed.NORMAL,
     val isSeek: Boolean = false,
     val isDeleteRecordingProgressRequested: Boolean = false,
     // Bluetooth mic state
@@ -1524,6 +1548,7 @@ sealed class HomeScreenAction {
     data object OnPlayClick : HomeScreenAction()
     data object OnPauseClick : HomeScreenAction()
     data object OnStopClick : HomeScreenAction()
+    data class OnPlaybackSpeedClick(val speed: PlaybackSpeed) : HomeScreenAction()
     data object OnStartRecordingClick : HomeScreenAction()
     data object OnPauseRecordingClick : HomeScreenAction()
     data object OnResumeRecordingClick : HomeScreenAction()

@@ -62,7 +62,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
@@ -87,6 +86,7 @@ import com.dimowner.audiorecorder.v2.app.components.KeepScreenOn
 import com.dimowner.audiorecorder.v2.app.components.MAX_CONTENT_WIDTH_NARROW
 import com.dimowner.audiorecorder.v2.app.components.WaveformComposeView
 import com.dimowner.audiorecorder.v2.app.components.WaveformState
+import com.dimowner.audiorecorder.v2.app.components.rememberSafePainterResource
 import com.dimowner.audiorecorder.v2.app.components.rememberWindowLayout
 import com.dimowner.audiorecorder.v2.app.getTestRecordingWaveformData
 import com.dimowner.audiorecorder.v2.app.getTestWaveformData
@@ -335,24 +335,32 @@ internal fun HomeScreen(
                 )
                 if (!uiState.isRecording()) {
                     PlayPanel(
+                        // Wraps its content on purpose: the panel keeps a constant width and is
+                        // centered by the parent, so the play controls stay put as playback starts.
                         modifier = Modifier
-                            .wrapContentHeight()
-                            .fillMaxWidth()
+                            .wrapContentSize()
                             .padding(8.dp, 8.dp),
                         showPause = uiState.showPause,
                         showStop = uiState.showStop,
+                        selectedSpeed = uiState.playbackSpeed,
                         onPlayClick = { onAction(HomeScreenAction.OnPlayClick) },
                         onStopClick = { onAction(HomeScreenAction.OnStopClick) },
-                        onPauseClick = { onAction(HomeScreenAction.OnPauseClick) }
+                        onPauseClick = { onAction(HomeScreenAction.OnPauseClick) },
+                        onPlaybackSpeedClick = {
+                            onAction(HomeScreenAction.OnPlaybackSpeedClick(it))
+                        }
                     )
                 }
             } else {
-                Image(
-                    painter = painterResource(id = R.drawable.waveform),
-                    contentDescription = stringResource(R.string.app_name),
-                    modifier = Modifier.wrapContentSize(),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-                )
+                val waveformPainter = rememberSafePainterResource(R.drawable.waveform)
+                if (waveformPainter != null) {
+                    Image(
+                        painter = waveformPainter,
+                        contentDescription = stringResource(R.string.app_name),
+                        modifier = Modifier.wrapContentSize(),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                    )
+                }
             }
         }
     }

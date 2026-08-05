@@ -23,22 +23,30 @@ package com.dimowner.audiorecorder.v2.app.records.models
  * selected values. An empty set means the dimension is not filtered. When multiple values
  * are selected within a dimension they are combined with OR, while different dimensions are
  * combined with AND (e.g. format in (m4a, wav) AND sampleRate in (44100)).
+ *
+ * [bookmarkedOnly] is a boolean dimension rather than a set: it restricts the list to
+ * bookmarked records only. It lives here (instead of being a separate top bar toggle) so the
+ * top bar has room for the search action, and so the filter badge reflects every active
+ * restriction on the list.
  */
 data class RecordsFilter(
+    val bookmarkedOnly: Boolean = false,
     val formats: Set<String> = emptySet(),
     val sampleRates: Set<Int> = emptySet(),
     val channelCounts: Set<Int> = emptySet(),
     val bitrates: Set<Int> = emptySet(),
 ) {
     val isEmpty: Boolean
-        get() = formats.isEmpty() &&
+        get() = !bookmarkedOnly &&
+            formats.isEmpty() &&
             sampleRates.isEmpty() &&
             channelCounts.isEmpty() &&
             bitrates.isEmpty()
 
     /** Total number of selected values across all dimensions. */
     val activeCount: Int
-        get() = formats.size + sampleRates.size + channelCounts.size + bitrates.size
+        get() = (if (bookmarkedOnly) 1 else 0) +
+            formats.size + sampleRates.size + channelCounts.size + bitrates.size
 }
 
 /**

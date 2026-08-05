@@ -35,6 +35,7 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 	private var playerState = PlayerState.STOPPED
 	private var pauseTimeMills: Long = 0
 	private var prevPosMills: Long = 0
+	private var playbackSpeed: Float = NORMAL_PLAYBACK_SPEED
 	private val handler = Handler(Looper.getMainLooper())
 
 	override fun addPlayerCallback(callback: PlayerContractNew.PlayerCallback) {
@@ -83,6 +84,7 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 
 	override fun onPrepared(mp: MediaPlayer) {
 		mediaPlayer.start()
+		applyPlaybackSpeed()
 		mediaPlayer.seekTo(pauseTimeMills.toInt())
 		pauseTimeMills = 0
 		playerState = PlayerState.PLAYING
@@ -120,6 +122,7 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 	override fun unpause() {
 		if (playerState == PlayerState.PAUSED) {
 			mediaPlayer.start()
+			applyPlaybackSpeed()
 			mediaPlayer.seekTo(pauseTimeMills.toInt())
 			pauseTimeMills = 0
 			playerState = PlayerState.PLAYING
@@ -158,6 +161,27 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 
 	override fun isPlaying(): Boolean {
 		return playerState == PlayerState.PLAYING
+	}
+
+	override fun setPlaybackSpeed(speed: Float) {
+		playbackSpeed = speed.coerceIn(MIN_PLAYBACK_SPEED, MAX_PLAYBACK_SPEED)
+		// MediaPlayer.setPlaybackParams() resumes a paused player, so the new rate is only
+		// pushed while playing. A paused/stopped player picks it up on the next start().
+		if (playerState == PlayerState.PLAYING) {
+			applyPlaybackSpeed()
+		}
+	}
+
+	override fun getPlaybackSpeed(): Float = playbackSpeed
+
+	private fun applyPlaybackSpeed() {
+		try {
+			mediaPlayer.playbackParams = mediaPlayer.playbackParams.setSpeed(playbackSpeed)
+		} catch (e: IllegalStateException) {
+			Timber.e(e, "Failed to apply playback speed $playbackSpeed")
+		} catch (e: IllegalArgumentException) {
+			Timber.e(e, "Playback speed $playbackSpeed is not supported")
+		}
 	}
 
 	private fun schedulePlaybackTimeUpdate() {

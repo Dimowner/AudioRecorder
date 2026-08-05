@@ -121,6 +121,7 @@
 	<string name="info">Інформація</string>
 	<string name="rename">Перейменувати</string>
 	<string name="dont_ask_again">Більше не показувати</string>
+	<string name="dont_show_next_time">Не показувати наступного разу</string>
 	<string name="open_with">Відкрити з допомогою&#8230;</string>
 	<string name="save_as">Зберегти як&#8230;</string>
 	<string name="downloading">Копіювання: %s</string>
@@ -177,6 +178,11 @@
 	<string name="clear">Очистити</string>
 	<string name="filter_dismiss">Сховати фільтр</string>
 	<string name="filter_no_options">Немає записів для фільтрації</string>
+	<string name="search">Пошук</string>
+	<string name="search_records_hint">Пошук записів</string>
+	<string name="search_close">Закрити пошук</string>
+	<string name="search_clear">Очистити пошук</string>
+	<string name="no_search_results">Немає записів за запитом «%1$s»</string>
 	<string name="need_write_permission">Додатку потрібно дозвіл на запис в публічне сховище. Якщо не дозволити, записи будуть зберігатися в приватному каталозі додатка</string>
 	<string name="rec_name">Назва:</string>
 	<string name="rec_format">Формат:</string>
@@ -352,6 +358,8 @@
 	<string name="button_resume">Відновити</string>
 	<string name="button_pause">Пауза</string>
 	<string name="button_finish">Фініш</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Швидкість відтворення %1$s</string>
 
 	<string name="legacy_app">Застарілий додаток</string>
 	<string name="legacy_app_subtitle">Перейти до старого інтерфейсу додатка</string>

@@ -489,14 +489,19 @@ fun RenameAlertDialog(
                     }
                 )
                 if (showDontAskAgain) {
-                    Row {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { checkedState.value = !checkedState.value },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         Checkbox(
                             checked = checkedState.value,
                             onCheckedChange = { checkedState.value = it },
                         )
                         Text(
                             modifier = Modifier.align(Alignment.CenterVertically),
-                            text = stringResource(id = R.string.dont_ask_again),
+                            text = stringResource(id = R.string.dont_show_next_time),
                             fontSize = 16.sp,
                         )
                     }
@@ -652,14 +657,19 @@ fun UpdateNameAndDescriptionDialog(
                     )
                 }
                 if (showDontAskAgain) {
-                    Row {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { dontAskAgainChecked.value = !dontAskAgainChecked.value },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         Checkbox(
                             checked = dontAskAgainChecked.value,
                             onCheckedChange = { dontAskAgainChecked.value = it },
                         )
                         Text(
                             modifier = Modifier.align(Alignment.CenterVertically),
-                            text = stringResource(id = R.string.dont_ask_again),
+                            text = stringResource(id = R.string.dont_show_next_time),
                             fontSize = 16.sp,
                         )
                     }
