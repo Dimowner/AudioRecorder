@@ -19,8 +19,8 @@ android {
         applicationId = "com.dimowner.audiorecorder"
         minSdk = 26
         targetSdk = 37
-        versionCode = 948
-        versionName = "2.3.1"
+        versionCode = 949
+        versionName = "2.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
