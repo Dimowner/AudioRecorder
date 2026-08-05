@@ -141,6 +141,7 @@
 	<string name="info">Informacje</string>
 	<string name="rename">Zmień nazwę</string>
 	<string name="dont_ask_again">Nie pytaj ponownie</string>
+	<string name="dont_show_next_time">Nie pokazuj następnym razem</string>
 	<string name="open_with">Otwórz za pomocą&#8230;</string>
 	<string name="save_as">Zapisz jako&#8230;</string>
 	<string name="downloading">Kopiowanie: %s</string>

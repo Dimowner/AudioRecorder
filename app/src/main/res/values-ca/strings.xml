@@ -127,6 +127,7 @@
 	<string name="info">Informació</string>
 	<string name="rename">Canvia el nom</string>
 	<string name="dont_ask_again">No ho tornis a preguntar</string>
+	<string name="dont_show_next_time">No ho mostris la propera vegada</string>
 	<string name="open_with">Obre amb&#8230;</string>
 	<string name="save_as">Anomena i desa&#8230;</string>
 	<string name="downloading">Baixant: %s</string>

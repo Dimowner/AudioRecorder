@@ -120,6 +120,7 @@
 	<string name="info">Информация</string>
 	<string name="rename">Переименовать</string>
 	<string name="dont_ask_again">Больше не показывать</string>
+	<string name="dont_show_next_time">Не показывать в следующий раз</string>
 	<string name="open_with">Открыть с помощью&#8230;</string>
 	<string name="save_as">Сохранить как&#8230;</string>
 	<string name="downloading">Копирование: %s</string>

@@ -130,6 +130,7 @@
 	<string name="info">Informazioni</string>
 	<string name="rename">Rinomina</string>
 	<string name="dont_ask_again">Non chiedere più</string>
+	<string name="dont_show_next_time">Non mostrare la prossima volta</string>
 	<string name="open_with">Apri con&#8230;</string>
 	<string name="save_as">Salva come&#8230;</string>
 	<string name="downloading">Download: %s</string>

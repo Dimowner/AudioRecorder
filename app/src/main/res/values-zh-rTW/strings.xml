@@ -130,6 +130,7 @@
 	<string name="info">資訊</string>
 	<string name="rename">重新命名</string>
 	<string name="dont_ask_again">不再詢問</string>
+	<string name="dont_show_next_time">下次不再顯示</string>
 	<string name="open_with">開啟&#8230;</string>
 	<string name="save_as">另存&#8230;</string>
 	<string name="downloading">正在下載：%s</string>

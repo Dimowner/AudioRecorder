@@ -105,6 +105,7 @@
     <string name="info">信息</string>
     <string name="rename">重命名</string>
     <string name="dont_ask_again">不再询问</string>
+    <string name="dont_show_next_time">下次不再显示</string>
     <string name="open_with">打开方式&#8230;</string>
     <string name="save_as">另存为&#8230;</string>
     <string name="downloading">下载中：%s</string>

@@ -126,6 +126,7 @@
 	<string name="info">정보</string>
 	<string name="rename">이름 바꾸기</string>
 	<string name="dont_ask_again">다시 묻지 않기</string>
+	<string name="dont_show_next_time">다음에 표시하지 않기</string>
 	<string name="open_with">다른 앱으로 열기&#8230;</string>
 	<string name="save_as">다른 이름으로 저장&#8230;</string>
 	<string name="downloading">다운로드 중: %s</string>

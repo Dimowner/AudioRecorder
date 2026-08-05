@@ -128,6 +128,7 @@
 	<string name="info">Bilgi</string>
 	<string name="rename">Yeniden adlandır</string>
 	<string name="dont_ask_again">Bir daha sorma</string>
+	<string name="dont_show_next_time">Bir dahaki sefere gösterme</string>
 	<string name="open_with">Birlikte aç&#8230;</string>
 	<string name="save_as">Farklı kaydet&#8230;</string>
 	<string name="downloading">İndiriliyor: %s</string>

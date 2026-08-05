@@ -129,6 +129,7 @@
 	<string name="info">Información</string>
 	<string name="rename">Renombrar</string>
 	<string name="dont_ask_again">No preguntar nuevamente</string>
+	<string name="dont_show_next_time">No mostrar la próxima vez</string>
 	<string name="open_with">Abrir con&#8230;</string>
 	<string name="save_as">Guardar como&#8230;</string>
 	<string name="downloading">Descargando: %s</string>

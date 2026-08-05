@@ -112,6 +112,7 @@
 	<string name="info">Информация</string>
 	<string name="rename">Преименуване</string>
 	<string name="dont_ask_again">Не питай отново</string>
+	<string name="dont_show_next_time">Не показвай следващия път</string>
 	<string name="open_with">Отваряне с&#8230;</string>
 	<string name="save_as">Запазване като&#8230;</string>
 	<string name="downloading">Копиране: %s</string>

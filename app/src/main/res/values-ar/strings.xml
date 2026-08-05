@@ -149,6 +149,7 @@
 	<string name="info">معلومات</string>
 	<string name="rename">إعادة تسمية</string>
 	<string name="dont_ask_again">عدم السؤال مرة أخرى</string>
+	<string name="dont_show_next_time">عدم الإظهار في المرة القادمة</string>
 	<string name="open_with">فتح باستخدام&#8230;</string>
 	<string name="save_as">حفظ باسم&#8230;</string>
 	<string name="downloading">جارٍ النسخ: %s</string>

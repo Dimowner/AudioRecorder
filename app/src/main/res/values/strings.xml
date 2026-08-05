@@ -131,6 +131,7 @@
 	<string name="info">Information</string>
 	<string name="rename">Rename</string>
 	<string name="dont_ask_again">Don\'t ask again</string>
+	<string name="dont_show_next_time">Don\'t show next time</string>
 	<string name="open_with">Open with&#8230;</string>
 	<string name="save_as">Save as&#8230;</string>
 	<string name="downloading">Downloading: %s</string>

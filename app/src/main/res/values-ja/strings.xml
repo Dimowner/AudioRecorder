@@ -131,6 +131,7 @@
 	<string name="info">情報</string>
 	<string name="rename">名前を変更する</string>
 	<string name="dont_ask_again">次回から表示しない</string>
+	<string name="dont_show_next_time">次回は表示しない</string>
 	<string name="open_with">アプリで開く&#8230;</string>
 	<string name="save_as">名前を付けて保存&#8230;</string>
 	<string name="downloading">ダウンロード中：%s</string>

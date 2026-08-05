@@ -121,6 +121,7 @@
 	<string name="info">Інформація</string>
 	<string name="rename">Перейменувати</string>
 	<string name="dont_ask_again">Більше не показувати</string>
+	<string name="dont_show_next_time">Не показувати наступного разу</string>
 	<string name="open_with">Відкрити з допомогою&#8230;</string>
 	<string name="save_as">Зберегти як&#8230;</string>
 	<string name="downloading">Копіювання: %s</string>
