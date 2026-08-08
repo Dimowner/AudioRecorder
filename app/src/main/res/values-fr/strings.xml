@@ -111,6 +111,7 @@
 	<string name="info">Information</string>
 	<string name="rename">Renommer</string>
 	<string name="dont_ask_again">Ne pas me redemander</string>
+	<string name="dont_show_next_time">Ne pas afficher la prochaine fois</string>
 	<string name="open_with">Ouvrir avec&#8230;</string>
 	<string name="save_as">Enregistrer sous&#8230;</string>
 	<string name="downloading">Copie : %s</string>
@@ -156,9 +157,14 @@
 	<string name="by_duration">Par durée (le plus long)</string>
     <string name="by_duration_desc">Par durée (le plus court)</string>
     <string name="filter">Filtrer</string>
-	<string name="filter_clear">Effacer</string>
+	<string name="clear">Effacer</string>
 	<string name="filter_dismiss">Fermer le filtre</string>
 	<string name="filter_no_options">Aucun enregistrement à filtrer</string>
+	<string name="search">Rechercher</string>
+	<string name="search_records_hint">Rechercher des enregistrements</string>
+	<string name="search_close">Fermer la recherche</string>
+	<string name="search_clear">Effacer la recherche</string>
+	<string name="no_search_results">Aucun enregistrement trouvé pour « %1$s »</string>
 	<string name="need_write_permission">L\'application nécessite la permission d\'accéder au stockage public. Si non autorisé, les enregistrements seront stockés dans le dossier privé de l\'application</string>
 	<string name="rec_name">Nom :</string>
 	<string name="rec_format">Format :</string>
@@ -333,6 +339,8 @@
 	<string name="button_pause">Pause</string>
 	<string name="button_resume">Reprendre</string>
 	<string name="button_finish">Terminer</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Vitesse de lecture %1$s</string>
 	<string name="legacy_app">Application héritée</string>
 	<string name="legacy_app_subtitle">Passer à l\'ancienne interface de l\'application</string>
 	<string name="switch_to_legacy">Passer à l\'application héritée</string>
@@ -385,6 +393,7 @@
 	<string name="app_widget_description">Widget début d\'enregistrement</string>
 
     <string name="bluetooth_microphone_available">Microphone Bluetooth disponible</string>
+    <string name="bluetooth_always_use_when_available">Toujours utiliser le micro Bluetooth lorsqu\'il est disponible</string>
     <string name="audio_source">Source audio</string>
     <string name="audio_source_default">Par défaut</string>
     <string name="audio_source_mic">Microphone</string>
@@ -412,4 +421,38 @@
     <string name="duration_hours_and_minutes">%1$dh %2$dmin</string>
     <string name="duration_minutes">%1$dmin</string>
     <string name="dropdown_menu">Menu</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Modifier le format du nom</string>
+    <string name="name_format_preview">Aperçu</string>
+    <string name="name_format_preview_empty">Ajoutez des éléments pour composer un nom</string>
+    <string name="name_format_your_format">Votre format</string>
+    <string name="name_format_empty_hint">Appuyez sur les éléments ci-dessous pour les ajouter à votre format.</string>
+    <string name="name_format_remove_element">Supprimer l\'élément</string>
+    <string name="name_format_date_and_time">Date et heure</string>
+    <string name="name_format_other">Compteur et texte</string>
+    <string name="name_format_dividers">Séparateurs</string>
+    <string name="name_format_presets">Modèles</string>
+    <string name="name_format_add_text">Ajouter du texte</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Horodatage</string>
+    <string name="name_format_year">Année</string>
+    <string name="name_format_month">Mois</string>
+    <string name="name_format_month_name">Nom du mois</string>
+    <string name="name_format_day">Jour</string>
+    <string name="name_format_day_of_week">Jour de la semaine</string>
+    <string name="name_format_hour_24">Heure (24 h)</string>
+    <string name="name_format_hour_12">Heure (12 h)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Minute</string>
+    <string name="name_format_second">Seconde</string>
+    <string name="name_format_counter">Compteur</string>
+    <string name="name_format_text">Texte</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Horodatage</string>
+    <string name="name_format_preset_date">Date</string>
+    <string name="name_format_preset_date_us">Date US</string>
+    <string name="name_format_preset_date_iso8601">Date ISO 8601</string>
+    <string name="name_format_preset_date_long">Date longue</string>
+    <string name="name_format_preset_custom">Personnalisé</string>
 </resources>

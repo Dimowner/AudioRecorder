@@ -1,5 +1,7 @@
 package com.dimowner.audiorecorder.v2.app.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -31,6 +35,7 @@ import com.dimowner.audiorecorder.v2.app.getTestWaveformData
 import com.dimowner.audiorecorder.v2.app.home.HomeScreenState
 import com.dimowner.audiorecorder.v2.app.home.LegacySlider
 import com.dimowner.audiorecorder.v2.app.home.PlayPanel
+import com.dimowner.audiorecorder.v2.data.model.PlaybackSpeed
 
 @Composable
 internal fun RecordPlaybackPanel(
@@ -44,6 +49,7 @@ internal fun RecordPlaybackPanel(
     onPlayClick: () -> Unit,
     onStopClick: () -> Unit,
     onPauseClick: () -> Unit,
+    onPlaybackSpeedClick: (PlaybackSpeed) -> Unit = {},
     onBookmarkClick: () -> Unit = {},
     onPrevClick: () -> Unit = {},
     onNextClick: () -> Unit = {},
@@ -52,6 +58,14 @@ internal fun RecordPlaybackPanel(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Grab handle indicates the panel can be dragged to dismiss.
+        Box(
+            modifier = Modifier
+                .padding(top = 6.dp)
+                .size(width = 36.dp, height = 4.dp)
+                .clip(RoundedCornerShape(2.dp))
+                .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
+        )
         // Time + bookmark row
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -138,9 +152,11 @@ internal fun RecordPlaybackPanel(
         // match what its position/icon now indicates.
         val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
         Row(
+            // Tight padding: the play controls, the speed menu and the prev/next buttons all share
+            // this row, which barely fits on a narrow screen.
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(
@@ -157,9 +173,11 @@ internal fun RecordPlaybackPanel(
                 modifier = Modifier.wrapContentHeight().wrapContentSize(),
                 showPause = uiState.showPause,
                 showStop = uiState.showStop,
+                selectedSpeed = uiState.playbackSpeed,
                 onPlayClick = { onPlayClick() },
                 onStopClick = { onStopClick() },
-                onPauseClick = { onPauseClick() }
+                onPauseClick = { onPauseClick() },
+                onPlaybackSpeedClick = onPlaybackSpeedClick,
             )
             Spacer(modifier = Modifier.weight(1f))
             IconButton(

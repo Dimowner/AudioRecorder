@@ -1,7 +1,9 @@
 package com.dimowner.audiorecorder.v2.di
 
 import android.content.Context
+import androidx.media3.common.util.UnstableApi
 import com.dimowner.audiorecorder.audio.player.AudioPlayerNew
+import com.dimowner.audiorecorder.audio.player.ExoAudioPlayer
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
@@ -32,10 +34,11 @@ class AppModule {
         return Dispatchers.Main
     }
 
+    @UnstableApi
     @Singleton
     @Provides
     fun providePlayerContractNew(@ApplicationContext context: Context): PlayerContractNew.Player {
-        return AudioPlayerNew(context)
+        return ExoAudioPlayer(context)
     }
 
     /**

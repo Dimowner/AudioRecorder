@@ -128,6 +128,7 @@
 	<string name="info">Bilgi</string>
 	<string name="rename">Yeniden adlandır</string>
 	<string name="dont_ask_again">Bir daha sorma</string>
+	<string name="dont_show_next_time">Bir dahaki sefere gösterme</string>
 	<string name="open_with">Birlikte aç&#8230;</string>
 	<string name="save_as">Farklı kaydet&#8230;</string>
 	<string name="downloading">İndiriliyor: %s</string>
@@ -173,9 +174,14 @@
 	<string name="by_duration">Süreye göre (en uzun)</string>
     <string name="by_duration_desc">Süreye göre (en kısa)</string>
     <string name="filter">Filtre</string>
-	<string name="filter_clear">Temizle</string>
+	<string name="clear">Temizle</string>
 	<string name="filter_dismiss">Filtreyi kapat</string>
 	<string name="filter_no_options">Filtrelenecek kayıt yok</string>
+	<string name="search">Ara</string>
+	<string name="search_records_hint">Kayıtlarda ara</string>
+	<string name="search_close">Aramayı kapat</string>
+	<string name="search_clear">Aramayı temizle</string>
+	<string name="no_search_results">“%1$s” için kayıt bulunamadı</string>
 	<string name="need_write_permission">Uygulama genel dosya dizinine erişim izni gerektiriyor. Eğer izin onaylanmazsa, kayıtlar uygulamanın kendi dizinine kaydedilecek.</string>
 	<string name="rec_name">İsim:</string>
 	<string name="rec_format">Format:</string>
@@ -351,6 +357,8 @@
 	<string name="button_pause">Duraklat</string>
 	<string name="button_resume">Devam et</string>
 	<string name="button_finish">Bitir</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Oynatma hızı %1$s</string>
 	<string name="legacy_app">Eski Uygulama</string>
 	<string name="legacy_app_subtitle">Eski uygulama arayüzüne geç</string>
 	<string name="switch_to_legacy">Eski uygulamaya geç</string>
@@ -411,6 +419,7 @@
     <string name="app_widget_description">Kayıt widgetini başlat</string>
 
     <string name="bluetooth_microphone_available">Bluetooth mikrofon mevcut</string>
+    <string name="bluetooth_always_use_when_available">Kullanılabilir olduğunda her zaman Bluetooth mikrofonu kullan</string>
     <string name="audio_source">Ses Kaynağı</string>
     <string name="audio_source_default">Varsayılan</string>
     <string name="audio_source_mic">Mikrofon</string>
@@ -434,4 +443,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">Geri git</string>
     <string name="dropdown_menu">Menü</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Ad biçimini düzenle</string>
+    <string name="name_format_preview">Önizleme</string>
+    <string name="name_format_preview_empty">Ad oluşturmak için öğe ekleyin</string>
+    <string name="name_format_your_format">Biçiminiz</string>
+    <string name="name_format_empty_hint">Biçiminize eklemek için aşağıdaki öğelere dokunun.</string>
+    <string name="name_format_remove_element">Öğeyi kaldır</string>
+    <string name="name_format_date_and_time">Tarih ve saat</string>
+    <string name="name_format_other">Sayaç ve metin</string>
+    <string name="name_format_dividers">Ayırıcılar</string>
+    <string name="name_format_presets">Hazır biçimler</string>
+    <string name="name_format_add_text">Metin ekle</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Zaman damgası</string>
+    <string name="name_format_year">Yıl</string>
+    <string name="name_format_month">Ay</string>
+    <string name="name_format_month_name">Ay adı</string>
+    <string name="name_format_day">Gün</string>
+    <string name="name_format_day_of_week">Haftanın günü</string>
+    <string name="name_format_hour_24">Saat (24s)</string>
+    <string name="name_format_hour_12">Saat (12s)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Dakika</string>
+    <string name="name_format_second">Saniye</string>
+    <string name="name_format_counter">Sayaç</string>
+    <string name="name_format_text">Metin</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Zaman damgası</string>
+    <string name="name_format_preset_date">Tarih</string>
+    <string name="name_format_preset_date_us">Tarih ABD</string>
+    <string name="name_format_preset_date_iso8601">Tarih ISO 8601</string>
+    <string name="name_format_preset_date_long">Uzun tarih</string>
+    <string name="name_format_preset_custom">Özel</string>
 </resources>

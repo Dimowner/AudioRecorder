@@ -71,6 +71,7 @@ import timber.log.Timber
 internal fun WelcomeSetupSettingsScreen(
     onPopBackStack: () -> Unit,
     onApplySettings: () -> Unit,
+    showNameFormatConstructorScreen: () -> Unit,
     uiState: SettingsState,
     onAction: (SettingsScreenAction) -> Unit,
 ) {
@@ -85,6 +86,10 @@ internal fun WelcomeSetupSettingsScreen(
             Lifecycle.Event.ON_START -> {
                 Timber.d("SettingsScreen: onStart")
                 onAction(SettingsScreenAction.InitSettingsScreen)
+            }
+            Lifecycle.Event.ON_RESUME -> {
+                //Pick up a format that was just built in the name format constructor.
+                onAction(SettingsScreenAction.RefreshNameFormat)
             }
             else -> {}
         }
@@ -141,7 +146,8 @@ internal fun WelcomeSetupSettingsScreen(
                         selectedItem = uiState.selectedNameFormat,
                         onSelect = {
                             onAction(SettingsScreenAction.SetNameFormat(it))
-                        }
+                        },
+                        onEditNameFormat = showNameFormatConstructorScreen,
                     )
                     AuthorNameSettingRow(
                         currentAuthorName = uiState.recordAuthorName,
@@ -279,7 +285,7 @@ fun RecordingFormat.toFormatInfo(): String {
 @Preview
 @Composable
 fun WelcomeSetupSettingsScreenPreview() {
-    WelcomeSetupSettingsScreen({}, {}, uiState = SettingsState(
+    WelcomeSetupSettingsScreen({}, {}, {}, uiState = SettingsState(
         isDynamicColors = true,
         isAppV2 = false,
         isDarkTheme = false,

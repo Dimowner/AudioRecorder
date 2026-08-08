@@ -95,16 +95,17 @@ class RecordsDataSourceImpl @Inject internal constructor(
         page: Int,
         pageSize: Int,
         sortOrder: SortOrder,
-        isBookmarked: Boolean,
-        filter: RecordsFilter
+        filter: RecordsFilter,
+        searchQuery: String,
     ): List<Record> {
         val args = mutableListOf<Any>()
         val sb = StringBuilder()
         sb.append("SELECT * FROM records")
         sb.append(" WHERE isMovedToRecycle = 0")
-        if (isBookmarked) {
+        if (filter.bookmarkedOnly) {
             sb.append(" AND isBookmarked = 1")
         }
+        appendSearchClause(sb, args, searchQuery)
         appendInClause(sb, args, "format", filter.formats)
         appendInClause(sb, args, "sampleRate", filter.sampleRates)
         appendInClause(sb, args, "channelCount", filter.channelCounts)
@@ -114,6 +115,29 @@ class RecordsDataSourceImpl @Inject internal constructor(
         sb.append(" OFFSET " + ((page - 1) * pageSize))
         return recordDao.getRecordsRewQuery(SimpleSQLiteQuery(sb.toString(), args.toTypedArray()))
             .map { it.toRecord() }
+    }
+
+    /**
+     * Appends an `AND (name LIKE ? OR description LIKE ?)` clause matching [query] anywhere in
+     * either column. Blank queries are ignored. SQLite's LIKE is case-insensitive for ASCII,
+     * which is what the records list needs. The wildcards `%` and `_` (and the escape
+     * character itself) are escaped so a user typing them searches for the literal character
+     * instead of matching everything.
+     */
+    private fun appendSearchClause(
+        sb: StringBuilder,
+        args: MutableList<Any>,
+        query: String,
+    ) {
+        if (query.isBlank()) return
+        val escaped = query.trim()
+            .replace("\\", "\\\\")
+            .replace("%", "\\%")
+            .replace("_", "\\_")
+        val pattern = "%$escaped%"
+        sb.append(" AND (name LIKE ? ESCAPE '\\' OR description LIKE ? ESCAPE '\\')")
+        args.add(pattern)
+        args.add(pattern)
     }
 
     /**

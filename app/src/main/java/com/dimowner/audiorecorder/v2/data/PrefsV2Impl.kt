@@ -26,12 +26,15 @@ import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
+import com.dimowner.audiorecorder.v2.data.model.NameFormatToken
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.data.model.convertToBitRate
 import com.dimowner.audiorecorder.v2.data.model.convertToChannelCount
 import com.dimowner.audiorecorder.v2.data.model.convertToNameFormat
+import com.dimowner.audiorecorder.v2.data.model.convertToNameFormatTokens
+import com.dimowner.audiorecorder.v2.data.model.serialize
 import com.dimowner.audiorecorder.v2.data.model.convertToRecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.convertToSampleRate
 import com.dimowner.audiorecorder.v2.data.model.convertToSortOrder
@@ -108,6 +111,16 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         set(value) {
             sharedPreferences.edit {
                 putBoolean(PREF_KEY_SAVE_DESCRIPTION_TO_FILE, value)
+            }
+        }
+
+    override var alwaysUseBluetoothMic: Boolean
+        get() = sharedPreferences.getBoolean(
+            PREF_KEY_ALWAYS_USE_BLUETOOTH_MIC, DefaultValues.IS_ALWAYS_USE_BLUETOOTH_MIC
+        )
+        set(value) {
+            sharedPreferences.edit {
+                putBoolean(PREF_KEY_ALWAYS_USE_BLUETOOTH_MIC, value)
             }
         }
 
@@ -213,6 +226,15 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         set(value) {
             sharedPreferences.edit {
                 putString(PREF_KEY_SETTING_NAMING_FORMAT, value.name)
+            }
+        }
+
+    override var customNameFormat: List<NameFormatToken>
+        get() = sharedPreferences.getString(PREF_KEY_CUSTOM_NAME_FORMAT, null)
+            ?.convertToNameFormatTokens() ?: emptyList()
+        set(value) {
+            sharedPreferences.edit {
+                putString(PREF_KEY_CUSTOM_NAME_FORMAT, value.serialize())
             }
         }
 
@@ -343,5 +365,7 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         private const val PREF_KEY_SAVE_DESCRIPTION_TO_FILE = "pref_key_save_description_to_file"
         private const val PREF_KEY_IS_LOCAL_STORAGE_INFO_SHOWN = "pref_key_is_local_storage_info_shown"
         private const val PREF_KEY_PUBLIC_RECORDING_DIR_URI = "pref_key_public_recording_dir_uri"
+        private const val PREF_KEY_CUSTOM_NAME_FORMAT = "pref_key_custom_name_format"
+        private const val PREF_KEY_ALWAYS_USE_BLUETOOTH_MIC = "pref_key_always_use_bluetooth_mic"
     }
 }

@@ -15,6 +15,7 @@
  */
 package com.dimowner.audiorecorder.v2.audio
 
+import android.media.MediaCodec
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMuxer
@@ -23,9 +24,12 @@ import org.mp4parser.muxer.Movie
 import org.mp4parser.muxer.builder.DefaultMp4Builder
 import org.mp4parser.muxer.tracks.AACTrackImpl
 import timber.log.Timber
+import java.io.BufferedInputStream
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.RandomAccessFile
+import java.nio.ByteBuffer
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -45,7 +49,8 @@ import javax.inject.Singleton
  *   its 'moov' atom. This class attempts to recover such files using multiple strategies:
  *   1. Try MediaExtractor (works if the OS partially recovered the file)
  *   2. Try re-muxing with MediaExtractor + MediaMuxer
- *   3. Fallback to mp4parser to extract raw AAC frames and build a new valid container
+ *   3. Extract the raw AAC frames from the mdat atom, ADTS-frame them, and re-mux that stream
+ *      into a new valid container (with a heap-guarded mp4parser fallback)
  */
 @Singleton
 class BrokenRecordRestorer @Inject constructor() {
@@ -462,17 +467,29 @@ class BrokenRecordRestorer @Inject constructor() {
      */
     @Suppress("MagicNumber")
     internal fun buildAmrFile(rawAmrData: File, outputFile: File, isWb: Boolean): Boolean {
-        val raw = rawAmrData.readBytes()
-        if (raw.isEmpty()) return false
-
-        // Find where valid AMR frames begin in the raw blob
-        val frameStart = findFirstAmrFrame(raw, isWb)
-        if (frameStart < 0) return false
+        if (rawAmrData.length() <= 0) return false
 
         val magic = if (isWb) AMR_WB_MAGIC else AMR_NB_MAGIC
-        FileOutputStream(outputFile).use { fos ->
-            fos.write(magic)
-            fos.write(raw, frameStart, raw.size - frameStart)
+        // The frame start can only be within the first AMR_SCAN_LIMIT bytes, so only that
+        // head is buffered — the payload itself is streamed and may be arbitrarily large.
+        BufferedInputStream(FileInputStream(rawAmrData), DEFAULT_BUFFER_SIZE).use { input ->
+            val head = ByteArray(AMR_SCAN_LIMIT)
+            var headSize = 0
+            while (headSize < head.size) {
+                val read = input.read(head, headSize, head.size - headSize)
+                if (read <= 0) break
+                headSize += read
+            }
+            if (headSize <= 0) return false
+
+            val frameStart = findFirstAmrFrame(head.copyOf(headSize), isWb)
+            if (frameStart < 0) return false
+
+            FileOutputStream(outputFile).use { fos ->
+                fos.write(magic)
+                fos.write(head, frameStart, headSize - frameStart)
+                input.copyTo(fos, DEFAULT_BUFFER_SIZE)
+            }
         }
         return outputFile.length() > magic.size
     }
@@ -594,8 +611,12 @@ class BrokenRecordRestorer @Inject constructor() {
      *    wraps each raw AAC-LC frame with an ADTS header so that AACTrackImpl
      *    can parse it. The ADTS header encodes profile, sample-rate index and
      *    channel configuration derived from the recording settings stored in the DB.
-     * 3. Uses mp4parser's AACTrackImpl to parse the ADTS stream and create a proper track
-     * 4. Builds a new valid MPEG-4 container with DefaultMp4Builder
+     * 3. Rebuilds a valid MPEG-4 container around that ADTS stream with MediaExtractor +
+     *    MediaMuxer ([remuxAdtsIntoMp4]), which streams frame by frame and so uses a constant
+     *    amount of heap regardless of how long the recording is.
+     * 4. Only if the platform muxer cannot read the stream, falls back to mp4parser's
+     *    AACTrackImpl + DefaultMp4Builder. That path holds every frame on the heap at once, so
+     *    it is gated on [canAffordMp4ParserRebuild] to avoid an OutOfMemoryError.
      *
      * @param file The broken audio file
      * @return RestoreResult indicating success or failure
@@ -636,18 +657,37 @@ class BrokenRecordRestorer @Inject constructor() {
                 tempAdtsFile
             }
 
-            // Step 3: Use mp4parser to parse the ADTS AAC stream and create a valid container
-            val aacTrack = AACTrackImpl(FileDataSourceImpl(aacFileForParsing))
+            // Step 3: Rebuild a valid MPEG-4 container around the ADTS stream.
+            // Preferred path: MediaExtractor + MediaMuxer. It streams one frame at a time
+            // through a single reusable buffer, so heap use is constant no matter how long
+            // the recording is.
+            val rebuilt = remuxAdtsIntoMp4(aacFileForParsing, tempMp4File)
 
-            val movie = Movie()
-            movie.addTrack(aacTrack)
+            // Step 4: Fall back to mp4parser only if the platform muxer could not read the
+            // stream. mp4parser materialises one Java object per AAC frame (see
+            // MP4PARSER_HEAP_BYTES_PER_FRAME), so it is only attempted when the frame count
+            // of this particular file fits in the heap we actually have left.
+            if (!rebuilt) {
+                tempMp4File.delete()
+                if (!canAffordMp4ParserRebuild(aacFileForParsing)) {
+                    tempAacFile.delete()
+                    tempAdtsFile.delete()
+                    return RestoreResult.Failed(
+                        "Recording is too long to rebuild with mp4parser without exhausting the heap"
+                    )
+                }
 
-            val mp4Builder = DefaultMp4Builder()
-            val container = mp4Builder.build(movie)
+                val aacTrack = AACTrackImpl(FileDataSourceImpl(aacFileForParsing))
 
-            // Step 4: Write the valid MP4 container to the temp file
-            FileOutputStream(tempMp4File).use { fos ->
-                container.writeContainer(fos.channel)
+                val movie = Movie()
+                movie.addTrack(aacTrack)
+
+                val mp4Builder = DefaultMp4Builder()
+                val container = mp4Builder.build(movie)
+
+                FileOutputStream(tempMp4File).use { fos ->
+                    container.writeContainer(fos.channel)
+                }
             }
 
             // Step 5: Verify the restored file is readable
@@ -664,7 +704,8 @@ class BrokenRecordRestorer @Inject constructor() {
             tempAacFile.delete()
             tempAdtsFile.delete()
 
-            Timber.d("File restored via mp4parser: ${file.absolutePath}, duration: ${verifyDuration}μs")
+            val strategy = if (rebuilt) "ADTS re-mux" else "mp4parser"
+            Timber.d("File restored via $strategy: ${file.absolutePath}, duration: ${verifyDuration}μs")
             RestoreResult.Success(verifyDuration)
         } catch (e: Exception) {
             Timber.e(e, "mp4parser restoration failed for: ${file.absolutePath}")
@@ -690,6 +731,188 @@ class BrokenRecordRestorer @Inject constructor() {
     }
 
     /**
+     * Re-muxes an ADTS AAC stream into a valid MPEG-4 container using the platform
+     * [MediaExtractor] + [MediaMuxer].
+     *
+     * This is the memory-safe way to rebuild the container: frames are copied one at a time
+     * through a single reusable [ByteBuffer], and the sample tables are accumulated by the
+     * native muxer rather than on the Java heap. Heap use is therefore independent of the
+     * recording length, unlike the mp4parser path (see [canAffordMp4ParserRebuild]).
+     *
+     * @param adtsFile   Source ADTS AAC stream.
+     * @param outputFile Destination MPEG-4 file. Left deleted if the re-mux fails.
+     * @return true if an audio track was fully written, false if the stream could not be
+     *         read or contained no samples.
+     */
+    @Suppress("TooGenericExceptionCaught")
+    private fun remuxAdtsIntoMp4(adtsFile: File, outputFile: File): Boolean {
+        val extractor = MediaExtractor()
+        var muxer: MediaMuxer? = null
+        var muxerStarted = false
+
+        return try {
+            extractor.setDataSource(adtsFile.absolutePath)
+
+            var audioTrackIndex = -1
+            var audioFormat: MediaFormat? = null
+            for (i in 0 until extractor.trackCount) {
+                val format = extractor.getTrackFormat(i)
+                val mime = format.getString(MediaFormat.KEY_MIME) ?: continue
+                if (mime.startsWith("audio/")) {
+                    audioTrackIndex = i
+                    audioFormat = format
+                    break
+                }
+            }
+            if (audioTrackIndex == -1 || audioFormat == null) {
+                Timber.d("ADTS re-mux: no audio track found in ${adtsFile.absolutePath}")
+                return false
+            }
+
+            extractor.selectTrack(audioTrackIndex)
+
+            muxer = MediaMuxer(outputFile.absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+            val muxerTrackIndex = muxer.addTrack(audioFormat)
+            muxer.start()
+            muxerStarted = true
+
+            // One ADTS frame can never exceed 8191 bytes, but honour KEY_MAX_INPUT_SIZE when
+            // the extractor reports a larger value.
+            val bufferSize = try {
+                audioFormat.getInteger(MediaFormat.KEY_MAX_INPUT_SIZE)
+            } catch (_: Exception) {
+                0
+            }.coerceAtLeast(ADTS_REMUX_BUFFER_SIZE)
+            val buffer = ByteBuffer.allocate(bufferSize)
+            val bufferInfo = MediaCodec.BufferInfo()
+
+            var sampleCount = 0
+            while (true) {
+                val sampleSize = extractor.readSampleData(buffer, 0)
+                if (sampleSize < 0) break
+
+                bufferInfo.offset = 0
+                bufferInfo.size = sampleSize
+                bufferInfo.presentationTimeUs = extractor.sampleTime
+                // Every AAC frame is independently decodable.
+                bufferInfo.flags = MediaCodec.BUFFER_FLAG_KEY_FRAME
+
+                muxer.writeSampleData(muxerTrackIndex, buffer, bufferInfo)
+                sampleCount++
+
+                extractor.advance()
+            }
+
+            if (sampleCount == 0) {
+                Timber.d("ADTS re-mux: no samples read from ${adtsFile.absolutePath}")
+                return false
+            }
+
+            muxer.stop()
+            muxerStarted = false
+            Timber.d("ADTS re-mux wrote $sampleCount samples to ${outputFile.absolutePath}")
+            true
+        } catch (e: Exception) {
+            Timber.e(e, "ADTS re-mux failed for: ${adtsFile.absolutePath}")
+            false
+        } finally {
+            if (muxerStarted) {
+                // stop() was never reached — the muxer would otherwise throw on release().
+                try { muxer?.stop() } catch (_: Throwable) {}
+            }
+            try { muxer?.release() } catch (_: Throwable) {}
+            try { extractor.release() } catch (_: Throwable) {}
+        }
+    }
+
+    /**
+     * Decides whether rebuilding [adtsFile] with mp4parser can fit in the heap still available.
+     *
+     * mp4parser is not streaming: `AACTrackImpl` allocates one `Sample` object per ADTS frame
+     * and keeps them all in a list, and `DefaultMp4Builder` then adds a per-frame entry to the
+     * decoding-time and sample-size arrays plus the chunk list. That works out to roughly
+     * [MP4PARSER_HEAP_BYTES_PER_FRAME] bytes of live heap per frame, which at ~43 frames per
+     * second is several MB per hour of audio — enough to exhaust the default 128 MB heap on a
+     * long recording and take the whole process down with an OutOfMemoryError (the crash may
+     * then surface on any thread, typically in Compose recomposition rather than here).
+     *
+     * The frame count is estimated from the average `aac_frame_length` of the first
+     * [ADTS_FRAMES_TO_SAMPLE] frames rather than assumed, because a mis-detected frame boundary
+     * in [wrapRawAacWithAdts] can produce frames as small as [MIN_AAC_FRAME_BYTES] and blow the
+     * estimate up by an order of magnitude — exactly the case that must be rejected.
+     *
+     * @return true if the estimated cost stays under [MP4PARSER_HEAP_BUDGET_FRACTION] of the
+     *         heap headroom, false if it does not or the stream could not be measured.
+     */
+    private fun canAffordMp4ParserRebuild(adtsFile: File): Boolean {
+        val averageFrameLength = averageAdtsFrameLength(adtsFile)
+        if (averageFrameLength == null || averageFrameLength <= 0) {
+            Timber.w("Cannot measure ADTS frame size, refusing mp4parser rebuild: ${adtsFile.absolutePath}")
+            return false
+        }
+
+        val estimatedFrames = adtsFile.length() / averageFrameLength
+        val estimatedHeapBytes = estimatedFrames * MP4PARSER_HEAP_BYTES_PER_FRAME
+
+        val runtime = Runtime.getRuntime()
+        val usedHeap = runtime.totalMemory() - runtime.freeMemory()
+        val headroom = runtime.maxMemory() - usedHeap
+        val budget = (headroom * MP4PARSER_HEAP_BUDGET_FRACTION).toLong()
+
+        val affordable = estimatedHeapBytes < budget
+        Timber.d(
+            "mp4parser rebuild estimate: frames=$estimatedFrames (avg ${averageFrameLength}B), " +
+                "heap needed=${estimatedHeapBytes / 1024}KB, budget=${budget / 1024}KB, affordable=$affordable"
+        )
+        return affordable
+    }
+
+    /**
+     * Reads the `aac_frame_length` field of up to [ADTS_FRAMES_TO_SAMPLE] leading frames of
+     * [adtsFile] and returns their average size in bytes, walking the stream header-to-header.
+     *
+     * @return the average frame length, or null if the file does not start with a valid ADTS
+     *         sync word or no complete frame could be read.
+     */
+    @Suppress("MagicNumber", "ReturnCount")
+    internal fun averageAdtsFrameLength(adtsFile: File): Int? {
+        return try {
+            RandomAccessFile(adtsFile, "r").use { raf ->
+                val fileLength = raf.length()
+                val header = ByteArray(ADTS_HEADER_SIZE)
+                var offset = 0L
+                var frames = 0
+                var totalLength = 0L
+
+                while (frames < ADTS_FRAMES_TO_SAMPLE && offset + ADTS_HEADER_SIZE <= fileLength) {
+                    raf.seek(offset)
+                    raf.readFully(header)
+
+                    // Sync word: 0xFF followed by 0xF in the high nibble of byte 1.
+                    val b0 = header[0].toInt() and 0xFF
+                    val b1 = header[1].toInt() and 0xFF
+                    if (b0 != 0xFF || (b1 and 0xF0) != 0xF0) break
+
+                    // aac_frame_length is 13 bits spanning bytes 3..5.
+                    val frameLength = ((header[3].toInt() and 0x03) shl 11) or
+                        ((header[4].toInt() and 0xFF) shl 3) or
+                        ((header[5].toInt() and 0xFF) ushr 5)
+                    if (frameLength <= ADTS_HEADER_SIZE) break
+
+                    totalLength += frameLength
+                    offset += frameLength
+                    frames++
+                }
+
+                if (frames == 0) null else (totalLength / frames).toInt()
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to measure ADTS frame length: ${adtsFile.absolutePath}")
+            null
+        }
+    }
+
+    /**
      * Wraps raw AAC-LC frames (as stored in the M4A mdat atom) with ADTS headers so
      * that the resulting file is a standard ADTS AAC stream readable by [AACTrackImpl].
      *
@@ -698,14 +921,13 @@ class BrokenRecordRestorer @Inject constructor() {
      * us individual frame sizes, so we must detect frame boundaries from the bitstream.
      *
      * Strategy:
-     * 1. Scan the raw AAC-LC bitstream looking for the **ID_END element** (3-bit value
-     *    `0b111`) that every AAC-LC raw_data_block() ends with, byte-aligned after padding.
-     *    This lets us identify where each frame ends.
+     * 1. Scan the raw AAC-LC bitstream for the byte that starts the next frame (see
+     *    [nextAacFrameSize]). This lets us identify where each frame ends.
      * 2. Each detected frame gets a 7-byte ADTS header prepended.
      *
-     * If the bitstream-scan produces zero frames (e.g. the data is opaque), we fall back
-     * to splitting the raw data into equal-sized chunks using a typical AAC-LC frame size
-     * estimate (bitrate / sampleRate * 1024 / 8), capped to [AAC_ADTS_MAX_PAYLOAD_SIZE].
+     * If no boundary is detected the frame is cut at [AAC_ADTS_MAX_PAYLOAD_SIZE].
+     * The file is processed as a stream through a window of that size, so memory use is
+     * constant regardless of how large the broken recording is.
      *
      * @param rawFile     Input file: concatenated raw AAC-LC frames without ADTS headers.
      * @param outputFile  Where to write the ADTS-framed output.
@@ -715,7 +937,7 @@ class BrokenRecordRestorer @Inject constructor() {
      * @return true on success, false if wrapping failed entirely.
      */
     @Suppress("MagicNumber")
-    private fun wrapRawAacWithAdts(
+    internal fun wrapRawAacWithAdts(
         rawFile: File,
         outputFile: File,
         sampleRate: Int,
@@ -739,46 +961,60 @@ class BrokenRecordRestorer @Inject constructor() {
         // AAC-LC profile_ObjectType = 0  (profile - 1, where AAC-LC = 1)
         val profileObjectType = 0
 
-        val rawData = rawFile.readBytes()
-        if (rawData.isEmpty()) return false
+        // Recordings can be arbitrarily long (an interrupted mdat may be hundreds of MB),
+        // so the raw stream is processed with a sliding window instead of being read into
+        // memory at once. A frame can never exceed AAC_ADTS_MAX_PAYLOAD_SIZE bytes, so a
+        // window of that size + 1 always contains everything needed to decide where the
+        // current frame ends.
+        if (rawFile.length() < MIN_AAC_FRAME_BYTES * 2) return false
 
-        // --- Detect frame boundaries ---
-        val frameBoundaries = findAacLcFrameBoundaries(rawData, channelCount)
+        // expected id_syn_ele top-3-bits for this channel layout
+        val expectedTopBits = expectedIdSynEleBits(channelCount)
 
-        val frameSizes: List<Int> = if (frameBoundaries.size >= 2) {
-            // Build sizes from boundary list (last entry is end-of-data)
-            List(frameBoundaries.size - 1) { i -> frameBoundaries[i + 1] - frameBoundaries[i] }
-        } else {
-            return false
-        }
-
-        // --- Write ADTS stream ---
         var framesWritten = 0
-        var dataPos = 0
-        FileOutputStream(outputFile).use { fos ->
-            for (frameDataSize in frameSizes) {
-                if (frameDataSize <= 0 || dataPos + frameDataSize > rawData.size) break
+        val window = ByteArray(AAC_ADTS_MAX_PAYLOAD_SIZE + 1)
+        var windowSize = 0
+        var endOfStream = false
 
-                val adtsFrameLength = frameDataSize + ADTS_HEADER_SIZE
+        BufferedInputStream(FileInputStream(rawFile), DEFAULT_BUFFER_SIZE).use { input ->
+            FileOutputStream(outputFile).use { fos ->
+                while (true) {
+                    // Top up the window so a full frame decision can be made.
+                    while (!endOfStream && windowSize < window.size) {
+                        val read = input.read(window, windowSize, window.size - windowSize)
+                        if (read <= 0) endOfStream = true else windowSize += read
+                    }
+                    if (windowSize <= 0) break
 
-                // 7-byte ADTS header (no CRC, protection_absent = 1):
-                //   Sync(12) | ID(1) | layer(2) | protection_absent(1)
-                //   | profile_ObjectType(2) | sampling_frequency_index(4)
-                //   | private_bit(1) | channel_configuration(3)
-                //   | originality/copy/home/copyright bits(4)
-                //   | aac_frame_length(13) | buffer_fullness(11) | raw_data_blocks(2)
-                val h = ByteArray(ADTS_HEADER_SIZE)
-                h[0] = 0xFF.toByte()
-                h[1] = 0xF1.toByte()                                                          // MPEG-4, no CRC
-                h[2] = ((profileObjectType shl 6) or (samplingFreqIndex shl 2) or (channelConfig ushr 2)).toByte()
-                h[3] = (((channelConfig and 0x3) shl 6) or ((adtsFrameLength ushr 11) and 0x3)).toByte()
-                h[4] = ((adtsFrameLength ushr 3) and 0xFF).toByte()
-                h[5] = (((adtsFrameLength and 0x7) shl 5) or 0x1F).toByte()                  // buffer_fullness = 0x7FF (VBR), high 5 bits
-                h[6] = 0xFC.toByte()                                                          // buffer_fullness low 6 bits = 0x3F, raw_blocks = 0
-                fos.write(h)
-                fos.write(rawData, dataPos, frameDataSize)
-                dataPos += frameDataSize
-                framesWritten++
+                    val frameDataSize = nextAacFrameSize(window, windowSize, expectedTopBits)
+                    if (frameDataSize <= 0) break
+
+                    val adtsFrameLength = frameDataSize + ADTS_HEADER_SIZE
+
+                    // 7-byte ADTS header (no CRC, protection_absent = 1):
+                    //   Sync(12) | ID(1) | layer(2) | protection_absent(1)
+                    //   | profile_ObjectType(2) | sampling_frequency_index(4)
+                    //   | private_bit(1) | channel_configuration(3)
+                    //   | originality/copy/home/copyright bits(4)
+                    //   | aac_frame_length(13) | buffer_fullness(11) | raw_data_blocks(2)
+                    val h = ByteArray(ADTS_HEADER_SIZE)
+                    h[0] = 0xFF.toByte()
+                    h[1] = 0xF1.toByte()                                                          // MPEG-4, no CRC
+                    h[2] = ((profileObjectType shl 6) or (samplingFreqIndex shl 2) or (channelConfig ushr 2)).toByte()
+                    h[3] = (((channelConfig and 0x3) shl 6) or ((adtsFrameLength ushr 11) and 0x3)).toByte()
+                    h[4] = ((adtsFrameLength ushr 3) and 0xFF).toByte()
+                    h[5] = (((adtsFrameLength and 0x7) shl 5) or 0x1F).toByte()                  // buffer_fullness = 0x7FF (VBR), high 5 bits
+                    h[6] = 0xFC.toByte()                                                          // buffer_fullness low 6 bits = 0x3F, raw_blocks = 0
+                    fos.write(h)
+                    fos.write(window, 0, frameDataSize)
+                    framesWritten++
+
+                    // Drop the consumed frame and keep the remainder for the next iteration.
+                    windowSize -= frameDataSize
+                    if (windowSize > 0) {
+                        System.arraycopy(window, frameDataSize, window, 0, windowSize)
+                    }
+                }
             }
         }
 
@@ -787,8 +1023,18 @@ class BrokenRecordRestorer @Inject constructor() {
     }
 
     /**
-     * Scans a raw (headerless) AAC-LC bitstream and returns a list of byte offsets at
-     * which each frame starts, with one extra entry at the end equal to [data].size.
+     * Expected `id_syn_ele` top-3-bits for a given channel layout.
+     *
+     * 1 = mono (SCE), 2 = stereo (CPE), anything else accepts both.
+     */
+    private fun expectedIdSynEleBits(channelCount: Int): IntArray = when (channelCount) {
+        1 -> intArrayOf(0b000)          // SCE only
+        2 -> intArrayOf(0b001)          // CPE only
+        else -> intArrayOf(0b000, 0b001) // accept both
+    }
+
+    /**
+     * Determines the size of the AAC-LC frame that starts at index 0 of [window].
      *
      * Raw AAC-LC frames stored in an M4A mdat atom do not have ADTS sync words, so we
      * use a bitstream heuristic to locate frame boundaries:
@@ -801,62 +1047,30 @@ class BrokenRecordRestorer @Inject constructor() {
      * - Therefore, the byte *immediately after* the last padding byte of a frame tends
      *   to start with `0b000xxxxx` (SCE) or `0b001xxxxx` (CPE).
      *
-     * Algorithm: starting from the previous boundary + MIN_AAC_FRAME_BYTES, scan forward
-     * one byte at a time looking for a byte whose top-3-bits match the expected element
-     * type. The *first* such byte is accepted as the next frame start. This ensures we
-     * never create frames smaller than MIN_AAC_FRAME_BYTES and avoids the false-positive
-     * flood that a naive per-byte scan produces.
+     * Algorithm: starting at MIN_AAC_FRAME_BYTES, scan forward one byte at a time looking
+     * for a byte whose top-3-bits match the expected element type. The *first* such byte
+     * ends the current frame. This ensures we never create frames smaller than
+     * MIN_AAC_FRAME_BYTES and avoids the false-positive flood a naive per-byte scan
+     * produces. If no boundary is found the frame is cut at AAC_ADTS_MAX_PAYLOAD_SIZE —
+     * the largest payload the 13-bit ADTS `aac_frame_length` field can describe.
      *
-     * @param data        Raw concatenated AAC-LC frames (no ADTS headers).
-     * @param channelCount 1 = mono (SCE), 2 = stereo (CPE), else unknown.
-     * @return List of frame-start byte offsets with an end-of-data sentinel appended;
-     *         a single-element list (just [0]) means no additional boundaries were found.
+     * @param window         Buffer whose byte 0 is the start of the current frame.
+     * @param windowSize     Number of valid bytes in [window].
+     * @param expectedTopBits Accepted `id_syn_ele` values, see [expectedIdSynEleBits].
+     * @return Frame size in bytes, never larger than AAC_ADTS_MAX_PAYLOAD_SIZE.
      */
     @Suppress("MagicNumber")
-    private fun findAacLcFrameBoundaries(data: ByteArray, channelCount: Int): List<Int> {
-        if (data.size < MIN_AAC_FRAME_BYTES * 2) return emptyList()
-
-        val boundaries = mutableListOf(0) // first frame always starts at byte 0
-
-        // expected id_syn_ele top-3-bits for this channel layout
-        val expectedTopBits = when (channelCount) {
-            1 -> intArrayOf(0b000)          // SCE only
-            2 -> intArrayOf(0b001)          // CPE only
-            else -> intArrayOf(0b000, 0b001) // accept both
+    private fun nextAacFrameSize(window: ByteArray, windowSize: Int, expectedTopBits: IntArray): Int {
+        // Never look past the largest payload an ADTS header can describe.
+        val searchLimit = minOf(windowSize, AAC_ADTS_MAX_PAYLOAD_SIZE + 1)
+        var pos = MIN_AAC_FRAME_BYTES
+        while (pos < searchLimit) {
+            val topBits = (window[pos].toInt() and 0xFF) ushr 5
+            if (topBits in expectedTopBits) return pos
+            pos++
         }
-
-        // Scan forward: each iteration looks for the NEXT frame boundary starting at
-        // (last boundary + MIN_AAC_FRAME_BYTES), then records the FIRST qualifying byte.
-        while (true) {
-            val searchStart = boundaries.last() + MIN_AAC_FRAME_BYTES
-            if (searchStart >= data.size) break
-
-            var found = false
-            var pos = searchStart
-            while (pos < data.size) {
-                // Cap search: don't scan more than AAC_ADTS_MAX_PAYLOAD_SIZE past the
-                // last boundary so we don't emit oversized frames.
-                if (pos - boundaries.last() > AAC_ADTS_MAX_PAYLOAD_SIZE) {
-                    // Force a boundary at the max-size mark even if no sync was detected
-                    boundaries.add(boundaries.last() + AAC_ADTS_MAX_PAYLOAD_SIZE)
-                    found = true
-                    break
-                }
-                val topBits = (data[pos].toInt() and 0xFF) ushr 5
-                if (topBits in expectedTopBits) {
-                    boundaries.add(pos)
-                    found = true
-                    break
-                }
-                pos++
-            }
-            if (!found) break // no further boundary found — the rest is the last frame
-        }
-
-        // Append end-of-data sentinel so callers can derive frame sizes from differences
-        if (boundaries.last() != data.size) boundaries.add(data.size)
-
-        return boundaries
+        // No boundary detected: emit a max-sized frame, or the trailing remainder at EOF.
+        return minOf(windowSize, AAC_ADTS_MAX_PAYLOAD_SIZE)
     }
 
     /**
@@ -998,20 +1212,48 @@ class BrokenRecordRestorer @Inject constructor() {
         private const val WAV_HEADER_SIZE = 44
 
         /** Size of a 7-byte ADTS header (no CRC, protection_absent = 1). */
-        private const val ADTS_HEADER_SIZE = 7
+        internal const val ADTS_HEADER_SIZE = 7
 
         /**
          * Maximum payload (AAC data) size per ADTS frame.
          * The ADTS aac_frame_length field is 13 bits → max total frame = 8191 bytes.
          * Subtract the 7-byte header to get the max payload.
          */
-        private const val AAC_ADTS_MAX_PAYLOAD_SIZE = 8191 - ADTS_HEADER_SIZE // = 8184
+        internal const val AAC_ADTS_MAX_PAYLOAD_SIZE = 8191 - ADTS_HEADER_SIZE // = 8184
 
         /**
          * Minimum plausible size of a single raw AAC-LC frame in bytes.
          * Very small values would indicate noise rather than real frame boundaries.
          */
-        private const val MIN_AAC_FRAME_BYTES = 32
+        internal const val MIN_AAC_FRAME_BYTES = 32
+
+        /**
+         * Copy buffer for [remuxAdtsIntoMp4]. A single ADTS frame is capped at 8191 bytes by
+         * the 13-bit aac_frame_length field, so 8 KB always holds one frame.
+         */
+        private const val ADTS_REMUX_BUFFER_SIZE = 8 * 1024
+
+        /**
+         * Approximate live heap cost per AAC frame of an mp4parser rebuild: the anonymous
+         * `Sample` instance held by `AACTrackImpl` (~40 B) and its list slot, plus the
+         * per-frame entries `DefaultMp4Builder` adds to the decoding-time and sample-size
+         * arrays and the chunk list. Deliberately rounded up — this is a safety budget.
+         */
+        private const val MP4PARSER_HEAP_BYTES_PER_FRAME = 64L
+
+        /**
+         * Share of the remaining heap an mp4parser rebuild is allowed to claim. Half leaves
+         * room for the UI, the Room cache and GC headroom, all of which stay live while the
+         * restore runs on a background dispatcher.
+         */
+        private const val MP4PARSER_HEAP_BUDGET_FRACTION = 0.5
+
+        /**
+         * How many leading ADTS frames [averageAdtsFrameLength] measures before extrapolating
+         * to the whole file. 64 frames is ~1.5 s of audio: enough to smooth out VBR variation,
+         * cheap enough to be a handful of seeks.
+         */
+        private const val ADTS_FRAMES_TO_SAMPLE = 64
 
         // -----------------------------------------------------------------
         // AMR constants

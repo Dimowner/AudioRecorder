@@ -112,6 +112,7 @@
 	<string name="info">Информация</string>
 	<string name="rename">Преименуване</string>
 	<string name="dont_ask_again">Не питай отново</string>
+	<string name="dont_show_next_time">Не показвай следващия път</string>
 	<string name="open_with">Отваряне с&#8230;</string>
 	<string name="save_as">Запазване като&#8230;</string>
 	<string name="downloading">Копиране: %s</string>
@@ -157,9 +158,14 @@
 	<string name="by_duration">По продължителност (най-дълги)</string>
     <string name="by_duration_desc">По продължителност (най-кратки)</string>
     <string name="filter">Филтър</string>
-	<string name="filter_clear">Изчисти</string>
+	<string name="clear">Изчисти</string>
 	<string name="filter_dismiss">Затвори филтъра</string>
 	<string name="filter_no_options">Няма записи за филтриране</string>
+	<string name="search">Търсене</string>
+	<string name="search_records_hint">Търсене в записите</string>
+	<string name="search_close">Затваряне на търсенето</string>
+	<string name="search_clear">Изчистване на търсенето</string>
+	<string name="no_search_results">Няма намерени записи за „%1$s“</string>
 	<string name="need_write_permission">Приложението изисква разрешение за достъп до публичното хранилище. Ако не е разрешено, записите ще бъдат съхранени в частната директория на приложението</string>
 	<string name="rec_name">Име:</string>
 	<string name="rec_format">Формат:</string>
@@ -337,6 +343,8 @@
 	<string name="button_pause">Пауза</string>
 	<string name="button_resume">Продължаване</string>
 	<string name="button_finish">Край</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Скорост на възпроизвеждане %1$s</string>
 	<string name="legacy_app">Стара версия</string>
 	<string name="legacy_app_subtitle">Превключване към стария интерфейс</string>
 	<string name="switch_to_legacy">Превключване към стара версия</string>
@@ -397,6 +405,7 @@
 	<string name="app_widget_description">Джаджа за стартиране на запис</string>
 
 	<string name="bluetooth_microphone_available">Наличен Bluetooth микрофон</string>
+	<string name="bluetooth_always_use_when_available">Винаги използвай Bluetooth микрофон, когато е наличен</string>
 	<string name="audio_source">Аудио източник</string>
 	<string name="audio_source_default">По подразбиране</string>
 	<string name="audio_source_mic">Микрофон</string>
@@ -413,4 +422,38 @@
 	<string name="status_recording_paused">Записването е на пауза</string>
 	<string name="navigate_back">Назад</string>
     <string name="dropdown_menu">Меню</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Редактиране на формата на името</string>
+    <string name="name_format_preview">Преглед</string>
+    <string name="name_format_preview_empty">Добавете елементи, за да съставите име</string>
+    <string name="name_format_your_format">Вашият формат</string>
+    <string name="name_format_empty_hint">Докоснете елементите по-долу, за да ги добавите към формата си.</string>
+    <string name="name_format_remove_element">Премахване на елемента</string>
+    <string name="name_format_date_and_time">Дата и час</string>
+    <string name="name_format_other">Брояч и текст</string>
+    <string name="name_format_dividers">Разделители</string>
+    <string name="name_format_presets">Шаблони</string>
+    <string name="name_format_add_text">Добавяне на текст</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Времеви печат</string>
+    <string name="name_format_year">Година</string>
+    <string name="name_format_month">Месец</string>
+    <string name="name_format_month_name">Име на месеца</string>
+    <string name="name_format_day">Ден</string>
+    <string name="name_format_day_of_week">Ден от седмицата</string>
+    <string name="name_format_hour_24">Час (24 ч)</string>
+    <string name="name_format_hour_12">Час (12 ч)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Минута</string>
+    <string name="name_format_second">Секунда</string>
+    <string name="name_format_counter">Брояч</string>
+    <string name="name_format_text">Текст</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Времеви печат</string>
+    <string name="name_format_preset_date">Дата</string>
+    <string name="name_format_preset_date_us">Дата САЩ</string>
+    <string name="name_format_preset_date_iso8601">Дата ISO 8601</string>
+    <string name="name_format_preset_date_long">Дълга дата</string>
+    <string name="name_format_preset_custom">Персонализиран</string>
 </resources>

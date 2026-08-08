@@ -839,18 +839,34 @@ class RecordsDataSourceImplTest {
     @Test
     fun test_getRecords_paged_withBookmarked() = runBlocking {
         val entity1 = testRecordEntity.copy(id = 1, name = "bookmarked_1", isBookmarked = true)
+        val querySlot = slot<SupportSQLiteQuery>()
 
-        every { recordDao.getRecordsRewQuery(any()) } returns listOf(entity1)
+        every { recordDao.getRecordsRewQuery(capture(querySlot)) } returns listOf(entity1)
 
         val result = recordsDataSourceImpl.getRecords(
             page = 1,
             pageSize = 10,
-            isBookmarked = true
+            filter = RecordsFilter(bookmarkedOnly = true)
         )
 
+        assertTrue(querySlot.captured.sql.contains("isBookmarked = 1"))
         assertEquals(1, result.size)
         assertEquals(1L, result[0].id)
         assertEquals("bookmarked_1", result[0].name)
+    }
+
+    @Test
+    fun test_getRecords_paged_withoutBookmarkedOnly_addsNoBookmarkClause() = runBlocking {
+        val querySlot = slot<SupportSQLiteQuery>()
+        every { recordDao.getRecordsRewQuery(capture(querySlot)) } returns emptyList()
+
+        recordsDataSourceImpl.getRecords(
+            page = 1,
+            pageSize = 10,
+            filter = RecordsFilter(bookmarkedOnly = false)
+        )
+
+        assertFalse(querySlot.captured.sql.contains("isBookmarked"))
     }
 
     @Test
@@ -898,6 +914,72 @@ class RecordsDataSourceImplTest {
         assertTrue(sql.contains("WHERE isMovedToRecycle = 0"))
         assertFalse(sql.contains(" IN ("))
         assertEquals(0, querySlot.captured.argCount)
+    }
+
+    @Test
+    fun test_getRecords_paged_withSearchQuery_buildsLikeClauseOverNameAndDescription() = runBlocking {
+        val querySlot = slot<SupportSQLiteQuery>()
+        every { recordDao.getRecordsRewQuery(capture(querySlot)) } returns listOf(testRecordEntity)
+
+        val result = recordsDataSourceImpl.getRecords(
+            page = 1,
+            pageSize = 10,
+            searchQuery = "meeting"
+        )
+
+        assertEquals(1, result.size)
+        val sql = querySlot.captured.sql
+        assertTrue(sql.contains("name LIKE ? ESCAPE '\\'"))
+        assertTrue(sql.contains("description LIKE ? ESCAPE '\\'"))
+        // One bound argument per LIKE.
+        assertEquals(2, querySlot.captured.argCount)
+    }
+
+    @Test
+    fun test_getRecords_paged_blankSearchQuery_addsNoLikeClause() = runBlocking {
+        val querySlot = slot<SupportSQLiteQuery>()
+        every { recordDao.getRecordsRewQuery(capture(querySlot)) } returns emptyList()
+
+        recordsDataSourceImpl.getRecords(page = 1, pageSize = 10, searchQuery = "   ")
+
+        val sql = querySlot.captured.sql
+        assertFalse(sql.contains("LIKE"))
+        assertEquals(0, querySlot.captured.argCount)
+    }
+
+    @Test
+    fun test_getRecords_paged_searchQueryWithWildcards_escapesThem() = runBlocking {
+        val querySlot = slot<SupportSQLiteQuery>()
+        val bindStatement = mockk<androidx.sqlite.db.SupportSQLiteProgram>(relaxed = true)
+        val boundArgs = mutableListOf<String>()
+        every { bindStatement.bindString(any(), capture(boundArgs)) } returns Unit
+        every { recordDao.getRecordsRewQuery(capture(querySlot)) } returns emptyList()
+
+        recordsDataSourceImpl.getRecords(page = 1, pageSize = 10, searchQuery = "50%_off")
+
+        querySlot.captured.bindTo(bindStatement)
+        // The literal % and _ the user typed must not act as LIKE wildcards.
+        assertEquals(listOf("%50\\%\\_off%", "%50\\%\\_off%"), boundArgs)
+    }
+
+    @Test
+    fun test_getRecords_paged_searchQueryCombinesWithFilter() = runBlocking {
+        val querySlot = slot<SupportSQLiteQuery>()
+        every { recordDao.getRecordsRewQuery(capture(querySlot)) } returns listOf(testRecordEntity)
+
+        recordsDataSourceImpl.getRecords(
+            page = 1,
+            pageSize = 10,
+            filter = RecordsFilter(bookmarkedOnly = true, formats = setOf("m4a")),
+            searchQuery = "notes"
+        )
+
+        val sql = querySlot.captured.sql
+        assertTrue(sql.contains("isBookmarked = 1"))
+        assertTrue(sql.contains("format IN (?)"))
+        assertTrue(sql.contains("LIKE"))
+        // 2 search patterns + 1 format
+        assertEquals(3, querySlot.captured.argCount)
     }
 
     @Test

@@ -105,6 +105,7 @@
     <string name="info">信息</string>
     <string name="rename">重命名</string>
     <string name="dont_ask_again">不再询问</string>
+    <string name="dont_show_next_time">下次不再显示</string>
     <string name="open_with">打开方式&#8230;</string>
     <string name="save_as">另存为&#8230;</string>
     <string name="downloading">下载中：%s</string>
@@ -146,9 +147,14 @@
     <string name="by_duration">按时长（最长）</string>
     <string name="by_duration_desc">按时长（最短）</string>
     <string name="filter">筛选</string>
-    <string name="filter_clear">清除</string>
+    <string name="clear">清除</string>
     <string name="filter_dismiss">关闭筛选</string>
     <string name="filter_no_options">没有可筛选的录音</string>
+    <string name="search">搜索</string>
+    <string name="search_records_hint">搜索录音</string>
+    <string name="search_close">关闭搜索</string>
+    <string name="search_clear">清除搜索</string>
+    <string name="no_search_results">未找到与“%1$s”匹配的录音</string>
     <string name="need_write_permission">该应用需要访问公共存储的权限。如果不允许，录音将存储在应用的私有目录中</string>
     <string name="rec_name">名称：</string>
     <string name="rec_format">格式：</string>
@@ -317,6 +323,8 @@
     <string name="button_pause">暂停</string>
     <string name="button_resume">继续</string>
     <string name="button_finish">完成</string>
+    <string name="playback_speed_value">%1$sx</string>
+    <string name="playback_speed_value_description">播放速度 %1$s</string>
     <string name="legacy_app">旧版应用</string>
     <string name="legacy_app_subtitle">切换到旧版应用界面</string>
     <string name="switch_to_legacy">切换到旧版应用</string>
@@ -374,6 +382,7 @@
     <string name="app_widget_description">开始录音小组件</string>
 
     <string name="bluetooth_microphone_available">蓝牙麦克风可用</string>
+    <string name="bluetooth_always_use_when_available">可用时始终使用蓝牙麦克风</string>
     <string name="audio_source">音频来源</string>
     <string name="audio_source_default">默认</string>
     <string name="audio_source_mic">麦克风</string>
@@ -397,4 +406,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">返回</string>
     <string name="dropdown_menu">菜单</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">编辑名称格式</string>
+    <string name="name_format_preview">预览</string>
+    <string name="name_format_preview_empty">添加元素以组成名称</string>
+    <string name="name_format_your_format">你的格式</string>
+    <string name="name_format_empty_hint">点按下方的元素将其添加到格式中。</string>
+    <string name="name_format_remove_element">移除元素</string>
+    <string name="name_format_date_and_time">日期和时间</string>
+    <string name="name_format_other">计数器和文本</string>
+    <string name="name_format_dividers">分隔符</string>
+    <string name="name_format_presets">预设</string>
+    <string name="name_format_add_text">添加文本</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">时间戳</string>
+    <string name="name_format_year">年</string>
+    <string name="name_format_month">月</string>
+    <string name="name_format_month_name">月份名称</string>
+    <string name="name_format_day">日</string>
+    <string name="name_format_day_of_week">星期</string>
+    <string name="name_format_hour_24">小时 (24 小时制)</string>
+    <string name="name_format_hour_12">小时 (12 小时制)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">分钟</string>
+    <string name="name_format_second">秒</string>
+    <string name="name_format_counter">计数器</string>
+    <string name="name_format_text">文本</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">时间戳</string>
+    <string name="name_format_preset_date">日期</string>
+    <string name="name_format_preset_date_us">日期 (美国)</string>
+    <string name="name_format_preset_date_iso8601">日期 ISO 8601</string>
+    <string name="name_format_preset_date_long">日期 (长)</string>
+    <string name="name_format_preset_custom">自定义</string>
 </resources>

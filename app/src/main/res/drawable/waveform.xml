@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Waveform mark: 12 round-capped bars (3 repetitions of a 2r/6r/12r/18r pattern),
+  vertically centred, bar width 2r and gap 2r.
+
+  Converted from the former drawable-{h,x,xx,xxx}hdpi/waveform.png rasters, whose
+  geometry was measured off the 600x246 xxxhdpi asset, hence the 600x246 viewport,
+  where one viewport unit equals one xxxhdpi pixel. Fitted shape matches the original
+  raster coverage with IoU 0.979.
+
+  Kept as a vector so the mark has no density-qualified configs: it always ships in
+  the base APK and stays resolvable on every device configuration. Resolving it from
+  a density split that wasn't installed used to crash Compose's painterResource.
+
+  fillColor is white because every consumer either tints it (Icon tint / ColorFilter)
+  or draws it on a dark surface; don't change it without checking all call sites.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="150dp"
+    android:height="61.5dp"
+    android:viewportWidth="600"
+    android:viewportHeight="246">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M4.61,123 a12.8,12.8 0 0 1 25.6,0 a12.8,12.8 0 0 1 -25.6,0 Z
+              M55.99,97.4 a12.8,12.8 0 0 1 25.6,0 L81.59,148.6 a12.8,12.8 0 0 1 -25.6,0 Z
+              M107.37,59 a12.8,12.8 0 0 1 25.6,0 L132.97,187 a12.8,12.8 0 0 1 -25.6,0 Z
+              M158.75,20.6 a12.8,12.8 0 0 1 25.6,0 L184.35,225.4 a12.8,12.8 0 0 1 -25.6,0 Z
+              M210.13,123 a12.8,12.8 0 0 1 25.6,0 a12.8,12.8 0 0 1 -25.6,0 Z
+              M261.51,97.4 a12.8,12.8 0 0 1 25.6,0 L287.11,148.6 a12.8,12.8 0 0 1 -25.6,0 Z
+              M312.89,59 a12.8,12.8 0 0 1 25.6,0 L338.49,187 a12.8,12.8 0 0 1 -25.6,0 Z
+              M364.27,20.6 a12.8,12.8 0 0 1 25.6,0 L389.87,225.4 a12.8,12.8 0 0 1 -25.6,0 Z
+              M415.65,123 a12.8,12.8 0 0 1 25.6,0 a12.8,12.8 0 0 1 -25.6,0 Z
+              M467.03,97.4 a12.8,12.8 0 0 1 25.6,0 L492.63,148.6 a12.8,12.8 0 0 1 -25.6,0 Z
+              M518.41,59 a12.8,12.8 0 0 1 25.6,0 L544.01,187 a12.8,12.8 0 0 1 -25.6,0 Z
+              M569.79,20.6 a12.8,12.8 0 0 1 25.6,0 L595.39,225.4 a12.8,12.8 0 0 1 -25.6,0 Z" />
+</vector>

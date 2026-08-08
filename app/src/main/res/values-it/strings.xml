@@ -130,6 +130,7 @@
 	<string name="info">Informazioni</string>
 	<string name="rename">Rinomina</string>
 	<string name="dont_ask_again">Non chiedere più</string>
+	<string name="dont_show_next_time">Non mostrare la prossima volta</string>
 	<string name="open_with">Apri con&#8230;</string>
 	<string name="save_as">Salva come&#8230;</string>
 	<string name="downloading">Download: %s</string>
@@ -175,9 +176,14 @@
 	<string name="by_duration">Per durata (più lunga)</string>
     <string name="by_duration_desc">Per durata (più breve)</string>
     <string name="filter">Filtro</string>
-	<string name="filter_clear">Cancella</string>
+	<string name="clear">Cancella</string>
 	<string name="filter_dismiss">Chiudi filtro</string>
 	<string name="filter_no_options">Nessuna registrazione da filtrare</string>
+	<string name="search">Cerca</string>
+	<string name="search_records_hint">Cerca registrazioni</string>
+	<string name="search_close">Chiudi la ricerca</string>
+	<string name="search_clear">Cancella la ricerca</string>
+	<string name="no_search_results">Nessuna registrazione trovata per “%1$s”</string>
 	<string name="need_write_permission">L\'app richiede il permesso di accesso all\'archivio pubblico. Se non concesso, le registrazioni verranno salvate nella cartella privata dell\'app</string>
 	<string name="rec_name">Nome:</string>
 	<string name="rec_format">Formato:</string>
@@ -354,6 +360,8 @@
 	<string name="button_pause">Pausa</string>
 	<string name="button_resume">Riprendi</string>
 	<string name="button_finish">Fine</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Velocità di riproduzione %1$s</string>
 	<string name="legacy_app">App precedente</string>
 	<string name="legacy_app_subtitle">Passa alla vecchia interfaccia dell\'app</string>
 	<string name="switch_to_legacy">Passa all\'app precedente</string>
@@ -418,6 +426,7 @@
     <string name="app_widget_description">Widget avvio registrazione</string>
 
     <string name="bluetooth_microphone_available">Microfono Bluetooth disponibile</string>
+    <string name="bluetooth_always_use_when_available">Usa sempre il microfono Bluetooth quando disponibile</string>
     <string name="audio_source">Sorgente audio</string>
     <string name="audio_source_default">Predefinito</string>
     <string name="audio_source_mic">Microfono</string>
@@ -441,4 +450,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">Torna indietro</string>
     <string name="dropdown_menu">Menu</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Modifica formato nome</string>
+    <string name="name_format_preview">Anteprima</string>
+    <string name="name_format_preview_empty">Aggiungi elementi per comporre un nome</string>
+    <string name="name_format_your_format">Il tuo formato</string>
+    <string name="name_format_empty_hint">Tocca gli elementi qui sotto per aggiungerli al tuo formato.</string>
+    <string name="name_format_remove_element">Rimuovi elemento</string>
+    <string name="name_format_date_and_time">Data e ora</string>
+    <string name="name_format_other">Contatore e testo</string>
+    <string name="name_format_dividers">Separatori</string>
+    <string name="name_format_presets">Modelli</string>
+    <string name="name_format_add_text">Aggiungi testo</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Timestamp</string>
+    <string name="name_format_year">Anno</string>
+    <string name="name_format_month">Mese</string>
+    <string name="name_format_month_name">Nome del mese</string>
+    <string name="name_format_day">Giorno</string>
+    <string name="name_format_day_of_week">Giorno della settimana</string>
+    <string name="name_format_hour_24">Ora (24 h)</string>
+    <string name="name_format_hour_12">Ora (12 h)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Minuto</string>
+    <string name="name_format_second">Secondo</string>
+    <string name="name_format_counter">Contatore</string>
+    <string name="name_format_text">Testo</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Timestamp</string>
+    <string name="name_format_preset_date">Data</string>
+    <string name="name_format_preset_date_us">Data USA</string>
+    <string name="name_format_preset_date_iso8601">Data ISO 8601</string>
+    <string name="name_format_preset_date_long">Data estesa</string>
+    <string name="name_format_preset_custom">Personalizzato</string>
 </resources>

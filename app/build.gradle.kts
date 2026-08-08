@@ -19,8 +19,8 @@ android {
         applicationId = "com.dimowner.audiorecorder"
         minSdk = 26
         targetSdk = 37
-        versionCode = 946
-        versionName = "2.2.1"
+        versionCode = 950
+        versionName = "2.4.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -280,6 +280,8 @@ dependencies {
     implementation(libs.jaudiotagger)
     implementation(libs.mp4parser.muxer)
     implementation(libs.androidx.media)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.common)
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))

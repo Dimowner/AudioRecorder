@@ -127,6 +127,7 @@
 	<string name="info">Informació</string>
 	<string name="rename">Canvia el nom</string>
 	<string name="dont_ask_again">No ho tornis a preguntar</string>
+	<string name="dont_show_next_time">No ho mostris la propera vegada</string>
 	<string name="open_with">Obre amb&#8230;</string>
 	<string name="save_as">Anomena i desa&#8230;</string>
 	<string name="downloading">Baixant: %s</string>
@@ -172,9 +173,14 @@
 	<string name="by_duration">Per durada (més llarg)</string>
     <string name="by_duration_desc">Per durada (més curt)</string>
     <string name="filter">Filtre</string>
-	<string name="filter_clear">Esborra</string>
+	<string name="clear">Esborra</string>
 	<string name="filter_dismiss">Descarta el filtre</string>
 	<string name="filter_no_options">No hi ha registres per filtrar</string>
+	<string name="search">Cerca</string>
+	<string name="search_records_hint">Cerca gravacions</string>
+	<string name="search_close">Tanca la cerca</string>
+	<string name="search_clear">Esborra la cerca</string>
+	<string name="no_search_results">No s\'ha trobat cap gravació per a «%1$s»</string>
 	<string name="need_write_permission">L\'aplicació necessita permís per accedir a l\'emmagatzematge públic. Si no es permet, les gravacions s\'emmagatzemaran al directori privat de l\'aplicació</string>
 	<string name="rec_name">Nom:</string>
 	<string name="rec_format">Format:</string>
@@ -350,6 +356,8 @@
 	<string name="button_pause">Pausa</string>
 	<string name="button_resume">Reprèn</string>
 	<string name="button_finish">Finalitza</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Velocitat de reproducció %1$s</string>
 	<string name="legacy_app">Aplicació antiga</string>
 	<string name="legacy_app_subtitle">Canvia a la interfície antiga de l\'aplicació</string>
 	<string name="switch_to_legacy">Canvia a l\'aplicació antiga</string>
@@ -416,6 +424,7 @@
     <string name="app_widget_description">Widget per començar a gravar</string>
 
     <string name="bluetooth_microphone_available">Micròfon Bluetooth disponible</string>
+    <string name="bluetooth_always_use_when_available">Utilitza sempre el micròfon Bluetooth quan estigui disponible</string>
     <string name="audio_source">Font d\'àudio</string>
     <string name="audio_source_default">Per defecte</string>
     <string name="audio_source_mic">Micròfon</string>
@@ -439,4 +448,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">Torna enrere</string>
     <string name="dropdown_menu">Menú</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Edita el format del nom</string>
+    <string name="name_format_preview">Vista prèvia</string>
+    <string name="name_format_preview_empty">Afegeix elements per crear un nom</string>
+    <string name="name_format_your_format">El teu format</string>
+    <string name="name_format_empty_hint">Toca els elements de sota per afegir-los al teu format.</string>
+    <string name="name_format_remove_element">Elimina l\'element</string>
+    <string name="name_format_date_and_time">Data i hora</string>
+    <string name="name_format_other">Comptador i text</string>
+    <string name="name_format_dividers">Separadors</string>
+    <string name="name_format_presets">Plantilles</string>
+    <string name="name_format_add_text">Afegeix text</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Marca de temps</string>
+    <string name="name_format_year">Any</string>
+    <string name="name_format_month">Mes</string>
+    <string name="name_format_month_name">Nom del mes</string>
+    <string name="name_format_day">Dia</string>
+    <string name="name_format_day_of_week">Dia de la setmana</string>
+    <string name="name_format_hour_24">Hora (24 h)</string>
+    <string name="name_format_hour_12">Hora (12 h)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Minut</string>
+    <string name="name_format_second">Segon</string>
+    <string name="name_format_counter">Comptador</string>
+    <string name="name_format_text">Text</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Marca de temps</string>
+    <string name="name_format_preset_date">Data</string>
+    <string name="name_format_preset_date_us">Data EUA</string>
+    <string name="name_format_preset_date_iso8601">Data ISO 8601</string>
+    <string name="name_format_preset_date_long">Data llarga</string>
+    <string name="name_format_preset_custom">Personalitzat</string>
 </resources>

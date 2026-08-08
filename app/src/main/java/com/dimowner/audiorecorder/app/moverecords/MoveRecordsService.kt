@@ -1,6 +1,7 @@
 package com.dimowner.audiorecorder.app.moverecords
 
 import android.annotation.SuppressLint
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -63,8 +64,9 @@ class MoveRecordsService : Service() {
 
 	private lateinit var builder: NotificationCompat.Builder
 	private lateinit var notificationManager: NotificationManagerCompat
-	private lateinit var remoteViewsSmall: RemoteViews
 	private var downloadingRecordName = ""
+	private var moveProgress = 0
+	private var notifiedProgress = -1
 	private lateinit var copyTasks: BackgroundQueue
 	private lateinit var loadingTasks: BackgroundQueue
 	private lateinit var colorMap: ColorMap
@@ -217,18 +219,6 @@ class MoveRecordsService : Service() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			createNotificationChannel(CHANNEL_ID, CHANNEL_NAME)
 		}
-		remoteViewsSmall = RemoteViews(packageName, R.layout.layout_progress_notification)
-		remoteViewsSmall.setOnClickPendingIntent(
-			R.id.btn_close, getCancelMovePendingIntent(applicationContext)
-		)
-		remoteViewsSmall.setTextViewText(
-			R.id.txt_name,
-			resources.getString(R.string.moving_record, downloadingRecordName)
-		)
-		remoteViewsSmall.setInt(
-			R.id.container, "setBackgroundColor",
-			ContextCompat.getColor(applicationContext, colorMap.primaryColorRes))
-
 		// Create notification default intent.
 		val intent = Intent(applicationContext, MainActivity::class.java)
 		intent.flags = Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP
@@ -246,20 +236,48 @@ class MoveRecordsService : Service() {
 		}
 		// Make head-up notification.
 		builder.setContentIntent(pendingIntent)
-		builder.setCustomContentView(remoteViewsSmall)
 		builder.setOngoing(true)
 		builder.setOnlyAlertOnce(true)
 		builder.setDefaults(0)
 		builder.setSound(null)
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-			startForeground(NOTIF_ID, builder.build())
+			startForeground(NOTIF_ID, buildNotification())
 		} else {
 			startForeground(
 				NOTIF_ID,
-				builder.build(),
+				buildNotification(),
 				ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
 			)
 		}
+	}
+
+	/**
+	 * Builds a fresh [RemoteViews] reflecting the current move progress.
+	 *
+	 * RemoteViews accumulates every setter call in an internal action list that is serialized on
+	 * each notify(). Reusing a single instance across progress updates grows that list without
+	 * bound and eventually breaks the binder transaction limit (TransactionTooLargeException),
+	 * so a new instance is created for every notification instead.
+	 */
+	private fun buildRemoteViews(): RemoteViews {
+		val views = RemoteViews(packageName, R.layout.layout_progress_notification)
+		views.setOnClickPendingIntent(
+			R.id.btn_close, getCancelMovePendingIntent(applicationContext)
+		)
+		views.setTextViewText(
+			R.id.txt_name,
+			resources.getString(R.string.moving_record, downloadingRecordName)
+		)
+		views.setProgressBar(R.id.progress, 100, moveProgress, false)
+		views.setInt(
+			R.id.container, "setBackgroundColor",
+			ContextCompat.getColor(applicationContext, colorMap.primaryColorRes))
+		return views
+	}
+
+	private fun buildNotification(): Notification {
+		builder.setCustomContentView(buildRemoteViews())
+		return builder.build()
 	}
 
 	fun stopService() {
@@ -309,17 +327,15 @@ class MoveRecordsService : Service() {
 	}
 
 	private fun updateNotification(percent: Int) {
-		remoteViewsSmall.setProgressBar(R.id.progress, 100, percent, false)
-		notificationManager.notify(NOTIF_ID, builder.build())
+		if (percent == notifiedProgress) return
+		moveProgress = percent
+		notifiedProgress = percent
+		notificationManager.notify(NOTIF_ID, buildNotification())
 	}
 
 	private fun updateNotificationText(text: String) {
 		downloadingRecordName = text
-		remoteViewsSmall.setTextViewText(
-			R.id.txt_name,
-			resources.getString(R.string.moving_record, text)
-		)
-		notificationManager.notify(NOTIF_ID, builder.build())
+		notificationManager.notify(NOTIF_ID, buildNotification())
 	}
 
 	class StopMoveRecordsReceiver : BroadcastReceiver() {

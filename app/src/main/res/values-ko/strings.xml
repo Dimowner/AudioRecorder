@@ -126,6 +126,7 @@
 	<string name="info">정보</string>
 	<string name="rename">이름 바꾸기</string>
 	<string name="dont_ask_again">다시 묻지 않기</string>
+	<string name="dont_show_next_time">다음에 표시하지 않기</string>
 	<string name="open_with">다른 앱으로 열기&#8230;</string>
 	<string name="save_as">다른 이름으로 저장&#8230;</string>
 	<string name="downloading">다운로드 중: %s</string>
@@ -167,9 +168,14 @@
 	<string name="by_duration">시간순 (긴순)</string>
     <string name="by_duration_desc">시간순 (짧은순)</string>
     <string name="filter">필터</string>
-	<string name="filter_clear">지우기</string>
+	<string name="clear">지우기</string>
 	<string name="filter_dismiss">필터 닫기</string>
 	<string name="filter_no_options">필터링할 녹음이 없습니다</string>
+	<string name="search">검색</string>
+	<string name="search_records_hint">녹음 검색</string>
+	<string name="search_close">검색 닫기</string>
+	<string name="search_clear">검색 지우기</string>
+	<string name="no_search_results">“%1$s”에 대한 녹음을 찾을 수 없습니다</string>
 	<string name="need_write_permission">앱이 공개 저장소에 접근하려면 권한이 필요합니다. 허용하지 않으면 녹음은 앱의 개인 디렉토리에 저장됩니다</string>
 	<string name="rec_name">이름:</string>
 	<string name="rec_format">형식:</string>
@@ -346,6 +352,8 @@
 	<string name="button_pause">일시 정지</string>
 	<string name="button_resume">재개</string>
 	<string name="button_finish">완료</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">재생 속도 %1$s</string>
 	<string name="legacy_app">이전 버전</string>
 	<string name="legacy_app_subtitle">이전 앱 인터페이스로 전환</string>
 	<string name="switch_to_legacy">이전 버전으로 전환</string>
@@ -410,6 +418,7 @@
     <string name="app_widget_description">녹음 시작 위젯</string>
 
     <string name="bluetooth_microphone_available">블루투스 마이크를 사용할 수 있습니다</string>
+    <string name="bluetooth_always_use_when_available">사용 가능할 때 항상 블루투스 마이크 사용</string>
     <string name="audio_source">오디오 소스</string>
     <string name="audio_source_default">기본값</string>
     <string name="audio_source_mic">마이크</string>
@@ -434,4 +443,38 @@
     <string name="navigate_back">뒤로 가기</string>
     <!-- Dropdown menu button description -->
     <string name="dropdown_menu">메뉴</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">이름 형식 편집</string>
+    <string name="name_format_preview">미리보기</string>
+    <string name="name_format_preview_empty">요소를 추가하여 이름을 만드세요</string>
+    <string name="name_format_your_format">내 형식</string>
+    <string name="name_format_empty_hint">아래 요소를 탭하여 형식에 추가하세요.</string>
+    <string name="name_format_remove_element">요소 삭제</string>
+    <string name="name_format_date_and_time">날짜 및 시간</string>
+    <string name="name_format_other">카운터 및 텍스트</string>
+    <string name="name_format_dividers">구분 기호</string>
+    <string name="name_format_presets">프리셋</string>
+    <string name="name_format_add_text">텍스트 추가</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">타임스탬프</string>
+    <string name="name_format_year">년</string>
+    <string name="name_format_month">월</string>
+    <string name="name_format_month_name">월 이름</string>
+    <string name="name_format_day">일</string>
+    <string name="name_format_day_of_week">요일</string>
+    <string name="name_format_hour_24">시 (24시간)</string>
+    <string name="name_format_hour_12">시 (12시간)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">분</string>
+    <string name="name_format_second">초</string>
+    <string name="name_format_counter">카운터</string>
+    <string name="name_format_text">텍스트</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">타임스탬프</string>
+    <string name="name_format_preset_date">날짜</string>
+    <string name="name_format_preset_date_us">날짜 (미국)</string>
+    <string name="name_format_preset_date_iso8601">날짜 ISO 8601</string>
+    <string name="name_format_preset_date_long">날짜 (긴 형식)</string>
+    <string name="name_format_preset_custom">사용자 지정</string>
 </resources>

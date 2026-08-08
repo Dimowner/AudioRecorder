@@ -131,6 +131,7 @@
     <string name="info">Informação</string>
     <string name="rename">Renomear</string>
     <string name="dont_ask_again">Não perguntar novamente</string>
+    <string name="dont_show_next_time">Não mostrar da próxima vez</string>
     <string name="open_with">Abrir com&#8230;</string>
     <string name="save_as">Guardar como&#8230;</string>
     <string name="downloading">A transferir: %s</string>
@@ -176,9 +177,14 @@
     <string name="by_duration">Por duração (mais longa)</string>
     <string name="by_duration_desc">Por duração (mais curta)</string>
     <string name="filter">Filtro</string>
-    <string name="filter_clear">Limpar</string>
+    <string name="clear">Limpar</string>
     <string name="filter_dismiss">Fechar filtro</string>
     <string name="filter_no_options">Nenhum registo para filtrar</string>
+    <string name="search">Pesquisar</string>
+    <string name="search_records_hint">Pesquisar gravações</string>
+    <string name="search_close">Fechar pesquisa</string>
+    <string name="search_clear">Limpar pesquisa</string>
+    <string name="no_search_results">Não foram encontradas gravações para «%1$s»</string>
     <string name="need_write_permission">A aplicação necessita de permissão para aceder ao armazenamento público. Se não for concedida, as gravações serão guardadas na pasta privada da aplicação</string>
     <string name="rec_name">Nome:</string>
     <string name="rec_format">Formato:</string>
@@ -355,6 +361,8 @@
     <string name="button_pause">Pausar</string>
     <string name="button_resume">Retomar</string>
     <string name="button_finish">Concluir</string>
+    <string name="playback_speed_value">%1$sx</string>
+    <string name="playback_speed_value_description">Velocidade de reprodução %1$s</string>
     <string name="legacy_app">Aplicação Clássica</string>
     <string name="legacy_app_subtitle">Mudar para a interface antiga da aplicação</string>
     <string name="switch_to_legacy">Mudar para a Aplicação Clássica</string>
@@ -419,6 +427,7 @@
     <string name="app_widget_description">Widget para iniciar gravação</string>
 
     <string name="bluetooth_microphone_available">Microfone Bluetooth disponível</string>
+    <string name="bluetooth_always_use_when_available">Utilizar sempre o microfone Bluetooth quando disponível</string>
     <string name="audio_source">Fonte de Áudio</string>
     <string name="audio_source_default">Predefinido</string>
     <string name="audio_source_mic">Microfone</string>
@@ -442,4 +451,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">Navegar para trás</string>
     <string name="dropdown_menu">Menu</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Editar formato do nome</string>
+    <string name="name_format_preview">Pré-visualização</string>
+    <string name="name_format_preview_empty">Adicione elementos para criar um nome</string>
+    <string name="name_format_your_format">O seu formato</string>
+    <string name="name_format_empty_hint">Toque nos elementos abaixo para os adicionar ao seu formato.</string>
+    <string name="name_format_remove_element">Remover elemento</string>
+    <string name="name_format_date_and_time">Data e hora</string>
+    <string name="name_format_other">Contador e texto</string>
+    <string name="name_format_dividers">Separadores</string>
+    <string name="name_format_presets">Modelos</string>
+    <string name="name_format_add_text">Adicionar texto</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Marca temporal</string>
+    <string name="name_format_year">Ano</string>
+    <string name="name_format_month">Mês</string>
+    <string name="name_format_month_name">Nome do mês</string>
+    <string name="name_format_day">Dia</string>
+    <string name="name_format_day_of_week">Dia da semana</string>
+    <string name="name_format_hour_24">Hora (24 h)</string>
+    <string name="name_format_hour_12">Hora (12 h)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Minuto</string>
+    <string name="name_format_second">Segundo</string>
+    <string name="name_format_counter">Contador</string>
+    <string name="name_format_text">Texto</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Marca temporal</string>
+    <string name="name_format_preset_date">Data</string>
+    <string name="name_format_preset_date_us">Data EUA</string>
+    <string name="name_format_preset_date_iso8601">Data ISO 8601</string>
+    <string name="name_format_preset_date_long">Data longa</string>
+    <string name="name_format_preset_custom">Personalizado</string>
 </resources>

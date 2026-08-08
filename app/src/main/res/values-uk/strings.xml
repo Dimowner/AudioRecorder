@@ -121,6 +121,7 @@
 	<string name="info">Інформація</string>
 	<string name="rename">Перейменувати</string>
 	<string name="dont_ask_again">Більше не показувати</string>
+	<string name="dont_show_next_time">Не показувати наступного разу</string>
 	<string name="open_with">Відкрити з допомогою&#8230;</string>
 	<string name="save_as">Зберегти як&#8230;</string>
 	<string name="downloading">Копіювання: %s</string>
@@ -174,9 +175,14 @@
 	<string name="by_duration">Тривалість (найдовші)</string>
     <string name="by_duration_desc">Тривалість (найкоротші)</string>
     <string name="filter">Фільтр</string>
-	<string name="filter_clear">Очистити</string>
+	<string name="clear">Очистити</string>
 	<string name="filter_dismiss">Сховати фільтр</string>
 	<string name="filter_no_options">Немає записів для фільтрації</string>
+	<string name="search">Пошук</string>
+	<string name="search_records_hint">Пошук записів</string>
+	<string name="search_close">Закрити пошук</string>
+	<string name="search_clear">Очистити пошук</string>
+	<string name="no_search_results">Немає записів за запитом «%1$s»</string>
 	<string name="need_write_permission">Додатку потрібно дозвіл на запис в публічне сховище. Якщо не дозволити, записи будуть зберігатися в приватному каталозі додатка</string>
 	<string name="rec_name">Назва:</string>
 	<string name="rec_format">Формат:</string>
@@ -352,6 +358,8 @@
 	<string name="button_resume">Відновити</string>
 	<string name="button_pause">Пауза</string>
 	<string name="button_finish">Фініш</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Швидкість відтворення %1$s</string>
 
 	<string name="legacy_app">Застарілий додаток</string>
 	<string name="legacy_app_subtitle">Перейти до старого інтерфейсу додатка</string>
@@ -405,7 +413,8 @@
 
 	<string name="app_widget_description">Почати запис віджет</string>
 
-    <string name="bluetooth_microphone_available">Доступний Bluetooth мікрофон</string>
+    <string name="bluetooth_microphone_available">Доступний Bluetooth-мікрофон</string>
+    <string name="bluetooth_always_use_when_available">Завжди використовувати Bluetooth-мікрофон, коли він доступний</string>
     <string name="audio_source">Джерело звуку</string>
     <string name="audio_source_default">За замовчуванням</string>
     <string name="audio_source_mic">Мікрофон</string>
@@ -433,4 +442,38 @@
     <string name="duration_hours_and_minutes">%1$dг %2$dхв</string>
     <string name="duration_minutes">%1$dхв</string>
     <string name="dropdown_menu">Меню</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Змінити формат назви</string>
+    <string name="name_format_preview">Попередній перегляд</string>
+    <string name="name_format_preview_empty">Додайте елементи, щоб скласти назву</string>
+    <string name="name_format_your_format">Ваш формат</string>
+    <string name="name_format_empty_hint">Натискайте на елементи нижче, щоб додати їх до формату.</string>
+    <string name="name_format_remove_element">Видалити елемент</string>
+    <string name="name_format_date_and_time">Дата й час</string>
+    <string name="name_format_other">Лічильник і текст</string>
+    <string name="name_format_dividers">Роздільники</string>
+    <string name="name_format_presets">Шаблони</string>
+    <string name="name_format_add_text">Додати текст</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Мітка часу</string>
+    <string name="name_format_year">Рік</string>
+    <string name="name_format_month">Місяць</string>
+    <string name="name_format_month_name">Назва місяця</string>
+    <string name="name_format_day">День</string>
+    <string name="name_format_day_of_week">День тижня</string>
+    <string name="name_format_hour_24">Години (24 год)</string>
+    <string name="name_format_hour_12">Години (12 год)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Хвилини</string>
+    <string name="name_format_second">Секунди</string>
+    <string name="name_format_counter">Лічильник</string>
+    <string name="name_format_text">Текст</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Мітка часу</string>
+    <string name="name_format_preset_date">Дата</string>
+    <string name="name_format_preset_date_us">Дата США</string>
+    <string name="name_format_preset_date_iso8601">Дата ISO 8601</string>
+    <string name="name_format_preset_date_long">Дата повністю</string>
+    <string name="name_format_preset_custom">Власний</string>
 </resources>

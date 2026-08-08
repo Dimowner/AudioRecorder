@@ -130,6 +130,7 @@
 	<string name="info">Informationen</string>
 	<string name="rename">Umbenennen</string>
 	<string name="dont_ask_again">Nicht mehr fragen</string>
+	<string name="dont_show_next_time">Beim nächsten Mal nicht anzeigen</string>
 	<string name="open_with">Öffnen mit&#8230;</string>
 	<string name="save_as">Speichern unter&#8230;</string>
 	<string name="downloading">Wird heruntergeladen: %s</string>
@@ -175,9 +176,14 @@
 	<string name="by_duration">Nach Dauer (längste)</string>
     <string name="by_duration_desc">Nach Dauer (kürzeste)</string>
     <string name="filter">Filter</string>
-	<string name="filter_clear">Löschen</string>
+	<string name="clear">Löschen</string>
 	<string name="filter_dismiss">Filter schließen</string>
 	<string name="filter_no_options">Keine Aufnahmen zum Filtern</string>
+	<string name="search">Suche</string>
+	<string name="search_records_hint">Aufnahmen durchsuchen</string>
+	<string name="search_close">Suche schließen</string>
+	<string name="search_clear">Suche löschen</string>
+	<string name="no_search_results">Keine Aufnahmen für „%1$s“ gefunden</string>
 	<string name="need_write_permission">Die App benötigt die Berechtigung zum Zugriff auf den öffentlichen Speicher. Wenn nicht erlaubt, werden Aufnahmen im privaten Verzeichnis der App gespeichert</string>
 	<string name="rec_name">Name:</string>
 	<string name="rec_format">Format:</string>
@@ -354,6 +360,8 @@
 	<string name="button_pause">Pause</string>
 	<string name="button_resume">Fortsetzen</string>
 	<string name="button_finish">Fertig</string>
+	<string name="playback_speed_value">%1$sx</string>
+	<string name="playback_speed_value_description">Wiedergabegeschwindigkeit %1$s</string>
 	<string name="legacy_app">Legacy-App</string>
 	<string name="legacy_app_subtitle">Zur alten App-Oberfläche wechseln</string>
 	<string name="switch_to_legacy">Zur Legacy-App wechseln</string>
@@ -418,6 +426,7 @@
     <string name="app_widget_description">Widget zum Starten der Aufnahme</string>
 
     <string name="bluetooth_microphone_available">Bluetooth-Mikrofon verfügbar</string>
+    <string name="bluetooth_always_use_when_available">Bluetooth-Mikrofon immer verwenden, wenn verfügbar</string>
     <string name="audio_source">Audioquelle</string>
     <string name="audio_source_default">Standard</string>
     <string name="audio_source_mic">Mikrofon</string>
@@ -441,4 +450,38 @@
     <!-- Navigate back button description -->
     <string name="navigate_back">Zurck navigieren</string>
     <string name="dropdown_menu">Menü</string>
+
+    <!-- Name format constructor -->
+    <string name="name_format_edit">Namensformat bearbeiten</string>
+    <string name="name_format_preview">Vorschau</string>
+    <string name="name_format_preview_empty">Elemente hinzufügen, um einen Namen zu bilden</string>
+    <string name="name_format_your_format">Dein Format</string>
+    <string name="name_format_empty_hint">Auf die Elemente unten tippen, um sie zum Format hinzuzufügen.</string>
+    <string name="name_format_remove_element">Element entfernen</string>
+    <string name="name_format_date_and_time">Datum und Uhrzeit</string>
+    <string name="name_format_other">Zähler und Text</string>
+    <string name="name_format_dividers">Trennzeichen</string>
+    <string name="name_format_presets">Vorlagen</string>
+    <string name="name_format_add_text">Text hinzufügen</string>
+    <!-- Name format element labels -->
+    <string name="name_format_timestamp">Zeitstempel</string>
+    <string name="name_format_year">Jahr</string>
+    <string name="name_format_month">Monat</string>
+    <string name="name_format_month_name">Monatsname</string>
+    <string name="name_format_day">Tag</string>
+    <string name="name_format_day_of_week">Wochentag</string>
+    <string name="name_format_hour_24">Stunde (24 h)</string>
+    <string name="name_format_hour_12">Stunde (12 h)</string>
+    <string name="name_format_am_pm">AM/PM</string>
+    <string name="name_format_minute">Minute</string>
+    <string name="name_format_second">Sekunde</string>
+    <string name="name_format_counter">Zähler</string>
+    <string name="name_format_text">Text</string>
+    <!-- Name format preset labels -->
+    <string name="name_format_preset_timestamp">Zeitstempel</string>
+    <string name="name_format_preset_date">Datum</string>
+    <string name="name_format_preset_date_us">Datum US</string>
+    <string name="name_format_preset_date_iso8601">Datum ISO 8601</string>
+    <string name="name_format_preset_date_long">Datum lang</string>
+    <string name="name_format_preset_custom">Benutzerdefiniert</string>
 </resources>
