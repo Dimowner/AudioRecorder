@@ -37,6 +37,9 @@ import java.io.IOException
 import java.util.Timer
 import java.util.TimerTask
 
+/** Passed to [MediaRecorder.setMaxDuration] to record without a platform side duration limit. */
+private const val NO_MAX_DURATION = -1
+
 /**
  * Abstract base class for [MediaRecorder]-based recorder implementations.
  *
@@ -65,6 +68,9 @@ abstract class MediaRecorderBase(
     // increment only ever runs on the timerProgress thread.
     @Volatile private var updateTime: Long = 0
     @Volatile private var durationMills: Long = 0
+
+    // The maximum duration is enforced here rather than by MediaRecorder, see startRecording().
+    @Volatile private var maxDurationMills: Int = 0
 
     @Volatile private var _isRecording: Boolean = false
     @Volatile private var _isPaused: Boolean = false
@@ -132,6 +138,7 @@ abstract class MediaRecorderBase(
         }
         amplitudesBuffer.clear()
         lastNonZeroAmplitude = 0
+        maxDurationMills = maxRecordingDurationMills
         return if (outputFile.exists() && outputFile.isFile) {
             recordFile = outputFile
             val recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -146,7 +153,13 @@ abstract class MediaRecorderBase(
                 recorder.apply {
                     setAudioSource(audioSource)
                     configureRecorder(this, channelCount, sampleRate, bitrate)
-                    setMaxDuration(maxRecordingDurationMills)
+                    // MPEG4Writer sizes the moov box it reserves up front from the duration
+                    // limit, and with a limit of hours that reservation maxes out at ~405 KB of
+                    // "free" padding that stays in every finished file - a few seconds of audio
+                    // then weighs several hundred KB. Recording without a platform limit keeps
+                    // the reservation at its 3 KB minimum; the limit is enforced in
+                    // readBufferedProgress() instead, the same way WavRecorderV2 does it.
+                    setMaxDuration(NO_MAX_DURATION)
                     setOnInfoListener { _, what, _ -> handleRecorderInfo(what) }
                     setOutputFile(outputFile.absolutePath)
                 }
@@ -267,6 +280,7 @@ abstract class MediaRecorderBase(
 
         // Reset all state
         durationMills = 0
+        maxDurationMills = 0
         recordFile = null
         _isRecording = false
         _isPaused = false
@@ -276,10 +290,14 @@ abstract class MediaRecorderBase(
 
     private fun handleRecorderInfo(what: Int) {
         if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
-            Timber.d("Max recording duration reached. Stop recording")
-            if (stopRecording(skipStopRecordingEventEmit = true)) {
-                emitEvent(RecorderEvent.OnMaxDurationReached)
-            }
+            handleMaxDurationReached()
+        }
+    }
+
+    private fun handleMaxDurationReached() {
+        Timber.d("Max recording duration reached. Stop recording")
+        if (stopRecording(skipStopRecordingEventEmit = true)) {
+            emitEvent(RecorderEvent.OnMaxDurationReached)
         }
     }
 
@@ -416,6 +434,14 @@ abstract class MediaRecorderBase(
                 emitEvent(RecorderEvent.OnRecordingProgress(durationMills = durationMills, amplitude = amp))
             }
         }
+        // Stopping outside the lock: stopRecording() clears the same buffer and cancels the timer
+        // this call runs on.
+        if (isMaxDurationReached()) {
+            handleMaxDurationReached()
+        }
     }
+
+    private fun isMaxDurationReached(): Boolean =
+        maxDurationMills > 0 && durationMills >= maxDurationMills
 }
 

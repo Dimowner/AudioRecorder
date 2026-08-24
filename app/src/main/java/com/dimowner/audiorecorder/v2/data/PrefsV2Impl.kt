@@ -293,6 +293,22 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             }
         }
 
+    override var deviceM4aMaxBitRate: Int
+        get() = sharedPreferences.getInt(PREF_KEY_DEVICE_M4A_MAX_BIT_RATE, 0)
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_DEVICE_M4A_MAX_BIT_RATE, value)
+            }
+        }
+
+    override var isDeviceMaxBitRateMeasured: Boolean
+        get() = sharedPreferences.getBoolean(PREF_KEY_DEVICE_M4A_MAX_BIT_RATE_MEASURED, false)
+        set(value) {
+            sharedPreferences.edit {
+                putBoolean(PREF_KEY_DEVICE_M4A_MAX_BIT_RATE_MEASURED, value)
+            }
+        }
+
     override var maxRecordingDurationMills: Int
         get() = sharedPreferences.getInt(
             PREF_KEY_MAX_RECORDING_DURATION_MILLS,
@@ -358,5 +374,7 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         private const val PREF_KEY_IS_LOCAL_STORAGE_INFO_SHOWN = "pref_key_is_local_storage_info_shown"
         private const val PREF_KEY_CUSTOM_NAME_FORMAT = "pref_key_custom_name_format"
         private const val PREF_KEY_ALWAYS_USE_BLUETOOTH_MIC = "pref_key_always_use_bluetooth_mic"
+        private const val PREF_KEY_DEVICE_M4A_MAX_BIT_RATE = "pref_key_device_m4a_max_bit_rate"
+        private const val PREF_KEY_DEVICE_M4A_MAX_BIT_RATE_MEASURED = "pref_key_device_m4a_max_bit_rate_measured"
     }
 }

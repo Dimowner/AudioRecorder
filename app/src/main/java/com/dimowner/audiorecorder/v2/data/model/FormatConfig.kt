@@ -51,4 +51,18 @@ data class FormatConfig(
 
     fun isChannelCountSupported(channelCount: ChannelCount): Boolean =
         channelCount in supportedChannelCounts
+
+    /**
+     * The supported bitrates the device can actually record with, i.e. those at or below
+     * [maxBitRate] (see `DeviceRecordingCapabilities`).
+     *
+     * The lowest supported bitrate is always kept, even when it is above the limit: a settings
+     * screen with no bitrate to choose from would be worse than one offering a value the device
+     * may still clip.
+     */
+    fun bitRatesUpTo(maxBitRate: Int): List<BitRate> {
+        if (supportedBitRates.isEmpty()) return emptyList()
+        return supportedBitRates.filter { it.value <= maxBitRate }
+            .ifEmpty { listOf(supportedBitRates.minBy { it.value }) }
+    }
 }

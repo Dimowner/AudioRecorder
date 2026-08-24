@@ -319,12 +319,19 @@ fun getChannelCounts(
     }
 }
 
+/**
+ * Builds the bitrate chips for [format], leaving out everything above [maxBitRate] - the highest
+ * bitrate this device will actually record with (see `DeviceRecordingCapabilities`). Offering a
+ * chip the platform recorder silently clips would only mislead: the setting would read 192 kbps
+ * while every recording came out at 96 kbps.
+ */
 fun getBitRates(
     format: RecordingFormat,
     selected: BitRate?,
-    strings: Array<String>
+    strings: Array<String>,
+    maxBitRate: Int = Int.MAX_VALUE,
 ): List<ChipItem<BitRate>> {
-    return format.config.supportedBitRates.map { bitRate ->
+    return format.config.bitRatesUpTo(maxBitRate).map { bitRate ->
         ChipItem(
             id = bitRate.index,
             value = bitRate,

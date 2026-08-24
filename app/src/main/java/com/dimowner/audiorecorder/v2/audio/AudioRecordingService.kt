@@ -110,6 +110,9 @@ class AudioRecordingService : Service() {
     @Inject
     lateinit var prefs: PrefsV2
 
+    @Inject
+    lateinit var deviceCapabilities: DeviceRecordingCapabilities
+
 
     @Inject
     @IoDispatcher
@@ -495,6 +498,18 @@ class AudioRecordingService : Service() {
                 if (record != null) {
                     val output = File(record.path)
                     val info = AudioDecoder.readRecordInfo(output)
+                    // The record still carries the requested settings here, while `info` holds
+                    // what the encoder actually produced - the only chance to notice that the
+                    // platform recorder clipped the bitrate behind our back.
+                    record.format.convertToRecordingFormat()?.let { recordingFormat ->
+                        deviceCapabilities.learnFromRecording(
+                            format = recordingFormat,
+                            requestedBitRate = record.bitrate,
+                            measuredBitRate = info.bitrate,
+                            sampleRate = record.sampleRate,
+                            channelCount = record.channelCount,
+                        )
+                    }
                     output.writeTags(record.name, prefs.recordAuthorName)
                     val recordUpdated = record.copy(
                         durationMills = info.duration / 1000,

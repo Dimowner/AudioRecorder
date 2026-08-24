@@ -34,6 +34,7 @@ import com.dimowner.audiorecorder.v2.app.formatSampleRate
 import com.dimowner.audiorecorder.v2.app.recordingSettingsCombinedText
 import com.dimowner.audiorecorder.v2.app.removeOutdatedTrashRecords
 import com.dimowner.audiorecorder.v2.audio.AudioRecorderDelegate
+import com.dimowner.audiorecorder.v2.audio.DeviceRecordingCapabilities
 import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
@@ -62,6 +63,7 @@ internal class SettingsViewModel @Inject constructor(
     private val fileDataSource: FileDataSource,
     private val audioPlayer: PlayerContractNew.Player,
     private val audioRecorderDelegate: AudioRecorderDelegate,
+    private val deviceCapabilities: DeviceRecordingCapabilities,
     private val analyticsTracker: AnalyticsTracker,
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
@@ -113,11 +115,7 @@ internal class SettingsViewModel @Inject constructor(
                         selectedSampleRate,
                         sampleRateStrings
                     ),
-                    bitRates = getBitRates(
-                        selectedFormat,
-                        selectedBitRate,
-                        bitRateStrings
-                    ),
+                    bitRates = bitRateChips(selectedFormat, selectedBitRate),
                     channelCounts = getChannelCounts(
                         selectedFormat,
                         selectedChannelCount,
@@ -154,6 +152,8 @@ internal class SettingsViewModel @Inject constructor(
 
     fun initSettings() {
         viewModelScope.launch(ioDispatcher) {
+            // Reads the device media profile and codec list, so it has to stay off the main thread.
+            deviceCapabilities.detect()
             val recordsCount = recordsDataSource.getRecordsCount()
             val recordsDuration = recordsDataSource.getRecordTotalDuration()
             val rawAvailableSpaceBytes = fileDataSource.getAvailableSpace()
@@ -174,7 +174,8 @@ internal class SettingsViewModel @Inject constructor(
                     availableSpaceBytes = rawAvailableSpaceBytes,
                     // Load the selected audio source from preferences
                     selectedAudioSource = prefs.settingAudioSource
-                )
+                ).applyBitRateLimit(prefs.settingRecordingFormat)
+                    .recordingSettingsUpdated()
             }
             recordsDataSource.removeOutdatedTrashRecords()
         }
@@ -258,10 +259,9 @@ internal class SettingsViewModel @Inject constructor(
                         DefaultValues.DefaultSampleRate,
                         sampleRateStrings
                     ),
-                    bitRates = getBitRates(
+                    bitRates = bitRateChips(
                         DefaultValues.DefaultRecordingFormat,
-                        DefaultValues.DefaultBitRate,
-                        bitRateStrings
+                        DefaultValues.DefaultBitRate
                     ),
                     channelCounts = getChannelCounts(
                         DefaultValues.DefaultRecordingFormat,
@@ -270,7 +270,8 @@ internal class SettingsViewModel @Inject constructor(
                     ),
                 )
             },
-        ).recordingSettingsUpdated()
+        ).applyBitRateLimit(DefaultValues.DefaultRecordingFormat)
+        .recordingSettingsUpdated()
     }
 
     fun selectRecordingFormat(value: RecordingFormat) {
@@ -284,11 +285,7 @@ internal class SettingsViewModel @Inject constructor(
                         prefs.settingSampleRate,
                         sampleRateStrings
                     ),
-                    bitRates = getBitRates(
-                        value,
-                        prefs.settingBitrate,
-                        bitRateStrings
-                    ),
+                    bitRates = bitRateChips(value, prefs.settingBitrate),
                     channelCounts = getChannelCounts(
                         value,
                         prefs.settingChannelCount,
@@ -321,14 +318,14 @@ internal class SettingsViewModel @Inject constructor(
                 if (recordingSetting.recordingFormat.value == format) {
                     recordingSetting.copy(
                         sampleRates = getSampleRates(format, prefs.settingSampleRate, sampleRateStrings),
-                        bitRates = getBitRates(format, prefs.settingBitrate, bitRateStrings),
+                        bitRates = bitRateChips(format, prefs.settingBitrate),
                         channelCounts = getChannelCounts(format, prefs.settingChannelCount, channelCountsStrings),
                     )
                 } else {
                     recordingSetting
                 }
             }
-        )
+        ).applyBitRateLimit(format)
     }
 
     fun selectSampleRate(value: SampleRate) {
@@ -345,7 +342,8 @@ internal class SettingsViewModel @Inject constructor(
                     formatSetting
                 }
             }
-        ).recordingSettingsUpdated()
+        ).applyBitRateLimit(prefs.settingRecordingFormat)
+        .recordingSettingsUpdated()
     }
 
     fun selectBitrate(value: BitRate) {
@@ -379,7 +377,8 @@ internal class SettingsViewModel @Inject constructor(
                     formatSetting
                 }
             }
-        ).recordingSettingsUpdated()
+        ).applyBitRateLimit(prefs.settingRecordingFormat)
+        .recordingSettingsUpdated()
     }
 
     fun setMaxRecordingDuration(durationMinutes: Int) {
@@ -423,6 +422,42 @@ internal class SettingsViewModel @Inject constructor(
             prefs.isLegacyAppUser = true
             _state.value = _state.value.copy(isLegacyAppUser = true)
         }
+    }
+
+    /**
+     * Bitrate chips for [format] with the ones this device cannot deliver left out, given the
+     * currently selected sample rate and channel count.
+     */
+    private fun bitRateChips(format: RecordingFormat, selected: BitRate?): List<ChipItem<BitRate>> {
+        return getBitRates(format, selected, bitRateStrings, currentMaxBitRate(format))
+    }
+
+    private fun currentMaxBitRate(format: RecordingFormat): Int =
+        deviceCapabilities.maxBitRate(format, prefs.settingSampleRate, prefs.settingChannelCount)
+
+    /**
+     * Keeps the persisted bitrate within what the device can record with the current sample rate
+     * and channel count, and rebuilds the chips of [format] around it.
+     *
+     * Needed on every change that moves the limit - the AAC ceiling scales with sample rate and
+     * channel count, so dropping from 44.1 kHz stereo to 16 kHz mono can leave a previously valid
+     * 192 kbps selection above what the encoder can produce.
+     */
+    private fun SettingsState.applyBitRateLimit(format: RecordingFormat): SettingsState {
+        if (!format.hasBitrate) return this
+        val available = format.config.bitRatesUpTo(currentMaxBitRate(format))
+        if (prefs.settingBitrate !in available) {
+            prefs.settingBitrate = available.maxBy { it.value }
+        }
+        return this.copy(
+            recordingSettings = recordingSettings.map { recordingSetting ->
+                if (recordingSetting.recordingFormat.value == format) {
+                    recordingSetting.copy(bitRates = bitRateChips(format, prefs.settingBitrate))
+                } else {
+                    recordingSetting
+                }
+            }
+        )
     }
 
     private fun SettingsState.recordingSettingsUpdated(): SettingsState {

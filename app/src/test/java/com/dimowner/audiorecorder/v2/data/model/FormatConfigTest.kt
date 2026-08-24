@@ -139,6 +139,44 @@ class FormatConfigTest {
     // isChannelCountSupported
     // -------------------------------------------------------------------------
 
+    // -------------------------------------------------------------------------
+    // bitRatesUpTo
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `bitRatesUpTo keeps every bitrate at or below the limit`() {
+        assertEquals(
+            listOf(BitRate.BR48, BitRate.BR96),
+            RecordingFormat.M4a.config.bitRatesUpTo(96000)
+        )
+        assertEquals(
+            listOf(BitRate.BR48, BitRate.BR96, BitRate.BR128),
+            RecordingFormat.M4a.config.bitRatesUpTo(150000)
+        )
+    }
+
+    @Test
+    fun `bitRatesUpTo keeps all bitrates when nothing limits them`() {
+        assertEquals(
+            RecordingFormat.M4a.config.supportedBitRates,
+            RecordingFormat.M4a.config.bitRatesUpTo(Int.MAX_VALUE)
+        )
+    }
+
+    @Test
+    fun `bitRatesUpTo keeps the lowest bitrate even when it is above the limit`() {
+        assertEquals(
+            listOf(BitRate.BR48),
+            RecordingFormat.M4a.config.bitRatesUpTo(12000)
+        )
+    }
+
+    @Test
+    fun `bitRatesUpTo stays empty for formats without a configurable bitrate`() {
+        assertTrue(RecordingFormat.Wav.config.bitRatesUpTo(96000).isEmpty())
+        assertTrue(RecordingFormat.ThreeGp.config.bitRatesUpTo(96000).isEmpty())
+    }
+
     @Test
     fun `isChannelCountSupported reflects the supported list`() {
         val m4a = RecordingFormat.M4a.config
