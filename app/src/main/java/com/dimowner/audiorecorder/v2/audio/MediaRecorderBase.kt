@@ -166,6 +166,7 @@ abstract class MediaRecorderBase(
                 recorder.prepare()
                 recorder.start()
                 _isPaused = false
+                updateTime = SystemClock.elapsedRealtime()
                 startSamplingThread()
                 scheduleRecordingTimeUpdate()
                 scheduleRecordingTimeUpdateBuffered()
@@ -330,7 +331,6 @@ abstract class MediaRecorderBase(
                     //which indicates that recording has actually started.
                     if (amplitude > 0) {
                         _isRecording = true
-                        updateTime = SystemClock.elapsedRealtime()
                         synchronized(amplitudesBuffer) { amplitudesBuffer.add(amplitude) }
                     }
                 } else {
@@ -420,18 +420,21 @@ abstract class MediaRecorderBase(
     private fun readBufferedProgress() {
         // Timer.cancel() doesn't prevent an already-scheduled task from running; skip stale
         // fires so a late progress event can't flip state back to RECORDING after stop.
-        if (!_isRecording || _isPaused) return
-        synchronized(amplitudesBuffer) {
-            val bufferSize = amplitudesBuffer.size()
-            if (bufferSize > 0) {
-                val curTime = SystemClock.elapsedRealtime()
-                durationMills += curTime - updateTime
-                updateTime = curTime
-                var amp = amplitudesBuffer.get(bufferSize - 1)
-                if (amp == 0) amp = lastNonZeroAmplitude
-                else lastNonZeroAmplitude = amp
-                amplitudesBuffer.clear()
-                emitEvent(RecorderEvent.OnRecordingProgress(durationMills = durationMills, amplitude = amp))
+        if (mediaRecorder == null || _isPaused) return
+        val curTime = SystemClock.elapsedRealtime()
+        durationMills += curTime - updateTime
+        updateTime = curTime
+
+        if (_isRecording) {
+            synchronized(amplitudesBuffer) {
+                val bufferSize = amplitudesBuffer.size()
+                if (bufferSize > 0) {
+                    var amp = amplitudesBuffer.get(bufferSize - 1)
+                    if (amp == 0) amp = lastNonZeroAmplitude
+                    else lastNonZeroAmplitude = amp
+                    amplitudesBuffer.clear()
+                    emitEvent(RecorderEvent.OnRecordingProgress(durationMills = durationMills, amplitude = amp))
+                }
             }
         }
         // Stopping outside the lock: stopRecording() clears the same buffer and cancels the timer
@@ -444,4 +447,3 @@ abstract class MediaRecorderBase(
     private fun isMaxDurationReached(): Boolean =
         maxDurationMills > 0 && durationMills >= maxDurationMills
 }
-

@@ -506,8 +506,8 @@ class AudioRecordingService : Service() {
                             format = recordingFormat,
                             requestedBitRate = record.bitrate,
                             measuredBitRate = info.bitrate,
-                            sampleRate = record.sampleRate,
-                            channelCount = record.channelCount,
+                            sampleRate = info.sampleRate,
+                            channelCount = info.channelCount,
                         )
                     }
                     output.writeTags(record.name, prefs.recordAuthorName)
