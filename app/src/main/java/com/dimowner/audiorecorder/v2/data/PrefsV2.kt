@@ -83,18 +83,6 @@ interface PrefsV2 {
 
     var maxRecordingDurationMills: Int
 
-    /**
-     * Highest recording bitrate (bits per second) for M4a format this device is known to actually honour, or 0
-     * while it is still unknown. See `DeviceRecordingCapabilities`.
-     */
-    var deviceM4aMaxBitRate: Int
-
-    /**
-     * Whether [deviceM4aMaxBitRate] was measured from a real recording rather than read from the
-     * device configuration. Measured limits are never overwritten by configuration.
-     */
-    var isDeviceMaxBitRateMeasured: Boolean
-
     var recordAuthorName: String
 
     fun resetRecordingSettings()

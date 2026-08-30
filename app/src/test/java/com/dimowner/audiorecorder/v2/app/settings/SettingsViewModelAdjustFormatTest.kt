@@ -24,8 +24,6 @@ import com.dimowner.audiorecorder.util.TestARApplication
 import com.dimowner.audiorecorder.v2.DefaultValues
 import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
 import com.dimowner.audiorecorder.v2.audio.AudioRecorderDelegate
-import com.dimowner.audiorecorder.v2.audio.BIT_RATE_UNLIMITED
-import com.dimowner.audiorecorder.v2.audio.DeviceRecordingCapabilities
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
@@ -58,7 +56,6 @@ class SettingsViewModelAdjustFormatTest {
     private lateinit var fileDataSource: FileDataSource
     private lateinit var audioPlayer: PlayerContractNew.Player
     private lateinit var audioRecorderDelegate: AudioRecorderDelegate
-    private lateinit var deviceCapabilities: DeviceRecordingCapabilities
     private lateinit var analyticsTracker: AnalyticsTracker
     private lateinit var context: Context
 
@@ -69,9 +66,6 @@ class SettingsViewModelAdjustFormatTest {
         fileDataSource = mockk(relaxed = true)
         audioPlayer = mockk(relaxed = true)
         audioRecorderDelegate = mockk(relaxed = true)
-        deviceCapabilities = mockk(relaxed = true)
-        // Unless a test says otherwise the device is assumed to honour every offered bitrate.
-        every { deviceCapabilities.maxBitRate(any(), any(), any()) } returns BIT_RATE_UNLIMITED
         analyticsTracker = mockk(relaxed = true)
         context = ApplicationProvider.getApplicationContext()
     }
@@ -104,7 +98,6 @@ class SettingsViewModelAdjustFormatTest {
             fileDataSource = fileDataSource,
             audioPlayer = audioPlayer,
             audioRecorderDelegate = audioRecorderDelegate,
-            deviceCapabilities = deviceCapabilities,
             analyticsTracker = analyticsTracker,
             mainDispatcher = Dispatchers.Unconfined,
             ioDispatcher = Dispatchers.Unconfined,
@@ -208,92 +201,5 @@ class SettingsViewModelAdjustFormatTest {
         assertEquals(SampleRate.SR44100, setting.sampleRates.selected())
         assertEquals(ChannelCount.Stereo, setting.channelCounts.selected())
         assertTrue("WAV must expose no bitrate chips", setting.bitRates.isEmpty())
-    }
-
-    // -------------------------------------------------------------------------
-    // Device bitrate limit
-    // -------------------------------------------------------------------------
-
-    @Test
-    fun `bitrates the device can not record are left out of the chips`() {
-        every { deviceCapabilities.maxBitRate(any(), any(), any()) } returns 96_000
-
-        val viewModel = createViewModel(
-            format = RecordingFormat.M4a,
-            sampleRate = SampleRate.SR48000,
-            bitRate = BitRate.BR96,
-            channelCount = ChannelCount.Stereo,
-        )
-
-        assertEquals(
-            listOf(BitRate.BR48, BitRate.BR96),
-            viewModel.settingFor(RecordingFormat.M4a).bitRates.map { it.value }
-        )
-    }
-
-    @Test
-    fun `a bitrate above the device limit is replaced with the highest one available`() {
-        every { deviceCapabilities.maxBitRate(any(), any(), any()) } returns 96_000
-
-        val viewModel = createViewModel(
-            format = RecordingFormat.M4a,
-            sampleRate = SampleRate.SR48000,
-            bitRate = BitRate.BR192,
-            channelCount = ChannelCount.Stereo,
-        )
-        viewModel.selectRecordingFormat(RecordingFormat.M4a)
-
-        assertEquals(BitRate.BR96, prefs.settingBitrate)
-        assertEquals(BitRate.BR96, viewModel.settingFor(RecordingFormat.M4a).bitRates.selected())
-    }
-
-    @Test
-    fun `dropping to a sample rate with a lower ceiling clamps the selected bitrate`() {
-        // Mirrors the AAC-LC ceiling: 6 bits per sample and channel.
-        every { deviceCapabilities.maxBitRate(any(), any(), any()) } answers {
-            6 * secondArg<SampleRate>().value * thirdArg<ChannelCount>().value
-        }
-
-        val viewModel = createViewModel(
-            format = RecordingFormat.M4a,
-            sampleRate = SampleRate.SR44100,
-            bitRate = BitRate.BR192,
-            channelCount = ChannelCount.Stereo,
-        )
-        assertEquals(BitRate.BR192, viewModel.settingFor(RecordingFormat.M4a).bitRates.selected())
-
-        viewModel.selectSampleRate(SampleRate.SR16000)
-        viewModel.selectChannelCount(ChannelCount.Mono)
-
-        // 6 * 16000 * 1 = 96 kbps is all 16 kHz mono AAC can carry.
-        assertEquals(BitRate.BR96, prefs.settingBitrate)
-        assertEquals(
-            listOf(BitRate.BR48, BitRate.BR96),
-            viewModel.settingFor(RecordingFormat.M4a).bitRates.map { it.value }
-        )
-        assertEquals(BitRate.BR96, viewModel.settingFor(RecordingFormat.M4a).bitRates.selected())
-    }
-
-    @Test
-    fun `raising the sample rate again offers the higher bitrates back`() {
-        every { deviceCapabilities.maxBitRate(any(), any(), any()) } answers {
-            6 * secondArg<SampleRate>().value * thirdArg<ChannelCount>().value
-        }
-
-        val viewModel = createViewModel(
-            format = RecordingFormat.M4a,
-            sampleRate = SampleRate.SR16000,
-            bitRate = BitRate.BR96,
-            channelCount = ChannelCount.Mono,
-        )
-        viewModel.selectSampleRate(SampleRate.SR48000)
-        viewModel.selectChannelCount(ChannelCount.Stereo)
-
-        assertEquals(
-            RecordingFormat.M4a.config.supportedBitRates,
-            viewModel.settingFor(RecordingFormat.M4a).bitRates.map { it.value }
-        )
-        // Widening the choice must not move the user's selection.
-        assertEquals(BitRate.BR96, prefs.settingBitrate)
     }
 }
