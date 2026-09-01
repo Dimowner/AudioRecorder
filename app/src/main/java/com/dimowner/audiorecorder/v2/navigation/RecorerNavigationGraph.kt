@@ -42,6 +42,8 @@ import com.dimowner.audiorecorder.v2.app.settings.SettingsScreen
 import com.dimowner.audiorecorder.v2.app.settings.SettingsScreenAction
 import com.dimowner.audiorecorder.v2.app.settings.SettingsViewModel
 import com.dimowner.audiorecorder.v2.app.settings.WelcomeSetupSettingsScreen
+import com.dimowner.audiorecorder.v2.app.trim.TrimScreen
+import com.dimowner.audiorecorder.v2.app.trim.TrimViewModel
 import com.dimowner.audiorecorder.v2.app.welcome.WelcomeScreen
 import com.dimowner.audiorecorder.R
 import kotlinx.coroutines.CoroutineScope
@@ -102,6 +104,9 @@ fun RecorderNavigationGraph(
                     val idsString = lostRecord.id.toString()
                     navController.navigateFrom(entry, "${Routes.LOST_RECORDS_SCREEN}/$idsString")
                 },
+                showTrimScreen = { recordId ->
+                    navController.navigateFrom(entry, "${Routes.TRIM_SCREEN}/$recordId")
+                },
                 uiState = homeViewModel.state.value,
                 event = homeViewModel.event,
                 onAction = { homeViewModel.onAction(it) }
@@ -120,6 +125,8 @@ fun RecorderNavigationGraph(
                 }, showLostRecordsScreen = { lostRecords ->
                     val idsString = lostRecords.joinToString(",") { it.id.toString() }
                     navController.navigateFrom(entry, "${Routes.LOST_RECORDS_SCREEN}/$idsString")
+                }, showTrimScreen = { recordId ->
+                    navController.navigateFrom(entry, "${Routes.TRIM_SCREEN}/$recordId")
                 }, uiState = recordsViewModel.state.value,
                 event = recordsViewModel.event.collectAsState(null).value,
                 onAction = {
@@ -270,6 +277,25 @@ fun RecorderNavigationGraph(
                         )
                     }
                 },
+            )
+        }
+        composable(
+            "${Routes.TRIM_SCREEN}/{${Routes.RECORD_ID}}",
+            arguments = listOf(
+                navArgument(Routes.RECORD_ID) {
+                    type = NavType.LongType
+                }
+            )
+        ) { entry ->
+            val recordId = entry.arguments?.getLong(Routes.RECORD_ID) ?: return@composable
+            val trimViewModel: TrimViewModel = hiltViewModel()
+            LaunchedEffect(recordId) {
+                trimViewModel.loadRecord(recordId)
+            }
+            TrimScreen(
+                onPopBackStack = { navController.popBackStackFrom(entry) },
+                uiState = trimViewModel.state.value,
+                onAction = { trimViewModel.onAction(it) },
             )
         }
     }

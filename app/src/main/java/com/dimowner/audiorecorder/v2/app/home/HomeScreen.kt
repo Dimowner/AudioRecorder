@@ -104,6 +104,7 @@ internal fun HomeScreen(
     showSettingsScreen: () -> Unit,
     showRecordInfoScreen: (String) -> Unit,
     showLostRecordsScreen: (Record) -> Unit,
+    showTrimScreen: (Long) -> Unit,
     uiState: HomeScreenState,
     event: SharedFlow<HomeScreenEvent?>,
     onAction: (HomeScreenAction) -> Unit
@@ -229,6 +230,10 @@ internal fun HomeScreen(
                             )
                     }
 
+                    is HomeScreenEvent.RequestTrim -> {
+                        showTrimScreen(event.recordId)
+                    }
+
                     else -> {
                         Timber.v("ON EVENT: Unknown")
                         //Do nothing
@@ -269,6 +274,10 @@ internal fun HomeScreen(
 
                     HomeDropDownMenuItemId.SAVE_AS -> {
                         showSaveAsDialog.value = true
+                    }
+
+                    HomeDropDownMenuItemId.TRIM -> {
+                        onAction(HomeScreenAction.RequestTrim)
                     }
 
                     HomeDropDownMenuItemId.DELETE -> {
@@ -629,7 +638,7 @@ private fun ProgressPanel(
 @Composable
 fun HomeScreenPreview() {
     HomeScreen(
-        {}, {}, {}, {}, uiState = HomeScreenState(
+        {}, {}, {}, {}, {}, uiState = HomeScreenState(
             waveformState = getTestWaveformData(),
             progress = 0.4f,
             startTime = "00:00",
@@ -648,7 +657,7 @@ fun HomeScreenPreview() {
 @Composable
 fun HomeScreenLandscapePreview() {
     HomeScreen(
-        {}, {}, {}, {}, uiState = HomeScreenState(
+        {}, {}, {}, {}, {}, uiState = HomeScreenState(
             waveformState = getTestWaveformData(),
             progress = 0.4f,
             startTime = "00:00",
@@ -667,7 +676,7 @@ fun HomeScreenLandscapePreview() {
 @Composable
 fun HomeScreenTabletLandscapePreview() {
     HomeScreen(
-        {}, {}, {}, {}, uiState = HomeScreenState(
+        {}, {}, {}, {}, {}, uiState = HomeScreenState(
             waveformState = getTestWaveformData(),
             progress = 0.4f,
             startTime = "00:00",
@@ -686,7 +695,7 @@ fun HomeScreenTabletLandscapePreview() {
 @Composable
 fun HomeScreenTabletPortraitPreview() {
     HomeScreen(
-        {}, {}, {}, {}, uiState = HomeScreenState(
+        {}, {}, {}, {}, {}, uiState = HomeScreenState(
             waveformState = getTestWaveformData(),
             progress = 0.4f,
             startTime = "00:00",
@@ -704,14 +713,14 @@ fun HomeScreenTabletPortraitPreview() {
 @Preview
 @Composable
 fun HomeScreenEmptyPreview() {
-    HomeScreen({}, {}, {}, {}, uiState = HomeScreenState(), MutableSharedFlow(), {})
+    HomeScreen({}, {}, {}, {}, {}, uiState = HomeScreenState(), MutableSharedFlow(), {})
 }
 
 @Preview
 @Composable
 fun HomeScreenShowProgressPreview() {
     HomeScreen(
-        {}, {}, {}, {}, uiState = HomeScreenState(
+        {}, {}, {}, {}, {}, uiState = HomeScreenState(
         isShowLoadingProgress = true
     ), MutableSharedFlow(), {})
 }
@@ -720,7 +729,7 @@ fun HomeScreenShowProgressPreview() {
 @Composable
 fun HomeScreenShowRecordingProgressPreview() {
     HomeScreen(
-        {}, {}, {}, {},
+        {}, {}, {}, {}, {},
         uiState = HomeScreenState(
             isShowLoadingProgress = false,
             isShowWaveform = false,
@@ -740,7 +749,7 @@ fun HomeScreenShowRecordingProgressPreview() {
 @Composable
 fun HomeScreenRecordProcessingPreview() {
     HomeScreen(
-        {}, {}, {}, {},
+        {}, {}, {}, {}, {},
         uiState = HomeScreenState(
             isShowRecordProcessing = true,
             isShowWaveform = false,
@@ -753,7 +762,7 @@ fun HomeScreenRecordProcessingPreview() {
 @Composable
 fun HomeScreenImportProgressPreview() {
     HomeScreen(
-        {}, {}, {}, {},
+        {}, {}, {}, {}, {},
         uiState = HomeScreenState(
             isShowImportProgress = true,
             isShowWaveform = false,
@@ -766,7 +775,7 @@ fun HomeScreenImportProgressPreview() {
 @Composable
 fun HomeScreenRecordingProgressWithWaveformPreview() {
     HomeScreen(
-        {}, {}, {}, {},
+        {}, {}, {}, {}, {},
         uiState = HomeScreenState(
             bottomBarState = BottomBarState.RECORDING,
             waveformState = getTestRecordingWaveformData(durationMills = 15000L),
@@ -786,7 +795,7 @@ fun HomeScreenRecordingProgressWithWaveformPreview() {
 @Composable
 fun HomeScreenRecordingPausedPreview() {
     HomeScreen(
-        {}, {}, {}, {},
+        {}, {}, {}, {}, {},
         uiState = HomeScreenState(
             bottomBarState = BottomBarState.PAUSED,
             waveformState = getTestRecordingWaveformData(durationMills = 32000L),

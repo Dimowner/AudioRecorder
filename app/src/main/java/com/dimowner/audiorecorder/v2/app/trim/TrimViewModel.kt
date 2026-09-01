@@ -1,0 +1,291 @@
+package com.dimowner.audiorecorder.v2.app.trim
+
+import android.app.Application
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.dimowner.audiorecorder.audio.player.PlayerContractNew
+import com.dimowner.audiorecorder.v2.app.info.toRecordInfoState
+import com.dimowner.audiorecorder.v2.audio.AudioTrimmer
+import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.data.model.Record
+import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import timber.log.Timber
+import java.io.File
+import javax.inject.Inject
+
+private const val AUDITION_DURATION_MS = 5000L
+
+@HiltViewModel
+class TrimViewModel @Inject constructor(
+    private val recordsDataSource: RecordsDataSource,
+    private val audioTrimmer: AudioTrimmer,
+    private val audioPlayer: PlayerContractNew.Player,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    application: Application,
+) : AndroidViewModel(application) {
+
+    private val _state = mutableStateOf(TrimState())
+    val state: State<TrimState> = _state
+
+    private val _event = MutableSharedFlow<TrimEvent?>()
+    val event: SharedFlow<TrimEvent?> = _event
+
+    private var record: Record? = null
+    private var auditionLimitJob: Job? = null
+
+    private val playerCallback = object : PlayerContractNew.PlayerCallback {
+        override fun onStartPlay() {
+            _state.value = _state.value.copy(isPlaying = true)
+        }
+
+        override fun onPlayProgress(mills: Long) {
+            _state.value = _state.value.copy(playProgressMills = mills)
+        }
+
+        override fun onPausePlay() {
+            _state.value = _state.value.copy(isPlaying = false)
+        }
+
+        override fun onSeek(mills: Long) {
+            _state.value = _state.value.copy(playProgressMills = mills)
+        }
+
+        override fun onStopPlay() {
+            _state.value = _state.value.copy(isPlaying = false, playProgressMills = 0L)
+            auditionLimitJob?.cancel()
+        }
+
+        override fun onError(throwable: com.dimowner.audiorecorder.exception.AppException) {
+            _state.value = _state.value.copy(isPlaying = false, playProgressMills = 0L)
+            auditionLimitJob?.cancel()
+        }
+    }
+
+    init {
+        audioPlayer.addPlayerCallback(playerCallback)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        audioPlayer.removePlayerCallback(playerCallback)
+        audioPlayer.stop()
+        auditionLimitJob?.cancel()
+    }
+
+    fun loadRecord(recordId: Long) {
+        viewModelScope.launch(ioDispatcher) {
+            val loadedRecord = recordsDataSource.getRecord(recordId)
+            if (loadedRecord != null) {
+                record = loadedRecord
+                val infoState = loadedRecord.toRecordInfoState()
+                _state.value = _state.value.copy(
+                    recordInfo = infoState,
+                    endMills = loadedRecord.durationMills,
+                    isLoading = false,
+                )
+            } else {
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    error = "Record not found",
+                )
+            }
+        }
+    }
+
+    fun onAction(action: TrimAction) {
+        when (action) {
+            is TrimAction.SetStartMills -> setStartMills(action.mills)
+            is TrimAction.SetEndMills -> setEndMills(action.mills)
+            is TrimAction.SeekPlayhead -> seekPlayhead(action.mills)
+            TrimAction.ApplyTrim -> applyTrim()
+            TrimAction.DismissError -> _state.value = _state.value.copy(error = null)
+            TrimAction.PlayFirstFiveSeconds -> playFirstFiveSeconds()
+            TrimAction.PlayLastFiveSeconds -> playLastFiveSeconds()
+            TrimAction.PlayPauseToggle -> playPauseToggle()
+            TrimAction.StopPlayback -> stopPlayback()
+        }
+    }
+
+    private fun setStartMills(mills: Long) {
+        val current = _state.value
+        _state.value = current.copy(
+            startMills = mills.coerceIn(0L, current.endMills - MIN_TRIM_DURATION)
+        )
+    }
+
+    private fun setEndMills(mills: Long) {
+        val current = _state.value
+        _state.value = current.copy(
+            endMills = mills.coerceIn(current.startMills + MIN_TRIM_DURATION, current.recordInfo?.duration ?: 0L)
+        )
+    }
+
+    private fun seekPlayhead(mills: Long) {
+        val current = _state.value
+        val clamped = mills.coerceIn(0L, current.recordInfo?.duration ?: 0L)
+        _state.value = current.copy(playProgressMills = clamped)
+        if (audioPlayer.isPlaying() || audioPlayer.isPaused()) {
+            audioPlayer.seek(clamped)
+        }
+    }
+
+    private fun playFirstFiveSeconds() {
+        val currentRecord = record ?: return
+        val currentState = _state.value
+        stopPlayback()
+        val startPos = currentState.startMills
+        val endPos = currentState.endMills
+        val duration = (endPos - startPos).coerceAtMost(AUDITION_DURATION_MS)
+        audioPlayer.play(currentRecord.path)
+        audioPlayer.seek(startPos)
+        startAuditionLimit(duration)
+    }
+
+    private fun playLastFiveSeconds() {
+        val currentRecord = record ?: return
+        val currentState = _state.value
+        stopPlayback()
+        val startPos = currentState.startMills
+        val endPos = currentState.endMills
+        val rangeDuration = endPos - startPos
+        val seekStart = if (rangeDuration >= AUDITION_DURATION_MS) {
+            endPos - AUDITION_DURATION_MS
+        } else {
+            startPos
+        }
+        audioPlayer.play(currentRecord.path)
+        audioPlayer.seek(seekStart)
+        startAuditionLimit((endPos - seekStart).coerceAtMost(AUDITION_DURATION_MS))
+    }
+
+    private fun playPauseToggle() {
+        val currentRecord = record ?: return
+        val currentState = _state.value
+        if (audioPlayer.isPlaying()) {
+            audioPlayer.pause()
+            auditionLimitJob?.cancel()
+        } else if (audioPlayer.isPaused()) {
+            audioPlayer.unpause()
+        } else {
+            audioPlayer.play(currentRecord.path)
+            val pos = currentState.playProgressMills
+            if (pos > 0) {
+                audioPlayer.seek(pos)
+            }
+        }
+    }
+
+    private fun stopPlayback() {
+        audioPlayer.stop()
+        auditionLimitJob?.cancel()
+    }
+
+    private fun startAuditionLimit(maxDurationMs: Long) {
+        auditionLimitJob?.cancel()
+        auditionLimitJob = viewModelScope.launch {
+            val startTime = System.currentTimeMillis()
+            while (audioPlayer.isPlaying()) {
+                val elapsed = System.currentTimeMillis() - startTime
+                if (elapsed >= maxDurationMs) {
+                    withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        audioPlayer.pause()
+                    }
+                    break
+                }
+                delay(100)
+            }
+        }
+    }
+
+    private fun applyTrim() {
+        val currentRecord = record ?: return
+        val currentState = _state.value
+        if (currentState.isTrimming) return
+        if (currentState.endMills - currentState.startMills < MIN_TRIM_DURATION) {
+            _state.value = currentState.copy(error = "Trim range is too short")
+            return
+        }
+
+        stopPlayback()
+        _state.value = currentState.copy(isTrimming = true)
+        viewModelScope.launch(ioDispatcher) {
+            val result = audioTrimmer.trim(
+                sourcePath = currentRecord.path,
+                startMills = currentState.startMills,
+                endMills = currentState.endMills,
+            )
+            if (result.success) {
+                val trimmedFile = File(result.outputPath)
+                val originalFile = File(currentRecord.path)
+                val backupPath = currentRecord.path + ".bak"
+
+                try {
+                    originalFile.copyTo(File(backupPath), overwrite = true)
+                    trimmedFile.copyTo(originalFile, overwrite = true)
+                    trimmedFile.delete()
+
+                    val updatedRecord = currentRecord.copy(
+                        durationMills = result.durationMills,
+                        size = result.size,
+                    )
+                    recordsDataSource.updateRecord(updatedRecord)
+                    File(backupPath).delete()
+
+                    withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        _state.value = _state.value.copy(isTrimming = false)
+                        _event.emit(TrimEvent.TrimApplied)
+                    }
+                } catch (e: Exception) {
+                    Timber.e(e, "Failed to replace file after trim")
+                    try {
+                        File(backupPath).copyTo(originalFile, overwrite = true)
+                        File(backupPath).delete()
+                    } catch (_: Exception) {}
+                    withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        _state.value = _state.value.copy(
+                            isTrimming = false,
+                            error = e.message ?: "Failed to save trimmed file",
+                        )
+                    }
+                }
+            } else {
+                withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    _state.value = _state.value.copy(
+                        isTrimming = false,
+                        error = result.error ?: "Trim failed",
+                    )
+                }
+            }
+        }
+    }
+
+    companion object {
+        private const val MIN_TRIM_DURATION = 100L
+    }
+}
+
+sealed class TrimAction {
+    data class SetStartMills(val mills: Long) : TrimAction()
+    data class SetEndMills(val mills: Long) : TrimAction()
+    data class SeekPlayhead(val mills: Long) : TrimAction()
+    data object ApplyTrim : TrimAction()
+    data object DismissError : TrimAction()
+    data object PlayFirstFiveSeconds : TrimAction()
+    data object PlayLastFiveSeconds : TrimAction()
+    data object PlayPauseToggle : TrimAction()
+    data object StopPlayback : TrimAction()
+}
+
+sealed class TrimEvent {
+    data object TrimApplied : TrimEvent()
+}

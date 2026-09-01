@@ -785,6 +785,9 @@ internal class RecordsViewModel @Inject constructor(
             is RecordsScreenAction.MultiSelectShare -> multiSelectShare(action.selectedRecords)
             RecordsScreenAction.DismissLostRecordsDialog -> dismissLostRecordsDialog()
             RecordsScreenAction.LoadNextPage -> loadNextPage()
+            is RecordsScreenAction.RequestTrim -> emitEvent(
+                RecordsScreenEvent.RequestTrim(action.recordId)
+            )
         }
     }
 
@@ -1030,6 +1033,7 @@ internal sealed class RecordsScreenEvent {
     data class ShowErrorSnack(val message: String) : RecordsScreenEvent()
     data class ShowInfoSnack(val message: String) : RecordsScreenEvent()
     data object StartPlayback : RecordsScreenEvent()
+    data class RequestTrim(val recordId: Long) : RecordsScreenEvent()
 }
 
 internal sealed class RecordsScreenAction {
@@ -1078,6 +1082,7 @@ internal sealed class RecordsScreenAction {
     data object MultiSelectMoveToRecycleDismiss : RecordsScreenAction()
     data object DismissLostRecordsDialog : RecordsScreenAction()
     data object LoadNextPage : RecordsScreenAction()
+    data class RequestTrim(val recordId: Long) : RecordsScreenAction()
 }
 
 internal fun Record.toRecordListItem(context: Context): RecordListItem {

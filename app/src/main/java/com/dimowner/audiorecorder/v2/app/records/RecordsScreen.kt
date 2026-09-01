@@ -93,6 +93,7 @@ internal fun RecordsScreen(
     showRecordInfoScreen: (String) -> Unit,
     showDeletedRecordsScreen: () -> Unit,
     showLostRecordsScreen: (List<Record>) -> Unit,
+    showTrimScreen: (Long) -> Unit,
     uiState: RecordsScreenState,
     event: RecordsScreenEvent?,
     onAction: (RecordsScreenAction) -> Unit,
@@ -181,6 +182,10 @@ internal fun RecordsScreen(
                             duration = SnackbarDuration.Short
                         )
                 }
+            }
+
+            is RecordsScreenEvent.RequestTrim -> {
+                showTrimScreen(event.recordId)
             }
 
             else -> {
@@ -451,11 +456,15 @@ internal fun RecordsScreen(
                                                 )
                                             }
 
-                                            RecordDropDownMenuItemId.SAVE_AS -> {
-                                                onAction(RecordsScreenAction.OnSaveAsRequest(record))
-                                            }
+                                    RecordDropDownMenuItemId.SAVE_AS -> {
+                                        onAction(RecordsScreenAction.OnSaveAsRequest(record))
+                                    }
 
-                                            RecordDropDownMenuItemId.DELETE -> {
+                                    RecordDropDownMenuItemId.TRIM -> {
+                                        showTrimScreen(record.recordId)
+                                    }
+
+                                    RecordDropDownMenuItemId.DELETE -> {
                                                 onAction(
                                                     RecordsScreenAction.OnMoveToRecycleRecordRequest(
                                                         record
@@ -654,7 +663,7 @@ internal fun RecordsScreen(
 @Preview(showBackground = true)
 @Composable
 fun RecordsScreenPreview() {
-    RecordsScreen({}, {}, {}, {},
+    RecordsScreen({}, {}, {}, {}, {},
         RecordsScreenState(
             recordsMap = mapOf(
                 Pair("Today", listOf(
@@ -706,7 +715,7 @@ fun RecordsScreenPreview() {
 @Preview(showBackground = true)
 @Composable
 fun RecordsScreenEmptyPreview() {
-    RecordsScreen({}, {}, {}, {},
+    RecordsScreen({}, {}, {}, {}, {},
         RecordsScreenState(),
         null, {},
         uiHomeState = HomeScreenState(),
@@ -718,7 +727,7 @@ fun RecordsScreenEmptyPreview() {
 @Preview(showBackground = true)
 @Composable
 fun RecordsScreenLoadingPreview() {
-    RecordsScreen({}, {}, {}, {},
+    RecordsScreen({}, {}, {}, {}, {},
         RecordsScreenState(isShowLoadingProgress = true),
         null, {},
         uiHomeState = HomeScreenState(),
@@ -729,7 +738,7 @@ fun RecordsScreenLoadingPreview() {
 @Preview(showBackground = true)
 @Composable
 fun RecordsScreenWithPlaybackPanelPreview() {
-    RecordsScreen({}, {}, {}, {},
+    RecordsScreen({}, {}, {}, {}, {},
         RecordsScreenState(
             recordsMap = mapOf(
                 Pair("Today", listOf(
