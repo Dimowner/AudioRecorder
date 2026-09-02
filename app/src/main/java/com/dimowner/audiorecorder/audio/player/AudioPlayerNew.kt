@@ -141,7 +141,6 @@ class AudioPlayerNew: PlayerContractNew.Player, OnPreparedListener {
 		mediaPlayer.setOnCompletionListener(null)
 		onStopPlay()
 		playerState = PlayerState.STOPPED
-		pauseTimeMills = 0
 		prevPosMills = 0
 	}
 

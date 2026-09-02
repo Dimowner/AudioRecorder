@@ -249,15 +249,15 @@ fun TrimScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Playback controls: [First 5s] [Play/Pause] [Last 5s]
+                // Playback controls: [Play from start] [Play/Pause] [Last 5s]
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     SmallIconButton(
-                        label = "5s",
-                        onClick = { onAction(TrimAction.PlayFirstFiveSeconds) },
+                        label = "\u25C1\u007C",
+                        onClick = { onAction(TrimAction.PlayFromStart) },
                     )
 
                     IconButton(
@@ -274,7 +274,7 @@ fun TrimScreen(
                     }
 
                     SmallIconButton(
-                        label = "5s",
+                        label = "\u007C\u25B7",
                         onClick = { onAction(TrimAction.PlayLastFiveSeconds) },
                     )
                 }

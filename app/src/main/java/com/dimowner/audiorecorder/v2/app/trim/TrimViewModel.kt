@@ -109,7 +109,7 @@ class TrimViewModel @Inject constructor(
             is TrimAction.SeekPlayhead -> seekPlayhead(action.mills)
             TrimAction.ApplyTrim -> applyTrim()
             TrimAction.DismissError -> _state.value = _state.value.copy(error = null)
-            TrimAction.PlayFirstFiveSeconds -> playFirstFiveSeconds()
+            TrimAction.PlayFromStart -> playFromStart()
             TrimAction.PlayLastFiveSeconds -> playLastFiveSeconds()
             TrimAction.PlayPauseToggle -> playPauseToggle()
             TrimAction.StopPlayback -> stopPlayback()
@@ -139,16 +139,12 @@ class TrimViewModel @Inject constructor(
         }
     }
 
-    private fun playFirstFiveSeconds() {
+    private fun playFromStart() {
         val currentRecord = record ?: return
         val currentState = _state.value
         stopPlayback()
-        val startPos = currentState.startMills
-        val endPos = currentState.endMills
-        val duration = (endPos - startPos).coerceAtMost(AUDITION_DURATION_MS)
+        audioPlayer.seek(currentState.startMills)
         audioPlayer.play(currentRecord.path)
-        audioPlayer.seek(startPos)
-        startAuditionLimit(duration)
     }
 
     private fun playLastFiveSeconds() {
@@ -163,8 +159,8 @@ class TrimViewModel @Inject constructor(
         } else {
             startPos
         }
-        audioPlayer.play(currentRecord.path)
         audioPlayer.seek(seekStart)
+        audioPlayer.play(currentRecord.path)
         startAuditionLimit((endPos - seekStart).coerceAtMost(AUDITION_DURATION_MS))
     }
 
@@ -280,7 +276,7 @@ sealed class TrimAction {
     data class SeekPlayhead(val mills: Long) : TrimAction()
     data object ApplyTrim : TrimAction()
     data object DismissError : TrimAction()
-    data object PlayFirstFiveSeconds : TrimAction()
+    data object PlayFromStart : TrimAction()
     data object PlayLastFiveSeconds : TrimAction()
     data object PlayPauseToggle : TrimAction()
     data object StopPlayback : TrimAction()
