@@ -19,6 +19,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import androidx.core.net.toUri
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
@@ -65,6 +66,14 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 
 	private var prevPosMills: Long = 0
 
+	/**
+	 * Anchor used to interpolate the playback position between ExoPlayer readings, see
+	 * [currentPositionMills]. [lastRawPosMills] is [C.TIME_UNSET] while there is no anchor yet.
+	 */
+	private var lastRawPosMills: Long = C.TIME_UNSET
+	private var anchorPosMills: Long = 0
+	private var anchorRealtimeMills: Long = 0
+
 	/** True between [play] and the moment ExoPlayer reports the source as ready. */
 	private var isPreparing = false
 
@@ -77,6 +86,7 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 					isPreparing = false
 					pauseTimeMills = 0
 					prevPosMills = 0
+					resetPositionInterpolation()
 					playerState = PlayerState.PLAYING
 					onStartPlay()
 					schedulePlaybackTimeUpdate()
@@ -93,6 +103,7 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 			playerState = PlayerState.STOPPED
 			pauseTimeMills = 0
 			prevPosMills = 0
+			resetPositionInterpolation()
 			onError(
 				if (error.errorCode == PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND ||
 					error.errorCode == PlaybackException.ERROR_CODE_IO_UNSPECIFIED
@@ -157,6 +168,7 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 		runOnPlayerThread {
 			pauseTimeMills = mills
 			prevPosMills = 0
+			resetPositionInterpolation()
 			if (playerState == PlayerState.PLAYING || playerState == PlayerState.PAUSED) {
 				exoPlayer.seekTo(mills)
 				onSeek(mills)
@@ -168,9 +180,14 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 		runOnPlayerThread {
 			stopPlaybackTimeUpdate()
 			if (playerState == PlayerState.PLAYING) {
+				// Sampled before pausing and taken no lower than the last reported progress:
+				// ExoPlayer's own position lags behind what the UI has already shown (see
+				// [currentPositionMills]), so resuming from it would visibly rewind the waveform.
+				val positionMills = maxOf(currentPositionMills(), prevPosMills)
 				exoPlayer.pause()
-				pauseTimeMills = exoPlayer.currentPosition
+				pauseTimeMills = positionMills
 				prevPosMills = 0
+				resetPositionInterpolation()
 				playerState = PlayerState.PAUSED
 				onPausePlay()
 			}
@@ -183,6 +200,7 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 				exoPlayer.seekTo(pauseTimeMills)
 				exoPlayer.setPlaybackSpeed(playbackSpeed)
 				exoPlayer.play()
+				resetPositionInterpolation()
 				pauseTimeMills = 0
 				playerState = PlayerState.PLAYING
 				onStartPlay()
@@ -200,6 +218,7 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 			playerState = PlayerState.STOPPED
 			pauseTimeMills = 0
 			prevPosMills = 0
+			resetPositionInterpolation()
 			onStopPlay()
 		}
 	}
@@ -214,6 +233,7 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 			playerState = PlayerState.STOPPED
 			pauseTimeMills = 0
 			prevPosMills = 0
+			resetPositionInterpolation()
 			onStopPlay()
 			exoPlayer.removeListener(playerListener)
 			exoPlayer.release()
@@ -250,10 +270,53 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 		return if (uri.scheme == null) Uri.fromFile(File(this)) else uri
 	}
 
+	/**
+	 * Playback position to report to the UI, interpolated with the wall clock.
+	 *
+	 * [ExoPlayer.getCurrentPosition] returns `PlaybackInfo.positionUs` exactly as the playback
+	 * thread last published it to the application thread; media3 only extrapolates it with the
+	 * elapsed real time in the audio offload path (`PlaybackInfo.getEstimatedPositionUs`). Polling
+	 * it therefore returns the same number for a few hundred milliseconds and then jumps: measured
+	 * on device the value changed roughly every 310 ms (in ~253 ms + ~60 ms steps) even though this
+	 * task runs every [AppConstants.PLAYBACK_VISUALIZATION_INTERVAL] ms. That is what made the
+	 * waveform and the timer stutter.
+	 *
+	 * So every reading that actually differs from the previous one becomes an anchor, and between
+	 * anchors the position is advanced from it by the elapsed real time scaled by the playback
+	 * speed - which is what the audio is doing anyway. Interpolation only runs while the player is
+	 * really rendering; while it is buffering or suppressed the raw value is reported as is, so the
+	 * reported position can never run away from the audio that is being heard.
+	 */
+	private fun currentPositionMills(): Long {
+		val raw = exoPlayer.currentPosition
+		val now = SystemClock.elapsedRealtime()
+		val isRendering = exoPlayer.isPlaying
+		if (raw != lastRawPosMills || !isRendering) {
+			lastRawPosMills = raw
+			anchorPosMills = raw
+			anchorRealtimeMills = now
+		}
+		if (!isRendering) return raw
+		val interpolated = anchorPosMills + ((now - anchorRealtimeMills) * playbackSpeed).toLong()
+		val durationMills = exoPlayer.duration
+		return if (durationMills == C.TIME_UNSET) {
+			interpolated
+		} else {
+			interpolated.coerceAtMost(durationMills)
+		}
+	}
+
+	/** Drops the anchor, so the next tick re-reads the position instead of extrapolating a stale one. */
+	private fun resetPositionInterpolation() {
+		lastRawPosMills = C.TIME_UNSET
+		anchorPosMills = 0
+		anchorRealtimeMills = 0
+	}
+
 	private val playbackTimeUpdateTask = object : Runnable {
 		override fun run() {
 			if (playerState != PlayerState.PLAYING) return
-			var pos = exoPlayer.currentPosition
+			var pos = currentPositionMills()
 			if (pos < prevPosMills) {
 				pos = prevPosMills
 			} else {
