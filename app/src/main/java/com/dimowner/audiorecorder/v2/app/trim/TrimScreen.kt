@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -39,6 +41,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -150,6 +153,8 @@ fun TrimScreen(
                     0f
                 }
 
+                val waveformHandlePadding = 16.dp
+
                 TrimWaveform(
                     amps = uiState.recordInfo.amps,
                     startFraction = uiState.startMills.toFloat() / duration,
@@ -161,7 +166,9 @@ fun TrimScreen(
                         onAction(TrimAction.SeekPlayhead(seekMills))
                     },
                     height = 100.dp,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = waveformHandlePadding),
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -188,6 +195,7 @@ fun TrimScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(horizontal = waveformHandlePadding)
                         .height(48.dp),
                 )
 
@@ -421,11 +429,11 @@ private fun TrimRangeBar(
     modifier: Modifier = Modifier,
 ) {
     val handleWidth = 14.dp
-    val touchWidth = 40.dp
     val minGap = 0.02f
 
     val currentStart = rememberUpdatedState(startFraction)
     val currentEnd = rememberUpdatedState(endFraction)
+    val draggingStart = remember { mutableStateOf<Boolean?>(null) }
 
     BoxWithConstraints(modifier = modifier) {
         val maxWidthDp = maxWidth
@@ -434,6 +442,32 @@ private fun TrimRangeBar(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragStart = { offset ->
+                            val totalWidth = size.width.toFloat()
+                            val touchFraction = (offset.x / totalWidth).coerceIn(0f, 1f)
+                            val midpoint = (currentStart.value + currentEnd.value) / 2f
+                            draggingStart.value = touchFraction < midpoint
+                        },
+                        onDragEnd = { draggingStart.value = null },
+                        onDragCancel = { draggingStart.value = null },
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            val totalWidthPx = barWidthPx.floatValue
+                            if (totalWidthPx <= 0f) return@detectDragGestures
+
+                            val delta = dragAmount.x / totalWidthPx
+                            if (draggingStart.value == true) {
+                                val newFraction = (currentStart.value + delta).coerceIn(0f, currentEnd.value - minGap)
+                                onStartChange(newFraction)
+                            } else if (draggingStart.value == false) {
+                                val newFraction = (currentEnd.value + delta).coerceIn(currentStart.value + minGap, 1f)
+                                onEndChange(newFraction)
+                            }
+                        }
+                    )
+                }
                 .onGloballyPositioned { coordinates ->
                     barWidthPx.floatValue = coordinates.size.width.toFloat()
                 }
@@ -448,72 +482,38 @@ private fun TrimRangeBar(
                     )
             )
 
-            // Active selected range — offset to start position, sized to range width
-            val rangeWidthFraction = (endFraction - startFraction).coerceIn(0f, 1f)
+            // Active selected range — between right edge of start handle and left edge of end handle
+            val highlightStartOffset = maxWidthDp * startFraction
+            val highlightEndOffset = maxWidthDp * endFraction
+            val highlightWidth = highlightEndOffset - highlightStartOffset
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(fraction = rangeWidthFraction)
-                    .fillMaxSize()
-                    .offset(x = maxWidthDp * startFraction)
+                    .width(highlightWidth)
+                    .fillMaxHeight()
+                    .offset(x = highlightStartOffset)
                     .background(
                         MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
                         RoundedCornerShape(8.dp)
                     )
             )
 
-            // Start handle — fixed-width touch area positioned at startFraction
+            // Start handle — right edge at startFraction
             Box(
                 modifier = Modifier
-                    .width(touchWidth)
-                    .fillMaxSize()
-                    .offset(x = maxWidthDp * startFraction - (touchWidth - handleWidth) / 2)
-                    .pointerInput(Unit) {
-                        detectDragGestures { change, dragAmount ->
-                            change.consume()
-                            val totalWidthPx = barWidthPx.floatValue
-                            if (totalWidthPx > 0f) {
-                                val delta = dragAmount.x / totalWidthPx
-                                val newFraction = (currentStart.value + delta).coerceIn(0f, currentEnd.value - minGap)
-                                onStartChange(newFraction)
-                            }
-                        }
-                    },
-                contentAlignment = Alignment.Center,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .width(handleWidth)
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
-                )
-            }
+                    .width(handleWidth)
+                    .fillMaxHeight()
+                    .offset(x = maxWidthDp * startFraction - handleWidth)
+                    .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+            )
 
-            // End handle — fixed-width touch area positioned at endFraction
+            // End handle — left edge at endFraction
             Box(
                 modifier = Modifier
-                    .width(touchWidth)
-                    .fillMaxSize()
-                    .offset(x = maxWidthDp * endFraction - (touchWidth - handleWidth) / 2)
-                    .pointerInput(Unit) {
-                        detectDragGestures { change, dragAmount ->
-                            change.consume()
-                            val totalWidthPx = barWidthPx.floatValue
-                            if (totalWidthPx > 0f) {
-                                val delta = dragAmount.x / totalWidthPx
-                                val newFraction = (currentEnd.value + delta).coerceIn(currentStart.value + minGap, 1f)
-                                onEndChange(newFraction)
-                            }
-                        }
-                    },
-                contentAlignment = Alignment.Center,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .width(handleWidth)
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
-                )
-            }
+                    .width(handleWidth)
+                    .fillMaxHeight()
+                    .offset(x = maxWidthDp * endFraction)
+                    .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
+            )
         }
     }
 }

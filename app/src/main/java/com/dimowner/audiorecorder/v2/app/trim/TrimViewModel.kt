@@ -42,6 +42,7 @@ class TrimViewModel @Inject constructor(
 
     private var record: Record? = null
     private var auditionLimitJob: Job? = null
+    private var trimEndForAudition: Long? = null
 
     private val playerCallback = object : PlayerContractNew.PlayerCallback {
         override fun onStartPlay() {
@@ -50,6 +51,12 @@ class TrimViewModel @Inject constructor(
 
         override fun onPlayProgress(mills: Long) {
             _state.value = _state.value.copy(playProgressMills = mills)
+            trimEndForAudition?.let { endPos ->
+                if (mills >= endPos) {
+                    audioPlayer.pause()
+                    trimEndForAudition = null
+                }
+            }
         }
 
         override fun onPausePlay() {
@@ -143,6 +150,7 @@ class TrimViewModel @Inject constructor(
         val currentRecord = record ?: return
         val currentState = _state.value
         stopPlayback()
+        trimEndForAudition = currentState.endMills
         audioPlayer.seek(currentState.startMills)
         audioPlayer.play(currentRecord.path)
     }
@@ -159,9 +167,9 @@ class TrimViewModel @Inject constructor(
         } else {
             startPos
         }
+        trimEndForAudition = endPos
         audioPlayer.seek(seekStart)
         audioPlayer.play(currentRecord.path)
-        startAuditionLimit((endPos - seekStart).coerceAtMost(AUDITION_DURATION_MS))
     }
 
     private fun playPauseToggle() {
@@ -184,6 +192,7 @@ class TrimViewModel @Inject constructor(
     private fun stopPlayback() {
         audioPlayer.stop()
         auditionLimitJob?.cancel()
+        trimEndForAudition = null
     }
 
     private fun startAuditionLimit(maxDurationMs: Long) {
