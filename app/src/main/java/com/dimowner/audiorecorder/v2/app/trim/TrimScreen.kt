@@ -3,6 +3,7 @@ package com.dimowner.audiorecorder.v2.app.trim
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -152,7 +155,7 @@ fun TrimScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(horizontal = 16.dp),
+            .padding(horizontal = 0.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -286,7 +289,9 @@ fun TrimScreen(
                 ) {
                     IconButton(
                         onClick = { onAction(TrimAction.PlayFromStart) },
-                        modifier = Modifier.size(42.dp),
+                        modifier = Modifier
+                            .size(48.dp)
+                            .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(12.dp)),
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_skip_previous),
@@ -296,13 +301,16 @@ fun TrimScreen(
 
                     IconButton(
                         onClick = { onAction(TrimAction.PlayPauseToggle) },
-                        modifier = Modifier.size(42.dp),
+                        modifier = Modifier
+                            .size(56.dp)
+                            .background(MaterialTheme.colorScheme.primary, CircleShape),
                     ) {
                         Icon(
                             painter = painterResource(
                                 id = if (uiState.isPlaying) R.drawable.ic_pause else R.drawable.ic_play
                             ),
                             contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                         )
                     }
 
@@ -567,16 +575,20 @@ private fun SmallIconButton(
     label: String,
     onClick: () -> Unit,
 ) {
-    IconButton(
-        onClick = onClick,
+    Box(
         modifier = Modifier
-            .size(48.dp)
-            .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(12.dp)),
+            .height(48.dp)
+            .wrapContentWidth()
+            .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(12.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 12.dp),
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSecondaryContainer,
+            maxLines = 1,
         )
     }
 }
