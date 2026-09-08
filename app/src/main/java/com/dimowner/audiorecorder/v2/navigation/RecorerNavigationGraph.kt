@@ -296,6 +296,7 @@ fun RecorderNavigationGraph(
                 onPopBackStack = { navController.popBackStackFrom(entry) },
                 uiState = trimViewModel.state.value,
                 onAction = { trimViewModel.onAction(it) },
+                event = trimViewModel.event,
             )
         }
     }

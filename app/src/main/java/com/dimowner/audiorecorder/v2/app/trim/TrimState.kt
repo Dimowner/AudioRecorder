@@ -12,4 +12,5 @@ data class TrimState(
     val trimProgress: Float = 0f,
     val isLoading: Boolean = true,
     val error: String? = null,
+    val showDialog: Boolean = false,
 )

@@ -114,7 +114,12 @@ class TrimViewModel @Inject constructor(
             is TrimAction.SetStartMills -> setStartMills(action.mills)
             is TrimAction.SetEndMills -> setEndMills(action.mills)
             is TrimAction.SeekPlayhead -> seekPlayhead(action.mills)
-            TrimAction.ApplyTrim -> applyTrim()
+            TrimAction.ApplyTrim -> _state.value = _state.value.copy(showDialog = true)
+            is TrimAction.SaveChoice -> {
+                _state.value = _state.value.copy(showDialog = false)
+                applyTrim(action.overwrite)
+            }
+            TrimAction.DismissDialog -> _state.value = _state.value.copy(showDialog = false)
             TrimAction.DismissError -> _state.value = _state.value.copy(error = null)
             TrimAction.PlayFromStart -> playFromStart()
             TrimAction.PlayLastFiveSeconds -> playLastFiveSeconds()
@@ -212,7 +217,7 @@ class TrimViewModel @Inject constructor(
         }
     }
 
-    private fun applyTrim() {
+    private fun applyTrim(isOverwrite: Boolean = true) {
         val currentRecord = record ?: return
         val currentState = _state.value
         if (currentState.isTrimming) return
@@ -230,32 +235,40 @@ class TrimViewModel @Inject constructor(
                 endMills = currentState.endMills,
             )
             if (result.success) {
-                val trimmedFile = File(result.outputPath)
-                val originalFile = File(currentRecord.path)
-                val backupPath = currentRecord.path + ".bak"
-
                 try {
-                    originalFile.copyTo(File(backupPath), overwrite = true)
-                    trimmedFile.copyTo(originalFile, overwrite = true)
-                    trimmedFile.delete()
+                    val updatedRecord: Record
+                    if (isOverwrite) {
+                        val trimmedFile = File(result.outputPath)
+                        val originalFile = File(currentRecord.path)
+                        val backupPath = currentRecord.path + ".bak"
 
-                    val updatedRecord = currentRecord.copy(
-                        durationMills = result.durationMills,
-                        size = result.size,
-                    )
-                    recordsDataSource.updateRecord(updatedRecord)
-                    File(backupPath).delete()
+                        originalFile.copyTo(File(backupPath), overwrite = true)
+                        trimmedFile.copyTo(originalFile, overwrite = true)
+                        trimmedFile.delete()
+
+                        updatedRecord = currentRecord.copy(
+                            durationMills = result.durationMills,
+                            size = result.size,
+                        )
+                        recordsDataSource.updateRecord(updatedRecord)
+                        File(backupPath).delete()
+                    } else {
+                        updatedRecord = currentRecord.copy(
+                            id = 0,
+                            path = result.outputPath,
+                            durationMills = result.durationMills,
+                            size = result.size,
+                            name = currentRecord.name + "_trimmed",
+                        )
+                        recordsDataSource.insertRecord(updatedRecord)
+                    }
 
                     withContext(kotlinx.coroutines.Dispatchers.Main) {
                         _state.value = _state.value.copy(isTrimming = false)
                         _event.emit(TrimEvent.TrimApplied)
                     }
                 } catch (e: Exception) {
-                    Timber.e(e, "Failed to replace file after trim")
-                    try {
-                        File(backupPath).copyTo(originalFile, overwrite = true)
-                        File(backupPath).delete()
-                    } catch (_: Exception) {}
+                    Timber.e(e, "Failed to save trimmed file")
                     withContext(kotlinx.coroutines.Dispatchers.Main) {
                         _state.value = _state.value.copy(
                             isTrimming = false,
@@ -284,6 +297,8 @@ sealed class TrimAction {
     data class SetEndMills(val mills: Long) : TrimAction()
     data class SeekPlayhead(val mills: Long) : TrimAction()
     data object ApplyTrim : TrimAction()
+    data class SaveChoice(val overwrite: Boolean) : TrimAction()
+    data object DismissDialog : TrimAction()
     data object DismissError : TrimAction()
     data object PlayFromStart : TrimAction()
     data object PlayLastFiveSeconds : TrimAction()

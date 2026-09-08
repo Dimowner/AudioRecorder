@@ -26,7 +26,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -58,6 +60,8 @@ import androidx.compose.ui.unit.dp
 import com.dimowner.audiorecorder.AppConstantsV2
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.util.TimeUtils
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,8 +69,17 @@ fun TrimScreen(
     onPopBackStack: () -> Unit,
     uiState: TrimState,
     onAction: (TrimAction) -> Unit,
+    event: SharedFlow<TrimEvent?>,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        event.collectLatest { e ->
+            if (e is TrimEvent.TrimApplied) {
+                onPopBackStack()
+            }
+        }
+    }
 
     LaunchedEffect(uiState.error) {
         uiState.error?.let { error ->
@@ -76,6 +89,24 @@ fun TrimScreen(
             )
             onAction(TrimAction.DismissError)
         }
+    }
+
+    if (uiState.showDialog) {
+        AlertDialog(
+            onDismissRequest = { onAction(TrimAction.DismissDialog) },
+            title = { Text("Save trimmed recording") },
+            text = { Text("Overwrite the original file, or save as a new recording?") },
+            confirmButton = {
+                TextButton(onClick = { onAction(TrimAction.SaveChoice(overwrite = true)) }) {
+                    Text("Overwrite")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { onAction(TrimAction.SaveChoice(overwrite = false)) }) {
+                    Text("Save new")
+                }
+            },
+        )
     }
 
     Scaffold(
@@ -93,17 +124,6 @@ fun TrimScreen(
                     IconButton(onClick = onPopBackStack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null,
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = { onAction(TrimAction.ApplyTrim) },
-                        enabled = !uiState.isTrimming && !uiState.isLoading && uiState.recordInfo != null,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
                             contentDescription = null,
                         )
                     }
@@ -264,7 +284,7 @@ fun TrimScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     SmallIconButton(
-                        label = "\u25C1\u007C",
+                        label = "\u007C\u25C0",
                         onClick = { onAction(TrimAction.PlayFromStart) },
                     )
 
@@ -282,7 +302,7 @@ fun TrimScreen(
                     }
 
                     SmallIconButton(
-                        label = "\u007C\u25B7",
+                        label = "5s",
                         onClick = { onAction(TrimAction.PlayLastFiveSeconds) },
                     )
                 }
