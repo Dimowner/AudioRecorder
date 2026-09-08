@@ -197,6 +197,7 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 			isPreparing = false
 			exoPlayer.stop()
 			exoPlayer.clearMediaItems()
+			pauseTimeMills = 0
 			playerState = PlayerState.STOPPED
 			prevPosMills = 0
 			onStopPlay()

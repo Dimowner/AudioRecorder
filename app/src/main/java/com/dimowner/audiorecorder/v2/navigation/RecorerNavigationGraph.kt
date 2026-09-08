@@ -42,6 +42,7 @@ import com.dimowner.audiorecorder.v2.app.settings.SettingsScreen
 import com.dimowner.audiorecorder.v2.app.settings.SettingsScreenAction
 import com.dimowner.audiorecorder.v2.app.settings.SettingsViewModel
 import com.dimowner.audiorecorder.v2.app.settings.WelcomeSetupSettingsScreen
+import com.dimowner.audiorecorder.v2.app.trim.TrimAction
 import com.dimowner.audiorecorder.v2.app.trim.TrimScreen
 import com.dimowner.audiorecorder.v2.app.trim.TrimViewModel
 import com.dimowner.audiorecorder.v2.app.welcome.WelcomeScreen
@@ -293,7 +294,10 @@ fun RecorderNavigationGraph(
                 trimViewModel.loadRecord(recordId)
             }
             TrimScreen(
-                onPopBackStack = { navController.popBackStackFrom(entry) },
+                onPopBackStack = {
+                    trimViewModel.onAction(TrimAction.StopPlayback)
+                    navController.popBackStackFrom(entry)
+                },
                 uiState = trimViewModel.state.value,
                 onAction = { trimViewModel.onAction(it) },
                 event = trimViewModel.event,

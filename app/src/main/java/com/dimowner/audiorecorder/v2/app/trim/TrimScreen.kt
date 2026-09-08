@@ -41,7 +41,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -73,12 +72,6 @@ fun TrimScreen(
     event: SharedFlow<TrimEvent?>,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            onAction(TrimAction.StopPlayback)
-        }
-    }
 
     LaunchedEffect(Unit) {
         event.collectLatest { e ->
