@@ -169,7 +169,7 @@ class AacCodecRecorderInstrumentedTest {
 
     @Test
     fun maxDurationStopsAndTheRecorderIsImmediatelyRestartable() {
-        recorder.startRecording(outputFile, 1, 44100, 128_000, 3000, MediaRecorder.AudioSource.MIC)
+        recorder.startRecording(outputFile, 1, 44100, 128_000, 3000, AudioInput.Mic(MediaRecorder.AudioSource.MIC))
         awaitStart()
         assertTrue("max duration was not reached", finishedLatch.await(15, TimeUnit.SECONDS))
         assertTrue(events.any { it is RecorderEvent.OnMaxDurationReached })
@@ -181,7 +181,7 @@ class AacCodecRecorderInstrumentedTest {
         }
         try {
             assertTrue(
-                recorder.startRecording(nextFile, 1, 44100, 128_000, 0, MediaRecorder.AudioSource.MIC)
+                recorder.startRecording(nextFile, 1, 44100, 128_000, 0, AudioInput.Mic(MediaRecorder.AudioSource.MIC))
             )
             Thread.sleep(1000)
             recorder.stopRecording()
@@ -235,7 +235,7 @@ class AacCodecRecorderInstrumentedTest {
         assertTrue(
             "recorder did not start",
             recorder.startRecording(
-                outputFile, channelCount, sampleRate, bitrate, 0, MediaRecorder.AudioSource.MIC
+                outputFile, channelCount, sampleRate, bitrate, 0, AudioInput.Mic(MediaRecorder.AudioSource.MIC)
             )
         )
     }

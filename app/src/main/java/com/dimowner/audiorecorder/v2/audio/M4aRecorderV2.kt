@@ -16,6 +16,7 @@
 package com.dimowner.audiorecorder.v2.audio
 
 import com.dimowner.audiorecorder.exception.CantCreateFileException
+import com.dimowner.audiorecorder.exception.RecorderInitException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -50,7 +51,7 @@ class M4aRecorderV2 @Inject constructor(
         val sampleRate: Int,
         val bitrate: Int,
         val maxRecordingDurationMills: Int,
-        val audioSource: Int,
+        val audioInput: AudioInput,
     )
 
     @Volatile private var active: RecorderV2? = null
@@ -82,16 +83,16 @@ class M4aRecorderV2 @Inject constructor(
         sampleRate: Int,
         bitrate: Int,
         maxRecordingDurationMills: Int,
-        audioSource: Int,
+        audioInput: AudioInput,
     ): Boolean {
         val params = StartParams(
-            outputFile, channelCount, sampleRate, bitrate, maxRecordingDurationMills, audioSource
+            outputFile, channelCount, sampleRate, bitrate, maxRecordingDurationMills, audioInput
         )
         lastParams = params
         active = codecRecorder
         return when (
             val result = codecRecorder.startRecordingInternal(
-                outputFile, channelCount, sampleRate, bitrate, maxRecordingDurationMills, audioSource
+                outputFile, channelCount, sampleRate, bitrate, maxRecordingDurationMills, audioInput
             )
         ) {
             is AacCodecRecorderV2.StartResult.Started -> {
@@ -110,7 +111,17 @@ class M4aRecorderV2 @Inject constructor(
         }
     }
 
+    /**
+     * Falls back to the `MediaRecorder` backend, unless the recording captures system playback -
+     * `MediaRecorder` has no playback-capture equivalent, so falling back there would record the
+     * microphone instead of what the user asked for. In that case the failure is surfaced.
+     */
     private fun startWithMediaRecorder(params: StartParams): Boolean {
+        if (params.audioInput !is AudioInput.Mic) {
+            Timber.e("No MediaRecorder fallback for ${params.audioInput}; reporting the failure")
+            emitEvent(RecorderEvent.OnError(RecorderInitException()))
+            return false
+        }
         active = mediaRecorder
         if (!resetOutputFile(params.outputFile)) {
             emitEvent(RecorderEvent.OnError(CantCreateFileException()))
@@ -122,7 +133,7 @@ class M4aRecorderV2 @Inject constructor(
             params.sampleRate,
             params.bitrate,
             params.maxRecordingDurationMills,
-            params.audioSource,
+            params.audioInput,
         )
     }
 

@@ -15,6 +15,7 @@
  */
 package com.dimowner.audiorecorder.v2.audio
 
+import android.media.MediaRecorder
 import com.dimowner.audiorecorder.exception.InvalidOutputFile
 import io.mockk.every
 import io.mockk.mockk
@@ -58,11 +59,13 @@ class M4aRecorderV2Test {
         outputFile = folder.newFile("record.m4a")
     }
 
+    private val micInput = AudioInput.Mic(MediaRecorder.AudioSource.DEFAULT)
+
     private fun CoroutineScope.createRecorder() =
         M4aRecorderV2(codecRecorder, mediaRecorder, this)
 
     private fun M4aRecorderV2.start(bitrate: Int = 192_000, sampleRate: Int = 48000, channelCount: Int = 2) =
-        startRecording(outputFile, channelCount, sampleRate, bitrate, 0, 0)
+        startRecording(outputFile, channelCount, sampleRate, bitrate, 0, micInput)
 
     private fun stubCodecStart(result: AacCodecRecorderV2.StartResult) {
         every {
@@ -91,7 +94,7 @@ class M4aRecorderV2Test {
         assertTrue(recorder.start())
         advanceUntilIdle()
 
-        verify(exactly = 1) { mediaRecorder.startRecording(outputFile, 2, 48000, 192_000, 0, 0) }
+        verify(exactly = 1) { mediaRecorder.startRecording(outputFile, 2, 48000, 192_000, 0, micInput) }
         assertTrue("the service would delete the record on an error event", events.isEmpty())
         collector.cancel()
     }

@@ -11,7 +11,6 @@ import com.dimowner.audiorecorder.exception.RecorderInitException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.isActive
@@ -63,12 +62,12 @@ class WavRecorderV2 @Inject constructor(
         sampleRate: Int,
         bitrate: Int,
         maxRecordingDurationMills: Int,
-        audioSource: Int,
+        audioInput: AudioInput,
     ): Boolean {
         Timber.d(
             "WavRecorderV2.startRecording outputFile: ${outputFile.absolutePath} channelCount: $channelCount" +
                     " sampleRate: $sampleRate bitrate: $bitrate maxRecordingDurationMills: $maxRecordingDurationMills" +
-                    " audioSource: $audioSource"
+                    " audioInput: $audioInput"
         )
         if (_isRecording) {
             Timber.e("Recording is already in progress.")
@@ -111,13 +110,20 @@ class WavRecorderV2 @Inject constructor(
             .coerceAtMost(bufferSize)
 
         val recorder = try {
-            AudioRecord(audioSource, sampleRate, channelConfig, audioEncoding, bufferSize)
+            AudioRecordFactory.create(
+                audioInput, sampleRate, channelConfig, audioEncoding, bufferSize
+            )
         } catch (e: SecurityException) {
             Timber.e(e, "AudioRecord creation failed due to missing permission")
             emitEvent(RecorderEvent.OnError(RecorderInitException()))
             return false
         } catch (e: IllegalArgumentException) {
             Timber.e(e, "AudioRecord creation failed")
+            emitEvent(RecorderEvent.OnError(RecorderInitException()))
+            return false
+        } catch (e: UnsupportedOperationException) {
+            // AudioRecord.Builder rejects a system-playback configuration the device cannot honour.
+            Timber.e(e, "AudioRecord creation failed for $audioInput")
             emitEvent(RecorderEvent.OnError(RecorderInitException()))
             return false
         }

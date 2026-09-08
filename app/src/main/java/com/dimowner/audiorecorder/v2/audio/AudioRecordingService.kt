@@ -15,6 +15,7 @@
  */
 package com.dimowner.audiorecorder.v2.audio
 
+import android.app.Activity
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -23,6 +24,8 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.media.projection.MediaProjection
+import android.media.projection.MediaProjectionManager
 import android.os.Binder
 import android.os.Build
 import android.os.Handler
@@ -41,14 +44,17 @@ import com.dimowner.audiorecorder.exception.ErrorParser
 import com.dimowner.audiorecorder.exception.InvalidOutputFile
 import com.dimowner.audiorecorder.exception.RecorderInitException
 import com.dimowner.audiorecorder.util.TimeUtils
+import com.dimowner.audiorecorder.v2.DefaultValues
 import com.dimowner.audiorecorder.v2.app.HomeActivity
 import com.dimowner.audiorecorder.v2.app.getNewRecordName
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.convertToRecordingFormat
+import com.dimowner.audiorecorder.v2.data.model.isSystemAudioCaptureSupported
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
@@ -82,9 +88,29 @@ class AudioRecordingService : Service() {
         private const val ACTION_PAUSE_RESUME_RECORDING = "com.dimowner.audiorecorder.ACTION_PAUSE_RESUME_RECORDING"
         private const val ACTION_STOP_RECORDING = "com.dimowner.audiorecorder.ACTION_STOP_RECORDING"
 
-        fun startServiceForeground(context: Context) {
+        private const val EXTRA_PROJECTION_RESULT_CODE = "extra_projection_result_code"
+        private const val EXTRA_PROJECTION_DATA = "extra_projection_data"
+
+        /**
+         * Starts a recording.
+         *
+         * [projectionData] is the payload of the screen-capture consent dialog, and is required
+         * only when the selected audio source is [AudioSource.SYSTEM_AUDIO]; pass `null` for
+         * microphone recording. It has to be obtained by an Activity and handed over here,
+         * because a service cannot show the consent dialog itself.
+         */
+        @JvmOverloads
+        fun startServiceForeground(
+            context: Context,
+            projectionResultCode: Int = Activity.RESULT_CANCELED,
+            projectionData: Intent? = null,
+        ) {
             val intent = Intent(context, AudioRecordingService::class.java).apply {
                 action = ACTION_START_RECORDING
+                if (projectionData != null) {
+                    putExtra(EXTRA_PROJECTION_RESULT_CODE, projectionResultCode)
+                    putExtra(EXTRA_PROJECTION_DATA, projectionData)
+                }
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intent)
@@ -118,6 +144,9 @@ class AudioRecordingService : Service() {
     private val serviceScope by lazy { CoroutineScope(ioDispatcher + serviceJob) }
 
     private val notificationHandler = Handler(Looper.getMainLooper())
+
+    /** Delivers [MediaProjection.Callback] invocations; separate only to keep the names honest. */
+    private val mainHandler = Handler(Looper.getMainLooper())
     private var notificationManager: NotificationManager? = null
 
     private val _recordingState = MutableStateFlow(RecordingServiceState())
@@ -154,6 +183,17 @@ class AudioRecordingService : Service() {
         RecordingWaveformBuffer(ARApplication.longWaveformSampleCount)
     }
 
+    /**
+     * The projection backing an in-progress system-audio recording, plus the callback registered
+     * on it. Both are null for microphone recordings.
+     *
+     * A projection is single-use from Android 14, so it is created per start command and released
+     * on stop; [MediaProjection.Callback] registration is mandatory there too, and it is what
+     * tells us the user revoked the capture from the system UI.
+     */
+    private var mediaProjection: MediaProjection? = null
+    private var mediaProjectionCallback: MediaProjection.Callback? = null
+
     /** Job for the current recorder-events subscription; cancelled before re-subscribing. */
     private var subscriptionJob: Job? = null
 
@@ -183,9 +223,21 @@ class AudioRecordingService : Service() {
         subscribeRecorderEvents()
         when (intent?.action) {
             ACTION_START_RECORDING -> {
+                // The projection has to exist before handleStartRecording() picks an input, but
+                // it can only be created once the service is foreground with the mediaProjection
+                // type (enforced from Android 14), hence this ordering.
+                val useSystemAudio = isSystemAudioSelected() && intent.hasProjectionConsent()
                 // Must call startForeground() synchronously before any async work
                 // to satisfy the foreground service contract and avoid ANR.
-                startForegroundWithNotification()
+                startForegroundWithNotification(withMediaProjection = useSystemAudio)
+                if (useSystemAudio) {
+                    createMediaProjection(intent)
+                    if (mediaProjection == null) {
+                        // The recording falls back to the microphone, so drop the type it no
+                        // longer backs rather than running as a projection service holding none.
+                        startForegroundWithNotification(withMediaProjection = false)
+                    }
+                }
                 serviceScope.launch {
                     val recordName = prefs.settingNamingFormat.getNewRecordName(prefs)
                     resetRecordedRecordPartCounter()
@@ -201,6 +253,7 @@ class AudioRecordingService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        releaseMediaProjection()
         subscriptionJob?.cancel()
         serviceJob.cancel()
         stopNotificationUpdates()
@@ -365,6 +418,31 @@ class AudioRecordingService : Service() {
         )
     }
 
+    /**
+     * Picks what this recording captures.
+     *
+     * System audio needs a projection granted for *this* start. Both entry points collect that
+     * consent before starting the service, so a missing projection here means the token could not
+     * be redeemed (it is single-use from Android 14) rather than a user choice. The recording
+     * falls back to the microphone instead of failing outright, and the stored preference is left
+     * alone so the next attempt still tries system audio.
+     *
+     * When a recording is split on [prefs].maxRecordingDurationMills the next part comes through
+     * here again with no new intent; it reuses the same live projection, which stays valid until
+     * the service releases it.
+     */
+    private fun resolveAudioInput(): AudioInput {
+        if (!isSystemAudioSelected()) {
+            return AudioInput.Mic(prefs.settingAudioSource.value)
+        }
+        val projection = mediaProjection
+        if (projection == null) {
+            Timber.w("System audio was selected but no MediaProjection was granted; using the mic")
+            return AudioInput.Mic(DefaultValues.DefaultAudioSource.value)
+        }
+        return AudioInput.SystemPlayback(projection)
+    }
+
     // - Has available space
     // - Is already recoding
     // - Create a record file
@@ -372,7 +450,14 @@ class AudioRecordingService : Service() {
     // - Set it as active record
     // - Start recording
     private suspend fun handleStartRecording(recordName: String): Long? {
-        val format = prefs.settingRecordingFormat
+        val audioInput = resolveAudioInput()
+        val rawFormat = prefs.settingRecordingFormat
+        val format = if (rawFormat == RecordingFormat.ThreeGp && audioInput !is AudioInput.Mic) {
+            prefs.settingRecordingFormat = DefaultValues.DefaultRecordingFormat
+            DefaultValues.DefaultRecordingFormat
+        } else {
+            rawFormat
+        }
         val sampleRate = prefs.settingSampleRate.value
         val bitrate = prefs.settingBitrate.value
         val channelCount = prefs.settingChannelCount.value
@@ -429,7 +514,7 @@ class AudioRecordingService : Service() {
                     sampleRate = sampleRate,
                     bitrate = bitrate,
                     maxRecordingDurationMills = prefs.maxRecordingDurationMills,
-                    audioSource = prefs.settingAudioSource.value,
+                    audioInput = audioInput,
                 )
                 return id
             } catch (e: CantCreateFileException) {
@@ -445,10 +530,90 @@ class AudioRecordingService : Service() {
         return null
     }
 
-    private fun startForegroundWithNotification() {
+    /** Whether the user has chosen to record system audio and this build/device can do it. */
+    private fun isSystemAudioSelected(): Boolean =
+        prefs.settingAudioSource.isSystemAudio && isSystemAudioCaptureSupported()
+
+    private fun Intent.hasProjectionConsent(): Boolean =
+        getIntExtra(EXTRA_PROJECTION_RESULT_CODE, Activity.RESULT_CANCELED) == Activity.RESULT_OK &&
+            projectionDataExtra() != null
+
+    @Suppress("DEPRECATION")
+    private fun Intent.projectionDataExtra(): Intent? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            getParcelableExtra(EXTRA_PROJECTION_DATA, Intent::class.java)
+        } else {
+            getParcelableExtra(EXTRA_PROJECTION_DATA)
+        }
+
+    /**
+     * Turns the consent result carried by [intent] into a live [MediaProjection].
+     *
+     * Failing here is not fatal: [handleStartRecording] sees a null projection and records the
+     * microphone instead, which is better than refusing to record at all.
+     */
+    private fun createMediaProjection(intent: Intent) {
+        val data = intent.projectionDataExtra() ?: return
+        val resultCode = intent.getIntExtra(EXTRA_PROJECTION_RESULT_CODE, Activity.RESULT_CANCELED)
+        val manager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
+        if (manager == null) {
+            Timber.e("MediaProjectionManager is unavailable")
+            return
+        }
+        val projection = try {
+            manager.getMediaProjection(resultCode, data)
+        } catch (e: IllegalStateException) {
+            // Thrown when the consent token has already been used - it is single-use from
+            // Android 14, so a re-delivered start intent lands here.
+            Timber.e(e, "Failed to obtain a MediaProjection")
+            null
+        } catch (e: SecurityException) {
+            Timber.e(e, "Failed to obtain a MediaProjection")
+            null
+        }
+        if (projection == null) {
+            Timber.e("MediaProjection was not granted")
+            return
+        }
+        // Registering a callback is mandatory from Android 14, and onStop is how we learn the
+        // user revoked the capture from the system UI mid-recording.
+        val callback = object : MediaProjection.Callback() {
+            override fun onStop() {
+                Timber.d("MediaProjection stopped by the system or the user")
+                if (audioRecorder.isRecording) audioRecorder.stopRecording()
+            }
+        }
+        projection.registerCallback(callback, mainHandler)
+        mediaProjection = projection
+        mediaProjectionCallback = callback
+    }
+
+    private fun releaseMediaProjection() {
+        val projection = mediaProjection ?: return
+        mediaProjection = null
+        mediaProjectionCallback?.let { projection.unregisterCallback(it) }
+        mediaProjectionCallback = null
+        try {
+            projection.stop()
+        } catch (e: IllegalStateException) {
+            Timber.e(e, "MediaProjection stop failed")
+        }
+    }
+
+    private fun startForegroundWithNotification(withMediaProjection: Boolean = false) {
         val notification = buildNotification()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE)
+            // mediaProjection is added only for a system-audio recording: from Android 14 a
+            // service claiming that type is expected to hold a projection, and this call is what
+            // makes getMediaProjection() legal, so it has to come first. microphone stays in both
+            // cases because playback capture still goes through AudioRecord under RECORD_AUDIO.
+            val type = if (withMediaProjection) {
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE or
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+            } else {
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+            }
+            startForeground(NOTIFICATION_ID, notification, type)
         } else {
             startForeground(NOTIFICATION_ID, notification)
         }
@@ -549,6 +714,7 @@ class AudioRecordingService : Service() {
     }
 
     private fun stopForegroundService() {
+        releaseMediaProjection()
         recordingAmplitudes.clear()
         totalRecordingSampleCount = 0
         recordingFullDataBuffer.reset()

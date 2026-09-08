@@ -120,13 +120,23 @@ abstract class MediaRecorderBase(
         sampleRate: Int,
         bitrate: Int,
         maxRecordingDurationMills: Int,
-        audioSource: Int,
+        audioInput: AudioInput,
     ): Boolean {
         Timber.d(
             "Start ${recordingLogTag}Recording outputFile: ${outputFile.absolutePath}" +
                 " channelCount: $channelCount sampleRate: $sampleRate bitrate: $bitrate" +
-                " maxRecordingDurationMills: $maxRecordingDurationMills audioSource: $audioSource"
+                " maxRecordingDurationMills: $maxRecordingDurationMills audioInput: $audioInput"
         )
+        // System playback capture is configured with an AudioPlaybackCaptureConfiguration, which
+        // only AudioRecord.Builder accepts - MediaRecorder has no equivalent. Refusing here beats
+        // recording the microphone under a name the user did not ask for. Callers keep this from
+        // happening by choosing an AudioRecord-backed recorder for that source.
+        val micInput = audioInput as? AudioInput.Mic
+        if (micInput == null) {
+            Timber.e("MediaRecorder cannot capture system audio playback")
+            emitEvent(RecorderEvent.OnError(RecorderInitException()))
+            return false
+        }
         // _isRecording only flips to true once the first valid amplitude arrives, so it is still
         // false while the recorder is starting up. Checking the recorder instance as well closes
         // that window: without it a second start would overwrite (and then release) a live
@@ -151,7 +161,7 @@ abstract class MediaRecorderBase(
 
             try {
                 recorder.apply {
-                    setAudioSource(audioSource)
+                    setAudioSource(micInput.audioSource)
                     configureRecorder(this, channelCount, sampleRate, bitrate)
                     // MPEG4Writer sizes the moov box it reserves up front from the duration
                     // limit, and with a limit of hours that reservation maxes out at ~405 KB of

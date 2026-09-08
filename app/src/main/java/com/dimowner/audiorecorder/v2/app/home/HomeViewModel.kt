@@ -19,6 +19,7 @@ package com.dimowner.audiorecorder.v2.app.home
 import android.animation.TypeEvaluator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Application
 import android.content.ComponentName
 import android.content.Context
@@ -76,6 +77,7 @@ import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.PlaybackSpeed
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
+import com.dimowner.audiorecorder.v2.data.model.isSystemAudioCaptureSupported
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -569,6 +571,12 @@ class HomeViewModel @Inject constructor(
                 subscribeRecordingServiceEvents(service)
             }
         }
+
+        val audioSource = prefs.settingAudioSource
+        _state.value = _state.value.copy(
+            selectedAudioSource = audioSource,
+            isSystemAudioRecordingSelected = audioSource.isSystemAudio && isSystemAudioCaptureSupported(),
+        )
 
         showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
@@ -1156,12 +1164,19 @@ class HomeViewModel @Inject constructor(
 
     // - If is playing, stop playback
     // - Start recording service
-    fun handleStartRecordingClick() {
+    /**
+     * @param projectionResultCode result code of the MediaProjection consent dialog
+     * @param projectionData its payload, non-null only when the user granted system audio capture
+     */
+    fun handleStartRecordingClick(
+        projectionResultCode: Int = Activity.RESULT_CANCELED,
+        projectionData: Intent? = null,
+    ) {
         audioPlayer.stop()
         val context: Context = getApplication<Application>().applicationContext
 
         // Start the recording service
-        AudioRecordingService.startServiceForeground(context)
+        AudioRecordingService.startServiceForeground(context, projectionResultCode, projectionData)
     }
 
     fun handlePauseRecordingClick() {
@@ -1283,8 +1298,8 @@ class HomeViewModel @Inject constructor(
             HomeScreenAction.OnStopClick -> handlePlaybackStopClick()
             is HomeScreenAction.OnPlaybackSpeedClick -> handlePlaybackSpeedClick(action.speed)
             //Recording
-            HomeScreenAction.OnStartRecordingClick -> {
-                handleStartRecordingClick()
+            is HomeScreenAction.OnStartRecordingClick -> {
+                handleStartRecordingClick(action.projectionResultCode, action.projectionData)
             }
             HomeScreenAction.OnPauseRecordingClick -> handlePauseRecordingClick()
             HomeScreenAction.OnResumeRecordingClick -> handleResumeRecordingClick()
@@ -1504,6 +1519,12 @@ data class HomeScreenState(
     val alwaysUseBluetoothMic: Boolean = false,
     // Audio source selection
     val selectedAudioSource: AudioSource = AudioSource.MIC,
+    /**
+     * Whether the next recording captures system audio rather than a microphone. The screen needs
+     * this to know it must collect MediaProjection consent before starting, which only an
+     * Activity can do.
+     */
+    val isSystemAudioRecordingSelected: Boolean = false,
     // Lost records
     val showLostRecordsDialog: Boolean = false,
     val lostRecord: Record? = null,
@@ -1549,7 +1570,14 @@ sealed class HomeScreenAction {
     data object OnPauseClick : HomeScreenAction()
     data object OnStopClick : HomeScreenAction()
     data class OnPlaybackSpeedClick(val speed: PlaybackSpeed) : HomeScreenAction()
-    data object OnStartRecordingClick : HomeScreenAction()
+    /**
+     * [projectionData] carries MediaProjection consent and is set only when the recording is to
+     * capture system audio; microphone recordings leave it null.
+     */
+    data class OnStartRecordingClick(
+        val projectionResultCode: Int = Activity.RESULT_CANCELED,
+        val projectionData: Intent? = null,
+    ) : HomeScreenAction()
     data object OnPauseRecordingClick : HomeScreenAction()
     data object OnResumeRecordingClick : HomeScreenAction()
     data object OnStopRecordingClick : HomeScreenAction()

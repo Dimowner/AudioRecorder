@@ -164,11 +164,11 @@ class AacCodecRecorderV2 @Inject constructor(
         sampleRate: Int,
         bitrate: Int,
         maxRecordingDurationMills: Int,
-        audioSource: Int,
+        audioInput: AudioInput,
     ): Boolean {
         return when (
             val result = startRecordingInternal(
-                outputFile, channelCount, sampleRate, bitrate, maxRecordingDurationMills, audioSource
+                outputFile, channelCount, sampleRate, bitrate, maxRecordingDurationMills, audioInput
             )
         ) {
             is StartResult.Started -> true
@@ -188,12 +188,12 @@ class AacCodecRecorderV2 @Inject constructor(
         sampleRate: Int,
         bitrate: Int,
         maxRecordingDurationMills: Int,
-        audioSource: Int,
+        audioInput: AudioInput,
     ): StartResult {
         Timber.d(
             "Start AAC codec recording outputFile: ${outputFile.absolutePath} channelCount:" +
                 " $channelCount sampleRate: $sampleRate bitrate: $bitrate" +
-                " maxRecordingDurationMills: $maxRecordingDurationMills audioSource: $audioSource"
+                " maxRecordingDurationMills: $maxRecordingDurationMills audioInput: $audioInput"
         )
         if (_isRecording || codec != null) {
             Timber.e("Recording is already in progress.")
@@ -230,12 +230,20 @@ class AacCodecRecorderV2 @Inject constructor(
             .coerceAtMost(bufferSize)
 
         val recorder = try {
-            AudioRecord(audioSource, sampleRate, channelConfig, AudioFormat.ENCODING_PCM_16BIT, bufferSize)
+            AudioRecordFactory.create(
+                audioInput, sampleRate, channelConfig, AudioFormat.ENCODING_PCM_16BIT, bufferSize
+            )
         } catch (e: SecurityException) {
             Timber.e(e, "AudioRecord creation failed due to missing permission")
             return StartResult.Rejected(RecorderInitException())
         } catch (e: IllegalArgumentException) {
             Timber.e(e, "AudioRecord creation failed")
+            return StartResult.Rejected(RecorderInitException())
+        } catch (e: UnsupportedOperationException) {
+            // AudioRecord.Builder rejects a system-playback configuration the device cannot
+            // honour. Rejected rather than PipelineFailed: MediaRecorder cannot capture playback
+            // at all, so falling back to it would silently record the microphone instead.
+            Timber.e(e, "AudioRecord creation failed for $audioInput")
             return StartResult.Rejected(RecorderInitException())
         }
         if (recorder.state != AudioRecord.STATE_INITIALIZED) {
