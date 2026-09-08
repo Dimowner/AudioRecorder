@@ -60,6 +60,7 @@
 	<string name="msg_name_cannot_be_empty">لا يمكن أن يكون الاسم فارغًا</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">إذن الميكروفون مطلوب لتسجيل الصوت. يرجى منح الإذن لاستخدام هذه الميزة.</string>
+    <string name="msg_permission_system_audio_denied">لم يتم منح إذن التقاط صوت النظام. اسمح به لتسجيل ما تشغّله التطبيقات الأخرى.</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
 	<string name="action_undo">تراجع</string>
 	<!-- Generic error message for a common failure -->
@@ -462,6 +463,7 @@
     <string name="audio_source_mic">الميكروفون</string>
     <string name="audio_source_voice_communication">اتصال صوتي</string>
     <string name="audio_source_unprocessed">غير معالج</string>
+    <string name="audio_source_system">صوت النظام</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">جارٍ تحديث قاعدة البيانات</string>

@@ -54,6 +54,7 @@
 	<string name="msg_name_cannot_be_empty">名前を入力してください</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">音声を録音するにはマイクの権限が必要です。この機能を使用するには権限を許可してください。</string>
+    <string name="msg_permission_system_audio_denied">システム音声を取得する権限が許可されていません。他のアプリが再生している音を録音するには権限を許可してください。</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
 	<string name="action_undo">元に戻す</string>
 	<!-- Generic error message for a common failure -->
@@ -433,6 +434,7 @@
     <string name="audio_source_mic">マイク</string>
     <string name="audio_source_voice_communication">音声通話</string>
     <string name="audio_source_unprocessed">未処理</string>
+    <string name="audio_source_system">システム音声</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">データベースを更新中です</string>

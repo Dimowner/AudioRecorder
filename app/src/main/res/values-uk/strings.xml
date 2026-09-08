@@ -56,6 +56,7 @@
 	<string name="msg_file_operation_failed">Операція з файлом не вдалася. Спробуйте ще раз</string>
 	<string name="msg_name_cannot_be_empty">Назва не може бути порожньою</string>
 	<string name="msg_permission_microphone_denied">Для запису звуку необхідний дозвіл на використання мікрофона. Надайте дозвіл, щоб скористатися цією функцією.</string>
+	<string name="msg_permission_system_audio_denied">Дозвіл на запис системного звуку не надано. Надайте його, щоб записувати звук з інших застосунків.</string>
 	<string name="action_undo">СКАСУВАТИ</string>
 	<string name="msg_operation_failed_generic">Операція не вдалася</string>
 
@@ -420,6 +421,7 @@
     <string name="audio_source_mic">Мікрофон</string>
     <string name="audio_source_voice_communication">Голосовий зв\'язок</string>
     <string name="audio_source_unprocessed">Необроблений</string>
+    <string name="audio_source_system">Системний звук</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">Виконується оновлення бази даних</string>

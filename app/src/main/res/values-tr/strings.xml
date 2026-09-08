@@ -51,6 +51,7 @@
 	<string name="msg_name_cannot_be_empty">İsim boş bırakılamaz</string>
 	<!-- Permission Messages -->
 	<string name="msg_permission_microphone_denied">Ses kaydetmek için mikrofon iznine ihtiyaç var. Bu özelliği kullanmak için izni onaylayın.</string>
+	<string name="msg_permission_system_audio_denied">Sistem sesini yakalama izni verilmedi. Diğer uygulamaların çaldığı sesi kaydetmek için izni onaylayın.</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
 	<string name="action_undo">GERİ AL</string>
 	<!-- Generic error message for a common failure -->
@@ -425,6 +426,7 @@
     <string name="audio_source_mic">Mikrofon</string>
     <string name="audio_source_voice_communication">Ses İletişimi</string>
     <string name="audio_source_unprocessed">İşlenmemiş</string>
+    <string name="audio_source_system">Sistem sesi</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">Veritabanı güncelleniyor</string>

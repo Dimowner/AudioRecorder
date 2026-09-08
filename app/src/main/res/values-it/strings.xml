@@ -53,6 +53,7 @@
 	<string name="msg_name_cannot_be_empty">Il nome non può essere vuoto</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">Il permesso per il microfono è necessario per registrare audio. Concedi il permesso per utilizzare questa funzione.</string>
+    <string name="msg_permission_system_audio_denied">Il permesso per acquisire l\'audio di sistema non è stato concesso. Concedilo per registrare ciò che riproducono le altre app.</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
 	<string name="action_undo">ANNULLA</string>
 	<!-- Generic error message for a common failure -->
@@ -432,6 +433,7 @@
     <string name="audio_source_mic">Microfono</string>
     <string name="audio_source_voice_communication">Comunicazione vocale</string>
     <string name="audio_source_unprocessed">Non elaborato</string>
+    <string name="audio_source_system">Audio di sistema</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">Aggiornamento database in corso</string>

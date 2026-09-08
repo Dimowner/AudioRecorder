@@ -41,6 +41,7 @@
 	<string name="msg_file_operation_failed">Ошибка операции с файлом. Попробуйте ещё раз</string>
 	<string name="msg_name_cannot_be_empty">Имя не может быть пустым</string>
 	<string name="msg_permission_microphone_denied">Для записи аудио необходимо разрешение на использование микрофона. Пожалуйста, предоставьте разрешение для использования этой функции.</string>
+	<string name="msg_permission_system_audio_denied">Разрешение на запись системного звука не предоставлено. Предоставьте его, чтобы записывать звук из других приложений.</string>
 	<string name="action_undo">ОТМЕНИТЬ</string>
 	<string name="msg_operation_failed_generic">Операция не выполнена</string>
 
@@ -425,6 +426,7 @@
     <string name="audio_source_mic">Микрофон</string>
     <string name="audio_source_voice_communication">Голосовая связь</string>
     <string name="audio_source_unprocessed">Без обработки</string>
+    <string name="audio_source_system">Системный звук</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">Обновление базы данных</string>

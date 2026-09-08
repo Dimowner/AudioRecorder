@@ -50,6 +50,7 @@
 	<string name="msg_name_cannot_be_empty">El nom no pot estar buit</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">Es necessita el permís del micròfon per gravar àudio. Concediu el permís per utilitzar aquesta funció.</string>
+    <string name="msg_permission_system_audio_denied">No s\'ha concedit el permís per capturar l\'àudio del sistema. Concediu-lo per gravar el que reprodueixen altres aplicacions.</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
 	<string name="action_undo">DESFÉS</string>
 	<!-- Generic error message for a common failure -->
@@ -430,6 +431,7 @@
     <string name="audio_source_mic">Micròfon</string>
     <string name="audio_source_voice_communication">Comunicació de veu</string>
     <string name="audio_source_unprocessed">Sense processar</string>
+    <string name="audio_source_system">Àudio del sistema</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">Actualització de la base de dades en curs</string>

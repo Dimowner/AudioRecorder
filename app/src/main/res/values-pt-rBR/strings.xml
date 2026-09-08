@@ -51,6 +51,7 @@
     <string name="msg_name_cannot_be_empty">O nome não pode ficar vazio</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">A permissão do microfone é necessária para gravar áudio. Por favor, conceda a permissão para usar esse recurso.</string>
+    <string name="msg_permission_system_audio_denied">A permissão para capturar o áudio do sistema não foi concedida. Conceda-a para gravar o que outros aplicativos estão reproduzindo.</string>
     <!-- Action shown on the deletion message -->
     <string name="action_undo">DESFAZER</string>
     <!-- Generic error message for a common failure -->
@@ -430,6 +431,7 @@
     <string name="audio_source_mic">Microfone</string>
     <string name="audio_source_voice_communication">Comunicação de Voz</string>
     <string name="audio_source_unprocessed">Sem processamento</string>
+    <string name="audio_source_system">Áudio do sistema</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">Atualizando banco de dados…</string>

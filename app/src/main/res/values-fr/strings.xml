@@ -38,6 +38,7 @@
 	<string name="msg_file_operation_failed">Opération de fichier échouée. Veuillez réessayer</string>
 	<string name="msg_name_cannot_be_empty">Le nom ne peut pas être vide</string>
 	<string name="msg_permission_microphone_denied">La permission du microphone est requise pour enregistrer l\'audio. Veuillez accorder la permission pour utiliser cette fonctionnalité.</string>
+	<string name="msg_permission_system_audio_denied">L\'autorisation de capturer l\'audio du système n\'a pas été accordée. Accordez-la pour enregistrer ce que diffusent les autres applications.</string>
 	<string name="action_undo">ANNULER</string>
 	<string name="msg_operation_failed_generic">L\'opération a échoué</string>
 
@@ -399,6 +400,7 @@
     <string name="audio_source_mic">Microphone</string>
     <string name="audio_source_voice_communication">Communication vocale</string>
     <string name="audio_source_unprocessed">Non traité</string>
+    <string name="audio_source_system">Audio du système</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">Mise à jour de la base de données en cours</string>

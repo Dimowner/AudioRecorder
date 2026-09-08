@@ -39,6 +39,7 @@
 	<string name="msg_file_operation_failed">Грешка при операцията с файла. Опитайте отново</string>
 	<string name="msg_name_cannot_be_empty">Името не може да бъде празно</string>
 	<string name="msg_permission_microphone_denied">Необходимо е разрешение за микрофон за запис на звук. Моля, предоставете разрешението, за да използвате тази функция.</string>
+	<string name="msg_permission_system_audio_denied">Разрешението за записване на системния звук не е предоставено. Разрешете го, за да записвате какво възпроизвеждат други приложения.</string>
 	<string name="action_undo">ОТМЯНА</string>
 	<string name="msg_operation_failed_generic">Операцията е неуспешна</string>
 
@@ -411,6 +412,7 @@
 	<string name="audio_source_mic">Микрофон</string>
 	<string name="audio_source_voice_communication">Гласова комуникация</string>
 	<string name="audio_source_unprocessed">Необработен</string>
+	<string name="audio_source_system">Системен звук</string>
 
 	<string name="database_update_in_progress">Обновяване на базата данни</string>
 

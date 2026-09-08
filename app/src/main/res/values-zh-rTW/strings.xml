@@ -51,6 +51,7 @@
 	<string name="msg_name_cannot_be_empty">名稱不能為空</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">需要麥克風權限才能錄製音訊，請授予權限以使用此功能。</string>
+    <string name="msg_permission_system_audio_denied">未授予擷取系統音訊的權限。請授予權限以錄製其他應用程式正在播放的聲音。</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
 	<string name="action_undo">撤銷</string>
 	<!-- Generic error message for a common failure -->
@@ -422,6 +423,7 @@
     <string name="audio_source_mic">麥克風</string>
     <string name="audio_source_voice_communication">語音通訊</string>
     <string name="audio_source_unprocessed">未處理</string>
+    <string name="audio_source_system">系統音訊</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">資料庫更新中</string>

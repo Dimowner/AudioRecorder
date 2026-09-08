@@ -53,6 +53,7 @@
 	<string name="msg_name_cannot_be_empty">Name darf nicht leer sein</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">Die Mikrofonberechtigung ist erforderlich, um Audio aufzunehmen. Bitte erteilen Sie die Berechtigung, um diese Funktion zu nutzen.</string>
+    <string name="msg_permission_system_audio_denied">Die Berechtigung zum Aufnehmen von Systemaudio wurde nicht erteilt. Erteilen Sie sie, um aufzunehmen, was andere Apps wiedergeben.</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
 	<string name="action_undo">RÜCKGÄNGIG</string>
 	<!-- Generic error message for a common failure -->
@@ -432,6 +433,7 @@
     <string name="audio_source_mic">Mikrofon</string>
     <string name="audio_source_voice_communication">Sprachkommunikation</string>
     <string name="audio_source_unprocessed">Unverarbeitet</string>
+    <string name="audio_source_system">Systemaudio</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">Datenbankaktualisierung läuft</string>

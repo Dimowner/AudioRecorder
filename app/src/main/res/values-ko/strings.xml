@@ -52,6 +52,7 @@
 	<string name="msg_name_cannot_be_empty">이름을 입력해 주세요</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">오디오를 녹음하려면 마이크 권한이 필요합니다. 이 기능을 사용하려면 권한을 허용해 주세요.</string>
+    <string name="msg_permission_system_audio_denied">시스템 오디오를 캡처할 권한이 허용되지 않았습니다. 다른 앱에서 재생 중인 소리를 녹음하려면 권한을 허용해 주세요.</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
 	<string name="action_undo">실행 취소</string>
 	<!-- Generic error message for a common failure -->
@@ -424,6 +425,7 @@
     <string name="audio_source_mic">마이크</string>
     <string name="audio_source_voice_communication">음성 통신</string>
     <string name="audio_source_unprocessed">미처리</string>
+    <string name="audio_source_system">시스템 오디오</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">데이터베이스 업데이트 중입니다</string>
