@@ -245,13 +245,13 @@ fun TrimScreen(
                         ) {
                             SmallButton(
                                 label = "\u2013",
-                                onClick = { onAction(TrimAction.SetStartMills(uiState.startMills - 1000)) },
+                                onClick = { onAction(TrimAction.SetStartMills(uiState.startMills - 100)) },
                                 shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp),
                             )
                             TrimTimeCard(timeMs = uiState.startMills)
                             SmallButton(
                                 label = "+",
-                                onClick = { onAction(TrimAction.SetStartMills(uiState.startMills + 1000)) },
+                                onClick = { onAction(TrimAction.SetStartMills(uiState.startMills + 100)) },
                                 shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp),
                             )
                         }
@@ -284,13 +284,13 @@ fun TrimScreen(
                         ) {
                             SmallButton(
                                 label = "\u2013",
-                                onClick = { onAction(TrimAction.SetEndMills(uiState.endMills - 1000)) },
+                                onClick = { onAction(TrimAction.SetEndMills(uiState.endMills - 100)) },
                                 shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp),
                             )
                             TrimTimeCard(timeMs = uiState.endMills)
                             SmallButton(
                                 label = "+",
-                                onClick = { onAction(TrimAction.SetEndMills(uiState.endMills + 1000)) },
+                                onClick = { onAction(TrimAction.SetEndMills(uiState.endMills + 100)) },
                                 shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp),
                             )
                         }
