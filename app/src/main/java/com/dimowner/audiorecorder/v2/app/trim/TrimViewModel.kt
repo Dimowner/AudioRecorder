@@ -186,11 +186,9 @@ class TrimViewModel @Inject constructor(
         } else if (audioPlayer.isPaused()) {
             audioPlayer.unpause()
         } else {
+            trimEndForAudition = currentState.endMills
+            audioPlayer.seek(currentState.startMills)
             audioPlayer.play(currentRecord.path)
-            val pos = currentState.playProgressMills
-            if (pos > 0) {
-                audioPlayer.seek(pos)
-            }
         }
     }
 
@@ -246,19 +244,33 @@ class TrimViewModel @Inject constructor(
                         trimmedFile.copyTo(originalFile, overwrite = true)
                         trimmedFile.delete()
 
+                        val slicedAmps = sliceAmps(
+                            amps = currentRecord.amps,
+                            originalDurationMills = currentRecord.durationMills,
+                            startMills = currentState.startMills,
+                            endMills = currentState.endMills,
+                        )
                         updatedRecord = currentRecord.copy(
                             durationMills = result.durationMills,
                             size = result.size,
+                            amps = slicedAmps,
                         )
                         recordsDataSource.updateRecord(updatedRecord)
                         File(backupPath).delete()
                     } else {
+                        val slicedAmps = sliceAmps(
+                            amps = currentRecord.amps,
+                            originalDurationMills = currentRecord.durationMills,
+                            startMills = currentState.startMills,
+                            endMills = currentState.endMills,
+                        )
                         updatedRecord = currentRecord.copy(
                             id = 0,
                             path = result.outputPath,
                             durationMills = result.durationMills,
                             size = result.size,
                             name = currentRecord.name + "_trimmed",
+                            amps = slicedAmps,
                         )
                         recordsDataSource.insertRecord(updatedRecord)
                     }
@@ -289,6 +301,18 @@ class TrimViewModel @Inject constructor(
 
     companion object {
         private const val MIN_TRIM_DURATION = 100L
+
+        private fun sliceAmps(
+            amps: IntArray,
+            originalDurationMills: Long,
+            startMills: Long,
+            endMills: Long,
+        ): IntArray {
+            if (amps.isEmpty() || originalDurationMills <= 0) return amps
+            val startIndex = ((startMills.toFloat() / originalDurationMills) * amps.size).toInt().coerceIn(0, amps.size)
+            val endIndex = ((endMills.toFloat() / originalDurationMills) * amps.size).toInt().coerceIn(startIndex, amps.size)
+            return amps.sliceArray(startIndex until endIndex)
+        }
     }
 }
 
