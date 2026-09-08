@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -283,26 +284,30 @@ fun TrimScreen(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    SmallIconButton(
-                        label = "\u007C\u25C0",
+                    IconButton(
                         onClick = { onAction(TrimAction.PlayFromStart) },
-                    )
+                        modifier = Modifier.size(42.dp),
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_skip_previous),
+                            contentDescription = null,
+                        )
+                    }
 
                     IconButton(
                         onClick = { onAction(TrimAction.PlayPauseToggle) },
-                        modifier = Modifier
-                            .size(56.dp)
-                            .background(MaterialTheme.colorScheme.primary, CircleShape),
+                        modifier = Modifier.size(42.dp),
                     ) {
-                        Text(
-                            text = if (uiState.isPlaying) "\u23F8" else "\u25B6",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onPrimary,
+                        Icon(
+                            painter = painterResource(
+                                id = if (uiState.isPlaying) R.drawable.ic_pause else R.drawable.ic_play
+                            ),
+                            contentDescription = null,
                         )
                     }
 
                     SmallIconButton(
-                        label = "5s",
+                        label = "last 5s",
                         onClick = { onAction(TrimAction.PlayLastFiveSeconds) },
                     )
                 }
