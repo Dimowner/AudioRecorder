@@ -54,7 +54,6 @@ class TrimViewModel @Inject constructor(
             trimEndForAudition?.let { endPos ->
                 if (mills >= endPos) {
                     audioPlayer.pause()
-                    trimEndForAudition = null
                 }
             }
         }
@@ -91,6 +90,7 @@ class TrimViewModel @Inject constructor(
 
     fun loadRecord(recordId: Long) {
         viewModelScope.launch(ioDispatcher) {
+            stopPlayback()
             val loadedRecord = recordsDataSource.getRecord(recordId)
             if (loadedRecord != null) {
                 record = loadedRecord
@@ -98,6 +98,7 @@ class TrimViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     recordInfo = infoState,
                     endMills = loadedRecord.durationMills,
+                    playProgressMills = 0L,
                     isLoading = false,
                 )
             } else {
