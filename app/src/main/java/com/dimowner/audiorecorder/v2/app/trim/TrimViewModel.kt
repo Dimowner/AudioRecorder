@@ -184,7 +184,16 @@ class TrimViewModel @Inject constructor(
             audioPlayer.pause()
             auditionLimitJob?.cancel()
         } else if (audioPlayer.isPaused()) {
-            audioPlayer.unpause()
+            val atTrimEnd = trimEndForAudition?.let { end ->
+                currentState.playProgressMills >= end - 200
+            } ?: false
+            if (atTrimEnd) {
+                trimEndForAudition = currentState.endMills
+                audioPlayer.seek(currentState.startMills)
+                audioPlayer.unpause()
+            } else {
+                audioPlayer.unpause()
+            }
         } else {
             trimEndForAudition = currentState.endMills
             audioPlayer.seek(currentState.startMills)
@@ -264,12 +273,18 @@ class TrimViewModel @Inject constructor(
                             startMills = currentState.startMills,
                             endMills = currentState.endMills,
                         )
+                        val newName = generateUniqueName(currentRecord.name)
+                        val tempFile = File(result.outputPath)
+                        val parentDir = tempFile.parentFile ?: File(result.outputPath).parentFile
+                        val newFile = File(parentDir, "${newName}.${currentRecord.format}")
+                        tempFile.copyTo(newFile, overwrite = true)
+                        tempFile.delete()
                         updatedRecord = currentRecord.copy(
                             id = 0,
-                            path = result.outputPath,
+                            path = newFile.absolutePath,
                             durationMills = result.durationMills,
                             size = result.size,
-                            name = currentRecord.name + "_trimmed",
+                            name = newName,
                             amps = slicedAmps,
                         )
                         recordsDataSource.insertRecord(updatedRecord)
@@ -297,6 +312,15 @@ class TrimViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private suspend fun generateUniqueName(originalName: String): String {
+        val baseName = originalName.removeSuffix("_trimmed")
+        val allNames = recordsDataSource.getAllRecords().map { it.name }.toSet()
+        if ("${baseName}_trimmed" !in allNames) return "${baseName}_trimmed"
+        var counter = 2
+        while ("${baseName}_trimmed_$counter" in allNames) counter++
+        return "${baseName}_trimmed_$counter"
     }
 
     companion object {
