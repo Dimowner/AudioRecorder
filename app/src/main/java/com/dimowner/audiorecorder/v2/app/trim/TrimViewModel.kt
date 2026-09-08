@@ -188,13 +188,12 @@ class TrimViewModel @Inject constructor(
             val atTrimEnd = trimEndForAudition?.let { end ->
                 currentState.playProgressMills >= end - 200
             } ?: false
-            if (atTrimEnd) {
-                trimEndForAudition = currentState.endMills
+            val beforeTrimStart = currentState.playProgressMills < currentState.startMills
+            trimEndForAudition = currentState.endMills
+            if (atTrimEnd || beforeTrimStart) {
                 audioPlayer.seek(currentState.startMills)
-                audioPlayer.unpause()
-            } else {
-                audioPlayer.unpause()
             }
+            audioPlayer.unpause()
         } else {
             trimEndForAudition = currentState.endMills
             audioPlayer.seek(currentState.startMills)
