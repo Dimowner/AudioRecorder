@@ -340,11 +340,16 @@ abstract class MediaRecorderBase(
             if (!isPaused) {
                 // The recorder can be released on another thread right after the null check
                 // above (a failed start(), or stopRecording() racing with this tick), which
-                // makes getMaxAmplitude() throw. Give up on the loop instead of crashing -
-                // the next start/resume reschedules it.
+                // makes getMaxAmplitude() throw. Like stop(), it reports every failure as a
+                // RuntimeException - IllegalStateException when the recorder was never
+                // initialised, and a plain RuntimeException("getMaxAmplitude failed.") when the
+                // native call fails (already released, or the media server died). Catching only
+                // the subclass let the latter kill the sampling thread, and an uncaught
+                // exception there takes down the process. Give up on the loop instead - the
+                // next start/resume reschedules it.
                 val amplitude = try {
                     currentRecorder.maxAmplitude
-                } catch (e: IllegalStateException) {
+                } catch (e: RuntimeException) {
                     Timber.e(e, "Error reading amplitude, stopping progress updates")
                     return@Runnable
                 }
