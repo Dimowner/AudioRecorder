@@ -32,9 +32,20 @@ import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.exception.AppException
 import com.dimowner.audiorecorder.exception.PlayerDataSourceException
 import com.dimowner.audiorecorder.exception.PlayerInitException
+import com.dimowner.audiorecorder.v2.analytics.ANALYTICS_VALUE_NONE
+import com.dimowner.audiorecorder.v2.analytics.ANALYTICS_VALUE_UNKNOWN_NUMBER
+import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
+import com.dimowner.audiorecorder.v2.analytics.PlaybackStartFailure
+import com.dimowner.audiorecorder.v2.analytics.PlaybackStartFailureReason
 import timber.log.Timber
 import java.io.File
 import java.util.concurrent.CopyOnWriteArrayList
+
+/** Uri scheme of a record stored as a plain file path. */
+private const val SCHEME_FILE = "file"
+
+/** Longest string still treated as a file extension when reporting a failed playback. */
+private const val MAX_EXTENSION_LENGTH = 5
 
 /**
  * [PlayerContractNew.Player] backed by ExoPlayer.
@@ -48,7 +59,10 @@ import java.util.concurrent.CopyOnWriteArrayList
  * getters expose is mirrored into volatile fields to keep them callable from any thread too.
  */
 @UnstableApi
-class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
+class ExoAudioPlayer(
+	context: Context,
+	private val analyticsTracker: AnalyticsTracker,
+) : PlayerContractNew.Player {
 
 	private val actionsListeners = CopyOnWriteArrayList<PlayerContractNew.PlayerCallback>()
 
@@ -77,6 +91,12 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 	/** True between [play] and the moment ExoPlayer reports the source as ready. */
 	private var isPreparing = false
 
+	/**
+	 * Source of the track that is being prepared, kept so a failed start can be reported with the
+	 * details of the file it failed on. Player-thread confined, like the rest of the state above.
+	 */
+	private var preparingPath: String? = null
+
 	private var isReleased = false
 
 	private val playerListener = object : Player.Listener {
@@ -84,6 +104,7 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 			when (playbackState) {
 				Player.STATE_READY -> if (isPreparing) {
 					isPreparing = false
+					preparingPath = null
 					pauseTimeMills = 0
 					prevPosMills = 0
 					resetPositionInterpolation()
@@ -98,21 +119,37 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 
 		override fun onPlayerError(error: PlaybackException) {
 			Timber.e(error, "ExoPlayer playback error")
+			val failedToStart = isPreparing
+			val failedPath = preparingPath
 			isPreparing = false
+			preparingPath = null
 			stopPlaybackTimeUpdate()
 			playerState = PlayerState.STOPPED
 			pauseTimeMills = 0
 			prevPosMills = 0
 			resetPositionInterpolation()
-			onError(
-				if (error.errorCode == PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND ||
-					error.errorCode == PlaybackException.ERROR_CODE_IO_UNSPECIFIED
-				) {
-					PlayerDataSourceException()
-				} else {
-					PlayerInitException()
-				}
-			)
+			val exception = if (
+				error.errorCode == PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND ||
+				error.errorCode == PlaybackException.ERROR_CODE_IO_UNSPECIFIED
+			) {
+				PlayerDataSourceException()
+			} else {
+				PlayerInitException()
+			}
+			// An error raised while the track is already playing is a different problem, and is
+			// deliberately left out of the start-failure funnel.
+			if (failedToStart) {
+				trackStartFailure(
+					reason = PlaybackStartFailureReason.fromException(exception),
+					path = failedPath,
+					// The PlaybackException is what carries the stack trace and the real cause;
+					// the app level exception above is only a marker for the UI.
+					error = error,
+					playerErrorCode = error.errorCode,
+					playerErrorName = error.errorCodeName,
+				)
+			}
+			onError(exception)
 		}
 	}
 
@@ -145,13 +182,20 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 			if (playerState == PlayerState.PLAYING) return@runOnPlayerThread
 			val uri = filePath.toPlayableUri()
 			if (uri == null) {
-				onError(PlayerDataSourceException())
+				val exception = PlayerDataSourceException()
+				trackStartFailure(
+					reason = PlaybackStartFailureReason.DATA_SOURCE,
+					path = filePath,
+					error = exception,
+				)
+				onError(exception)
 				return@runOnPlayerThread
 			}
 			try {
 				stopPlaybackTimeUpdate()
 				playerState = PlayerState.STOPPED
 				isPreparing = true
+				preparingPath = filePath
 				exoPlayer.setMediaItem(MediaItem.fromUri(uri), pauseTimeMills)
 				exoPlayer.setPlaybackSpeed(playbackSpeed)
 				exoPlayer.playWhenReady = true
@@ -159,6 +203,12 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 			} catch (e: IllegalStateException) {
 				Timber.e(e, "Player is not initialized!")
 				isPreparing = false
+				preparingPath = null
+				trackStartFailure(
+					reason = PlaybackStartFailureReason.PLAYER_INIT,
+					path = filePath,
+					error = e,
+				)
 				onError(PlayerInitException())
 			}
 		}
@@ -213,6 +263,7 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 		runOnPlayerThread {
 			stopPlaybackTimeUpdate()
 			isPreparing = false
+			preparingPath = null
 			exoPlayer.stop()
 			exoPlayer.clearMediaItems()
 			playerState = PlayerState.STOPPED
@@ -228,6 +279,7 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 			if (isReleased) return@runOnPlayerThread
 			stopPlaybackTimeUpdate()
 			isPreparing = false
+			preparingPath = null
 			exoPlayer.stop()
 			exoPlayer.clearMediaItems()
 			playerState = PlayerState.STOPPED
@@ -268,6 +320,51 @@ class ExoAudioPlayer(context: Context) : PlayerContractNew.Player {
 		if (isEmpty()) return null
 		val uri = toUri()
 		return if (uri.scheme == null) Uri.fromFile(File(this)) else uri
+	}
+
+	/**
+	 * Reports a playback that never started, together with what can be told about its source.
+	 *
+	 * The file is stat-ed here, on the player (main) thread. That is a single stat on an error
+	 * path that ends in a snackbar anyway, and it answers the first question these reports raise:
+	 * whether the record file was there at all, and whether it was empty - the signature of a
+	 * recording that was interrupted before anything was written to it.
+	 */
+	private fun trackStartFailure(
+		reason: PlaybackStartFailureReason,
+		path: String?,
+		error: Throwable?,
+		playerErrorCode: Int = ANALYTICS_VALUE_UNKNOWN_NUMBER.toInt(),
+		playerErrorName: String = ANALYTICS_VALUE_NONE,
+	) {
+		val uri = path?.toPlayableUri()
+		val file = if (uri?.scheme == SCHEME_FILE) uri.path?.let(::File) else null
+		val exists = file?.exists()
+		analyticsTracker.trackPlaybackStartFailed(
+			PlaybackStartFailure(
+				reason = reason,
+				format = path.playbackFormat(),
+				uriScheme = uri?.scheme ?: ANALYTICS_VALUE_NONE,
+				fileExists = exists,
+				fileSizeBytes = if (exists == true) file.length() else ANALYTICS_VALUE_UNKNOWN_NUMBER,
+				playerErrorCode = playerErrorCode,
+				playerErrorName = playerErrorName,
+				error = error,
+			)
+		)
+	}
+
+	/**
+	 * Lowercase extension of the source, so failures can be told apart per format. Anything that
+	 * does not look like an extension (a name with a dot in it, no dot at all) is not reported.
+	 */
+	private fun String?.playbackFormat(): String {
+		val extension = this?.substringAfterLast('/')?.substringAfterLast('.', "").orEmpty().lowercase()
+		return if (extension.isNotEmpty() && extension.length <= MAX_EXTENSION_LENGTH) {
+			extension
+		} else {
+			ANALYTICS_VALUE_NONE
+		}
 	}
 
 	/**

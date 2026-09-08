@@ -44,6 +44,11 @@ import com.dimowner.audiorecorder.exception.ErrorParser
 import com.dimowner.audiorecorder.exception.InvalidOutputFile
 import com.dimowner.audiorecorder.exception.RecorderInitException
 import com.dimowner.audiorecorder.util.TimeUtils
+import com.dimowner.audiorecorder.v2.analytics.ANALYTICS_VALUE_NONE
+import com.dimowner.audiorecorder.v2.analytics.ANALYTICS_VALUE_UNKNOWN_NUMBER
+import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
+import com.dimowner.audiorecorder.v2.analytics.RecordingStartFailure
+import com.dimowner.audiorecorder.v2.analytics.RecordingStartFailureReason
 import com.dimowner.audiorecorder.v2.DefaultValues
 import com.dimowner.audiorecorder.v2.app.HomeActivity
 import com.dimowner.audiorecorder.v2.app.getNewRecordName
@@ -137,6 +142,9 @@ class AudioRecordingService : Service() {
     lateinit var prefs: PrefsV2
 
     @Inject
+    lateinit var analyticsTracker: AnalyticsTracker
+
+    @Inject
     @IoDispatcher
     lateinit var ioDispatcher: CoroutineDispatcher
 
@@ -196,6 +204,20 @@ class AudioRecordingService : Service() {
 
     /** Job for the current recorder-events subscription; cancelled before re-subscribing. */
     private var subscriptionJob: Job? = null
+
+    /**
+     * True between the moment the recorder is asked to start and the moment it reports the first
+     * recorded data back. It is what tells a start failure apart from an error raised later on,
+     * during a recording that is already running - only the former is reported to analytics.
+     *
+     * Written from the service scope and read from the recorder-events collector, hence volatile.
+     */
+    @Volatile
+    private var isStartingRecording: Boolean = false
+
+    /** Capture source of the current start attempt, reported alongside a start failure. */
+    @Volatile
+    private var startingAudioSource: String = ANALYTICS_VALUE_NONE
 
     /**
      * Timestamp (in ms) of the last available-space check.
@@ -291,6 +313,7 @@ class AudioRecordingService : Service() {
                 Timber.d("AudioRecordingService: event: $event")
                 when (event) {
                     is RecorderEvent.OnStartRecording -> {
+                        isStartingRecording = false
                         recordingAmplitudes.clear()
                         totalRecordingSampleCount = 0
                         lastAvailableSpaceCheckTime = 0L
@@ -327,6 +350,17 @@ class AudioRecordingService : Service() {
                     }
                     is RecorderEvent.OnError -> {
                         Timber.e(event.exception, "AudioRecordingService: recorder error")
+                        // Read before stopForegroundService() below resets the state the report
+                        // describes the failed attempt with.
+                        if (isStartingRecording) {
+                            isStartingRecording = false
+                            analyticsTracker.trackRecordingStartFailed(
+                                buildRecordingStartFailure(
+                                    reason = RecordingStartFailureReason.fromException(event.exception),
+                                    error = event.exception,
+                                )
+                            )
+                        }
                         //Send a user-friendly error message to UI based on the type of error
                         val errorMessage = applicationContext.getString(
                             ErrorParser.parseException(event.exception)
@@ -462,72 +496,149 @@ class AudioRecordingService : Service() {
         val bitrate = prefs.settingBitrate.value
         val channelCount = prefs.settingChannelCount.value
 
+        startingAudioSource = audioInput.analyticsLabel()
+        val availableSpaceBytes = fileDataSource.getAvailableSpace()
         val availableTimeSeconds = convertSpaceBytesToTimeInSeconds(
-            spaceBytes = fileDataSource.getAvailableSpace(),
+            spaceBytes = availableSpaceBytes,
             recordingFormat = format,
             sampleRate = sampleRate,
             bitrate = bitrate,
             channels = channelCount
         )
 
-        if (availableTimeSeconds > AppConstants.MIN_REMAIN_RECORDING_TIME && !audioRecorder.isRecording) {
-            try {
-                val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
-                // Use the actual file name (without extension) in case a suffix was added to avoid collision
-                val actualRecordName = recordFile.nameWithoutExtension
-                val record = Record(
-                    id = 0,
-                    name = actualRecordName,
-                    durationMills = 0,
-                    created = recordFile.lastModified(),
-                    added = System.currentTimeMillis(),
-                    removed = Long.MAX_VALUE,
-                    path = recordFile.absolutePath,
+        if (availableTimeSeconds <= AppConstants.MIN_REMAIN_RECORDING_TIME) {
+            Timber.e("Not enough space to start recording, available time: $availableTimeSeconds s")
+            analyticsTracker.trackRecordingStartFailed(
+                buildRecordingStartFailure(
+                    reason = RecordingStartFailureReason.NOT_ENOUGH_SPACE,
                     format = format.value,
-                    size = 0,
-                    sampleRate = sampleRate,
-                    channelCount = channelCount,
-                    bitrate = if (format.hasBitrate) bitrate else 0,
-                    isBookmarked = false,
-                    isWaveformProcessed = false,
-                    isMovedToRecycle = false,
-                    amps = IntArray(ARApplication.longWaveformSampleCount),
-                    description = "",
-                )
-                val id = recordsDataSource.insertRecord(record)
-                prefs.activeRecordId = -1
-                prefs.recordedRecordId = id
-                prefs.recordedRecordPartCounter += 1
-
-                _recordingState.value = _recordingState.value.copy(
-                    recordId = id,
-                    recordName = actualRecordName,
-                    recordingFormat = format,
                     sampleRate = sampleRate,
                     bitrate = bitrate,
                     channelCount = channelCount,
+                    availableSpaceBytes = availableSpaceBytes,
                 )
-
-                audioRecorder.startRecording(
-                    outputFile = recordFile,
-                    channelCount = channelCount,
+            )
+            return null
+        }
+        if (audioRecorder.isRecording) {
+            Timber.e("Can't start recording, recording is already in progress")
+            analyticsTracker.trackRecordingStartFailed(
+                buildRecordingStartFailure(
+                    reason = RecordingStartFailureReason.ALREADY_RECORDING,
+                    format = format.value,
                     sampleRate = sampleRate,
                     bitrate = bitrate,
-                    maxRecordingDurationMills = prefs.maxRecordingDurationMills,
-                    audioInput = audioInput,
+                    channelCount = channelCount,
+                    availableSpaceBytes = availableSpaceBytes,
                 )
-                return id
-            } catch (e: CantCreateFileException) {
-                Timber.e(e, "Failed to start recording with name: $recordName")
-                val cantCreateFileMsg = applicationContext.getString(R.string.error_cant_create_file)
-                val failedToStartRecordingMsg = applicationContext.getString(R.string.error_failed_to_start_recording)
-                emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(
-                    "$failedToStartRecordingMsg\n$cantCreateFileMsg"
-                ))
-                stopForegroundService()
-            }
+            )
+            return null
+        }
+        try {
+            val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
+            // Use the actual file name (without extension) in case a suffix was added to avoid collision
+            val actualRecordName = recordFile.nameWithoutExtension
+            val record = Record(
+                id = 0,
+                name = actualRecordName,
+                durationMills = 0,
+                created = recordFile.lastModified(),
+                added = System.currentTimeMillis(),
+                removed = Long.MAX_VALUE,
+                path = recordFile.absolutePath,
+                format = format.value,
+                size = 0,
+                sampleRate = sampleRate,
+                channelCount = channelCount,
+                bitrate = if (format.hasBitrate) bitrate else 0,
+                isBookmarked = false,
+                isWaveformProcessed = false,
+                isMovedToRecycle = false,
+                amps = IntArray(ARApplication.longWaveformSampleCount),
+                description = "",
+            )
+            val id = recordsDataSource.insertRecord(record)
+            prefs.activeRecordId = -1
+            prefs.recordedRecordId = id
+            prefs.recordedRecordPartCounter += 1
+
+            _recordingState.value = _recordingState.value.copy(
+                recordId = id,
+                recordName = actualRecordName,
+                recordingFormat = format,
+                sampleRate = sampleRate,
+                bitrate = bitrate,
+                channelCount = channelCount,
+            )
+
+            // Set before starting, because a recorder can report its failure synchronously.
+            isStartingRecording = true
+            audioRecorder.startRecording(
+                outputFile = recordFile,
+                channelCount = channelCount,
+                sampleRate = sampleRate,
+                bitrate = bitrate,
+                maxRecordingDurationMills = prefs.maxRecordingDurationMills,
+                audioInput = audioInput,
+            )
+            return id
+        } catch (e: CantCreateFileException) {
+            Timber.e(e, "Failed to start recording with name: $recordName")
+            isStartingRecording = false
+            analyticsTracker.trackRecordingStartFailed(
+                buildRecordingStartFailure(
+                    reason = RecordingStartFailureReason.CANT_CREATE_FILE,
+                    format = format.value,
+                    sampleRate = sampleRate,
+                    bitrate = bitrate,
+                    channelCount = channelCount,
+                    availableSpaceBytes = availableSpaceBytes,
+                    error = e,
+                )
+            )
+            val cantCreateFileMsg = applicationContext.getString(R.string.error_cant_create_file)
+            val failedToStartRecordingMsg = applicationContext.getString(R.string.error_failed_to_start_recording)
+            emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(
+                "$failedToStartRecordingMsg\n$cantCreateFileMsg"
+            ))
+            stopForegroundService()
         }
         return null
+    }
+
+    /**
+     * Builds the report for a recording that failed to start.
+     *
+     * The settings default to the ones in [_recordingState], which [handleStartRecording] fills in
+     * right before it touches the recorder - so a failure reported from the recorder-events
+     * collector still describes the attempt that failed, not the preferences as they are now.
+     * The call sites that fail before that point pass their values explicitly.
+     */
+    @Suppress("LongParameterList")
+    private fun buildRecordingStartFailure(
+        reason: RecordingStartFailureReason,
+        format: String = _recordingState.value.recordingFormat?.value ?: ANALYTICS_VALUE_NONE,
+        sampleRate: Int = _recordingState.value.sampleRate,
+        bitrate: Int = _recordingState.value.bitrate,
+        channelCount: Int = _recordingState.value.channelCount,
+        availableSpaceBytes: Long = runCatching { fileDataSource.getAvailableSpace() }
+            .getOrDefault(ANALYTICS_VALUE_UNKNOWN_NUMBER),
+        error: Throwable? = null,
+    ) = RecordingStartFailure(
+        reason = reason,
+        format = format,
+        sampleRate = sampleRate,
+        bitrate = bitrate,
+        channelCount = channelCount,
+        audioSource = startingAudioSource,
+        availableSpaceBytes = availableSpaceBytes,
+        error = error,
+    )
+
+    /** Capture source label reported with a recording start failure. */
+    private fun AudioInput.analyticsLabel(): String = when (this) {
+        is AudioInput.Mic -> AudioSource.fromValue(audioSource).name.lowercase()
+        is AudioInput.SystemPlayback -> AudioSource.SYSTEM_AUDIO.name.lowercase()
     }
 
     /** Whether the user has chosen to record system audio and this build/device can do it. */
@@ -714,6 +825,7 @@ class AudioRecordingService : Service() {
     }
 
     private fun stopForegroundService() {
+        isStartingRecording = false
         releaseMediaProjection()
         recordingAmplitudes.clear()
         totalRecordingSampleCount = 0
