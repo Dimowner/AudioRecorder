@@ -27,6 +27,7 @@ import com.dimowner.audiorecorder.IntArrayList
 import com.dimowner.audiorecorder.exception.AlreadyRecordingException
 import com.dimowner.audiorecorder.exception.InvalidOutputFile
 import com.dimowner.audiorecorder.exception.RecorderInitException
+import com.dimowner.audiorecorder.exception.RecordingStopFailedException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -269,23 +270,34 @@ abstract class MediaRecorderBase(
 
         stopRecordingTimer()
         stopRecordingTimerBuffered()
+        var stopFailure: RuntimeException? = null
         val isStopSucceed = try {
             mediaRecorder?.let {
                 it.setOnInfoListener(null)
                 it.stop()
                 true
             } ?: false
-        } catch (e: IllegalStateException) {
-            // This can happen if start() failed and stop() is called, or if the recorder
-            // was never fully prepared/started.
+        } catch (e: RuntimeException) {
+            // stop() reports everything as a RuntimeException: IllegalStateException when the
+            // recorder was never fully prepared/started, and a plain RuntimeException("stop
+            // failed.") when the writer could not finalise the container - a recording stopped
+            // before a single frame was muxed, or a media server hiccup. Catching only the
+            // subclass let the latter reach the caller, and stopRecording() runs on the main
+            // thread behind the stop button, so it crashed the app.
             Timber.e(e, "stopRecording() problems")
+            stopFailure = e
             false
         } finally {
             // Always release resources
             releaseRecorder()
         }
 
-        if (!skipStopRecordingEventEmit) {
+        if (stopFailure != null) {
+            // The container was never closed, so what is on disk cannot be played as it stands.
+            // Report it instead of a normal stop: the service then tries to recover the captured
+            // audio rather than saving a record that refuses to open.
+            emitEvent(RecorderEvent.OnError(RecordingStopFailedException()))
+        } else if (!skipStopRecordingEventEmit) {
             emitEvent(RecorderEvent.OnStopRecording)
         }
 

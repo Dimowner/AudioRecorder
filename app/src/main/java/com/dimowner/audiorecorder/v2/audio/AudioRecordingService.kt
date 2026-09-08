@@ -43,6 +43,7 @@ import com.dimowner.audiorecorder.exception.CantCreateFileException
 import com.dimowner.audiorecorder.exception.ErrorParser
 import com.dimowner.audiorecorder.exception.InvalidOutputFile
 import com.dimowner.audiorecorder.exception.RecorderInitException
+import com.dimowner.audiorecorder.exception.RecordingStopFailedException
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.analytics.ANALYTICS_VALUE_NONE
 import com.dimowner.audiorecorder.v2.analytics.ANALYTICS_VALUE_UNKNOWN_NUMBER
@@ -361,21 +362,32 @@ class AudioRecordingService : Service() {
                                 )
                             )
                         }
-                        //Send a user-friendly error message to UI based on the type of error
-                        val errorMessage = applicationContext.getString(
-                            ErrorParser.parseException(event.exception)
-                        )
-                        emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(errorMessage))
-
                         val recordedRecordId = prefs.recordedRecordId
                         prefs.recordedRecordId = -1
-                        //Recording failed to start. Delete the created record in database and file
-                        // if the error is related to recorder initialization or file creation.
-                        if (event.exception is RecorderInitException
-                            || event.exception is InvalidOutputFile
-                            || event.exception is CantCreateFileException
-                        ) {
-                            recordsDataSource.deleteRecordAndFileForever(recordedRecordId)
+                        // The recorder failed while closing the container, so the file still
+                        // holds everything that was captured - only the index that makes it
+                        // playable is missing. That is the same damage a force-kill leaves
+                        // behind, so run it through the same recovery before telling the user
+                        // the recording is lost.
+                        val isRecovered = event.exception is RecordingStopFailedException &&
+                            recordedRecordId >= 0 &&
+                            recoverUnfinalizedRecord(recordedRecordId)
+
+                        if (!isRecovered) {
+                            //Send a user-friendly error message to UI based on the type of error
+                            val errorMessage = applicationContext.getString(
+                                ErrorParser.parseException(event.exception)
+                            )
+                            emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(errorMessage))
+
+                            //Recording failed to start. Delete the created record in database and file
+                            // if the error is related to recorder initialization or file creation.
+                            if (event.exception is RecorderInitException
+                                || event.exception is InvalidOutputFile
+                                || event.exception is CantCreateFileException
+                            ) {
+                                recordsDataSource.deleteRecordAndFileForever(recordedRecordId)
+                            }
                         }
 
                         stopForegroundService()
@@ -821,6 +833,57 @@ class AudioRecordingService : Service() {
                     stopForegroundService()
                 }
             }
+        }
+    }
+
+    /**
+     * Rebuilds a record whose file was left without a readable container by a failed stop.
+     *
+     * The audio itself survives such a failure - only the index the player needs is missing - so
+     * the file goes through the same restoration the broken-record dialog runs after a
+     * force-kill. On success the record is completed the way [handleRecordingStopped] completes
+     * a normal one: metadata read back from the recovered file, waveform queued for decoding and
+     * the record made active. Returns false when nothing playable came back, leaving the caller
+     * to report the failure to the user.
+     */
+    private suspend fun recoverUnfinalizedRecord(recordId: Long): Boolean {
+        return withContext(ioDispatcher) {
+            val record = recordsDataSource.getRecord(recordId) ?: return@withContext false
+            val recovered = if (recordsDataSource.restoreBrokenRecord(recordId)) {
+                recordsDataSource.getRecord(recordId)
+            } else {
+                null
+            }
+            // A restore that came back without a duration left the file as unplayable as it was.
+            if (recovered == null || recovered.durationMills <= 0) {
+                Timber.e("Failed to recover the record left by a failed stop: id=$recordId")
+                analyticsTracker.trackBrokenRecordRestoreFailed(format = record.format)
+                return@withContext false
+            }
+            analyticsTracker.trackBrokenRecordRestoreSuccess(format = recovered.format)
+            // Keep the waveform captured while recording, same as the normal stop path does -
+            // it gives the UI something to draw until DecodeService replaces it.
+            recordsDataSource.updateRecord(
+                recovered.copy(amps = recordingFullDataBuffer.downsampleToIntArray())
+            )
+            prefs.activeRecordId = recordId
+            _recordingState.value = _recordingState.value.copy(
+                recordingState = RecordingState.STOPPED,
+            )
+            emitEvent(AudioRecordingServiceEvent.ShowInfoSnack(
+                applicationContext.getString(R.string.msg_recording_saved_with_name, recovered.name)
+            ))
+            emitEvent(AudioRecordingServiceEvent.RecordingStopped(
+                recordId = recordId,
+                recordName = recovered.name,
+            ))
+            decodeRecord(
+                recordId = recovered.id,
+                path = recovered.path,
+                durationMills = recovered.durationMills,
+            )
+            resetRecordedRecordPartCounter()
+            true
         }
     }
 
