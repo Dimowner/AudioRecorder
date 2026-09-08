@@ -224,45 +224,63 @@ fun TrimScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Start controls: [-] [time] [+]
-                // End controls: [-] [time] [+]
+                // Start controls: [-][time][+]
+                // End controls: [-][time][+]
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.Top,
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        SmallButton(
-                            label = "\u2013",
-                            onClick = { onAction(TrimAction.SetStartMills(uiState.startMills - 1000)) },
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = stringResource(R.string.trim_start),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        TrimTimeCard(
-                            label = stringResource(R.string.trim_start),
-                            timeMs = uiState.startMills,
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        SmallButton(
-                            label = "+",
-                            onClick = { onAction(TrimAction.SetStartMills(uiState.startMills + 1000)) },
-                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp)),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            SmallButton(
+                                label = "\u2013",
+                                onClick = { onAction(TrimAction.SetStartMills(uiState.startMills - 1000)) },
+                                shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp),
+                            )
+                            TrimTimeCard(timeMs = uiState.startMills)
+                            SmallButton(
+                                label = "+",
+                                onClick = { onAction(TrimAction.SetStartMills(uiState.startMills + 1000)) },
+                                shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp),
+                            )
+                        }
                     }
 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        SmallButton(
-                            label = "\u2013",
-                            onClick = { onAction(TrimAction.SetEndMills(uiState.endMills - 1000)) },
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = stringResource(R.string.trim_end),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        TrimTimeCard(
-                            label = stringResource(R.string.trim_end),
-                            timeMs = uiState.endMills,
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        SmallButton(
-                            label = "+",
-                            onClick = { onAction(TrimAction.SetEndMills(uiState.endMills + 1000)) },
-                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp)),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            SmallButton(
+                                label = "\u2013",
+                                onClick = { onAction(TrimAction.SetEndMills(uiState.endMills - 1000)) },
+                                shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp),
+                            )
+                            TrimTimeCard(timeMs = uiState.endMills)
+                            SmallButton(
+                                label = "+",
+                                onClick = { onAction(TrimAction.SetEndMills(uiState.endMills + 1000)) },
+                                shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp),
+                            )
+                        }
                     }
                 }
 
@@ -560,12 +578,16 @@ private fun TrimRangeBar(
 private fun SmallButton(
     label: String,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    shape: androidx.compose.ui.graphics.Shape = CircleShape,
 ) {
-    IconButton(
-        onClick = onClick,
-        modifier = Modifier
-            .size(36.dp)
-            .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape),
+    Box(
+        modifier = modifier
+            .height(40.dp)
+            .width(36.dp)
+            .background(MaterialTheme.colorScheme.secondaryContainer, shape)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = label,
@@ -600,31 +622,17 @@ private fun SmallIconButton(
 
 @Composable
 private fun TrimTimeCard(
-    label: String,
     timeMs: Long,
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Box(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
     ) {
         Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            text = TimeUtils.formatTimeIntervalHourMinSec2(timeMs),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
         )
-        Spacer(modifier = Modifier.height(4.dp))
-        Box(
-            modifier = Modifier
-                .background(
-                    MaterialTheme.colorScheme.surfaceVariant,
-                    RoundedCornerShape(8.dp)
-                )
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-        ) {
-            Text(
-                text = TimeUtils.formatTimeIntervalHourMinSec2(timeMs),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
     }
 }
