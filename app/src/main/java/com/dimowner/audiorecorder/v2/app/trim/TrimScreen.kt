@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -155,7 +154,7 @@ fun TrimScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-            .padding(horizontal = 0.dp),
+                    .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -282,26 +281,29 @@ fun TrimScreen(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // Playback controls: [Play from start] [Play/Pause] [Last 5s]
-                Row(
+                Box(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    IconButton(
-                        onClick = { onAction(TrimAction.PlayFromStart) },
-                        modifier = Modifier
-                            .size(48.dp)
-                            .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(12.dp)),
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_skip_previous),
-                            contentDescription = null,
-                        )
+                    // Start button — left aligned
+                    Box(modifier = Modifier.align(Alignment.CenterStart).padding(start = 50.dp)) {
+                        IconButton(
+                            onClick = { onAction(TrimAction.PlayFromStart) },
+                            modifier = Modifier
+                                .size(48.dp)
+                                .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(12.dp)),
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_skip_previous),
+                                contentDescription = null,
+                            )
+                        }
                     }
 
+                    // Play button — center
                     IconButton(
                         onClick = { onAction(TrimAction.PlayPauseToggle) },
                         modifier = Modifier
+                            .align(Alignment.Center)
                             .size(56.dp)
                             .background(MaterialTheme.colorScheme.primary, CircleShape),
                     ) {
@@ -314,10 +316,13 @@ fun TrimScreen(
                         )
                     }
 
-                    SmallIconButton(
-                        label = "last 5s",
-                        onClick = { onAction(TrimAction.PlayLastFiveSeconds) },
-                    )
+                    // Last 5s button — right aligned
+                    Box(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 50.dp)) {
+                        SmallIconButton(
+                            label = "last 5s",
+                            onClick = { onAction(TrimAction.PlayLastFiveSeconds) },
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
