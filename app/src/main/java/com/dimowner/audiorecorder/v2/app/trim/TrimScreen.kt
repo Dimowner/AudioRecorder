@@ -255,6 +255,19 @@ fun TrimScreen(
                                 shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp),
                             )
                         }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(8.dp))
+                                .clickable { onAction(TrimAction.SetStartToPlayhead) }
+                                .padding(horizontal = 12.dp, vertical = 6.dp),
+                        ) {
+                            Text(
+                                text = "set",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            )
+                        }
                     }
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -279,6 +292,19 @@ fun TrimScreen(
                                 label = "+",
                                 onClick = { onAction(TrimAction.SetEndMills(uiState.endMills + 1000)) },
                                 shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp),
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(8.dp))
+                                .clickable { onAction(TrimAction.SetEndToPlayhead) }
+                                .padding(horizontal = 12.dp, vertical = 6.dp),
+                        ) {
+                            Text(
+                                text = "set",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
                             )
                         }
                     }

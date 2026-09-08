@@ -114,6 +114,8 @@ class TrimViewModel @Inject constructor(
         when (action) {
             is TrimAction.SetStartMills -> setStartMills(action.mills)
             is TrimAction.SetEndMills -> setEndMills(action.mills)
+            TrimAction.SetStartToPlayhead -> setStartToPlayhead()
+            TrimAction.SetEndToPlayhead -> setEndToPlayhead()
             is TrimAction.SeekPlayhead -> seekPlayhead(action.mills)
             TrimAction.ApplyTrim -> _state.value = _state.value.copy(showDialog = true)
             is TrimAction.SaveChoice -> {
@@ -140,6 +142,22 @@ class TrimViewModel @Inject constructor(
         val current = _state.value
         _state.value = current.copy(
             endMills = mills.coerceIn(current.startMills + MIN_TRIM_DURATION, current.recordInfo?.duration ?: 0L)
+        )
+    }
+
+    private fun setStartToPlayhead() {
+        val current = _state.value
+        val playhead = current.playProgressMills
+        _state.value = current.copy(
+            startMills = playhead.coerceIn(0L, current.endMills - MIN_TRIM_DURATION)
+        )
+    }
+
+    private fun setEndToPlayhead() {
+        val current = _state.value
+        val playhead = current.playProgressMills
+        _state.value = current.copy(
+            endMills = playhead.coerceIn(current.startMills + MIN_TRIM_DURATION, current.recordInfo?.duration ?: 0L)
         )
     }
 
@@ -343,6 +361,8 @@ class TrimViewModel @Inject constructor(
 sealed class TrimAction {
     data class SetStartMills(val mills: Long) : TrimAction()
     data class SetEndMills(val mills: Long) : TrimAction()
+    data object SetStartToPlayhead : TrimAction()
+    data object SetEndToPlayhead : TrimAction()
     data class SeekPlayhead(val mills: Long) : TrimAction()
     data object ApplyTrim : TrimAction()
     data class SaveChoice(val overwrite: Boolean) : TrimAction()
