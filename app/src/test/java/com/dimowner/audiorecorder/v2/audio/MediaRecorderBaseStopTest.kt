@@ -24,9 +24,12 @@ import com.dimowner.audiorecorder.exception.RecordingStopFailedException
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.unmockkConstructor
+import io.mockk.verify
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -47,8 +50,9 @@ import java.io.File
  * Covers what [MediaRecorderBase] does when [MediaRecorder.stop] fails.
  *
  * The platform reports a writer that could not finalise the output file as a plain
- * `RuntimeException("stop failed.")`, and stop runs on the main thread behind the stop button -
- * so letting it escape crashes the app.
+ * `RuntimeException("stop failed.")`. The call is reached from the main thread behind the stop
+ * button, so it neither runs there - it is handed to [MediaRecorderBase.stopDispatcher] - nor
+ * lets the failure escape: the outcome comes back as an event.
  */
 @RunWith(AndroidJUnit4::class)
 @Config(application = MediaRecorderTestApplication::class, sdk = [36])
@@ -63,7 +67,8 @@ class MediaRecorderBaseStopTest {
     private class TestRecorder(
         context: Context,
         scope: CoroutineScope,
-    ) : MediaRecorderBase(context, scope) {
+        stopDispatcher: CoroutineDispatcher,
+    ) : MediaRecorderBase(context, scope, stopDispatcher) {
         override fun configureRecorder(
             recorder: MediaRecorder,
             channelCount: Int,
@@ -98,14 +103,19 @@ class MediaRecorderBaseStopTest {
     @Test
     fun `stop failure is reported instead of crashing the caller`() = runTest {
         every { anyConstructed<MediaRecorder>().stop() } throws RuntimeException("stop failed.")
-        val recorder = TestRecorder(ApplicationProvider.getApplicationContext(), this)
+        val recorder = TestRecorder(
+            ApplicationProvider.getApplicationContext(),
+            this,
+            UnconfinedTestDispatcher(testScheduler),
+        )
         val events = collectEvents(recorder)
 
         assertTrue(startRecording(recorder))
-        val isStopSucceed = recorder.stopRecording()
+        // The stop is accepted right away; whether the container closed is reported as an event,
+        // because the caller is no longer around when the blocking stop() finishes.
+        assertTrue(recorder.stopRecording())
         advanceUntilIdle()
 
-        assertFalse(isStopSucceed)
         assertEquals(
             listOf(RecorderEvent.OnStartRecording::class, RecorderEvent.OnError::class),
             events.map { it::class },
@@ -117,14 +127,17 @@ class MediaRecorderBaseStopTest {
     @Test
     fun `a clean stop still reports a normal stop`() = runTest {
         every { anyConstructed<MediaRecorder>().stop() } returns Unit
-        val recorder = TestRecorder(ApplicationProvider.getApplicationContext(), this)
+        val recorder = TestRecorder(
+            ApplicationProvider.getApplicationContext(),
+            this,
+            UnconfinedTestDispatcher(testScheduler),
+        )
         val events = collectEvents(recorder)
 
         assertTrue(startRecording(recorder))
-        val isStopSucceed = recorder.stopRecording()
+        assertTrue(recorder.stopRecording())
         advanceUntilIdle()
 
-        assertTrue(isStopSucceed)
         assertEquals(
             listOf(RecorderEvent.OnStartRecording, RecorderEvent.OnStopRecording),
             events,
@@ -138,7 +151,11 @@ class MediaRecorderBaseStopTest {
     @Test
     fun `stopping again after a failure reports nothing`() = runTest {
         every { anyConstructed<MediaRecorder>().stop() } throws RuntimeException("stop failed.")
-        val recorder = TestRecorder(ApplicationProvider.getApplicationContext(), this)
+        val recorder = TestRecorder(
+            ApplicationProvider.getApplicationContext(),
+            this,
+            UnconfinedTestDispatcher(testScheduler),
+        )
 
         assertTrue(startRecording(recorder))
         recorder.stopRecording()
@@ -149,6 +166,33 @@ class MediaRecorderBaseStopTest {
         advanceUntilIdle()
 
         assertTrue(events.isEmpty())
+    }
+
+    /**
+     * The ANR this guards against: MediaRecorder.stop() finalises the container through the media
+     * server and blocks for as long as that takes, and the stop button reaches stopRecording() on
+     * the main thread. Nothing native may run before stopRecording() has returned.
+     */
+    @Test
+    fun `stop button does not run the blocking stop on the caller's thread`() = runTest {
+        every { anyConstructed<MediaRecorder>().stop() } returns Unit
+        // Standard, not unconfined: the teardown is queued rather than run eagerly, so what the
+        // caller sees on return is exactly what the main thread would see.
+        val recorder = TestRecorder(
+            ApplicationProvider.getApplicationContext(),
+            this,
+            StandardTestDispatcher(testScheduler),
+        )
+
+        assertTrue(startRecording(recorder))
+        assertTrue(recorder.stopRecording())
+
+        verify(exactly = 0) { anyConstructed<MediaRecorder>().stop() }
+        // The recorder still reports itself as stopped, which is what the caller acts on.
+        assertFalse(recorder.isRecording)
+
+        advanceUntilIdle()
+        verify(exactly = 1) { anyConstructed<MediaRecorder>().stop() }
     }
 
     private fun startRecording(recorder: RecorderV2): Boolean = recorder.startRecording(

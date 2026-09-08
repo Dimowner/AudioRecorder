@@ -201,13 +201,13 @@ class WavRecorderV2 @Inject constructor(
                         // Check max duration
                         if (maxDurationMills > 0 && durationMills >= maxDurationMills) {
                             Timber.d("Max recording duration reached. Stop recording")
-                            // Signal the loop to stop; hardware teardown happens via stopHardware().
-                            // OnStopRecording and OnMaxDurationReached are both emitted after
-                            // the WAV header is written in-place, so consumers always see a complete file.
+                            // Signal the loop to stop; the hardware is torn down in the finally
+                            // below. OnStopRecording and OnMaxDurationReached are both emitted
+                            // after the WAV header is written in-place, so consumers always see
+                            // a complete file.
                             maxDurationReached = true
                             _isRecording = false
                             _isPaused = false
-                            stopHardware()
                             break
                         }
                     } else if (readResult == AudioRecord.ERROR_INVALID_OPERATION) {
@@ -227,6 +227,15 @@ class WavRecorderV2 @Inject constructor(
                 } catch (e: IOException) {
                     Timber.e(e, "Error closing output file stream")
                 }
+                // The hardware is released here, on this background thread, and never from
+                // stopRecording(): AudioRecord.stop() is a synchronous binder call into
+                // audioserver that does not return until the input stream has been torn down,
+                // which takes seconds on some devices. The loop has already left `recorder`
+                // alone by this point, so nothing can read from a released instance.
+                // The timer is cancelled here as well because the max-duration and error paths
+                // leave the loop without going through stopRecording(), which would leak it.
+                stopRecordingTimer()
+                stopHardware(recorder)
             }
 
             // Write the real WAV header in-place now that we know the final audio length.
@@ -296,31 +305,31 @@ class WavRecorderV2 @Inject constructor(
             Timber.e("Recording has already stopped or hasn't started")
             return false
         }
+        // Flip the flags only; the recording coroutine finishes its current read(), flushes the
+        // PCM data, writes the WAV header in-place, emits OnStopRecording and releases the
+        // hardware. No native call runs on this thread - this is reached from the main thread
+        // (the stop button, the notification action and the MediaProjection callback), and
+        // AudioRecord.stop() blocks there long enough to ANR.
         _isRecording = false
         _isPaused = false
         synchronized(amplitudesBuffer) { amplitudesBuffer.clear() }
-        // Tear down the hardware; the recording coroutine will finish its current
-        // read(), flush PCM data, write the WAV header in-place, and then emit OnStopRecording.
-        return stopHardware()
+        return true
     }
 
     /**
-     * Stops and releases [audioRecord]. Safe to call from any thread.
-     * Returns true if the hardware was stopped successfully.
+     * Stops and releases the [recorder] this recording coroutine owns. Invoked from the
+     * coroutine's teardown. Releases the passed instance (not the field) so a rapid stop->start
+     * that has already swapped in a new [AudioRecord] is not torn down by the previous run; the
+     * field is only cleared if it still points at this recorder.
      */
-    private fun stopHardware(): Boolean {
-        return try {
-            audioRecord?.let {
-                it.stop()
-                it.release()
-                true
-            } ?: false
+    private fun stopHardware(recorder: AudioRecord) {
+        try {
+            recorder.stop()
         } catch (e: IllegalStateException) {
             Timber.e(e, "stopHardware() problems")
-            audioRecord?.release()
-            false
         } finally {
-            audioRecord = null
+            recorder.release()
+            if (audioRecord === recorder) audioRecord = null
         }
     }
 

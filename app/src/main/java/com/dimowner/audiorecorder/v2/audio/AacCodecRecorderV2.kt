@@ -390,10 +390,11 @@ class AacCodecRecorderV2 @Inject constructor(
 
                 if (maxDurationMills > 0 && durationMills >= maxDurationMills) {
                     Timber.d("Max recording duration reached. Stop recording")
+                    // Signal the loop to stop; finishRecording() below drains the encoder,
+                    // closes the container and releases the hardware.
                     maxDurationReached = true
                     _isRecording = false
                     _isPaused = false
-                    stopHardware()
                     break
                 }
                 if (session.muxedFrameCount == 0L && SystemClock.elapsedRealtime() > startupDeadline) {
@@ -618,28 +619,34 @@ class AacCodecRecorderV2 @Inject constructor(
             Timber.e("Recording has already stopped or hasn't started")
             return false
         }
+        // Flip the flags only; the recording coroutine finishes its current read, flushes the
+        // encoder, closes the container, emits OnStopRecording and releases the hardware. No
+        // native call runs on this thread - this is reached from the main thread (the stop
+        // button, the notification action and the MediaProjection callback), and
+        // AudioRecord.stop() blocks there long enough to ANR.
         _isRecording = false
         _isPaused = false
         synchronized(amplitudesBuffer) { amplitudesBuffer.clear() }
-        // The recording coroutine finishes its current read, flushes the encoder, closes the
-        // container and only then emits OnStopRecording.
-        return stopHardware()
+        return true
     }
 
-    /** Stops and releases [audioRecord]. Safe to call from any thread. */
+    /**
+     * Stops and releases [audioRecord]. Called from the recording coroutine's teardown and from
+     * the start-up failure paths, never from the main thread. The instance is captured first so
+     * a rapid stop->start that has already swapped in a new [AudioRecord] is not torn down by
+     * the previous run; the field is only cleared if it still points at this recorder.
+     */
     private fun stopHardware(): Boolean {
+        val recorder = audioRecord ?: return false
         return try {
-            audioRecord?.let {
-                it.stop()
-                it.release()
-                true
-            } ?: false
+            recorder.stop()
+            true
         } catch (e: IllegalStateException) {
             Timber.e(e, "stopHardware() problems")
-            audioRecord?.release()
             false
         } finally {
-            audioRecord = null
+            recorder.release()
+            if (audioRecord === recorder) audioRecord = null
         }
     }
 

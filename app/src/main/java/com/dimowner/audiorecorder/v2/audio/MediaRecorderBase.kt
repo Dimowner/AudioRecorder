@@ -28,7 +28,9 @@ import com.dimowner.audiorecorder.exception.AlreadyRecordingException
 import com.dimowner.audiorecorder.exception.InvalidOutputFile
 import com.dimowner.audiorecorder.exception.RecorderInitException
 import com.dimowner.audiorecorder.exception.RecordingStopFailedException
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -52,6 +54,8 @@ private const val NO_MAX_DURATION = -1
 abstract class MediaRecorderBase(
     private val applicationContext: Context,
     private val coroutineScope: CoroutineScope,
+    /** Where the blocking [MediaRecorder.stop] runs, see [stopRecording]. */
+    private val stopDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : RecorderV2 {
 
     private var timerProgress: Timer? = null
@@ -256,50 +260,33 @@ abstract class MediaRecorderBase(
     }
 
     override fun stopRecording(): Boolean {
-        return stopRecording(skipStopRecordingEventEmit = false)
+        return stopRecording(RecorderEvent.OnStopRecording)
     }
 
-    private fun stopRecording(skipStopRecordingEventEmit: Boolean): Boolean {
+    /**
+     * Ends the recording. Returns as soon as the state has been reset - the container is
+     * finalised on a background thread, see [finishStop].
+     *
+     * @param completionEvent emitted once the container has been closed successfully. A failed
+     * stop reports [RecordingStopFailedException] instead, whatever the caller asked for.
+     */
+    private fun stopRecording(completionEvent: RecorderEvent): Boolean {
         // A recorder that started but hasn't reported an amplitude yet still has _isRecording
         // false, and it must be released here - otherwise it would keep holding the microphone
         // and block every subsequent startRecording().
-        if (!_isRecording && mediaRecorder == null) {
+        val recorder = mediaRecorder
+        if (!_isRecording && recorder == null) {
             Timber.e("Recording has already stopped or hasn't started")
             return false
         }
+        // Hand the instance to the teardown below right away, so a second stop (the notification
+        // action racing the stop button, or a max-duration tick landing on top of either) finds
+        // no recorder and cannot start a second teardown of the same one.
+        mediaRecorder = null
 
         stopRecordingTimer()
         stopRecordingTimerBuffered()
-        var stopFailure: RuntimeException? = null
-        val isStopSucceed = try {
-            mediaRecorder?.let {
-                it.setOnInfoListener(null)
-                it.stop()
-                true
-            } ?: false
-        } catch (e: RuntimeException) {
-            // stop() reports everything as a RuntimeException: IllegalStateException when the
-            // recorder was never fully prepared/started, and a plain RuntimeException("stop
-            // failed.") when the writer could not finalise the container - a recording stopped
-            // before a single frame was muxed, or a media server hiccup. Catching only the
-            // subclass let the latter reach the caller, and stopRecording() runs on the main
-            // thread behind the stop button, so it crashed the app.
-            Timber.e(e, "stopRecording() problems")
-            stopFailure = e
-            false
-        } finally {
-            // Always release resources
-            releaseRecorder()
-        }
-
-        if (stopFailure != null) {
-            // The container was never closed, so what is on disk cannot be played as it stands.
-            // Report it instead of a normal stop: the service then tries to recover the captured
-            // audio rather than saving a record that refuses to open.
-            emitEvent(RecorderEvent.OnError(RecordingStopFailedException()))
-        } else if (!skipStopRecordingEventEmit) {
-            emitEvent(RecorderEvent.OnStopRecording)
-        }
+        stopSamplingThread()
 
         // Reset all state
         durationMills = 0
@@ -308,7 +295,50 @@ abstract class MediaRecorderBase(
         _isRecording = false
         _isPaused = false
         synchronized(amplitudesBuffer) { amplitudesBuffer.clear() }
-        return isStopSucceed
+
+        if (recorder == null) {
+            // _isRecording is flipped by the sampling thread, which can land just after the
+            // instance was released: there is nothing left to finalise and nothing to report.
+            return false
+        }
+
+        // MediaRecorder.stop() finalises the container through the media server and does not
+        // return until that is done, which is seconds rather than milliseconds when the writer
+        // has a lot to flush or the media server is busy. This method is reached from the main
+        // thread (the stop button and the notification action), so the blocking part runs on the
+        // recorder scope instead; everything the caller observes has already been reset above.
+        coroutineScope.launch(stopDispatcher) { finishStop(recorder, completionEvent) }
+        return true
+    }
+
+    /** Closes the container and reports the outcome. Always runs off the caller's thread. */
+    private fun finishStop(recorder: MediaRecorder, completionEvent: RecorderEvent) {
+        var stopFailure: RuntimeException? = null
+        try {
+            recorder.setOnInfoListener(null)
+            recorder.stop()
+        } catch (e: RuntimeException) {
+            // stop() reports everything as a RuntimeException: IllegalStateException when the
+            // recorder was never fully prepared/started, and a plain RuntimeException("stop
+            // failed.") when the writer could not finalise the container - a recording stopped
+            // before a single frame was muxed, or a media server hiccup. Catching only the
+            // subclass let the latter reach the caller, and stopRecording() used to run on the
+            // main thread behind the stop button, so it crashed the app.
+            Timber.e(e, "stopRecording() problems")
+            stopFailure = e
+        } finally {
+            // Always release resources
+            releaseRecorder(recorder)
+        }
+
+        if (stopFailure != null) {
+            // The container was never closed, so what is on disk cannot be played as it stands.
+            // Report it instead of a normal stop: the service then tries to recover the captured
+            // audio rather than saving a record that refuses to open.
+            emitEvent(RecorderEvent.OnError(RecordingStopFailedException()))
+        } else {
+            emitEvent(completionEvent)
+        }
     }
 
     private fun handleRecorderInfo(what: Int) {
@@ -319,9 +349,7 @@ abstract class MediaRecorderBase(
 
     private fun handleMaxDurationReached() {
         Timber.d("Max recording duration reached. Stop recording")
-        if (stopRecording(skipStopRecordingEventEmit = true)) {
-            emitEvent(RecorderEvent.OnMaxDurationReached)
-        }
+        stopRecording(RecorderEvent.OnMaxDurationReached)
     }
 
     protected fun emitEvent(event: RecorderEvent) {
@@ -378,6 +406,11 @@ abstract class MediaRecorderBase(
     private fun releaseRecorder() {
         val recorder = mediaRecorder
         mediaRecorder = null
+        releaseRecorder(recorder)
+    }
+
+    /** Releases an instance the caller has already detached from [mediaRecorder]. */
+    private fun releaseRecorder(recorder: MediaRecorder?) {
         stopSamplingThread()
         stopRecordingTimerBuffered()
         recorder?.release()
