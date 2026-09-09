@@ -286,6 +286,7 @@
 <br/><br/><b>Micròfon:</b> La configuració estàndard del micròfon. Millor per a gravació general. Equilibra el volum de la veu automàticament mentre capta l\'atmosfera natural dels voltants.
 <br/><br/><b>Comunicació de veu:</b> Dissenyat específicament per a la claredat de la veu humana. Millor per a Bluetooth, ja que activa la cancel·lació de soroll i d\'eco.
 <br/><br/><b>Sense processar:</b> Captura l\'àudio en brut sense cap filtre ni ajust del sistema. Sense eliminació de soroll de fons ni anivellament del volum. Millor per a ús professional o d\'alta fidelitat.
+<br/><br/><b>Àudio del sistema:</b> Grava el que reprodueixen altres aplicacions en lloc del micròfon. Les aplicacions poden rebutjar ser gravades, per la qual cosa el contingut protegit i les trucades queden en silenci.
 ]]></string>
 
 	<string name="info_3gp"><b>3gp</b> format de contenidor multimèdia desenvolupat per a serveis de telecomunicacions mòbils. Feu-lo servir si necessiteu estalviar espai.</string>

@@ -310,6 +310,7 @@
 <br/><br/><b>Mikrofon:</b> Standardowe ustawienie mikrofonu. Najlepsze do nagrywania ogólnego. Automatycznie balansuje głośność głosu, zachowując naturalną atmosferę otoczenia.
 <br/><br/><b>Komunikacja głosowa:</b> Zaprojektowane specjalnie dla wyrazistości ludzkiego głosu. Najlepsze dla Bluetooth — aktywuje redukcję szumów i echa.
 <br/><br/><b>Bez przetwarzania:</b> Rejestruje surowe audio bez żadnych filtrów ani regulacji systemowych. Brak redukcji szumów tła i wyrównywania głośności. Najlepsze do nagrań wysokiej wierności lub zastosowań profesjonalnych.
+<br/><br/><b>Dźwięk systemowy:</b> Nagrywa dźwięk odtwarzany przez inne aplikacje zamiast dźwięku z mikrofonu. Aplikacje mogą nie zezwolić na nagrywanie, więc treści chronione i połączenia pozostają ciche.
 ]]></string>
 	<string name="info_3gp"><b>3gp</b> to format kontenera multimedialnego opracowany dla mobilnych usług telekomunikacyjnych. Użyj go, jeśli potrzebujesz zaoszczędzić miejsce.</string>
 	<string name="info_m4a"><b>M4a</b> to format zakodowany z kodekiem audio AAC o dobrej jakości i małym rozmiarze. <b>(zalecane)</b></string>

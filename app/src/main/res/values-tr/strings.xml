@@ -288,6 +288,7 @@
 <br/><br/><b>Mikrofon:</b> Standart mikrofon ayarıdır. Genel kayıt için en iyisidir. Çevresindeki doğal atmosferi yakalarken ses seviyesini otomatik olarak dengeler.
 <br/><br/><b>Ses İletişimi:</b> İnsan sesinin netliği için özel olarak tasarlanmıştır. Gürültü ve yankı iptalini etkinleştirdiğinden Bluetooth için en iyisidir.
 <br/><br/><b>İşlenmemiş:</b> Sistem filtreleri veya ayarlamaları olmadan ham sesi yakalar. Arka plan gürültü giderme ve ses seviyesi dengeleme yoktur. Yüksek kaliteli veya profesyonel kullanım için en iyisidir.
+<br/><br/><b>Sistem sesi:</b> Mikrofon yerine diğer uygulamaların çaldığı sesi kaydeder. Uygulamalar kaydedilmeyi reddedebilir, bu nedenle korumalı içerik ve aramalar sessiz kalır.
 ]]></string>
 	<string name="info_3gp"><b>3gp</b> mobil telekomünikasyon servisleri için geliştirilmiş bir multimedya formatıdır. Alandan tasarruf etmeniz gerekiyorsa kullanabilirsiniz.</string>
 	<string name="info_m4a"><b>M4a</b> formatı AAC ses çözücüsüyle kodlanmıştır, iyi kalitede ve düşük boyutludur. <b>(önerilen)</b></string>

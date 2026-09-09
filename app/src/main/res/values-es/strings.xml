@@ -290,6 +290,7 @@
 <br/><br/><b>Micrófono:</b> La configuración estándar del micrófono. Ideal para grabaciones generales. Balancea automáticamente el volumen de voz mientras captura el ambiente natural del entorno.
 <br/><br/><b>Comunicación de voz:</b> Diseñado específicamente para la claridad de la voz humana. Ideal para Bluetooth, ya que activa la cancelación de ruido y eco.
 <br/><br/><b>Sin procesar:</b> Captura audio sin procesar sin ningún filtro o ajuste del sistema. Sin eliminación de ruido de fondo ni nivelación de volumen. Ideal para uso profesional o de alta fidelidad.
+<br/><br/><b>Audio del sistema:</b> Graba lo que reproducen otras aplicaciones en lugar del micrófono. Las aplicaciones pueden rechazar ser grabadas, por lo que el contenido protegido y las llamadas permanecen en silencio.
 ]]></string>
 	<string name="info_3gp"><b>3gp</b> es un formato contenedor de multimedia desarrollado para servicios de telecomunicación móvil. Úsalo si necesitas ahorrar espacio.</string>
 	<string name="info_m4a">El formato <b>M4a</b> codificado con el códec de audio AAC tiene buena calidad y ocupa poco espacio. <b>(recomendado)</b></string>

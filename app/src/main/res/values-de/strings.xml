@@ -291,6 +291,7 @@
 <br/><br/><b>Mikrofon:</b> Die Standardmikrofoneinstellung. Am besten für allgemeine Aufnahmen. Die Lautstärke der Stimme wird automatisch angepasst, während die natürliche Umgebung erfasst wird.
 <br/><br/><b>Sprachkommunikation:</b> Speziell für klare Sprachverständlichkeit ausgelegt. Ideal für Bluetooth, da Rausch- und Echounterdrückung aktiviert werden.
 <br/><br/><b>Unverarbeitet:</b> Nimmt Rohaudio ohne Systemfilter oder Anpassungen auf. Keine Hintergrundgeräuschunterdrückung und keine Lautstärkepegelung. Ideal für High-Fidelity- oder professionelle Nutzung.
+<br/><br/><b>Systemaudio:</b> Nimmt anstelle des Mikrofons auf, was andere Apps wiedergeben. Apps können die Aufnahme ablehnen, daher bleiben geschützte Inhalte und Anrufe stumm.
 ]]></string>
 	<string name="info_3gp"><b>3gp</b> ist ein Multimedia-Containerformat, das für mobile Telekommunikationsdienste entwickelt wurde. Verwenden Sie es, wenn Sie Speicherplatz sparen müssen.</string>
 	<string name="info_m4a"><b>M4a</b>-Format ist mit dem AAC-Audiocodec kodiert und hat gute Qualität bei kleiner Dateigröße. <b>(empfohlen)</b></string>
