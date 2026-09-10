@@ -27,6 +27,7 @@ import com.dimowner.audiorecorder.IntArrayList
 import com.dimowner.audiorecorder.exception.AlreadyRecordingException
 import com.dimowner.audiorecorder.exception.InvalidOutputFile
 import com.dimowner.audiorecorder.exception.RecorderInitException
+import com.dimowner.audiorecorder.exception.RecordingException
 import com.dimowner.audiorecorder.exception.RecordingStopFailedException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -176,6 +177,7 @@ abstract class MediaRecorderBase(
                     // readBufferedProgress() instead, the same way WavRecorderV2 does it.
                     setMaxDuration(NO_MAX_DURATION)
                     setOnInfoListener { _, what, _ -> handleRecorderInfo(what) }
+                    setOnErrorListener { _, what, extra -> handleRecorderError(what, extra) }
                     setOutputFile(outputFile.absolutePath)
                 }
                 recorder.prepare()
@@ -316,6 +318,10 @@ abstract class MediaRecorderBase(
         var stopFailure: RuntimeException? = null
         try {
             recorder.setOnInfoListener(null)
+            // stop() itself can trip the error callback (a media server that dies while the
+            // container is being finalised). The outcome is already reported from here, so let
+            // that callback find no listener rather than start a second teardown.
+            recorder.setOnErrorListener(null)
             recorder.stop()
         } catch (e: RuntimeException) {
             // stop() reports everything as a RuntimeException: IllegalStateException when the
@@ -342,14 +348,48 @@ abstract class MediaRecorderBase(
     }
 
     private fun handleRecorderInfo(what: Int) {
-        if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
-            handleMaxDurationReached()
+        when (what) {
+            // The platform MPEG-4 writer holds its sample tables in memory and addresses the
+            // file with 32-bit offsets, so it stops the recording by itself once the output
+            // grows too large. Treating that like a max-duration hit rolls the session over
+            // into the next numbered part; ignoring it (as before) left the recorder dead while
+            // the service kept showing an active recording whose timer went on counting.
+            MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED,
+            MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED -> {
+                Timber.d("Recorder reported a limit reached (what: $what). Stop recording")
+                stopRecording(RecorderEvent.OnMaxDurationReached)
+            }
         }
     }
 
     private fun handleMaxDurationReached() {
         Timber.d("Max recording duration reached. Stop recording")
         stopRecording(RecorderEvent.OnMaxDurationReached)
+    }
+
+    /**
+     * Handles a [MediaRecorder] runtime failure - a media-server death or an encoder error, both
+     * of which get more likely the longer a session runs.
+     *
+     * Without this listener such a failure is completely silent: the recorder stops producing
+     * audio, the file is never finalised, and the service keeps reporting an active recording
+     * indefinitely. Stopping here finalises whatever was captured so it can still be saved, and
+     * the error is reported as a [RecordingException] - not a [RecorderInitException], which
+     * callers read as "start failed, discard the file".
+     *
+     * The failure is handed to [stopRecording] as its completion event rather than emitted next
+     * to it: the service acts on the first event it sees, and it must not act before the
+     * container has been closed. It also keeps a stop that then fails on its own reported as a
+     * [RecordingStopFailedException], which is the only event that sends the service down the
+     * recovery path for an unfinalised file.
+     */
+    private fun handleRecorderError(what: Int, extra: Int) {
+        Timber.e("MediaRecorder error. what: $what extra: $extra")
+        if (!stopRecording(RecorderEvent.OnError(RecordingException()))) {
+            // Nothing was left to finalise - the recorder had already been torn down, and the
+            // teardown that did it reports its own outcome.
+            Timber.w("MediaRecorder error arrived with no recording in progress")
+        }
     }
 
     protected fun emitEvent(event: RecorderEvent) {
@@ -453,6 +493,8 @@ abstract class MediaRecorderBase(
     }
 
     private fun scheduleRecordingTimeUpdateBuffered() {
+        timerProgress?.cancel()
+        timerProgress?.purge()
         timerProgress = Timer()
         timerProgress?.schedule(object : TimerTask() {
             override fun run() {
