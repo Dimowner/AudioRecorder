@@ -39,10 +39,10 @@ import com.dimowner.audiorecorder.AppConstantsV2
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.DecodeService
 import com.dimowner.audiorecorder.audio.AudioDecoder
+import com.dimowner.audiorecorder.exception.AlreadyRecordingException
+import com.dimowner.audiorecorder.exception.AppException
 import com.dimowner.audiorecorder.exception.CantCreateFileException
 import com.dimowner.audiorecorder.exception.ErrorParser
-import com.dimowner.audiorecorder.exception.InvalidOutputFile
-import com.dimowner.audiorecorder.exception.RecorderInitException
 import com.dimowner.audiorecorder.exception.RecordingStopFailedException
 import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.analytics.ANALYTICS_VALUE_NONE
@@ -324,6 +324,7 @@ class AudioRecordingService : Service() {
                             amplitudes = intArrayOf(),
                             totalSampleCount = 0,
                             waveformDataOffset = 0,
+                            durationMills = 0L,
                         )
                         startNotificationUpdates()
                         updateNotification()
@@ -351,7 +352,7 @@ class AudioRecordingService : Service() {
                     }
                     is RecorderEvent.OnError -> {
                         Timber.e(event.exception, "AudioRecordingService: recorder error")
-                        // Read before stopForegroundService() below resets the state the report
+                        // Read before handleRecorderError() below resets the state the report
                         // describes the failed attempt with.
                         if (isStartingRecording) {
                             isStartingRecording = false
@@ -362,39 +363,69 @@ class AudioRecordingService : Service() {
                                 )
                             )
                         }
-                        val recordedRecordId = prefs.recordedRecordId
-                        prefs.recordedRecordId = -1
-                        // The recorder failed while closing the container, so the file still
-                        // holds everything that was captured - only the index that makes it
-                        // playable is missing. That is the same damage a force-kill leaves
-                        // behind, so run it through the same recovery before telling the user
-                        // the recording is lost.
-                        val isRecovered = event.exception is RecordingStopFailedException &&
-                            recordedRecordId >= 0 &&
-                            recoverUnfinalizedRecord(recordedRecordId)
-
-                        if (!isRecovered) {
-                            //Send a user-friendly error message to UI based on the type of error
-                            val errorMessage = applicationContext.getString(
-                                ErrorParser.parseException(event.exception)
-                            )
-                            emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(errorMessage))
-
-                            //Recording failed to start. Delete the created record in database and file
-                            // if the error is related to recorder initialization or file creation.
-                            if (event.exception is RecorderInitException
-                                || event.exception is InvalidOutputFile
-                                || event.exception is CantCreateFileException
-                            ) {
-                                recordsDataSource.deleteRecordAndFileForever(recordedRecordId)
-                            }
-                        }
-
-                        stopForegroundService()
+                        handleRecorderError(event.exception)
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Decides what to do with the in-flight recording after the recorder reported [exception].
+     *
+     * The distinction that matters is whether any audio made it to disk. A recorder that failed
+     * before producing anything leaves an empty stub file worth cleaning up; a recorder that fails
+     * after minutes - or hours - of capture leaves the user's recording, and that file must be
+     * saved like a normal stop. The previous version deleted the record for every init/file error
+     * regardless of how long it had been recording, so a mid-session I/O failure (running out of
+     * space being the obvious one on a long recording) destroyed the whole session.
+     */
+    private suspend fun handleRecorderError(exception: AppException) {
+        if (exception is AlreadyRecordingException) {
+            // A rejected duplicate start says nothing about the recording that is already
+            // running, so reporting it must not tear that recording down.
+            showRecorderError(exception)
+            return
+        }
+
+        if (exception is RecordingStopFailedException) {
+            // The recorder captured the audio but failed while closing the container, so the
+            // file still holds everything - only the index that makes it playable is missing.
+            // That is the same damage a force-kill leaves behind, so run it through the same
+            // recovery before telling the user the recording is lost.
+            val recordedRecordId = prefs.recordedRecordId
+            prefs.recordedRecordId = -1
+            if (recordedRecordId < 0 || !recoverUnfinalizedRecord(recordedRecordId)) {
+                showRecorderError(exception)
+            }
+            stopForegroundService()
+            return
+        }
+
+        showRecorderError(exception)
+
+        if (_recordingState.value.durationMills > 0 && prefs.recordedRecordId >= 0) {
+            // Audio is already on disk, so finish the file the way a normal stop does instead
+            // of discarding what the user recorded. handleRecordingStopped() reads and clears
+            // prefs.recordedRecordId itself and stops the service once the record is saved.
+            handleRecordingStopped()
+            return
+        }
+
+        // Nothing was captured: the record is an empty stub, so drop it along with its file.
+        val recordedRecordId = prefs.recordedRecordId
+        prefs.recordedRecordId = -1
+        if (recordedRecordId >= 0) {
+            recordsDataSource.deleteRecordAndFileForever(recordedRecordId)
+        }
+        stopForegroundService()
+    }
+
+    /** Shows the user-facing message [ErrorParser] maps [exception] to. */
+    private fun showRecorderError(exception: AppException) {
+        emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(
+            applicationContext.getString(ErrorParser.parseException(exception))
+        ))
     }
 
     fun handleRecordingProgress(durationMills: Long, amplitude: Int) {
@@ -581,6 +612,11 @@ class AudioRecordingService : Service() {
                 sampleRate = sampleRate,
                 bitrate = bitrate,
                 channelCount = channelCount,
+                // Belongs to the record just inserted, so it starts at zero even when the
+                // previous part left a duration behind: handleRecorderError() reads this to
+                // tell a recording that captured audio from an empty stub, and a start that
+                // fails before OnStartRecording never gets to reset it.
+                durationMills = 0L,
             )
 
             // Set before starting, because a recorder can report its failure synchronously.

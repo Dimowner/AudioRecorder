@@ -8,6 +8,7 @@ import com.dimowner.audiorecorder.IntArrayList
 import com.dimowner.audiorecorder.exception.AlreadyRecordingException
 import com.dimowner.audiorecorder.exception.InvalidOutputFile
 import com.dimowner.audiorecorder.exception.RecorderInitException
+import com.dimowner.audiorecorder.exception.RecordingException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -24,6 +25,19 @@ import java.util.Timer
 import java.util.TimerTask
 import javax.inject.Inject
 import javax.inject.Singleton
+
+/**
+ * RIFF/WAV describes chunk sizes in 32-bit fields, so a WAV file cannot represent more than 4 GiB
+ * of audio - and plenty of parsers read those fields as *signed* 32-bit, which halves the usable
+ * range again. Past the limit the header silently wraps around and the whole recording becomes
+ * unreadable, which is exactly what a multi-hour session runs into: 44.1 kHz 16-bit mono fills
+ * 2 GiB in ~6.7 h, 48 kHz stereo in ~3.1 h.
+ *
+ * When the data chunk approaches this size the current file is closed off exactly like a
+ * max-duration hit, so [AudioRecordingService] rolls over into the next numbered part and no
+ * audio is lost.
+ */
+private const val MAX_WAV_DATA_BYTES = 2_147_000_000L
 
 @Singleton
 class WavRecorderV2 @Inject constructor(
@@ -198,29 +212,38 @@ class WavRecorderV2 @Inject constructor(
                         val amplitude = calculateAmplitude(buffer, readResult)
                         synchronized(amplitudesBuffer) { amplitudesBuffer.add(amplitude) }
 
-                        // Check max duration
-                        if (maxDurationMills > 0 && durationMills >= maxDurationMills) {
-                            Timber.d("Max recording duration reached. Stop recording")
+                        // Check max duration, and the size the WAV container itself can describe
+                        val durationLimitReached =
+                            maxDurationMills > 0 && durationMills >= maxDurationMills
+                        val containerFull = totalBytesWritten >= MAX_WAV_DATA_BYTES
+                        if (durationLimitReached || containerFull) {
+                            if (containerFull) {
+                                Timber.d("WAV container size limit reached. Start a new part")
+                            } else {
+                                Timber.d("Max recording duration reached. Stop recording")
+                            }
                             // Signal the loop to stop; the hardware is torn down in the finally
-                            // below. OnStopRecording and OnMaxDurationReached are both emitted
-                            // after the WAV header is written in-place, so consumers always see
-                            // a complete file.
+                            // below, once the PCM stream has been closed. OnStopRecording and
+                            // OnMaxDurationReached are both emitted after the WAV header is
+                            // written in-place, so consumers always see a complete file.
                             maxDurationReached = true
                             _isRecording = false
                             _isPaused = false
                             break
                         }
-                    } else if (readResult == AudioRecord.ERROR_INVALID_OPERATION) {
-                        Timber.e("AudioRecord read error: ERROR_INVALID_OPERATION")
-                        break
-                    } else if (readResult == AudioRecord.ERROR_BAD_VALUE) {
-                        Timber.e("AudioRecord read error: ERROR_BAD_VALUE")
+                    } else if (readResult < 0) {
+                        // Covers ERROR_DEAD_OBJECT / ERROR too: once the AudioRecord is dead,
+                        // read() returns immediately, so anything that doesn't break out here
+                        // spins the loop at full CPU for the rest of the session.
+                        Timber.e("AudioRecord read error: $readResult")
                         break
                     }
                 }
             } catch (e: IOException) {
+                // RecordingException, not RecorderInitException: the recorder did start, so this
+                // must not be treated as a failed start (which discards the file).
                 Timber.e(e, "Error writing PCM data")
-                emitEvent(RecorderEvent.OnError(RecorderInitException()))
+                emitEvent(RecorderEvent.OnError(RecordingException()))
             } finally {
                 try {
                     fos?.close()
@@ -232,8 +255,12 @@ class WavRecorderV2 @Inject constructor(
                 // audioserver that does not return until the input stream has been torn down,
                 // which takes seconds on some devices. The loop has already left `recorder`
                 // alone by this point, so nothing can read from a released instance.
-                // The timer is cancelled here as well because the max-duration and error paths
-                // leave the loop without going through stopRecording(), which would leak it.
+                // The timer is cancelled and the flags are cleared here as well because the
+                // max-duration and error paths leave the loop without going through
+                // stopRecording(): the timer would leak, and _isRecording staying true would
+                // keep the recorder wedged, rejecting every later start as "already recording".
+                _isRecording = false
+                _isPaused = false
                 stopRecordingTimer()
                 stopHardware(recorder)
             }
@@ -266,7 +293,7 @@ class WavRecorderV2 @Inject constructor(
                     }
                 } catch (e: IOException) {
                     Timber.e(e, "Error writing WAV header")
-                    emitEvent(RecorderEvent.OnError(RecorderInitException()))
+                    emitEvent(RecorderEvent.OnError(RecordingException()))
                 }
             }
 
