@@ -66,6 +66,30 @@ class RecordingWaveformBufferTest {
     }
 
     @Test
+    fun `timeline stays uniform over a full-length recording session`() {
+        // 3.6M samples is what a 20-hour recording produces at the 20 ms sampling interval.
+        // Doubles as a cost regression test: an implementation that resamples the whole
+        // timeline on every compression pass cannot finish this in reasonable time.
+        val targetSize = 600
+        val totalSamples = 3_600_000
+        val buf = RecordingWaveformBuffer(targetSize = targetSize)
+        repeat(totalSamples / 2) { buf.add(0) }
+        repeat(totalSamples / 2) { buf.add(32767) }
+
+        val result = buf.downsampleToIntArray()
+
+        assertEquals(targetSize, result.size)
+        // The silence/full-amplitude split must still land in the middle, not drift towards
+        // either end the way non-uniform slot widths would make it.
+        for (i in 0 until targetSize * 4 / 10) {
+            assertTrue("Expected near 0 at index $i, got ${result[i]}", result[i] < 3000)
+        }
+        for (i in targetSize * 6 / 10 until targetSize) {
+            assertTrue("Expected near 32767 at index $i, got ${result[i]}", result[i] > 29000)
+        }
+    }
+
+    @Test
     fun `downsampleToIntArray output is monotonically increasing for linearly rising signal`() {
         // Input: amplitude rises linearly 0 → 32767 over many samples.
         // Output bins should also rise monotonically.
