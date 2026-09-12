@@ -136,9 +136,9 @@ class RecordingWaveformBufferTest {
         buf.reset()
         buf.add(42)
         val result = buf.downsampleToIntArray()
+        // Exactly the one sample recorded since the reset; no previous data leaks through.
+        assertEquals(1, result.size)
         assertEquals(42, result[0])
-        // All other bins should be zero (no previous data leaks through)
-        for (i in 1 until 10) assertEquals("index $i should be 0", 0, result[i])
     }
 
     @Test
@@ -160,22 +160,38 @@ class RecordingWaveformBufferTest {
     }
 
     @Test
-    fun `downsampleToIntArray on empty buffer returns zero-filled targetSize array`() {
+    fun `downsampleToIntArray on empty buffer returns an empty array`() {
         val buf = RecordingWaveformBuffer(targetSize = 50)
-        val result = buf.downsampleToIntArray()
-        assertEquals(50, result.size)
-        assertTrue(result.all { it == 0 })
+        assertEquals(0, buf.downsampleToIntArray().size)
     }
 
     @Test
-    fun `downsampleToIntArray with fewer samples than targetSize left-aligns and zero-fills`() {
+    fun `downsampleToIntArray with fewer samples than targetSize returns only captured samples`() {
         val buf = RecordingWaveformBuffer(targetSize = 100)
         intArrayOf(10, 20, 30).forEach { buf.add(it) }
         val result = buf.downsampleToIntArray()
-        assertEquals(10, result[0])
-        assertEquals(20, result[1])
-        assertEquals(30, result[2])
-        for (i in 3 until 100) assertEquals("index $i should be 0", 0, result[i])
+        assertTrue(
+            "Expected exactly the captured samples, got: ${result.toList()}",
+            result.contentEquals(intArrayOf(10, 20, 30))
+        )
+    }
+
+    @Test
+    fun `short recording is not padded with a silent tail`() {
+        // Regression test: a 5 s recording produces 5000 / 20 ms = 250 samples, well under the
+        // ~600-sample targetSize of a typical screen. Padding the result up to targetSize made
+        // consumers (which spread `amps` across the whole record duration) draw the real
+        // waveform in the first ~40 % of the width and silence for the rest, until DecodeService
+        // replaced `amps` with the decoded version.
+        val targetSize = 600
+        val recordedSamples = 250
+        val buf = RecordingWaveformBuffer(targetSize = targetSize)
+        repeat(recordedSamples) { buf.add(20000) }
+
+        val result = buf.downsampleToIntArray()
+
+        assertEquals(recordedSamples, result.size)
+        assertTrue("No sample may be silent", result.all { it == 20000 })
     }
 
     @Test
@@ -230,7 +246,10 @@ class RecordingWaveformBufferTest {
         try {
             val deadline = System.currentTimeMillis() + 500
             while (System.currentTimeMillis() < deadline && error.get() == null) {
-                assertEquals(50, buf.downsampleToIntArray().size)
+                // A reader that lands just after reset() legitimately sees a partially
+                // refilled buffer, so only the upper bound is guaranteed here.
+                val size = buf.downsampleToIntArray().size
+                assertTrue("size $size should be <= 50", size <= 50)
             }
         } catch (t: Throwable) {
             error.set(t)

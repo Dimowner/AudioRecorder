@@ -36,9 +36,10 @@ package com.dimowner.audiorecorder.v2.audio
  * operations spent on the waveform preview alone. Pairwise merging is O([cap]) per pass and
  * amortises to O(1) per sample, so cost no longer grows with recording length.
  *
- * At recording stop, call [downsampleToIntArray] to obtain a [targetSize]-element [IntArray]
- * suitable for persisting as the initial `amps` on a [Record]. This gives the UI an immediate
- * real waveform to display before [DecodeService] replaces it with the fully-decoded version.
+ * At recording stop, call [downsampleToIntArray] to obtain an [IntArray] of at most [targetSize]
+ * elements, suitable for persisting as the initial `amps` on a [Record]. This gives the UI an
+ * immediate real waveform to display before [DecodeService] replaces it with the fully-decoded
+ * version.
  *
  * **Memory bound:** a single [IntArray] of [HALVING_CAP_MULTIPLIER] × [targetSize] elements.
  * For a typical 400 dp screen [targetSize] ≈ 600, so ≈ 2 400 ints (~9.6 KB) regardless of
@@ -107,10 +108,13 @@ class RecordingWaveformBuffer(private val targetSize: Int) {
     }
 
     /**
-     * Produces a [targetSize]-element [IntArray] from the accumulated slots.
+     * Produces an [IntArray] covering the whole recorded timeline, at most [targetSize] elements.
      *
      * - Fewer slots than [targetSize] while no compression has happened yet (one slot == one
-     *   original sample): left-aligned copy, remainder zero-filled.
+     *   original sample): the captured slots are returned as-is, *without* padding. Every
+     *   consumer spreads `amps` evenly across the record duration, so padding up to [targetSize]
+     *   would claim a longer timeline than was recorded - a 5 s recording would be squeezed into
+     *   the first `slots / targetSize` of the width with the zero tail drawn as silence.
      * - Otherwise: equal-width averaging windows over slot space. Slots all cover the same amount
      *   of time, so slot space *is* the recording timeline and no index remapping is needed.
      *
@@ -120,20 +124,17 @@ class RecordingWaveformBuffer(private val targetSize: Int) {
      */
     @Synchronized
     fun downsampleToIntArray(): IntArray {
-        val result = IntArray(targetSize)
         // The partially filled slot is included so the tail of a short recording is not lost.
         val hasPending = pendingCount > 0
         val pendingAverage = if (hasPending) (pendingSum / pendingCount).toInt() else 0
         val effective = slotCount + if (hasPending) 1 else 0
-        if (effective == 0) return result
+        if (effective == 0) return IntArray(0)
 
         if (samplesPerSlot == 1 && effective <= targetSize) {
-            for (i in 0 until effective) {
-                result[i] = slotAt(i, pendingAverage)
-            }
-            return result
+            return IntArray(effective) { slotAt(it, pendingAverage) }
         }
 
+        val result = IntArray(targetSize)
         val scale = effective.toFloat() / targetSize.toFloat()
         // step is at most HALVING_CAP_MULTIPLIER, so the Int accumulator below cannot overflow.
         val step = scale.toInt().coerceAtLeast(1)
