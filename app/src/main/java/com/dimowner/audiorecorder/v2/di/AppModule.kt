@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.media3.common.util.UnstableApi
 import com.dimowner.audiorecorder.audio.player.ExoAudioPlayer
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew
+import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
 import dagger.Module
@@ -36,8 +37,11 @@ class AppModule {
     @UnstableApi
     @Singleton
     @Provides
-    fun providePlayerContractNew(@ApplicationContext context: Context): PlayerContractNew.Player {
-        return ExoAudioPlayer(context)
+    fun providePlayerContractNew(
+        @ApplicationContext context: Context,
+        analyticsTracker: AnalyticsTracker,
+    ): PlayerContractNew.Player {
+        return ExoAudioPlayer(context, analyticsTracker)
     }
 
     /**

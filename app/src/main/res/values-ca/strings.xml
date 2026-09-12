@@ -50,6 +50,7 @@
 	<string name="msg_name_cannot_be_empty">El nom no pot estar buit</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">Es necessita el permís del micròfon per gravar àudio. Concediu el permís per utilitzar aquesta funció.</string>
+    <string name="msg_permission_system_audio_denied">No s\'ha concedit el permís per capturar l\'àudio del sistema. Concediu-lo per gravar el que reprodueixen altres aplicacions.</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
 	<string name="action_undo">DESFÉS</string>
 	<!-- Generic error message for a common failure -->
@@ -285,6 +286,7 @@
 <br/><br/><b>Micròfon:</b> La configuració estàndard del micròfon. Millor per a gravació general. Equilibra el volum de la veu automàticament mentre capta l\'atmosfera natural dels voltants.
 <br/><br/><b>Comunicació de veu:</b> Dissenyat específicament per a la claredat de la veu humana. Millor per a Bluetooth, ja que activa la cancel·lació de soroll i d\'eco.
 <br/><br/><b>Sense processar:</b> Captura l\'àudio en brut sense cap filtre ni ajust del sistema. Sense eliminació de soroll de fons ni anivellament del volum. Millor per a ús professional o d\'alta fidelitat.
+<br/><br/><b>Àudio del sistema:</b> Grava el que reprodueixen altres aplicacions en lloc del micròfon. Les aplicacions poden rebutjar ser gravades, per la qual cosa el contingut protegit i les trucades queden en silenci.
 ]]></string>
 
 	<string name="info_3gp"><b>3gp</b> format de contenidor multimèdia desenvolupat per a serveis de telecomunicacions mòbils. Feu-lo servir si necessiteu estalviar espai.</string>
@@ -430,6 +432,7 @@
     <string name="audio_source_mic">Micròfon</string>
     <string name="audio_source_voice_communication">Comunicació de veu</string>
     <string name="audio_source_unprocessed">Sense processar</string>
+    <string name="audio_source_system">Àudio del sistema</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">Actualització de la base de dades en curs</string>

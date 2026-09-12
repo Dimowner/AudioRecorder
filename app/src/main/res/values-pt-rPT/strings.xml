@@ -54,6 +54,7 @@
     <string name="msg_name_cannot_be_empty">O nome não pode estar vazio</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">É necessária permissão para aceder ao microfone. Por favor, conceda a permissão para utilizar esta funcionalidade.</string>
+    <string name="msg_permission_system_audio_denied">A permissão para captar o áudio do sistema não foi concedida. Conceda-a para gravar o que as outras aplicações estão a reproduzir.</string>
     <!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
     <string name="action_undo">DESFAZER</string>
     <!-- Generic error message for a common failure -->
@@ -291,6 +292,7 @@
 <br/><br/><b>Microfone:</b> A configuração de microfone padrão. Ideal para gravação geral. Equilibra automaticamente o volume da voz enquanto capta a atmosfera natural do ambiente.
 <br/><br/><b>Comunicação de Voz:</b> Especificamente concebido para a clareza da voz humana. Ideal para Bluetooth, pois ativa o cancelamento de ruído e eco.
 <br/><br/><b>Não processado:</b> Capta áudio em bruto sem filtros ou ajustes do sistema. Sem remoção de ruído de fundo nem nivelamento de volume. Ideal para utilização de alta fidelidade ou profissional.
+<br/><br/><b>Áudio do sistema:</b> Grava o que as outras aplicações estão a reproduzir em vez do microfone. As aplicações podem recusar a gravação, por isso o conteúdo protegido e as chamadas ficam em silêncio.
 ]]></string>
     <string name="info_3gp"><b>3gp</b> é um formato de contentor multimédia desenvolvido para serviços de telecomunicações móveis. Use-o se necessitar de poupar espaço.</string>
     <string name="info_m4a"><b>M4a</b> é codificado com o codec de áudio AAC, oferece boa qualidade e tamanho reduzido. <b>(recomendado)</b></string>
@@ -433,6 +435,7 @@
     <string name="audio_source_mic">Microfone</string>
     <string name="audio_source_voice_communication">Comunicação de Voz</string>
     <string name="audio_source_unprocessed">Não processado</string>
+    <string name="audio_source_system">Áudio do sistema</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">Atualização da base de dados em curso</string>

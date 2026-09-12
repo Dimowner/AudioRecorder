@@ -15,6 +15,7 @@
  */
 package com.dimowner.audiorecorder.v2.audio
 
+import android.app.Activity
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -23,6 +24,8 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.media.projection.MediaProjection
+import android.media.projection.MediaProjectionManager
 import android.os.Binder
 import android.os.Build
 import android.os.Handler
@@ -36,19 +39,28 @@ import com.dimowner.audiorecorder.AppConstantsV2
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.DecodeService
 import com.dimowner.audiorecorder.audio.AudioDecoder
+import com.dimowner.audiorecorder.exception.AlreadyRecordingException
+import com.dimowner.audiorecorder.exception.AppException
 import com.dimowner.audiorecorder.exception.CantCreateFileException
 import com.dimowner.audiorecorder.exception.ErrorParser
-import com.dimowner.audiorecorder.exception.InvalidOutputFile
-import com.dimowner.audiorecorder.exception.RecorderInitException
+import com.dimowner.audiorecorder.exception.RecordingStopFailedException
 import com.dimowner.audiorecorder.util.TimeUtils
+import com.dimowner.audiorecorder.v2.analytics.ANALYTICS_VALUE_NONE
+import com.dimowner.audiorecorder.v2.analytics.ANALYTICS_VALUE_UNKNOWN_NUMBER
+import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
+import com.dimowner.audiorecorder.v2.analytics.RecordingStartFailure
+import com.dimowner.audiorecorder.v2.analytics.RecordingStartFailureReason
+import com.dimowner.audiorecorder.v2.DefaultValues
 import com.dimowner.audiorecorder.v2.app.HomeActivity
 import com.dimowner.audiorecorder.v2.app.getNewRecordName
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.convertToRecordingFormat
+import com.dimowner.audiorecorder.v2.data.model.isSystemAudioCaptureSupported
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineDispatcher
@@ -82,9 +94,29 @@ class AudioRecordingService : Service() {
         private const val ACTION_PAUSE_RESUME_RECORDING = "com.dimowner.audiorecorder.ACTION_PAUSE_RESUME_RECORDING"
         private const val ACTION_STOP_RECORDING = "com.dimowner.audiorecorder.ACTION_STOP_RECORDING"
 
-        fun startServiceForeground(context: Context) {
+        private const val EXTRA_PROJECTION_RESULT_CODE = "extra_projection_result_code"
+        private const val EXTRA_PROJECTION_DATA = "extra_projection_data"
+
+        /**
+         * Starts a recording.
+         *
+         * [projectionData] is the payload of the screen-capture consent dialog, and is required
+         * only when the selected audio source is [AudioSource.SYSTEM_AUDIO]; pass `null` for
+         * microphone recording. It has to be obtained by an Activity and handed over here,
+         * because a service cannot show the consent dialog itself.
+         */
+        @JvmOverloads
+        fun startServiceForeground(
+            context: Context,
+            projectionResultCode: Int = Activity.RESULT_CANCELED,
+            projectionData: Intent? = null,
+        ) {
             val intent = Intent(context, AudioRecordingService::class.java).apply {
                 action = ACTION_START_RECORDING
+                if (projectionData != null) {
+                    putExtra(EXTRA_PROJECTION_RESULT_CODE, projectionResultCode)
+                    putExtra(EXTRA_PROJECTION_DATA, projectionData)
+                }
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intent)
@@ -110,6 +142,8 @@ class AudioRecordingService : Service() {
     @Inject
     lateinit var prefs: PrefsV2
 
+    @Inject
+    lateinit var analyticsTracker: AnalyticsTracker
 
     @Inject
     @IoDispatcher
@@ -119,6 +153,9 @@ class AudioRecordingService : Service() {
     private val serviceScope by lazy { CoroutineScope(ioDispatcher + serviceJob) }
 
     private val notificationHandler = Handler(Looper.getMainLooper())
+
+    /** Delivers [MediaProjection.Callback] invocations; separate only to keep the names honest. */
+    private val mainHandler = Handler(Looper.getMainLooper())
     private var notificationManager: NotificationManager? = null
 
     private val _recordingState = MutableStateFlow(RecordingServiceState())
@@ -155,8 +192,33 @@ class AudioRecordingService : Service() {
         RecordingWaveformBuffer(ARApplication.longWaveformSampleCount)
     }
 
+    /**
+     * The projection backing an in-progress system-audio recording, plus the callback registered
+     * on it. Both are null for microphone recordings.
+     *
+     * A projection is single-use from Android 14, so it is created per start command and released
+     * on stop; [MediaProjection.Callback] registration is mandatory there too, and it is what
+     * tells us the user revoked the capture from the system UI.
+     */
+    private var mediaProjection: MediaProjection? = null
+    private var mediaProjectionCallback: MediaProjection.Callback? = null
+
     /** Job for the current recorder-events subscription; cancelled before re-subscribing. */
     private var subscriptionJob: Job? = null
+
+    /**
+     * True between the moment the recorder is asked to start and the moment it reports the first
+     * recorded data back. It is what tells a start failure apart from an error raised later on,
+     * during a recording that is already running - only the former is reported to analytics.
+     *
+     * Written from the service scope and read from the recorder-events collector, hence volatile.
+     */
+    @Volatile
+    private var isStartingRecording: Boolean = false
+
+    /** Capture source of the current start attempt, reported alongside a start failure. */
+    @Volatile
+    private var startingAudioSource: String = ANALYTICS_VALUE_NONE
 
     /**
      * Timestamp (in ms) of the last available-space check.
@@ -184,9 +246,21 @@ class AudioRecordingService : Service() {
         subscribeRecorderEvents()
         when (intent?.action) {
             ACTION_START_RECORDING -> {
+                // The projection has to exist before handleStartRecording() picks an input, but
+                // it can only be created once the service is foreground with the mediaProjection
+                // type (enforced from Android 14), hence this ordering.
+                val useSystemAudio = isSystemAudioSelected() && intent.hasProjectionConsent()
                 // Must call startForeground() synchronously before any async work
                 // to satisfy the foreground service contract and avoid ANR.
-                startForegroundWithNotification()
+                startForegroundWithNotification(withMediaProjection = useSystemAudio)
+                if (useSystemAudio) {
+                    createMediaProjection(intent)
+                    if (mediaProjection == null) {
+                        // The recording falls back to the microphone, so drop the type it no
+                        // longer backs rather than running as a projection service holding none.
+                        startForegroundWithNotification(withMediaProjection = false)
+                    }
+                }
                 serviceScope.launch {
                     val recordName = prefs.settingNamingFormat.getNewRecordName(prefs)
                     resetRecordedRecordPartCounter()
@@ -202,6 +276,7 @@ class AudioRecordingService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        releaseMediaProjection()
         subscriptionJob?.cancel()
         serviceJob.cancel()
         stopNotificationUpdates()
@@ -239,6 +314,7 @@ class AudioRecordingService : Service() {
                 Timber.d("AudioRecordingService: event: $event")
                 when (event) {
                     is RecorderEvent.OnStartRecording -> {
+                        isStartingRecording = false
                         recordingAmplitudes.clear()
                         totalRecordingSampleCount = 0
                         lastAvailableSpaceCheckTime = 0L
@@ -248,6 +324,7 @@ class AudioRecordingService : Service() {
                             amplitudes = intArrayOf(),
                             totalSampleCount = 0,
                             waveformDataOffset = 0,
+                            durationMills = 0L,
                         )
                         startNotificationUpdates()
                         updateNotification()
@@ -275,28 +352,80 @@ class AudioRecordingService : Service() {
                     }
                     is RecorderEvent.OnError -> {
                         Timber.e(event.exception, "AudioRecordingService: recorder error")
-                        //Send a user-friendly error message to UI based on the type of error
-                        val errorMessage = applicationContext.getString(
-                            ErrorParser.parseException(event.exception)
-                        )
-                        emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(errorMessage))
-
-                        val recordedRecordId = prefs.recordedRecordId
-                        prefs.recordedRecordId = -1
-                        //Recording failed to start. Delete the created record in database and file
-                        // if the error is related to recorder initialization or file creation.
-                        if (event.exception is RecorderInitException
-                            || event.exception is InvalidOutputFile
-                            || event.exception is CantCreateFileException
-                        ) {
-                            recordsDataSource.deleteRecordAndFileForever(recordedRecordId)
+                        // Read before handleRecorderError() below resets the state the report
+                        // describes the failed attempt with.
+                        if (isStartingRecording) {
+                            isStartingRecording = false
+                            analyticsTracker.trackRecordingStartFailed(
+                                buildRecordingStartFailure(
+                                    reason = RecordingStartFailureReason.fromException(event.exception),
+                                    error = event.exception,
+                                )
+                            )
                         }
-
-                        stopForegroundService()
+                        handleRecorderError(event.exception)
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Decides what to do with the in-flight recording after the recorder reported [exception].
+     *
+     * The distinction that matters is whether any audio made it to disk. A recorder that failed
+     * before producing anything leaves an empty stub file worth cleaning up; a recorder that fails
+     * after minutes - or hours - of capture leaves the user's recording, and that file must be
+     * saved like a normal stop. The previous version deleted the record for every init/file error
+     * regardless of how long it had been recording, so a mid-session I/O failure (running out of
+     * space being the obvious one on a long recording) destroyed the whole session.
+     */
+    private suspend fun handleRecorderError(exception: AppException) {
+        if (exception is AlreadyRecordingException) {
+            // A rejected duplicate start says nothing about the recording that is already
+            // running, so reporting it must not tear that recording down.
+            showRecorderError(exception)
+            return
+        }
+
+        if (exception is RecordingStopFailedException) {
+            // The recorder captured the audio but failed while closing the container, so the
+            // file still holds everything - only the index that makes it playable is missing.
+            // That is the same damage a force-kill leaves behind, so run it through the same
+            // recovery before telling the user the recording is lost.
+            val recordedRecordId = prefs.recordedRecordId
+            prefs.recordedRecordId = -1
+            if (recordedRecordId < 0 || !recoverUnfinalizedRecord(recordedRecordId)) {
+                showRecorderError(exception)
+            }
+            stopForegroundService()
+            return
+        }
+
+        showRecorderError(exception)
+
+        if (_recordingState.value.durationMills > 0 && prefs.recordedRecordId >= 0) {
+            // Audio is already on disk, so finish the file the way a normal stop does instead
+            // of discarding what the user recorded. handleRecordingStopped() reads and clears
+            // prefs.recordedRecordId itself and stops the service once the record is saved.
+            handleRecordingStopped()
+            return
+        }
+
+        // Nothing was captured: the record is an empty stub, so drop it along with its file.
+        val recordedRecordId = prefs.recordedRecordId
+        prefs.recordedRecordId = -1
+        if (recordedRecordId >= 0) {
+            recordsDataSource.deleteRecordAndFileForever(recordedRecordId)
+        }
+        stopForegroundService()
+    }
+
+    /** Shows the user-facing message [ErrorParser] maps [exception] to. */
+    private fun showRecorderError(exception: AppException) {
+        emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(
+            applicationContext.getString(ErrorParser.parseException(exception))
+        ))
     }
 
     fun handleRecordingProgress(durationMills: Long, amplitude: Int) {
@@ -366,6 +495,31 @@ class AudioRecordingService : Service() {
         )
     }
 
+    /**
+     * Picks what this recording captures.
+     *
+     * System audio needs a projection granted for *this* start. Both entry points collect that
+     * consent before starting the service, so a missing projection here means the token could not
+     * be redeemed (it is single-use from Android 14) rather than a user choice. The recording
+     * falls back to the microphone instead of failing outright, and the stored preference is left
+     * alone so the next attempt still tries system audio.
+     *
+     * When a recording is split on [prefs].maxRecordingDurationMills the next part comes through
+     * here again with no new intent; it reuses the same live projection, which stays valid until
+     * the service releases it.
+     */
+    private fun resolveAudioInput(): AudioInput {
+        if (!isSystemAudioSelected()) {
+            return AudioInput.Mic(prefs.settingAudioSource.value)
+        }
+        val projection = mediaProjection
+        if (projection == null) {
+            Timber.w("System audio was selected but no MediaProjection was granted; using the mic")
+            return AudioInput.Mic(DefaultValues.DefaultAudioSource.value)
+        }
+        return AudioInput.SystemPlayback(projection)
+    }
+
     // - Has available space
     // - Is already recoding
     // - Create a record file
@@ -373,83 +527,252 @@ class AudioRecordingService : Service() {
     // - Set it as active record
     // - Start recording
     private suspend fun handleStartRecording(recordName: String): Long? {
-        val format = prefs.settingRecordingFormat
+        val audioInput = resolveAudioInput()
+        val rawFormat = prefs.settingRecordingFormat
+        val format = if (rawFormat == RecordingFormat.ThreeGp && audioInput !is AudioInput.Mic) {
+            prefs.settingRecordingFormat = DefaultValues.DefaultRecordingFormat
+            DefaultValues.DefaultRecordingFormat
+        } else {
+            rawFormat
+        }
         val sampleRate = prefs.settingSampleRate.value
         val bitrate = prefs.settingBitrate.value
         val channelCount = prefs.settingChannelCount.value
 
+        startingAudioSource = audioInput.analyticsLabel()
+        val availableSpaceBytes = fileDataSource.getAvailableSpace()
         val availableTimeSeconds = convertSpaceBytesToTimeInSeconds(
-            spaceBytes = fileDataSource.getAvailableSpace(),
+            spaceBytes = availableSpaceBytes,
             recordingFormat = format,
             sampleRate = sampleRate,
             bitrate = bitrate,
             channels = channelCount
         )
 
-        if (availableTimeSeconds > AppConstants.MIN_REMAIN_RECORDING_TIME && !audioRecorder.isRecording) {
-            try {
-                val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
-                // Use the actual file name (without extension) in case a suffix was added to avoid collision
-                val actualRecordName = recordFile.nameWithoutExtension
-                val record = Record(
-                    id = 0,
-                    name = actualRecordName,
-                    durationMills = 0,
-                    created = recordFile.lastModified(),
-                    added = System.currentTimeMillis(),
-                    removed = Long.MAX_VALUE,
-                    path = recordFile.absolutePath,
+        if (availableTimeSeconds <= AppConstants.MIN_REMAIN_RECORDING_TIME) {
+            Timber.e("Not enough space to start recording, available time: $availableTimeSeconds s")
+            analyticsTracker.trackRecordingStartFailed(
+                buildRecordingStartFailure(
+                    reason = RecordingStartFailureReason.NOT_ENOUGH_SPACE,
                     format = format.value,
-                    size = 0,
-                    sampleRate = sampleRate,
-                    channelCount = channelCount,
-                    bitrate = if (format.hasBitrate) bitrate else 0,
-                    isBookmarked = false,
-                    isWaveformProcessed = false,
-                    isMovedToRecycle = false,
-                    amps = IntArray(ARApplication.longWaveformSampleCount),
-                    description = "",
-                )
-                val id = recordsDataSource.insertRecord(record)
-                prefs.activeRecordId = -1
-                prefs.recordedRecordId = id
-                prefs.recordedRecordPartCounter += 1
-
-                _recordingState.value = _recordingState.value.copy(
-                    recordId = id,
-                    recordName = actualRecordName,
-                    recordingFormat = format,
                     sampleRate = sampleRate,
                     bitrate = bitrate,
                     channelCount = channelCount,
+                    availableSpaceBytes = availableSpaceBytes,
                 )
-
-                audioRecorder.startRecording(
-                    outputFile = recordFile,
-                    channelCount = channelCount,
+            )
+            return null
+        }
+        if (audioRecorder.isRecording) {
+            Timber.e("Can't start recording, recording is already in progress")
+            analyticsTracker.trackRecordingStartFailed(
+                buildRecordingStartFailure(
+                    reason = RecordingStartFailureReason.ALREADY_RECORDING,
+                    format = format.value,
                     sampleRate = sampleRate,
                     bitrate = bitrate,
-                    maxRecordingDurationMills = prefs.maxRecordingDurationMills,
-                    audioSource = prefs.settingAudioSource.value,
+                    channelCount = channelCount,
+                    availableSpaceBytes = availableSpaceBytes,
                 )
-                return id
-            } catch (e: CantCreateFileException) {
-                Timber.e(e, "Failed to start recording with name: $recordName")
-                val cantCreateFileMsg = applicationContext.getString(R.string.error_cant_create_file)
-                val failedToStartRecordingMsg = applicationContext.getString(R.string.error_failed_to_start_recording)
-                emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(
-                    "$failedToStartRecordingMsg\n$cantCreateFileMsg"
-                ))
-                stopForegroundService()
-            }
+            )
+            return null
+        }
+        try {
+            val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
+            // Use the actual file name (without extension) in case a suffix was added to avoid collision
+            val actualRecordName = recordFile.nameWithoutExtension
+            val record = Record(
+                id = 0,
+                name = actualRecordName,
+                durationMills = 0,
+                created = recordFile.lastModified(),
+                added = System.currentTimeMillis(),
+                removed = Long.MAX_VALUE,
+                path = recordFile.absolutePath,
+                format = format.value,
+                size = 0,
+                sampleRate = sampleRate,
+                channelCount = channelCount,
+                bitrate = if (format.hasBitrate) bitrate else 0,
+                isBookmarked = false,
+                isWaveformProcessed = false,
+                isMovedToRecycle = false,
+                amps = IntArray(ARApplication.longWaveformSampleCount),
+                description = "",
+            )
+            val id = recordsDataSource.insertRecord(record)
+            prefs.activeRecordId = -1
+            prefs.recordedRecordId = id
+            prefs.recordedRecordPartCounter += 1
+
+            _recordingState.value = _recordingState.value.copy(
+                recordId = id,
+                recordName = actualRecordName,
+                recordingFormat = format,
+                sampleRate = sampleRate,
+                bitrate = bitrate,
+                channelCount = channelCount,
+                // Belongs to the record just inserted, so it starts at zero even when the
+                // previous part left a duration behind: handleRecorderError() reads this to
+                // tell a recording that captured audio from an empty stub, and a start that
+                // fails before OnStartRecording never gets to reset it.
+                durationMills = 0L,
+            )
+
+            // Set before starting, because a recorder can report its failure synchronously.
+            isStartingRecording = true
+            audioRecorder.startRecording(
+                outputFile = recordFile,
+                channelCount = channelCount,
+                sampleRate = sampleRate,
+                bitrate = bitrate,
+                maxRecordingDurationMills = prefs.maxRecordingDurationMills,
+                audioInput = audioInput,
+            )
+            return id
+        } catch (e: CantCreateFileException) {
+            Timber.e(e, "Failed to start recording with name: $recordName")
+            isStartingRecording = false
+            analyticsTracker.trackRecordingStartFailed(
+                buildRecordingStartFailure(
+                    reason = RecordingStartFailureReason.CANT_CREATE_FILE,
+                    format = format.value,
+                    sampleRate = sampleRate,
+                    bitrate = bitrate,
+                    channelCount = channelCount,
+                    availableSpaceBytes = availableSpaceBytes,
+                    error = e,
+                )
+            )
+            val cantCreateFileMsg = applicationContext.getString(R.string.error_cant_create_file)
+            val failedToStartRecordingMsg = applicationContext.getString(R.string.error_failed_to_start_recording)
+            emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(
+                "$failedToStartRecordingMsg\n$cantCreateFileMsg"
+            ))
+            stopForegroundService()
         }
         return null
     }
 
-    private fun startForegroundWithNotification() {
+    /**
+     * Builds the report for a recording that failed to start.
+     *
+     * The settings default to the ones in [_recordingState], which [handleStartRecording] fills in
+     * right before it touches the recorder - so a failure reported from the recorder-events
+     * collector still describes the attempt that failed, not the preferences as they are now.
+     * The call sites that fail before that point pass their values explicitly.
+     */
+    @Suppress("LongParameterList")
+    private fun buildRecordingStartFailure(
+        reason: RecordingStartFailureReason,
+        format: String = _recordingState.value.recordingFormat?.value ?: ANALYTICS_VALUE_NONE,
+        sampleRate: Int = _recordingState.value.sampleRate,
+        bitrate: Int = _recordingState.value.bitrate,
+        channelCount: Int = _recordingState.value.channelCount,
+        availableSpaceBytes: Long = runCatching { fileDataSource.getAvailableSpace() }
+            .getOrDefault(ANALYTICS_VALUE_UNKNOWN_NUMBER),
+        error: Throwable? = null,
+    ) = RecordingStartFailure(
+        reason = reason,
+        format = format,
+        sampleRate = sampleRate,
+        bitrate = bitrate,
+        channelCount = channelCount,
+        audioSource = startingAudioSource,
+        availableSpaceBytes = availableSpaceBytes,
+        error = error,
+    )
+
+    /** Capture source label reported with a recording start failure. */
+    private fun AudioInput.analyticsLabel(): String = when (this) {
+        is AudioInput.Mic -> AudioSource.fromValue(audioSource).name.lowercase()
+        is AudioInput.SystemPlayback -> AudioSource.SYSTEM_AUDIO.name.lowercase()
+    }
+
+    /** Whether the user has chosen to record system audio and this build/device can do it. */
+    private fun isSystemAudioSelected(): Boolean =
+        prefs.settingAudioSource.isSystemAudio && isSystemAudioCaptureSupported()
+
+    private fun Intent.hasProjectionConsent(): Boolean =
+        getIntExtra(EXTRA_PROJECTION_RESULT_CODE, Activity.RESULT_CANCELED) == Activity.RESULT_OK &&
+            projectionDataExtra() != null
+
+    @Suppress("DEPRECATION")
+    private fun Intent.projectionDataExtra(): Intent? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            getParcelableExtra(EXTRA_PROJECTION_DATA, Intent::class.java)
+        } else {
+            getParcelableExtra(EXTRA_PROJECTION_DATA)
+        }
+
+    /**
+     * Turns the consent result carried by [intent] into a live [MediaProjection].
+     *
+     * Failing here is not fatal: [handleStartRecording] sees a null projection and records the
+     * microphone instead, which is better than refusing to record at all.
+     */
+    private fun createMediaProjection(intent: Intent) {
+        val data = intent.projectionDataExtra() ?: return
+        val resultCode = intent.getIntExtra(EXTRA_PROJECTION_RESULT_CODE, Activity.RESULT_CANCELED)
+        val manager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
+        if (manager == null) {
+            Timber.e("MediaProjectionManager is unavailable")
+            return
+        }
+        val projection = try {
+            manager.getMediaProjection(resultCode, data)
+        } catch (e: IllegalStateException) {
+            // Thrown when the consent token has already been used - it is single-use from
+            // Android 14, so a re-delivered start intent lands here.
+            Timber.e(e, "Failed to obtain a MediaProjection")
+            null
+        } catch (e: SecurityException) {
+            Timber.e(e, "Failed to obtain a MediaProjection")
+            null
+        }
+        if (projection == null) {
+            Timber.e("MediaProjection was not granted")
+            return
+        }
+        // Registering a callback is mandatory from Android 14, and onStop is how we learn the
+        // user revoked the capture from the system UI mid-recording.
+        val callback = object : MediaProjection.Callback() {
+            override fun onStop() {
+                Timber.d("MediaProjection stopped by the system or the user")
+                if (audioRecorder.isRecording) audioRecorder.stopRecording()
+            }
+        }
+        projection.registerCallback(callback, mainHandler)
+        mediaProjection = projection
+        mediaProjectionCallback = callback
+    }
+
+    private fun releaseMediaProjection() {
+        val projection = mediaProjection ?: return
+        mediaProjection = null
+        mediaProjectionCallback?.let { projection.unregisterCallback(it) }
+        mediaProjectionCallback = null
+        try {
+            projection.stop()
+        } catch (e: IllegalStateException) {
+            Timber.e(e, "MediaProjection stop failed")
+        }
+    }
+
+    private fun startForegroundWithNotification(withMediaProjection: Boolean = false) {
         val notification = buildNotification()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE)
+            // mediaProjection is added only for a system-audio recording: from Android 14 a
+            // service claiming that type is expected to hold a projection, and this call is what
+            // makes getMediaProjection() legal, so it has to come first. microphone stays in both
+            // cases because playback capture still goes through AudioRecord under RECORD_AUDIO.
+            val type = if (withMediaProjection) {
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE or
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+            } else {
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+            }
+            startForeground(NOTIFICATION_ID, notification, type)
         } else {
             startForeground(NOTIFICATION_ID, notification)
         }
@@ -549,7 +872,60 @@ class AudioRecordingService : Service() {
         }
     }
 
+    /**
+     * Rebuilds a record whose file was left without a readable container by a failed stop.
+     *
+     * The audio itself survives such a failure - only the index the player needs is missing - so
+     * the file goes through the same restoration the broken-record dialog runs after a
+     * force-kill. On success the record is completed the way [handleRecordingStopped] completes
+     * a normal one: metadata read back from the recovered file, waveform queued for decoding and
+     * the record made active. Returns false when nothing playable came back, leaving the caller
+     * to report the failure to the user.
+     */
+    private suspend fun recoverUnfinalizedRecord(recordId: Long): Boolean {
+        return withContext(ioDispatcher) {
+            val record = recordsDataSource.getRecord(recordId) ?: return@withContext false
+            val recovered = if (recordsDataSource.restoreBrokenRecord(recordId)) {
+                recordsDataSource.getRecord(recordId)
+            } else {
+                null
+            }
+            // A restore that came back without a duration left the file as unplayable as it was.
+            if (recovered == null || recovered.durationMills <= 0) {
+                Timber.e("Failed to recover the record left by a failed stop: id=$recordId")
+                analyticsTracker.trackBrokenRecordRestoreFailed(format = record.format)
+                return@withContext false
+            }
+            analyticsTracker.trackBrokenRecordRestoreSuccess(format = recovered.format)
+            // Keep the waveform captured while recording, same as the normal stop path does -
+            // it gives the UI something to draw until DecodeService replaces it.
+            recordsDataSource.updateRecord(
+                recovered.copy(amps = recordingFullDataBuffer.downsampleToIntArray())
+            )
+            prefs.activeRecordId = recordId
+            _recordingState.value = _recordingState.value.copy(
+                recordingState = RecordingState.STOPPED,
+            )
+            emitEvent(AudioRecordingServiceEvent.ShowInfoSnack(
+                applicationContext.getString(R.string.msg_recording_saved_with_name, recovered.name)
+            ))
+            emitEvent(AudioRecordingServiceEvent.RecordingStopped(
+                recordId = recordId,
+                recordName = recovered.name,
+            ))
+            decodeRecord(
+                recordId = recovered.id,
+                path = recovered.path,
+                durationMills = recovered.durationMills,
+            )
+            resetRecordedRecordPartCounter()
+            true
+        }
+    }
+
     private fun stopForegroundService() {
+        isStartingRecording = false
+        releaseMediaProjection()
         recordingAmplitudes.clear()
         totalRecordingSampleCount = 0
         recordingFullDataBuffer.reset()

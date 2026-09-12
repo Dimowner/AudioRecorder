@@ -18,8 +18,11 @@ package com.dimowner.audiorecorder.app
 
 import android.Manifest
 import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -32,10 +35,14 @@ import com.dimowner.audiorecorder.exception.CantCreateFileException
 import com.dimowner.audiorecorder.exception.ErrorParser
 import com.dimowner.audiorecorder.util.AndroidUtils
 import com.dimowner.audiorecorder.v2.audio.AudioRecordingService
+import com.dimowner.audiorecorder.v2.data.model.isSystemAudioCaptureSupported
+import com.dimowner.audiorecorder.v2.di.RecordingSettingsEntryPoint
+import dagger.hilt.android.EntryPointAccessors
 import timber.log.Timber
 
 const val REQ_CODE_RECORD_AUDIO = 303
 const val REQ_CODE_WRITE_EXTERNAL_STORAGE = 404
+private const val REQ_CODE_MEDIA_PROJECTION = 505
 
 class TransparentRecordingActivity : Activity() {
 
@@ -43,6 +50,13 @@ class TransparentRecordingActivity : Activity() {
     private lateinit var fileRepository: FileRepository
 
     private var recordingRequested = false
+
+    // Consent for capturing system audio, collected here because only an Activity can raise the
+    // dialog and this is the widget/shortcut entry point into recording.
+    private var projectionRequested = false
+    private var projectionDenied = false
+    private var projectionResultCode = RESULT_CANCELED
+    private var projectionData: Intent? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,9 +75,72 @@ class TransparentRecordingActivity : Activity() {
         if (recordingRequested) return
         if (!checkRecordPermission2()) return
         if (!prefs.isAppV2 && !checkStoragePermission2()) return
+        if (projectionDenied) {
+            Toast.makeText(
+                applicationContext, R.string.msg_permission_system_audio_denied, Toast.LENGTH_LONG
+            ).show()
+            finish()
+            return
+        }
+        // The consent dialog returns through onActivityResult, which runs before this method is
+        // called again; the recording starts on that second pass.
+        if (projectionData == null && needsSystemAudioConsent()) {
+            if (!projectionRequested) {
+                projectionRequested = true
+                requestMediaProjectionConsent()
+            }
+            return
+        }
         recordingRequested = true
         startRecordingService()
         finish()
+    }
+
+    /** Whether the next V2 recording captures system audio and therefore needs consent. */
+    private fun needsSystemAudioConsent(): Boolean {
+        if (!prefs.isAppV2) return false
+        return try {
+            val entryPoint = EntryPointAccessors.fromApplication(
+                applicationContext, RecordingSettingsEntryPoint::class.java
+            )
+            entryPoint.prefsV2().settingAudioSource.isSystemAudio && isSystemAudioCaptureSupported()
+        } catch (e: IllegalStateException) {
+            Timber.e(e, "Failed to read the recording settings")
+            false
+        }
+    }
+
+    /**
+     * Raises the system-audio consent dialog. A failure here is treated as a denial rather than
+     * silently recording the microphone, which is not what the user selected.
+     */
+    private fun requestMediaProjectionConsent() {
+        val manager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
+        if (manager == null) {
+            Timber.e("MediaProjectionManager is unavailable")
+            projectionDenied = true
+            return
+        }
+        try {
+            startActivityForResult(manager.createScreenCaptureIntent(), REQ_CODE_MEDIA_PROJECTION)
+        } catch (e: ActivityNotFoundException) {
+            Timber.e(e, "No activity handles the screen capture request")
+            projectionDenied = true
+        }
+    }
+
+    @Deprecated("Kept because this Activity is not a ComponentActivity and has no result registry")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        @Suppress("DEPRECATION")
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != REQ_CODE_MEDIA_PROJECTION) return
+        // Recording is started from onResume(), which runs right after this callback.
+        if (resultCode == RESULT_OK && data != null) {
+            projectionResultCode = resultCode
+            projectionData = data
+        } else {
+            projectionDenied = true
+        }
     }
 
     private fun startRecordingService() {
@@ -83,7 +160,9 @@ class TransparentRecordingActivity : Activity() {
     }
 
     private fun startRecordingServiceV2() {
-        AudioRecordingService.startServiceForeground(applicationContext)
+        AudioRecordingService.startServiceForeground(
+            applicationContext, projectionResultCode, projectionData
+        )
     }
 
     private fun startLegacyRecordingService() {

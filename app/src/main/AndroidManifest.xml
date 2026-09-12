@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-<!--    <uses-permission android:name="android.permission.INTERNET" />-->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"
@@ -16,6 +15,11 @@
         android:minSdkVersion="33" />
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+        android:minSdkVersion="33" />
+    <!-- Required to record system audio: playback capture runs under a MediaProjection, which
+         from Android 14 must be held by a mediaProjection-typed foreground service. -->
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"
         android:minSdkVersion="33" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
@@ -139,10 +143,13 @@
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
 
+        <!-- mediaProjection is declared alongside microphone because the same service records
+             both the microphone and, when the user picks the System Audio source, other apps'
+             playback. The type is chosen per start() from the source actually in use. -->
         <service
             android:name=".v2.audio.AudioRecordingService"
             android:exported="false"
-            android:foregroundServiceType="microphone" />
+            android:foregroundServiceType="microphone|mediaProjection" />
 
         <receiver android:name=".WidgetReceiver" android:exported="true" />
         <receiver android:name=".app.RecordingService$StopRecordingReceiver" android:exported="false" />

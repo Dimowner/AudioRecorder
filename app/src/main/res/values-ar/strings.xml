@@ -60,6 +60,7 @@
 	<string name="msg_name_cannot_be_empty">لا يمكن أن يكون الاسم فارغًا</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">إذن الميكروفون مطلوب لتسجيل الصوت. يرجى منح الإذن لاستخدام هذه الميزة.</string>
+    <string name="msg_permission_system_audio_denied">لم يتم منح إذن التقاط صوت النظام. اسمح به لتسجيل ما تشغّله التطبيقات الأخرى.</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
 	<string name="action_undo">تراجع</string>
 	<!-- Generic error message for a common failure -->
@@ -326,6 +327,7 @@
 <br/><br/><b>الميكروفون:</b> إعداد الميكروفون القياسي. الأفضل للتسجيل العام. يوازن مستوى الصوت تلقائيًا مع التقاط الأجواء الطبيعية للمحيط.
 <br/><br/><b>اتصال صوتي:</b> مصمم خصيصًا لوضوح صوت الإنسان. الأفضل مع البلوتوث لأنه يفعّل إلغاء الضوضاء والصدى.
 <br/><br/><b>غير معالج:</b> يلتقط الصوت الخام دون أي مرشحات أو تعديلات من النظام. بدون إزالة ضوضاء الخلفية وبدون موازنة مستوى الصوت. الأفضل للاستخدام الاحترافي وعالي الدقة.
+<br/><br/><b>صوت النظام:</b> يسجّل ما تشغّله التطبيقات الأخرى بدلاً من الميكروفون. يمكن للتطبيقات رفض تسجيلها، لذا يبقى المحتوى المحمي والمكالمات بلا صوت.
 ]]></string>
     <string name="info_3gp"><b>3gp</b> صيغة حاوية وسائط متعددة طُوِّرت لخدمات الاتصالات المتنقلة. استخدمها إذا كنت بحاجة إلى توفير المساحة.</string>
     <string name="info_m4a">صيغة <b>M4a</b> مشفرة بترميز AAC الصوتي وتتميز بجودة جيدة وحجم صغير. <b>(موصى بها)</b></string>
@@ -462,6 +464,7 @@
     <string name="audio_source_mic">الميكروفون</string>
     <string name="audio_source_voice_communication">اتصال صوتي</string>
     <string name="audio_source_unprocessed">غير معالج</string>
+    <string name="audio_source_system">صوت النظام</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">جارٍ تحديث قاعدة البيانات</string>

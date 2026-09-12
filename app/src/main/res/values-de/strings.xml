@@ -53,6 +53,7 @@
 	<string name="msg_name_cannot_be_empty">Name darf nicht leer sein</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">Die Mikrofonberechtigung ist erforderlich, um Audio aufzunehmen. Bitte erteilen Sie die Berechtigung, um diese Funktion zu nutzen.</string>
+    <string name="msg_permission_system_audio_denied">Die Berechtigung zum Aufnehmen von Systemaudio wurde nicht erteilt. Erteilen Sie sie, um aufzunehmen, was andere Apps wiedergeben.</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
 	<string name="action_undo">RÜCKGÄNGIG</string>
 	<!-- Generic error message for a common failure -->
@@ -290,6 +291,7 @@
 <br/><br/><b>Mikrofon:</b> Die Standardmikrofoneinstellung. Am besten für allgemeine Aufnahmen. Die Lautstärke der Stimme wird automatisch angepasst, während die natürliche Umgebung erfasst wird.
 <br/><br/><b>Sprachkommunikation:</b> Speziell für klare Sprachverständlichkeit ausgelegt. Ideal für Bluetooth, da Rausch- und Echounterdrückung aktiviert werden.
 <br/><br/><b>Unverarbeitet:</b> Nimmt Rohaudio ohne Systemfilter oder Anpassungen auf. Keine Hintergrundgeräuschunterdrückung und keine Lautstärkepegelung. Ideal für High-Fidelity- oder professionelle Nutzung.
+<br/><br/><b>Systemaudio:</b> Nimmt anstelle des Mikrofons auf, was andere Apps wiedergeben. Apps können die Aufnahme ablehnen, daher bleiben geschützte Inhalte und Anrufe stumm.
 ]]></string>
 	<string name="info_3gp"><b>3gp</b> ist ein Multimedia-Containerformat, das für mobile Telekommunikationsdienste entwickelt wurde. Verwenden Sie es, wenn Sie Speicherplatz sparen müssen.</string>
 	<string name="info_m4a"><b>M4a</b>-Format ist mit dem AAC-Audiocodec kodiert und hat gute Qualität bei kleiner Dateigröße. <b>(empfohlen)</b></string>
@@ -432,6 +434,7 @@
     <string name="audio_source_mic">Mikrofon</string>
     <string name="audio_source_voice_communication">Sprachkommunikation</string>
     <string name="audio_source_unprocessed">Unverarbeitet</string>
+    <string name="audio_source_system">Systemaudio</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">Datenbankaktualisierung läuft</string>

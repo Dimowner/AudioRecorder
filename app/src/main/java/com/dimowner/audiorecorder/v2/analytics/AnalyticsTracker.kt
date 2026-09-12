@@ -105,4 +105,24 @@ interface AnalyticsTracker {
      * @param count Number of lost records discovered in this scan.
      */
     fun trackLostRecordsDetected(count: Int)
+
+    // ── Recording / playback start failures ──────────────────────────────────
+
+    /**
+     * Fired when a recording could not be started: the recorder failed to initialise, the output
+     * file could not be created, or there was not enough free space left. It is *not* fired for
+     * errors raised after the recording has begun.
+     *
+     * @param failure The reason plus the recording settings and the exception behind the failure.
+     */
+    fun trackRecordingStartFailed(failure: RecordingStartFailure)
+
+    /**
+     * Fired when a playback could not be started: the record file is gone, empty or unreadable,
+     * or the player rejected it. It is *not* fired for errors raised mid-playback.
+     *
+     * @param failure The reason plus the details of the source and the exception behind the failure.
+     */
+    fun trackPlaybackStartFailed(failure: PlaybackStartFailure)
+
 }

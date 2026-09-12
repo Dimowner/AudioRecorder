@@ -54,6 +54,7 @@
 	<string name="msg_name_cannot_be_empty">名前を入力してください</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">音声を録音するにはマイクの権限が必要です。この機能を使用するには権限を許可してください。</string>
+    <string name="msg_permission_system_audio_denied">システム音声を取得する権限が許可されていません。他のアプリが再生している音を録音するには権限を許可してください。</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
 	<string name="action_undo">元に戻す</string>
 	<!-- Generic error message for a common failure -->
@@ -291,6 +292,7 @@
 <br/><br/><b>マイク：</b>標準的なマイク設定です。一般的な録音に最適です。音声の音量を自動的に調整しながら、周囲の自然な雰囲気を捉えます。
 <br/><br/><b>音声通話：</b>人の声の明瞭さを重視した設定です。ノイズキャンセルとエコーキャンセルが有効になるため、Bluetoothに最適です。
 <br/><br/><b>未処理：</b>システムのフィルターや調整なしに生のオーディオを録音します。バックグラウンドノイズの除去や音量の均一化は行われません。高品質またはプロフェッショナルな用途に最適です。
+<br/><br/><b>システム音声：</b>マイクの代わりに、他のアプリが再生している音を録音します。アプリは録音を拒否できるため、保護されたコンテンツや通話は無音になります。
 ]]></string>
 	<string name="info_3gp"><b>3gp</b>はモバイル通信サービスのために開発されたマルチメディアコンテナフォーマットです。容量を節約したい場合に使用してください。</string>
 	<string name="info_m4a"><b>M4a</b>フォーマットはAACオーディオコーデックでエンコードされており、高音質かつファイルサイズが小さいです。<b>（推奨）</b></string>
@@ -433,6 +435,7 @@
     <string name="audio_source_mic">マイク</string>
     <string name="audio_source_voice_communication">音声通話</string>
     <string name="audio_source_unprocessed">未処理</string>
+    <string name="audio_source_system">システム音声</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">データベースを更新中です</string>

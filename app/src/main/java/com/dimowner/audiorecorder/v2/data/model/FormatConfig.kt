@@ -51,4 +51,5 @@ data class FormatConfig(
 
     fun isChannelCountSupported(channelCount: ChannelCount): Boolean =
         channelCount in supportedChannelCounts
+
 }
