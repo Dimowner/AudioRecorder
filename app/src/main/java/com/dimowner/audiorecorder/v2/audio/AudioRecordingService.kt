@@ -39,6 +39,7 @@ import com.dimowner.audiorecorder.AppConstantsV2
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.DecodeService
 import com.dimowner.audiorecorder.audio.AudioDecoder
+import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.exception.AlreadyRecordingException
 import com.dimowner.audiorecorder.exception.AppException
 import com.dimowner.audiorecorder.exception.CantCreateFileException
@@ -145,6 +146,13 @@ class AudioRecordingService : Service() {
     @Inject
     lateinit var analyticsTracker: AnalyticsTracker
 
+    /**
+     * The playback player, the same singleton instance [AudioPlaybackService] drives, so that
+     * stopping it here also tears that service and its notification down.
+     */
+    @Inject
+    lateinit var audioPlayer: PlayerContractNew.Player
+
     @Inject
     @IoDispatcher
     lateinit var ioDispatcher: CoroutineDispatcher
@@ -246,6 +254,11 @@ class AudioRecordingService : Service() {
         subscribeRecorderEvents()
         when (intent?.action) {
             ACTION_START_RECORDING -> {
+                // Recording and playback must never overlap, and the stop belongs here rather
+                // than at the call sites: this is the one point every entry into recording goes
+                // through, including the home screen widget, which otherwise records over the
+                // track that is playing.
+                stopPlaybackBeforeRecording()
                 // The projection has to exist before handleStartRecording() picks an input, but
                 // it can only be created once the service is foreground with the mediaProjection
                 // type (enforced from Android 14), hence this ordering.
@@ -285,6 +298,14 @@ class AudioRecordingService : Service() {
 
     fun getCurrentProgress(): Long {
         return _recordingState.value.durationMills
+    }
+
+    /** Stops playback, if any, so the microphone does not open on top of a playing track. */
+    private fun stopPlaybackBeforeRecording() {
+        if (audioPlayer.isPlaying() || audioPlayer.isPaused()) {
+            Timber.d("AudioRecordingService: stopping playback before recording starts")
+            audioPlayer.stop()
+        }
     }
 
     private fun createNotificationChannel() {
