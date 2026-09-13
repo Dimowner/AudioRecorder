@@ -51,6 +51,7 @@
     <string name="msg_name_cannot_be_empty">O nome não pode ficar vazio</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">A permissão do microfone é necessária para gravar áudio. Por favor, conceda a permissão para usar esse recurso.</string>
+    <string name="msg_permission_system_audio_denied">A permissão para capturar o áudio do sistema não foi concedida. Conceda-a para gravar o que outros aplicativos estão reproduzindo.</string>
     <!-- Action shown on the deletion message -->
     <string name="action_undo">DESFAZER</string>
     <!-- Generic error message for a common failure -->
@@ -288,6 +289,7 @@
 <br/><br/><b>Microfone:</b> A configuração padrão do microfone. Ideal para gravações em geral. Equilibra automaticamente o volume da voz enquanto capta a atmosfera natural do ambiente.
 <br/><br/><b>Comunicação de Voz:</b> Desenvolvido especificamente para clareza da voz humana. Ideal para Bluetooth, pois ativa cancelamento de ruído e eco.
 <br/><br/><b>Sem processamento:</b> Captura áudio bruto sem filtros ou ajustes do sistema. Sem remoção de ruído de fundo e sem nivelamento de volume. Ideal para uso profissional ou de alta fidelidade.
+<br/><br/><b>Áudio do sistema:</b> Grava o que outros aplicativos estão reproduzindo em vez do microfone. Os aplicativos podem recusar a gravação, então o conteúdo protegido e as chamadas ficam em silêncio.
 ]]></string>
     <string name="info_3gp"><b>3gp</b> é um formato de contêiner multimídia desenvolvido para serviços de telecomunicações móveis. Use quando precisar economizar espaço.</string>
     <string name="info_m4a"><b>M4a</b> é codificado com o codec de áudio AAC, com boa qualidade e tamanho reduzido. <b>(recomendado)</b></string>
@@ -430,6 +432,7 @@
     <string name="audio_source_mic">Microfone</string>
     <string name="audio_source_voice_communication">Comunicação de Voz</string>
     <string name="audio_source_unprocessed">Sem processamento</string>
+    <string name="audio_source_system">Áudio do sistema</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">Atualizando banco de dados…</string>

@@ -95,8 +95,15 @@ public class AudioRecorder implements RecorderContract.Recorder {
 					recorderCallback.onStartRecord(recordFile);
 				}
 				isPaused.set(false);
-			} catch (IOException | IllegalStateException e) {
-				Timber.e(e, "prepare() failed");
+			} catch (IOException | RuntimeException e) {
+				// start() reports a microphone held by another app, or a configuration the
+				// codec rejects, as a plain RuntimeException("start failed.") rather than as
+				// IllegalStateException. Catching only the subclass let that one reach the
+				// main looper this runs on and killed the app. The recorder is released here
+				// as well: a half-started instance keeps holding the microphone and would
+				// make every following startRecording() fail the same way.
+				Timber.e(e, "prepare() or start() failed");
+				releaseRecorder();
 				if (recorderCallback != null) {
 					recorderCallback.onError(new RecorderInitException());
 				}
@@ -178,17 +185,43 @@ public class AudioRecorder implements RecorderContract.Recorder {
 		}
 	}
 
+	/**
+	 * Releases a recorder that never reached the started state, so it stops holding the
+	 * microphone, and resets the state a failed start left behind.
+	 */
+	private void releaseRecorder() {
+		if (recorder != null) {
+			try {
+				recorder.release();
+			} catch (RuntimeException e) {
+				Timber.e(e, "release() failed");
+			}
+			recorder = null;
+		}
+		stopRecordingTimer();
+		isRecording.set(false);
+		isPaused.set(false);
+	}
+
 	private void scheduleRecordingTimeUpdate() {
 		handler.postDelayed(() -> {
 			if (recorderCallback != null && recorder != null) {
+				long curTime = System.currentTimeMillis();
+				durationMills += curTime - updateTime;
+				updateTime = curTime;
+				// getMaxAmplitude() throws a plain RuntimeException("getMaxAmplitude failed.")
+				// once the recorder has been released or the media server dies - not an
+				// IllegalStateException. This tick runs on the main looper, so an uncaught one
+				// crashes the app. Give up on the loop instead; the next start or resume
+				// reschedules it.
+				int amplitude;
 				try {
-					long curTime = System.currentTimeMillis();
-					durationMills += curTime - updateTime;
-					updateTime = curTime;
-					recorderCallback.onRecordProgress(durationMills, recorder.getMaxAmplitude());
-				} catch (IllegalStateException e) {
-					Timber.e(e);
+					amplitude = recorder.getMaxAmplitude();
+				} catch (RuntimeException e) {
+					Timber.e(e, "Error reading amplitude, stopping progress updates");
+					return;
 				}
+				recorderCallback.onRecordProgress(durationMills, amplitude);
 				scheduleRecordingTimeUpdate();
 			}
 		}, RECORDING_VISUALIZATION_INTERVAL);

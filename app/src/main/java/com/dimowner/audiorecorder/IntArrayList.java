@@ -18,13 +18,14 @@ package com.dimowner.audiorecorder;
 
 public class IntArrayList {
 
-	private int[] data = new int[100];
+	private static final int INITIAL_CAPACITY = 100;
+
+	private int[] data = new int[INITIAL_CAPACITY];
 	private int size = 0;
 
 	public void add(int val) {
 		if (data.length == size) {
 			grow();
-			add(val);
 		}
 		data[size] = val;
 		size++;
@@ -43,7 +44,13 @@ public class IntArrayList {
 	}
 
 	public void clear() {
-		data = new int[100];
+		// Keep the backing array so the recorders, which clear this buffer on every progress
+		// tick (50 times a second), don't allocate a fresh array each time - over a multi-hour
+		// recording that alone is hundreds of thousands of throwaway arrays.
+		// Only an array that grew unusually large is released.
+		if (data.length > INITIAL_CAPACITY * 16) {
+			data = new int[INITIAL_CAPACITY];
+		}
 		size = 0;
 	}
 
@@ -54,8 +61,6 @@ public class IntArrayList {
 	private void grow() {
 		int[] backup = data;
 		data = new int[data.length * 2];
-		for (int i = 0; i < backup.length; i++) {
-			data[i] = backup[i];
-		}
+		System.arraycopy(backup, 0, data, 0, backup.length);
 	}
 }

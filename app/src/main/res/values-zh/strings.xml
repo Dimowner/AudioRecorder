@@ -35,6 +35,7 @@
     <string name="msg_file_operation_failed">文件操作失败，请重试</string>
     <string name="msg_name_cannot_be_empty">名称不能为空</string>
     <string name="msg_permission_microphone_denied">录音需要麦克风权限。请授予权限以使用此功能。</string>
+    <string name="msg_permission_system_audio_denied">未授予捕获系统音频的权限。请授予权限以录制其他应用正在播放的声音。</string>
     <string name="action_undo">撤销</string>
     <string name="msg_operation_failed_generic">操作失败</string>
 
@@ -253,6 +254,7 @@
 <br/><br/><b>麦克风：</b>标准麦克风设置，适用于一般录音，可自动平衡人声音量同时捕捉周围环境。
 <br/><br/><b>语音通话：</b>专为人声清晰度设计，最适合蓝牙使用，可激活噪声和回声消除。
 <br/><br/><b>未处理：</b>无任何系统过滤或调整地捕捉原始音频，无背景噪声消除和音量调平，适合高保真或专业用途。
+<br/><br/><b>系统音频：</b>录制其他应用正在播放的声音，而不是麦克风的声音。应用可以拒绝被录制，因此受保护的内容和通话将保持静音。
 ]]></string>
     <string name="info_3gp"><b>3gp</b> 是为移动通信服务开发的多媒体格式，如需节省空间请使用此格式。</string>
     <string name="info_m4a"><b>M4a</b> 格式采用 AAC 音频编解码器编码，质量好，体积小。<b>（推荐）</b></string>
@@ -388,6 +390,7 @@
     <string name="audio_source_mic">麦克风</string>
     <string name="audio_source_voice_communication">语音通话</string>
     <string name="audio_source_unprocessed">未处理</string>
+    <string name="audio_source_system">系统音频</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">数据库更新中</string>

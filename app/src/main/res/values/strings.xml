@@ -54,6 +54,7 @@
 	<string name="msg_name_cannot_be_empty">Name cannot be empty</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">Microphone permission is required to record audio. Please grant the permission to use this feature.</string>
+    <string name="msg_permission_system_audio_denied">Permission to capture system audio was not granted. Allow it to record what other apps are playing.</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
 	<string name="action_undo">UNDO</string>
 	<!-- Generic error message for a common failure -->
@@ -291,6 +292,7 @@
 <br/><br/><b>Mic:</b> The standard microphone setting. Best for general recording. It balances voice volume automatically while capturing the natural atmosphere of surroundings.
 <br/><br/><b>Voice Communication:</b> Specifically designed for clarity of the human voice. Best for Bluetooth as it activates noise and echo cancellation.
 <br/><br/><b>Unprocessed:</b> Captures raw audio without any system filters or adjustments. No background noise removal and no volume leveling. Best for high-fidelity or professional use.
+<br/><br/><b>System Audio:</b> Records what other apps are playing instead of the microphone. Apps can refuse to be recorded, so protected content and calls stay silent.
 ]]></string>
 	<string name="info_3gp"><b>3gp</b> is a multimedia container format developed for mobile telecommunication services. Use it if you need to save space.</string>
 	<string name="info_m4a"><b>M4a</b> format is encoded with AAC audio codec has good quality and small size. <b>(recommended)</b></string>
@@ -438,6 +440,7 @@
     <string name="audio_source_mic">Mic</string>
     <string name="audio_source_voice_communication">Voice Communication</string>
     <string name="audio_source_unprocessed">Unprocessed</string>
+    <string name="audio_source_system">System Audio</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">Database update in progress</string>

@@ -17,8 +17,11 @@
 package com.dimowner.audiorecorder.v2.app.home
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.app.Activity
+import android.media.projection.MediaProjectionManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -42,8 +45,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -63,7 +64,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -76,7 +76,6 @@ import com.dimowner.audiorecorder.util.TimeUtils
 import com.dimowner.audiorecorder.v2.app.ComposableLifecycle
 import com.dimowner.audiorecorder.v2.app.DeleteDialog
 import com.dimowner.audiorecorder.v2.app.EditDescriptionDialog
-import com.dimowner.audiorecorder.v2.app.InfoAlertDialog
 import com.dimowner.audiorecorder.v2.app.RenameAlertDialog
 import com.dimowner.audiorecorder.v2.app.SaveAsDialog
 import com.dimowner.audiorecorder.v2.app.UpdateNameAndDescriptionDialog
@@ -132,9 +131,47 @@ internal fun HomeScreen(
     val context = LocalContext.current
 
     val msgPermissionDenied = stringResource(R.string.msg_permission_microphone_denied)
+    val msgSystemAudioDenied = stringResource(R.string.msg_permission_system_audio_denied)
     val msgCanceled = stringResource(R.string.msg_recording_canceled)
     val actionUndo = stringResource(R.string.action_undo)
     val msgRecordMovedToTrashFormat = stringResource(R.string.msg_recording_moved_to_trash)
+
+    // Consent for capturing what other apps are playing. The dialog can only be raised from an
+    // Activity, and from Android 14 the granted token is single-use, so this runs before every
+    // system-audio recording rather than once.
+    val mediaProjectionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val data = result.data
+        if (result.resultCode == Activity.RESULT_OK && data != null) {
+            onAction(HomeScreenAction.OnStartRecordingClick(result.resultCode, data))
+        } else {
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = msgSystemAudioDenied,
+                    duration = SnackbarDuration.Long
+                )
+            }
+        }
+    }
+
+    // Starts recording, first collecting MediaProjection consent when the selected audio source
+    // is system audio. RECORD_AUDIO is required for playback capture too, so it is checked first
+    // either way.
+    val startRecording: () -> Unit = {
+        if (uiState.isSystemAudioRecordingSelected) {
+            val manager = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE)
+                as? MediaProjectionManager
+            if (manager != null) {
+                mediaProjectionLauncher.launch(manager.createScreenCaptureIntent())
+            } else {
+                Timber.e("MediaProjectionManager is unavailable; recording the microphone")
+                onAction(HomeScreenAction.OnStartRecordingClick())
+            }
+        } else {
+            onAction(HomeScreenAction.OnStartRecordingClick())
+        }
+    }
 
     // Permission launcher for audio recording
     val recordAudioPermissionLauncher = rememberLauncherForActivityResult(
@@ -142,7 +179,7 @@ internal fun HomeScreen(
     ) { isGranted ->
         if (isGranted) {
             // Permission granted - start recording immediately
-            onAction(HomeScreenAction.OnStartRecordingClick)
+            startRecording()
         } else {
             // Permission denied - show snackbar
             scope.launch {
@@ -159,7 +196,7 @@ internal fun HomeScreen(
         when (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)) {
             PackageManager.PERMISSION_GRANTED -> {
                 // Permission already granted - start recording
-                onAction(HomeScreenAction.OnStartRecordingClick)
+                startRecording()
             }
             else -> {
                 // Permission not granted - request it

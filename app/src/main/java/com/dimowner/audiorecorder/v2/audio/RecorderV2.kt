@@ -13,7 +13,7 @@ interface RecorderV2 {
         sampleRate: Int,
         bitrate: Int,
         maxRecordingDurationMills: Int,
-        audioSource: Int,
+        audioInput: AudioInput,
     ): Boolean
     fun resumeRecording(): Boolean
     fun pauseRecording(): Boolean

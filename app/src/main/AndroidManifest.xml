@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-<!--    <uses-permission android:name="android.permission.INTERNET" />-->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"
@@ -16,6 +15,11 @@
         android:minSdkVersion="33" />
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+        android:minSdkVersion="33" />
+    <!-- Required to record system audio: playback capture runs under a MediaProjection, which
+         from Android 14 must be held by a mediaProjection-typed foreground service. -->
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"
         android:minSdkVersion="33" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
@@ -104,9 +108,16 @@
             android:name=".app.moverecords.MoveRecordsActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:screenOrientation="portrait" />
+        <!--
+            The widget entry point runs in a task of its own: with the default affinity it joins
+            the app's task and pulls the last used screen to the front instead of just starting a
+            recording. excludeFromRecents keeps that short-lived task out of the recents list.
+        -->
         <activity
             android:name=".app.TransparentRecordingActivity"
             android:exported="false"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
             android:theme="@style/Theme.Transparent" />
 
         <service
@@ -139,12 +150,14 @@
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
 
+        <!-- mediaProjection is declared alongside microphone because the same service records
+             both the microphone and, when the user picks the System Audio source, other apps'
+             playback. The type is chosen per start() from the source actually in use. -->
         <service
             android:name=".v2.audio.AudioRecordingService"
             android:exported="false"
-            android:foregroundServiceType="microphone" />
+            android:foregroundServiceType="microphone|mediaProjection" />
 
-        <receiver android:name=".WidgetReceiver" android:exported="true" />
         <receiver android:name=".app.RecordingService$StopRecordingReceiver" android:exported="false" />
         <receiver android:name=".app.PlaybackService$StopPlaybackReceiver" android:exported="false" />
         <receiver android:name=".app.DownloadService$StopDownloadReceiver" android:exported="false" />
