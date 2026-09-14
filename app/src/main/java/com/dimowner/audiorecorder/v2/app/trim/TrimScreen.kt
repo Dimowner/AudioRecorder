@@ -343,17 +343,7 @@ fun TrimScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Trimmed duration
-                Text(
-                    text = stringResource(
-                        R.string.trim_duration,
-                        TimeUtils.formatTimeIntervalHourMinSec2(uiState.endMills - uiState.startMills),
-                    ),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Spacer(modifier = Modifier.height(8.dp)                )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -412,8 +402,18 @@ fun TrimScreen(
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge,
                     fontSize = 60.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     modifier = Modifier.fillMaxWidth(),
+                )
+
+                // Trimmed duration
+                Text(
+                    text = stringResource(
+                        R.string.trim_duration,
+                        TimeUtils.formatTimeIntervalHourMinSec2(uiState.endMills - uiState.startMills),
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
