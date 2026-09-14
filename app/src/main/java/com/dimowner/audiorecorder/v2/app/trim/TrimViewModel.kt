@@ -133,16 +133,20 @@ class TrimViewModel @Inject constructor(
 
     private fun setStartMills(mills: Long) {
         val current = _state.value
-        _state.value = current.copy(
-            startMills = mills.coerceIn(0L, current.endMills - MIN_TRIM_DURATION)
-        )
+        val newStart = mills.coerceIn(0L, current.endMills - MIN_TRIM_DURATION)
+        _state.value = current.copy(startMills = newStart)
+        if ((audioPlayer.isPlaying() || audioPlayer.isPaused()) && current.playProgressMills < newStart) {
+            seekPlayhead(newStart)
+        }
     }
 
     private fun setEndMills(mills: Long) {
         val current = _state.value
-        _state.value = current.copy(
-            endMills = mills.coerceIn(current.startMills + MIN_TRIM_DURATION, current.recordInfo?.duration ?: 0L)
-        )
+        val newEnd = mills.coerceIn(current.startMills + MIN_TRIM_DURATION, current.recordInfo?.duration ?: 0L)
+        _state.value = current.copy(endMills = newEnd)
+        if (audioPlayer.isPlaying() || audioPlayer.isPaused()) {
+            trimEndForAudition = newEnd
+        }
     }
 
     private fun setStartToPlayhead() {

@@ -207,10 +207,6 @@ fun TrimScreen(
                     endFraction.floatValue = uiState.endMills.toFloat() / duration
                 }
 
-                val currentPlayProgress = rememberUpdatedState(uiState.playProgressMills)
-                val currentIsPlaying = rememberUpdatedState(uiState.isPlaying)
-                val currentStartMills = rememberUpdatedState(uiState.startMills)
-
                 TrimRangeBar(
                     startFraction = startFraction.floatValue,
                     endFraction = endFraction.floatValue,
@@ -219,15 +215,6 @@ fun TrimScreen(
                     },
                     onEndChange = { fraction ->
                         onAction(TrimAction.SetEndMills((fraction * duration).toLong()))
-                    },
-                    onDragEnd = { startDragged ->
-                        if (startDragged && currentIsPlaying.value) {
-                            val playhead = currentPlayProgress.value
-                            val start = currentStartMills.value
-                            if (playhead < start) {
-                                onAction(TrimAction.SeekPlayhead(start))
-                            }
-                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -521,7 +508,6 @@ private fun TrimRangeBar(
     endFraction: Float,
     onStartChange: (Float) -> Unit,
     onEndChange: (Float) -> Unit,
-    onDragEnd: (startDragged: Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val handleWidth = 14.dp
@@ -546,11 +532,7 @@ private fun TrimRangeBar(
                             val midpoint = (currentStart.value + currentEnd.value) / 2f
                             draggingStart.value = touchFraction < midpoint
                         },
-                        onDragEnd = {
-                            val wasStart = draggingStart.value
-                            draggingStart.value = null
-                            if (wasStart != null) onDragEnd(wasStart)
-                        },
+                        onDragEnd = { draggingStart.value = null },
                         onDragCancel = { draggingStart.value = null },
                         onDrag = { change, dragAmount ->
                             change.consume()
