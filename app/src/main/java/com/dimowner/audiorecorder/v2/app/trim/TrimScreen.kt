@@ -47,7 +47,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -210,6 +209,7 @@ fun TrimScreen(
                 TrimRangeBar(
                     startFraction = startFraction.floatValue,
                     endFraction = endFraction.floatValue,
+                    isPlaying = uiState.isPlaying,
                     onStartChange = { fraction ->
                         onAction(TrimAction.SetStartMills((fraction * duration).toLong()))
                     },
@@ -298,7 +298,7 @@ fun TrimScreen(
                         Box(
                             modifier = Modifier
                                 .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(8.dp))
-                                .clickable { onAction(TrimAction.SetEndToPlayhead) }
+                                .clickable { onAction(TrimAction.SetEndToPlayheadAndStop) }
                                 .padding(horizontal = 12.dp, vertical = 6.dp),
                         ) {
                             Text(
@@ -506,6 +506,7 @@ private fun TrimWaveform(
 private fun TrimRangeBar(
     startFraction: Float,
     endFraction: Float,
+    isPlaying: Boolean,
     onStartChange: (Float) -> Unit,
     onEndChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
@@ -513,9 +514,16 @@ private fun TrimRangeBar(
     val handleWidth = 14.dp
     val minGap = 0.02f
 
-    val currentStart = rememberUpdatedState(startFraction)
-    val currentEnd = rememberUpdatedState(endFraction)
     val draggingStart = remember { mutableStateOf<Boolean?>(null) }
+    val visualStart = remember { mutableFloatStateOf(startFraction) }
+    val visualEnd = remember { mutableFloatStateOf(endFraction) }
+
+    LaunchedEffect(startFraction) {
+        if (draggingStart.value != true) visualStart.floatValue = startFraction
+    }
+    LaunchedEffect(endFraction) {
+        if (draggingStart.value != false) visualEnd.floatValue = endFraction
+    }
 
     BoxWithConstraints(modifier = modifier) {
         val maxWidthDp = maxWidth
@@ -529,10 +537,18 @@ private fun TrimRangeBar(
                         onDragStart = { offset ->
                             val totalWidth = size.width.toFloat()
                             val touchFraction = (offset.x / totalWidth).coerceIn(0f, 1f)
-                            val midpoint = (currentStart.value + currentEnd.value) / 2f
+                            val midpoint = (visualStart.floatValue + visualEnd.floatValue) / 2f
                             draggingStart.value = touchFraction < midpoint
                         },
-                        onDragEnd = { draggingStart.value = null },
+                        onDragEnd = {
+                            val wasStart = draggingStart.value
+                            draggingStart.value = null
+                            if (wasStart == true) {
+                                onStartChange(visualStart.floatValue)
+                            } else if (wasStart == false) {
+                                onEndChange(visualEnd.floatValue)
+                            }
+                        },
                         onDragCancel = { draggingStart.value = null },
                         onDrag = { change, dragAmount ->
                             change.consume()
@@ -541,11 +557,13 @@ private fun TrimRangeBar(
 
                             val delta = dragAmount.x / totalWidthPx
                             if (draggingStart.value == true) {
-                                val newFraction = (currentStart.value + delta).coerceIn(0f, currentEnd.value - minGap)
-                                onStartChange(newFraction)
+                                val newFraction = (visualStart.floatValue + delta).coerceIn(0f, visualEnd.floatValue - minGap)
+                                visualStart.floatValue = newFraction
+                                if (!isPlaying) onStartChange(newFraction)
                             } else if (draggingStart.value == false) {
-                                val newFraction = (currentEnd.value + delta).coerceIn(currentStart.value + minGap, 1f)
-                                onEndChange(newFraction)
+                                val newFraction = (visualEnd.floatValue + delta).coerceIn(visualStart.floatValue + minGap, 1f)
+                                visualEnd.floatValue = newFraction
+                                if (!isPlaying) onEndChange(newFraction)
                             }
                         }
                     )
@@ -564,9 +582,9 @@ private fun TrimRangeBar(
                     )
             )
 
-            // Active selected range — between right edge of start handle and left edge of end handle
-            val highlightStartOffset = maxWidthDp * startFraction
-            val highlightEndOffset = maxWidthDp * endFraction
+            // Active selected range
+            val highlightStartOffset = maxWidthDp * visualStart.floatValue
+            val highlightEndOffset = maxWidthDp * visualEnd.floatValue
             val highlightWidth = highlightEndOffset - highlightStartOffset
             Box(
                 modifier = Modifier
@@ -584,7 +602,7 @@ private fun TrimRangeBar(
                 modifier = Modifier
                     .width(handleWidth)
                     .fillMaxHeight()
-                    .offset(x = maxWidthDp * startFraction - handleWidth)
+                    .offset(x = maxWidthDp * visualStart.floatValue - handleWidth)
                     .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
             )
 
@@ -593,7 +611,7 @@ private fun TrimRangeBar(
                 modifier = Modifier
                     .width(handleWidth)
                     .fillMaxHeight()
-                    .offset(x = maxWidthDp * endFraction)
+                    .offset(x = maxWidthDp * visualEnd.floatValue)
                     .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp))
             )
         }
