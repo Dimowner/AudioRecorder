@@ -136,7 +136,7 @@ class TrimViewModel @Inject constructor(
         val current = _state.value
         val newStart = mills.coerceIn(0L, current.endMills - MIN_TRIM_DURATION)
         _state.value = current.copy(startMills = newStart)
-        if ((audioPlayer.isPlaying() || audioPlayer.isPaused()) && current.playProgressMills < newStart) {
+        if (audioPlayer.isPlaying() || audioPlayer.isPaused()) {
             seekPlayhead(newStart)
         }
     }

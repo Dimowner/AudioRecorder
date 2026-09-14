@@ -47,6 +47,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -517,6 +518,7 @@ private fun TrimRangeBar(
     val draggingStart = remember { mutableStateOf<Boolean?>(null) }
     val visualStart = remember { mutableFloatStateOf(startFraction) }
     val visualEnd = remember { mutableFloatStateOf(endFraction) }
+    val currentIsPlaying = rememberUpdatedState(isPlaying)
 
     LaunchedEffect(startFraction) {
         if (draggingStart.value != true) visualStart.floatValue = startFraction
@@ -559,11 +561,11 @@ private fun TrimRangeBar(
                             if (draggingStart.value == true) {
                                 val newFraction = (visualStart.floatValue + delta).coerceIn(0f, visualEnd.floatValue - minGap)
                                 visualStart.floatValue = newFraction
-                                if (!isPlaying) onStartChange(newFraction)
+                                if (!currentIsPlaying.value) onStartChange(newFraction)
                             } else if (draggingStart.value == false) {
                                 val newFraction = (visualEnd.floatValue + delta).coerceIn(visualStart.floatValue + minGap, 1f)
                                 visualEnd.floatValue = newFraction
-                                if (!isPlaying) onEndChange(newFraction)
+                                if (!currentIsPlaying.value) onEndChange(newFraction)
                             }
                         }
                     )
