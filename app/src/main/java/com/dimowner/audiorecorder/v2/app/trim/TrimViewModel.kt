@@ -97,7 +97,10 @@ class TrimViewModel @Inject constructor(
                 val infoState = loadedRecord.toRecordInfoState()
                 _state.value = _state.value.copy(
                     recordInfo = infoState,
+                    startMills = 0L,
                     endMills = loadedRecord.durationMills,
+                    originalStartMills = 0L,
+                    originalEndMills = loadedRecord.durationMills,
                     playProgressMills = 0L,
                     isLoading = false,
                 )
@@ -133,6 +136,18 @@ class TrimViewModel @Inject constructor(
             TrimAction.PlayLastFiveSeconds -> playLastFiveSeconds()
             TrimAction.PlayPauseToggle -> playPauseToggle()
             TrimAction.StopPlayback -> stopPlayback()
+            TrimAction.BackPressed -> {
+                if (_state.value.hasChanges) {
+                    _state.value = _state.value.copy(showExitDialog = true)
+                } else {
+                    viewModelScope.launch { _event.emit(TrimEvent.NavigateBack) }
+                }
+            }
+            TrimAction.ConfirmExit -> {
+                _state.value = _state.value.copy(showExitDialog = false)
+                viewModelScope.launch { _event.emit(TrimEvent.NavigateBack) }
+            }
+            TrimAction.DismissExitDialog -> _state.value = _state.value.copy(showExitDialog = false)
         }
     }
 
@@ -382,8 +397,12 @@ sealed class TrimAction {
     data object PlayLastFiveSeconds : TrimAction()
     data object PlayPauseToggle : TrimAction()
     data object StopPlayback : TrimAction()
+    data object BackPressed : TrimAction()
+    data object ConfirmExit : TrimAction()
+    data object DismissExitDialog : TrimAction()
 }
 
 sealed class TrimEvent {
     data object TrimApplied : TrimEvent()
+    data object NavigateBack : TrimEvent()
 }

@@ -1,6 +1,7 @@
 package com.dimowner.audiorecorder.v2.app.trim
 
 import android.graphics.Paint
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -78,8 +79,10 @@ fun TrimScreen(
 
     LaunchedEffect(Unit) {
         event.collectLatest { e ->
-            if (e is TrimEvent.TrimApplied) {
-                onPopBackStack()
+            when (e) {
+                is TrimEvent.TrimApplied -> onPopBackStack()
+                is TrimEvent.NavigateBack -> onPopBackStack()
+                else -> {}
             }
         }
     }
@@ -112,6 +115,28 @@ fun TrimScreen(
         )
     }
 
+    if (uiState.showExitDialog) {
+        AlertDialog(
+            onDismissRequest = { onAction(TrimAction.DismissExitDialog) },
+            title = { Text("Discard changes?") },
+            text = { Text("You have unsaved changes. Are you sure you want to go back?") },
+            confirmButton = {
+                TextButton(onClick = { onAction(TrimAction.ConfirmExit) }) {
+                    Text("Discard")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { onAction(TrimAction.DismissExitDialog) }) {
+                    Text("Cancel")
+                }
+            },
+        )
+    }
+
+    BackHandler {
+        onAction(TrimAction.BackPressed)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -124,7 +149,7 @@ fun TrimScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onPopBackStack) {
+                    IconButton(onClick = { onAction(TrimAction.BackPressed) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null,
