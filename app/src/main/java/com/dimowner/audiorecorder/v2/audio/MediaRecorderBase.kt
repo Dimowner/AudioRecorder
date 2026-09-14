@@ -21,6 +21,8 @@ import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Process
+import android.os.Looper
+import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
 import com.dimowner.audiorecorder.IntArrayList
@@ -32,7 +34,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.io.File
 import java.io.IOException
 import java.util.Timer
 import java.util.TimerTask
@@ -57,7 +58,8 @@ abstract class MediaRecorderBase(
     // Written from the caller's background thread (start/stop) and read from the sampling
     // thread by recordingTimeUpdateRunnable, so all of them have to be volatile.
     @Volatile private var mediaRecorder: MediaRecorder? = null
-    private var recordFile: File? = null
+    /** Open descriptor of the SAF output document; held for the whole recording session. */
+    private var outputPfd: ParcelFileDescriptor? = null
 
     // updateTime is written by the sampling thread and read by the timerProgress thread;
     // durationMills is written by timerProgress and read on pause/stop. Volatile publishes
@@ -109,7 +111,7 @@ abstract class MediaRecorderBase(
     )
 
     override fun startRecording(
-        outputFile: File,
+        output: RecordingOutput,
         channelCount: Int,
         sampleRate: Int,
         bitrate: Int,
@@ -117,7 +119,7 @@ abstract class MediaRecorderBase(
         audioSource: Int,
     ): Boolean {
         Timber.d(
-            "Start ${recordingLogTag}Recording outputFile: ${outputFile.absolutePath}" +
+            "Start ${recordingLogTag}Recording output: ${output.describe()}" +
                 " channelCount: $channelCount sampleRate: $sampleRate bitrate: $bitrate" +
                 " maxRecordingDurationMills: $maxRecordingDurationMills audioSource: $audioSource"
         )
@@ -132,54 +134,94 @@ abstract class MediaRecorderBase(
         }
         amplitudesBuffer.clear()
         lastNonZeroAmplitude = 0
-        return if (outputFile.exists() && outputFile.isFile) {
-            recordFile = outputFile
-            val recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                MediaRecorder(applicationContext)
-            } else {
-                @Suppress("DEPRECATION")
-                MediaRecorder()
-            }
-            this.mediaRecorder = recorder
-
-            try {
-                recorder.apply {
-                    setAudioSource(audioSource)
-                    configureRecorder(this, channelCount, sampleRate, bitrate)
-                    setMaxDuration(maxRecordingDurationMills)
-                    setOnInfoListener { _, what, _ -> handleRecorderInfo(what) }
-                    setOutputFile(outputFile.absolutePath)
-                }
-                recorder.prepare()
-                recorder.start()
-                _isPaused = false
-                startSamplingThread()
-                scheduleRecordingTimeUpdate()
-                scheduleRecordingTimeUpdateBuffered()
-                emitEvent(RecorderEvent.OnStartRecording)
-                true
-            } catch (e: IOException) {
-                Timber.e(e, "prepare() failed")
-                releaseRecorder()
-                emitEvent(RecorderEvent.OnError(RecorderInitException()))
-                false
-            } catch (e: IllegalStateException) {
-                Timber.e(e, "Recorder setup or start() failed due to illegal state")
-                releaseRecorder()
-                emitEvent(RecorderEvent.OnError(RecorderInitException()))
-                false
-            } catch (e: RuntimeException) {
-                // MediaRecorder.start() throws a plain RuntimeException (not a subclass) when
-                // the hardware source is unavailable or the codec rejects the configuration.
-                Timber.e(e, "start() failed")
-                releaseRecorder()
-                emitEvent(RecorderEvent.OnError(RecorderInitException()))
-                false
-            }
-        } else {
+        if (output is RecordingOutput.OutputFile
+            && !(output.file.exists() && output.file.isFile)
+        ) {
             emitEvent(RecorderEvent.OnError(InvalidOutputFile()))
+            return false
+        }
+        val recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            MediaRecorder(applicationContext)
+        } else {
+            @Suppress("DEPRECATION")
+            MediaRecorder()
+        }
+        this.mediaRecorder = recorder
+
+        recorder.apply {
+            setAudioSource(audioSource)
+            configureRecorder(this, channelCount, sampleRate, bitrate)
+            setMaxDuration(maxRecordingDurationMills)
+            setOnInfoListener { _, what, _ -> handleRecorderInfo(what) }
+        }
+
+        try {
+            when (output) {
+                is RecordingOutput.OutputFile -> {
+                    recorder.setOutputFile(output.file.absolutePath)
+                }
+                is RecordingOutput.OutputDocument -> {
+                    // A SAF document has no filesystem path the recorder could open itself;
+                    // hand it an open descriptor instead. Requires no storage permission.
+                    val pfd = applicationContext.contentResolver
+                        .openFileDescriptor(output.uri, "rw")
+                        ?: throw IOException("Cannot open output document: ${output.uri}")
+                    outputPfd = pfd
+                    recorder.setOutputFile(pfd.fileDescriptor)
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to set recorder output: ${output.describe()}")
+            releaseRecorderAndOutput()
+            emitEvent(RecorderEvent.OnError(InvalidOutputFile()))
+            return false
+        }
+
+        return try {
+            recorder.prepare()
+            recorder.start()
+            _isPaused = false
+            startSamplingThread()
+            scheduleRecordingTimeUpdate()
+            scheduleRecordingTimeUpdateBuffered()
+            emitEvent(RecorderEvent.OnStartRecording)
+            true
+        } catch (e: IOException) {
+            Timber.e(e, "prepare() failed")
+            releaseRecorderAndOutput()
+            releaseRecorder() //TODO: fix
+            emitEvent(RecorderEvent.OnError(RecorderInitException()))
+            false
+        } catch (e: IllegalStateException) {
+            Timber.e(e, "start() failed due to illegal state")
+            releaseRecorderAndOutput()
+            releaseRecorder() //TODO: fix
+            emitEvent(RecorderEvent.OnError(RecorderInitException()))
+            false
+        } catch (e: RuntimeException) {
+            // MediaRecorder.start() throws a plain RuntimeException (not a subclass) when
+            // the hardware source is unavailable or the codec rejects the configuration.
+            Timber.e(e, "start() failed")
+            releaseRecorderAndOutput()
+            releaseRecorder() //TODO: fix
+            emitEvent(RecorderEvent.OnError(RecorderInitException()))
             false
         }
+    }
+
+    private fun releaseRecorderAndOutput() {
+        mediaRecorder?.release()
+        mediaRecorder = null
+        closeOutputPfd()
+    }
+
+    private fun closeOutputPfd() {
+        try {
+            outputPfd?.close()
+        } catch (e: IOException) {
+            Timber.e(e, "Failed to close output document descriptor")
+        }
+        outputPfd = null
     }
 
     override fun resumeRecording(): Boolean {
@@ -259,6 +301,7 @@ abstract class MediaRecorderBase(
         } finally {
             // Always release resources
             releaseRecorder()
+            closeOutputPfd()
         }
 
         if (!skipStopRecordingEventEmit) {
@@ -267,7 +310,6 @@ abstract class MediaRecorderBase(
 
         // Reset all state
         durationMills = 0
-        recordFile = null
         _isRecording = false
         _isPaused = false
         synchronized(amplitudesBuffer) { amplitudesBuffer.clear() }

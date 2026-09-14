@@ -1,5 +1,6 @@
 package com.dimowner.audiorecorder.v2.data.extensions
 
+import android.content.Context
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 
@@ -29,10 +30,10 @@ fun SortOrder.toRecordsSortColumnName(): String {
     }
 }
 
-fun checkForLostRecords(records: List<Record>): List<Record> {
-    return records.filter { !isFileExists(it.path) }
+fun checkForLostRecords(context: Context, records: List<Record>): List<Record> {
+    return records.filter { !recordFileExists(context, it.path) }
 }
 
-fun Record.isLostRecord(): Boolean {
-    return !isFileExists(this.path)
+fun Record.isLostRecord(context: Context): Boolean {
+    return !recordFileExists(context, this.path)
 }

@@ -2,6 +2,7 @@ package com.dimowner.audiorecorder.v2.di
 
 import android.content.Context
 import androidx.media3.common.util.UnstableApi
+import com.dimowner.audiorecorder.audio.player.AudioPlayerNew
 import com.dimowner.audiorecorder.audio.player.ExoAudioPlayer
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher

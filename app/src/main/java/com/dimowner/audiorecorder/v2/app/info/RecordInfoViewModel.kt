@@ -24,6 +24,7 @@ import com.dimowner.audiorecorder.v2.audio.readAuthorName
 import com.dimowner.audiorecorder.v2.audio.readDescription
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.data.extensions.isContentUri
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -72,7 +73,13 @@ class RecordInfoViewModel @Inject constructor(
         if (_authorName.value != null) return // already loaded
         viewModelScope.launch {
             val name = withContext(ioDispatcher) {
-                File(filePath).readAuthorName()
+                if (filePath.isContentUri()) {
+                    //Tags of records in a public directory are not readable:
+                    // the tag library requires direct file access.
+                    ""
+                } else {
+                    File(filePath).readAuthorName()
+                }
             }
             _authorName.value = name
         }
@@ -91,7 +98,13 @@ class RecordInfoViewModel @Inject constructor(
                 if (dbRecord != null && dbRecord.description.isNotBlank()) {
                     dbRecord.description
                 } else {
-                    val fileDesc = File(filePath).readDescription()
+                    val fileDesc = if (filePath.isContentUri()) {
+                        //Tags of records in a public directory are not readable:
+                        // the tag library requires direct file access.
+                        ""
+                    } else {
+                        File(filePath).readDescription()
+                    }
                     if (fileDesc.isNotBlank() && dbRecord != null) {
                         try {
                             recordsDataSource.updateRecord(dbRecord.copy(description = fileDesc))

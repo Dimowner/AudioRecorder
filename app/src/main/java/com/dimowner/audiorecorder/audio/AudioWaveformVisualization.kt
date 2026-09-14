@@ -1,5 +1,6 @@
 package com.dimowner.audiorecorder.audio
 
+import android.content.Context
 import com.dimowner.audiorecorder.BackgroundQueue
 import java.lang.Exception
 
@@ -11,9 +12,9 @@ class AudioWaveformVisualization(
 		private val processingTasks: BackgroundQueue
 ) {
 
-	fun decodeRecordWaveform(path: String, listener: AudioDecodingListener? = null) {
+	fun decodeRecordWaveform(context: Context, path: String, listener: AudioDecodingListener? = null) {
 		processingTasks.postRunnable {
-			AudioDecoder.decode(path, object : AudioDecodingListener {
+			AudioDecoder.decode(context, path, object : AudioDecodingListener {
 				override fun isCanceled(): Boolean {
 					return listener?.isCanceled() ?: false
 				}

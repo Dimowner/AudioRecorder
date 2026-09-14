@@ -46,6 +46,27 @@ class FileExtensionsTest {
     val tempFolder = TemporaryFolder()
 
     @Test
+    fun test_uniqueFileName() {
+        val taken = setOf("Record.m4a", "Record-1.m4a", "NoExtension")
+
+        assertEquals("Record.m4a", uniqueFileName("Record.m4a") { false })
+        assertEquals("Record-2.m4a", uniqueFileName("Record.m4a") { it in taken })
+        assertEquals("NoExtension-1", uniqueFileName("NoExtension") { it in taken })
+        assertEquals("My.Record-1.m4a", uniqueFileName("My.Record.m4a") { it == "My.Record.m4a" })
+    }
+
+    @Test
+    fun test_recordNameWithoutExtension() {
+        assertEquals("Record", "Record.m4a".recordNameWithoutExtension())
+        assertEquals("Record-1", "Record-1.m4a".recordNameWithoutExtension())
+        assertEquals("My.Record", "My.Record.m4a".recordNameWithoutExtension())
+        assertEquals("Record", "Record".recordNameWithoutExtension())
+        // A DocumentsProvider may resolve a collision after the extension. The suffix is not an
+        // extension, so the whole name is kept and still matches the file.
+        assertEquals("Record.m4a (1)", "Record.m4a (1)".recordNameWithoutExtension())
+    }
+
+    @Test
     fun test_createFile_Existing_Directory() {
         // Create a temporary directory for testing
         val directory = tempFolder.newFolder("testDir")

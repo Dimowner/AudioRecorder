@@ -1,14 +1,32 @@
 package com.dimowner.audiorecorder.v2.audio
 
+import android.net.Uri
 import com.dimowner.audiorecorder.exception.AppException;
 import kotlinx.coroutines.flow.Flow
 
 import java.io.File;
 
+/**
+ * Destination the recorder writes into: a plain file in the app-private storage, or a SAF
+ * document in the user-selected public directory written through a file descriptor
+ * (no storage permission required).
+ */
+sealed class RecordingOutput {
+    data class OutputFile(val file: File) : RecordingOutput()
+    data class OutputDocument(val uri: Uri) : RecordingOutput()
+
+    fun describe(): String {
+        return when (this) {
+            is OutputFile -> file.absolutePath
+            is OutputDocument -> uri.toString()
+        }
+    }
+}
+
 interface RecorderV2 {
     fun subscribeRecorderEvents(): Flow<RecorderEvent>
     fun startRecording(
-        outputFile: File,
+        output: RecordingOutput,
         channelCount: Int,
         sampleRate: Int,
         bitrate: Int,

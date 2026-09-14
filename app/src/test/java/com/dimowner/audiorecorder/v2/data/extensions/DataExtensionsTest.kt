@@ -1,8 +1,10 @@
 package com.dimowner.audiorecorder.v2.data.extensions
 
+import android.content.Context
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.data.room.RecordEntity
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -14,6 +16,9 @@ class DataExtensionsTest {
 
     @get:Rule
     val tempFolder = TemporaryFolder()
+
+    //Context is only touched for content:// paths; plain file paths never use it.
+    private val context: Context = mockk()
 
     private fun createTestRecord(path: String, id: Long = 1L): Record {
         return Record(
@@ -67,19 +72,19 @@ class DataExtensionsTest {
     @Test
     fun test_isLostRecord_nonExistentPath() {
         val record = createTestRecord("/nonexistent/path/record.m4a")
-        assertTrue(record.isLostRecord())
+        assertTrue(record.isLostRecord(context))
     }
 
     @Test
     fun test_isLostRecord_existingFile() {
         val file = tempFolder.newFile("existing_record.m4a")
         val record = createTestRecord(file.absolutePath)
-        assertFalse(record.isLostRecord())
+        assertFalse(record.isLostRecord(context))
     }
 
     @Test
     fun test_checkForLostRecords_emptyList() {
-        val result = checkForLostRecords(emptyList())
+        val result = checkForLostRecords(context, emptyList())
         assertTrue(result.isEmpty())
     }
 
@@ -92,7 +97,7 @@ class DataExtensionsTest {
             createTestRecord(file2.absolutePath, id = 2L)
         )
 
-        val result = checkForLostRecords(records)
+        val result = checkForLostRecords(context, records)
         assertTrue(result.isEmpty())
     }
 
@@ -103,7 +108,7 @@ class DataExtensionsTest {
             createTestRecord("/nonexistent/path/record2.m4a", id = 2L)
         )
 
-        val result = checkForLostRecords(records)
+        val result = checkForLostRecords(context, records)
         assertEquals(2, result.size)
     }
 
@@ -116,7 +121,7 @@ class DataExtensionsTest {
             createTestRecord("/nonexistent/path/lost2.m4a", id = 3L)
         )
 
-        val result = checkForLostRecords(records)
+        val result = checkForLostRecords(context, records)
         assertEquals(2, result.size)
         assertEquals(2L, result[0].id)
         assertEquals(3L, result[1].id)

@@ -42,7 +42,8 @@ class FileDataSourceImplTest {
     @Before
     fun setUp() {
         val context: Context = ApplicationProvider.getApplicationContext()
-        fileDataSource = FileDataSourceImpl(context)
+        val prefs = PrefsV2Impl(context)
+        fileDataSource = FileDataSourceImpl(context, prefs)
     }
 
     @After

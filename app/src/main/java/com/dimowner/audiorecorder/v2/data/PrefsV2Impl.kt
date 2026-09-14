@@ -315,6 +315,14 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             }
         }
 
+    override var publicRecordingDirUri: String?
+        get() = sharedPreferences.getString(PREF_KEY_PUBLIC_RECORDING_DIR_URI, null)
+        set(value) {
+            sharedPreferences.edit {
+                putString(PREF_KEY_PUBLIC_RECORDING_DIR_URI, value)
+            }
+        }
+
     override fun resetRecordingSettings() {
         sharedPreferences.edit {
             putString(
@@ -356,6 +364,7 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         private const val PREF_KEY_RECORD_AUTHOR_NAME = "pref_key_record_author_name"
         private const val PREF_KEY_SAVE_DESCRIPTION_TO_FILE = "pref_key_save_description_to_file"
         private const val PREF_KEY_IS_LOCAL_STORAGE_INFO_SHOWN = "pref_key_is_local_storage_info_shown"
+        private const val PREF_KEY_PUBLIC_RECORDING_DIR_URI = "pref_key_public_recording_dir_uri"
         private const val PREF_KEY_CUSTOM_NAME_FORMAT = "pref_key_custom_name_format"
         private const val PREF_KEY_ALWAYS_USE_BLUETOOTH_MIC = "pref_key_always_use_bluetooth_mic"
     }

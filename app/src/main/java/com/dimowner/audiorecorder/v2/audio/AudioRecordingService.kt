@@ -23,6 +23,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.net.Uri
 import android.os.Binder
 import android.os.Build
 import android.os.Handler
@@ -46,7 +47,9 @@ import com.dimowner.audiorecorder.v2.app.getNewRecordName
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.data.extensions.isContentUri
 import com.dimowner.audiorecorder.v2.data.model.Record
+import com.dimowner.audiorecorder.v2.data.model.RecordTarget
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.convertToRecordingFormat
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
@@ -164,6 +167,12 @@ class AudioRecordingService : Service() {
      * to avoid redundant I/O on every recording progress tick.
      */
     private var lastAvailableSpaceCheckTime: Long = 0L
+
+    /**
+     * Path or content:// Uri of the record currently being written; used to check available
+     * space at the actual recording location (which may be a user-selected public directory).
+     */
+    @Volatile private var currentRecordPathOrUri: String? = null
 
     inner class ServiceBinder : Binder() {
         fun getService(): AudioRecordingService = this@AudioRecordingService
@@ -308,7 +317,7 @@ class AudioRecordingService : Service() {
             val now = System.currentTimeMillis()
             if (now - lastAvailableSpaceCheckTime >= AppConstants.MIN_REMAIN_RECORDING_TIME / 2) {
                 lastAvailableSpaceCheckTime = now
-                val space = fileDataSource.getAvailableSpace()
+                val space = fileDataSource.getAvailableSpace(currentRecordPathOrUri)
                 val availableTimeSeconds = convertSpaceBytesToTimeInSeconds(
                     spaceBytes = space,
                     recordingFormat = format,
@@ -378,72 +387,97 @@ class AudioRecordingService : Service() {
         val bitrate = prefs.settingBitrate.value
         val channelCount = prefs.settingChannelCount.value
 
-        val availableTimeSeconds = convertSpaceBytesToTimeInSeconds(
-            spaceBytes = fileDataSource.getAvailableSpace(),
-            recordingFormat = format,
-            sampleRate = sampleRate,
-            bitrate = bitrate,
-            channels = channelCount
-        )
-
-        if (availableTimeSeconds > AppConstants.MIN_REMAIN_RECORDING_TIME && !audioRecorder.isRecording) {
-            try {
-                val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
-                // Use the actual file name (without extension) in case a suffix was added to avoid collision
-                val actualRecordName = recordFile.nameWithoutExtension
-                val record = Record(
-                    id = 0,
-                    name = actualRecordName,
-                    durationMills = 0,
-                    created = recordFile.lastModified(),
-                    added = System.currentTimeMillis(),
-                    removed = Long.MAX_VALUE,
-                    path = recordFile.absolutePath,
-                    format = format.value,
-                    size = 0,
-                    sampleRate = sampleRate,
-                    channelCount = channelCount,
-                    bitrate = if (format.hasBitrate) bitrate else 0,
-                    isBookmarked = false,
-                    isWaveformProcessed = false,
-                    isMovedToRecycle = false,
-                    amps = IntArray(ARApplication.longWaveformSampleCount),
-                    description = "",
-                )
-                val id = recordsDataSource.insertRecord(record)
-                prefs.activeRecordId = -1
-                prefs.recordedRecordId = id
-                prefs.recordedRecordPartCounter += 1
-
-                _recordingState.value = _recordingState.value.copy(
-                    recordId = id,
-                    recordName = actualRecordName,
-                    recordingFormat = format,
-                    sampleRate = sampleRate,
-                    bitrate = bitrate,
-                    channelCount = channelCount,
-                )
-
-                audioRecorder.startRecording(
-                    outputFile = recordFile,
-                    channelCount = channelCount,
-                    sampleRate = sampleRate,
-                    bitrate = bitrate,
-                    maxRecordingDurationMills = prefs.maxRecordingDurationMills,
-                    audioSource = prefs.settingAudioSource.value,
-                )
-                return id
-            } catch (e: CantCreateFileException) {
-                Timber.e(e, "Failed to start recording with name: $recordName")
-                val cantCreateFileMsg = applicationContext.getString(R.string.error_cant_create_file)
-                val failedToStartRecordingMsg = applicationContext.getString(R.string.error_failed_to_start_recording)
+        if (audioRecorder.isRecording) {
+            return null
+        }
+        try {
+            // The record file is created before the space check because the available space
+            // at a user-selected public directory can only be queried through an existing
+            // document's file descriptor.
+            val target = fileDataSource.createRecordTarget(addExtension(recordName))
+            if (prefs.publicRecordingDirUri != null && target is RecordTarget.LocalFile) {
+                //The user-selected public directory was not accessible;
+                // the record fell back to app-private storage.
                 emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(
-                    "$failedToStartRecordingMsg\n$cantCreateFileMsg"
+                    applicationContext.getString(R.string.error_public_dir_unavailable)
                 ))
-                stopForegroundService()
             }
+
+            val availableTimeSeconds = convertSpaceBytesToTimeInSeconds(
+                spaceBytes = fileDataSource.getAvailableSpace(target.pathOrUri),
+                recordingFormat = format,
+                sampleRate = sampleRate,
+                bitrate = bitrate,
+                channels = channelCount
+            )
+            if (availableTimeSeconds <= AppConstants.MIN_REMAIN_RECORDING_TIME) {
+                //Not enough space to start recording. Remove the just-created empty file.
+                fileDataSource.deleteRecordFile(target.pathOrUri)
+                return null
+            }
+
+            currentRecordPathOrUri = target.pathOrUri
+            // Use the actual file name (without extension) in case a suffix was added to avoid collision
+            val actualRecordName = target.nameWithoutExtension
+            val record = Record(
+                id = 0,
+                name = actualRecordName,
+                durationMills = 0,
+                created = target.created,
+                added = System.currentTimeMillis(),
+                removed = Long.MAX_VALUE,
+                path = target.pathOrUri,
+                format = format.value,
+                size = 0,
+                sampleRate = sampleRate,
+                channelCount = channelCount,
+                bitrate = if (format.hasBitrate) bitrate else 0,
+                isBookmarked = false,
+                isWaveformProcessed = false,
+                isMovedToRecycle = false,
+                amps = IntArray(ARApplication.longWaveformSampleCount),
+                description = "",
+            )
+            val id = recordsDataSource.insertRecord(record)
+            prefs.activeRecordId = -1
+            prefs.recordedRecordId = id
+            prefs.recordedRecordPartCounter += 1
+
+            _recordingState.value = _recordingState.value.copy(
+                recordId = id,
+                recordName = actualRecordName,
+                recordingFormat = format,
+                sampleRate = sampleRate,
+                bitrate = bitrate,
+                channelCount = channelCount,
+            )
+
+            audioRecorder.startRecording(
+                output = target.toRecordingOutput(),
+                channelCount = channelCount,
+                sampleRate = sampleRate,
+                bitrate = bitrate,
+                maxRecordingDurationMills = prefs.maxRecordingDurationMills,
+                audioSource = prefs.settingAudioSource.value,
+            )
+            return id
+        } catch (e: CantCreateFileException) {
+            Timber.e(e, "Failed to start recording with name: $recordName")
+            val cantCreateFileMsg = applicationContext.getString(R.string.error_cant_create_file)
+            val failedToStartRecordingMsg = applicationContext.getString(R.string.error_failed_to_start_recording)
+            emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(
+                "$failedToStartRecordingMsg\n$cantCreateFileMsg"
+            ))
+            stopForegroundService()
         }
         return null
+    }
+
+    private fun RecordTarget.toRecordingOutput(): RecordingOutput {
+        return when (this) {
+            is RecordTarget.LocalFile -> RecordingOutput.OutputFile(file)
+            is RecordTarget.PublicDocument -> RecordingOutput.OutputDocument(uri)
+        }
     }
 
     private fun startForegroundWithNotification() {
@@ -493,9 +527,18 @@ class AudioRecordingService : Service() {
             if (recordedRecordId >= 0) {
                 val record = recordsDataSource.getRecord(recordedRecordId)
                 if (record != null) {
-                    val output = File(record.path)
-                    val info = AudioDecoder.readRecordInfo(output)
-                    output.writeTags(record.name, prefs.recordAuthorName)
+                    val info = if (record.path.isContentUri()) {
+                        AudioDecoder.readRecordInfo(applicationContext, Uri.parse(record.path))
+                    } else {
+                        AudioDecoder.readRecordInfo(File(record.path))
+                    }
+                    if (record.path.isContentUri()) {
+                        //Metadata tags are not written for records in a public directory:
+                        // the tag library requires direct file access.
+                        Timber.d("Skip writing tags for SAF record: ${record.path}")
+                    } else {
+                        File(record.path).writeTags(record.name, prefs.recordAuthorName)
+                    }
                     val recordUpdated = record.copy(
                         durationMills = info.duration / 1000,
                         format = info.format,
@@ -552,6 +595,7 @@ class AudioRecordingService : Service() {
     private fun stopForegroundService() {
         recordingAmplitudes.clear()
         totalRecordingSampleCount = 0
+        currentRecordPathOrUri = null
         recordingFullDataBuffer.reset()
         _recordingState.value = RecordingServiceState()
         stopNotificationUpdates()

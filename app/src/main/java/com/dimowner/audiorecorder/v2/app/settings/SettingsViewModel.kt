@@ -17,6 +17,8 @@
 package com.dimowner.audiorecorder.v2.app.settings
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Parcelable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -38,6 +40,7 @@ import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
+import com.dimowner.audiorecorder.v2.data.extensions.getTreeDisplayName
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
@@ -50,6 +53,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
@@ -65,7 +69,7 @@ internal class SettingsViewModel @Inject constructor(
     private val analyticsTracker: AnalyticsTracker,
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    @ApplicationContext context: Context,
+    @param:ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     private val decimalFormat: DecimalFormat
@@ -157,6 +161,9 @@ internal class SettingsViewModel @Inject constructor(
             val recordsCount = recordsDataSource.getRecordsCount()
             val recordsDuration = recordsDataSource.getRecordTotalDuration()
             val rawAvailableSpaceBytes = fileDataSource.getAvailableSpace()
+            val publicDirName = prefs.publicRecordingDirUri?.let {
+                getTreeDisplayName(context, it) ?: it
+            }
             val settings = _state.value.recordingSettings.firstOrNull { it.recordingFormat.isSelected }
             val availableTimeMills = spaceToRecordingTimeMills(
                 rawAvailableSpaceBytes,
@@ -173,7 +180,8 @@ internal class SettingsViewModel @Inject constructor(
                     availableSpaceMills = availableTimeMills,
                     availableSpaceBytes = rawAvailableSpaceBytes,
                     // Load the selected audio source from preferences
-                    selectedAudioSource = prefs.settingAudioSource
+                    selectedAudioSource = prefs.settingAudioSource,
+                    publicRecordingDirName = publicDirName,
                 )
             }
             recordsDataSource.removeOutdatedTrashRecords()
@@ -395,6 +403,46 @@ internal class SettingsViewModel @Inject constructor(
         _state.value = _state.value.copy(recordAuthorName = trimmed)
     }
 
+    /**
+     * Persists the SAF tree picked via Intent.ACTION_OPEN_DOCUMENT_TREE as the public directory
+     * for new recordings. Takes a persistable Uri permission (no storage permission required).
+     *
+     * The permission of a previously selected directory is deliberately kept: records already
+     * stored there stay readable, and dropping it would make every one of them fail its existence
+     * check and be reported as lost.
+     */
+    fun setPublicRecordingDir(uri: Uri) {
+        viewModelScope.launch(ioDispatcher) {
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+            } catch (e: SecurityException) {
+                Timber.e(e, "Failed to take persistable permission for: $uri")
+                return@launch
+            }
+            prefs.publicRecordingDirUri = uri.toString()
+            val name = getTreeDisplayName(context, uri.toString()) ?: uri.toString()
+            withContext(mainDispatcher) {
+                _state.value = _state.value.copy(publicRecordingDirName = name)
+            }
+        }
+    }
+
+    /**
+     * Switches new recordings back to the default app-private storage. The persisted permission of
+     * the directory is kept, so records already stored there remain accessible.
+     */
+    fun resetPublicRecordingDir() {
+        viewModelScope.launch(ioDispatcher) {
+            prefs.publicRecordingDirUri = null
+            withContext(mainDispatcher) {
+                _state.value = _state.value.copy(publicRecordingDirName = null)
+            }
+        }
+    }
+
     fun onAction(action: SettingsScreenAction) {
         when (action) {
             SettingsScreenAction.InitSettingsScreen -> initSettings()
@@ -412,6 +460,8 @@ internal class SettingsViewModel @Inject constructor(
             is SettingsScreenAction.SetMaxRecordingDuration -> setMaxRecordingDuration(action.durationMinutes)
             is SettingsScreenAction.SetAudioSource -> setAudioSource(action.audioSource)
             is SettingsScreenAction.SetRecordAuthorName -> setRecordAuthorName(action.name)
+            is SettingsScreenAction.SetPublicRecordingDir -> setPublicRecordingDir(action.uri)
+            SettingsScreenAction.ResetPublicRecordingDir -> resetPublicRecordingDir()
             SettingsScreenAction.ExecuteFirstRun -> executeFirstRun()
             is SettingsScreenAction.SetAppV2 -> handleUseAppV2(action.value)
             SettingsScreenAction.UnlockLegacyAppSwitch -> unlockLegacyAppSwitch()
@@ -480,6 +530,8 @@ internal sealed class SettingsScreenAction {
     data class SetMaxRecordingDuration(val durationMinutes: Int) : SettingsScreenAction()
     data class SetAudioSource(val audioSource: AudioSource) : SettingsScreenAction()
     data class SetRecordAuthorName(val name: String) : SettingsScreenAction()
+    data class SetPublicRecordingDir(val uri: Uri) : SettingsScreenAction()
+    data object ResetPublicRecordingDir : SettingsScreenAction()
     data object ExecuteFirstRun : SettingsScreenAction()
     data object UnlockLegacyAppSwitch : SettingsScreenAction()
 }

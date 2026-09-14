@@ -72,9 +72,12 @@ import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.extensions.isLostRecord
 import com.dimowner.audiorecorder.v2.data.extensions.copyFile
+import com.dimowner.audiorecorder.v2.data.extensions.getDocumentLength
+import com.dimowner.audiorecorder.v2.data.extensions.isContentUri
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.PlaybackSpeed
 import com.dimowner.audiorecorder.v2.data.model.Record
+import com.dimowner.audiorecorder.v2.data.model.RecordTarget
 import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
@@ -608,10 +611,14 @@ class HomeViewModel @Inject constructor(
         val context: Context = getApplication<Application>().applicationContext
         val record = recordsDataSource.getRecord(prefs.recordedRecordId)
         record?.let {
-            val file = File(record.path)
+            val recordSize = if (record.path.isContentUri()) {
+                getDocumentLength(context, record.path)
+            } else {
+                File(record.path).length()
+            }
             withContext(mainDispatcher) {
                 _state.value = _state.value.copy(
-                    recordInfo = record.copy(size = file.length()).toInfoCombinedText(context)
+                    recordInfo = record.copy(size = recordSize).toInfoCombinedText(context)
                 )
             }
         }
@@ -621,7 +628,7 @@ class HomeViewModel @Inject constructor(
         val context: Context = getApplication<Application>().applicationContext
         val activeRecord = recordsDataSource.getActiveRecord()
         if (activeRecord != null) {
-            val lostRecord = if (activeRecord.isLostRecord()) {
+            val lostRecord = if (activeRecord.isLostRecord(context)) {
                 activeRecord
             } else {
                 null
@@ -757,8 +764,8 @@ class HomeViewModel @Inject constructor(
         showLoadingProgress(true)
         _state.value = _state.value.copy(isShowImportProgress = true)
         viewModelScope.launch(ioDispatcher) {
-            // Tracks the destination file so a partial copy can be cleaned up on failure.
-            var newFile: File? = null
+            // Tracks the destination so a partial copy can be cleaned up on failure.
+            var target: RecordTarget? = null
             try {
                 val parcelFileDescriptor: ParcelFileDescriptor? =
                     context.contentResolver.openFileDescriptor(uri, "r")
@@ -766,23 +773,46 @@ class HomeViewModel @Inject constructor(
                 val sourceDocument = DocumentFile.fromSingleUri(context, uri)
                 val name: String? = sourceDocument?.name
                 if (name != null) {
-                    // Fail fast if the file clearly won't fit, before creating anything on disk.
-                    requireFreeSpaceForImport(sourceDocument.length())
-                    newFile = fileDataSource.createRecordFile(name)
-                    if (fileDescriptor != null && copyFile(fileDescriptor, newFile)) {
-                        val info = AudioDecoder.readRecordInfo(newFile)
-                        val importedDescription = newFile.readDescription()
+                    // The destination is created before the space check because the available
+                    // space at a user-selected public directory can only be queried through an
+                    // existing document's file descriptor (mirrors handleStartRecording()).
+                    val newTarget = fileDataSource.createRecordTarget(name)
+                    target = newTarget
+                    if (prefs.publicRecordingDirUri != null && newTarget is RecordTarget.LocalFile) {
+                        //The user-selected public directory was not accessible;
+                        // the import fell back to app-private storage.
+                        emitEvent(HomeScreenEvent.ShowErrorSnack(
+                            context.getString(R.string.error_public_dir_unavailable_import)
+                        ))
+                    }
+                    requireFreeSpaceForImport(sourceDocument.length(), newTarget.pathOrUri)
+                    val copied = fileDescriptor != null && when (newTarget) {
+                        is RecordTarget.LocalFile -> copyFile(fileDescriptor, newTarget.file)
+                        is RecordTarget.PublicDocument -> copyFile(context, fileDescriptor, newTarget.uri)
+                    }
+                    if (copied) {
+                        val info = when (newTarget) {
+                            is RecordTarget.LocalFile -> AudioDecoder.readRecordInfo(newTarget.file)
+                            is RecordTarget.PublicDocument -> AudioDecoder.readRecordInfo(context, newTarget.uri)
+                        }
+                        val importedDescription = if (newTarget is RecordTarget.LocalFile) {
+                            newTarget.file.readDescription()
+                        } else {
+                            //Metadata tags are not read for records imported into a public
+                            // directory: the tag library requires direct file access.
+                            ""
+                        }
 
                         //Do 2 step import: 1) Import record with empty waveform.
                         //2) Process and update waveform in background.
                         val record = Record(
                             id = 0,
-                            name = newFile.nameWithoutExtension,
+                            name = newTarget.nameWithoutExtension,
                             durationMills = if (info.duration >= 0) info.duration / 1000 else 0,
-                            created = newFile.lastModified(),
+                            created = newTarget.created,
                             added = System.currentTimeMillis(),
                             removed = Long.MAX_VALUE,
-                            path = newFile.absolutePath,
+                            path = newTarget.pathOrUri,
                             format = info.format,
                             size = info.size,
                             sampleRate = info.sampleRate,
@@ -805,7 +835,7 @@ class HomeViewModel @Inject constructor(
                     } else {
                         // Copy produced no data; surface an error instead of leaving the
                         // progress indicator spinning forever.
-                        newFile.delete()
+                        fileDataSource.deleteRecordFile(newTarget.pathOrUri)
                         withContext(mainDispatcher) {
                             _state.value = _state.value.copy(isShowImportProgress = false)
                         }
@@ -819,21 +849,21 @@ class HomeViewModel @Inject constructor(
                 }
             } catch (e: SecurityException) {
                 Timber.e(e)
-                newFile?.delete()
+                target?.let { fileDataSource.deleteRecordFile(it.pathOrUri) }
                 withContext(mainDispatcher) {
                     _state.value = _state.value.copy(isShowImportProgress = false)
                 }
                 handleError(context.getString(R.string.error_permission_denied))
             } catch (e: NotEnoughSpaceException) {
                 Timber.w(e, "importAudioFile: not enough storage space")
-                newFile?.delete()
+                target?.let { fileDataSource.deleteRecordFile(it.pathOrUri) }
                 withContext(mainDispatcher) {
                     _state.value = _state.value.copy(isShowImportProgress = false)
                 }
                 handleError(context.getString(R.string.msg_not_enough_storage_space))
             } catch (e: IOException) {
                 Timber.e(e)
-                newFile?.delete()
+                target?.let { fileDataSource.deleteRecordFile(it.pathOrUri) }
                 withContext(mainDispatcher) {
                     _state.value = _state.value.copy(isShowImportProgress = false)
                 }
@@ -867,14 +897,14 @@ class HomeViewModel @Inject constructor(
     }
 
     /**
-     * Throws [NotEnoughSpaceException] when the device clearly can't hold a [sourceSizeBytes] copy,
-     * so the import fails fast before creating a partial file. Skipped when either the source size
-     * or the free space is unknown (non-positive), leaving the copy step to surface a real ENOSPC.
+     * Throws [NotEnoughSpaceException] when the device clearly can't hold a [sourceSizeBytes] copy
+     * at [destinationPathOrUri]. Skipped when either the source size or the free space is unknown
+     * (non-positive), leaving the copy step to surface a real ENOSPC.
      */
-    private fun requireFreeSpaceForImport(sourceSizeBytes: Long) {
+    private fun requireFreeSpaceForImport(sourceSizeBytes: Long, destinationPathOrUri: String) {
         if (sourceSizeBytes <= 0) return
         val available = try {
-            fileDataSource.getAvailableSpace()
+            fileDataSource.getAvailableSpace(destinationPathOrUri)
         } catch (e: Exception) {
             Timber.w(e, "importAudioFile: could not read available space")
             return
@@ -929,6 +959,31 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun performRenameActiveRecord(newName: String, activeRecord: Record) {
+        val context: Context = getApplication<Application>().applicationContext
+        if (activeRecord.path.isContentUri()) {
+            // A SAF document has no filesystem path to pre-check for collisions; the
+            // DocumentsProvider resolves them itself, so the resulting name is reported back.
+            if (activeRecord.name == newName) {
+                showLoadingProgress(false)
+                return
+            }
+            val actualName = recordsDataSource.renameRecord(activeRecord, newName)
+            if (actualName != null) {
+                emitEvent(
+                    HomeScreenEvent.ShowInfoSnack(
+                        context.getString(R.string.msg_record_renamed, actualName)
+                    )
+                )
+            } else {
+                emitEvent(
+                    HomeScreenEvent.ShowErrorSnack(
+                        context.getString(R.string.error_file_exists)
+                    )
+                )
+                showLoadingProgress(false)
+            }
+            return
+        }
         val currentFile = File(activeRecord.path)
         // Skip rename if the name hasn't changed
         if (currentFile.nameWithoutExtension == newName) {
@@ -948,11 +1003,11 @@ class HomeViewModel @Inject constructor(
             showLoadingProgress(false)
             return
         } else {
-            recordsDataSource.renameRecord(activeRecord, newName)
+            val actualName = recordsDataSource.renameRecord(activeRecord, newName) ?: newName
             val context: Context = getApplication<Application>().applicationContext
             emitEvent(
                 HomeScreenEvent.ShowInfoSnack(
-                    context.getString(R.string.msg_record_renamed, newName)
+                    context.getString(R.string.msg_record_renamed, actualName)
                 )
             )
         }
@@ -1028,10 +1083,21 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             val activeRecord = recordsDataSource.getActiveRecord()
             if (activeRecord != null) {
-                DownloadService.startNotification(
-                    getApplication<Application>().applicationContext,
-                    activeRecord.path
-                )
+                if (activeRecord.path.isContentUri()) {
+                    //The download pipeline requires direct file access; a record in a
+                    // user-selected public directory is already reachable by other apps.
+                    val context: Context = getApplication<Application>().applicationContext
+                    emitEvent(
+                        HomeScreenEvent.ShowInfoSnack(
+                            context.getString(R.string.msg_record_already_in_public_dir)
+                        )
+                    )
+                } else {
+                    DownloadService.startNotification(
+                        getApplication<Application>().applicationContext,
+                        activeRecord.path
+                    )
+                }
             }
         }
     }
