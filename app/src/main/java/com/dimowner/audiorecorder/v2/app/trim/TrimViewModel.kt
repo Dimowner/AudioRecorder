@@ -116,7 +116,11 @@ class TrimViewModel @Inject constructor(
             is TrimAction.SetEndMills -> setEndMills(action.mills)
             TrimAction.SetStartToPlayhead -> setStartToPlayhead()
             TrimAction.SetEndToPlayhead -> setEndToPlayhead()
-            TrimAction.SetEndToPlayheadAndStop -> { setEndToPlayhead(); stopPlayback() }
+            TrimAction.SetEndToPlayheadAndStop -> {
+                setEndToPlayhead()
+                audioPlayer.pause()
+                trimEndForAudition = null
+            }
             is TrimAction.SeekPlayhead -> seekPlayhead(action.mills)
             TrimAction.ApplyTrim -> _state.value = _state.value.copy(showDialog = true)
             is TrimAction.SaveChoice -> {
