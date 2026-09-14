@@ -178,10 +178,23 @@ fun TrimScreen(
 
                 val waveformHandlePadding = 16.dp
 
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Draggable range bar
+                val visualStartFraction = remember { mutableFloatStateOf(uiState.startMills.toFloat() / duration) }
+                val visualEndFraction = remember { mutableFloatStateOf(uiState.endMills.toFloat() / duration) }
+
+                LaunchedEffect(uiState.startMills) {
+                    visualStartFraction.floatValue = uiState.startMills.toFloat() / duration
+                }
+                LaunchedEffect(uiState.endMills) {
+                    visualEndFraction.floatValue = uiState.endMills.toFloat() / duration
+                }
+
                 TrimWaveform(
                     amps = uiState.recordInfo.amps,
-                    startFraction = uiState.startMills.toFloat() / duration,
-                    endFraction = uiState.endMills.toFloat() / duration,
+                    startFraction = visualStartFraction.floatValue,
+                    endFraction = visualEndFraction.floatValue,
                     playheadFraction = playheadFraction,
                     isPlaying = uiState.isPlaying,
                     onPositionTap = { fraction ->
@@ -196,21 +209,12 @@ fun TrimScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Draggable range bar
-                val startFraction = remember { mutableFloatStateOf(uiState.startMills.toFloat() / duration) }
-                val endFraction = remember { mutableFloatStateOf(uiState.endMills.toFloat() / duration) }
-
-                LaunchedEffect(uiState.startMills) {
-                    startFraction.floatValue = uiState.startMills.toFloat() / duration
-                }
-                LaunchedEffect(uiState.endMills) {
-                    endFraction.floatValue = uiState.endMills.toFloat() / duration
-                }
-
                 TrimRangeBar(
-                    startFraction = startFraction.floatValue,
-                    endFraction = endFraction.floatValue,
+                    startFraction = visualStartFraction.floatValue,
+                    endFraction = visualEndFraction.floatValue,
                     isPlaying = uiState.isPlaying,
+                    onStartFractionChange = { visualStartFraction.floatValue = it },
+                    onEndFractionChange = { visualEndFraction.floatValue = it },
                     onStartChange = { fraction ->
                         onAction(TrimAction.SetStartMills((fraction * duration).toLong()))
                     },
@@ -508,6 +512,8 @@ private fun TrimRangeBar(
     startFraction: Float,
     endFraction: Float,
     isPlaying: Boolean,
+    onStartFractionChange: (Float) -> Unit,
+    onEndFractionChange: (Float) -> Unit,
     onStartChange: (Float) -> Unit,
     onEndChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
@@ -561,10 +567,12 @@ private fun TrimRangeBar(
                             if (draggingStart.value == true) {
                                 val newFraction = (visualStart.floatValue + delta).coerceIn(0f, visualEnd.floatValue - minGap)
                                 visualStart.floatValue = newFraction
+                                onStartFractionChange(newFraction)
                                 if (!currentIsPlaying.value) onStartChange(newFraction)
                             } else if (draggingStart.value == false) {
                                 val newFraction = (visualEnd.floatValue + delta).coerceIn(visualStart.floatValue + minGap, 1f)
                                 visualEnd.floatValue = newFraction
+                                onEndFractionChange(newFraction)
                                 if (!currentIsPlaying.value) onEndChange(newFraction)
                             }
                         }
