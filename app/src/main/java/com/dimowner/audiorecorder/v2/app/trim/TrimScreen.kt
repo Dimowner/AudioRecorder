@@ -352,7 +352,7 @@ fun TrimScreen(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     // Start button — left aligned
-                    Box(modifier = Modifier.align(Alignment.CenterStart).padding(start = 50.dp)) {
+                    Box(modifier = Modifier.align(Alignment.CenterStart).padding(start = 70.dp)) {
                         IconButton(
                             onClick = { onAction(TrimAction.PlayFromStart) },
                             modifier = Modifier
@@ -371,7 +371,7 @@ fun TrimScreen(
                         onClick = { onAction(TrimAction.PlayPauseToggle) },
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .size(56.dp)
+                            .size(72.dp)
                             .background(MaterialTheme.colorScheme.primary, CircleShape),
                     ) {
                         Icon(
@@ -384,7 +384,7 @@ fun TrimScreen(
                     }
 
                     // Last 5s button — right aligned
-                    Box(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 50.dp)) {
+                    Box(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 70.dp)) {
                         IconButton(
                             onClick = { onAction(TrimAction.PlayLastFiveSeconds) },
                             modifier = Modifier
