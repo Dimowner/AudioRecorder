@@ -652,10 +652,7 @@ private fun TrimRangeBar(
                     .width(highlightWidth)
                     .fillMaxHeight()
                     .offset(x = highlightStartOffset)
-                    .background(
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
-                        RoundedCornerShape(8.dp)
-                    )
+                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f))
             )
 
             // Start handle — right edge at startFraction

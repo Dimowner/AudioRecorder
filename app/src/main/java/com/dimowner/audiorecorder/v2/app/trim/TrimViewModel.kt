@@ -122,7 +122,8 @@ class TrimViewModel @Inject constructor(
             TrimAction.SetEndToPlayheadAndStop -> {
                 setEndToPlayhead()
                 audioPlayer.pause()
-                trimEndForAudition = null
+                audioPlayer.seek(_state.value.playProgressMills)
+                trimEndForAudition = _state.value.endMills
             }
             is TrimAction.SeekPlayhead -> seekPlayhead(action.mills)
             TrimAction.ApplyTrim -> _state.value = _state.value.copy(showDialog = true)
