@@ -637,10 +637,7 @@ private fun TrimRangeBar(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        MaterialTheme.colorScheme.surfaceVariant,
-                        RoundedCornerShape(8.dp)
-                    )
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
             )
 
             // Active selected range
