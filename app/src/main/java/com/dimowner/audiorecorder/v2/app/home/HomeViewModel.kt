@@ -1328,6 +1328,12 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             }
+            is HomeScreenAction.SelectRecord -> {
+                prefs.activeRecordId = action.recordId
+                viewModelScope.launch(ioDispatcher) {
+                    updateState()
+                }
+            }
         }
     }
 
@@ -1568,6 +1574,7 @@ sealed class HomeScreenAction {
     data class SelectBluetoothDevice(val device: BluetoothDeviceInfo?) : HomeScreenAction()
     data class SetAlwaysUseBluetoothMic(val enabled: Boolean) : HomeScreenAction()
     data object DismissLostRecordsDialog : HomeScreenAction()
+    data class SelectRecord(val recordId: Long) : HomeScreenAction()
     data class DismissRenameAfterRecordingDialog(val dontAskAgain: Boolean) : HomeScreenAction()
     data object RestoreBrokenRecord : HomeScreenAction()
     data object DismissBrokenRecordDialog : HomeScreenAction()

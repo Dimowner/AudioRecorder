@@ -285,6 +285,7 @@ class TrimViewModel @Inject constructor(
             )
             if (result.success) {
                 try {
+                    var insertedId: Long = -1
                     val updatedRecord: Record
                     if (isOverwrite) {
                         val trimmedFile = File(result.outputPath)
@@ -329,12 +330,16 @@ class TrimViewModel @Inject constructor(
                             name = newName,
                             amps = slicedAmps,
                         )
-                        recordsDataSource.insertRecord(updatedRecord)
+                        insertedId = recordsDataSource.insertRecord(updatedRecord)
                     }
 
                     withContext(kotlinx.coroutines.Dispatchers.Main) {
                         _state.value = _state.value.copy(isTrimming = false)
-                        _event.emit(TrimEvent.TrimApplied)
+                        if (isOverwrite) {
+                            _event.emit(TrimEvent.TrimApplied)
+                        } else {
+                            _event.emit(TrimEvent.TrimSavedAsNew(insertedId))
+                        }
                     }
                 } catch (e: Exception) {
                     Timber.e(e, "Failed to save trimmed file")
@@ -405,4 +410,5 @@ sealed class TrimAction {
 sealed class TrimEvent {
     data object TrimApplied : TrimEvent()
     data object NavigateBack : TrimEvent()
+    data class TrimSavedAsNew(val recordId: Long) : TrimEvent()
 }

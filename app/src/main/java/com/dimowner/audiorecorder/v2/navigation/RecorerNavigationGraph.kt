@@ -25,6 +25,7 @@ import androidx.navigation.navArgument
 import com.dimowner.audiorecorder.v2.app.deleted.DeletedRecordsScreen
 import com.dimowner.audiorecorder.v2.app.deleted.DeletedRecordsViewModel
 import com.dimowner.audiorecorder.v2.app.home.HomeScreen
+import com.dimowner.audiorecorder.v2.app.home.HomeScreenAction
 import com.dimowner.audiorecorder.v2.app.home.HomeViewModel
 import com.dimowner.audiorecorder.v2.app.isDescriptionFileWriteSupported
 import com.dimowner.audiorecorder.v2.app.info.AssetParamType
@@ -297,6 +298,11 @@ fun RecorderNavigationGraph(
                 onPopBackStack = {
                     trimViewModel.onAction(TrimAction.StopPlayback)
                     navController.popBackStackFrom(entry)
+                },
+                onRecordSelected = { recordId ->
+                    trimViewModel.onAction(TrimAction.StopPlayback)
+                    navController.popBackStackFrom(entry)
+                    homeViewModel.onAction(HomeScreenAction.SelectRecord(recordId))
                 },
                 uiState = trimViewModel.state.value,
                 onAction = { trimViewModel.onAction(it) },

@@ -74,6 +74,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun TrimScreen(
     onPopBackStack: () -> Unit,
+    onRecordSelected: (Long) -> Unit,
     uiState: TrimState,
     onAction: (TrimAction) -> Unit,
     event: SharedFlow<TrimEvent?>,
@@ -84,6 +85,7 @@ fun TrimScreen(
         event.collectLatest { e ->
             when (e) {
                 is TrimEvent.TrimApplied -> onPopBackStack()
+                is TrimEvent.TrimSavedAsNew -> onRecordSelected(e.recordId)
                 is TrimEvent.NavigateBack -> onPopBackStack()
                 else -> {}
             }
