@@ -385,10 +385,17 @@ fun TrimScreen(
 
                     // Last 5s button — right aligned
                     Box(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 50.dp)) {
-                        SmallIconButton(
-                            label = "last 5s",
+                        IconButton(
                             onClick = { onAction(TrimAction.PlayLastFiveSeconds) },
-                        )
+                            modifier = Modifier
+                                .size(48.dp)
+                                .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(12.dp)),
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_last_5s),
+                                contentDescription = null,
+                            )
+                        }
                     }
                 }
 
@@ -401,7 +408,7 @@ fun TrimScreen(
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleLarge,
-                    fontSize = 60.sp,
+                    fontSize = 70.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.fillMaxWidth(),
                 )
