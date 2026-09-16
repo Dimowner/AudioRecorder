@@ -134,6 +134,7 @@ class AudioTrimmer @Inject constructor() {
 
     @Suppress("MagicNumber")
     private fun trimWav(sourceFile: File, startMills: Long, endMills: Long): TrimResult {
+        var tempFile: File? = null
         return try {
             val extractor = MediaExtractor()
             var sampleRate = 0
@@ -173,7 +174,7 @@ class AudioTrimmer @Inject constructor() {
                 return TrimResult(success = false, error = "Trim range has no PCM data")
             }
 
-            val tempFile = createTempFile(sourceFile)
+            tempFile = createTempFile(sourceFile)
             RandomAccessFile(sourceFile, "r").use { input ->
                 FileOutputStream(tempFile).use { output ->
                     val totalAudioLen = clampedEndByte - startByte
@@ -209,6 +210,7 @@ class AudioTrimmer @Inject constructor() {
                 size = tempFile.length(),
             )
         } catch (e: Exception) {
+            tempFile?.delete()
             Timber.e(e, "Failed to trim WAV file: ${sourceFile.absolutePath}")
             TrimResult(success = false, error = e.message ?: "WAV trim failed")
         }
