@@ -16,7 +16,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.dimowner.audiorecorder"
+        applicationId = "com.rswork.audiorecorder"
         minSdk = 26
         targetSdk = 37
         versionCode = 949
@@ -62,13 +62,13 @@ android {
     productFlavors {
         create("debugConfig") {
             dimension = "default"
-            applicationId = "com.dimowner.audiorecorder.debug"
+            applicationId = "com.rswork.audiorecorder.debug"
             signingConfig = signingConfigs.getByName("dev")
         }
         create("releaseConfig") {
             dimension = "default"
             signingConfig = signingConfigs.getByName("dev")
-            applicationId = "com.dimowner.audiorecorder"
+            applicationId = "com.rswork.audiorecorder"
         }
     }
     compileOptions {

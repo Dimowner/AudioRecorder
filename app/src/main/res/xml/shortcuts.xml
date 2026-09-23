@@ -10,6 +10,6 @@
 		<intent
 				android:action="android.intent.action.ACTION_RUN"
 				android:targetClass="com.dimowner.audiorecorder.app.main.MainActivity"
-				android:targetPackage="com.dimowner.audiorecorder" />
+				android:targetPackage="com.rswork.audiorecorder" />
 	</shortcut>
 </shortcuts>
