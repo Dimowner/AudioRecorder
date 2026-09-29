@@ -213,17 +213,25 @@ class AacCodecRecorderInstrumentedTest {
         Thread.sleep(3000)
 
         // Copy the file mid-recording: that copy has no moov, exactly like a file left behind by
-        // a process death.
+        // a process death. The sidecar sample table has to be copied under the name that belongs
+        // to the copy, since that is where the restorer looks for it and raw AAC-LC frames carry
+        // no sync word - without it there is nothing to rebuild the container from. Both copies
+        // happen before the stop, which deletes the sidecar of a recording that ended normally.
         val broken = File(outputFile.parentFile, "codec-recorder-broken.m4a")
+        val brokenIndex = AacFrameIndex.sidecarFile(broken)
         outputFile.copyTo(broken, overwrite = true)
+        AacFrameIndex.sidecarFile(outputFile).let { if (it.exists()) it.copyTo(brokenIndex, overwrite = true) }
         stopAndAwait()
         try {
+            assertTrue("no AAC frame index was written while recording", brokenIndex.length() > 0)
             RandomAccessFile(broken, "rw").use { it.setLength(broken.length()) }
-            val result = BrokenRecordRestorer().restoreFile(broken.absolutePath, 44100, 1, 128_000)
+            val result = BrokenRecordRestorer().restoreFile(broken.absolutePath, 44100, 1)
             assertTrue("restore failed: $result", result !is BrokenRecordRestorer.RestoreResult.Failed)
         } finally {
             broken.delete()
+            brokenIndex.delete()
             File(broken.parentFile, "codec-recorder-broken_restored.m4a").delete()
+            File(broken.parentFile, "codec-recorder-broken_raw.aac").delete()
         }
     }
 

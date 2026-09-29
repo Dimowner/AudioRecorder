@@ -199,6 +199,7 @@ class WavRecorderV2 @Inject constructor(
                         val readResult = recorder.read(buffer, 0, readChunkSize)
                         if (readResult < 0) {
                             Timber.e("AudioRecord read error during pause: $readResult")
+                            failed = true
                             break
                         }
                         continue
@@ -242,7 +243,12 @@ class WavRecorderV2 @Inject constructor(
                         // Covers ERROR_DEAD_OBJECT / ERROR too: once the AudioRecord is dead,
                         // read() returns immediately, so anything that doesn't break out here
                         // spins the loop at full CPU for the rest of the session.
+                        // Remembered rather than reported here, like the IO failures below: the
+                        // file still has to be closed and its header written before the outcome
+                        // is reported. Recording it as a failure is what keeps a dead audio
+                        // server from reaching the user as an ordinary stop.
                         Timber.e("AudioRecord read error: $readResult")
+                        failed = true
                         break
                     }
                 }
