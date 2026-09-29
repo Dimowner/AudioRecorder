@@ -16,6 +16,7 @@
 package com.dimowner.audiorecorder.v2.audio
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -113,5 +114,54 @@ class AacCodecRecorderHelpersTest {
     @Test
     fun `the result is never zero or negative`() {
         assertTrue(clampAacBitRate(requested = 0, sampleRate = 48000, channelCount = 2, codecUpper = 960_000) > 0)
+    }
+
+    // -------------------------------------------------------------------------
+    // selectAacEncoder — the encoder the bitrate is clamped for is the one created
+    // -------------------------------------------------------------------------
+
+    private fun encoder(name: String, maxBitRate: Int, supportsFormat: Boolean = true) =
+        AacEncoderCandidate(name, supportsFormat, maxBitRate)
+
+    @Test
+    fun `the preferred encoder is kept when it reaches the bitrate`() {
+        val selected = selectAacEncoder(
+            listOf(encoder("vendor", 320_000), encoder("c2.android.aac.encoder", 960_000)),
+            targetBitRate = 192_000,
+        )
+        assertEquals("vendor", selected?.name)
+    }
+
+    @Test
+    fun `a later encoder is chosen when the preferred one cannot reach the bitrate`() {
+        val selected = selectAacEncoder(
+            listOf(encoder("vendor", 128_000), encoder("c2.android.aac.encoder", 960_000)),
+            targetBitRate = 192_000,
+        )
+        assertEquals("c2.android.aac.encoder", selected?.name)
+    }
+
+    @Test
+    fun `the closest encoder is chosen when none reaches the bitrate`() {
+        val selected = selectAacEncoder(
+            listOf(encoder("low", 96_000), encoder("higher", 160_000)),
+            targetBitRate = 192_000,
+        )
+        assertEquals("higher", selected?.name)
+    }
+
+    @Test
+    fun `encoders that cannot take the format are skipped`() {
+        val selected = selectAacEncoder(
+            listOf(encoder("no-8khz", 960_000, supportsFormat = false), encoder("fits", 64_000)),
+            targetBitRate = 192_000,
+        )
+        assertEquals("fits", selected?.name)
+    }
+
+    @Test
+    fun `no usable encoder leaves the choice to the platform`() {
+        assertNull(selectAacEncoder(listOf(encoder("no", 960_000, supportsFormat = false)), 192_000))
+        assertNull(selectAacEncoder(emptyList(), 192_000))
     }
 }

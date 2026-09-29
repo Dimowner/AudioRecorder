@@ -88,6 +88,26 @@ internal fun clampAacBitRate(requested: Int, sampleRate: Int, channelCount: Int,
     return minOf(requested, ceiling, codecUpper).coerceAtLeast(1)
 }
 
+/** An AAC encoder from `MediaCodecList`, reduced to what [selectAacEncoder] decides on. */
+internal data class AacEncoderCandidate(
+    val name: String,
+    val supportsFormat: Boolean,
+    val maxBitRate: Int,
+)
+
+/**
+ * Picks the encoder that will be instantiated, so the bitrate is clamped to the range of that
+ * encoder rather than to the widest range any encoder advertises - `createEncoderByType` may
+ * pick one with a lower limit, fail to configure, and push the recording onto MediaRecorder.
+ *
+ * [candidates] are in `MediaCodecList` order, which is the platform's preference order. The first
+ * one that can reach the [targetBitRate] wins; failing that, the one that gets closest.
+ */
+internal fun selectAacEncoder(candidates: List<AacEncoderCandidate>, targetBitRate: Int): AacEncoderCandidate? {
+    val usable = candidates.filter { it.supportsFormat }
+    return usable.firstOrNull { it.maxBitRate >= targetBitRate } ?: usable.maxByOrNull { it.maxBitRate }
+}
+
 /**
  * Records m4a with `AudioRecord` -> `MediaCodec` -> `MediaMuxer`.
  *
@@ -253,12 +273,18 @@ class AacCodecRecorderV2 @Inject constructor(
         }
         audioRecord = recorder
 
-        val encodingBitRate = clampAacBitRate(bitrate, sampleRate, channelCount, aacEncoderMaxBitRate())
+        val encoderInfo = selectAacEncoder(
+            aacEncoderCandidates(sampleRate, channelCount),
+            clampAacBitRate(bitrate, sampleRate, channelCount, Int.MAX_VALUE),
+        )
+        val encodingBitRate = clampAacBitRate(
+            bitrate, sampleRate, channelCount, encoderInfo?.maxBitRate ?: Int.MAX_VALUE
+        )
         if (encodingBitRate != bitrate) {
             Timber.w("Bitrate $bitrate is out of range for this configuration, using $encodingBitRate")
         }
         val encoder = try {
-            createEncoder(sampleRate, channelCount, encodingBitRate, readChunkSize)
+            createEncoder(encoderInfo?.name, sampleRate, channelCount, encodingBitRate, readChunkSize)
         } catch (e: IOException) {
             return releaseAndFail("codec-create", e)
         } catch (e: IllegalArgumentException) {
@@ -298,6 +324,7 @@ class AacCodecRecorderV2 @Inject constructor(
     }
 
     private fun createEncoder(
+        encoderName: String?,
         sampleRate: Int,
         channelCount: Int,
         bitrate: Int,
@@ -312,7 +339,12 @@ class AacCodecRecorderV2 @Inject constructor(
                 if (channelCount == 1) AudioFormat.CHANNEL_OUT_MONO else AudioFormat.CHANNEL_OUT_STEREO
             )
         }
-        val encoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC)
+        // No listed encoder fits the format: let the platform choose, as before encoder selection.
+        val encoder = if (encoderName != null) {
+            MediaCodec.createByCodecName(encoderName)
+        } else {
+            MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_AUDIO_AAC)
+        }
         try {
             encoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
             encoder.start()
@@ -323,20 +355,27 @@ class AacCodecRecorderV2 @Inject constructor(
         return encoder
     }
 
-    /** The most permissive AAC encoder bitrate this device advertises. */
-    private fun aacEncoderMaxBitRate(): Int {
+    /** This device's AAC encoders, in the platform's preference order. */
+    private fun aacEncoderCandidates(sampleRate: Int, channelCount: Int): List<AacEncoderCandidate> {
         return try {
             MediaCodecList(MediaCodecList.REGULAR_CODECS).codecInfos
                 .filter { info ->
                     info.isEncoder && info.supportedTypes.any { it.equals(MediaFormat.MIMETYPE_AUDIO_AAC, true) }
                 }
-                .mapNotNull { info ->
-                    info.getCapabilitiesForType(MediaFormat.MIMETYPE_AUDIO_AAC).audioCapabilities?.bitrateRange?.upper
+                .map { info ->
+                    val audio = info.getCapabilitiesForType(MediaFormat.MIMETYPE_AUDIO_AAC).audioCapabilities
+                    AacEncoderCandidate(
+                        name = info.name,
+                        // An encoder that does not describe itself is given the benefit of the
+                        // doubt; configure() is the final word either way.
+                        supportsFormat = audio == null ||
+                            (audio.isSampleRateSupported(sampleRate) && audio.maxInputChannelCount >= channelCount),
+                        maxBitRate = audio?.bitrateRange?.upper ?: Int.MAX_VALUE,
+                    )
                 }
-                .maxOrNull() ?: Int.MAX_VALUE
         } catch (e: IllegalArgumentException) {
             Timber.d("Can't read AAC encoder capabilities: ${e.message}")
-            Int.MAX_VALUE
+            emptyList()
         }
     }
 
@@ -561,8 +600,10 @@ class AacCodecRecorderV2 @Inject constructor(
             }
             failure != null -> {
                 // Keep what was captured: stop first so the record is persisted, then report.
-                emitEvent(RecorderEvent.OnStopRecording)
-                emitEvent(RecorderEvent.OnError(RecordingException()))
+                coroutineScope.launch {
+                    _event.emit(RecorderEvent.OnStopRecording)
+                    _event.emit(RecorderEvent.OnError(RecordingException()))
+                }
             }
             maxDurationReached -> emitEvent(RecorderEvent.OnMaxDurationReached)
             else -> emitEvent(RecorderEvent.OnStopRecording)
