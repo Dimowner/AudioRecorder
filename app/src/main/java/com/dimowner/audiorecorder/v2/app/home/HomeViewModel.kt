@@ -320,8 +320,18 @@ class HomeViewModel @Inject constructor(
                         waveformState = pausedWaveformState,
                     )
                 } else if (recState.isRecording()) {
-                    when (recState.recordingState) {
-                        RecordingState.STARTED -> {
+                    // STARTED/RESUMED are overwritten by PROGRESS on the first progress tick
+                    // (~10ms later) and StateFlow conflation may drop them, so detect the
+                    // transition from the previous UI state as well.
+                    val prevBottomBarState = _state.value.bottomBarState
+                    val isStarted = recState.recordingState == RecordingState.STARTED
+                            || (recState.recordingState == RecordingState.PROGRESS
+                            && prevBottomBarState == BottomBarState.READY_TO_START_RECORDING)
+                    val isResumed = recState.recordingState == RecordingState.RESUMED
+                            || (recState.recordingState == RecordingState.PROGRESS
+                            && prevBottomBarState == BottomBarState.PAUSED)
+                    when {
+                        isStarted -> {
                             // Recording just started – initialise UI
                             lastProgressUpdate = 0L
                             _state.value = state.value.copy(
@@ -342,7 +352,7 @@ class HomeViewModel @Inject constructor(
                                 }
                             }
                         }
-                        RecordingState.RESUMED -> {
+                        isResumed -> {
                             // Recording resumed from pause – update BottomBar state without resetting waveform
                             _state.value = _state.value.copy(
                                 bottomBarState = BottomBarState.RECORDING,
