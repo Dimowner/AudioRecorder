@@ -40,6 +40,9 @@ fun getHomeDroDownMenuItems(): List<DropDownMenuItem<HomeDropDownMenuItemId>> {
             HomeDropDownMenuItemId.SAVE_AS -> DropDownMenuItem(
                 id = it, textResId = R.string.save_as, imageResId = R.drawable.ic_save_alt
             )
+            HomeDropDownMenuItemId.TRIM -> DropDownMenuItem(
+                id = it, textResId = R.string.trim, imageResId = R.drawable.ic_content_cut
+            )
             HomeDropDownMenuItemId.DELETE -> DropDownMenuItem(
                 id = it, textResId = R.string.delete, imageResId = R.drawable.ic_delete_forever
             )

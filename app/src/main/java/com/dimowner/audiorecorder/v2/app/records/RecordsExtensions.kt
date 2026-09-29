@@ -46,6 +46,9 @@ fun getRecordsDroDownMenuItems(): List<DropDownMenuItem<RecordDropDownMenuItemId
             RecordDropDownMenuItemId.SAVE_AS -> DropDownMenuItem(
                 id = it, textResId = R.string.save_as, imageResId = R.drawable.ic_save_alt
             )
+            RecordDropDownMenuItemId.TRIM -> DropDownMenuItem(
+                id = it, textResId = R.string.trim, imageResId = R.drawable.ic_content_cut
+            )
             RecordDropDownMenuItemId.DELETE -> DropDownMenuItem(
                 id = it, textResId = R.string.delete, imageResId = R.drawable.ic_delete_forever
             )

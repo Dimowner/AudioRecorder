@@ -456,6 +456,12 @@
     <!-- Recording Notification Status Messages -->
     <string name="status_recording_active">Recording in progress</string>
     <string name="status_recording_paused">Recording paused</string>
+    <!-- Trim screen -->
+    <string name="trim">Trim</string>
+    <string name="trim_start">Start</string>
+    <string name="trim_end">End</string>
+    <string name="trim_duration">Duration: %1$s</string>
+
     <!-- Navigate back button description -->
     <string name="navigate_back">Navigate back</string>
     <!-- Dropdown menu button description -->

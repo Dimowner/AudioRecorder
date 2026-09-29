@@ -266,8 +266,8 @@ class ExoAudioPlayer(
 			preparingPath = null
 			exoPlayer.stop()
 			exoPlayer.clearMediaItems()
-			playerState = PlayerState.STOPPED
 			pauseTimeMills = 0
+			playerState = PlayerState.STOPPED
 			prevPosMills = 0
 			resetPositionInterpolation()
 			onStopPlay()

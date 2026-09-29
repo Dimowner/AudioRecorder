@@ -1346,6 +1346,19 @@ class HomeViewModel @Inject constructor(
             HomeScreenAction.ShowDescriptionDialog -> showDescriptionDialog()
             is HomeScreenAction.SaveActiveRecordDescription -> saveActiveRecordDescription(action.description, action.writeToFile)
             HomeScreenAction.DismissDescriptionDialog -> dismissDescriptionDialog()
+            HomeScreenAction.RequestTrim -> {
+                viewModelScope.launch(ioDispatcher) {
+                    recordsDataSource.getActiveRecord()?.let { record ->
+                        emitEvent(HomeScreenEvent.RequestTrim(record.id))
+                    }
+                }
+            }
+            is HomeScreenAction.SelectRecord -> {
+                prefs.activeRecordId = action.recordId
+                viewModelScope.launch(ioDispatcher) {
+                    updateState()
+                }
+            }
         }
     }
 
@@ -1599,6 +1612,7 @@ sealed class HomeScreenAction {
     data class SelectBluetoothDevice(val device: BluetoothDeviceInfo?) : HomeScreenAction()
     data class SetAlwaysUseBluetoothMic(val enabled: Boolean) : HomeScreenAction()
     data object DismissLostRecordsDialog : HomeScreenAction()
+    data class SelectRecord(val recordId: Long) : HomeScreenAction()
     data class DismissRenameAfterRecordingDialog(val dontAskAgain: Boolean) : HomeScreenAction()
     data object RestoreBrokenRecord : HomeScreenAction()
     data object DismissBrokenRecordDialog : HomeScreenAction()
@@ -1606,6 +1620,7 @@ sealed class HomeScreenAction {
     data object ShowDescriptionDialog : HomeScreenAction()
     data class SaveActiveRecordDescription(val description: String, val writeToFile: Boolean) : HomeScreenAction()
     data object DismissDescriptionDialog : HomeScreenAction()
+    data object RequestTrim : HomeScreenAction()
 }
 
 sealed class HomeScreenEvent {
@@ -1615,6 +1630,7 @@ sealed class HomeScreenEvent {
     data class ShowErrorSnack(val message: String) : HomeScreenEvent()
     data class ShowInfoSnack(val message: String) : HomeScreenEvent()
     data class RecordInformationEvent(val recordInfo: RecordInfoState) : HomeScreenEvent()
+    data class RequestTrim(val recordId: Long) : HomeScreenEvent()
 }
 
 private class LongEvaluator : TypeEvaluator<Long> {
