@@ -8,7 +8,6 @@ import com.dimowner.audiorecorder.IntArrayList
 import com.dimowner.audiorecorder.exception.AlreadyRecordingException
 import com.dimowner.audiorecorder.exception.InvalidOutputFile
 import com.dimowner.audiorecorder.exception.RecorderInitException
-import com.dimowner.audiorecorder.exception.RecordingException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -190,6 +189,7 @@ class WavRecorderV2 @Inject constructor(
             var totalBytesWritten = 0L
             val bytesPerSecond = sampleRate * channelCount * (bitsPerSample / 8)
             var maxDurationReached = false
+            var failed = false
 
             try {
                 fos = FileOutputStream(outputFile, true) // append after the placeholder header
@@ -247,10 +247,10 @@ class WavRecorderV2 @Inject constructor(
                     }
                 }
             } catch (e: IOException) {
-                // RecordingException, not RecorderInitException: the recorder did start, so this
-                // must not be treated as a failed start (which discards the file).
+                // Remembered rather than reported here: the file still has to be closed and its
+                // header written, and the service acts on the first terminal event it sees.
                 Timber.e(e, "Error writing PCM data")
-                emitEvent(RecorderEvent.OnError(RecordingException()))
+                failed = true
             } finally {
                 try {
                     fos?.close()
@@ -275,6 +275,7 @@ class WavRecorderV2 @Inject constructor(
             }
 
             // Write the real WAV header in-place now that we know the final audio length.
+            var headerWritten = false
             if (outputFile.exists()) {
                 try {
                     val totalAudioLen = totalBytesWritten
@@ -294,21 +295,23 @@ class WavRecorderV2 @Inject constructor(
                         )
                         headerStream.flush()
                     }
-
-                    if (maxDurationReached) {
-                        emitEvent(RecorderEvent.OnMaxDurationReached)
-                    } else {
-                        emitEvent(RecorderEvent.OnStopRecording)
-                    }
+                    headerWritten = true
                 } catch (e: IOException) {
                     Timber.e(e, "Error writing WAV header")
-                    emitEvent(RecorderEvent.OnError(RecordingException()))
                 }
             }
 
             // Clean up state only after header write so nothing above reads stale nulls - and only
             // if no newer recording has taken the state over in the meantime.
             if (currentRun === run) durationMills = 0
+
+            // The file is closed and complete: report the outcome exactly once, now. A missing
+            // header counts as a failure - without it nothing can read what was captured.
+            recordingCompletionEvents(
+                failed = failed || !headerWritten,
+                capturedAudio = totalBytesWritten > 0,
+                maxDurationReached = maxDurationReached,
+            ).forEach(::emitEvent)
         }
         return true
     }

@@ -400,6 +400,10 @@ class AudioRecordingService : Service() {
      * saved like a normal stop. The previous version deleted the record for every init/file error
      * regardless of how long it had been recording, so a mid-session I/O failure (running out of
      * space being the obvious one on a long recording) destroyed the whole session.
+     *
+     * Either outcome ends the session, so neither may be applied to a recorder that is still
+     * running: an error is not by itself a terminal state. See [recordingCompletionEvents] for
+     * the sequence a recorder that did end its session reports.
      */
     private suspend fun handleRecorderError(exception: AppException) {
         if (exception is AlreadyRecordingException) {
@@ -424,6 +428,15 @@ class AudioRecordingService : Service() {
         }
 
         showRecorderError(exception)
+
+        if (audioRecorder.isRecording) {
+            // The session is still live - a failed pause or resume, for instance, leaves the
+            // recorder capturing into the same file. Neither finalising nor deleting it is safe
+            // while it is still being written, and a recorder that does end the session reports
+            // that separately, after its container is closed. So the report is all this error
+            // gets: whatever ends the recording later saves it.
+            return
+        }
 
         if (_recordingState.value.durationMills > 0 && prefs.recordedRecordId >= 0) {
             // Audio is already on disk, so finish the file the way a normal stop does instead
