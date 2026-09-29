@@ -149,6 +149,7 @@ class AacCodecRecorderV2 @Inject constructor(
     private var audioRecord: AudioRecord? = null
     private var codec: MediaCodec? = null
     private var muxer: MediaMuxer? = null
+    private var frameIndexWriter: AacFrameIndex.Writer? = null
     private var recordingJob: Job? = null
 
     @Volatile private var _isRecording: Boolean = false
@@ -392,7 +393,7 @@ class AacCodecRecorderV2 @Inject constructor(
 
     @Suppress("LongMethod", "NestedBlockDepth", "ComplexMethod")
     private fun CoroutineScope.runRecordingLoop(outputFile: File, readChunkSize: Int, frameSize: Int) {
-        val session = MuxSession()
+        val session = MuxSession(outputFile)
         val pcm = ByteArray(readChunkSize)
         val recorder = audioRecord
         val encoder = codec
@@ -521,9 +522,11 @@ class AacCodecRecorderV2 @Inject constructor(
                 index == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
                     if (!session.muxerStarted) {
                         val activeMuxer = muxer ?: return
-                        session.trackIndex = activeMuxer.addTrack(encoder.outputFormat)
+                        val trackFormat = encoder.outputFormat
+                        session.trackIndex = activeMuxer.addTrack(trackFormat)
                         activeMuxer.start()
                         session.muxerStarted = true
+                        openFrameIndex(session.outputFile, trackFormat)
                     }
                 }
                 index >= 0 -> {
@@ -533,6 +536,37 @@ class AacCodecRecorderV2 @Inject constructor(
             }
         }
     }
+
+    /**
+     * Starts mirroring the muxed access-unit sizes next to [outputFile].
+     *
+     * `MediaMuxer` only writes its sample table when the recording is stopped, so a force-kill
+     * leaves an `mdat` whose frame boundaries cannot be recovered - raw AAC-LC frames carry no
+     * sync word. The sidecar preserves them, which is what lets [BrokenRecordRestorer] rebuild
+     * this file exactly. Indexing is best-effort: a failure here costs recoverability, never the
+     * recording.
+     */
+    private fun openFrameIndex(outputFile: File, trackFormat: MediaFormat) {
+        val csd0 = runCatching { trackFormat.getByteBuffer("csd-0") }.getOrNull()
+        if (csd0 == null) {
+            Timber.w("Encoder reported no csd-0; recording ${outputFile.name} without a frame index")
+            return
+        }
+        val config = ByteArray(csd0.remaining())
+        csd0.duplicate().get(config)
+        // Prefer the encoder's own view of the track over what was requested: the index has to
+        // describe the frames that were actually written.
+        frameIndexWriter = AacFrameIndex.openWriter(
+            mediaFile = outputFile,
+            sampleRate = trackFormat.readInteger(MediaFormat.KEY_SAMPLE_RATE) ?: sampleRateConfig,
+            channelCount = trackFormat.readInteger(MediaFormat.KEY_CHANNEL_COUNT) ?: channelCountConfig,
+            csd0 = config,
+        )
+    }
+
+    /** [MediaFormat.getInteger] with a default only exists from API 29; this works everywhere. */
+    private fun MediaFormat.readInteger(key: String): Int? =
+        runCatching { getInteger(key) }.getOrNull()?.takeIf { it > 0 }
 
     private fun writeSample(encoder: MediaCodec, index: Int, info: MediaCodec.BufferInfo, session: MuxSession) {
         val buffer: ByteBuffer? = encoder.getOutputBuffer(index)
@@ -546,6 +580,7 @@ class AacCodecRecorderV2 @Inject constructor(
             info.presentationTimeUs = aacPtsUs(session.muxedFrameCount, sampleRateConfig)
             info.flags = info.flags or MediaCodec.BUFFER_FLAG_KEY_FRAME
             muxer?.writeSampleData(session.trackIndex, buffer, info)
+            frameIndexWriter?.append(info.size)
             session.muxedFrameCount++
             if (session.muxedFrameCount == 1L) {
                 emitEvent(RecorderEvent.OnStartRecording)
@@ -566,6 +601,7 @@ class AacCodecRecorderV2 @Inject constructor(
         releaseCodecAndMuxer(muxerStarted = false)
         durationMills = 0
         runCatching { outputFile.writeBytes(ByteArray(0)) }
+        AacFrameIndex.delete(outputFile)
         startFailureListener?.invoke("no-output")
     }
 
@@ -586,11 +622,18 @@ class AacCodecRecorderV2 @Inject constructor(
             runCatching { signalEndOfStream(encoder, session) }
                 .onFailure { Timber.e(it, "Failed to flush the encoder") }
         }
-        val containerFinalized = releaseCodecAndMuxer(session.muxerStarted)
+        val containerClosed = releaseCodecAndMuxer(session.muxerStarted)
 
         _isRecording = false
         _isPaused = false
         durationMills = 0
+
+        // The sidecar exists only to rebuild a container that was never closed. Once this file
+        // carries its own sample table it is dead weight; when the stop failed it is the only
+        // thing that can bring the recording back, so it stays for the restorer.
+        if (containerClosed && failure == null) {
+            AacFrameIndex.delete(outputFile)
+        }
 
         when {
             session.muxedFrameCount == 0L && failure != null -> {
@@ -611,9 +654,10 @@ class AacCodecRecorderV2 @Inject constructor(
                 // Stopped before anything was written: the file is an unusable stub, so let the
                 // service drop the empty record along with it.
                 runCatching { outputFile.delete() }
+                AacFrameIndex.delete(outputFile)
                 emitEvent(RecorderEvent.OnError(RecorderInitException()))
             }
-            !containerFinalized -> {
+            !containerClosed -> {
                 // The audio is on disk but the moov box was never written, so the file will not
                 // open. This is the only event that sends the service down the recovery path for
                 // an unfinalised file - a stop event here would save the broken file as is. It
@@ -718,6 +762,9 @@ class AacCodecRecorderV2 @Inject constructor(
      * means the container was never finalised and the file cannot be played as it stands.
      */
     private fun releaseCodecAndMuxer(muxerStarted: Boolean): Boolean {
+        frameIndexWriter?.close()
+        frameIndexWriter = null
+
         val encoder = codec
         codec = null
         try {
@@ -730,17 +777,16 @@ class AacCodecRecorderV2 @Inject constructor(
 
         val activeMuxer = muxer
         muxer = null
-        var containerFinalized = true
-        try {
+        return try {
             // stop() on a muxer that was never started throws.
             if (muxerStarted) activeMuxer?.stop()
+            true
         } catch (e: IllegalStateException) {
             Timber.e(e, "muxer.stop() problems")
-            containerFinalized = false
+            false
         } finally {
             activeMuxer?.release()
         }
-        return containerFinalized
     }
 
     private fun releaseEverything() {
@@ -813,7 +859,7 @@ class AacCodecRecorderV2 @Inject constructor(
     }
 
     /** Mutable state of one muxing session, kept together so the loop can pass it around. */
-    private class MuxSession {
+    private class MuxSession(val outputFile: File) {
         var trackIndex: Int = -1
         var muxerStarted: Boolean = false
         var muxedFrameCount: Long = 0
