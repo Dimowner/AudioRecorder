@@ -56,9 +56,14 @@ class WavRecorderV2 @Inject constructor(
         get() = _isPaused
 
     @Volatile private var durationMills: Long = 0
-    private var sampleRateConfig: Int = 44100
-    private var channelCountConfig: Int = 1
-    private var maxDurationMills: Int = Int.MAX_VALUE
+
+    /**
+     * Token of the recording that owns the shared state above. stopRecording() only flips the
+     * flags, so a new start can be accepted while the previous coroutine is still finalising its
+     * file; that coroutine checks the token before touching anything shared, and otherwise works
+     * from its own captured configuration.
+     */
+    @Volatile private var currentRun: Any? = null
 
     private var timerProgress: Timer? = null
     private val amplitudesBuffer: IntArrayList = IntArrayList()
@@ -95,10 +100,6 @@ class WavRecorderV2 @Inject constructor(
             emitEvent(RecorderEvent.OnError(InvalidOutputFile()))
             return false
         }
-
-        sampleRateConfig = sampleRate
-        channelCountConfig = channelCount
-        maxDurationMills = maxRecordingDurationMills
 
         val channelConfig = if (channelCount == 1) {
             AudioFormat.CHANNEL_IN_MONO
@@ -174,6 +175,8 @@ class WavRecorderV2 @Inject constructor(
             return false
         }
 
+        val run = Any()
+        currentRun = run
         _isRecording = true
         _isPaused = false
         durationMills = 0
@@ -190,7 +193,7 @@ class WavRecorderV2 @Inject constructor(
 
             try {
                 fos = FileOutputStream(outputFile, true) // append after the placeholder header
-                while (isActive && _isRecording) {
+                while (isActive && _isRecording && currentRun === run) {
                     if (_isPaused) {
                         // Read and discard PCM data to prevent accumulating stale audio during pause
                         val readResult = recorder.read(buffer, 0, readChunkSize)
@@ -204,6 +207,10 @@ class WavRecorderV2 @Inject constructor(
                     if (readResult > 0) {
                         fos.write(buffer, 0, readResult)
                         totalBytesWritten += readResult
+                        // A stop followed by a new start may have landed during the blocking
+                        // read: keep the audio in this run's file, but leave the shared state to
+                        // the new recording.
+                        if (currentRun !== run) break
 
                         // Calculate duration from bytes written
                         durationMills = (totalBytesWritten * 1000L) / bytesPerSecond
@@ -214,7 +221,7 @@ class WavRecorderV2 @Inject constructor(
 
                         // Check max duration, and the size the WAV container itself can describe
                         val durationLimitReached =
-                            maxDurationMills > 0 && durationMills >= maxDurationMills
+                            maxRecordingDurationMills > 0 && durationMills >= maxRecordingDurationMills
                         val containerFull = totalBytesWritten >= MAX_WAV_DATA_BYTES
                         if (durationLimitReached || containerFull) {
                             if (containerFull) {
@@ -259,9 +266,11 @@ class WavRecorderV2 @Inject constructor(
                 // max-duration and error paths leave the loop without going through
                 // stopRecording(): the timer would leak, and _isRecording staying true would
                 // keep the recorder wedged, rejecting every later start as "already recording".
-                _isRecording = false
-                _isPaused = false
-                stopRecordingTimer()
+                if (currentRun === run) {
+                    _isRecording = false
+                    _isPaused = false
+                    stopRecordingTimer()
+                }
                 stopHardware(recorder)
             }
 
@@ -270,7 +279,7 @@ class WavRecorderV2 @Inject constructor(
                 try {
                     val totalAudioLen = totalBytesWritten
                     val totalDataLen = totalAudioLen + 36
-                    val byteRate = (sampleRateConfig * channelCountConfig * bitsPerSample / 8).toLong()
+                    val byteRate = (sampleRate * channelCount * bitsPerSample / 8).toLong()
 
                     RandomAccessFile(outputFile, "rw").use { raf ->
                         raf.seek(0)
@@ -279,8 +288,8 @@ class WavRecorderV2 @Inject constructor(
                             out = headerStream,
                             totalAudioLen = totalAudioLen,
                             totalDataLen = totalDataLen,
-                            sampleRate = sampleRateConfig,
-                            channels = channelCountConfig,
+                            sampleRate = sampleRate,
+                            channels = channelCount,
                             byteRate = byteRate,
                         )
                         headerStream.flush()
@@ -297,8 +306,9 @@ class WavRecorderV2 @Inject constructor(
                 }
             }
 
-            // Clean up state only after header write so nothing above reads stale nulls.
-            durationMills = 0
+            // Clean up state only after header write so nothing above reads stale nulls - and only
+            // if no newer recording has taken the state over in the meantime.
+            if (currentRun === run) durationMills = 0
         }
         return true
     }
@@ -347,7 +357,8 @@ class WavRecorderV2 @Inject constructor(
      * Stops and releases the [recorder] this recording coroutine owns. Invoked from the
      * coroutine's teardown. Releases the passed instance (not the field) so a rapid stop->start
      * that has already swapped in a new [AudioRecord] is not torn down by the previous run; the
-     * field is only cleared if it still points at this recorder.
+     * field is only cleared if it still points at this recorder. The rest of the shared state is
+     * guarded the same way through [currentRun].
      */
     private fun stopHardware(recorder: AudioRecord) {
         try {

@@ -76,10 +76,7 @@ class TransparentRecordingActivity : Activity() {
         if (!checkRecordPermission2()) return
         if (!prefs.isAppV2 && !checkStoragePermission2()) return
         if (projectionDenied) {
-            Toast.makeText(
-                applicationContext, R.string.msg_permission_system_audio_denied, Toast.LENGTH_LONG
-            ).show()
-            finish()
+            finishWithProjectionDenied()
             return
         }
         // The consent dialog returns through onActivityResult, which runs before this method is
@@ -112,21 +109,31 @@ class TransparentRecordingActivity : Activity() {
 
     /**
      * Raises the system-audio consent dialog. A failure here is treated as a denial rather than
-     * silently recording the microphone, which is not what the user selected.
+     * silently recording the microphone, which is not what the user selected. It is handled on
+     * the spot: no dialog was shown, so no further onResume() would come to pick up the flag and
+     * the transparent activity would stay open.
      */
     private fun requestMediaProjectionConsent() {
         val manager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
         if (manager == null) {
             Timber.e("MediaProjectionManager is unavailable")
-            projectionDenied = true
+            finishWithProjectionDenied()
             return
         }
         try {
             startActivityForResult(manager.createScreenCaptureIntent(), REQ_CODE_MEDIA_PROJECTION)
         } catch (e: ActivityNotFoundException) {
             Timber.e(e, "No activity handles the screen capture request")
-            projectionDenied = true
+            finishWithProjectionDenied()
         }
+    }
+
+    private fun finishWithProjectionDenied() {
+        projectionDenied = true
+        Toast.makeText(
+            applicationContext, R.string.msg_permission_system_audio_denied, Toast.LENGTH_LONG
+        ).show()
+        finish()
     }
 
     @Deprecated("Kept because this Activity is not a ComponentActivity and has no result registry")

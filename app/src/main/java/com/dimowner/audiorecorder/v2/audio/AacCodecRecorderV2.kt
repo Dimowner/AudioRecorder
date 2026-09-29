@@ -593,9 +593,23 @@ class AacCodecRecorderV2 @Inject constructor(
         durationMills = 0
 
         when {
+            session.muxedFrameCount == 0L && failure != null -> {
+                // The pipeline broke before its first frame - the same situation abandonStartup()
+                // handles on a timeout. OnStartRecording is only emitted with that frame, so the
+                // service has seen no start yet and M4aRecorderV2 can still fall back on the same
+                // record. A user stop leaves failure null and is handled below.
+                val listener = startFailureListener
+                if (listener != null) {
+                    runCatching { outputFile.writeBytes(ByteArray(0)) }
+                    listener("failed-before-output: ${failure.javaClass.simpleName}")
+                } else {
+                    runCatching { outputFile.delete() }
+                    emitEvent(RecorderEvent.OnError(RecorderInitException()))
+                }
+            }
             session.muxedFrameCount == 0L -> {
-                // Nothing was ever written: the file is an unusable stub, so let the service drop
-                // the empty record along with it.
+                // Stopped before anything was written: the file is an unusable stub, so let the
+                // service drop the empty record along with it.
                 runCatching { outputFile.delete() }
                 emitEvent(RecorderEvent.OnError(RecorderInitException()))
             }
