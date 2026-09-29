@@ -65,7 +65,7 @@ class AacFrameIndexTest {
     @Test
     fun `frame sizes survive a writer that is closed normally`() {
         val record = recordFile()
-        val sizes = listOf(371, 372, 517, 8191, 1)
+        val sizes = listOf(371, 372, 517, 8191, AacFrameIndex.MAX_FRAME_SIZE, 1)
 
         val writer = AacFrameIndex.openWriter(record, sampleRate = 44100, channelCount = 2, csd0 = csd0)!!
         sizes.forEach(writer::append)
@@ -133,18 +133,49 @@ class AacFrameIndexTest {
     }
 
     @Test
-    fun `writer skips sizes no AAC access unit can have`() {
+    fun `writer skips empty samples that take up no space in mdat`() {
         val record = recordFile()
 
         val writer = AacFrameIndex.openWriter(record, sampleRate = 44100, channelCount = 2, csd0 = csd0)!!
         writer.append(0)
         writer.append(-1)
-        writer.append(AacFrameIndex.MAX_FRAME_SIZE + 1)
         writer.append(371)
         writer.close()
 
         val reader = AacFrameIndex.openReader(record)!!
         assertEquals(listOf(371), readAllSizes(reader))
+        reader.close()
+    }
+
+    @Test
+    fun `writer ends the index at a sample too large to store instead of misaligning the rest`() {
+        val record = recordFile()
+
+        val writer = AacFrameIndex.openWriter(record, sampleRate = 44100, channelCount = 2, csd0 = csd0)!!
+        writer.append(371)
+        writer.append(AacFrameIndex.MAX_FRAME_SIZE + 1)
+        // Indexing these would place them at the oversized frame's offset in `mdat`.
+        writer.append(372)
+        writer.append(517)
+        writer.close()
+
+        val reader = AacFrameIndex.openReader(record)!!
+        assertEquals(listOf(371), readAllSizes(reader))
+        reader.close()
+    }
+
+    @Test
+    fun `frames written before an oversized sample survive a force-kill`() {
+        val record = recordFile()
+
+        val writer = AacFrameIndex.openWriter(record, sampleRate = 44100, channelCount = 2, csd0 = csd0)!!
+        writer.append(371)
+        writer.append(372)
+        writer.append(AacFrameIndex.MAX_FRAME_SIZE + 1)
+        // No close(): the process dies right after the encoder emitted that frame.
+
+        val reader = AacFrameIndex.openReader(record)!!
+        assertEquals(listOf(371, 372), readAllSizes(reader))
         reader.close()
     }
 

@@ -46,7 +46,8 @@ import java.io.IOException
  * csd0 (AudioSpecificConfig)            csd0Length bytes
  * frameSize per access unit             uint16, repeated to EOF
  * ```
- * A `uint16` covers every AAC access unit: the format caps one at [MAX_FRAME_SIZE] bytes.
+ * An access unit larger than the `uint16` entry ([MAX_FRAME_SIZE]) cannot be described, so the
+ * index ends there rather than dropping the entry and shifting every boundary after it.
  */
 internal object AacFrameIndex {
 
@@ -58,11 +59,8 @@ internal object AacFrameIndex {
     /** Suffix appended to the recording's own file name, prefixed with a dot to stay hidden. */
     private const val SIDECAR_SUFFIX = ".aacidx"
 
-    /**
-     * Largest access unit the index can describe. The ADTS `aac_frame_length` field is 13 bits,
-     * so no AAC frame can exceed 8191 bytes including its 7-byte header.
-     */
-    const val MAX_FRAME_SIZE = 8191
+    /** Largest access unit representable by the sidecar's `uint16` frame-size entry. */
+    const val MAX_FRAME_SIZE = 0xFFFF
 
     /** The sidecar that belongs to [mediaFile], e.g. `Record-75.m4a` -> `.Record-75.m4a.aacidx`. */
     fun sidecarFile(mediaFile: File): File = File(mediaFile.parentFile, ".${mediaFile.name}$SIDECAR_SUFFIX")
@@ -150,9 +148,20 @@ internal object AacFrameIndex {
     class Writer(private val out: DataOutputStream) {
 
         private var pendingFrames = 0
+        private var truncated = false
 
         fun append(frameSize: Int) {
-            if (frameSize !in 1..MAX_FRAME_SIZE) return
+            if (truncated) return
+            // An empty sample adds nothing to `mdat`, so leaving it out keeps the index aligned.
+            if (frameSize <= 0) return
+            if (frameSize > MAX_FRAME_SIZE) {
+                // This one cannot be stored, and omitting it would misplace every boundary that
+                // follows. Ending the index here keeps the frames written so far recoverable.
+                Timber.w("AAC access unit of $frameSize bytes exceeds the frame index entry; ending the index")
+                truncated = true
+                runCatching { out.flush() }
+                return
+            }
             try {
                 out.writeShort(frameSize)
                 if (++pendingFrames >= FLUSH_INTERVAL_FRAMES) {
@@ -184,7 +193,7 @@ internal object AacFrameIndex {
         /** Size of the next access unit, or -1 at the end of the index. */
         fun nextFrameSize(): Int = try {
             val size = input.readUnsignedShort()
-            if (size in 1..MAX_FRAME_SIZE) size else -1
+            if (size > 0) size else -1
         } catch (_: IOException) {
             -1
         }
