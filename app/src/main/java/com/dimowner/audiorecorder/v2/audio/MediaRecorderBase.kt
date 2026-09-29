@@ -333,8 +333,11 @@ abstract class MediaRecorderBase(
             Timber.e(e, "stopRecording() problems")
             stopFailure = e
         } finally {
-            // Always release resources
-            releaseRecorder(recorder)
+            // Release only this instance. The sampling thread and the timers were stopped in
+            // stopRecording() before this was launched, and by now those fields may belong to a
+            // recording started since - the shared cleanup would stop that one's progress and
+            // max-duration timer.
+            recorder.release()
         }
 
         if (stopFailure != null) {

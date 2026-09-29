@@ -39,6 +39,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -312,6 +313,36 @@ class MediaRecorderBaseStopTest {
             listOf(RecorderEvent.OnStartRecording, RecorderEvent.OnMaxDurationReached),
             events,
         )
+    }
+
+    /**
+     * stopRecording() returns before the blocking stop() has run, so the service can start the
+     * next recording while the previous one is still being finalised. That teardown must release
+     * its own instance only, not the sampling thread and timers the new recording now owns.
+     */
+    @Test
+    fun `finalising the previous recording leaves a new one running`() = runTest {
+        every { anyConstructed<MediaRecorder>().stop() } returns Unit
+        val recorder = TestRecorder(
+            ApplicationProvider.getApplicationContext(),
+            this,
+            StandardTestDispatcher(testScheduler),
+        )
+
+        assertTrue(startRecording(recorder))
+        assertTrue(recorder.stopRecording())
+        assertTrue(startRecording(recorder))
+        advanceUntilIdle()
+
+        verify(exactly = 1) { anyConstructed<MediaRecorder>().stop() }
+        // No public state exposes the sampler, and with amplitudes at 0 it emits nothing either.
+        val samplingThread = MediaRecorderBase::class.java.getDeclaredField("samplingThread")
+            .apply { isAccessible = true }
+            .get(recorder)
+        assertNotNull("the old teardown stopped the new recording's sampler", samplingThread)
+
+        recorder.stopRecording()
+        advanceUntilIdle()
     }
 
     private fun startRecording(recorder: RecorderV2): Boolean = recorder.startRecording(

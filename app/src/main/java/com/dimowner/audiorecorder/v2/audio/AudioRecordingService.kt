@@ -530,8 +530,15 @@ class AudioRecordingService : Service() {
      * the service releases it.
      */
     private fun resolveAudioInput(): AudioInput {
-        if (!isSystemAudioSelected()) {
-            return AudioInput.Mic(prefs.settingAudioSource.value)
+        val source = prefs.settingAudioSource
+        if (!source.isSystemAudio) {
+            return AudioInput.Mic(source.value)
+        }
+        if (!isSystemAudioCaptureSupported()) {
+            // Settings never offer system audio below Android 10, but a restored backup or a
+            // migrated device can still carry it - and its sentinel is not a microphone source.
+            Timber.w("System audio is stored but unsupported on this device; using the mic")
+            return AudioInput.Mic(DefaultValues.DefaultAudioSource.value)
         }
         val projection = mediaProjection
         if (projection == null) {
