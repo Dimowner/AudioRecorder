@@ -44,4 +44,40 @@ class NoOpAnalyticsTracker @Inject constructor() : AnalyticsTracker {
     override fun trackLostRecordsDetected(count: Int) {
         Timber.v("NoOpAnalyticsTracker: trackLostRecordsDetected: count=$count")
     }
+
+    override fun trackRecordingStartFailed(failure: RecordingStartFailure) {
+        Timber.v(
+            failure.error,
+            "NoOpAnalyticsTracker: trackRecordingStartFailed: reason=%s, format=%s, sampleRate=%d," +
+                    " bitrate=%d, channelCount=%d, audioSource=%s, availableSpaceBytes=%d," +
+                    " errorClass=%s, errorMessage=%s",
+            failure.reason.label,
+            failure.format,
+            failure.sampleRate,
+            failure.bitrate,
+            failure.channelCount,
+            failure.audioSource,
+            failure.availableSpaceBytes,
+            failure.errorClass,
+            failure.errorMessage,
+        )
+    }
+
+    override fun trackPlaybackStartFailed(failure: PlaybackStartFailure) {
+        Timber.v(
+            failure.error,
+            "NoOpAnalyticsTracker: trackPlaybackStartFailed: reason=%s, format=%s, uriScheme=%s," +
+                    " fileExists=%s, fileSizeBytes=%d, playerErrorCode=%d, playerErrorName=%s," +
+                    " errorClass=%s, errorMessage=%s",
+            failure.reason.label,
+            failure.format,
+            failure.uriScheme,
+            failure.fileExists,
+            failure.fileSizeBytes,
+            failure.playerErrorCode,
+            failure.playerErrorName,
+            failure.errorClass,
+            failure.errorMessage,
+        )
+    }
 }

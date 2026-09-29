@@ -52,6 +52,7 @@
 	<string name="msg_name_cannot_be_empty">이름을 입력해 주세요</string>
     <!-- Permission Messages -->
     <string name="msg_permission_microphone_denied">오디오를 녹음하려면 마이크 권한이 필요합니다. 이 기능을 사용하려면 권한을 허용해 주세요.</string>
+    <string name="msg_permission_system_audio_denied">시스템 오디오를 캡처할 권한이 허용되지 않았습니다. 다른 앱에서 재생 중인 소리를 녹음하려면 권한을 허용해 주세요.</string>
 	<!-- Action shown on the deletion message (used in a Snackbar/Toast) -->
 	<string name="action_undo">실행 취소</string>
 	<!-- Generic error message for a common failure -->
@@ -282,6 +283,7 @@
 <br/><br/><b>마이크:</b> 표준 마이크 설정입니다. 일반적인 녹음에 가장 적합합니다. 음성 볼륨을 자동으로 조절하면서 주변 환경의 자연스러운 분위기를 포착합니다.
 <br/><br/><b>음성 통신:</b> 사람의 목소리 명료성을 위해 특별히 설계되었습니다. 노이즈 및 에코 제거 기능이 활성화되므로 블루투스에 가장 적합합니다.
 <br/><br/><b>미처리:</b> 시스템 필터나 조정 없이 원시 오디오를 녹음합니다. 배경 소음 제거나 볼륨 균일화가 없습니다. 고음질 또는 전문적인 용도에 가장 적합합니다.
+<br/><br/><b>시스템 오디오:</b> 마이크 대신 다른 앱에서 재생 중인 소리를 녹음합니다. 앱이 녹음을 거부할 수 있으므로 보호된 콘텐츠와 통화는 소리가 녹음되지 않습니다.
 ]]></string>
 	<string name="info_3gp"><b>3gp</b>는 모바일 통신 서비스를 위해 개발된 멀티미디어 컨테이너 형식입니다. 공간을 절약해야 할 때 사용하세요.</string>
 	<string name="info_m4a"><b>M4a</b> 형식은 AAC 오디오 코덱으로 인코딩되어 음질이 좋고 파일 크기가 작습니다. <b>(추천)</b></string>
@@ -424,6 +426,7 @@
     <string name="audio_source_mic">마이크</string>
     <string name="audio_source_voice_communication">음성 통신</string>
     <string name="audio_source_unprocessed">미처리</string>
+    <string name="audio_source_system">시스템 오디오</string>
 
     <!-- Database migration -->
     <string name="database_update_in_progress">데이터베이스 업데이트 중입니다</string>

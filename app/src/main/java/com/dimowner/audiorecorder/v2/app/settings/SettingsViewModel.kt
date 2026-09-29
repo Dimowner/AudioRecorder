@@ -43,6 +43,7 @@ import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
+import com.dimowner.audiorecorder.v2.data.model.isSystemAudioCaptureSupported
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -149,6 +150,8 @@ internal class SettingsViewModel @Inject constructor(
             maxRecordingDurationMinutes = prefs.maxRecordingDurationMills / 60000,
             recordAuthorName = prefs.recordAuthorName,
             isLegacyAppUser = prefs.isLegacyAppUser,
+            selectedAudioSource = prefs.settingAudioSource,
+            audioSourceOptions = supportedAudioSources(),
         )
     }
 
@@ -173,7 +176,8 @@ internal class SettingsViewModel @Inject constructor(
                     availableSpaceMills = availableTimeMills,
                     availableSpaceBytes = rawAvailableSpaceBytes,
                     // Load the selected audio source from preferences
-                    selectedAudioSource = prefs.settingAudioSource
+                    selectedAudioSource = prefs.settingAudioSource,
+                    audioSourceOptions = supportedAudioSources(),
                 )
             }
             recordsDataSource.removeOutdatedTrashRecords()
@@ -181,9 +185,30 @@ internal class SettingsViewModel @Inject constructor(
     }
 
     fun setAudioSource(audioSource: AudioSource) {
+        if (audioSource !in supportedAudioSources()) return
         _state.value = _state.value.copy(selectedAudioSource = audioSource)
         prefs.settingAudioSource = audioSource
+        validateFormatForAudioSource(audioSource)
     }
+
+    /**
+     * System audio is captured with `AudioRecord`, and 3GP is the one format recorded through
+     * `MediaRecorder` only, so the pair cannot be honoured. Switching the source moves the format
+     * to the default rather than refusing the switch, because the source is what the user just
+     * asked for.
+     */
+    private fun validateFormatForAudioSource(audioSource: AudioSource) {
+        if (audioSource.isSystemAudio && prefs.settingRecordingFormat == RecordingFormat.ThreeGp) {
+            selectRecordingFormat(DefaultValues.DefaultRecordingFormat)
+        }
+    }
+
+    /**
+     * The audio sources offered on this device. System audio needs Android 10 and the feature
+     * flag; the microphone sources are always available.
+     */
+    private fun supportedAudioSources(): List<AudioSource> =
+        AudioSource.entries.filter { !it.isSystemAudio || isSystemAudioCaptureSupported() }
 
     fun executeFirstRun() {
         if (prefs.isFirstRun) {
@@ -275,6 +300,14 @@ internal class SettingsViewModel @Inject constructor(
 
     fun selectRecordingFormat(value: RecordingFormat) {
         prefs.settingRecordingFormat = value
+        // The mirror of validateFormatForAudioSource(): 3GP has no AudioRecord-backed recorder,
+        // so picking it gives up system audio capture.
+        if (value == RecordingFormat.ThreeGp && prefs.settingAudioSource.isSystemAudio) {
+            prefs.settingAudioSource = DefaultValues.DefaultAudioSource
+            _state.value = _state.value.copy(
+                selectedAudioSource = DefaultValues.DefaultAudioSource
+            )
+        }
         _state.value = _state.value.copy(
             recordingSettings = _state.value.recordingSettings.map { item ->
                 item.copy(

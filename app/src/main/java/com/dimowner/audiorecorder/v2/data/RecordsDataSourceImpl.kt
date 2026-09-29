@@ -21,6 +21,7 @@ import com.dimowner.audiorecorder.AppConstantsV2.RECORD_DESCRIPTION_MAX_LENGTH
 import com.dimowner.audiorecorder.audio.AudioDecoder
 import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilter
 import com.dimowner.audiorecorder.v2.app.records.models.RecordsFilterOptions
+import com.dimowner.audiorecorder.v2.audio.AacFrameIndex
 import com.dimowner.audiorecorder.v2.audio.BrokenRecordRestorer
 import com.dimowner.audiorecorder.v2.audio.writeCommentTag
 import com.dimowner.audiorecorder.v2.data.extensions.toRecordsSortColumnName
@@ -258,6 +259,8 @@ class RecordsDataSourceImpl @Inject internal constructor(
     private fun deleteRecordAndFileForever(record: RecordEntity): Boolean {
         fun deleteFile(): Boolean {
             return try {
+                // Drops the frame index too, if the recording was force-killed and never restored.
+                AacFrameIndex.delete(File(record.path))
                 fileDataSource.deleteRecordFile(record.path)
             } catch (e: Exception) {
                 Timber.e(e)
@@ -374,7 +377,6 @@ class RecordsDataSourceImpl @Inject internal constructor(
                 filePath = record.path,
                 sampleRate = record.sampleRate,
                 channelCount = record.channelCount,
-                bitrate = record.bitrate,
             )
 
             when (restoreResult) {
