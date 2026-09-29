@@ -31,6 +31,7 @@ import com.dimowner.audiorecorder.exception.AppException
 import com.dimowner.audiorecorder.exception.InvalidOutputFile
 import com.dimowner.audiorecorder.exception.RecorderInitException
 import com.dimowner.audiorecorder.exception.RecordingException
+import com.dimowner.audiorecorder.exception.RecordingStopFailedException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -404,27 +405,27 @@ class AacCodecRecorderV2 @Inject constructor(
             while (isActive && _isRecording) {
                 if (recorder == null || encoder == null) break
                 val read = recorder.read(pcm, 0, readChunkSize)
+                if (read < 0) {
+                    // Every error code ends the recording, ERROR_DEAD_OBJECT included: a dead
+                    // AudioRecord returns immediately, so staying in the loop would spin with a
+                    // frozen duration - and it has to be checked before the pause branch, which
+                    // would otherwise spin the same way. Like the exceptions below, an error that
+                    // races a user stop is an ordinary stop.
+                    Timber.e("AudioRecord read failed: $read")
+                    failure = IOException("AudioRecord read failed with code $read").takeIf { _isRecording }
+                    break
+                }
                 if (_isPaused) {
                     // Discard the PCM captured while paused: not feeding it is what keeps the
                     // encoded timeline gapless, since timestamps follow the frames actually fed.
                     drainEncoder(encoder, session, endOfStream = false)
                     continue
                 }
-                when {
-                    read > 0 -> {
-                        synchronized(amplitudesBuffer) { amplitudesBuffer.add(calculateAmplitude(pcm, read)) }
-                        framesFed = feedEncoder(encoder, pcm, read, framesFed, frameSize, session)
-                        durationMills = pcmDurationMills(framesFed, sampleRateConfig)
-                        drainEncoder(encoder, session, endOfStream = false)
-                    }
-                    read == AudioRecord.ERROR_INVALID_OPERATION -> {
-                        Timber.e("AudioRecord read error: ERROR_INVALID_OPERATION")
-                        break
-                    }
-                    read == AudioRecord.ERROR_BAD_VALUE -> {
-                        Timber.e("AudioRecord read error: ERROR_BAD_VALUE")
-                        break
-                    }
+                if (read > 0) {
+                    synchronized(amplitudesBuffer) { amplitudesBuffer.add(calculateAmplitude(pcm, read)) }
+                    framesFed = feedEncoder(encoder, pcm, read, framesFed, frameSize, session)
+                    durationMills = pcmDurationMills(framesFed, sampleRateConfig)
+                    drainEncoder(encoder, session, endOfStream = false)
                 }
 
                 if (maxDurationMills > 0 && durationMills >= maxDurationMills) {
@@ -585,7 +586,7 @@ class AacCodecRecorderV2 @Inject constructor(
             runCatching { signalEndOfStream(encoder, session) }
                 .onFailure { Timber.e(it, "Failed to flush the encoder") }
         }
-        releaseCodecAndMuxer(session.muxerStarted)
+        val containerFinalized = releaseCodecAndMuxer(session.muxerStarted)
 
         _isRecording = false
         _isPaused = false
@@ -597,6 +598,13 @@ class AacCodecRecorderV2 @Inject constructor(
                 // the empty record along with it.
                 runCatching { outputFile.delete() }
                 emitEvent(RecorderEvent.OnError(RecorderInitException()))
+            }
+            !containerFinalized -> {
+                // The audio is on disk but the moov box was never written, so the file will not
+                // open. This is the only event that sends the service down the recovery path for
+                // an unfinalised file - a stop event here would save the broken file as is. It
+                // also outranks a capture failure and max duration: both assume a closed file.
+                emitEvent(RecorderEvent.OnError(RecordingStopFailedException()))
             }
             failure != null -> {
                 // Keep what was captured: stop first so the record is persisted, then report.
@@ -691,7 +699,11 @@ class AacCodecRecorderV2 @Inject constructor(
         }
     }
 
-    private fun releaseCodecAndMuxer(muxerStarted: Boolean) {
+    /**
+     * Releases the encoder and the muxer. Returns false when a started muxer failed to stop, which
+     * means the container was never finalised and the file cannot be played as it stands.
+     */
+    private fun releaseCodecAndMuxer(muxerStarted: Boolean): Boolean {
         val encoder = codec
         codec = null
         try {
@@ -704,14 +716,17 @@ class AacCodecRecorderV2 @Inject constructor(
 
         val activeMuxer = muxer
         muxer = null
+        var containerFinalized = true
         try {
             // stop() on a muxer that was never started throws.
             if (muxerStarted) activeMuxer?.stop()
         } catch (e: IllegalStateException) {
             Timber.e(e, "muxer.stop() problems")
+            containerFinalized = false
         } finally {
             activeMuxer?.release()
         }
+        return containerFinalized
     }
 
     private fun releaseEverything() {
