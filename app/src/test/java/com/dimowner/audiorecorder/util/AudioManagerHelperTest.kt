@@ -18,6 +18,7 @@ package com.dimowner.audiorecorder.util
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.media.AudioDeviceCallback
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
@@ -58,6 +59,11 @@ class AudioManagerHelperTest {
     fun setup() {
         MockKAnnotations.init(this)
         every { context.getSystemService(Context.AUDIO_SERVICE) } returns audioManager
+        // Legacy enable now waits for a confirmed SCO connection. These existing
+        // routing/cleanup tests model a link that is already connected.
+        every { context.registerReceiver(any(), any()) } returns
+            Intent(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED)
+                .putExtra(AudioManager.EXTRA_SCO_AUDIO_STATE, AudioManager.SCO_AUDIO_STATE_CONNECTED)
 
         audioManagerHelper = AudioManagerHelper(context)
     }

@@ -16,17 +16,23 @@
 
 package com.dimowner.audiorecorder.util
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.media.AudioDeviceCallback
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -84,6 +90,11 @@ class AudioManagerHelper @Inject constructor(
     val bluetoothMicState: StateFlow<BluetoothMicState> = _bluetoothMicState.asStateFlow()
 
     private var isBluetoothScoActive = false
+    // A request belongs to this helper even while SCO is still connecting.
+    private var isBluetoothScoRequested = false
+    private var pendingBluetoothSco: CompletableDeferred<Boolean>? = null
+    private var scoStateReceiver: BroadcastReceiver? = null
+    private var releaseGeneration = 0
     private var previousAudioMode = AudioManager.MODE_NORMAL
     private var isCommunicationDeviceSet = false
 
@@ -104,7 +115,7 @@ class AudioManagerHelper @Inject constructor(
                 selectedBluetoothDevice = null
             }
             // Disable routing if it was enabled and no Bluetooth input device remains
-            if ((isCommunicationDeviceSet || isBluetoothScoActive) && !hasBluetoothAudioInputDevice()) {
+            if ((isCommunicationDeviceSet || isBluetoothScoRequested) && !hasBluetoothAudioInputDevice()) {
                 Timber.d("Last Bluetooth input device removed, disabling routing")
                 disableBluetoothRouting()
             }
@@ -129,6 +140,9 @@ class AudioManagerHelper @Inject constructor(
     fun unregister() {
         Timber.d("Unregistering AudioDeviceCallback")
         audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)
+        // Keep the SCO receiver while routing is owned by this helper: the UI can
+        // stop observing devices while a foreground recording continues. Release
+        // or disabling routing removes that receiver and the SCO request together.
     }
 
     /**
@@ -136,6 +150,7 @@ class AudioManagerHelper @Inject constructor(
      *
      * On API 31+ (Android 12+), uses the modern setCommunicationDevice() API.
      * On older versions, falls back to startBluetoothSco() / stopBluetoothSco().
+     * Legacy enabling suspends until SCO connects, fails, or times out.
      *
      * @param enable true to enable Bluetooth microphone, false to disable.
      */
@@ -144,11 +159,18 @@ class AudioManagerHelper @Inject constructor(
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             enableBluetoothMicApi31Plus(enable)
+            delay(500)
         } else {
-            enableBluetoothMicLegacy(enable)
+            val generation = releaseGeneration
+            try {
+                enableBluetoothMicLegacy(enable)
+            } finally {
+                // A suspended enable must not republish devices after release().
+                if (generation == releaseGeneration) updateBluetoothDeviceState()
+            }
+            return
         }
 
-        delay(500)
         updateBluetoothDeviceState()
     }
 
@@ -218,23 +240,101 @@ class AudioManagerHelper @Inject constructor(
     /**
      * Legacy API implementation for Bluetooth microphone routing using SCO.
      */
-    private fun enableBluetoothMicLegacy(enable: Boolean) {
+    private suspend fun enableBluetoothMicLegacy(enable: Boolean) {
+        if (!enable) {
+            disableBluetoothRouting()
+            return
+        }
+        if (isBluetoothScoActive) return
+        pendingBluetoothSco?.let {
+            // Repeated enables share the request without recapturing the audio mode.
+            it.await()
+            return
+        }
+        if (!hasBluetoothAudioInputDevice()) return
+
+        val connection = CompletableDeferred<Boolean>()
+        pendingBluetoothSco = connection
+        var connected = false
         try {
-            if (enable) {
-                if (!isBluetoothScoActive && hasBluetoothAudioInputDevice()) {
-                    previousAudioMode = audioManager.mode
-                    audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
-                    audioManager.startBluetoothSco()
+            previousAudioMode = audioManager.mode
+            isBluetoothScoRequested = true
+            audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
+
+            val receiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    if (scoStateReceiver !== this || !isBluetoothScoRequested) return
+                    if (intent?.action != AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED) return
+                    val state = intent.getIntExtra(
+                        AudioManager.EXTRA_SCO_AUDIO_STATE, AudioManager.SCO_AUDIO_STATE_ERROR
+                    )
+                    // The initial sticky DISCONNECTED broadcast describes the old state,
+                    // not a failure of the request we are about to start.
+                    if (isInitialStickyBroadcast && state != AudioManager.SCO_AUDIO_STATE_CONNECTED) return
+                    handleLegacyScoState(intent)
+                }
+            }
+            // Register before starting SCO so a fast connection cannot be missed.
+            val stickyIntent = context.registerReceiver(
+                receiver, IntentFilter(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED)
+            )
+            scoStateReceiver = receiver
+            audioManager.startBluetoothSco()
+
+            // An already connected link may never emit another CONNECTED broadcast.
+            // Still call startBluetoothSco() to retain our own request for that link.
+            if (stickyIntent?.getIntExtra(
+                    AudioManager.EXTRA_SCO_AUDIO_STATE, AudioManager.SCO_AUDIO_STATE_ERROR
+                ) == AudioManager.SCO_AUDIO_STATE_CONNECTED
+            ) {
+                handleLegacyScoState(stickyIntent)
+            }
+
+            // This bounds failure; elapsed time must never be treated as success.
+            connected = withTimeoutOrNull(10_000L) { connection.await() } == true
+            if (!connected) Timber.w("Bluetooth SCO did not connect")
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Timber.e(e, "Error enabling Bluetooth mic (legacy)")
+        } finally {
+            // Disable/release may already have ended this request and started another.
+            if (pendingBluetoothSco === connection) {
+                if (!connected) disableBluetoothRouting()
+                pendingBluetoothSco = null
+            }
+        }
+    }
+
+    private fun handleLegacyScoState(intent: Intent) {
+        val state = intent.getIntExtra(
+            AudioManager.EXTRA_SCO_AUDIO_STATE, AudioManager.SCO_AUDIO_STATE_ERROR
+        )
+        val previousState = intent.getIntExtra(
+            AudioManager.EXTRA_SCO_AUDIO_PREVIOUS_STATE, AudioManager.SCO_AUDIO_STATE_ERROR
+        )
+        try {
+            when (state) {
+                AudioManager.SCO_AUDIO_STATE_CONNECTED -> {
                     audioManager.isBluetoothScoOn = true
                     isBluetoothScoActive = true
-                    Timber.d("Started Bluetooth SCO")
+                    pendingBluetoothSco?.complete(true)
+                    Timber.d("Bluetooth SCO connected")
                 }
-            } else {
-                disableBluetoothRouting()
+                AudioManager.SCO_AUDIO_STATE_DISCONNECTED -> {
+                    if (isBluetoothScoActive || previousState == AudioManager.SCO_AUDIO_STATE_CONNECTING
+                        || previousState == AudioManager.SCO_AUDIO_STATE_CONNECTED
+                    ) {
+                        disableBluetoothRouting()
+                    }
+                }
+                AudioManager.SCO_AUDIO_STATE_ERROR -> disableBluetoothRouting()
             }
         } catch (e: Exception) {
-            Timber.e(e, "Error enabling/disabling Bluetooth mic (legacy)")
+            Timber.e(e, "Error handling Bluetooth SCO state")
+            disableBluetoothRouting()
         }
+        updateBluetoothDeviceState()
     }
 
     /**
@@ -253,16 +353,33 @@ class AudioManagerHelper @Inject constructor(
                     Timber.d("Cleared communication device")
                 }
             } else {
-                if (isBluetoothScoActive) {
-                    audioManager.stopBluetoothSco()
-                    audioManager.isBluetoothScoOn = false
-                    audioManager.mode = previousAudioMode
-                    isBluetoothScoActive = false
-                    Timber.d("Stopped Bluetooth SCO")
-                }
+                disableLegacyBluetoothRouting()
             }
         } catch (e: Exception) {
             Timber.e(e, "Error disabling Bluetooth routing")
+        }
+    }
+
+    private fun disableLegacyBluetoothRouting() {
+        val hadRequest = isBluetoothScoRequested
+        isBluetoothScoRequested = false
+        isBluetoothScoActive = false
+        pendingBluetoothSco?.complete(false)
+        pendingBluetoothSco = null
+        val receiver = scoStateReceiver
+        scoStateReceiver = null
+        if (receiver != null) {
+            runCatching { context.unregisterReceiver(receiver) }
+                .onFailure { Timber.e(it, "Error unregistering SCO receiver") }
+        }
+        if (hadRequest) {
+            // Attempt every cleanup step even if one platform call fails.
+            runCatching { audioManager.stopBluetoothSco() }
+                .onFailure { Timber.e(it, "Error stopping Bluetooth SCO") }
+            runCatching { audioManager.isBluetoothScoOn = false }
+                .onFailure { Timber.e(it, "Error clearing Bluetooth SCO routing") }
+            runCatching { audioManager.mode = previousAudioMode }
+                .onFailure { Timber.e(it, "Error restoring audio mode") }
         }
     }
 
@@ -272,6 +389,7 @@ class AudioManagerHelper @Inject constructor(
      */
     fun release() {
         Timber.d("Releasing AudioManagerHelper")
+        releaseGeneration++
 
         try {
             // Disable Bluetooth routing if this helper enabled it
