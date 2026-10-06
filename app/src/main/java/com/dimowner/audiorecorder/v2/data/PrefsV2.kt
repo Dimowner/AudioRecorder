@@ -22,6 +22,7 @@ import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.NameFormatToken
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
+import com.dimowner.audiorecorder.v2.data.model.RenameSpeechMode
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import kotlinx.coroutines.flow.StateFlow
@@ -52,6 +53,14 @@ interface PrefsV2 {
     fun incrementRecordCounter()
 
     var isKeepScreenOn: Boolean
+
+    var isFloatingRecorderOverlayEnabled: Boolean
+    var floatingRecorderOverlayX: Int
+    var floatingRecorderOverlayY: Int
+    var floatingRecorderOverlaySize: Int
+    var floatingRecorderRenameOverlayX: Int
+    var floatingRecorderRenameOverlayY: Int
+    var floatingRecorderRenameSpeechMode: RenameSpeechMode
 
     var recordsSortOrder: SortOrder
 

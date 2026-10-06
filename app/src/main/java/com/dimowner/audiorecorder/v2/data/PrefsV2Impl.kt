@@ -28,6 +28,7 @@ import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.NameFormatToken
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
+import com.dimowner.audiorecorder.v2.data.model.RenameSpeechMode
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.data.model.convertToBitRate
@@ -170,6 +171,64 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         set(value) {
             sharedPreferences.edit {
                 putBoolean(PREF_KEY_KEEP_SCREEN_ON, value)
+            }
+        }
+
+    override var isFloatingRecorderOverlayEnabled: Boolean
+        get() = sharedPreferences.getBoolean(PREF_KEY_FLOATING_RECORDER_OVERLAY_ENABLED, false)
+        set(value) {
+            sharedPreferences.edit {
+                putBoolean(PREF_KEY_FLOATING_RECORDER_OVERLAY_ENABLED, value)
+            }
+        }
+
+    override var floatingRecorderOverlayX: Int
+        get() = sharedPreferences.getInt(PREF_KEY_FLOATING_RECORDER_OVERLAY_X, -1)
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_FLOATING_RECORDER_OVERLAY_X, value)
+            }
+        }
+
+    override var floatingRecorderOverlayY: Int
+        get() = sharedPreferences.getInt(PREF_KEY_FLOATING_RECORDER_OVERLAY_Y, -1)
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_FLOATING_RECORDER_OVERLAY_Y, value)
+            }
+        }
+
+    override var floatingRecorderOverlaySize: Int
+        get() = sharedPreferences.getInt(PREF_KEY_FLOATING_RECORDER_OVERLAY_SIZE, -1)
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_FLOATING_RECORDER_OVERLAY_SIZE, value)
+            }
+        }
+
+    override var floatingRecorderRenameOverlayX: Int
+        get() = sharedPreferences.getInt(PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_X, -1)
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_X, value)
+            }
+        }
+
+    override var floatingRecorderRenameOverlayY: Int
+        get() = sharedPreferences.getInt(PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_Y, -1)
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_Y, value)
+            }
+        }
+
+    override var floatingRecorderRenameSpeechMode: RenameSpeechMode
+        get() = RenameSpeechMode.fromPersistedValue(
+            sharedPreferences.getInt(PREF_KEY_FLOATING_RECORDER_RENAME_SPEECH_MODE, RenameSpeechMode.Append.persistedValue)
+        )
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_FLOATING_RECORDER_RENAME_SPEECH_MODE, value.persistedValue)
             }
         }
 
@@ -354,6 +413,17 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         private const val PREF_KEY_MAX_RECORDING_DURATION_MILLS = "pref_key_max_recording_duration_mills"
         private const val PREF_KEY_SETTING_AUDIO_SOURCE = "pref_key_setting_audio_source"
         private const val PREF_KEY_RECORD_AUTHOR_NAME = "pref_key_record_author_name"
+        private const val PREF_KEY_FLOATING_RECORDER_OVERLAY_ENABLED =
+            "pref_key_floating_recorder_overlay_enabled"
+        private const val PREF_KEY_FLOATING_RECORDER_OVERLAY_X = "pref_key_floating_recorder_overlay_x"
+        private const val PREF_KEY_FLOATING_RECORDER_OVERLAY_Y = "pref_key_floating_recorder_overlay_y"
+        private const val PREF_KEY_FLOATING_RECORDER_OVERLAY_SIZE = "pref_key_floating_recorder_overlay_size"
+        private const val PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_X =
+            "pref_key_floating_recorder_rename_overlay_x"
+        private const val PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_Y =
+            "pref_key_floating_recorder_rename_overlay_y"
+        private const val PREF_KEY_FLOATING_RECORDER_RENAME_SPEECH_MODE =
+            "pref_key_floating_recorder_rename_speech_mode"
         private const val PREF_KEY_SAVE_DESCRIPTION_TO_FILE = "pref_key_save_description_to_file"
         private const val PREF_KEY_IS_LOCAL_STORAGE_INFO_SHOWN = "pref_key_is_local_storage_info_shown"
         private const val PREF_KEY_CUSTOM_NAME_FORMAT = "pref_key_custom_name_format"

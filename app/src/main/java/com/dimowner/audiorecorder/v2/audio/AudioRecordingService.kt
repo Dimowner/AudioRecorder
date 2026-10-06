@@ -64,6 +64,7 @@ import com.dimowner.audiorecorder.v2.data.model.convertToRecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.isSystemAudioCaptureSupported
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -94,6 +95,8 @@ class AudioRecordingService : Service() {
         private const val ACTION_START_RECORDING = "com.dimowner.audiorecorder.ACTION_START_RECORDING"
         private const val ACTION_PAUSE_RESUME_RECORDING = "com.dimowner.audiorecorder.ACTION_PAUSE_RESUME_RECORDING"
         private const val ACTION_STOP_RECORDING = "com.dimowner.audiorecorder.ACTION_STOP_RECORDING"
+        private const val EXTRA_STARTED_FROM_FLOATING_OVERLAY =
+            "com.dimowner.audiorecorder.EXTRA_STARTED_FROM_FLOATING_OVERLAY"
 
         private const val EXTRA_PROJECTION_RESULT_CODE = "extra_projection_result_code"
         private const val EXTRA_PROJECTION_DATA = "extra_projection_data"
@@ -111,9 +114,11 @@ class AudioRecordingService : Service() {
             context: Context,
             projectionResultCode: Int = Activity.RESULT_CANCELED,
             projectionData: Intent? = null,
+            startedFromFloatingOverlay: Boolean = false,
         ) {
             val intent = Intent(context, AudioRecordingService::class.java).apply {
                 action = ACTION_START_RECORDING
+                putExtra(EXTRA_STARTED_FROM_FLOATING_OVERLAY, startedFromFloatingOverlay)
                 if (projectionData != null) {
                     putExtra(EXTRA_PROJECTION_RESULT_CODE, projectionResultCode)
                     putExtra(EXTRA_PROJECTION_DATA, projectionData)
@@ -213,6 +218,8 @@ class AudioRecordingService : Service() {
 
     /** Job for the current recorder-events subscription; cancelled before re-subscribing. */
     private var subscriptionJob: Job? = null
+    private var recordingStartJob: Job? = null
+    private val dismissalGate = RecordingDismissalGate()
 
     /**
      * True between the moment the recorder is asked to start and the moment it reports the first
@@ -235,6 +242,12 @@ class AudioRecordingService : Service() {
      */
     private var lastAvailableSpaceCheckTime: Long = 0L
 
+    /** True only for the current recording session if it was initiated by the overlay button. */
+    private var currentRecordingStartedFromFloatingOverlay: Boolean = false
+
+    /** True only for the current stop request if it was initiated by the overlay button. */
+    private var currentRecordingStoppedFromFloatingOverlay: Boolean = false
+
     inner class ServiceBinder : Binder() {
         fun getService(): AudioRecordingService = this@AudioRecordingService
     }
@@ -250,10 +263,19 @@ class AudioRecordingService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Preserve the active session/subscription through saving, including a pending close.
+        if (intent?.action == ACTION_START_RECORDING && !dismissalGate.recordingStarted()) {
+            return START_STICKY
+        }
         audioRecorder = audioRecorderDelegate.provideAudioRecorder()
         subscribeRecorderEvents()
         when (intent?.action) {
             ACTION_START_RECORDING -> {
+                currentRecordingStartedFromFloatingOverlay = intent.getBooleanExtra(
+                    EXTRA_STARTED_FROM_FLOATING_OVERLAY,
+                    false,
+                )
+                currentRecordingStoppedFromFloatingOverlay = false
                 // Recording and playback must never overlap, and the stop belongs here rather
                 // than at the call sites: this is the one point every entry into recording goes
                 // through, including the home screen widget, which otherwise records over the
@@ -274,7 +296,7 @@ class AudioRecordingService : Service() {
                         startForegroundWithNotification(withMediaProjection = false)
                     }
                 }
-                serviceScope.launch {
+                recordingStartJob = serviceScope.launch {
                     val recordName = prefs.settingNamingFormat.getNewRecordName(prefs)
                     resetRecordedRecordPartCounter()
                     prefs.recordedRecordBaseName = recordName
@@ -292,6 +314,7 @@ class AudioRecordingService : Service() {
         releaseMediaProjection()
         subscriptionJob?.cancel()
         serviceJob.cancel()
+        dismissalGate.recordingFinished(saved = false)
         stopNotificationUpdates()
         notificationManager = null
     }
@@ -349,9 +372,17 @@ class AudioRecordingService : Service() {
                         )
                         startNotificationUpdates()
                         updateNotification()
+                        // Dismissal may arrive while the recorder is still being prepared.
+                        if (dismissalGate.isDismissalRequested) stopRecording(stoppedFromFloatingOverlay = true)
                     }
                     is RecorderEvent.OnRecordingProgress -> {
-                        handleRecordingProgress(event.durationMills, event.amplitude)
+                        // Some recorders report OnStart before they can accept stop(). Retry
+                        // at the first progress event rather than leaving dismissal waiting.
+                        if (dismissalGate.isDismissalRequested && audioRecorder.isRecording) {
+                            stopRecording(stoppedFromFloatingOverlay = true)
+                        } else {
+                            handleRecordingProgress(event.durationMills, event.amplitude)
+                        }
                     }
                     is RecorderEvent.OnPauseRecording -> {
                         _recordingState.value = _recordingState.value.copy(
@@ -365,11 +396,22 @@ class AudioRecordingService : Service() {
                         )
                         updateNotification()
                     }
-                    is RecorderEvent.OnStopRecording -> {
-                        handleRecordingStopped()
-                    }
-                    is RecorderEvent.OnMaxDurationReached -> {
-                        handleMaxDurationReachedInternal()
+                    is RecorderEvent.OnStopRecording, is RecorderEvent.OnMaxDurationReached -> {
+                        try {
+                            if (event is RecorderEvent.OnMaxDurationReached) {
+                                handleMaxDurationReachedInternal()
+                            } else {
+                                handleRecordingStopped()
+                            }
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            Timber.e(e, "Failed to finalize recording")
+                            emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(
+                                getString(R.string.msg_save_recording_failed)
+                            ))
+                            stopForegroundService()
+                        }
                     }
                     is RecorderEvent.OnError -> {
                         Timber.e(event.exception, "AudioRecordingService: recorder error")
@@ -420,10 +462,12 @@ class AudioRecordingService : Service() {
             // recovery before telling the user the recording is lost.
             val recordedRecordId = prefs.recordedRecordId
             prefs.recordedRecordId = -1
-            if (recordedRecordId < 0 || !recoverUnfinalizedRecord(recordedRecordId)) {
+            val recovered = recordedRecordId >= 0 && recoverUnfinalizedRecord(recordedRecordId)
+            if (!recovered) {
                 showRecorderError(exception)
             }
-            stopForegroundService()
+            // Recovery is a successful save too; dismissal must wait for it and use its result.
+            stopForegroundService(saved = recovered)
             return
         }
 
@@ -568,6 +612,11 @@ class AudioRecordingService : Service() {
     // - Set it as active record
     // - Start recording
     private suspend fun handleStartRecording(recordName: String): Long? {
+        if (dismissalGate.isDismissalRequested) {
+            // No next split (or not-yet-started recording) should outlive an explicit close.
+            stopForegroundService(saved = true)
+            return null
+        }
         val audioInput = resolveAudioInput()
         val rawFormat = prefs.settingRecordingFormat
         val format = if (rawFormat == RecordingFormat.ThreeGp && audioInput !is AudioInput.Mic) {
@@ -602,6 +651,8 @@ class AudioRecordingService : Service() {
                     availableSpaceBytes = availableSpaceBytes,
                 )
             )
+            // This preflight failure emits no recorder event to release a pending dismissal.
+            if (!audioRecorder.isRecording) stopForegroundService()
             return null
         }
         if (audioRecorder.isRecording) {
@@ -844,14 +895,31 @@ class AudioRecordingService : Service() {
     }
 
     fun stopRecording() {
-        audioRecorder.stopRecording()
+        stopRecording(stoppedFromFloatingOverlay = false)
     }
 
-    private suspend fun handleRecordingStopped(isNotMaxDurationHandling: Boolean = true) {
+    fun stopRecording(stoppedFromFloatingOverlay: Boolean) {
+        currentRecordingStoppedFromFloatingOverlay = stoppedFromFloatingOverlay
+        if (!audioRecorder.stopRecording()) {
+            currentRecordingStoppedFromFloatingOverlay = false
+        }
+    }
+
+    /** Wait for the file/DB save, not just recorder.stop(), before the overlay releases its binding. */
+    internal suspend fun stopForDismissal(): Boolean = dismissalGate.dismiss {
+        recordingStartJob?.join()
+        if (::audioRecorder.isInitialized && audioRecorder.isRecording) {
+            stopRecording(stoppedFromFloatingOverlay = true)
+        }
+        // A stop already in progress, or a pending OnStartRecording, completes the same gate.
+    }
+
+    private suspend fun handleRecordingStopped(isNotMaxDurationHandling: Boolean = true): Boolean {
         // - Read recorded file info
         // - Update recorded file duration, size, format, bitrate, sample rate, channel count
         // - Move updated to recycle if requested to delete the record, otherwise set it as active record
-        withContext(ioDispatcher) {
+        return withContext(ioDispatcher) {
+            var saved = false
             val recordedRecordId = prefs.recordedRecordId
             prefs.recordedRecordId = -1
             if (recordedRecordId >= 0) {
@@ -873,6 +941,7 @@ class AudioRecordingService : Service() {
                         amps = recordingFullDataBuffer.downsampleToIntArray(),
                     )
                     val success = recordsDataSource.updateRecord(recordUpdated)
+                    saved = success
                     _recordingState.value = _recordingState.value.copy(
                         recordingState = RecordingState.STOPPED,
                     )
@@ -886,6 +955,9 @@ class AudioRecordingService : Service() {
                             emitEvent(AudioRecordingServiceEvent.RecordingStopped(
                                 recordId = recordedRecordId,
                                 recordName = record.name,
+                                startedFromFloatingOverlay = currentRecordingStartedFromFloatingOverlay,
+                                stoppedFromFloatingOverlay = currentRecordingStoppedFromFloatingOverlay,
+                                suppressRenameDialog = dismissalGate.isDismissalRequested,
                             ))
                             decodeRecord(
                                 recordId = recordUpdated.id,
@@ -905,11 +977,12 @@ class AudioRecordingService : Service() {
                         applicationContext.getString(R.string.msg_save_recording_failed)
                     ))
                 }
-                if (isNotMaxDurationHandling) {
-                    resetRecordedRecordPartCounter()
-                    stopForegroundService()
-                }
             }
+            if (isNotMaxDurationHandling) {
+                resetRecordedRecordPartCounter()
+                stopForegroundService(saved)
+            }
+            saved
         }
     }
 
@@ -953,6 +1026,9 @@ class AudioRecordingService : Service() {
             emitEvent(AudioRecordingServiceEvent.RecordingStopped(
                 recordId = recordId,
                 recordName = recovered.name,
+                startedFromFloatingOverlay = currentRecordingStartedFromFloatingOverlay,
+                stoppedFromFloatingOverlay = currentRecordingStoppedFromFloatingOverlay,
+                suppressRenameDialog = dismissalGate.isDismissalRequested,
             ))
             decodeRecord(
                 recordId = recovered.id,
@@ -964,16 +1040,20 @@ class AudioRecordingService : Service() {
         }
     }
 
-    private fun stopForegroundService() {
+    private fun stopForegroundService(saved: Boolean = false) {
         isStartingRecording = false
         releaseMediaProjection()
         recordingAmplitudes.clear()
         totalRecordingSampleCount = 0
         recordingFullDataBuffer.reset()
+        currentRecordingStartedFromFloatingOverlay = false
+        currentRecordingStoppedFromFloatingOverlay = false
         _recordingState.value = RecordingServiceState()
         stopNotificationUpdates()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
+        // Last: closing activities/unbinding earlier could cancel the final DB/tagging work.
+        dismissalGate.recordingFinished(saved)
     }
 
     private fun decodeRecord(recordId: Long, path: String, durationMills: Long) {
@@ -1087,7 +1167,12 @@ class AudioRecordingService : Service() {
 
     private suspend fun handleMaxDurationReachedInternal() {
         // Save the current recording first
-        handleRecordingStopped(isNotMaxDurationHandling = false)
+        val saved = handleRecordingStopped(isNotMaxDurationHandling = false)
+        if (dismissalGate.isDismissalRequested) {
+            resetRecordedRecordPartCounter()
+            stopForegroundService(saved)
+            return
+        }
 
         val partCounter = prefs.recordedRecordPartCounter
         val activeRecord = withContext(ioDispatcher) {
@@ -1283,5 +1368,11 @@ sealed class AudioRecordingServiceEvent {
      * Emitted after the recording file has been successfully saved and
      * [prefs.activeRecordId] has been set to [recordId].
      */
-    data class RecordingStopped(val recordId: Long, val recordName: String?) : AudioRecordingServiceEvent()
+    data class RecordingStopped(
+        val recordId: Long,
+        val recordName: String?,
+        val startedFromFloatingOverlay: Boolean = false,
+        val stoppedFromFloatingOverlay: Boolean = false,
+        val suppressRenameDialog: Boolean = false,
+    ) : AudioRecordingServiceEvent()
 }
