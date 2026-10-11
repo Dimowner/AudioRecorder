@@ -197,3 +197,56 @@ Lifecycle regressions cover a preview enabled between snapshot and preparation, 
 blocking microphone previews, an already-open Settings screen following start/stop, and format
 controls respecting the startup lock. The emulator crash buffer was empty after these checks.
 Physical Bluetooth routing/ENC quality for this update still requires the requester's hardware.
+
+### Already-connected Standard SCO regression (2026-10-11)
+
+The review was limited to the ten Bluetooth commits in
+`3c8dcf0930a7a1bd31be3ab78386fa312b61c528..dd8f1f210692baa10c94eb4dc8826b8d4b790fa5`
+(56 files), plus the related SCO implementation in upstream PR #181. The parent overlay
+work in #182 was not re-audited.
+
+At `dd8f1f21`, a Robolectric regression with SCO already connected before receiver registration
+reached the eight-second timeout without a new CONNECTED event. A separate fixture returns
+the registration snapshot without delivering an initial receiver callback, exercising the
+specific boundary that #181 handled explicitly. Before the fix, the controller suite had
+23 tests with five assertion failures, zero errors, and all 15 original tests passing.
+
+Standard SCO now consumes a returned CONNECTED snapshot only after acquiring its own SCO
+request and enabling routing. It uses the existing readiness handler, so requested-mode
+validation remains active. Actual recorder input verification, transition-buffer rejection,
+disconnect observation and independently guarded resource cleanup remain unchanged.
+Initial DISCONNECTED snapshots still wait for a new connection; the snapshot does not make
+HFP or communication-device routing ready.
+
+After the fix, all 59 focused tests passed with zero failures/errors/skips, including the
+controller's 23 tests, `InputRoutingGuardTest`, `AudioManagerHelperTest`,
+`MicrophoneModeScopeTest` and `CaptureProcessingSessionTest`. The eight new regressions cover
+sticky/return-only readiness beyond the timeout, owned-request release, later disconnection,
+initial disconnection, failed startup, mode rejection, HFP separation and phone-input rejection.
+This is simulated regression evidence, not a new physical-headset validation. The earlier
+618-unit-test, nine-instrumented-test and hardware results above remain historical evidence
+for the preceding source tree.
+
+The complete unit suite then passed **626 tests**, with zero failures/errors/skips across
+49 XML reports. This environment required preloading the project's existing Byte Buddy test
+agent through an external Gradle init script because dynamic MockK attachment was unavailable;
+no build configuration or test assertions were changed to accommodate it.
+
+#### What remains distinct in PR #181
+
+Do not merge #181's old helper wholesale into the controller architecture. Its readiness wait,
+request ownership, cleanup, persistent disconnect observation and initial CONNECTED handling
+are covered by the newer architecture and this fix. The following protections still need
+separate targeted tests/adaptation before claiming complete equivalence:
+
+- Fail immediately on CONNECTING → DISCONNECTED: #183 currently waits for timeout unless READY.
+- Clean up immediately when the headset disappears during CONNECTING: #183's removal handler
+  currently fails only READY routes.
+- Reject stale callbacks from a previous SCO receiver registration: #181 uses receiver identity;
+  #183's generation checks protect HFP/modern callbacks, but it reuses its SCO receiver.
+- Verify cancellation and ownership through the recording service: #181 suspends in its enable
+  method, whereas #183's UI enable is asynchronous and the service owns stop/destroy cleanup.
+- Preserve the original request/mode across repeated enable calls (deduplication already exists
+  in #183), and avoid writing audio mode when no headset exists (#183 currently sets/restores it).
+
+These are pre-existing differences, outside the minimal already-connected SCO correction.

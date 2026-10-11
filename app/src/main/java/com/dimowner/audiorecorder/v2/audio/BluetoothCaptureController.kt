@@ -112,7 +112,7 @@ internal class BluetoothCaptureController(
                 addAction(BluetoothHeadset.ACTION_AUDIO_STATE_CHANGED)
             }
             // Bluetooth broadcasts originate in the privileged Bluetooth process, not this app.
-            ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_EXPORTED)
+            val initialIntent = ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_EXPORTED)
             receiverRegistered = true
             previousMode = manager.mode
             // The selected mode is independent of the route and Android version.
@@ -171,6 +171,12 @@ internal class BluetoothCaptureController(
                 manager.startBluetoothSco()
                 manager.isBluetoothScoOn = true
                 publish(BluetoothRoutePhase.CONNECTING, "SCO requested; waiting for audio (legacy device selection is system-managed)")
+                // An existing SCO link may not emit another CONNECTED event. Retain our
+                // own request first, then use the snapshot without bypassing mode validation.
+                if (initialIntent?.action == AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED &&
+                    initialIntent.getIntExtra(AudioManager.EXTRA_SCO_AUDIO_STATE, -1) == AudioManager.SCO_AUDIO_STATE_CONNECTED) {
+                    receiver.onReceive(context, initialIntent)
+                }
             }
         } catch (e: Exception) { fail("${e.javaClass.simpleName}: ${e.message}") }
     }
