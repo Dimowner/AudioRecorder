@@ -328,6 +328,7 @@ private fun getAudioSourceDisplayName(audioSource: AudioSource): String {
         AudioSource.DEFAULT -> stringResource(R.string.audio_source_default)
         AudioSource.MIC -> stringResource(R.string.audio_source_mic)
         AudioSource.VOICE_COMMUNICATION -> stringResource(R.string.audio_source_voice_communication)
+        AudioSource.VOICE_RECOGNITION -> stringResource(R.string.audio_source_voice_recognition)
         AudioSource.UNPROCESSED -> stringResource(R.string.audio_source_unprocessed)
         AudioSource.SYSTEM_AUDIO -> stringResource(R.string.audio_source_system)
     }

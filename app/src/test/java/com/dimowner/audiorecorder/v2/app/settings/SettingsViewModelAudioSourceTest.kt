@@ -32,6 +32,11 @@ import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
+import com.dimowner.audiorecorder.v2.data.model.BluetoothCaptureRoute
+import com.dimowner.audiorecorder.v2.data.model.BluetoothAudioMode
+import com.dimowner.audiorecorder.v2.data.model.InputPreprocessingPolicy
+import com.dimowner.audiorecorder.v2.data.model.PcmGainMode
+import io.mockk.verify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -69,6 +74,7 @@ class SettingsViewModelAudioSourceTest {
         fileDataSource = mockk(relaxed = true)
         audioPlayer = mockk(relaxed = true)
         audioRecorderDelegate = mockk(relaxed = true)
+        every { audioRecorderDelegate.captureSessionActive } returns kotlinx.coroutines.flow.MutableStateFlow(false)
         analyticsTracker = mockk(relaxed = true)
         context = ApplicationProvider.getApplicationContext()
     }
@@ -114,6 +120,31 @@ class SettingsViewModelAudioSourceTest {
         val viewModel = createViewModel()
 
         assertTrue(viewModel.state.value.audioSourceOptions.contains(AudioSource.SYSTEM_AUDIO))
+    }
+
+    @Test fun `experimental selectors independently persist and update state`() {
+        val vm = createViewModel()
+        vm.onAction(SettingsScreenAction.SetExperiment.Route(BluetoothCaptureRoute.HFP_VOICE_RECOGNITION))
+        vm.onAction(SettingsScreenAction.SetExperiment.Mode(BluetoothAudioMode.NORMAL))
+        vm.onAction(SettingsScreenAction.SetExperiment.Preprocessing(InputPreprocessingPolicy.DISABLE_NS_AEC_AGC))
+        vm.onAction(SettingsScreenAction.SetExperiment.Gain(PcmGainMode.AUTO_LEVEL))
+        vm.setAudioSource(AudioSource.VOICE_RECOGNITION)
+        assertEquals(BluetoothCaptureRoute.HFP_VOICE_RECOGNITION, vm.state.value.bluetoothCaptureRoute)
+        assertEquals(BluetoothAudioMode.NORMAL, vm.state.value.bluetoothAudioMode)
+        assertEquals(InputPreprocessingPolicy.DISABLE_NS_AEC_AGC, vm.state.value.inputPreprocessingPolicy)
+        assertEquals(PcmGainMode.AUTO_LEVEL, vm.state.value.pcmGainMode)
+        verify { prefs.bluetoothCaptureRoute = BluetoothCaptureRoute.HFP_VOICE_RECOGNITION }
+        verify { prefs.bluetoothAudioMode = BluetoothAudioMode.NORMAL }
+        verify { prefs.inputPreprocessingPolicy = InputPreprocessingPolicy.DISABLE_NS_AEC_AGC }
+        verify { prefs.pcmGainMode = PcmGainMode.AUTO_LEVEL }
+        assertEquals(AudioSource.VOICE_RECOGNITION, prefs.settingAudioSource)
+    }
+
+    @Test fun `experimental selector changes are rejected during recording`() {
+        val vm = createViewModel()
+        every { audioRecorderDelegate.provideAudioRecorder().isRecording } returns true
+        vm.onAction(SettingsScreenAction.SetExperiment.Gain(PcmGainMode.DB_PLUS_18))
+        verify(exactly = 0) { prefs.pcmGainMode = any() }
     }
 
     @Test

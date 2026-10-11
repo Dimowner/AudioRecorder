@@ -1,6 +1,9 @@
 package com.dimowner.audiorecorder.v2.audio
 
 import android.media.projection.MediaProjection
+import com.dimowner.audiorecorder.v2.data.model.BluetoothAudioMode
+import com.dimowner.audiorecorder.v2.data.model.InputPreprocessingPolicy
+import com.dimowner.audiorecorder.v2.data.model.PcmGainMode
 
 /**
  * Where a recorder pulls its PCM from.
@@ -15,7 +18,14 @@ import android.media.projection.MediaProjection
 sealed interface AudioInput {
 
     /** A platform capture source - the microphone, in one of its processing variants. */
-    data class Mic(val audioSource: Int) : AudioInput
+    data class Mic(
+        val audioSource: Int,
+        val preprocessing: InputPreprocessingPolicy = InputPreprocessingPolicy.SYSTEM_DEFAULT,
+        val gain: PcmGainMode = PcmGainMode.OFF,
+        val bluetoothInput: BluetoothInputSelection? = null,
+        val audioMode: BluetoothAudioMode? = null,
+        val requestedSettings: MicrophoneCaptureSettings? = null,
+    ) : AudioInput
 
     /**
      * Audio other apps are playing, captured through the AudioPlaybackCapture API (API 29+).

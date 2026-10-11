@@ -36,6 +36,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.dimowner.audiorecorder.app.main.MainActivity
 import com.dimowner.audiorecorder.v2.app.home.HomeViewModel
+import com.dimowner.audiorecorder.v2.app.overlay.FloatingRecorderOverlayPermission
+import com.dimowner.audiorecorder.v2.app.overlay.FloatingRecorderOverlayService
 import com.dimowner.audiorecorder.v2.data.PrefsV2
 import com.dimowner.audiorecorder.v2.navigation.RecorderNavigationGraph
 import com.dimowner.audiorecorder.v2.theme.AppTheme
@@ -88,6 +90,11 @@ class HomeActivity: ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        reconcileFloatingRecorderOverlayService()
+    }
+
     @Composable
     fun RecorderApp(
         coroutineScope: CoroutineScope
@@ -110,6 +117,19 @@ class HomeActivity: ComponentActivity() {
         if (notificationPermissionCheckPending) {
             notificationPermissionCheckPending = false
             checkNotificationPermission()
+        }
+    }
+
+    private fun reconcileFloatingRecorderOverlayService() {
+        if (!prefs.isFloatingRecorderOverlayEnabled) return
+
+        if (FloatingRecorderOverlayPermission.canDrawOverlays(this)) {
+            FloatingRecorderOverlayService.startService(applicationContext)
+        } else {
+            // Overlay permission can be revoked from Android settings while the app is closed.
+            // Keep the persisted setting aligned with the platform state.
+            prefs.isFloatingRecorderOverlayEnabled = false
+            FloatingRecorderOverlayService.stopService(applicationContext)
         }
     }
 

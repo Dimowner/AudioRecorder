@@ -55,6 +55,12 @@ import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
 import javax.inject.Inject
+import com.dimowner.audiorecorder.v2.audio.CaptureDiagnostics
+import com.dimowner.audiorecorder.v2.data.model.BluetoothCaptureRoute
+import com.dimowner.audiorecorder.v2.data.model.BluetoothAudioMode
+import com.dimowner.audiorecorder.v2.data.model.BluetoothVoiceEnhancement
+import com.dimowner.audiorecorder.v2.data.model.InputPreprocessingPolicy
+import com.dimowner.audiorecorder.v2.data.model.PcmGainMode
 
 @HiltViewModel
 internal class SettingsViewModel @Inject constructor(
@@ -67,6 +73,7 @@ internal class SettingsViewModel @Inject constructor(
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext context: Context,
+    private val captureDiagnostics: CaptureDiagnostics = CaptureDiagnostics(),
 ) : ViewModel() {
 
     private val decimalFormat: DecimalFormat
@@ -91,14 +98,28 @@ internal class SettingsViewModel @Inject constructor(
 
     val state: State<SettingsState> = _state
 
+    init {
+        viewModelScope.launch {
+            audioRecorderDelegate.captureSessionActive.collect {
+                _state.value = _state.value.copy(isRecordingSettingEditable = !recordingSettingsLocked())
+            }
+        }
+        viewModelScope.launch {
+            captureDiagnostics.state.collect { evidence ->
+                _state.value = _state.value.copy(captureDiagnostics = evidence.route + "\n\nCurrent / last recording:\n" + evidence.session)
+            }
+        }
+    }
+
     private fun createDefaultState(context: Context): SettingsState {
         return SettingsState(
             isDynamicColors = prefs.isDynamicTheme,
             isDarkTheme = prefs.isDarkTheme,
             isAppV2 = prefs.isAppV2,
             isKeepScreenOn = prefs.isKeepScreenOn,
+            isFloatingRecorderOverlayEnabled = prefs.isFloatingRecorderOverlayEnabled,
             isShowRenameDialog = prefs.askToRenameAfterRecordingStopped,
-            isRecordingSettingEditable = true,
+            isRecordingSettingEditable = !recordingSettingsLocked(),
             selectedNameFormat = prefs.settingNamingFormat.toNameFormatItem(prefs.customNameFormat),
             nameFormats = makeNameFormats(prefs.customNameFormat),
             recordingSettings = RecordingFormat.entries.toList().mapIndexed { index, format ->
@@ -152,6 +173,13 @@ internal class SettingsViewModel @Inject constructor(
             isLegacyAppUser = prefs.isLegacyAppUser,
             selectedAudioSource = prefs.settingAudioSource,
             audioSourceOptions = supportedAudioSources(),
+            bluetoothCaptureRoute = prefs.bluetoothCaptureRoute,
+            bluetoothAudioSource = prefs.bluetoothAudioSource,
+            applyOnlyToBluetoothMic = prefs.applyOnlyToBluetoothMic,
+            bluetoothAudioMode = prefs.bluetoothAudioMode,
+            inputPreprocessingPolicy = prefs.inputPreprocessingPolicy,
+            pcmGainMode = prefs.pcmGainMode,
+            bluetoothVoiceEnhancement = prefs.bluetoothVoiceEnhancement,
         )
     }
 
@@ -170,7 +198,7 @@ internal class SettingsViewModel @Inject constructor(
             )
             withContext(mainDispatcher) {
                 _state.value = _state.value.copy(
-                    isRecordingSettingEditable = !audioRecorderDelegate.provideAudioRecorder().isRecording,
+                    isRecordingSettingEditable = !recordingSettingsLocked(),
                     totalRecordCount = recordsCount,
                     totalRecordDuration = recordsDuration,
                     availableSpaceMills = availableTimeMills,
@@ -178,18 +206,31 @@ internal class SettingsViewModel @Inject constructor(
                     // Load the selected audio source from preferences
                     selectedAudioSource = prefs.settingAudioSource,
                     audioSourceOptions = supportedAudioSources(),
-                )
+                ).withBluetoothSettings()
             }
             recordsDataSource.removeOutdatedTrashRecords()
         }
     }
 
     fun setAudioSource(audioSource: AudioSource) {
-        if (audioSource !in supportedAudioSources()) return
-        _state.value = _state.value.copy(selectedAudioSource = audioSource)
+        if (recordingSettingsLocked() || audioSource !in supportedAudioSources()) return
         prefs.settingAudioSource = audioSource
+        _state.value = _state.value.copy(selectedAudioSource = audioSource,
+            bluetoothVoiceEnhancement = prefs.bluetoothVoiceEnhancement)
         validateFormatForAudioSource(audioSource)
     }
+
+    /** Refresh the bundle in one UI state update, matching the preference editor transaction. */
+    private fun SettingsState.withBluetoothSettings(): SettingsState = copy(
+        selectedAudioSource = prefs.settingAudioSource,
+        bluetoothCaptureRoute = prefs.bluetoothCaptureRoute,
+        bluetoothAudioSource = prefs.bluetoothAudioSource,
+        applyOnlyToBluetoothMic = prefs.applyOnlyToBluetoothMic,
+        bluetoothAudioMode = prefs.bluetoothAudioMode,
+        inputPreprocessingPolicy = prefs.inputPreprocessingPolicy,
+        pcmGainMode = prefs.pcmGainMode,
+        bluetoothVoiceEnhancement = prefs.bluetoothVoiceEnhancement,
+    )
 
     /**
      * System audio is captured with `AudioRecord`, and 3GP is the one format recorded through
@@ -247,6 +288,11 @@ internal class SettingsViewModel @Inject constructor(
         _state.value = _state.value.copy(isKeepScreenOn = value)
     }
 
+    fun setFloatingRecorderOverlayEnabled(value: Boolean) {
+        prefs.isFloatingRecorderOverlayEnabled = value
+        _state.value = _state.value.copy(isFloatingRecorderOverlayEnabled = value)
+    }
+
     fun setShowRenamingDialog(value: Boolean) {
         prefs.askToRenameAfterRecordingStopped = value
         _state.value = _state.value.copy(isShowRenameDialog = value)
@@ -267,12 +313,22 @@ internal class SettingsViewModel @Inject constructor(
     }
 
     fun resetRecordingSettings() {
+        if (recordingSettingsLocked()) return
+        prefs.resetRecordingSettings()
         prefs.settingRecordingFormat = DefaultValues.DefaultRecordingFormat
         prefs.settingSampleRate = DefaultValues.DefaultSampleRate
         prefs.settingBitrate = DefaultValues.DefaultBitRate
         prefs.settingChannelCount = DefaultValues.DefaultChannelCount
         prefs.settingAudioSource = DefaultValues.DefaultAudioSource
         _state.value = _state.value.copy(
+            selectedAudioSource = DefaultValues.DefaultAudioSource,
+            bluetoothCaptureRoute = BluetoothCaptureRoute.STANDARD_SCO,
+            bluetoothAudioSource = AudioSource.DEFAULT,
+            applyOnlyToBluetoothMic = true,
+            bluetoothAudioMode = BluetoothAudioMode.NORMAL,
+            inputPreprocessingPolicy = InputPreprocessingPolicy.SYSTEM_DEFAULT,
+            pcmGainMode = PcmGainMode.OFF,
+            bluetoothVoiceEnhancement = BluetoothVoiceEnhancement.DISABLED,
             recordingSettings = _state.value.recordingSettings.map { formatSetting ->
                 RecordingSetting(
                     recordingFormat = formatSetting.recordingFormat.updateSelected(
@@ -299,13 +355,15 @@ internal class SettingsViewModel @Inject constructor(
     }
 
     fun selectRecordingFormat(value: RecordingFormat) {
+        if (recordingSettingsLocked()) return
         prefs.settingRecordingFormat = value
         // The mirror of validateFormatForAudioSource(): 3GP has no AudioRecord-backed recorder,
         // so picking it gives up system audio capture.
         if (value == RecordingFormat.ThreeGp && prefs.settingAudioSource.isSystemAudio) {
             prefs.settingAudioSource = DefaultValues.DefaultAudioSource
             _state.value = _state.value.copy(
-                selectedAudioSource = DefaultValues.DefaultAudioSource
+                selectedAudioSource = DefaultValues.DefaultAudioSource,
+                bluetoothVoiceEnhancement = prefs.bluetoothVoiceEnhancement,
             )
         }
         _state.value = _state.value.copy(
@@ -365,6 +423,7 @@ internal class SettingsViewModel @Inject constructor(
     }
 
     fun selectSampleRate(value: SampleRate) {
+        if (recordingSettingsLocked()) return
         prefs.settingSampleRate = value
         _state.value = _state.value.copy(
             recordingSettings = _state.value.recordingSettings.map { formatSetting ->
@@ -382,6 +441,7 @@ internal class SettingsViewModel @Inject constructor(
     }
 
     fun selectBitrate(value: BitRate) {
+        if (recordingSettingsLocked()) return
         prefs.settingBitrate = value
         _state.value = _state.value.copy(
             recordingSettings = _state.value.recordingSettings.map { formatSetting ->
@@ -399,6 +459,7 @@ internal class SettingsViewModel @Inject constructor(
     }
 
     fun selectChannelCount(value: ChannelCount) {
+        if (recordingSettingsLocked()) return
         prefs.settingChannelCount = value
         _state.value = _state.value.copy(
             recordingSettings = _state.value.recordingSettings.map { formatSetting ->
@@ -416,6 +477,7 @@ internal class SettingsViewModel @Inject constructor(
     }
 
     fun setMaxRecordingDuration(durationMinutes: Int) {
+        if (recordingSettingsLocked()) return
         if (durationMinutes > 0) {
             prefs.maxRecordingDurationMills = durationMinutes * 60 * 1000
             _state.value = _state.value.copy(maxRecordingDurationMinutes = durationMinutes)
@@ -429,11 +491,48 @@ internal class SettingsViewModel @Inject constructor(
     }
 
     fun onAction(action: SettingsScreenAction) {
+        if (action is SettingsScreenAction.SetExperiment && recordingSettingsLocked()) return
         when (action) {
+            is SettingsScreenAction.SetExperiment.Enhancement -> {
+                prefs.bluetoothVoiceEnhancement = action.value
+                _state.value = _state.value.withBluetoothSettings()
+            }
+            is SettingsScreenAction.SetExperiment.Source -> {
+                if (action.value.isSystemAudio) return
+                prefs.bluetoothAudioSource = action.value
+                _state.value = _state.value.withBluetoothSettings()
+            }
+            is SettingsScreenAction.SetExperiment.Scope -> {
+                prefs.applyOnlyToBluetoothMic = action.onlyBluetooth
+                _state.value = _state.value.copy(applyOnlyToBluetoothMic = action.onlyBluetooth)
+            }
+            is SettingsScreenAction.SetExperiment.Route -> {
+                prefs.bluetoothCaptureRoute = action.value
+                _state.value = _state.value.copy(bluetoothCaptureRoute = action.value,
+                    bluetoothVoiceEnhancement = prefs.bluetoothVoiceEnhancement)
+            }
+            is SettingsScreenAction.SetExperiment.Mode -> {
+                prefs.bluetoothAudioMode = action.value
+                _state.value = _state.value.copy(bluetoothAudioMode = action.value,
+                    bluetoothVoiceEnhancement = prefs.bluetoothVoiceEnhancement)
+            }
+            is SettingsScreenAction.SetExperiment.Preprocessing -> {
+                prefs.inputPreprocessingPolicy = action.value
+                _state.value = _state.value.copy(inputPreprocessingPolicy = action.value,
+                    bluetoothVoiceEnhancement = prefs.bluetoothVoiceEnhancement)
+            }
+            is SettingsScreenAction.SetExperiment.Gain -> {
+                prefs.pcmGainMode = action.value
+                _state.value = _state.value.copy(pcmGainMode = action.value,
+                    bluetoothVoiceEnhancement = prefs.bluetoothVoiceEnhancement)
+            }
             SettingsScreenAction.InitSettingsScreen -> initSettings()
             is SettingsScreenAction.SetDynamicTheme -> setDynamicTheme(action.value)
             is SettingsScreenAction.SetDarkTheme -> setDarkTheme(action.value)
             is SettingsScreenAction.SetKeepScreenOn -> setKeepScreenOn(action.value)
+            is SettingsScreenAction.SetFloatingRecorderOverlayEnabled -> {
+                setFloatingRecorderOverlayEnabled(action.value)
+            }
             is SettingsScreenAction.SetShowRenamingDialog -> setShowRenamingDialog(action.value)
             is SettingsScreenAction.SetNameFormat -> setNameFormat(action.value)
             SettingsScreenAction.RefreshNameFormat -> refreshNameFormat()
@@ -450,6 +549,10 @@ internal class SettingsViewModel @Inject constructor(
             SettingsScreenAction.UnlockLegacyAppSwitch -> unlockLegacyAppSwitch()
         }
     }
+
+    /** The floating recorder can start after Settings opens, so the cached UI flag is not enough. */
+    private fun recordingSettingsLocked(): Boolean = audioRecorderDelegate.isCaptureSessionActive ||
+        audioRecorderDelegate.provideAudioRecorder().isRecording
 
     fun unlockLegacyAppSwitch() {
         if (!prefs.isLegacyAppUser) {
@@ -497,11 +600,21 @@ internal class SettingsViewModel @Inject constructor(
 }
 
 internal sealed class SettingsScreenAction {
+    sealed class SetExperiment : SettingsScreenAction() {
+        data class Enhancement(val value: BluetoothVoiceEnhancement) : SetExperiment()
+        data class Source(val value: AudioSource) : SetExperiment()
+        data class Scope(val onlyBluetooth: Boolean) : SetExperiment()
+        data class Route(val value: BluetoothCaptureRoute) : SetExperiment()
+        data class Mode(val value: BluetoothAudioMode) : SetExperiment()
+        data class Preprocessing(val value: InputPreprocessingPolicy) : SetExperiment()
+        data class Gain(val value: PcmGainMode) : SetExperiment()
+    }
     data object InitSettingsScreen : SettingsScreenAction()
     data class SetAppV2(val value: Boolean) : SettingsScreenAction()
     data class SetDynamicTheme(val value: Boolean) : SettingsScreenAction()
     data class SetDarkTheme(val value: Boolean) : SettingsScreenAction()
     data class SetKeepScreenOn(val value: Boolean) : SettingsScreenAction()
+    data class SetFloatingRecorderOverlayEnabled(val value: Boolean) : SettingsScreenAction()
     data class SetShowRenamingDialog(val value: Boolean) : SettingsScreenAction()
     data class SetNameFormat(val value: NameFormatItem) : SettingsScreenAction()
     data object RefreshNameFormat : SettingsScreenAction()

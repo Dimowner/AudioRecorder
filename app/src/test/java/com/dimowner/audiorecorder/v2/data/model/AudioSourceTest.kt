@@ -23,6 +23,13 @@ import org.junit.Test
 class AudioSourceTest {
 
     @Test
+    fun `voice recognition converts from the platform microphone source`() {
+        val source = AudioSource.fromValue(android.media.MediaRecorder.AudioSource.VOICE_RECOGNITION)
+        assertEquals(AudioSource.VOICE_RECOGNITION, source)
+        assertFalse(source.isSystemAudio)
+    }
+
+    @Test
     fun `every persisted value is unique`() {
         val values = AudioSource.entries.map { it.value }
         assertEquals("two sources share a stored value", values.size, values.toSet().size)

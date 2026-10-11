@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="bluetooth_voice_enhancement_title">Enhanced Bluetooth microphone sound</string>
+    <string name="bluetooth_voice_enhancement_disabled">Disabled</string>
+    <string name="bluetooth_voice_enhancement_hfp">HFP Clear Voice preset</string>
+    <string name="bluetooth_voice_enhancement_custom">Custom</string>
+    <string name="bluetooth_voice_enhancement_disabled_summary">Default Bluetooth source · Standard SCO · Normal · System-default preprocessing · Gain off</string>
+    <string name="bluetooth_voice_enhancement_hfp_summary">Voice Recognition · HFP voice recognition · Normal · AGC only · Auto level</string>
+    <string name="bluetooth_voice_enhancement_custom_summary">Adjust the Bluetooth source and experimental options below. The Audio source above remains independent for other microphones or system audio.</string>
+    <string name="bluetooth_experiment_scope">Apply only to Bluetooth mic</string>
+    <string name="bluetooth_experiment_scope_on">Android audio mode, preprocessing and gain apply only to Bluetooth microphone recordings.</string>
+    <string name="bluetooth_experiment_scope_off">Android audio mode, preprocessing and gain apply to all microphone recordings. Bluetooth source and routing remain Bluetooth-only; system audio is unaffected.</string>
+    <string name="bluetooth_experiment_source">Bluetooth audio source</string>
+    <string name="bluetooth_experiment_title">Bluetooth microphone routing and processing</string>
+    <string name="bluetooth_experiment_help">Enable the Bluetooth microphone switch on Home to use the Bluetooth source and route. Changes apply to the next recording. Non-default effects and gain require WAV or direct M4A when in scope.</string>
+    <string name="bluetooth_experiment_route">Bluetooth capture route</string>
+    <string name="bluetooth_experiment_mode">Android audio mode</string>
+    <string name="bluetooth_experiment_preprocessing">Android preprocessing</string>
+    <string name="bluetooth_experiment_gain">Software gain</string>
+    <string name="bluetooth_experiment_diagnostics">Show current diagnostics</string>
+    <string name="bluetooth_experiment_permission_denied">Bluetooth permission denied. HFP experiments will fail until permission is granted. Select HFP again to retry.</string>
+</resources>

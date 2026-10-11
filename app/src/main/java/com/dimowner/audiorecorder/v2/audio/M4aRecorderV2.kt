@@ -43,6 +43,7 @@ class M4aRecorderV2 @Inject constructor(
     private val codecRecorder: AacCodecRecorderV2,
     private val mediaRecorder: AudioRecorderV2,
     private val coroutineScope: CoroutineScope,
+    private val diagnostics: CaptureDiagnostics = CaptureDiagnostics(),
 ) : RecorderV2 {
 
     private data class StartParams(
@@ -56,6 +57,7 @@ class M4aRecorderV2 @Inject constructor(
 
     @Volatile private var active: RecorderV2? = null
     @Volatile private var lastParams: StartParams? = null
+    @Volatile private var stopRequested = false
 
     private val _event = MutableSharedFlow<RecorderEvent>()
     override fun subscribeRecorderEvents(): Flow<RecorderEvent> = _event
@@ -85,6 +87,7 @@ class M4aRecorderV2 @Inject constructor(
         maxRecordingDurationMills: Int,
         audioInput: AudioInput,
     ): Boolean {
+        stopRequested = false
         val params = StartParams(
             outputFile, channelCount, sampleRate, bitrate, maxRecordingDurationMills, audioInput
         )
@@ -117,17 +120,29 @@ class M4aRecorderV2 @Inject constructor(
      * microphone instead of what the user asked for. In that case the failure is surfaced.
      */
     private fun startWithMediaRecorder(params: StartParams): Boolean {
-        if (params.audioInput !is AudioInput.Mic) {
-            Timber.e("No MediaRecorder fallback for ${params.audioInput}; reporting the failure")
+        // A Bluetooth failure can stop the codec while its no-output callback is queued.
+        // Reopening MediaRecorder then would capture a different microphone after Stop.
+        if (stopRequested) {
+            diagnostics.session("Recording cancelled before M4A fallback; MediaRecorder was not started.")
             emitEvent(RecorderEvent.OnError(RecorderInitException()))
             return false
         }
+        val incompatibility = CaptureConfiguration.mediaRecorderProblem(params.audioInput)
+        if (incompatibility != null) {
+            diagnostics.session("M4A fallback refused: $incompatibility")
+            Timber.e("No compatible MediaRecorder fallback: %s", incompatibility)
+            emitEvent(RecorderEvent.OnError(RecorderInitException()))
+            return false
+        }
+        diagnostics.session("M4A fallback to MediaRecorder: selected system-managed preprocessing and gain OFF preserved.\n" +
+            CaptureProcessingSession.describeInput(params.audioInput) +
+            "\nRequested: ${params.sampleRate} Hz, ${params.channelCount} channel(s), target ${params.bitrate} bps. Audio session unavailable.")
         active = mediaRecorder
         if (!resetOutputFile(params.outputFile)) {
             emitEvent(RecorderEvent.OnError(CantCreateFileException()))
             return false
         }
-        return mediaRecorder.startRecording(
+        val started = mediaRecorder.startRecording(
             params.outputFile,
             params.channelCount,
             params.sampleRate,
@@ -135,6 +150,8 @@ class M4aRecorderV2 @Inject constructor(
             params.maxRecordingDurationMills,
             params.audioInput,
         )
+        if (stopRequested && started) mediaRecorder.stopRecording()
+        return started
     }
 
     /**
@@ -162,6 +179,7 @@ class M4aRecorderV2 @Inject constructor(
         val params = lastParams ?: return
         if (active !== codecRecorder) return
         coroutineScope.launch {
+            if (active !== codecRecorder || lastParams !== params) return@launch
             Timber.w("MediaCodec pipeline produced no audio ($reason), falling back to MediaRecorder")
             startWithMediaRecorder(params)
         }
@@ -173,7 +191,10 @@ class M4aRecorderV2 @Inject constructor(
 
     // `active` deliberately stays set after a stop so the events the backend emits while
     // finalising the file are still relayed. The next start reassigns it.
-    override fun stopRecording(): Boolean = active?.stopRecording() ?: false
+    override fun stopRecording(): Boolean {
+        stopRequested = true
+        return active?.stopRecording() ?: false
+    }
 
     override val isRecording: Boolean
         get() = active?.isRecording ?: false

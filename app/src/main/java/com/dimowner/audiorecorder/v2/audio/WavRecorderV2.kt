@@ -1,5 +1,8 @@
 package com.dimowner.audiorecorder.v2.audio
 
+import android.content.Context
+import android.media.AudioManager
+import dagger.hilt.android.qualifiers.ApplicationContext
 import android.media.AudioFormat
 import android.media.AudioRecord
 import com.dimowner.audiorecorder.AppConstants.RECORDING_VISUALIZATION_INTERVAL_NEW
@@ -41,6 +44,8 @@ private const val MAX_WAV_DATA_BYTES = 2_147_000_000L
 @Singleton
 class WavRecorderV2 @Inject constructor(
     private val coroutineScope: CoroutineScope,
+    private val diagnostics: CaptureDiagnostics = CaptureDiagnostics(),
+    @param:ApplicationContext private val context: Context? = null,
 ) : RecorderV2 {
 
     private var audioRecord: AudioRecord? = null
@@ -150,6 +155,15 @@ class WavRecorderV2 @Inject constructor(
         }
 
         audioRecord = recorder
+        val processing = CaptureProcessingSession(recorder, audioInput, sampleRate, channelCount, "WAV", diagnostics,
+            context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager)
+        if (!processing.prepare()) {
+            processing.close()
+            recorder.release()
+            audioRecord = null
+            emitEvent(RecorderEvent.OnError(RecorderInitException()))
+            return false
+        }
 
         // Write a placeholder 44-byte WAV header; it will be overwritten with real values after recording.
         try {
@@ -158,6 +172,7 @@ class WavRecorderV2 @Inject constructor(
             }
         } catch (e: IOException) {
             Timber.e(e, "Failed to write placeholder WAV header")
+            processing.close()
             recorder.release()
             audioRecord = null
             emitEvent(RecorderEvent.OnError(RecorderInitException()))
@@ -166,8 +181,10 @@ class WavRecorderV2 @Inject constructor(
 
         try {
             recorder.startRecording()
+            processing.started(recorder)
         } catch (e: IllegalStateException) {
             Timber.e(e, "startRecording() failed")
+            processing.close()
             recorder.release()
             audioRecord = null
             emitEvent(RecorderEvent.OnError(RecorderInitException()))
@@ -179,7 +196,8 @@ class WavRecorderV2 @Inject constructor(
         _isRecording = true
         _isPaused = false
         durationMills = 0
-        emitEvent(RecorderEvent.OnStartRecording)
+        val verifyBluetoothFirst = (audioInput as? AudioInput.Mic)?.bluetoothInput != null
+        if (!verifyBluetoothFirst) emitEvent(RecorderEvent.OnStartRecording)
         scheduleRecordingTimeUpdateBuffered()
 
         // Launch a coroutine to read audio data in the background
@@ -190,6 +208,7 @@ class WavRecorderV2 @Inject constructor(
             val bytesPerSecond = sampleRate * channelCount * (bitsPerSample / 8)
             var maxDurationReached = false
             var failed = false
+            var startReported = !verifyBluetoothFirst
 
             try {
                 fos = FileOutputStream(outputFile, true) // append after the placeholder header
@@ -204,8 +223,14 @@ class WavRecorderV2 @Inject constructor(
                         }
                         continue
                     }
+                    val readToken = processing.beginRead()
                     val readResult = recorder.read(buffer, 0, readChunkSize)
                     if (readResult > 0) {
+                        if (!processing.acceptPcm(buffer, readResult, readToken)) continue
+                        if (!startReported) {
+                            startReported = true
+                            emitEvent(RecorderEvent.OnStartRecording)
+                        }
                         fos.write(buffer, 0, readResult)
                         totalBytesWritten += readResult
                         // A stop followed by a new start may have landed during the blocking
@@ -277,7 +302,7 @@ class WavRecorderV2 @Inject constructor(
                     _isPaused = false
                     stopRecordingTimer()
                 }
-                stopHardware(recorder)
+                try { stopHardware(recorder) } finally { processing.close() }
             }
 
             // Write the real WAV header in-place now that we know the final audio length.

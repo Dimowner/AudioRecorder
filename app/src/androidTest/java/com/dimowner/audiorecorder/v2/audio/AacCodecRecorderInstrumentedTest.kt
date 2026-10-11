@@ -124,18 +124,13 @@ class AacCodecRecorderInstrumentedTest {
     }
 
     @Test
-    fun clampsBitratesTheFormatCannotCarryInsteadOfFailing() {
+    fun rejectsBitratesTheFormatCannotCarryInsteadOfSilentlyChangingTheSelection() {
         // 8 kHz mono tops out at 6 * 8000 = 48 kbps whatever the encoder is asked for; the
-        // recording must still succeed rather than leaving the user without a file.
-        startRecording(sampleRate = 8000, channelCount = 1, bitrate = 288_000)
-        awaitStart()
-        Thread.sleep(RECORDING_MILLS)
-        stopAndAwait()
-
-        assertTrue(outputFile.length() > 0)
-        val measured = measureBitRate(outputFile)
-        assertTrue("recorded at $measured bps, above the AAC-LC ceiling", measured < 60_000)
-        assertNoErrors()
+        // selected 288 kbps must be rejected explicitly rather than replaced by 48 kbps.
+        val result = recorder.startRecordingInternal(outputFile, 1, 8000, 288_000, 0,
+            AudioInput.Mic(MediaRecorder.AudioSource.MIC))
+        assertTrue(result is AacCodecRecorderV2.StartResult.Rejected)
+        assertTrue(!recorder.isRecording)
     }
 
     // -------------------------------------------------------------------------

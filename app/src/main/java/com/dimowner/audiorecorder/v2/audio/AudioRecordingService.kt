@@ -64,6 +64,7 @@ import com.dimowner.audiorecorder.v2.data.model.convertToRecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.isSystemAudioCaptureSupported
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -94,6 +95,8 @@ class AudioRecordingService : Service() {
         private const val ACTION_START_RECORDING = "com.dimowner.audiorecorder.ACTION_START_RECORDING"
         private const val ACTION_PAUSE_RESUME_RECORDING = "com.dimowner.audiorecorder.ACTION_PAUSE_RESUME_RECORDING"
         private const val ACTION_STOP_RECORDING = "com.dimowner.audiorecorder.ACTION_STOP_RECORDING"
+        private const val EXTRA_STARTED_FROM_FLOATING_OVERLAY =
+            "com.dimowner.audiorecorder.EXTRA_STARTED_FROM_FLOATING_OVERLAY"
 
         private const val EXTRA_PROJECTION_RESULT_CODE = "extra_projection_result_code"
         private const val EXTRA_PROJECTION_DATA = "extra_projection_data"
@@ -111,9 +114,11 @@ class AudioRecordingService : Service() {
             context: Context,
             projectionResultCode: Int = Activity.RESULT_CANCELED,
             projectionData: Intent? = null,
+            startedFromFloatingOverlay: Boolean = false,
         ) {
             val intent = Intent(context, AudioRecordingService::class.java).apply {
                 action = ACTION_START_RECORDING
+                putExtra(EXTRA_STARTED_FROM_FLOATING_OVERLAY, startedFromFloatingOverlay)
                 if (projectionData != null) {
                     putExtra(EXTRA_PROJECTION_RESULT_CODE, projectionResultCode)
                     putExtra(EXTRA_PROJECTION_DATA, projectionData)
@@ -142,6 +147,9 @@ class AudioRecordingService : Service() {
 
     @Inject
     lateinit var prefs: PrefsV2
+
+    @Inject lateinit var audioManagerHelper: com.dimowner.audiorecorder.util.AudioManagerHelper
+    @Inject lateinit var captureDiagnostics: CaptureDiagnostics
 
     @Inject
     lateinit var analyticsTracker: AnalyticsTracker
@@ -213,6 +221,10 @@ class AudioRecordingService : Service() {
 
     /** Job for the current recorder-events subscription; cancelled before re-subscribing. */
     private var subscriptionJob: Job? = null
+    private var recordingStartJob: Job? = null
+    @Volatile private var waitingForBluetooth = false
+    private val recordingStartGuard = RecordingStartGuard()
+    private val dismissalGate = RecordingDismissalGate()
 
     /**
      * True between the moment the recorder is asked to start and the moment it reports the first
@@ -235,6 +247,12 @@ class AudioRecordingService : Service() {
      */
     private var lastAvailableSpaceCheckTime: Long = 0L
 
+    /** True only for the current recording session if it was initiated by the overlay button. */
+    private var currentRecordingStartedFromFloatingOverlay: Boolean = false
+
+    /** True only for the current stop request if it was initiated by the overlay button. */
+    private var currentRecordingStoppedFromFloatingOverlay: Boolean = false
+
     inner class ServiceBinder : Binder() {
         fun getService(): AudioRecordingService = this@AudioRecordingService
     }
@@ -243,6 +261,19 @@ class AudioRecordingService : Service() {
         super.onCreate()
         createNotificationChannel()
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        serviceScope.launch {
+            audioManagerHelper.routeState.collect { route ->
+                if (route.phase == BluetoothRoutePhase.FAILED && ::audioRecorder.isInitialized) {
+                    if (audioManagerHelper.ownsBluetoothRecordingRoute) {
+                        recordingStartGuard.requestStop()
+                        emitEvent(AudioRecordingServiceEvent.ShowErrorSnack("Bluetooth audio disconnected; stopping to avoid recording a different microphone."))
+                        // The M4A wrapper must latch Stop even if its codec has already gone
+                        // idle and queued a fallback. Otherwise it could reopen another mic.
+                        audioRecorder.stopRecording()
+                    }
+                }
+            }
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder {
@@ -250,31 +281,51 @@ class AudioRecordingService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Preserve the active session/subscription through saving, including a pending close.
+        if (intent?.action == ACTION_START_RECORDING && !dismissalGate.recordingStarted()) {
+            return START_STICKY
+        }
         audioRecorder = audioRecorderDelegate.provideAudioRecorder()
         subscribeRecorderEvents()
         when (intent?.action) {
             ACTION_START_RECORDING -> {
+                audioRecorderDelegate.isCaptureSessionActive = true
+                recordingStartGuard.begin()
+                currentRecordingStartedFromFloatingOverlay = intent.getBooleanExtra(
+                    EXTRA_STARTED_FROM_FLOATING_OVERLAY,
+                    false,
+                )
+                currentRecordingStoppedFromFloatingOverlay = false
                 // Recording and playback must never overlap, and the stop belongs here rather
                 // than at the call sites: this is the one point every entry into recording goes
                 // through, including the home screen widget, which otherwise records over the
                 // track that is playing.
                 stopPlaybackBeforeRecording()
+                if (prefs.settingAudioSource.isSystemAudio &&
+                    (!isSystemAudioCaptureSupported() || !intent.hasProjectionConsent())) {
+                    // Satisfy startForegroundService even when a UI binding keeps this service
+                    // alive after stopSelf(). This posts/removes a notification only: no microphone
+                    // recorder is opened and the selected source is never substituted.
+                    startForegroundWithNotification(withMediaProjection = false)
+                    rejectCaptureConfiguration("System-audio capture is unavailable or consent is missing. Grant capture consent again; microphone fallback is not allowed.")
+                    return START_NOT_STICKY
+                }
                 // The projection has to exist before handleStartRecording() picks an input, but
                 // it can only be created once the service is foreground with the mediaProjection
                 // type (enforced from Android 14), hence this ordering.
                 val useSystemAudio = isSystemAudioSelected() && intent.hasProjectionConsent()
+                if (useSystemAudio) audioManagerHelper.prepareSystemPlayback()
                 // Must call startForeground() synchronously before any async work
                 // to satisfy the foreground service contract and avoid ANR.
                 startForegroundWithNotification(withMediaProjection = useSystemAudio)
                 if (useSystemAudio) {
                     createMediaProjection(intent)
                     if (mediaProjection == null) {
-                        // The recording falls back to the microphone, so drop the type it no
-                        // longer backs rather than running as a projection service holding none.
-                        startForegroundWithNotification(withMediaProjection = false)
+                        rejectCaptureConfiguration("System-audio consent could not be used. Grant capture consent again; microphone fallback is not allowed.")
+                        return START_NOT_STICKY
                     }
                 }
-                serviceScope.launch {
+                recordingStartJob = serviceScope.launch {
                     val recordName = prefs.settingNamingFormat.getNewRecordName(prefs)
                     resetRecordedRecordPartCounter()
                     prefs.recordedRecordBaseName = recordName
@@ -289,9 +340,12 @@ class AudioRecordingService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        audioRecorderDelegate.isCaptureSessionActive = false
+        audioManagerHelper.finishRecordingRoute()
         releaseMediaProjection()
         subscriptionJob?.cancel()
         serviceJob.cancel()
+        dismissalGate.recordingFinished(saved = false)
         stopNotificationUpdates()
         notificationManager = null
     }
@@ -349,9 +403,17 @@ class AudioRecordingService : Service() {
                         )
                         startNotificationUpdates()
                         updateNotification()
+                        // Dismissal may arrive while the recorder is still being prepared.
+                        if (dismissalGate.isDismissalRequested) stopRecording(stoppedFromFloatingOverlay = true)
                     }
                     is RecorderEvent.OnRecordingProgress -> {
-                        handleRecordingProgress(event.durationMills, event.amplitude)
+                        // Some recorders report OnStart before they can accept stop(). Retry
+                        // at the first progress event rather than leaving dismissal waiting.
+                        if (dismissalGate.isDismissalRequested && audioRecorder.isRecording) {
+                            stopRecording(stoppedFromFloatingOverlay = true)
+                        } else {
+                            handleRecordingProgress(event.durationMills, event.amplitude)
+                        }
                     }
                     is RecorderEvent.OnPauseRecording -> {
                         _recordingState.value = _recordingState.value.copy(
@@ -365,11 +427,22 @@ class AudioRecordingService : Service() {
                         )
                         updateNotification()
                     }
-                    is RecorderEvent.OnStopRecording -> {
-                        handleRecordingStopped()
-                    }
-                    is RecorderEvent.OnMaxDurationReached -> {
-                        handleMaxDurationReachedInternal()
+                    is RecorderEvent.OnStopRecording, is RecorderEvent.OnMaxDurationReached -> {
+                        try {
+                            if (event is RecorderEvent.OnMaxDurationReached) {
+                                handleMaxDurationReachedInternal()
+                            } else {
+                                handleRecordingStopped()
+                            }
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            Timber.e(e, "Failed to finalize recording")
+                            emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(
+                                getString(R.string.msg_save_recording_failed)
+                            ))
+                            stopForegroundService()
+                        }
                     }
                     is RecorderEvent.OnError -> {
                         Timber.e(event.exception, "AudioRecordingService: recorder error")
@@ -420,10 +493,12 @@ class AudioRecordingService : Service() {
             // recovery before telling the user the recording is lost.
             val recordedRecordId = prefs.recordedRecordId
             prefs.recordedRecordId = -1
-            if (recordedRecordId < 0 || !recoverUnfinalizedRecord(recordedRecordId)) {
+            val recovered = recordedRecordId >= 0 && recoverUnfinalizedRecord(recordedRecordId)
+            if (!recovered) {
                 showRecorderError(exception)
             }
-            stopForegroundService()
+            // Recovery is a successful save too; dismissal must wait for it and use its result.
+            stopForegroundService(saved = recovered)
             return
         }
 
@@ -535,30 +610,21 @@ class AudioRecordingService : Service() {
      * System audio needs a projection granted for *this* start. Both entry points collect that
      * consent before starting the service, so a missing projection here means the token could not
      * be redeemed (it is single-use from Android 14) rather than a user choice. The recording
-     * falls back to the microphone instead of failing outright, and the stored preference is left
-     * alone so the next attempt still tries system audio.
+     * is rejected explicitly. Capturing the microphone instead would contradict the selector.
      *
      * When a recording is split on [prefs].maxRecordingDurationMills the next part comes through
      * here again with no new intent; it reuses the same live projection, which stays valid until
      * the service releases it.
      */
-    private fun resolveAudioInput(): AudioInput {
-        val source = prefs.settingAudioSource
-        if (!source.isSystemAudio) {
-            return AudioInput.Mic(source.value)
-        }
-        if (!isSystemAudioCaptureSupported()) {
-            // Settings never offer system audio below Android 10, but a restored backup or a
-            // migrated device can still carry it - and its sentinel is not a microphone source.
-            Timber.w("System audio is stored but unsupported on this device; using the mic")
-            return AudioInput.Mic(DefaultValues.DefaultAudioSource.value)
-        }
-        val projection = mediaProjection
-        if (projection == null) {
-            Timber.w("System audio was selected but no MediaProjection was granted; using the mic")
-            return AudioInput.Mic(DefaultValues.DefaultAudioSource.value)
-        }
-        return AudioInput.SystemPlayback(projection)
+    private fun resolveAudioInput(settings: MicrophoneCaptureSettings, useBluetooth: Boolean): Result<AudioInput> = CaptureConfiguration.resolveInput(
+        prefs.settingAudioSource, settings, useBluetooth,
+        isSystemAudioCaptureSupported(), mediaProjection,
+    )
+
+    private fun rejectCaptureConfiguration(reason: String) {
+        captureDiagnostics.session("Capture not started: $reason")
+        emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(reason))
+        stopForegroundService()
     }
 
     // - Has available space
@@ -568,17 +634,25 @@ class AudioRecordingService : Service() {
     // - Set it as active record
     // - Start recording
     private suspend fun handleStartRecording(recordName: String): Long? {
-        val audioInput = resolveAudioInput()
-        val rawFormat = prefs.settingRecordingFormat
-        val format = if (rawFormat == RecordingFormat.ThreeGp && audioInput !is AudioInput.Mic) {
-            prefs.settingRecordingFormat = DefaultValues.DefaultRecordingFormat
-            DefaultValues.DefaultRecordingFormat
-        } else {
-            rawFormat
+        if (dismissalGate.isDismissalRequested) {
+            // No next split (or not-yet-started recording) should outlive an explicit close.
+            stopForegroundService(saved = true)
+            return null
         }
+        val microphoneSettings = MicrophoneCaptureSettings.from(prefs)
+        val useBluetooth = audioManagerHelper.useBluetoothForRecording
+        var audioInput = resolveAudioInput(microphoneSettings, useBluetooth).getOrElse {
+            rejectCaptureConfiguration(it.message ?: "Selected audio source is unavailable.")
+            return null
+        }
+        val format = prefs.settingRecordingFormat
         val sampleRate = prefs.settingSampleRate.value
         val bitrate = prefs.settingBitrate.value
         val channelCount = prefs.settingChannelCount.value
+        CaptureConfiguration.configurationProblem(format, sampleRate, channelCount, audioInput)?.let {
+            rejectCaptureConfiguration(it)
+            return null
+        }
 
         startingAudioSource = audioInput.analyticsLabel()
         val availableSpaceBytes = fileDataSource.getAvailableSpace()
@@ -602,6 +676,8 @@ class AudioRecordingService : Service() {
                     availableSpaceBytes = availableSpaceBytes,
                 )
             )
+            // This preflight failure emits no recorder event to release a pending dismissal.
+            if (!audioRecorder.isRecording) stopForegroundService()
             return null
         }
         if (audioRecorder.isRecording) {
@@ -617,6 +693,36 @@ class AudioRecordingService : Service() {
                 )
             )
             return null
+        }
+        captureDiagnostics.session("Preparing recording.\n" + CaptureProcessingSession.describeInput(audioInput) +
+            "\nRequested: $sampleRate Hz, $channelCount channel(s); format=${format.value}")
+        val routeReady = if (audioInput is AudioInput.Mic) {
+            waitingForBluetooth = true
+            try { audioManagerHelper.prepareRecording(microphoneSettings, useBluetooth) } finally { waitingForBluetooth = false }
+        } else true
+        if (!recordingStartGuard.mayStart(routeReady)) {
+            emitEvent(AudioRecordingServiceEvent.ShowErrorSnack("Microphone route or audio mode failed. See current diagnostics in Settings."))
+            stopForegroundService()
+            return null
+        }
+        val micInput = audioInput as? AudioInput.Mic
+        if (micInput != null) {
+            try {
+                val inputSelection = withContext(kotlinx.coroutines.Dispatchers.Main.immediate) {
+                    audioManagerHelper.bluetoothInputForRecording()
+                }
+                audioInput = micInput.copy(bluetoothInput = inputSelection)
+            } catch (e: IllegalStateException) {
+                rejectCaptureConfiguration(e.message ?: "Selected Bluetooth input is unavailable.")
+                return null
+            }
+        }
+        if (audioInput is AudioInput.SystemPlayback) {
+            withContext(kotlinx.coroutines.Dispatchers.Main.immediate) { audioManagerHelper.prepareSystemPlayback() }
+        }
+        if (format == RecordingFormat.ThreeGp) {
+            captureDiagnostics.session("Backend: 3GP / MediaRecorder. System-managed effects; gain OFF; audio session unavailable.\n" +
+                CaptureProcessingSession.describeInput(audioInput) + "\nRequested: $sampleRate Hz, $channelCount channel(s)")
         }
         try {
             val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
@@ -646,6 +752,15 @@ class AudioRecordingService : Service() {
             prefs.recordedRecordId = id
             prefs.recordedRecordPartCounter += 1
 
+            // Database insertion suspends. Recheck both Stop intent and the observed route
+            // before opening hardware; otherwise this take could silently use the phone mic.
+            if (!recordingStartGuard.mayStart(audioInput !is AudioInput.Mic || audioManagerHelper.isRouteReadyForRecording)) {
+                prefs.recordedRecordId = -1
+                recordsDataSource.deleteRecordAndFileForever(id)
+                stopForegroundService()
+                return null
+            }
+
             _recordingState.value = _recordingState.value.copy(
                 recordId = id,
                 recordName = actualRecordName,
@@ -670,6 +785,10 @@ class AudioRecordingService : Service() {
                 maxRecordingDurationMills = prefs.maxRecordingDurationMills,
                 audioInput = audioInput,
             )
+            // A disconnect/Stop can also race the synchronous native start call itself.
+            if (!recordingStartGuard.mayStart(audioInput !is AudioInput.Mic || audioManagerHelper.isRouteReadyForRecording)) {
+                audioRecorder.stopRecording()
+            }
             return id
         } catch (e: CantCreateFileException) {
             Timber.e(e, "Failed to start recording with name: $recordName")
@@ -749,8 +868,8 @@ class AudioRecordingService : Service() {
     /**
      * Turns the consent result carried by [intent] into a live [MediaProjection].
      *
-     * Failing here is not fatal: [handleStartRecording] sees a null projection and records the
-     * microphone instead, which is better than refusing to record at all.
+     * Failing here rejects this start: recording a microphone instead would contradict the
+     * selected system-audio source.
      */
     private fun createMediaProjection(intent: Intent) {
         val data = intent.projectionDataExtra() ?: return
@@ -828,7 +947,7 @@ class AudioRecordingService : Service() {
     }
 
     private fun handleStopAction() {
-        audioRecorder.stopRecording()
+        stopRecording()
     }
 
     fun pauseRecording() {
@@ -844,14 +963,37 @@ class AudioRecordingService : Service() {
     }
 
     fun stopRecording() {
-        audioRecorder.stopRecording()
+        stopRecording(stoppedFromFloatingOverlay = false)
     }
 
-    private suspend fun handleRecordingStopped(isNotMaxDurationHandling: Boolean = true) {
+    fun stopRecording(stoppedFromFloatingOverlay: Boolean) {
+        recordingStartGuard.requestStop()
+        if (waitingForBluetooth) {
+            recordingStartJob?.cancel()
+            stopForegroundService()
+            return
+        }
+        currentRecordingStoppedFromFloatingOverlay = stoppedFromFloatingOverlay
+        if (!audioRecorder.stopRecording()) {
+            currentRecordingStoppedFromFloatingOverlay = false
+        }
+    }
+
+    /** Wait for the file/DB save, not just recorder.stop(), before the overlay releases its binding. */
+    internal suspend fun stopForDismissal(): Boolean = dismissalGate.dismiss {
+        recordingStartJob?.join()
+        if (::audioRecorder.isInitialized && audioRecorder.isRecording) {
+            stopRecording(stoppedFromFloatingOverlay = true)
+        }
+        // A stop already in progress, or a pending OnStartRecording, completes the same gate.
+    }
+
+    private suspend fun handleRecordingStopped(isNotMaxDurationHandling: Boolean = true): Boolean {
         // - Read recorded file info
         // - Update recorded file duration, size, format, bitrate, sample rate, channel count
         // - Move updated to recycle if requested to delete the record, otherwise set it as active record
-        withContext(ioDispatcher) {
+        return withContext(ioDispatcher) {
+            var saved = false
             val recordedRecordId = prefs.recordedRecordId
             prefs.recordedRecordId = -1
             if (recordedRecordId >= 0) {
@@ -873,6 +1015,9 @@ class AudioRecordingService : Service() {
                         amps = recordingFullDataBuffer.downsampleToIntArray(),
                     )
                     val success = recordsDataSource.updateRecord(recordUpdated)
+                    captureDiagnostics.noteSession("Saved-file metadata: ${info.sampleRate} Hz, ${info.channelCount} channel(s), ${info.bitrate} bps. " +
+                        "Requested file settings: ${record.sampleRate} Hz, ${record.channelCount} channel(s), ${record.bitrate} bps (bitrate applies only to configurable encoders).")
+                    saved = success
                     _recordingState.value = _recordingState.value.copy(
                         recordingState = RecordingState.STOPPED,
                     )
@@ -886,6 +1031,9 @@ class AudioRecordingService : Service() {
                             emitEvent(AudioRecordingServiceEvent.RecordingStopped(
                                 recordId = recordedRecordId,
                                 recordName = record.name,
+                                startedFromFloatingOverlay = currentRecordingStartedFromFloatingOverlay,
+                                stoppedFromFloatingOverlay = currentRecordingStoppedFromFloatingOverlay,
+                                suppressRenameDialog = dismissalGate.isDismissalRequested,
                             ))
                             decodeRecord(
                                 recordId = recordUpdated.id,
@@ -905,11 +1053,12 @@ class AudioRecordingService : Service() {
                         applicationContext.getString(R.string.msg_save_recording_failed)
                     ))
                 }
-                if (isNotMaxDurationHandling) {
-                    resetRecordedRecordPartCounter()
-                    stopForegroundService()
-                }
             }
+            if (isNotMaxDurationHandling) {
+                resetRecordedRecordPartCounter()
+                stopForegroundService(saved)
+            }
+            saved
         }
     }
 
@@ -953,6 +1102,9 @@ class AudioRecordingService : Service() {
             emitEvent(AudioRecordingServiceEvent.RecordingStopped(
                 recordId = recordId,
                 recordName = recovered.name,
+                startedFromFloatingOverlay = currentRecordingStartedFromFloatingOverlay,
+                stoppedFromFloatingOverlay = currentRecordingStoppedFromFloatingOverlay,
+                suppressRenameDialog = dismissalGate.isDismissalRequested,
             ))
             decodeRecord(
                 recordId = recovered.id,
@@ -964,16 +1116,22 @@ class AudioRecordingService : Service() {
         }
     }
 
-    private fun stopForegroundService() {
+    private fun stopForegroundService(saved: Boolean = false) {
+        audioRecorderDelegate.isCaptureSessionActive = false
         isStartingRecording = false
+        mainHandler.post { audioManagerHelper.finishRecordingRoute() }
         releaseMediaProjection()
         recordingAmplitudes.clear()
         totalRecordingSampleCount = 0
         recordingFullDataBuffer.reset()
+        currentRecordingStartedFromFloatingOverlay = false
+        currentRecordingStoppedFromFloatingOverlay = false
         _recordingState.value = RecordingServiceState()
         stopNotificationUpdates()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
+        // Last: closing activities/unbinding earlier could cancel the final DB/tagging work.
+        dismissalGate.recordingFinished(saved)
     }
 
     private fun decodeRecord(recordId: Long, path: String, durationMills: Long) {
@@ -1087,7 +1245,12 @@ class AudioRecordingService : Service() {
 
     private suspend fun handleMaxDurationReachedInternal() {
         // Save the current recording first
-        handleRecordingStopped(isNotMaxDurationHandling = false)
+        val saved = handleRecordingStopped(isNotMaxDurationHandling = false)
+        if (dismissalGate.isDismissalRequested) {
+            resetRecordedRecordPartCounter()
+            stopForegroundService(saved)
+            return
+        }
 
         val partCounter = prefs.recordedRecordPartCounter
         val activeRecord = withContext(ioDispatcher) {
@@ -1283,5 +1446,11 @@ sealed class AudioRecordingServiceEvent {
      * Emitted after the recording file has been successfully saved and
      * [prefs.activeRecordId] has been set to [recordId].
      */
-    data class RecordingStopped(val recordId: Long, val recordName: String?) : AudioRecordingServiceEvent()
+    data class RecordingStopped(
+        val recordId: Long,
+        val recordName: String?,
+        val startedFromFloatingOverlay: Boolean = false,
+        val stoppedFromFloatingOverlay: Boolean = false,
+        val suppressRenameDialog: Boolean = false,
+    ) : AudioRecordingServiceEvent()
 }

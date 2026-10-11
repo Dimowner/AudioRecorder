@@ -27,7 +27,8 @@ import javax.inject.Singleton
 class ThreeGpRecorderV2 @Inject constructor(
     @ApplicationContext applicationContext: Context,
     coroutineScope: CoroutineScope,
-) : MediaRecorderBase(applicationContext, coroutineScope) {
+    diagnostics: CaptureDiagnostics = CaptureDiagnostics(),
+) : MediaRecorderBase(applicationContext, coroutineScope, diagnostics = diagnostics) {
 
     override val recordingLogTag: String = "3GP "
 
@@ -37,8 +38,13 @@ class ThreeGpRecorderV2 @Inject constructor(
         sampleRate: Int,
         bitrate: Int,
     ) {
+        require(channelCount == 1 && sampleRate in listOf(8000, 16000)) {
+            "3GP requires mono and 8000 or 16000 Hz; selected $channelCount channel(s), $sampleRate Hz"
+        }
         recorder.apply {
             setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+            setAudioChannels(channelCount)
+            setAudioSamplingRate(sampleRate)
             if (sampleRate > RECORD_SAMPLE_RATE_8000) {
                 // AMR-WB records at 16000 Hz frequency, ~23 kbps bitrate
                 setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB)

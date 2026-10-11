@@ -15,6 +15,9 @@
  */
 package com.dimowner.audiorecorder.v2.audio
 
+import android.content.Context
+import android.media.AudioManager
+import dagger.hilt.android.qualifiers.ApplicationContext
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaCodec
@@ -132,6 +135,8 @@ internal fun selectAacEncoder(candidates: List<AacEncoderCandidate>, targetBitRa
 @Suppress("TooManyFunctions")
 class AacCodecRecorderV2 @Inject constructor(
     private val coroutineScope: CoroutineScope,
+    private val diagnostics: CaptureDiagnostics = CaptureDiagnostics(),
+    @param:ApplicationContext private val context: Context? = null,
 ) : RecorderV2 {
 
     /** Outcome of the synchronous part of starting, which decides whether a fallback makes sense. */
@@ -147,6 +152,7 @@ class AacCodecRecorderV2 @Inject constructor(
     }
 
     private var audioRecord: AudioRecord? = null
+    private var processing: CaptureProcessingSession? = null
     private var codec: MediaCodec? = null
     private var muxer: MediaMuxer? = null
     private var frameIndexWriter: AacFrameIndex.Writer? = null
@@ -274,19 +280,25 @@ class AacCodecRecorderV2 @Inject constructor(
             return StartResult.Rejected(RecorderInitException())
         }
         audioRecord = recorder
+        processing = CaptureProcessingSession(recorder, audioInput, sampleRate, channelCount, "M4A direct AAC", diagnostics,
+            context?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager, bitrate)
+        if (processing?.prepare() != true) {
+            releaseEverything()
+            return StartResult.Rejected(RecorderInitException())
+        }
 
         val encoderInfo = selectAacEncoder(
             aacEncoderCandidates(sampleRate, channelCount),
-            clampAacBitRate(bitrate, sampleRate, channelCount, Int.MAX_VALUE),
+            bitrate,
         )
-        val encodingBitRate = clampAacBitRate(
-            bitrate, sampleRate, channelCount, encoderInfo?.maxBitRate ?: Int.MAX_VALUE
-        )
-        if (encodingBitRate != bitrate) {
-            Timber.w("Bitrate $bitrate is out of range for this configuration, using $encodingBitRate")
+        if (!CaptureConfiguration.supportsAacBitrate(bitrate, sampleRate, channelCount, encoderInfo?.maxBitRate ?: Int.MAX_VALUE)) {
+            val maximum = clampAacBitRate(Int.MAX_VALUE, sampleRate, channelCount, encoderInfo?.maxBitRate ?: Int.MAX_VALUE)
+            diagnostics.session("Selected AAC bitrate $bitrate bps is unsupported for $sampleRate Hz / $channelCount channel(s); maximum $maximum bps. Select a supported bitrate; no automatic reduction was applied.")
+            releaseEverything()
+            return StartResult.Rejected(RecorderInitException())
         }
         val encoder = try {
-            createEncoder(encoderInfo?.name, sampleRate, channelCount, encodingBitRate, readChunkSize)
+            createEncoder(encoderInfo?.name, sampleRate, channelCount, bitrate, readChunkSize)
         } catch (e: IOException) {
             return releaseAndFail("codec-create", e)
         } catch (e: IllegalArgumentException) {
@@ -308,6 +320,7 @@ class AacCodecRecorderV2 @Inject constructor(
 
         try {
             recorder.startRecording()
+            processing?.started(recorder)
         } catch (e: IllegalStateException) {
             Timber.e(e, "startRecording() failed")
             releaseEverything()
@@ -400,11 +413,12 @@ class AacCodecRecorderV2 @Inject constructor(
         var framesFed = 0L
         var maxDurationReached = false
         var failure: Throwable? = null
-        val startupDeadline = SystemClock.elapsedRealtime() + STARTUP_TIMEOUT_MS
+        var startupDeadline = SystemClock.elapsedRealtime() + STARTUP_TIMEOUT_MS
 
         try {
             while (isActive && _isRecording) {
                 if (recorder == null || encoder == null) break
+                val readToken = if (_isPaused) null else processing?.beginRead()
                 val read = recorder.read(pcm, 0, readChunkSize)
                 if (read < 0) {
                     // Every error code ends the recording, ERROR_DEAD_OBJECT included: a dead
@@ -423,6 +437,8 @@ class AacCodecRecorderV2 @Inject constructor(
                     continue
                 }
                 if (read > 0) {
+                    if (processing?.acceptPcm(pcm, read, readToken) == false) continue
+                    if (framesFed == 0L) startupDeadline = SystemClock.elapsedRealtime() + STARTUP_TIMEOUT_MS
                     synchronized(amplitudesBuffer) { amplitudesBuffer.add(calculateAmplitude(pcm, read)) }
                     framesFed = feedEncoder(encoder, pcm, read, framesFed, frameSize, session)
                     durationMills = pcmDurationMills(framesFed, sampleRateConfig)
@@ -636,6 +652,10 @@ class AacCodecRecorderV2 @Inject constructor(
         }
 
         when {
+            session.muxedFrameCount == 0L && failure is CaptureInputException -> {
+                // Another backend must not disguise a wrong-device/mode failure as a codec issue.
+                emitEvent(RecorderEvent.OnError(RecorderInitException()))
+            }
             session.muxedFrameCount == 0L && failure != null -> {
                 // The pipeline broke before its first frame - the same situation abandonStartup()
                 // handles on a timeout. OnStartRecording is only emitted with that frame, so the
@@ -753,6 +773,8 @@ class AacCodecRecorderV2 @Inject constructor(
             false
         } finally {
             recorder.release()
+            processing?.close()
+            processing = null
             if (audioRecord === recorder) audioRecord = null
         }
     }

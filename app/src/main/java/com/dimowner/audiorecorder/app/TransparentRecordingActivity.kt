@@ -43,11 +43,19 @@ import timber.log.Timber
 const val REQ_CODE_RECORD_AUDIO = 303
 const val REQ_CODE_WRITE_EXTERNAL_STORAGE = 404
 private const val REQ_CODE_MEDIA_PROJECTION = 505
+const val EXTRA_RECORDING_STARTED_FROM_FLOATING_OVERLAY =
+    "com.dimowner.audiorecorder.EXTRA_STARTED_FROM_FLOATING_OVERLAY"
 
 class TransparentRecordingActivity : Activity() {
 
     private lateinit var prefs: Prefs
     private lateinit var fileRepository: FileRepository
+
+    private val startedFromFloatingOverlay: Boolean
+        get() = intent.getBooleanExtra(EXTRA_RECORDING_STARTED_FROM_FLOATING_OVERLAY, false)
+
+    private val isV2Recording: Boolean
+        get() = prefs.isAppV2 || startedFromFloatingOverlay
 
     private var recordingRequested = false
 
@@ -74,7 +82,7 @@ class TransparentRecordingActivity : Activity() {
         super.onResume()
         if (recordingRequested) return
         if (!checkRecordPermission2()) return
-        if (!prefs.isAppV2 && !checkStoragePermission2()) return
+        if (!isV2Recording && !checkStoragePermission2()) return
         if (projectionDenied) {
             finishWithProjectionDenied()
             return
@@ -95,7 +103,7 @@ class TransparentRecordingActivity : Activity() {
 
     /** Whether the next V2 recording captures system audio and therefore needs consent. */
     private fun needsSystemAudioConsent(): Boolean {
-        if (!prefs.isAppV2) return false
+        if (!isV2Recording) return false
         return try {
             val entryPoint = EntryPointAccessors.fromApplication(
                 applicationContext, RecordingSettingsEntryPoint::class.java
@@ -152,7 +160,7 @@ class TransparentRecordingActivity : Activity() {
 
     private fun startRecordingService() {
         try {
-            if (prefs.isAppV2) {
+            if (isV2Recording) {
                 startRecordingServiceV2()
             } else {
                 startLegacyRecordingService()
@@ -168,7 +176,8 @@ class TransparentRecordingActivity : Activity() {
 
     private fun startRecordingServiceV2() {
         AudioRecordingService.startServiceForeground(
-            applicationContext, projectionResultCode, projectionData
+            applicationContext, projectionResultCode, projectionData,
+            startedFromFloatingOverlay = startedFromFloatingOverlay,
         )
     }
 

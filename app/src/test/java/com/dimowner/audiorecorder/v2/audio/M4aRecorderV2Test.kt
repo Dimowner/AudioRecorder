@@ -20,6 +20,7 @@ import com.dimowner.audiorecorder.exception.InvalidOutputFile
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import io.mockk.slot
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
@@ -145,5 +146,43 @@ class M4aRecorderV2Test {
         verify { mediaRecorder.resumeRecording() }
         verify { mediaRecorder.stopRecording() }
         verify(exactly = 0) { codecRecorder.stopRecording() }
+    }
+
+    @Test
+    fun `a Bluetooth failure stop prevents a queued MediaRecorder fallback`() = runTest {
+        val failureListener = slot<(String) -> Unit>()
+        every { codecRecorder.startFailureListener = capture(failureListener) } answers { Unit }
+        stubCodecStart(AacCodecRecorderV2.StartResult.Started)
+        val recorder = createRecorder()
+        val events = mutableListOf<RecorderEvent>()
+        val collector = launch { recorder.subscribeRecorderEvents().collect { events += it } }
+        advanceUntilIdle()
+        recorder.start()
+        // The codec can already have cleared its recording flag when the service stops after
+        // losing Bluetooth. A queued startup-failure callback must not reopen the phone mic.
+        recorder.stopRecording()
+        failureListener.captured("no-output")
+        advanceUntilIdle()
+        verify(exactly = 0) { mediaRecorder.startRecording(any(), any(), any(), any(), any(), any()) }
+        assertTrue(events.any { it is RecorderEvent.OnError })
+        collector.cancel()
+    }
+
+    @Test fun `fallback cannot silently discard selected PCM gain`() = runTest {
+        stubCodecStart(AacCodecRecorderV2.StartResult.PipelineFailed("codec-start", null))
+        every { mediaRecorder.startRecording(any(), any(), any(), any(), any(), any()) } returns true
+        val recorder = createRecorder()
+        assertFalse(recorder.startRecording(outputFile, 1, 48000, 96000, 0,
+            AudioInput.Mic(MediaRecorder.AudioSource.MIC, gain = com.dimowner.audiorecorder.v2.data.model.PcmGainMode.AUTO_LEVEL)))
+        verify(exactly = 0) { mediaRecorder.startRecording(any(), any(), any(), any(), any(), any()) }
+    }
+
+    @Test fun `fallback cannot silently discard selected preprocessing`() = runTest {
+        stubCodecStart(AacCodecRecorderV2.StartResult.PipelineFailed("codec-start", null))
+        every { mediaRecorder.startRecording(any(), any(), any(), any(), any(), any()) } returns true
+        val recorder = createRecorder()
+        assertFalse(recorder.startRecording(outputFile, 1, 48000, 96000, 0,
+            AudioInput.Mic(MediaRecorder.AudioSource.MIC, preprocessing = com.dimowner.audiorecorder.v2.data.model.InputPreprocessingPolicy.AGC_ONLY)))
+        verify(exactly = 0) { mediaRecorder.startRecording(any(), any(), any(), any(), any(), any()) }
     }
 }

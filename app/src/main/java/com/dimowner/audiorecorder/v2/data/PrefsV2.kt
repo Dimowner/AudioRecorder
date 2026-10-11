@@ -18,10 +18,16 @@ package com.dimowner.audiorecorder.v2.data
 
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
+import com.dimowner.audiorecorder.v2.data.model.BluetoothAudioMode
+import com.dimowner.audiorecorder.v2.data.model.BluetoothCaptureRoute
+import com.dimowner.audiorecorder.v2.data.model.BluetoothVoiceEnhancement
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
+import com.dimowner.audiorecorder.v2.data.model.InputPreprocessingPolicy
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.NameFormatToken
+import com.dimowner.audiorecorder.v2.data.model.PcmGainMode
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
+import com.dimowner.audiorecorder.v2.data.model.RenameSpeechMode
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import kotlinx.coroutines.flow.StateFlow
@@ -53,6 +59,14 @@ interface PrefsV2 {
 
     var isKeepScreenOn: Boolean
 
+    var isFloatingRecorderOverlayEnabled: Boolean
+    var floatingRecorderOverlayX: Int
+    var floatingRecorderOverlayY: Int
+    var floatingRecorderOverlaySize: Int
+    var floatingRecorderRenameOverlayX: Int
+    var floatingRecorderRenameOverlayY: Int
+    var floatingRecorderRenameSpeechMode: RenameSpeechMode
+
     var recordsSortOrder: SortOrder
 
     var isDynamicTheme: Boolean
@@ -80,6 +94,21 @@ interface PrefsV2 {
     var settingBitrate: BitRate
     var settingChannelCount: ChannelCount
     var settingAudioSource: AudioSource
+
+    /** Microphone source for Bluetooth only; never selects system-playback capture. */
+    var bluetoothAudioSource: AudioSource
+
+    /** Scope of audio mode, Android preprocessing and software gain (not source or route). */
+    var applyOnlyToBluetoothMic: Boolean
+
+    /** Experimental capture settings; defaults preserve system routing and input processing. */
+    var bluetoothCaptureRoute: BluetoothCaptureRoute
+    var bluetoothAudioMode: BluetoothAudioMode
+    var inputPreprocessingPolicy: InputPreprocessingPolicy
+    var pcmGainMode: PcmGainMode
+
+    /** Selecting a fixed preset applies its five capture choices together; Custom keeps them. */
+    var bluetoothVoiceEnhancement: BluetoothVoiceEnhancement
 
     var maxRecordingDurationMills: Int
 

@@ -41,6 +41,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import kotlin.intArrayOf
+import com.dimowner.audiorecorder.v2.data.PrefsV2
+import com.dimowner.audiorecorder.v2.data.model.BluetoothCaptureRoute
+import com.dimowner.audiorecorder.v2.data.model.BluetoothAudioMode
 
 @RunWith(AndroidJUnit4::class)
 @Config(application = TestARApplication::class, sdk = [36])
@@ -59,7 +62,11 @@ class AudioManagerHelperTest {
         MockKAnnotations.init(this)
         every { context.getSystemService(Context.AUDIO_SERVICE) } returns audioManager
 
-        audioManagerHelper = AudioManagerHelper(context)
+        val prefs = mockk<PrefsV2>(relaxed = true)
+        every { prefs.bluetoothCaptureRoute } returns if (Build.VERSION.SDK_INT >= 31)
+            BluetoothCaptureRoute.COMMUNICATION_DEVICE else BluetoothCaptureRoute.STANDARD_SCO
+        every { prefs.bluetoothAudioMode } returns BluetoothAudioMode.IN_COMMUNICATION
+        audioManagerHelper = AudioManagerHelper(context, prefs)
     }
 
     @Test

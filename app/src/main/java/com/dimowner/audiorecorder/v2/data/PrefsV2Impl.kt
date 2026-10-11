@@ -24,10 +24,17 @@ import com.dimowner.audiorecorder.AppConstants.PREF_NAME
 import com.dimowner.audiorecorder.v2.DefaultValues
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
+import com.dimowner.audiorecorder.v2.data.model.BluetoothAudioMode
+import com.dimowner.audiorecorder.v2.data.model.BluetoothCaptureRoute
+import com.dimowner.audiorecorder.v2.data.model.BluetoothVoiceEnhancement
+import com.dimowner.audiorecorder.v2.data.model.BluetoothVoiceConfiguration
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
+import com.dimowner.audiorecorder.v2.data.model.InputPreprocessingPolicy
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.NameFormatToken
+import com.dimowner.audiorecorder.v2.data.model.PcmGainMode
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
+import com.dimowner.audiorecorder.v2.data.model.RenameSpeechMode
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import com.dimowner.audiorecorder.v2.data.model.SortOrder
 import com.dimowner.audiorecorder.v2.data.model.convertToBitRate
@@ -64,6 +71,32 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
 
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+
+    init { migrateBluetoothSource() }
+
+    private fun migrateBluetoothSource() {
+        if (sharedPreferences.contains(PREF_KEY_BLUETOOTH_AUDIO_SOURCE)) return
+        // Snapshot the old shared source once. Subsequent phone/source edits must not leak into
+        // the Bluetooth profile. Playback capture is selected exclusively by the external source.
+        val oldSource = settingAudioSource
+        val legacy = BluetoothVoiceConfiguration(oldSource, bluetoothCaptureRoute,
+            readEnum(PREF_KEY_BLUETOOTH_AUDIO_MODE, BluetoothAudioMode.IN_COMMUNICATION),
+            inputPreprocessingPolicy, pcmGainMode)
+        val label = sharedPreferences.getString(PREF_KEY_BLUETOOTH_VOICE_ENHANCEMENT, null)
+        val oldDisabled = legacy == BluetoothVoiceConfiguration.STANDARD.copy(mode = BluetoothAudioMode.IN_COMMUNICATION) &&
+            (label == null || label == BluetoothVoiceEnhancement.DISABLED.name)
+        val hasLegacySettings = listOf(PREF_KEY_SETTING_AUDIO_SOURCE, PREF_KEY_BLUETOOTH_VOICE_ENHANCEMENT,
+            PREF_KEY_BLUETOOTH_CAPTURE_ROUTE, PREF_KEY_BLUETOOTH_AUDIO_MODE,
+            PREF_KEY_INPUT_PREPROCESSING_POLICY, PREF_KEY_PCM_GAIN_MODE).any(sharedPreferences::contains)
+        sharedPreferences.edit {
+            putInt(PREF_KEY_BLUETOOTH_AUDIO_SOURCE, oldSource.takeUnless { it.isSystemAudio }?.value ?: AudioSource.DEFAULT.value)
+            if (oldDisabled) putString(PREF_KEY_BLUETOOTH_AUDIO_MODE, BluetoothAudioMode.NORMAL.name)
+            else if (hasLegacySettings && !sharedPreferences.contains(PREF_KEY_BLUETOOTH_AUDIO_MODE)) {
+                // A custom setup could have relied on the previous implicit IN_COMMUNICATION.
+                putString(PREF_KEY_BLUETOOTH_AUDIO_MODE, legacy.mode.name)
+            }
+        }
+    }
 
     private val _isDarkThemeFlow = MutableStateFlow(
         sharedPreferences.getBoolean(PREF_KEY_IS_DARK_THEME, DefaultValues.IS_DARK_THEME)
@@ -170,6 +203,64 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         set(value) {
             sharedPreferences.edit {
                 putBoolean(PREF_KEY_KEEP_SCREEN_ON, value)
+            }
+        }
+
+    override var isFloatingRecorderOverlayEnabled: Boolean
+        get() = sharedPreferences.getBoolean(PREF_KEY_FLOATING_RECORDER_OVERLAY_ENABLED, false)
+        set(value) {
+            sharedPreferences.edit {
+                putBoolean(PREF_KEY_FLOATING_RECORDER_OVERLAY_ENABLED, value)
+            }
+        }
+
+    override var floatingRecorderOverlayX: Int
+        get() = sharedPreferences.getInt(PREF_KEY_FLOATING_RECORDER_OVERLAY_X, -1)
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_FLOATING_RECORDER_OVERLAY_X, value)
+            }
+        }
+
+    override var floatingRecorderOverlayY: Int
+        get() = sharedPreferences.getInt(PREF_KEY_FLOATING_RECORDER_OVERLAY_Y, -1)
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_FLOATING_RECORDER_OVERLAY_Y, value)
+            }
+        }
+
+    override var floatingRecorderOverlaySize: Int
+        get() = sharedPreferences.getInt(PREF_KEY_FLOATING_RECORDER_OVERLAY_SIZE, -1)
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_FLOATING_RECORDER_OVERLAY_SIZE, value)
+            }
+        }
+
+    override var floatingRecorderRenameOverlayX: Int
+        get() = sharedPreferences.getInt(PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_X, -1)
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_X, value)
+            }
+        }
+
+    override var floatingRecorderRenameOverlayY: Int
+        get() = sharedPreferences.getInt(PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_Y, -1)
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_Y, value)
+            }
+        }
+
+    override var floatingRecorderRenameSpeechMode: RenameSpeechMode
+        get() = RenameSpeechMode.fromPersistedValue(
+            sharedPreferences.getInt(PREF_KEY_FLOATING_RECORDER_RENAME_SPEECH_MODE, RenameSpeechMode.Append.persistedValue)
+        )
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_FLOATING_RECORDER_RENAME_SPEECH_MODE, value.persistedValue)
             }
         }
 
@@ -293,6 +384,83 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             }
         }
 
+    override var bluetoothAudioSource: AudioSource
+        get() = AudioSource.fromValue(sharedPreferences.getInt(PREF_KEY_BLUETOOTH_AUDIO_SOURCE, AudioSource.DEFAULT.value))
+            .takeUnless { it.isSystemAudio } ?: AudioSource.DEFAULT
+        set(value) {
+            require(!value.isSystemAudio) { "System playback is not a Bluetooth microphone source" }
+            val changed = value != bluetoothAudioSource
+            sharedPreferences.edit {
+                putInt(PREF_KEY_BLUETOOTH_AUDIO_SOURCE, value.value)
+                if (changed) putString(PREF_KEY_BLUETOOTH_VOICE_ENHANCEMENT, BluetoothVoiceEnhancement.CUSTOM.name)
+            }
+        }
+
+    override var applyOnlyToBluetoothMic: Boolean
+        get() = sharedPreferences.getBoolean(PREF_KEY_APPLY_ONLY_TO_BLUETOOTH_MIC, true)
+        set(value) { sharedPreferences.edit { putBoolean(PREF_KEY_APPLY_ONLY_TO_BLUETOOTH_MIC, value) } }
+
+    override var bluetoothCaptureRoute: BluetoothCaptureRoute
+        get() = readEnum(PREF_KEY_BLUETOOTH_CAPTURE_ROUTE, BluetoothCaptureRoute.STANDARD_SCO)
+        set(value) = writeExperimentEnum(PREF_KEY_BLUETOOTH_CAPTURE_ROUTE, value, bluetoothCaptureRoute)
+
+    override var bluetoothAudioMode: BluetoothAudioMode
+        get() = readEnum(PREF_KEY_BLUETOOTH_AUDIO_MODE, BluetoothAudioMode.NORMAL)
+        set(value) = writeExperimentEnum(PREF_KEY_BLUETOOTH_AUDIO_MODE, value, bluetoothAudioMode)
+
+    override var inputPreprocessingPolicy: InputPreprocessingPolicy
+        get() = readEnum(PREF_KEY_INPUT_PREPROCESSING_POLICY, InputPreprocessingPolicy.SYSTEM_DEFAULT)
+        set(value) = writeExperimentEnum(PREF_KEY_INPUT_PREPROCESSING_POLICY, value, inputPreprocessingPolicy)
+
+    override var pcmGainMode: PcmGainMode
+        get() = readEnum(PREF_KEY_PCM_GAIN_MODE, PcmGainMode.OFF)
+        set(value) = writeExperimentEnum(PREF_KEY_PCM_GAIN_MODE, value, pcmGainMode)
+
+    override var bluetoothVoiceEnhancement: BluetoothVoiceEnhancement
+        get() {
+            val current = BluetoothVoiceConfiguration(bluetoothAudioSource, bluetoothCaptureRoute,
+                bluetoothAudioMode, inputPreprocessingPolicy, pcmGainMode)
+            val inferred = BluetoothVoiceEnhancement.fromConfiguration(current)
+            val stored = readEnum(PREF_KEY_BLUETOOTH_VOICE_ENHANCEMENT, inferred)
+            // Explicit Custom is kept even when its values happen to equal a preset. Conversely,
+            // a stale label restored from backup must never promise an unapplied fixed preset.
+            return if (stored == BluetoothVoiceEnhancement.CUSTOM || stored.configuration == current) stored
+                else BluetoothVoiceEnhancement.CUSTOM
+        }
+        set(value) {
+            sharedPreferences.edit {
+                putString(PREF_KEY_BLUETOOTH_VOICE_ENHANCEMENT, value.name)
+                value.configuration?.let { configuration ->
+                    // A single editor publishes all five choices together. Calling the individual
+                    // setters here would expose intermediate combinations and mark them Custom.
+                    putInt(PREF_KEY_BLUETOOTH_AUDIO_SOURCE, configuration.source.value)
+                    putString(PREF_KEY_BLUETOOTH_CAPTURE_ROUTE, configuration.route.name)
+                    putString(PREF_KEY_BLUETOOTH_AUDIO_MODE, configuration.mode.name)
+                    putString(PREF_KEY_INPUT_PREPROCESSING_POLICY, configuration.preprocessing.name)
+                    putString(PREF_KEY_PCM_GAIN_MODE, configuration.gain.name)
+                }
+            }
+        }
+
+    private inline fun <reified T : Enum<T>> readEnum(key: String, default: T): T {
+        val name = sharedPreferences.getString(key, null) ?: return default
+        // Enum's name lookup is cached, unlike scanning entries on every preference read.
+        // Unknown names can be left by newer app versions; fall back without rewriting them.
+        return try {
+            enumValueOf<T>(name)
+        } catch (_: IllegalArgumentException) {
+            default
+        }
+    }
+
+    private fun writeExperimentEnum(key: String, value: Enum<*>, previous: Enum<*>) {
+        // Ordinals are not stable when a future release inserts another experimental option.
+        sharedPreferences.edit {
+            putString(key, value.name)
+            if (value != previous) putString(PREF_KEY_BLUETOOTH_VOICE_ENHANCEMENT, BluetoothVoiceEnhancement.CUSTOM.name)
+        }
+    }
+
     override var maxRecordingDurationMills: Int
         get() = sharedPreferences.getInt(
             PREF_KEY_MAX_RECORDING_DURATION_MILLS,
@@ -317,6 +485,14 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
 
     override fun resetRecordingSettings() {
         sharedPreferences.edit {
+            remove(PREF_KEY_BLUETOOTH_VOICE_ENHANCEMENT)
+            remove(PREF_KEY_BLUETOOTH_CAPTURE_ROUTE)
+            remove(PREF_KEY_BLUETOOTH_AUDIO_MODE)
+            remove(PREF_KEY_INPUT_PREPROCESSING_POLICY)
+            remove(PREF_KEY_PCM_GAIN_MODE)
+            remove(PREF_KEY_SETTING_AUDIO_SOURCE)
+            putInt(PREF_KEY_BLUETOOTH_AUDIO_SOURCE, AudioSource.DEFAULT.value)
+            remove(PREF_KEY_APPLY_ONLY_TO_BLUETOOTH_MIC)
             putString(
                 PREF_KEY_SETTING_RECORDING_FORMAT,
                 DefaultValues.DefaultRecordingFormat.value
@@ -339,6 +515,7 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
     override fun fullPreferenceReset() {
         sharedPreferences.edit {
             clear()
+            putInt(PREF_KEY_BLUETOOTH_AUDIO_SOURCE, AudioSource.DEFAULT.value)
         }
     }
 
@@ -353,7 +530,25 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         private const val PREF_KEY_IS_DARK_THEME = "pref_is_dark_theme"
         private const val PREF_KEY_MAX_RECORDING_DURATION_MILLS = "pref_key_max_recording_duration_mills"
         private const val PREF_KEY_SETTING_AUDIO_SOURCE = "pref_key_setting_audio_source"
+        private const val PREF_KEY_BLUETOOTH_AUDIO_SOURCE = "pref_key_bluetooth_audio_source"
+        private const val PREF_KEY_APPLY_ONLY_TO_BLUETOOTH_MIC = "pref_key_apply_only_to_bluetooth_mic"
+        private const val PREF_KEY_BLUETOOTH_CAPTURE_ROUTE = "pref_key_bluetooth_capture_route"
+        private const val PREF_KEY_BLUETOOTH_AUDIO_MODE = "pref_key_bluetooth_audio_mode"
+        private const val PREF_KEY_INPUT_PREPROCESSING_POLICY = "pref_key_input_preprocessing_policy"
+        private const val PREF_KEY_PCM_GAIN_MODE = "pref_key_pcm_gain_mode"
+        private const val PREF_KEY_BLUETOOTH_VOICE_ENHANCEMENT = "pref_key_bluetooth_voice_enhancement"
         private const val PREF_KEY_RECORD_AUTHOR_NAME = "pref_key_record_author_name"
+        private const val PREF_KEY_FLOATING_RECORDER_OVERLAY_ENABLED =
+            "pref_key_floating_recorder_overlay_enabled"
+        private const val PREF_KEY_FLOATING_RECORDER_OVERLAY_X = "pref_key_floating_recorder_overlay_x"
+        private const val PREF_KEY_FLOATING_RECORDER_OVERLAY_Y = "pref_key_floating_recorder_overlay_y"
+        private const val PREF_KEY_FLOATING_RECORDER_OVERLAY_SIZE = "pref_key_floating_recorder_overlay_size"
+        private const val PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_X =
+            "pref_key_floating_recorder_rename_overlay_x"
+        private const val PREF_KEY_FLOATING_RECORDER_RENAME_OVERLAY_Y =
+            "pref_key_floating_recorder_rename_overlay_y"
+        private const val PREF_KEY_FLOATING_RECORDER_RENAME_SPEECH_MODE =
+            "pref_key_floating_recorder_rename_speech_mode"
         private const val PREF_KEY_SAVE_DESCRIPTION_TO_FILE = "pref_key_save_description_to_file"
         private const val PREF_KEY_IS_LOCAL_STORAGE_INFO_SHOWN = "pref_key_is_local_storage_info_shown"
         private const val PREF_KEY_CUSTOM_NAME_FORMAT = "pref_key_custom_name_format"

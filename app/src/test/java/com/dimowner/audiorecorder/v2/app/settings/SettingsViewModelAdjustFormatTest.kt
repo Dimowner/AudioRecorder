@@ -66,6 +66,7 @@ class SettingsViewModelAdjustFormatTest {
         fileDataSource = mockk(relaxed = true)
         audioPlayer = mockk(relaxed = true)
         audioRecorderDelegate = mockk(relaxed = true)
+        every { audioRecorderDelegate.captureSessionActive } returns kotlinx.coroutines.flow.MutableStateFlow(false)
         analyticsTracker = mockk(relaxed = true)
         context = ApplicationProvider.getApplicationContext()
     }

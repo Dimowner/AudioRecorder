@@ -11,7 +11,8 @@ import javax.inject.Singleton
 class AudioRecorderV2 @Inject constructor(
     @ApplicationContext applicationContext: Context,
     coroutineScope: CoroutineScope,
-) : MediaRecorderBase(applicationContext, coroutineScope) {
+    diagnostics: CaptureDiagnostics = CaptureDiagnostics(),
+) : MediaRecorderBase(applicationContext, coroutineScope, diagnostics = diagnostics) {
 
     override val recordingLogTag: String = "AAC "
 

@@ -24,6 +24,11 @@ import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
 import kotlinx.parcelize.Parcelize
+import com.dimowner.audiorecorder.v2.data.model.BluetoothCaptureRoute
+import com.dimowner.audiorecorder.v2.data.model.BluetoothAudioMode
+import com.dimowner.audiorecorder.v2.data.model.BluetoothVoiceEnhancement
+import com.dimowner.audiorecorder.v2.data.model.InputPreprocessingPolicy
+import com.dimowner.audiorecorder.v2.data.model.PcmGainMode
 
 @Parcelize
 data class SettingsState(
@@ -31,6 +36,7 @@ data class SettingsState(
     val isDarkTheme: Boolean,
     val isAppV2: Boolean,
     val isKeepScreenOn: Boolean,
+    val isFloatingRecorderOverlayEnabled: Boolean,
     val isShowRenameDialog: Boolean,
     val isRecordingSettingEditable: Boolean,
     val nameFormats: List<NameFormatItem>,
@@ -52,6 +58,14 @@ data class SettingsState(
     val recordAuthorName: String,
     /** True when the user previously used V1 and intentionally switched to V2. */
     val isLegacyAppUser: Boolean = false,
+    val bluetoothCaptureRoute: BluetoothCaptureRoute = BluetoothCaptureRoute.STANDARD_SCO,
+    val bluetoothAudioSource: AudioSource = AudioSource.DEFAULT,
+    val applyOnlyToBluetoothMic: Boolean = true,
+    val bluetoothAudioMode: BluetoothAudioMode = BluetoothAudioMode.NORMAL,
+    val inputPreprocessingPolicy: InputPreprocessingPolicy = InputPreprocessingPolicy.SYSTEM_DEFAULT,
+    val pcmGainMode: PcmGainMode = PcmGainMode.OFF,
+    val bluetoothVoiceEnhancement: BluetoothVoiceEnhancement = BluetoothVoiceEnhancement.DISABLED,
+    val captureDiagnostics: String = "",
 ) : Parcelable
 
 @Parcelize
