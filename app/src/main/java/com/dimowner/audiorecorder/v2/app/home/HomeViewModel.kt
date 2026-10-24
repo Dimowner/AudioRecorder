@@ -582,11 +582,7 @@ class HomeViewModel @Inject constructor(
             }
         }
 
-        val audioSource = prefs.settingAudioSource
-        _state.value = _state.value.copy(
-            selectedAudioSource = audioSource,
-            isSystemAudioRecordingSelected = audioSource.isSystemAudio && isSystemAudioCaptureSupported(),
-        )
+        _state.value = _state.value.withAudioSource(prefs.settingAudioSource)
 
         showLoadingProgress(true)
         viewModelScope.launch(ioDispatcher) {
@@ -741,6 +737,10 @@ class HomeViewModel @Inject constructor(
                     // Preserve Bluetooth mic state when resetting the screen state,
                     // otherwise devices detected before this reset never reappear
                     // (bluetoothMicState is a StateFlow and won't re-emit an unchanged value).
+                    // The audio source is re-read from prefs for the same reason: onStart() sets
+                    // it and runs this right after, so a reset that dropped it would leave the
+                    // record button without the system audio consent step, and the recording
+                    // would silently come from the microphone.
                     val bluetoothState = audioManagerHelper.bluetoothMicState.value
                     _state.value = HomeScreenState(
                         bottomBarState = bottomBarState,
@@ -753,11 +753,20 @@ class HomeViewModel @Inject constructor(
                         alwaysUseBluetoothMic = prefs.alwaysUseBluetoothMic,
                         // Preserve a pending local-storage info dialog across this full reset.
 //                        showLocalStorageInfoDialog = _state.value.showLocalStorageInfoDialog,
-                    )
+                    ).withAudioSource(prefs.settingAudioSource)
                 }
             }
         }
     }
+
+    /**
+     * Applies the chosen audio source, and whether recording it needs MediaProjection consent
+     * first - only system audio does, and only where the platform can capture playback.
+     */
+    private fun HomeScreenState.withAudioSource(audioSource: AudioSource) = copy(
+        selectedAudioSource = audioSource,
+        isSystemAudioRecordingSelected = audioSource.isSystemAudio && isSystemAudioCaptureSupported(),
+    )
 
     private fun RecordingServiceState?.toBottomBarState(): BottomBarState {
         return if (this?.isPaused() == true) {

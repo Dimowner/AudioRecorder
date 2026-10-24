@@ -165,8 +165,14 @@ internal fun HomeScreen(
             if (manager != null) {
                 mediaProjectionLauncher.launch(manager.createScreenCaptureIntent())
             } else {
-                Timber.e("MediaProjectionManager is unavailable; recording the microphone")
-                onAction(HomeScreenAction.OnStartRecordingClick())
+                // Not a reason to record the microphone: that is not what the user selected.
+                Timber.e("MediaProjectionManager is unavailable; not starting the recording")
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = msgSystemAudioDenied,
+                        duration = SnackbarDuration.Long
+                    )
+                }
             }
         } else {
             onAction(HomeScreenAction.OnStartRecordingClick())

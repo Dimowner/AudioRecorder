@@ -53,6 +53,12 @@ enum class RecordingStartFailureReason(val label: String) {
     /** Reading or writing the record was denied. */
     PERMISSION_DENIED("permission_denied"),
 
+    /**
+     * System audio was selected but no MediaProjection came with the start request, so the
+     * recording was refused instead of falling back to the microphone.
+     */
+    SYSTEM_AUDIO_UNAVAILABLE("system_audio_unavailable"),
+
     /** An error that has no dedicated reason yet; check `error_class` on the report. */
     UNKNOWN("unknown");
 
