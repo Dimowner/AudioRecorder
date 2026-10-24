@@ -269,7 +269,7 @@ class AudioRecordingService : Service() {
                 if (useSystemAudio) {
                     createMediaProjection(intent)
                     if (mediaProjection == null) {
-                        // The recording falls back to the microphone, so drop the type it no
+                        // handleStartRecording() refuses the start, so drop the type it no
                         // longer backs rather than running as a projection service holding none.
                         startForegroundWithNotification(withMediaProjection = false)
                     }
@@ -533,16 +533,17 @@ class AudioRecordingService : Service() {
      * Picks what this recording captures.
      *
      * System audio needs a projection granted for *this* start. Both entry points collect that
-     * consent before starting the service, so a missing projection here means the token could not
-     * be redeemed (it is single-use from Android 14) rather than a user choice. The recording
-     * falls back to the microphone instead of failing outright, and the stored preference is left
-     * alone so the next attempt still tries system audio.
+     * consent before starting the service, so a missing projection here means the consent step was
+     * skipped or the token could not be redeemed (it is single-use from Android 14). Returns
+     * `null` then, and the caller refuses to record: a microphone recording filed under a System
+     * Audio selection is worse than none, because the user only finds out once the file is
+     * useless. The stored preference is left alone so the next attempt still tries system audio.
      *
      * When a recording is split on [prefs].maxRecordingDurationMills the next part comes through
      * here again with no new intent; it reuses the same live projection, which stays valid until
      * the service releases it.
      */
-    private fun resolveAudioInput(): AudioInput {
+    private fun resolveAudioInput(): AudioInput? {
         val source = prefs.settingAudioSource
         if (!source.isSystemAudio) {
             return AudioInput.Mic(source.value)
@@ -555,8 +556,8 @@ class AudioRecordingService : Service() {
         }
         val projection = mediaProjection
         if (projection == null) {
-            Timber.w("System audio was selected but no MediaProjection was granted; using the mic")
-            return AudioInput.Mic(DefaultValues.DefaultAudioSource.value)
+            Timber.e("System audio was selected but no MediaProjection was granted")
+            return null
         }
         return AudioInput.SystemPlayback(projection)
     }
@@ -569,6 +570,23 @@ class AudioRecordingService : Service() {
     // - Start recording
     private suspend fun handleStartRecording(recordName: String): Long? {
         val audioInput = resolveAudioInput()
+        if (audioInput == null) {
+            startingAudioSource = AudioSource.SYSTEM_AUDIO.name.lowercase()
+            analyticsTracker.trackRecordingStartFailed(
+                buildRecordingStartFailure(
+                    reason = RecordingStartFailureReason.SYSTEM_AUDIO_UNAVAILABLE,
+                    format = prefs.settingRecordingFormat.value,
+                    sampleRate = prefs.settingSampleRate.value,
+                    bitrate = prefs.settingBitrate.value,
+                    channelCount = prefs.settingChannelCount.value,
+                )
+            )
+            emitEvent(AudioRecordingServiceEvent.ShowErrorSnack(
+                applicationContext.getString(R.string.msg_permission_system_audio_denied)
+            ))
+            stopForegroundService()
+            return null
+        }
         val rawFormat = prefs.settingRecordingFormat
         val format = if (rawFormat == RecordingFormat.ThreeGp && audioInput !is AudioInput.Mic) {
             prefs.settingRecordingFormat = DefaultValues.DefaultRecordingFormat
@@ -749,8 +767,8 @@ class AudioRecordingService : Service() {
     /**
      * Turns the consent result carried by [intent] into a live [MediaProjection].
      *
-     * Failing here is not fatal: [handleStartRecording] sees a null projection and records the
-     * microphone instead, which is better than refusing to record at all.
+     * Failing here leaves [mediaProjection] null, and [handleStartRecording] then reports that
+     * system audio could not be captured instead of recording the microphone.
      */
     private fun createMediaProjection(intent: Intent) {
         val data = intent.projectionDataExtra() ?: return

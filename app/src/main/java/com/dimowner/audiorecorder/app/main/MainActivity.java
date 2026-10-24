@@ -51,6 +51,7 @@ import com.dimowner.audiorecorder.app.DecodeServiceListener;
 import com.dimowner.audiorecorder.app.DownloadService;
 import com.dimowner.audiorecorder.app.PlaybackService;
 import com.dimowner.audiorecorder.app.RecordingService;
+import com.dimowner.audiorecorder.app.TransparentRecordingActivity;
 import com.dimowner.audiorecorder.app.info.ActivityInformation;
 import com.dimowner.audiorecorder.app.info.RecordInfo;
 import com.dimowner.audiorecorder.app.moverecords.MoveRecordsActivity;
@@ -71,7 +72,6 @@ import com.dimowner.audiorecorder.util.AnimationUtil;
 import com.dimowner.audiorecorder.util.FileUtil;
 import com.dimowner.audiorecorder.util.TimeUtils;
 import com.dimowner.audiorecorder.v2.app.HomeActivity;
-import com.dimowner.audiorecorder.v2.audio.AudioRecordingService;
 
 import java.io.File;
 import java.util.List;
@@ -559,8 +559,16 @@ public class MainActivity extends Activity implements MainContract.View, View.On
 		}
 	}
 
+	/**
+	 * Goes through TransparentRecordingActivity instead of starting the service directly: a
+	 * System Audio recording needs MediaProjection consent, which only an Activity can collect,
+	 * and that activity already does it for the widget. Starting the service from here would
+	 * leave it without a projection and the recording would be refused.
+	 */
 	private void startRecordingServiceV2() {
-		AudioRecordingService.Companion.startServiceForeground(getApplicationContext());
+		Intent intent = new Intent(getApplicationContext(), TransparentRecordingActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		startActivity(intent);
 	}
 
 	@Override
