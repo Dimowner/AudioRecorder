@@ -38,7 +38,6 @@ import com.dimowner.audiorecorder.AppConstants
 import com.dimowner.audiorecorder.AppConstantsV2
 import com.dimowner.audiorecorder.R
 import com.dimowner.audiorecorder.app.DecodeService
-import com.dimowner.audiorecorder.audio.AudioDecoder
 import com.dimowner.audiorecorder.audio.player.PlayerContractNew
 import com.dimowner.audiorecorder.exception.AlreadyRecordingException
 import com.dimowner.audiorecorder.exception.AppException
@@ -60,7 +59,6 @@ import com.dimowner.audiorecorder.v2.data.RecordsDataSource
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
-import com.dimowner.audiorecorder.v2.data.model.convertToRecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.isSystemAudioCaptureSupported
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import dagger.hilt.android.AndroidEntryPoint
@@ -156,6 +154,10 @@ class AudioRecordingService : Service() {
     @Inject
     @IoDispatcher
     lateinit var ioDispatcher: CoroutineDispatcher
+
+    /** The instant replay buffer, which gives up the microphone while a recording runs. */
+    @Inject
+    lateinit var replayBufferRecorder: ReplayBufferRecorder
 
     private val serviceJob = SupervisorJob()
     private val serviceScope by lazy { CoroutineScope(ioDispatcher + serviceJob) }
@@ -259,6 +261,10 @@ class AudioRecordingService : Service() {
                 // through, including the home screen widget, which otherwise records over the
                 // track that is playing.
                 stopPlaybackBeforeRecording()
+                // Same reasoning for the instant replay buffer: it must release the microphone
+                // before the recorder opens it. Blocks until its capture has stopped; it resumes
+                // in stopForegroundService(), keeping what it buffered before.
+                replayBufferRecorder.pauseForRecording()
                 // The projection has to exist before handleStartRecording() picks an input, but
                 // it can only be created once the service is foreground with the mediaProjection
                 // type (enforced from Android 14), hence this ordering.
@@ -620,27 +626,9 @@ class AudioRecordingService : Service() {
         }
         try {
             val recordFile = fileDataSource.createRecordFile(addExtension(recordName))
-            // Use the actual file name (without extension) in case a suffix was added to avoid collision
-            val actualRecordName = recordFile.nameWithoutExtension
-            val record = Record(
-                id = 0,
-                name = actualRecordName,
-                durationMills = 0,
-                created = recordFile.lastModified(),
-                added = System.currentTimeMillis(),
-                removed = Long.MAX_VALUE,
-                path = recordFile.absolutePath,
-                format = format.value,
-                size = 0,
-                sampleRate = sampleRate,
-                channelCount = channelCount,
-                bitrate = if (format.hasBitrate) bitrate else 0,
-                isBookmarked = false,
-                isWaveformProcessed = false,
-                isMovedToRecycle = false,
-                amps = IntArray(ARApplication.longWaveformSampleCount),
-                description = "",
-            )
+            val record = newRecordEntity(recordFile, format, sampleRate, channelCount, bitrate)
+            // The actual file name, in case a suffix was added to avoid a collision
+            val actualRecordName = record.name
             val id = recordsDataSource.insertRecord(record)
             prefs.activeRecordId = -1
             prefs.recordedRecordId = id
@@ -857,21 +845,14 @@ class AudioRecordingService : Service() {
             if (recordedRecordId >= 0) {
                 val record = recordsDataSource.getRecord(recordedRecordId)
                 if (record != null) {
-                    val output = File(record.path)
-                    val info = AudioDecoder.readRecordInfo(output)
-                    output.writeTags(record.name, prefs.recordAuthorName)
-                    val recordUpdated = record.copy(
-                        durationMills = info.duration / 1000,
-                        format = info.format,
-                        size = info.size,
-                        sampleRate = info.sampleRate,
-                        channelCount = info.channelCount,
-                        bitrate = if (record.format.convertToRecordingFormat()?.hasBitrate == true) info.bitrate else 0,
-                        // Persist the full-session amplitude data captured during recording as
-                        // the initial waveform. Gives the UI an immediate waveform to display
-                        // while DecodeService runs in the background to produce the final version.
-                        amps = recordingFullDataBuffer.downsampleToIntArray(),
-                    )
+                    val recordUpdated = record
+                        .completeFromFile(File(record.path), prefs.recordAuthorName)
+                        .copy(
+                            // Persist the full-session amplitude data captured during recording as
+                            // the initial waveform. Gives the UI an immediate waveform to display
+                            // while DecodeService runs in the background to produce the final version.
+                            amps = recordingFullDataBuffer.downsampleToIntArray(),
+                        )
                     val success = recordsDataSource.updateRecord(recordUpdated)
                     _recordingState.value = _recordingState.value.copy(
                         recordingState = RecordingState.STOPPED,
@@ -966,6 +947,9 @@ class AudioRecordingService : Service() {
 
     private fun stopForegroundService() {
         isStartingRecording = false
+        // Every way out of a recording (stop, failure, cancel) ends here, so the instant replay
+        // buffer gets the microphone back exactly once per recording session.
+        replayBufferRecorder.resumeAfterRecording()
         releaseMediaProjection()
         recordingAmplitudes.clear()
         totalRecordingSampleCount = 0

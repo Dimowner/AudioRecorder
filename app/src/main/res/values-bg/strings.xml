@@ -459,4 +459,19 @@
     <string name="name_format_preset_date_iso8601">Дата ISO 8601</string>
     <string name="name_format_preset_date_long">Дълга дата</string>
     <string name="name_format_preset_custom">Персонализиран</string>
+    <!-- Instant replay -->
+    <string name="replay_buffer_title">Незабавно повторение</string>
+    <string name="replay_buffer_description">Записва във фонов режим и пази само последните минути. Запазете ги по всяко време.</string>
+    <string name="replay_buffer_duration">Продължителност на незабавното повторение</string>
+    <string name="replay_buffer_duration_subtitle">Използва около %s от хранилището</string>
+    <string name="replay_buffer_option">%1$d мин (%2$s)</string>
+    <string name="replay_buffer_channel_description">Показва се, докато незабавното повторение пази последните минути аудио</string>
+    <string name="replay_buffer_notification_title">Незабавното повторение е включено</string>
+    <string name="replay_buffer_notification_text">Пази последните %d мин</string>
+    <string name="replay_buffer_notification_paused">На пауза по време на запис</string>
+    <string name="replay_buffer_saving">Запазване…</string>
+    <string name="replay_buffer_save">Запази последните %d мин</string>
+    <string name="replay_buffer_nothing_to_save">Все още няма нищо за запазване</string>
+    <string name="replay_buffer_not_enough_space">Няма достатъчно свободно място за незабавно повторение</string>
+    <string name="replay_buffer_start_failed">Незабавното повторение не може да стартира: микрофонът е недостъпен</string>
 </resources>

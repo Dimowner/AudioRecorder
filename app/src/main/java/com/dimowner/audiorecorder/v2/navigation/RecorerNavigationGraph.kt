@@ -178,7 +178,8 @@ fun RecorderNavigationGraph(
                     if (it is SettingsScreenAction.SetAppV2) {
                         onSwitchToLegacyApp()
                     }
-                }
+                },
+                event = settingsViewModel.event,
             )
         }
         composable(Routes.NAME_FORMAT_CONSTRUCTOR_SCREEN) { entry ->

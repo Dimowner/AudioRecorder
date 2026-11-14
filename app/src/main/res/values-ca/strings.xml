@@ -485,4 +485,19 @@
     <string name="name_format_preset_date_iso8601">Data ISO 8601</string>
     <string name="name_format_preset_date_long">Data llarga</string>
     <string name="name_format_preset_custom">Personalitzat</string>
+    <!-- Instant replay -->
+    <string name="replay_buffer_title">Repetició instantània</string>
+    <string name="replay_buffer_description">Grava en segon pla i només conserva els últims minuts. Desa\'ls quan vulguis.</string>
+    <string name="replay_buffer_duration">Durada de la repetició instantània</string>
+    <string name="replay_buffer_duration_subtitle">Utilitza uns %s d\'emmagatzematge</string>
+    <string name="replay_buffer_option">%1$d min (%2$s)</string>
+    <string name="replay_buffer_channel_description">Es mostra mentre la repetició instantània conserva els darrers minuts d\'àudio</string>
+    <string name="replay_buffer_notification_title">La repetició instantània està activada</string>
+    <string name="replay_buffer_notification_text">Conserva els darrers %d min</string>
+    <string name="replay_buffer_notification_paused">En pausa durant l\'enregistrament</string>
+    <string name="replay_buffer_saving">S\'està desant…</string>
+    <string name="replay_buffer_save">Desa els darrers %d min</string>
+    <string name="replay_buffer_nothing_to_save">Encara no hi ha res per desar</string>
+    <string name="replay_buffer_not_enough_space">No hi ha prou espai lliure per a la repetició instantània</string>
+    <string name="replay_buffer_start_failed">No es pot iniciar la repetició instantània: el micròfon no està disponible</string>
 </resources>

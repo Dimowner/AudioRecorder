@@ -138,8 +138,8 @@ fun SettingsItemCheckBox(
     iconRes: Int,
     onCheckedChange: ((Boolean) -> Unit),
     enabled: Boolean = true,
+    description: String? = null,
 ) {
-    val checkState = remember { mutableStateOf(checked) }
     Row(
         modifier = Modifier
             .wrapContentHeight()
@@ -154,26 +154,38 @@ fun SettingsItemCheckBox(
             painter = painterResource(id = iconRes),
             contentDescription = label
         )
-        Text(
+        Column(
             modifier = Modifier
                 .padding(0.dp, 12.dp, 0.dp, 12.dp)
                 .weight(1f)
                 .wrapContentHeight(),
-            text = label,
-            fontSize = 20.sp,
-            fontFamily = FontFamily(
-                Font(
-                    DeviceFontFamilyName("sans-serif"),
-                    weight = FontWeight.Light
+        ) {
+            Text(
+                text = label,
+                fontSize = 20.sp,
+                fontFamily = FontFamily(
+                    Font(
+                        DeviceFontFamilyName("sans-serif"),
+                        weight = FontWeight.Light
+                    )
+                ),
+            )
+            if (description != null) {
+                Text(
+                    text = description,
+                    fontSize = 14.sp,
+                    lineHeight = 18.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
                 )
-            ),
-        )
+            }
+        }
+        // Controlled by [checked]: the switch shows what the caller's state says, so a change the
+        // caller refuses (a denied permission, too little free space) springs back instead of
+        // staying visually on.
         Switch(
-            checked = checkState.value,
-            onCheckedChange = {
-                checkState.value = it
-                onCheckedChange(it)
-            },
+            checked = checked,
+            onCheckedChange = onCheckedChange,
             enabled = enabled,
             modifier = Modifier.padding(8.dp)
         )

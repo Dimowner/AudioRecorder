@@ -85,6 +85,15 @@ interface PrefsV2 {
 
     var recordAuthorName: String
 
+    /**
+     * Whether the instant replay buffer should run. Set only after RECORD_AUDIO was granted; the
+     * buffer is (re)started from the app while this is true, never at boot.
+     */
+    var isReplayBufferEnabled: Boolean
+
+    /** How many minutes the instant replay buffer keeps; one of ReplayBufferConfig's options. */
+    var replayBufferDurationMinutes: Int
+
     fun resetRecordingSettings()
 
     fun fullPreferenceReset()

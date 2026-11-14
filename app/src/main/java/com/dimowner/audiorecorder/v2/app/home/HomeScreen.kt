@@ -418,6 +418,13 @@ internal fun HomeScreen(
         )
     }
     val bottomBar: @Composable () -> Unit = {
+        if (uiState.replayBufferSaveMinutes > 0 && !uiState.isRecording()) {
+            ReplayBufferSaveButton(
+                minutes = uiState.replayBufferSaveMinutes,
+                isSaving = uiState.isReplayBufferSaving,
+                onClick = { onAction(HomeScreenAction.SaveReplayBuffer) },
+            )
+        }
         BottomBar(
             onSettingsClick = { showSettingsScreen() },
             onRecordsListClick = { showRecordsScreen() },

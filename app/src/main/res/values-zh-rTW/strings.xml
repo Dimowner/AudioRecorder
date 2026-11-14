@@ -477,4 +477,19 @@
     <string name="name_format_preset_date_iso8601">日期 ISO 8601</string>
     <string name="name_format_preset_date_long">日期 (長)</string>
     <string name="name_format_preset_custom">自訂</string>
+    <!-- Instant replay -->
+    <string name="replay_buffer_title">即時重播</string>
+    <string name="replay_buffer_description">在背景錄音，僅保留最近幾分鐘，可隨時儲存。</string>
+    <string name="replay_buffer_duration">即時重播長度</string>
+    <string name="replay_buffer_duration_subtitle">約佔用 %s 儲存空間</string>
+    <string name="replay_buffer_option">%1$d 分鐘（%2$s）</string>
+    <string name="replay_buffer_channel_description">即時重播保留最近幾分鐘音訊時顯示</string>
+    <string name="replay_buffer_notification_title">即時重播已開啟</string>
+    <string name="replay_buffer_notification_text">正在保留最近 %d 分鐘</string>
+    <string name="replay_buffer_notification_paused">錄音時已暫停</string>
+    <string name="replay_buffer_saving">正在儲存…</string>
+    <string name="replay_buffer_save">儲存最近 %d 分鐘</string>
+    <string name="replay_buffer_nothing_to_save">目前沒有可儲存的內容</string>
+    <string name="replay_buffer_not_enough_space">可用空間不足，無法使用即時重播</string>
+    <string name="replay_buffer_start_failed">無法啟動即時重播：麥克風無法使用</string>
 </resources>

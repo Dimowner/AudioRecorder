@@ -443,4 +443,19 @@
     <string name="name_format_preset_date_iso8601">日期 ISO 8601</string>
     <string name="name_format_preset_date_long">日期 (长)</string>
     <string name="name_format_preset_custom">自定义</string>
+    <!-- Instant replay -->
+    <string name="replay_buffer_title">即时回放</string>
+    <string name="replay_buffer_description">在后台录音，仅保留最近几分钟，可随时保存。</string>
+    <string name="replay_buffer_duration">即时回放时长</string>
+    <string name="replay_buffer_duration_subtitle">约占用 %s 存储空间</string>
+    <string name="replay_buffer_option">%1$d 分钟（%2$s）</string>
+    <string name="replay_buffer_channel_description">即时回放保留最近几分钟音频时显示</string>
+    <string name="replay_buffer_notification_title">即时回放已开启</string>
+    <string name="replay_buffer_notification_text">正在保留最近 %d 分钟</string>
+    <string name="replay_buffer_notification_paused">录音时已暂停</string>
+    <string name="replay_buffer_saving">正在保存…</string>
+    <string name="replay_buffer_save">保存最近 %d 分钟</string>
+    <string name="replay_buffer_nothing_to_save">暂无可保存的内容</string>
+    <string name="replay_buffer_not_enough_space">可用空间不足，无法使用即时回放</string>
+    <string name="replay_buffer_start_failed">无法启动即时回放：麦克风不可用</string>
 </resources>

@@ -480,4 +480,19 @@
     <string name="name_format_preset_date_iso8601">Дата ISO 8601</string>
     <string name="name_format_preset_date_long">Дата полностью</string>
     <string name="name_format_preset_custom">Свой</string>
+    <!-- Instant replay -->
+    <string name="replay_buffer_title">Мгновенный повтор</string>
+    <string name="replay_buffer_description">Записывает в фоне и хранит только последние минуты. Сохраните их в любой момент.</string>
+    <string name="replay_buffer_duration">Длительность мгновенного повтора</string>
+    <string name="replay_buffer_duration_subtitle">Занимает около %s памяти</string>
+    <string name="replay_buffer_option">%1$d мин (%2$s)</string>
+    <string name="replay_buffer_channel_description">Показывается, пока мгновенный повтор хранит последние минуты звука</string>
+    <string name="replay_buffer_notification_title">Мгновенный повтор включён</string>
+    <string name="replay_buffer_notification_text">Хранит последние %d мин</string>
+    <string name="replay_buffer_notification_paused">Приостановлено на время записи</string>
+    <string name="replay_buffer_saving">Сохранение…</string>
+    <string name="replay_buffer_save">Сохранить последние %d мин</string>
+    <string name="replay_buffer_nothing_to_save">Пока нечего сохранять</string>
+    <string name="replay_buffer_not_enough_space">Недостаточно свободного места для мгновенного повтора</string>
+    <string name="replay_buffer_start_failed">Не удалось запустить мгновенный повтор: микрофон недоступен</string>
 </resources>

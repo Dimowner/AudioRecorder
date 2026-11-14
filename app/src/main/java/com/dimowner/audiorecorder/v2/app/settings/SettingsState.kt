@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.v2.app.settings
 
 import android.os.Parcelable
+import com.dimowner.audiorecorder.v2.audio.ReplayBufferConfig
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
@@ -52,6 +53,10 @@ data class SettingsState(
     val recordAuthorName: String,
     /** True when the user previously used V1 and intentionally switched to V2. */
     val isLegacyAppUser: Boolean = false,
+    /** Whether the instant replay buffer is turned on. */
+    val isReplayBufferEnabled: Boolean = false,
+    /** How many minutes the instant replay buffer keeps. */
+    val replayBufferMinutes: Int = ReplayBufferConfig.DEFAULT_DURATION_MINUTES,
 ) : Parcelable
 
 @Parcelize

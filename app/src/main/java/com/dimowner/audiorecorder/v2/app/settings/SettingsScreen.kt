@@ -46,6 +46,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -73,6 +74,8 @@ import com.dimowner.audiorecorder.v2.data.model.ChannelCount
 import com.dimowner.audiorecorder.v2.data.model.NameFormat
 import com.dimowner.audiorecorder.v2.data.model.RecordingFormat
 import com.dimowner.audiorecorder.v2.data.model.SampleRate
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import timber.log.Timber
 import androidx.compose.ui.platform.LocalResources
 
@@ -84,8 +87,19 @@ internal fun SettingsScreen(
     showNameFormatConstructorScreen: () -> Unit,
     uiState: SettingsState,
     onAction: (SettingsScreenAction) -> Unit,
+    event: Flow<SettingsScreenEvent> = emptyFlow(),
 ) {
     val context = LocalContext.current
+    val msgReplayNoSpace = stringResource(R.string.replay_buffer_not_enough_space)
+
+    LaunchedEffect(event) {
+        event.collect {
+            when (it) {
+                SettingsScreenEvent.ReplayBufferNotEnoughSpace ->
+                    Toast.makeText(context, msgReplayNoSpace, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
 
     val openInfoDialog = remember { mutableStateOf(false) }
     val openWarningDialog = remember { mutableStateOf(false) }
@@ -111,6 +125,8 @@ internal fun SettingsScreen(
                 Timber.d("SettingsScreen: On Resume")
                 //Pick up a format that was just built in the name format constructor.
                 onAction(SettingsScreenAction.RefreshNameFormat)
+                //Instant replay may have been stopped from its notification meanwhile.
+                onAction(SettingsScreenAction.RefreshReplayBuffer)
             }
 
             Lifecycle.Event.ON_PAUSE -> {
@@ -238,6 +254,12 @@ internal fun SettingsScreen(
                     currentValue = uiState.maxRecordingDurationMinutes,
                     onAction = onAction,
                     enabled = uiState.isRecordingSettingEditable,
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                ReplayBufferSettings(
+                    isEnabled = uiState.isReplayBufferEnabled,
+                    minutes = uiState.replayBufferMinutes,
+                    onAction = onAction,
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 SettingsItem(stringResource(R.string.rate_app), R.drawable.ic_thumbs) {

@@ -506,4 +506,19 @@
     <string name="name_format_preset_date_iso8601">Data ISO 8601</string>
     <string name="name_format_preset_date_long">Data długa</string>
     <string name="name_format_preset_custom">Niestandardowy</string>
+    <!-- Instant replay -->
+    <string name="replay_buffer_title">Natychmiastowa powtórka</string>
+    <string name="replay_buffer_description">Nagrywa w tle i przechowuje tylko ostatnie minuty. Zapisz je w dowolnej chwili.</string>
+    <string name="replay_buffer_duration">Długość natychmiastowej powtórki</string>
+    <string name="replay_buffer_duration_subtitle">Zajmuje około %s miejsca</string>
+    <string name="replay_buffer_option">%1$d min (%2$s)</string>
+    <string name="replay_buffer_channel_description">Wyświetlane, gdy natychmiastowa powtórka przechowuje ostatnie minuty dźwięku</string>
+    <string name="replay_buffer_notification_title">Natychmiastowa powtórka jest włączona</string>
+    <string name="replay_buffer_notification_text">Przechowuje ostatnie %d min</string>
+    <string name="replay_buffer_notification_paused">Wstrzymano podczas nagrywania</string>
+    <string name="replay_buffer_saving">Zapisywanie…</string>
+    <string name="replay_buffer_save">Zapisz ostatnie %d min</string>
+    <string name="replay_buffer_nothing_to_save">Nie ma jeszcze nic do zapisania</string>
+    <string name="replay_buffer_not_enough_space">Za mało wolnego miejsca na natychmiastową powtórkę</string>
+    <string name="replay_buffer_start_failed">Nie można uruchomić natychmiastowej powtórki: mikrofon niedostępny</string>
 </resources>

@@ -500,4 +500,19 @@
 	<!-- Label for a divider element that is a space character, U+2423 OPEN BOX -->
 	<string name="name_format_divider_space" translatable="false">␣</string>
 	<string name="name_format_preset_record" translatable="false">Record</string>
+    <!-- Instant replay -->
+    <string name="replay_buffer_title">Instant replay</string>
+    <string name="replay_buffer_description">Records in the background and keeps only the last minutes. Save them anytime.</string>
+    <string name="replay_buffer_duration">Instant replay length</string>
+    <string name="replay_buffer_duration_subtitle">Uses about %s of storage</string>
+    <string name="replay_buffer_option">%1$d min (%2$s)</string>
+    <string name="replay_buffer_channel_description">Shown while instant replay keeps the last minutes of audio</string>
+    <string name="replay_buffer_notification_title">Instant replay is on</string>
+    <string name="replay_buffer_notification_text">Keeping the last %d min</string>
+    <string name="replay_buffer_notification_paused">Paused while recording</string>
+    <string name="replay_buffer_saving">Saving…</string>
+    <string name="replay_buffer_save">Save last %d min</string>
+    <string name="replay_buffer_nothing_to_save">Nothing to save yet</string>
+    <string name="replay_buffer_not_enough_space">Not enough free space for instant replay</string>
+    <string name="replay_buffer_start_failed">Can\'t start instant replay: the microphone is unavailable</string>
 </resources>

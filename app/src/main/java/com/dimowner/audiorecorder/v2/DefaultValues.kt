@@ -33,6 +33,8 @@ object DefaultValues {
     const val IS_KEEP_SCREEN_ON: Boolean = false
     const val IS_SAVE_DESCRIPTION_TO_FILE: Boolean = true
     const val IS_ALWAYS_USE_BLUETOOTH_MIC: Boolean = false
+    /** Instant replay records the microphone in the background, so it is strictly opt-in. */
+    const val IS_REPLAY_BUFFER_ENABLED: Boolean = false
 
     val DefaultSampleRate: SampleRate = SampleRate.SR44100
     val DefaultBitRate: BitRate = BitRate.BR128

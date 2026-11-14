@@ -480,4 +480,19 @@
     <string name="name_format_preset_date_iso8601">Tarih ISO 8601</string>
     <string name="name_format_preset_date_long">Uzun tarih</string>
     <string name="name_format_preset_custom">Özel</string>
+    <!-- Instant replay -->
+    <string name="replay_buffer_title">Anında tekrar</string>
+    <string name="replay_buffer_description">Arka planda kaydeder ve yalnızca son dakikaları tutar. İstediğiniz zaman kaydedin.</string>
+    <string name="replay_buffer_duration">Anında tekrar süresi</string>
+    <string name="replay_buffer_duration_subtitle">Yaklaşık %s depolama alanı kullanır</string>
+    <string name="replay_buffer_option">%1$d dk (%2$s)</string>
+    <string name="replay_buffer_channel_description">Anında tekrar son dakikalardaki sesi tutarken gösterilir</string>
+    <string name="replay_buffer_notification_title">Anında tekrar açık</string>
+    <string name="replay_buffer_notification_text">Son %d dk tutuluyor</string>
+    <string name="replay_buffer_notification_paused">Kayıt sırasında duraklatıldı</string>
+    <string name="replay_buffer_saving">Kaydediliyor…</string>
+    <string name="replay_buffer_save">Son %d dk\'yı kaydet</string>
+    <string name="replay_buffer_nothing_to_save">Henüz kaydedilecek bir şey yok</string>
+    <string name="replay_buffer_not_enough_space">Anında tekrar için yeterli boş alan yok</string>
+    <string name="replay_buffer_start_failed">Anında tekrar başlatılamadı: mikrofon kullanılamıyor</string>
 </resources>

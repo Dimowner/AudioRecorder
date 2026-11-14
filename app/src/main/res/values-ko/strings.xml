@@ -480,4 +480,19 @@
     <string name="name_format_preset_date_iso8601">날짜 ISO 8601</string>
     <string name="name_format_preset_date_long">날짜 (긴 형식)</string>
     <string name="name_format_preset_custom">사용자 지정</string>
+    <!-- Instant replay -->
+    <string name="replay_buffer_title">즉시 다시 듣기</string>
+    <string name="replay_buffer_description">백그라운드에서 녹음하며 최근 몇 분만 보관합니다. 언제든지 저장할 수 있습니다.</string>
+    <string name="replay_buffer_duration">즉시 다시 듣기 길이</string>
+    <string name="replay_buffer_duration_subtitle">저장 공간 약 %s 사용</string>
+    <string name="replay_buffer_option">%1$d분 (%2$s)</string>
+    <string name="replay_buffer_channel_description">즉시 다시 듣기가 최근 오디오를 보관하는 동안 표시됩니다</string>
+    <string name="replay_buffer_notification_title">즉시 다시 듣기 켜짐</string>
+    <string name="replay_buffer_notification_text">최근 %d분 보관 중</string>
+    <string name="replay_buffer_notification_paused">녹음 중 일시 중지됨</string>
+    <string name="replay_buffer_saving">저장 중…</string>
+    <string name="replay_buffer_save">최근 %d분 저장</string>
+    <string name="replay_buffer_nothing_to_save">아직 저장할 내용이 없습니다</string>
+    <string name="replay_buffer_not_enough_space">즉시 다시 듣기에 필요한 여유 공간이 부족합니다</string>
+    <string name="replay_buffer_start_failed">즉시 다시 듣기를 시작할 수 없음: 마이크를 사용할 수 없습니다</string>
 </resources>

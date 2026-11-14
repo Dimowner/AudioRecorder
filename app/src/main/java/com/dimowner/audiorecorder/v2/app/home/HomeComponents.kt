@@ -50,6 +50,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -842,4 +843,45 @@ fun TimePanelRecordingProgressPreview() {
         onDescriptionClick = {},
         onProgressChange = {},
     )
+}
+
+/**
+ * Saves the last minutes held by the instant replay buffer as a new record. Shown above the
+ * recording controls only while the buffer runs.
+ */
+@Composable
+fun ReplayBufferSaveButton(
+    minutes: Int,
+    isSaving: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        FilledTonalButton(onClick = onClick, enabled = !isSaving) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_history),
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = if (isSaving) {
+                    stringResource(R.string.replay_buffer_saving)
+                } else {
+                    stringResource(R.string.replay_buffer_save, minutes)
+                }
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ReplayBufferSaveButtonPreview() {
+    ReplayBufferSaveButton(minutes = 10, isSaving = false, onClick = {})
 }

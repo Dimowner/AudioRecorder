@@ -77,6 +77,9 @@ import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.PlaybackSpeed
 import com.dimowner.audiorecorder.v2.data.model.Record
 import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
+import com.dimowner.audiorecorder.v2.audio.ReplayBufferRecorder
+import com.dimowner.audiorecorder.v2.audio.ReplayBufferState
+import com.dimowner.audiorecorder.v2.audio.ReplayBufferService
 import com.dimowner.audiorecorder.v2.data.model.isSystemAudioCaptureSupported
 import com.dimowner.audiorecorder.v2.di.qualifiers.IoDispatcher
 import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
@@ -105,6 +108,7 @@ class HomeViewModel @Inject constructor(
     private val audioPlayer: PlayerContractNew.Player,
     private val audioManagerHelper: AudioManagerHelper,
     private val analyticsTracker: AnalyticsTracker,
+    private val replayBufferRecorder: ReplayBufferRecorder,
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @ApplicationContext context: Context,
@@ -210,6 +214,27 @@ class HomeViewModel @Inject constructor(
         bindPlaybackService()
         bindRecordingService()
         subscribePlayerUpdates()
+
+        viewModelScope.launch {
+            replayBufferRecorder.state.collect { replay ->
+                _state.value = _state.value.copy(
+                    replayBufferSaveMinutes = replay.saveButtonMinutes(),
+                    isReplayBufferSaving = replay.isSaving,
+                )
+            }
+        }
+        viewModelScope.launch {
+            replayBufferRecorder.savedRecords.collect { recordId ->
+                // Open the saved clip the way a just-stopped recording opens, unless that would
+                // swap the record out from under playback or a recording in progress.
+                if (!audioPlayer.isPlaying() && !audioPlayer.isPaused() && !_state.value.isRecording()) {
+                    withContext(ioDispatcher) {
+                        prefs.activeRecordId = recordId
+                        updateState()
+                    }
+                }
+            }
+        }
 
         // Register AudioManagerHelper and subscribe to Bluetooth mic state
         _state.value = _state.value.copy(alwaysUseBluetoothMic = prefs.alwaysUseBluetoothMic)
@@ -571,6 +596,12 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onStart() {
+        // The instant replay buffer has no boot start and is not sticky, so it is (re)started
+        // whenever the app comes to the foreground - the only time Android 14 allows it.
+        ReplayBufferService.startIfEnabled(
+            getApplication<Application>().applicationContext, prefs, replayBufferRecorder
+        )
+
         // Re-subscribe to recording service flows if the service is already bound
         // but the jobs were cancelled (e.g. after navigating away and back).
         recordingService?.let { service ->
@@ -742,6 +773,8 @@ class HomeViewModel @Inject constructor(
                     // otherwise devices detected before this reset never reappear
                     // (bluetoothMicState is a StateFlow and won't re-emit an unchanged value).
                     val bluetoothState = audioManagerHelper.bluetoothMicState.value
+                    // Same for the instant replay save button: its StateFlow won't re-emit either.
+                    val replayState = replayBufferRecorder.state.value
                     _state.value = HomeScreenState(
                         bottomBarState = bottomBarState,
                         waveformState = WaveformState(),
@@ -751,6 +784,8 @@ class HomeViewModel @Inject constructor(
                         connectedBluetoothDevices = bluetoothState.connectedDevices,
                         selectedBluetoothDevice = bluetoothState.selectedDevice,
                         alwaysUseBluetoothMic = prefs.alwaysUseBluetoothMic,
+                        replayBufferSaveMinutes = replayState.saveButtonMinutes(),
+                        isReplayBufferSaving = replayState.isSaving,
                         // Preserve a pending local-storage info dialog across this full reset.
 //                        showLocalStorageInfoDialog = _state.value.showLocalStorageInfoDialog,
                     )
@@ -758,6 +793,14 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    /**
+     * Length shown on the home screen's instant replay save button, or 0 to hide it: offered only
+     * while there is something to save and the recorder isn't busy with a regular recording (the
+     * bottom bar owns that state).
+     */
+    private fun ReplayBufferState.saveButtonMinutes(): Int =
+        if (isRunning && !isPausedForRecording) durationMinutes else 0
 
     private fun RecordingServiceState?.toBottomBarState(): BottomBarState {
         return if (this?.isPaused() == true) {
@@ -1281,6 +1324,8 @@ class HomeViewModel @Inject constructor(
                 }
             }
             HomeScreenAction.OnStopHomeScreen -> onStop()
+            HomeScreenAction.SaveReplayBuffer ->
+                ReplayBufferService.save(getApplication<Application>().applicationContext)
             is HomeScreenAction.ImportAudioFile -> importAudioFile(action.uri)
             HomeScreenAction.ShareActiveRecord -> shareActiveRecord()
             HomeScreenAction.ShowActiveRecordInfo -> showActiveRecordInfo()
@@ -1496,6 +1541,9 @@ class HomeViewModel @Inject constructor(
 
 data class HomeScreenState(
     val waveformState: WaveformState = WaveformState(),
+    /** Length of the running instant replay buffer, or 0 when its save button is hidden. */
+    val replayBufferSaveMinutes: Int = 0,
+    val isReplayBufferSaving: Boolean = false,
     val startTime: String = "",
     val endTime: String = "",
     val time: String = TimeUtils.formatTimeIntervalHourMinSec2(0),
@@ -1566,6 +1614,7 @@ sealed class HomeScreenAction {
     data object OnStartHomeScreen : HomeScreenAction()
     data object LoadActiveRecordAndPlay : HomeScreenAction()
     data object OnStopHomeScreen : HomeScreenAction()
+    data object SaveReplayBuffer : HomeScreenAction()
     data class ImportAudioFile(val uri: Uri) : HomeScreenAction()
     data object ShareActiveRecord : HomeScreenAction()
     data object ShowActiveRecordInfo : HomeScreenAction()

@@ -488,4 +488,19 @@
     <string name="name_format_preset_date_iso8601">Data ISO 8601</string>
     <string name="name_format_preset_date_long">Data longa</string>
     <string name="name_format_preset_custom">Personalizado</string>
+    <!-- Instant replay -->
+    <string name="replay_buffer_title">Repetição instantânea</string>
+    <string name="replay_buffer_description">Grava em segundo plano e mantém apenas os últimos minutos. Guarde-os quando quiser.</string>
+    <string name="replay_buffer_duration">Duração da repetição instantânea</string>
+    <string name="replay_buffer_duration_subtitle">Utiliza cerca de %s de armazenamento</string>
+    <string name="replay_buffer_option">%1$d min (%2$s)</string>
+    <string name="replay_buffer_channel_description">Mostrada enquanto a repetição instantânea guarda os últimos minutos de áudio</string>
+    <string name="replay_buffer_notification_title">A repetição instantânea está ativada</string>
+    <string name="replay_buffer_notification_text">A guardar os últimos %d min</string>
+    <string name="replay_buffer_notification_paused">Em pausa durante a gravação</string>
+    <string name="replay_buffer_saving">A guardar…</string>
+    <string name="replay_buffer_save">Guardar últimos %d min</string>
+    <string name="replay_buffer_nothing_to_save">Ainda não há nada para guardar</string>
+    <string name="replay_buffer_not_enough_space">Espaço livre insuficiente para a repetição instantânea</string>
+    <string name="replay_buffer_start_failed">Não foi possível iniciar a repetição instantânea: microfone indisponível</string>
 </resources>

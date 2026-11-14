@@ -488,4 +488,19 @@
     <string name="name_format_preset_date_iso8601">日付 ISO 8601</string>
     <string name="name_format_preset_date_long">日付 (長)</string>
     <string name="name_format_preset_custom">カスタム</string>
+    <!-- Instant replay -->
+    <string name="replay_buffer_title">インスタントリプレイ</string>
+    <string name="replay_buffer_description">バックグラウンドで録音し、直近の数分だけを保持します。いつでも保存できます。</string>
+    <string name="replay_buffer_duration">インスタントリプレイの長さ</string>
+    <string name="replay_buffer_duration_subtitle">約%sのストレージを使用</string>
+    <string name="replay_buffer_option">%1$d分 (%2$s)</string>
+    <string name="replay_buffer_channel_description">インスタントリプレイが直近の音声を保持している間に表示されます</string>
+    <string name="replay_buffer_notification_title">インスタントリプレイがオンです</string>
+    <string name="replay_buffer_notification_text">直近%d分を保持中</string>
+    <string name="replay_buffer_notification_paused">録音中は一時停止しています</string>
+    <string name="replay_buffer_saving">保存中…</string>
+    <string name="replay_buffer_save">直近%d分を保存</string>
+    <string name="replay_buffer_nothing_to_save">保存するものがまだありません</string>
+    <string name="replay_buffer_not_enough_space">インスタントリプレイ用の空き容量が不足しています</string>
+    <string name="replay_buffer_start_failed">インスタントリプレイを開始できません：マイクを使用できません</string>
 </resources>

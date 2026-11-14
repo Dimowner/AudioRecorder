@@ -17,6 +17,7 @@
 package com.dimowner.audiorecorder.v2.app.settings
 
 import android.content.Context
+import android.os.StatFs
 import android.os.Parcelable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -34,6 +35,8 @@ import com.dimowner.audiorecorder.v2.app.formatSampleRate
 import com.dimowner.audiorecorder.v2.app.recordingSettingsCombinedText
 import com.dimowner.audiorecorder.v2.app.removeOutdatedTrashRecords
 import com.dimowner.audiorecorder.v2.audio.AudioRecorderDelegate
+import com.dimowner.audiorecorder.v2.audio.ReplayBufferConfig
+import com.dimowner.audiorecorder.v2.audio.ReplayBufferService
 import com.dimowner.audiorecorder.v2.analytics.AnalyticsTracker
 import com.dimowner.audiorecorder.v2.data.FileDataSource
 import com.dimowner.audiorecorder.v2.data.PrefsV2
@@ -49,6 +52,8 @@ import com.dimowner.audiorecorder.v2.di.qualifiers.MainDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.DecimalFormat
@@ -90,6 +95,11 @@ internal class SettingsViewModel @Inject constructor(
     private val _state: MutableState<SettingsState> = mutableStateOf(createDefaultState(context))
 
     val state: State<SettingsState> = _state
+
+    private val appContext: Context = context.applicationContext
+
+    private val _event = MutableSharedFlow<SettingsScreenEvent>(extraBufferCapacity = 1)
+    val event: SharedFlow<SettingsScreenEvent> = _event
 
     private fun createDefaultState(context: Context): SettingsState {
         return SettingsState(
@@ -150,6 +160,8 @@ internal class SettingsViewModel @Inject constructor(
             maxRecordingDurationMinutes = prefs.maxRecordingDurationMills / 60000,
             recordAuthorName = prefs.recordAuthorName,
             isLegacyAppUser = prefs.isLegacyAppUser,
+            isReplayBufferEnabled = prefs.isReplayBufferEnabled,
+            replayBufferMinutes = prefs.replayBufferDurationMinutes,
             selectedAudioSource = prefs.settingAudioSource,
             audioSourceOptions = supportedAudioSources(),
         )
@@ -428,6 +440,58 @@ internal class SettingsViewModel @Inject constructor(
         _state.value = _state.value.copy(recordAuthorName = trimmed)
     }
 
+    /**
+     * Turns the instant replay buffer on or off. The screen calls this with `true` only once
+     * RECORD_AUDIO is granted; free space is checked here, and a refusal leaves it off.
+     */
+    fun setReplayBufferEnabled(enabled: Boolean) {
+        if (enabled && !hasSpaceForReplayBuffer(prefs.replayBufferDurationMinutes)) {
+            _event.tryEmit(SettingsScreenEvent.ReplayBufferNotEnoughSpace)
+            _state.value = _state.value.copy(isReplayBufferEnabled = false)
+            return
+        }
+        prefs.isReplayBufferEnabled = enabled
+        _state.value = _state.value.copy(isReplayBufferEnabled = enabled)
+        if (enabled) {
+            ReplayBufferService.start(appContext)
+        } else {
+            ReplayBufferService.stop(appContext)
+        }
+    }
+
+    /**
+     * Changes the instant replay length. A running buffer restarts with the new length, which
+     * discards what it held: a ring buffer can't be resized without reordering its contents.
+     */
+    fun setReplayBufferDuration(minutes: Int) {
+        val sanitized = ReplayBufferConfig.sanitizeMinutes(minutes)
+        if (sanitized == prefs.replayBufferDurationMinutes) return
+        if (prefs.isReplayBufferEnabled && !hasSpaceForReplayBuffer(sanitized)) {
+            _event.tryEmit(SettingsScreenEvent.ReplayBufferNotEnoughSpace)
+            return
+        }
+        prefs.replayBufferDurationMinutes = sanitized
+        _state.value = _state.value.copy(replayBufferMinutes = sanitized)
+        if (prefs.isReplayBufferEnabled) {
+            ReplayBufferService.start(appContext)
+        }
+    }
+
+    /** Picks up a change made outside this screen, e.g. Stop tapped in the notification. */
+    private fun refreshReplayBuffer() {
+        _state.value = _state.value.copy(
+            isReplayBufferEnabled = prefs.isReplayBufferEnabled,
+            replayBufferMinutes = prefs.replayBufferDurationMinutes,
+        )
+    }
+
+    private fun hasSpaceForReplayBuffer(minutes: Int): Boolean =
+        ReplayBufferConfig.hasEnoughSpace(
+            minutes = minutes,
+            bufferDirFreeBytes = StatFs(ReplayBufferService.bufferDirectory(appContext).path).availableBytes,
+            recordsDirFreeBytes = fileDataSource.getAvailableSpace(),
+        )
+
     fun onAction(action: SettingsScreenAction) {
         when (action) {
             SettingsScreenAction.InitSettingsScreen -> initSettings()
@@ -448,6 +512,9 @@ internal class SettingsViewModel @Inject constructor(
             SettingsScreenAction.ExecuteFirstRun -> executeFirstRun()
             is SettingsScreenAction.SetAppV2 -> handleUseAppV2(action.value)
             SettingsScreenAction.UnlockLegacyAppSwitch -> unlockLegacyAppSwitch()
+            is SettingsScreenAction.SetReplayBufferEnabled -> setReplayBufferEnabled(action.value)
+            is SettingsScreenAction.SetReplayBufferDuration -> setReplayBufferDuration(action.minutes)
+            SettingsScreenAction.RefreshReplayBuffer -> refreshReplayBuffer()
         }
     }
 
@@ -515,4 +582,11 @@ internal sealed class SettingsScreenAction {
     data class SetRecordAuthorName(val name: String) : SettingsScreenAction()
     data object ExecuteFirstRun : SettingsScreenAction()
     data object UnlockLegacyAppSwitch : SettingsScreenAction()
+    data class SetReplayBufferEnabled(val value: Boolean) : SettingsScreenAction()
+    data class SetReplayBufferDuration(val minutes: Int) : SettingsScreenAction()
+    data object RefreshReplayBuffer : SettingsScreenAction()
+}
+
+internal sealed class SettingsScreenEvent {
+    data object ReplayBufferNotEnoughSpace : SettingsScreenEvent()
 }

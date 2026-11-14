@@ -487,4 +487,19 @@
     <string name="name_format_preset_date_iso8601">Datum ISO 8601</string>
     <string name="name_format_preset_date_long">Datum lang</string>
     <string name="name_format_preset_custom">Benutzerdefiniert</string>
+    <!-- Instant replay -->
+    <string name="replay_buffer_title">Sofortwiederholung</string>
+    <string name="replay_buffer_description">Nimmt im Hintergrund auf und behält nur die letzten Minuten. Jederzeit speicherbar.</string>
+    <string name="replay_buffer_duration">Länge der Sofortwiederholung</string>
+    <string name="replay_buffer_duration_subtitle">Belegt etwa %s Speicherplatz</string>
+    <string name="replay_buffer_option">%1$d Min. (%2$s)</string>
+    <string name="replay_buffer_channel_description">Wird angezeigt, während die Sofortwiederholung die letzten Minuten Audio aufbewahrt</string>
+    <string name="replay_buffer_notification_title">Sofortwiederholung ist aktiv</string>
+    <string name="replay_buffer_notification_text">Behält die letzten %d Min.</string>
+    <string name="replay_buffer_notification_paused">Während der Aufnahme pausiert</string>
+    <string name="replay_buffer_saving">Wird gespeichert…</string>
+    <string name="replay_buffer_save">Letzte %d Min. speichern</string>
+    <string name="replay_buffer_nothing_to_save">Noch nichts zum Speichern</string>
+    <string name="replay_buffer_not_enough_space">Nicht genug freier Speicher für die Sofortwiederholung</string>
+    <string name="replay_buffer_start_failed">Sofortwiederholung kann nicht starten: Mikrofon nicht verfügbar</string>
 </resources>

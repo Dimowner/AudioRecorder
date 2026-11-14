@@ -157,6 +157,12 @@
             android:name=".v2.audio.AudioRecordingService"
             android:exported="false"
             android:foregroundServiceType="microphone|mediaProjection" />
+        <!-- Instant replay: keeps the last N minutes of microphone audio. Never started at boot;
+             Android 14 blocks microphone foreground services started from the background. -->
+        <service
+            android:name=".v2.audio.ReplayBufferService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
 
         <receiver android:name=".app.RecordingService$StopRecordingReceiver" android:exported="false" />
         <receiver android:name=".app.PlaybackService$StopPlaybackReceiver" android:exported="false" />

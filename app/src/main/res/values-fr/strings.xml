@@ -458,4 +458,19 @@
     <string name="name_format_preset_date_iso8601">Date ISO 8601</string>
     <string name="name_format_preset_date_long">Date longue</string>
     <string name="name_format_preset_custom">Personnalisé</string>
+    <!-- Instant replay -->
+    <string name="replay_buffer_title">Relecture instantanée</string>
+    <string name="replay_buffer_description">Enregistre en arrière-plan et ne garde que les dernières minutes. Enregistrez-les à tout moment.</string>
+    <string name="replay_buffer_duration">Durée de la relecture instantanée</string>
+    <string name="replay_buffer_duration_subtitle">Utilise environ %s de stockage</string>
+    <string name="replay_buffer_option">%1$d min (%2$s)</string>
+    <string name="replay_buffer_channel_description">Affichée pendant que la relecture instantanée conserve les dernières minutes audio</string>
+    <string name="replay_buffer_notification_title">La relecture instantanée est activée</string>
+    <string name="replay_buffer_notification_text">Conserve les %d dernières min</string>
+    <string name="replay_buffer_notification_paused">En pause pendant l\'enregistrement</string>
+    <string name="replay_buffer_saving">Sauvegarde…</string>
+    <string name="replay_buffer_save">Sauvegarder les %d dernières min</string>
+    <string name="replay_buffer_nothing_to_save">Rien à sauvegarder pour l\'instant</string>
+    <string name="replay_buffer_not_enough_space">Espace libre insuffisant pour la relecture instantanée</string>
+    <string name="replay_buffer_start_failed">Impossible de démarrer la relecture instantanée : micro indisponible</string>
 </resources>

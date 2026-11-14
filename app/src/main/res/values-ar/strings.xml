@@ -518,4 +518,19 @@
     <string name="name_format_preset_date_iso8601">تاريخ ISO 8601</string>
     <string name="name_format_preset_date_long">تاريخ مطوَّل</string>
     <string name="name_format_preset_custom">مخصص</string>
+    <!-- Instant replay -->
+    <string name="replay_buffer_title">إعادة التشغيل الفوري</string>
+    <string name="replay_buffer_description">يسجّل في الخلفية ويحتفظ بآخر الدقائق فقط. احفظها في أي وقت.</string>
+    <string name="replay_buffer_duration">مدة إعادة التشغيل الفوري</string>
+    <string name="replay_buffer_duration_subtitle">يستخدم حوالي %s من مساحة التخزين</string>
+    <string name="replay_buffer_option">%1$d دقيقة (%2$s)</string>
+    <string name="replay_buffer_channel_description">يظهر بينما تحتفظ إعادة التشغيل الفوري بآخر دقائق من الصوت</string>
+    <string name="replay_buffer_notification_title">إعادة التشغيل الفوري قيد التشغيل</string>
+    <string name="replay_buffer_notification_text">يحتفظ بآخر %d دقيقة</string>
+    <string name="replay_buffer_notification_paused">متوقف مؤقتًا أثناء التسجيل</string>
+    <string name="replay_buffer_saving">جارٍ الحفظ…</string>
+    <string name="replay_buffer_save">حفظ آخر %d دقيقة</string>
+    <string name="replay_buffer_nothing_to_save">لا يوجد شيء للحفظ بعد</string>
+    <string name="replay_buffer_not_enough_space">لا توجد مساحة كافية لإعادة التشغيل الفوري</string>
+    <string name="replay_buffer_start_failed">تعذر بدء إعادة التشغيل الفوري: الميكروفون غير متاح</string>
 </resources>

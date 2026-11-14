@@ -22,6 +22,7 @@ import com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_APP_V2
 import com.dimowner.audiorecorder.AppConstants.PREF_KEY_IS_LEGACY_APP_USER
 import com.dimowner.audiorecorder.AppConstants.PREF_NAME
 import com.dimowner.audiorecorder.v2.DefaultValues
+import com.dimowner.audiorecorder.v2.audio.ReplayBufferConfig
 import com.dimowner.audiorecorder.v2.data.model.AudioSource
 import com.dimowner.audiorecorder.v2.data.model.BitRate
 import com.dimowner.audiorecorder.v2.data.model.ChannelCount
@@ -315,6 +316,29 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
             }
         }
 
+    override var isReplayBufferEnabled: Boolean
+        get() = sharedPreferences.getBoolean(
+            PREF_KEY_IS_REPLAY_BUFFER_ENABLED, DefaultValues.IS_REPLAY_BUFFER_ENABLED
+        )
+        set(value) {
+            sharedPreferences.edit {
+                putBoolean(PREF_KEY_IS_REPLAY_BUFFER_ENABLED, value)
+            }
+        }
+
+    override var replayBufferDurationMinutes: Int
+        get() = ReplayBufferConfig.sanitizeMinutes(
+            sharedPreferences.getInt(
+                PREF_KEY_REPLAY_BUFFER_DURATION_MINUTES,
+                ReplayBufferConfig.DEFAULT_DURATION_MINUTES
+            )
+        )
+        set(value) {
+            sharedPreferences.edit {
+                putInt(PREF_KEY_REPLAY_BUFFER_DURATION_MINUTES, ReplayBufferConfig.sanitizeMinutes(value))
+            }
+        }
+
     override fun resetRecordingSettings() {
         sharedPreferences.edit {
             putString(
@@ -358,5 +382,7 @@ class PrefsV2Impl @Inject internal constructor(@ApplicationContext context: Cont
         private const val PREF_KEY_IS_LOCAL_STORAGE_INFO_SHOWN = "pref_key_is_local_storage_info_shown"
         private const val PREF_KEY_CUSTOM_NAME_FORMAT = "pref_key_custom_name_format"
         private const val PREF_KEY_ALWAYS_USE_BLUETOOTH_MIC = "pref_key_always_use_bluetooth_mic"
+        private const val PREF_KEY_IS_REPLAY_BUFFER_ENABLED = "pref_key_is_replay_buffer_enabled"
+        private const val PREF_KEY_REPLAY_BUFFER_DURATION_MINUTES = "pref_key_replay_buffer_duration_minutes"
     }
 }
